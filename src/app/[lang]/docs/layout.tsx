@@ -2,7 +2,6 @@ import { DocsLayout } from "fumadocs-ui/layouts/docs";
 import { source } from "@/lib/source";
 import { baseOptions } from "@/lib/layout.shared";
 import { DocsFooter } from "./docs-banner";
-import { ViewTransition } from "react";
 import { localizePageTree } from "@/lib/tree-localization";
 
 export default async function Layout({
@@ -18,17 +17,15 @@ export default async function Layout({
   });
 
   return (
-    <ViewTransition update="none">
-      <div className="flex min-h-screen flex-col">
-        <DocsLayout
-          tree={tree}
-          {...baseOptions(lang, true)}
-          githubUrl="https://github.com/DivineSkins/divine-wiki"
-        >
-          {children}
-          <DocsFooter />
-        </DocsLayout>
-      </div>
-    </ViewTransition>
+    <div className="flex min-h-screen flex-col">
+      <DocsLayout
+        tree={tree}
+        {...baseOptions(lang, true)}
+        githubUrl="https://github.com/DivineSkins/divine-wiki"
+      >
+        {children}
+        <DocsFooter />
+      </DocsLayout>
+    </div>
   );
 }

@@ -1,4 +1,4 @@
-import { ViewTransition, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { HomeLayout } from "fumadocs-ui/layouts/home";
 import { baseOptions } from "@/lib/layout.shared";
 import { Metadata } from "next";
@@ -18,13 +18,11 @@ export default async function Layout({
 }) {
   const { lang } = await params;
   return (
-    <ViewTransition update="none">
-      <HomeLayout
-        {...baseOptions(lang)}
-        className="flex min-h-screen flex-col"
-      >
-        {children}
-      </HomeLayout>
-    </ViewTransition>
+    <HomeLayout
+      {...baseOptions(lang)}
+      className="flex min-h-screen flex-col"
+    >
+      {children}
+    </HomeLayout>
   );
 }

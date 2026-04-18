@@ -41,6 +41,15 @@ export const docs = defineDocs({
 
 export default defineConfig({
   mdxOptions: {
+    // Don't prefetch dimensions of external images at build time. The
+    // migrated content links to third-party CDNs (postimg.cc, YouTube
+    // thumbnails) that can't be reached reliably; a single timeout would
+    // crash the whole page compile. Local /public/wiki-images/* still get
+    // dimensions because they live on disk.
+    remarkImageOptions: {
+      external: false,
+      onError: "ignore",
+    },
     rehypeCodeOptions: {
       langs: ["bash", "json", "python", "javascript", "typescript"],
       themes: {
