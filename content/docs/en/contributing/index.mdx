@@ -1,0 +1,113 @@
+---
+title: How to Contribute
+description: Edit guides or write new ones. Two paths — one in the browser, one local. Both end with a pull request a maintainer reviews and merges.
+---
+
+The Divine Skins Wiki is a public GitHub repo. Every guide is a Markdown file. To change a guide or add one, open a pull request. A maintainer reviews it, then merges. The merge ships the change live within minutes.
+
+## Two ways to contribute
+
+| Path | Best for | What you need |
+|---|---|---|
+| **Edit in browser** | Fixes, typos, single-page changes | A GitHub account |
+| **Edit locally** | New categories, big rewrites, image-heavy guides | Node 22+, Git, an editor |
+
+If you only want to fix a typo, use **Edit in browser**. It takes one minute.
+
+## Edit in browser
+
+1. Open the guide you want to fix.
+2. Scroll to the bottom. Click **Edit on GitHub**.
+3. On GitHub, click the pencil icon (top right of the file).
+4. Make your changes.
+5. Scroll down. Pick "Create a new branch for this commit and start a pull request".
+6. Click **Propose changes**, then **Create pull request**.
+
+That's it. A maintainer will see it, review it, and merge it.
+
+## Edit locally
+
+Use this path for new pages, new categories, or anything image-heavy.
+
+1. Fork the repo at [github.com/DivineSkins/divine-wiki](https://github.com/DivineSkins/divine-wiki).
+2. Clone your fork:
+   ```bash
+   git clone https://github.com/<your-username>/divine-wiki.git
+   cd divine-wiki
+   ```
+3. Install:
+   ```bash
+   npm install
+   ```
+4. Start the dev server:
+   ```bash
+   npm run dev
+   ```
+5. Open `http://localhost:3000`. Confirm the site loads.
+6. Make a branch:
+   ```bash
+   git checkout -b add-my-guide
+   ```
+7. Make your changes (see **Add a new guide** below).
+8. Commit, push, open a pull request to `main`.
+
+## Add a new guide
+
+A guide is one `.mdx` file under `content/docs/en/<category>/`.
+
+1. Pick a category (e.g. `tools`, `maya`, `blender`).
+2. Create a file like `content/docs/en/tools/my-tool.mdx`. Use kebab-case for the filename.
+3. Paste this template:
+
+   ```mdx
+   ---
+   title: My Tool
+   description: One sentence about what this is and who it's for. About 160 characters.
+   ---
+
+   ## What it is
+
+   Write here.
+   ```
+
+4. Open `content/docs/en/<category>/meta.json`. Add your slug to the `pages` array in the position you want it to appear in the sidebar.
+5. Run `npm run dev` and confirm your page renders at `/en/docs/<category>/<slug>`.
+6. Commit and open a PR.
+
+## Add images
+
+Drop images into `public/wiki-images/` in the same pull request. Reference them in your guide like this:
+
+```mdx
+<img src="/wiki-images/your-screenshot.png" alt="Short description of the image" />
+```
+
+Rules:
+
+- Filenames use lowercase and dashes (`my-screenshot.png`, not `My Screenshot.png`).
+- Every image needs an `alt` attribute. The lint check blocks merges otherwise.
+- Keep each file under **500 KB**. Bigger files slow the site build.
+- PNG for screenshots, JPG for photos. WebP is fine too.
+
+## What happens after you open a PR
+
+1. Cloudflare Pages builds a preview. It posts a link as a comment on your PR — open it to see your changes live.
+2. CI runs lint checks: spelling, dead links, Markdown style, alt-text. Fix anything it flags.
+3. A maintainer reviews. They may ask for small changes.
+4. Once approved, the PR gets merged. Within a few minutes, your change is live on `wiki.divineskins.gg`.
+
+## Style and safety rules
+
+Before you write, read [the voice guide](https://github.com/DivineSkins/divine-wiki/blob/main/docs/voice.md). Reviewers reject PRs that miss the voice.
+
+A few rules that block merges:
+
+- **Banned words.** Don't write `skin hack`, `skin changer`, `unlock skins`, `undetectable`, `free-to-play skins`, or `exploit`. Use `custom skin`, `safe`, `customize`, or `download` instead.
+- **No KR / CN server advice.** Never tell readers to use custom skins on Korean or Chinese League servers. Anti-cheat there is strict. Accounts get banned.
+- **Safety callouts.** Any guide that touches install or region settings needs a warning callout near the top.
+
+## Need help?
+
+- **Voice or style questions:** check [`docs/voice.md`](https://github.com/DivineSkins/divine-wiki/blob/main/docs/voice.md) and [`docs/playbook.md`](https://github.com/DivineSkins/divine-wiki/blob/main/docs/playbook.md).
+- **Bigger changes (new category, restructure, mass rename):** start a thread in `#wiki-proposals` on Discord first. Saves you from doing work that gets rejected.
+- **Stuck on Git or the editor:** ask in `#wiki-help` on Discord.
