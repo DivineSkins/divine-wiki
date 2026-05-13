@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
 
+import { cn } from "@/lib/utils";
+
 type Variant = "primary" | "secondary" | "ghost";
 type Size = "md" | "lg";
 
@@ -18,7 +20,8 @@ const SIZE_CLASSES: Record<Size, string> = {
 
 const BASE_CLASSES =
   "inline-flex items-center justify-center gap-2 rounded-full " +
-  "font-[var(--font-ui)] font-bold whitespace-nowrap no-underline";
+  "font-[var(--font-ui)] font-bold whitespace-nowrap no-underline " +
+  "outline-none focus-visible:ring-2 focus-visible:ring-divine-primary-light/70 focus-visible:ring-offset-2 focus-visible:ring-offset-divine-bg";
 
 const VARIANT_CLASSES: Record<Variant, string> = {
   primary:
@@ -50,7 +53,11 @@ export function GlowCTA({
     ? { target: "_blank", rel: "noopener noreferrer" }
     : {};
 
-  const className = `${BASE_CLASSES} ${SIZE_CLASSES[size]} ${VARIANT_CLASSES[variant]}`;
+  const className = cn(
+    BASE_CLASSES,
+    SIZE_CLASSES[size],
+    VARIANT_CLASSES[variant],
+  );
   const style = variant === "primary" ? PRIMARY_GLOW : undefined;
 
   return (
