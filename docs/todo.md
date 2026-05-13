@@ -22,7 +22,7 @@ Right now every category (`tools/`, `maya/`, `vfx-bins/`, etc.) is a flat list o
 ### Gotchas
 
 - Moving an MDX file changes its URL. Either set up redirects in `public/_redirects`, or change paths before we send out a lot of external links.
-- Don't break the `/contribute` flow — it writes `content/docs/en/<category>/<slug>.mdx`. If we add a subfolder layer, the visual editor needs to know.
+- Contributors edit via GitHub (browser or local fork) and open a PR. If we add a subfolder layer, update `/docs/contributing` so the documented paths match.
 
 ---
 
@@ -82,5 +82,5 @@ The FAQ page (`content/docs/en/guided-walkthrough/index.mdx`) still feels bland.
 
 - Translations / Crowdin re-sync.
 - R2 image CDN migration.
-- Turnstile / PostHog re-enable.
-- /contribute editor improvements.
+- PostHog re-enable.
+- `/docs/contributing` polish.

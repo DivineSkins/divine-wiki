@@ -8,7 +8,7 @@ How the wiki is wired. Read this before editing anything outside `content/`.
 - **Fumadocs 16** renders docs pages from MDX; the rest of the app is plain Next.
 - **Cloudflare Pages** runs the build as an SSR Next app; `public/_redirects` + `public/_headers` handle edge rules without a Function invocation.
 - **No database.** All content is MDX in the repo. No server-side session, no user store.
-- **One external data path at runtime**: GitHub API, from `/api/submit` (PR creation) and `/api/oauth/github` (login). Both cookie-scoped, 8h TTL.
+- **No backend submission flow.** Contributors edit guides via GitHub (browser or local fork) and open a PR.
 
 ## Request map
 
@@ -17,10 +17,7 @@ How the wiki is wired. Read this before editing anything outside `content/`.
 | `/` | redirect → `/en` | `next.config.mjs` redirect (permanent) |
 | `/en`, `/fr-FR`, `/tr-TR`, `/pt-BR` | `src/app/[lang]/(home)/page.tsx` | Landing (icon-tile grid) |
 | `/{lang}/docs/{...slug}` | `src/app/[lang]/docs/[[...slug]]/page.tsx` | Fumadocs `DocsPage` + MDX |
-| `/{lang}/contribute` | `src/app/[lang]/contribute/page.tsx` | MDXEditor (client-only, dynamic import, `ssr:false`) |
-| `/api/oauth/github` | GitHub OAuth kickoff + callback | State CSRF cookie, sets `divine_gh_token` + `divine_gh_user` |
-| `/api/submit` | POST contribute payload | Zod validates, 7-day account check, opens fork-based PR via `@octokit/rest`. Optional forward to `workers/submit-pr` if `CLOUDFLARE_SUBMIT_WORKER_URL` is set |
-| `/api/upload-image` | POST image | Returns URL for the editor to inline. Today stubbed; future = R2 signed URL |
+| `/{lang}/docs/contributing` | MDX guide | How to contribute via GitHub (browser or local fork) |
 | `/api/og/docs/[lang]/[...slug]` | Dynamic OG image | Fumadocs' built-in generator |
 | `/api/search` | Orama search index | Fumadocs built-in |
 | `/api/health` | Liveness probe | Returns `{ok: true}` |
@@ -49,36 +46,20 @@ How the wiki is wired. Read this before editing anything outside `content/`.
 - Non-English locales inherit structure; translated titles come from Crowdin into `content/docs/<locale>/**/meta.json`.
 - `src/lib/layout.shared.tsx` declares the top nav (Guides / Contribute / Discord) and feeds both `HomeLayout` and `DocsLayout`.
 
-## Submission flow (internals)
+## Submission flow
 
-Start: `src/components/editor/GuideEditor.tsx` holds editor state + draft autosave (`useDraft` → localStorage + IndexedDB via `idb-keyval`, 400 ms debounce).
+Contributors edit guides via GitHub — either through the web editor (pencil icon on any file) or a local fork — and open a PR. No in-site editor, no OAuth, no API submission endpoint.
 
 ```
-[creator types]
-  → useDraft writes to localStorage + IndexedDB
-  → hits Submit → <SubmitDialog> opens
-  → if no divine_gh_user cookie, shows "Sign in with GitHub"
-      → /api/oauth/github?start=1&return=... (state cookie set)
-      → GitHub OAuth
-      → /api/oauth/github?code=... (state verified, token exchanged)
-      → sets divine_gh_token (httpOnly, 8h) + divine_gh_user (readable, 8h)
-      → redirects back to return URL
-  → POST /api/submit { frontmatter, slug, mdx, discord? }
-      → Zod validation
-      → Account-age check (reject < 7 days)
-      → Ensures fork exists (POST /repos/{owner}/{repo}/forks; idempotent)
-      → Syncs the fork's main to upstream main
-      → Creates branch `contrib/<user>/<slug>-<timestamp>` from main
-      → PUT file at `content/docs/en/<category>/<slug>.mdx`
-      → Opens PR `<user>:<branch>` → `DivineSkins:main`
-  → Response: { prUrl, prNumber, branch }
-  → SubmitDialog shows "View PR on GitHub"
+[creator forks DivineSkins/Wiki on GitHub]
+  → edits content/docs/en/<category>/<slug>.mdx (web UI or local clone)
+  → opens PR <user>:<branch> → DivineSkins:main
 [CF Pages deploys a preview per PR]
 [Reviewers check preview + comment on GitHub]
 [Merge → main = live at wiki.divineskins.gg]
 ```
 
-The Worker path (`workers/submit-pr/`) is a drop-in mirror for edge execution with KV rate-limit counters and Turnstile verification; set `CLOUDFLARE_SUBMIT_WORKER_URL` to route through it.
+`/docs/contributing` walks creators through the GitHub-native flow.
 
 ## Build pipeline
 
@@ -116,10 +97,9 @@ Both are required before merge.
 ## What lives outside `src/`
 
 - `content/` — the MDX content itself (this is the product).
-- `public/wiki-images/` — legacy migrated images. New images flow through `/api/upload-image` → R2 (future).
+- `public/wiki-images/` — legacy migrated images. Add new images here and reference them as `/wiki-images/<file>`.
 - `messages/` — i18n UI strings. Edit `en.json`; others are Crowdin-owned.
 - `scripts/` — `prebuild.mjs` (always runs) + `migrate-content.mjs` (one-shot, idempotent).
-- `workers/submit-pr/` — optional Cloudflare Worker mirror of `/api/submit`.
 - `.github/` — workflows, CODEOWNERS, PR/issue templates.
 - `Reference/` — legacy Hytale + Divine Academy codebases. **Git-ignored. Never import from. Never modify.**
 
@@ -134,8 +114,5 @@ Both are required before merge.
 | `src/lib/i18n.ts` | Locale list. Add new locales here + in `crowdin.yml`. |
 | `src/lib/layout.shared.tsx` | Top nav links. |
 | `src/app/[lang]/docs/[[...slug]]/page.tsx` | The MDX page renderer. Don't put logic here — add it to `mdx-components.tsx` or a component. |
-| `src/app/api/submit/route.ts` | PR creation. Change Zod schema here if submission payload changes. |
-| `src/app/api/oauth/github/route.ts` | OAuth. Kickoff vs callback branch by `start=1` query flag. |
-| `src/components/editor/GuideEditor.tsx` | Editor wrapper. Dynamic import with `ssr:false` because MDXEditor hits `window`. |
 | `scripts/prebuild.mjs` | Runs before dev + build. Writes `src/git-info.json`. |
 | `scripts/migrate-content.mjs` | One-shot migration. Idempotent. Only rerun if reorganising categories wholesale. |

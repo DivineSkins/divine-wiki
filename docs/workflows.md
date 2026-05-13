@@ -144,7 +144,7 @@ npm install --legacy-peer-deps   # yes, legacy peer deps is expected
 npm run dev                       # boots at http://localhost:3000 (will redirect → /en)
 ```
 
-No env vars needed to browse. To test `/contribute` end-to-end locally, add `GITHUB_OAUTH_CLIENT_ID` + `GITHUB_OAUTH_CLIENT_SECRET` + `NEXT_PUBLIC_BASE_URL=http://localhost:3000` to `.env.local`, and register a GitHub OAuth app with callback `http://localhost:3000/api/oauth/github`.
+No env vars needed — the site is fully static. Contributors edit guides via GitHub (browser or local fork) and open a PR; there's no in-site editor to wire up locally.
 
 ## When working as AI on this repo
 

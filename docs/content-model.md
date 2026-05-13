@@ -112,11 +112,10 @@ Example with a separator and a hidden draft:
 
 ## Images
 
-Three supported origins:
+Two supported origins:
 
-1. **`/public/wiki-images/<hash>.<ext>`** — legacy, migrated from the old wiki. Referenced via `<img src="/wiki-images/abc.png" alt="...">`. Local disk, fast build.
-2. **Editor uploads** — routed through `/api/upload-image`. Future: lands in R2, author gets a `https://cdn.divineskins.gg/...` URL.
-3. **External (third-party CDN, YouTube thumbnails)** — allowed but **dimensions are not prefetched** (see `remarkImageOptions` in `source.config.ts`). Add `width` and `height` manually if you care about CLS.
+1. **`/public/wiki-images/<hash>.<ext>`** — committed alongside the MDX guide. Referenced via `<img src="/wiki-images/abc.png" alt="...">`. Local disk, fast build.
+2. **External (third-party CDN, YouTube thumbnails)** — allowed but **dimensions are not prefetched** (see `remarkImageOptions` in `source.config.ts`). Add `width` and `height` manually if you care about CLS.
 
 Rules:
 
