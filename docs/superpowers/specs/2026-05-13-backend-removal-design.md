@@ -146,3 +146,16 @@ Before declaring the cleanup done, all of the following must hold:
 - **Risk:** A returning contributor bookmarked `/contribute` and lands on a 404. *Mitigation:* `_redirects` covers all four locales.
 - **Risk:** A localized `messages/<locale>.json` references something that no longer exists. *Mitigation:* we only change URLs, not keys, so Crowdin-managed labels remain valid.
 - **Risk:** Removing `@octokit/rest` or `@mdxeditor/editor` leaves transitive dependencies that are now unused but still installed. *Mitigation:* run `npm prune` after removal; a deeper dep audit is part of the follow-up brainstorm, not this one.
+
+---
+
+## Post-implementation TODO (manual, deploy operator)
+
+Remove these four secrets from the Cloudflare Pages production environment dashboard. They are no longer referenced anywhere in the codebase:
+
+- `GITHUB_OAUTH_CLIENT_ID`
+- `GITHUB_OAUTH_CLIENT_SECRET`
+- `CLOUDFLARE_SUBMIT_WORKER_URL`
+- `NEXT_PUBLIC_TURNSTILE_SITE_KEY`
+
+Also delete the corresponding GitHub OAuth App in the org's GitHub settings (the wiki no longer consumes OAuth tokens). The `submit-pr` Cloudflare Worker deployment, if it was ever published, should be removed from the Workers dashboard separately.
