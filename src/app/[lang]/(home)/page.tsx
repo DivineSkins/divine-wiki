@@ -17,6 +17,9 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
   const messages = getMessages(lang);
   const t = messages.home;
 
+  const textLinkClass =
+    "text-divine-text-muted hover:text-divine-primary-light inline-flex items-center gap-2 text-sm no-underline transition-colors";
+
   return (
     <main className="relative flex flex-1 flex-col">
       <div
@@ -28,7 +31,7 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
         <h1 className="text-divine-text font-manrope max-w-4xl text-4xl leading-[1.05] font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
           {renderTitleWithBrandAccent(t.title)}
         </h1>
-        <p className="font-manrope mt-6 max-w-2xl text-base font-medium text-[#8B8D98] sm:text-lg md:text-xl">
+        <p className="font-manrope text-divine-text-muted mt-6 max-w-2xl text-base font-medium sm:text-lg md:text-xl">
           {t.tagline}
         </p>
         <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:gap-3.5">
@@ -42,10 +45,7 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
         </div>
 
         <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:gap-6">
-          <Link
-            href={`/${lang}/docs/contributing`}
-            className="text-divine-text-muted hover:text-divine-primary-light inline-flex items-center gap-2 text-sm no-underline transition-colors"
-          >
+          <Link href={`/${lang}/docs/contributing`} className={textLinkClass}>
             <PencilLineIcon className="size-4" aria-hidden />
             {t.ctaContribute}
           </Link>
@@ -53,7 +53,7 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
             href={discordInviteUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-divine-text-muted hover:text-divine-primary-light inline-flex items-center gap-2 text-sm no-underline transition-colors"
+            className={textLinkClass}
           >
             <MessageCircleIcon className="size-4" aria-hidden />
             {t.joinDiscord}
