@@ -39,7 +39,7 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
           <GlowCTA href={`/${lang}/docs`} size="lg" variant="ghost">
             {t.ctaBrowse}
           </GlowCTA>
-          <GlowCTA href={`/${lang}/contribute`} size="lg" variant="ghost">
+          <GlowCTA href={`/${lang}/docs/contributing`} size="lg" variant="ghost">
             <PencilLineIcon className="size-4" aria-hidden />
             {t.ctaContribute}
           </GlowCTA>

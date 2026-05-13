@@ -46,7 +46,7 @@ export function baseOptions(
       {
         icon: <PencilIcon />,
         text: messages.nav.contribute,
-        url: `/${locale}/contribute`,
+        url: `/${locale}/docs/contributing`,
       },
       {
         icon: <MessageCircleIcon />,
