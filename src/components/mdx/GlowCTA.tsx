@@ -21,7 +21,7 @@ const SIZE_CLASSES: Record<Size, string> = {
 const BASE_CLASSES =
   "inline-flex items-center justify-center gap-2 rounded-full " +
   "font-[var(--font-ui)] font-bold whitespace-nowrap no-underline " +
-  "outline-none focus-visible:ring-2 focus-visible:ring-divine-primary-light/70 focus-visible:ring-offset-2 focus-visible:ring-offset-divine-bg";
+  "outline-none focus-visible:ring-2 focus-visible:ring-divine-primary-light/70 focus-visible:ring-offset-2 focus-visible:ring-offset-divine-void";
 
 const VARIANT_CLASSES: Record<Variant, string> = {
   primary:
