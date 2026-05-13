@@ -24,7 +24,7 @@ Cookbook for the tasks that come up most often. Follow these recipes instead of 
 
 6. `npm run dev` → `/en/docs/<category>/<slug>` should render.
 7. Check voice: no banned terms (see [`voice.md`](./voice.md)); every `<img>` has `alt`; safety callout near the top if the guide touches install.
-8. Commit. CI will run markdownlint + lychee + cSpell on the PR.
+8. Commit. CI runs Prettier in check mode; a reviewer handles voice and link checks.
 
 ## Add a new category
 
@@ -76,14 +76,6 @@ See [`components.md`](./components.md) → "Adding a new component". Short versi
 1. `src/components/mdx/MyThing.tsx`.
 2. Register in `src/mdx-components.tsx`.
 3. Document it in `components.md`.
-
-## Fix a broken link (from CI)
-
-lychee CI lists the failing URLs in the PR check. Three typical fixes:
-
-- **Legacy `/wiki/3d-modelling/...` path** → map to `/docs/maya/...` or `/docs/blender/...`.
-- **Third-party URL is 404** → replace or remove. If the resource is gone, say so in the guide instead of linking a dead URL.
-- **Flaky external site** → if lychee returns 429, it already ignores it. If something else, add the host to the ignore list in `.github/workflows/content-lint.yml` (only as a last resort).
 
 ## Debug `npm run dev` failures
 
@@ -140,8 +132,8 @@ Inspect the diff after running; a human pass almost always finds 2–3 things th
 ## Bring up a local dev session
 
 ```bash
-npm install --legacy-peer-deps   # yes, legacy peer deps is expected
-npm run dev                       # boots at http://localhost:3000 (will redirect → /en)
+npm install
+npm run dev   # boots at http://localhost:3000 (will redirect → /en)
 ```
 
 No env vars needed — the site is fully static. Contributors edit guides via GitHub (browser or local fork) and open a PR; there's no in-site editor to wire up locally.

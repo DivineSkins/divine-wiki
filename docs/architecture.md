@@ -75,17 +75,11 @@ npm run build
 
 `scripts/prebuild.mjs` reads `.git/HEAD` and refs with plain `node:fs` — no shell, no Bun. If `.git` is missing it writes `branch: "unknown"` and keeps going.
 
-## CI / content gates
+## CI
 
-`.github/workflows/content-lint.yml` runs on every PR:
-- **markdownlint** — structure
-- **lychee** — broken links (accepts 429; excludes wiki/api divineskins domains)
-- **cSpell** — with Divine dictionary (champion names, skin lines, LoL jargon)
-- **Inline alt-text diff check** — fails if the PR adds `<img>` with no `alt`
+One required check: `.github/workflows/format-check.yml` runs Prettier in check mode against everything not covered by `.prettierignore` (which excludes non-English MDX so Crowdin-managed content doesn't churn).
 
-`.github/workflows/format-check.yml` runs Prettier in check mode.
-
-Both are required before merge.
+The previous content-lint suite (markdownlint, lychee, cSpell, alt-text diff) was removed because it failed PRs on legitimate champion names and flaky third-party links, which discouraged drive-by "Edit on GitHub" contributions. Image `alt`, banned terms, and link hygiene are now enforced by reviewers using `docs/voice.md` and the new-guide checklist in `CLAUDE.md`.
 
 ## i18n + translation
 

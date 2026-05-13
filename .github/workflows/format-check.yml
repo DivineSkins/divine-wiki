@@ -19,7 +19,7 @@ on:
       - "**/*.yml"
       - "**/*.yaml"
       - "package.json"
-      - "bun.lock"
+      - "package-lock.json"
       - ".prettierrc*"
       - ".prettierignore"
 
@@ -31,13 +31,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          bun-version: latest
+          node-version: "22"
+          cache: "npm"
 
       - name: Install dependencies
-        run: bun install --frozen-lockfile
+        run: npm ci
 
       - name: Check formatting
-        run: bun run format:check
+        run: npm run format:check

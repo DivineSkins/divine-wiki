@@ -23,12 +23,13 @@ node scripts/migrate-content.mjs   # one-shot content migration; idempotent
 node scripts/prebuild.mjs          # regenerates src/git-info.json
 ```
 
-CI runs on every PR: `.github/workflows/content-lint.yml` (markdownlint + lychee + cSpell + alt-text guard) and `.github/workflows/format-check.yml` (Prettier). Failing any blocks merge.
+CI runs on every PR: `.github/workflows/format-check.yml` (Prettier). Content checks (markdownlint, link check, spell check, alt-text guard) were removed in favor of trust + review — failing CI on legitimate champion names or third-party link flakes scared off Edit-on-GitHub contributors. Image `alt` and the banned-term list are still enforced by reviewers per `docs/voice.md`.
 
 ## Directory layout
 
 ```
-content/docs/en/          Creator guides. Eight categories, each with meta.json.
+content/docs/en/          Creator guides. Nine categories, each with meta.json
+                          (eight content categories + `contributing`).
                           Top-level meta.json controls sidebar order.
 content/docs/<locale>/    Crowdin-populated translations. Never hand-edit.
 docs/                     AI-context pack (product, voice, playbook, this file).
@@ -113,6 +114,5 @@ See `.env.example` for the full list. None are required for local dev or for pro
 - Don't put business logic in `src/app/api/` routes; they're thin wrappers.
 - Don't use `<ViewTransition>` from React (Canary-only) — we're on stable.
 - Don't re-enable `experimental.viewTransition` in `next.config.mjs` without upgrading React first.
-- Don't bypass the markdownlint gate by adding noqa-style escapes — fix the content.
 - Don't commit `bun.lock` — this project uses npm locally.
 - Don't `git push --force` to `main`. Feature branches only.
