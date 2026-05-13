@@ -190,11 +190,7 @@ These three rules are the most durable piece of wiki governance ever written. Do
 
 **Anti-vandalism heuristic:** PRs from GitHub accounts < 7 days old require maintainer review. PRs from new accounts touching > 3 files get blocked. Cheap, doesn't burden normal contributors.
 
-**Required CI checks before merge:**
-- Markdown lint (`markdownlint`)
-- Broken-link check (`lychee`)
-- Spell check (`cSpell` with a Divine dictionary: champion names, skinlines, ability names)
-- Image size + EXIF strip on uploaded screenshots
+**CI gate (kept deliberately thin):** Prettier formatting only. Markdown lint, broken-link scans, and spell-check were tried and removed — they failed PRs on legitimate champion names and flaky third-party links, which scared off the drive-by contributors the wiki depends on. Reviewers handle voice, links, and image hygiene at PR time.
 
 **PR template checklist** (reviewers tick publicly):
 - [ ] Voice sounds like a gamer friend, not marketing
@@ -208,11 +204,11 @@ These three rules are the most durable piece of wiki governance ever written. Do
 
 Top markets are France, Turkey, Brazil, US. Translation is launch-day, not later.
 
-**Crowdin (free OSS tier) + Docusaurus i18n.** Native integration. Translation memory, machine-translation pre-fill, community translator moderation, one promoted "language lead" per locale with proofreader rights.
+**Crowdin (free OSS tier) + Fumadocs i18n.** Native integration. Translation memory, machine-translation pre-fill, community translator moderation, one promoted "language lead" per locale with proofreader rights.
 
 **Per-locale Discord channels** as coordination rooms: `#wiki-fr`, `#wiki-tr`, `#wiki-br`. Mirrors how Minecraft and Discord-itself coordinate community translation.
 
-**Untranslated pages serve English silently.** Never 404. Docusaurus does this by default.
+**Untranslated pages serve English silently.** Never 404. Fumadocs does this by default.
 
 ---
 
@@ -222,7 +218,7 @@ For a 16–24-year-old audience, social currency in Discord matters more than a 
 
 - **`all-contributors` bot** to recognize non-code work (translation, screenshots, bug reports, design) — not just commits.
 - **Discord roles synced to merged-PR count:** `Wiki Contributor` (1+), `Wiki Editor` (10+), `Wiki Maintainer` (named). Visible to 60K members.
-- **Author bylines + last-updated date** on every page, pulled from git log. Built into Docusaurus/VitePress.
+- **Author bylines + last-updated date** on every page, pulled from git log. Fumadocs surfaces both natively.
 
 ---
 

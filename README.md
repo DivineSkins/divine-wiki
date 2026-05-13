@@ -10,19 +10,21 @@ Creators who use Maya, Blender, and VFX tools to build custom LoL skins. End-use
 
 Three ways, pick what fits you:
 
-- **Visual editor** at `/contribute`. Sign in with GitHub, write, submit. You never touch Git.
+- **Edit on GitHub** — on any guide, click "Edit on GitHub" at the bottom. GitHub's web editor opens. Make a change, open a PR. No clone, no install.
 - **Fork and PR** on GitHub. For devs. See [CONTRIBUTING.md](./CONTRIBUTING.md).
 - **Suggest edits** in Discord `#wiki-feedback`.
 
+Full walkthrough: [wiki.divineskins.gg/en/docs/contributing](https://wiki.divineskins.gg/en/docs/contributing).
+
 ## Local dev
 
-Prerequisites: Bun (`npm install -g bun`), Node 22+, Git.
+Prerequisites: Node 22+, npm, Git.
 
 ```bash
 git clone https://github.com/DivineSkins/divine-wiki.git
 cd divine-wiki
-bun install
-bun run dev
+npm install
+npm run dev
 ```
 
 Open http://localhost:3000.
@@ -31,7 +33,7 @@ Open http://localhost:3000.
 
 Guides live in `content/docs/en/<category>/*.mdx`. Each category has a `meta.json` that controls sidebar order.
 
-The eight categories:
+The nine categories:
 
 - `guided-walkthrough`
 - `tools`
@@ -41,6 +43,7 @@ The eight categories:
 - `vfx-bins`
 - `assets-library`
 - `errors`
+- `contributing`
 
 ## Stack
 

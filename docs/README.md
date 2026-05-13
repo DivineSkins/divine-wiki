@@ -12,7 +12,7 @@ Read this folder before writing or editing anything non-trivial. `CLAUDE.md` at 
 - [`playbook.md`](./playbook.md) — page types, navigation, troubleshooting pattern, contribution flow, quality gates. Distilled from the best OSS gaming / modding wikis.
 
 ### Codebase
-- [`architecture.md`](./architecture.md) — runtime shape, route map, MDX pipeline, submission flow internals, build + CI.
+- [`architecture.md`](./architecture.md) — runtime shape, route map, MDX pipeline, GitHub-native contribution flow, build + CI.
 - [`content-model.md`](./content-model.md) — frontmatter schema, `meta.json`, slugs, images, MDX quirks, i18n.
 - [`components.md`](./components.md) — MDX components available to authors (`Callout`, `Tabs`, `ParameterList`, `img`) with usage.
 - [`workflows.md`](./workflows.md) — cookbook for common tasks (add a guide, add a category, add a locale, debug dev, change voice rules).
@@ -26,7 +26,7 @@ Read this folder before writing or editing anything non-trivial. `CLAUDE.md` at 
 | Change anything in `src/` | `architecture.md`, then the specific file |
 | Change a banned term or voice rule | `voice.md`, `workflows.md` → "Update voice rules" |
 | Change navigation or the sidebar | `content-model.md` → "meta.json", `playbook.md` → "Landing & navigation" |
-| Touch the submission flow | `architecture.md` → "Submission flow", then the API routes it names |
+| Touch the contribution flow | `architecture.md` → "Submission flow" (GitHub-native; no in-site backend) |
 | Propose a structural change to the wiki | `playbook.md` first — most structural questions are already answered there |
 
 Everything here is maintained by humans. If something is wrong, fix it in the doc and mention it in your PR.

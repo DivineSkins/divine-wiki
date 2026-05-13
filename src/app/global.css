@@ -245,17 +245,14 @@
    ────────────────────────────────────────────────────────────── */
 
 @layer components {
-  /* Page-level title — bigger, Manrope 800, gold→light-gold gradient. */
+  /* Page-level title — bigger, Manrope 800, white (no gradient). */
   .divine-doc-title {
     font-family: var(--font-manrope), system-ui, sans-serif !important;
     font-weight: 800 !important;
     font-size: clamp(2rem, 1.4rem + 2vw, 2.75rem) !important;
     line-height: 1.1 !important;
     letter-spacing: -0.02em !important;
-    background: linear-gradient(120deg, #ecb96a 0%, #f0c685 35%, #c084fc 95%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent !important;
+    color: var(--color-divine-text) !important;
     padding-bottom: 0.1em;
     margin-bottom: 0.4em !important;
   }
@@ -266,6 +263,43 @@
     line-height: 1.55 !important;
     color: var(--color-divine-text-muted) !important;
     max-width: 60ch;
+  }
+
+  /* Edit-on-GitHub footer link — secondary pill, matches home CTA language. */
+  a[href*="github.com"][href*="/edit/"] {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 0.5rem;
+    height: 2.5rem;
+    padding-inline: 1.25rem;
+    border-radius: 999px !important;
+    background: color-mix(in srgb, #ffffff 10%, transparent) !important;
+    color: var(--color-divine-text) !important;
+    font-family: var(--font-inter), system-ui, sans-serif;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-decoration: none !important;
+    border: 0 !important;
+    transition:
+      background-color 0.2s,
+      color 0.2s;
+  }
+  a[href*="github.com"][href*="/edit/"]:hover {
+    background: color-mix(in srgb, #ffffff 20%, transparent) !important;
+    color: #ffffff !important;
+  }
+
+  /* TOC active state — align with sidebar's purple-light + gold→purple rail. */
+  .dark [data-toc] a[data-active="true"],
+  .dark nav[aria-label*="able of contents"] a[data-active="true"] {
+    color: var(--color-divine-primary-light) !important;
+    font-weight: 600;
+  }
+  .dark [data-toc-thumb],
+  .dark [data-toc] [data-thumb] {
+    background: linear-gradient(180deg, #ecb96a 0%, #c084fc 100%) !important;
+    width: 2px !important;
+    border-radius: 2px;
   }
 
   /* Headings inside prose — Manrope/Poppins, H3 in light purple. */
@@ -702,11 +736,7 @@
      search modal; we narrow further with the `cmdk`-style structure. */
   .dark [role="dialog"][data-state="open"]:has(input[placeholder]),
   .dark [role="dialog"][data-state="open"][aria-labelledby*="radix"] {
-    background: linear-gradient(
-      180deg,
-      #1a1624 0%,
-      #15121f 100%
-    ) !important;
+    background: linear-gradient(180deg, #1a1624 0%, #15121f 100%) !important;
     border: 1px solid
       color-mix(in srgb, var(--color-divine-primary) 35%, transparent) !important;
     box-shadow:
