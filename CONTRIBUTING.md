@@ -1,61 +1,25 @@
 # Contributing
 
-Thanks for helping out. Here's how it works.
+Thanks for helping out.
 
-## Three ways to contribute
+The full guide lives on the wiki: **[wiki.divineskins.gg/en/docs/contributing](https://wiki.divineskins.gg/en/docs/contributing)**.
 
-| Way | Who it's for | Where |
-|---|---|---|
-| Visual editor | Everyone. No Git needed. | `wiki.divineskins.gg/contribute` |
-| Fork and PR | Devs comfortable with Git | GitHub |
-| Discord feedback | Quick reports, typos | `#wiki-feedback` on Discord |
+## Quick version
 
-## Write a guide in the editor
+- **Small fix or typo** → on any guide, scroll to the bottom and click **Edit on GitHub**. GitHub's web editor opens. Make your change, open a pull request.
+- **New page or bigger change** → fork this repo, clone, `npm install`, `npm run dev`, edit MDX under `content/docs/en/<category>/`, push, open a PR.
 
-1. Go to `/contribute`.
-2. Click Sign in with GitHub.
-3. Write your guide in the editor. Drafts save to your browser.
-4. Click Submit. The site opens a pull request on your behalf.
-5. A maintainer reviews it. If they ask for changes, you get a GitHub notification.
-6. When the PR is merged, your guide goes live.
+A maintainer reviews. Once merged, your change is live within a few minutes.
 
-## Manual fork and PR workflow
+## Style and safety
 
-For devs who want to work locally.
+Read [`docs/voice.md`](./docs/voice.md) before writing. A few rules block merges:
 
-Prerequisites: Bun, Node 22+, Git.
+- No banned terms. The full list is in `docs/voice.md`.
+- Never recommend custom skins on Korean or Chinese League servers.
+- Every `<img>` needs `alt="..."`.
+- Images go in `public/wiki-images/` and stay under 500 KB.
 
-1. Fork `DivineSkins/divine-wiki` on GitHub.
-2. Clone your fork: `git clone https://github.com/<your-user>/divine-wiki.git`
-3. Install: `cd divine-wiki && bun install`
-4. Run: `bun run dev` — confirm the site runs on http://localhost:3000.
-5. Create a branch: `git checkout -b <slug>` (e.g. `new-vfx-guide`).
-6. Add your `.mdx` under `content/docs/en/<category>/`. Use kebab-case filenames.
-7. Update `content/docs/en/<category>/meta.json` to add your page to the sidebar order.
-8. Commit. Conventional Commit style preferred but not required.
-9. Push and open a PR to `main`.
+## Before big changes
 
-## Before big changes, talk first
-
-For new categories, moving files, renaming, or structural rewrites — start a thread in Discord `#wiki-proposals` first. Saves you from doing work that gets rejected.
-
-## Style and voice
-
-Read [`docs/voice.md`](./docs/voice.md) and [`docs/playbook.md`](./docs/playbook.md) before you write. Reviewers check voice violations before merge.
-
-## What gets rejected
-
-- Banned terms from `docs/voice.md` (skin hack, undetectable, buy, etc.)
-- Plagiarism or uncredited work
-- Region advice that tells people to use custom skins on Korean or Chinese servers
-- Images without `alt` text
-- Images over 2 MB
-- Marketing-speak or hype
-
-## Recognition
-
-Git history is the author log. Merged-PR count syncs to a Discord role (set up by maintainers).
-
-## Help
-
-Ask in Discord `discord.gg/divineskins` or open an Issue.
+For new categories, mass renames, or structural rewrites — start a thread in `#wiki-proposals` on Discord first. Saves wasted work.
