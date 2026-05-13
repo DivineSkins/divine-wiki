@@ -1,12 +1,42 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
+
+type Variant = "primary" | "secondary" | "ghost";
+type Size = "md" | "lg";
 
 interface GlowCTAProps {
   href: string;
   children: ReactNode;
-  variant?: "primary" | "ghost";
-  size?: "md" | "lg";
+  variant?: Variant;
+  size?: Size;
 }
+
+const SIZE_CLASSES: Record<Size, string> = {
+  md: "h-11 px-6 text-sm",
+  lg: "h-12 px-7 text-base",
+};
+
+const BASE_CLASSES =
+  "inline-flex items-center justify-center gap-2 rounded-full " +
+  "font-[var(--font-ui)] font-bold whitespace-nowrap no-underline";
+
+const VARIANT_CLASSES: Record<Variant, string> = {
+  primary:
+    "bg-[#783CB5] hover:bg-[#8b4dd4] text-white " +
+    "transition-[background-color,box-shadow] duration-300",
+  secondary:
+    "bg-white/10 hover:bg-white/20 text-white transition-colors duration-200",
+  ghost:
+    "border border-divine-border bg-transparent text-divine-text " +
+    "hover:border-divine-primary/60 hover:text-divine-primary-light " +
+    "transition-colors duration-200",
+};
+
+const PRIMARY_GLOW: CSSProperties = {
+  boxShadow:
+    "inset 0px 1px 1px 0px rgba(255,255,255,0.35), " +
+    "0px 0px 44px 0px rgba(120,60,181,0.55)",
+};
 
 export function GlowCTA({
   href,
@@ -20,30 +50,11 @@ export function GlowCTA({
     ? { target: "_blank", rel: "noopener noreferrer" }
     : {};
 
-  const sizeClasses =
-    size === "lg" ? "px-7 py-3.5 text-sm" : "px-5 py-2.5 text-[13px]";
-
-  if (variant === "ghost") {
-    return (
-      <Tag
-        href={href}
-        {...externalProps}
-        className={`border-divine-border text-divine-text hover:border-divine-primary/60 hover:text-divine-primary-light inline-flex items-center justify-center gap-2 rounded-[12px] border bg-transparent font-[var(--font-ui)] font-semibold tracking-wide uppercase no-underline transition-colors duration-200 ${sizeClasses}`}
-      >
-        {children}
-      </Tag>
-    );
-  }
+  const className = `${BASE_CLASSES} ${SIZE_CLASSES[size]} ${VARIANT_CLASSES[variant]}`;
+  const style = variant === "primary" ? PRIMARY_GLOW : undefined;
 
   return (
-    <Tag
-      href={href}
-      {...externalProps}
-      className={`divine-glow hover:divine-glow-hover inline-flex items-center justify-center gap-2 rounded-[12px] font-[var(--font-ui)] font-semibold tracking-wide text-white uppercase no-underline transition-shadow duration-500 ${sizeClasses}`}
-      style={{
-        background: "linear-gradient(90deg, #B472FF 0%, #783CB5 100%)",
-      }}
-    >
+    <Tag href={href} {...externalProps} className={className} style={style}>
       {children}
     </Tag>
   );
