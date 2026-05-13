@@ -25,45 +25,50 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
       />
 
       <section className="flex flex-col items-center px-6 pt-24 pb-16 text-center md:pt-32 md:pb-20">
-        <h1 className="text-divine-text max-w-3xl text-4xl font-[var(--font-hero)] font-extrabold tracking-tight md:text-6xl">
+        <h1 className="text-divine-text font-manrope max-w-4xl text-4xl leading-[1.05] font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
           {renderTitleWithBrandAccent(t.title)}
         </h1>
-        <p className="text-divine-text-muted mt-6 max-w-2xl text-lg leading-relaxed font-[var(--font-section)] font-normal md:text-xl">
+        <p className="font-manrope mt-6 max-w-2xl text-base font-medium text-[#8B8D98] sm:text-lg md:text-xl">
           {t.tagline}
         </p>
-        <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-          <GlowCTA href={`/${lang}/docs/guided-walkthrough`} size="lg">
+        <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:gap-3.5">
+          <GlowCTA href={`/${lang}/docs/guided-walkthrough`} variant="primary">
             <BookOpenIcon className="size-4" aria-hidden />
             {t.ctaStart}
           </GlowCTA>
-          <GlowCTA href={`/${lang}/docs`} size="lg" variant="ghost">
+          <GlowCTA href={`/${lang}/docs`} variant="secondary">
             {t.ctaBrowse}
-          </GlowCTA>
-          <GlowCTA href={`/${lang}/docs/contributing`} size="lg" variant="ghost">
-            <PencilLineIcon className="size-4" aria-hidden />
-            {t.ctaContribute}
           </GlowCTA>
         </div>
 
-        <Link
-          href={discordInviteUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-divine-text-muted hover:text-divine-primary-light mt-10 inline-flex items-center gap-2 text-sm no-underline transition-colors"
-        >
-          <MessageCircleIcon className="size-4" aria-hidden />
-          {t.joinDiscord}
-        </Link>
+        <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:gap-6">
+          <Link
+            href={`/${lang}/docs/contributing`}
+            className="text-divine-text-muted hover:text-divine-primary-light inline-flex items-center gap-2 text-sm no-underline transition-colors"
+          >
+            <PencilLineIcon className="size-4" aria-hidden />
+            {t.ctaContribute}
+          </Link>
+          <Link
+            href={discordInviteUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-divine-text-muted hover:text-divine-primary-light inline-flex items-center gap-2 text-sm no-underline transition-colors"
+          >
+            <MessageCircleIcon className="size-4" aria-hidden />
+            {t.joinDiscord}
+          </Link>
+        </div>
       </section>
 
       <hr className="divine-hr mx-auto w-full max-w-5xl opacity-60" />
 
       <section className="mx-auto w-full max-w-5xl px-6 py-16 md:py-20">
         <div className="mb-8 text-center">
-          <h2 className="text-divine-text text-2xl font-[var(--font-section)] font-bold md:text-3xl">
+          <h2 className="text-divine-text font-manrope text-2xl font-bold tracking-tight md:text-[26px]">
             {t.tracksHeading}
           </h2>
-          <p className="text-divine-text-muted mt-2 text-sm">
+          <p className="text-divine-text-muted font-manrope mt-2 text-sm">
             {t.tracksSubheading}
           </p>
         </div>
