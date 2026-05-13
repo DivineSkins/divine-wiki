@@ -42,6 +42,16 @@ const config = {
         destination: "/en",
         permanent: true,
       },
+      {
+        source: "/:lang/contribute",
+        destination: "/:lang/docs/contributing",
+        permanent: true,
+      },
+      {
+        source: "/contribute",
+        destination: "/en/docs/contributing",
+        permanent: true,
+      },
     ];
   },
   // experimental.viewTransition needs React 19 Canary. Stable React 19.2 ships
