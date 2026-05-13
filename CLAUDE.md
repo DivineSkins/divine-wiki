@@ -40,15 +40,12 @@ scripts/                  prebuild.mjs (git-info) and migrate-content.mjs.
 src/app/                  App Router. Root layout passes children through; [lang]/
                           layout.tsx sets html, body, fonts, RootProvider.
 src/app/[lang]/docs/      Docs pages (DocsLayout + MDX renderer).
-src/app/[lang]/contribute/ In-site visual editor.
-src/app/api/              OAuth, submit, upload-image, search, og, health.
-src/components/editor/    MDXEditor wrapper + autosave + submit dialog.
+src/app/api/              health, og, search — read-only, no secrets.
 src/components/ui/        shadcn primitives (copied once, don't rely on CLI).
 src/components/mdx/       Components exposed to MDX authors (Callout, etc.).
 src/lib/source.ts         Fumadocs source loader.
 src/lib/layout.shared.tsx Nav config used by both home and docs layouts.
 src/lib/i18n.ts           Fumadocs i18n (en, fr-FR, tr-TR, pt-BR — top markets).
-workers/submit-pr/        Optional Cloudflare Worker for edge PR creation.
 Reference/                Legacy codebases (Hytale + Divine Academy). IGNORE.
 ```
 
@@ -59,9 +56,8 @@ Reference/                Legacy codebases (Hytale + Divine Academy). IGNORE.
 | Framework | Next.js 16 (App Router, Turbopack dev) |
 | MDX engine | Fumadocs 16.2.3 (core, mdx, ui) — sidebar from meta.json, Orama search, OG API |
 | UI | Tailwind v4 + shadcn (new-york) + Radix primitives |
-| Editor | @mdxeditor/editor (/contribute page only, dynamic import, ssr:false) |
-| Auth | GitHub OAuth, cookie-only, submission-scoped. **No site-wide auth.** |
-| PR backend | `@octokit/rest` via /api/submit, optionally forwarded to workers/submit-pr |
+| Auth | None — site is fully static |
+| Contributions | GitHub-native: edit-in-browser via Fumadocs "Edit on GitHub" link, or fork + PR |
 | i18n | Fumadocs i18n + Crowdin. Scope: en, fr-FR, tr-TR, pt-BR |
 | Hosting | Cloudflare Pages (Next.js SSR mode). _redirects + _headers at edge |
 | Analytics | PostHog (cookieless, currently disabled pending key) |
@@ -71,7 +67,7 @@ Reference/                Legacy codebases (Hytale + Divine Academy). IGNORE.
 - **Files**: kebab-case `.mdx`, one file per guide. Don't reuse slugs.
 - **Frontmatter**: `title` required. `description` (~160 char) strongly recommended. `category` auto-set by path. Optional: `authors`, `patch`, `icon`, `full`.
 - **Headings**: H1 is set by `title` frontmatter — start content at `##`.
-- **Images**: `<img src="/wiki-images/...">` for legacy, or submit through the editor (future: R2 CDN URL).
+- **Images**: drop new files into `public/wiki-images/` and reference as `<img src="/wiki-images/..." alt="...">` (legacy migrated images live there too; future: R2 CDN URL).
 - **Links**: relative paths preferred. `/docs/...` absolute paths work. Never `/wiki/...` — that's legacy.
 - **MDX quirks**:
   - `<` before a digit (e.g. `<3`, `<60k`) must be escaped as `\<3`.
@@ -82,20 +78,9 @@ Reference/                Legacy codebases (Hytale + Divine Academy). IGNORE.
 - **TypeScript**: strict; path alias `@/*` → `src/*`.
 - **Commits**: Conventional Commits preferred, not required. No Claude co-author trailers, no emoji.
 
-## Submission flow (end-to-end)
-
-1. Creator opens `/contribute` → MDXEditor loads (dynamic, client-only).
-2. Types → `useDraft` autosaves to localStorage + IndexedDB every 400ms.
-3. Hits **Submit** → `SubmitDialog` opens.
-4. If not signed in: **Sign in with GitHub** → redirects to `/api/oauth/github?start=1&return=...` → GitHub OAuth → callback sets `divine_gh_token` (httpOnly, 8h) + `divine_gh_user` cookies → bounces back.
-5. Confirm → POST `/api/submit` with `{ frontmatter, slug, mdx, discord? }`. Zod-validates. Rejects accounts < 7 days old.
-6. If `CLOUDFLARE_SUBMIT_WORKER_URL` is set: forwards to the Worker (edge + KV rate limit). Otherwise: inline path uses `@octokit/rest` to fork the upstream, branch from `main`, commit `content/docs/en/<category>/<slug>.mdx`, open PR from `<user>:contrib/<user>/<slug>-<ts>` → `DivineSkins:main`.
-7. Response: `{ prUrl, prNumber, branch }`. Dialog shows "View PR on GitHub".
-8. CF Pages auto-deploys a preview per PR. Reviewers comment on GitHub + click preview. Merge to `main` = live.
-
 ## Environment variables
 
-See `.env.example` for the full list. Minimum for **local dev**: none — dev boot works without any env. Minimum for **working /contribute**: `GITHUB_OAUTH_CLIENT_ID` + `GITHUB_OAUTH_CLIENT_SECRET` + `NEXT_PUBLIC_BASE_URL`. Minimum for **production**: add `CROWDIN_PROJECT_ID` + `CROWDIN_PERSONAL_TOKEN` (CI only), optionally `CLOUDFLARE_SUBMIT_WORKER_URL` + `NEXT_PUBLIC_TURNSTILE_SITE_KEY` + PostHog keys.
+See `.env.example` for the full list. None are required for local dev or for production builds — the site is fully static. The runtime API routes (`health`, `og`, `search`) need no secrets. `NEXT_PUBLIC_POSTHOG_*` and `NEXT_PUBLIC_DIVINE_API_URL` are optional. `CROWDIN_PROJECT_ID` + `CROWDIN_PERSONAL_TOKEN` are CI-only for translation sync.
 
 ## Known gotchas — save yourself time
 
@@ -104,11 +89,10 @@ See `.env.example` for the full list. Minimum for **local dev**: none — dev bo
 3. **External images in MDX timeout the build.** Legacy content links to `postimg.cc` and YouTube thumbnails; Fumadocs' remark-image plugin prefetches dimensions by default. `source.config.ts` sets `remarkImageOptions: { external: false, onError: "ignore" }` — keep it that way.
 4. **Turbopack caches `source.config.ts` compiled output in `.source/`.** If a config edit doesn't seem to take effect, `rm -rf .next .source` and restart `npm run dev`.
 5. **`z.looseObject` is not exposed** by the top-level zod install. Don't use it; plain `z.object({})` is fine.
-6. **PRs use the contributor's own token**, not a bot. Commits are authored by them on their fork; the PR comes across `<user>:<branch> → DivineSkins:main`. That means they must have a GitHub account. The visual editor hides this — they just click "Sign in with GitHub" once.
-7. **`scripts/prebuild.mjs`** reads `.git/HEAD` and refs directly (pure Node, no shell). It's safe to run anywhere; if `.git` is missing it writes `branch: "unknown"` and continues.
-8. **Localized pages** (fr-FR, tr-TR, pt-BR) are **Crowdin-managed**. Never hand-edit `content/docs/fr-FR/**` or similar — they get overwritten by the weekly sync.
-9. **`.prettierignore` excludes non-English MDX** from format so Crowdin-managed content doesn't churn.
-10. **`Reference/` is git-ignored and read-only for our purposes.** Two big reference codebases live there (Hytale Modding's Fumadocs site we scaffolded from, and the legacy Divine Academy site). Do not modify or import from them.
+6. **`scripts/prebuild.mjs`** reads `.git/HEAD` and refs directly (pure Node, no shell). It's safe to run anywhere; if `.git` is missing it writes `branch: "unknown"` and continues.
+7. **Localized pages** (fr-FR, tr-TR, pt-BR) are **Crowdin-managed**. Never hand-edit `content/docs/fr-FR/**` or similar — they get overwritten by the weekly sync.
+8. **`.prettierignore` excludes non-English MDX** from format so Crowdin-managed content doesn't churn.
+9. **`Reference/` is git-ignored and read-only for our purposes.** Two big reference codebases live there (Hytale Modding's Fumadocs site we scaffolded from, and the legacy Divine Academy site). Do not modify or import from them.
 
 ## When adding a new guide (sanity checklist)
 
