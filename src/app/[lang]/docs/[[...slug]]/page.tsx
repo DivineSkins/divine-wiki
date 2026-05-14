@@ -76,7 +76,7 @@ export default async function Page(
           href={`/${params.lang}/draft?edit=${page.slugs.join("/")}`}
           className="text-divine-primary-light text-sm hover:underline"
         >
-          {messages.misc.editOnGithub} →
+          {messages.misc?.editOnGithub ?? "Edit on GitHub"} →
         </Link>
       </DocsBody>
     </DocsPage>
