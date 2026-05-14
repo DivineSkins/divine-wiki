@@ -3,6 +3,7 @@ import {
   type CompletionContext,
   type CompletionResult,
 } from "@codemirror/autocomplete";
+import { markdownLanguage } from "@codemirror/lang-markdown";
 import { searchEntities, entityLink } from "./entities";
 
 /**
@@ -28,6 +29,13 @@ function mentionSource(context: CompletionContext): CompletionResult | null {
   };
 }
 
-export const mentionExtension = autocompletion({
-  override: [mentionSource],
-});
+/**
+ * Registers the @-mention source as a markdown language-data completion
+ * source so it coexists with CodeMirror's other completion sources rather
+ * than overriding them. Bundled with `autocompletion()` so the dropdown
+ * still works even if the host editor didn't enable autocomplete itself.
+ */
+export const mentionExtension = [
+  autocompletion(),
+  markdownLanguage.data.of({ autocomplete: mentionSource }),
+];
