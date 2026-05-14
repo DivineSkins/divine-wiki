@@ -4,6 +4,8 @@ import { useMemo, useRef, useState } from "react";
 import { useMessages } from "@/lib/hooks/useMessages";
 import { deriveSlug } from "@/lib/draft/slug";
 import { CodeEditor, type CodeEditorHandle } from "./code-editor";
+import { assembleMdx } from "@/lib/draft/frontmatter";
+import { PreviewPane } from "./preview-pane";
 
 export interface DraftEditorProps {
   mode: "new" | "edit";
@@ -47,6 +49,11 @@ export function DraftEditor({
   const effectiveSlug = useMemo(
     () => (slugTouched ? slug : deriveSlug(title)),
     [slugTouched, slug, title],
+  );
+
+  const assembledMdx = useMemo(
+    () => assembleMdx({ title, description, body }),
+    [title, description, body],
   );
 
   return (
@@ -115,8 +122,7 @@ export function DraftEditor({
           />
         </div>
         <div className="overflow-auto p-4">
-          {/* Preview pane added in Task 14 */}
-          <p className="text-divine-text-muted text-sm">{d.previewHeading}</p>
+          <PreviewPane mdx={assembledMdx} />
         </div>
       </div>
     </div>
