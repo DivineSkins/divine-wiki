@@ -55,7 +55,7 @@ export function DraftEditor({
       ? initialCategory
       : "tools",
   );
-  const storageKey = draftKey(mode, editPath ?? category);
+  const storageKey = draftKey(mode, editPath ?? "new");
   const [slugTouched, setSlugTouched] = useState(false);
   const [slug, setSlug] = useState("");
   const [body, setBody] = useState("");
@@ -103,6 +103,7 @@ export function DraftEditor({
   // Auto-save on every content change.
   useEffect(() => {
     if (loadingSource) return;
+    if (!title.trim() && !body.trim()) return;
     saveDraft(storageKey, {
       title,
       description,
