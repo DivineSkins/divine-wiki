@@ -13,6 +13,12 @@ import { Toolbar } from "./toolbar";
 import { Handoff } from "./handoff";
 import matter from "gray-matter";
 import { rawSourceUrl, editFileUrl } from "@/lib/draft/github";
+import {
+  draftKey,
+  loadDraft,
+  saveDraft,
+  clearDraft,
+} from "@/lib/draft/persistence";
 
 export interface DraftEditorProps {
   mode: "new" | "edit";
@@ -49,6 +55,7 @@ export function DraftEditor({
       ? initialCategory
       : "tools",
   );
+  const storageKey = draftKey(mode, editPath ?? category);
   const [slugTouched, setSlugTouched] = useState(false);
   const [slug, setSlug] = useState("");
   const [body, setBody] = useState("");
@@ -58,6 +65,7 @@ export function DraftEditor({
   const [showHandoff, setShowHandoff] = useState(false);
   const [editLoadError, setEditLoadError] = useState(false);
   const [loadingSource, setLoadingSource] = useState(mode === "edit");
+  const [restorePrompt, setRestorePrompt] = useState<number | null>(null);
 
   const editorRef = useRef<CodeEditorHandle>(null);
 
@@ -75,6 +83,33 @@ export function DraftEditor({
     title.trim().length > 0 &&
     body.trim().length > 0 &&
     isValidSlug(effectiveSlug);
+
+  // Restore-check: runs once on mount. SSR-safe — localStorage is not available
+  // during server render, so we must read it in an effect.
+  useEffect(
+    () => {
+      const existing = loadDraft(storageKey);
+      if (existing) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setRestorePrompt(existing.savedAt);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+
+  // Auto-save on every content change.
+  useEffect(() => {
+    if (loadingSource) return;
+    saveDraft(storageKey, {
+      title,
+      description,
+      category,
+      slug: effectiveSlug,
+      body,
+      savedAt: Date.now(),
+    });
+  }, [storageKey, title, description, category, effectiveSlug, body, loadingSource]);
 
   useEffect(() => {
     if (mode !== "edit" || !editPath) return;
@@ -112,6 +147,23 @@ export function DraftEditor({
 
   const handleScan = () => setScanResults(scanForLinks(body));
 
+  const handleRestore = () => {
+    const saved = loadDraft(storageKey);
+    if (!saved) return;
+    setTitle(saved.title);
+    setDescription(saved.description);
+    setCategory(saved.category);
+    setSlug(saved.slug);
+    setSlugTouched(true);
+    setBody(saved.body);
+    setRestorePrompt(null);
+  };
+
+  const handleDiscard = () => {
+    clearDraft(storageKey);
+    setRestorePrompt(null);
+  };
+
   const handleApplySuggestion = (
     suggestion: ReturnType<typeof scanForLinks>[number],
   ) => {
@@ -138,6 +190,32 @@ export function DraftEditor({
 
   return (
     <div className="flex h-[calc(100vh-3.5rem)] flex-col">
+      {restorePrompt !== null && (
+        <div className="bg-divine-surface border-divine-border flex items-center gap-3 border-b px-4 py-2 text-sm">
+          <span className="text-divine-text-muted">
+            Unsaved draft from{" "}
+            {new Date(restorePrompt).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+            . Restore it?
+          </span>
+          <button
+            type="button"
+            className="text-divine-primary-light font-semibold"
+            onClick={handleRestore}
+          >
+            Restore
+          </button>
+          <button
+            type="button"
+            className="text-divine-text-muted"
+            onClick={handleDiscard}
+          >
+            Discard
+          </button>
+        </div>
+      )}
       {/* Header bar: frontmatter inputs + Contribute */}
       <div className="border-divine-border flex flex-wrap items-end gap-3 border-b px-4 py-3">
         <div className="text-divine-text w-full text-sm font-semibold">
@@ -253,7 +331,10 @@ export function DraftEditor({
           category={category}
           slug={effectiveSlug}
           editPath={editPath}
-          onClose={() => setShowHandoff(false)}
+          onClose={() => {
+            setShowHandoff(false);
+            clearDraft(storageKey);
+          }}
         />
       )}
     </div>
