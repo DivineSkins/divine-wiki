@@ -25,6 +25,22 @@ export function assembleMdx(
 /** Quote a YAML scalar only when it could otherwise misparse. */
 function yamlScalar(value: string): string {
   const trimmed = value.trim();
+  // YAML reserved words and pure numbers parse as non-strings. Always quote
+  // them so frontmatter `title` / `description` stay strings for the schema.
+  const reserved = new Set([
+    "true",
+    "false",
+    "yes",
+    "no",
+    "on",
+    "off",
+    "null",
+    "~",
+  ]);
+  const looksNumeric = /^[+-]?(\d[\d_]*)(\.\d+)?([eE][+-]?\d+)?$/.test(trimmed);
+  if (trimmed === "" || reserved.has(trimmed.toLowerCase()) || looksNumeric) {
+    return JSON.stringify(trimmed);
+  }
   if (/^[A-Za-z0-9][A-Za-z0-9 .,'!?()/-]*$/.test(trimmed)) return trimmed;
   return JSON.stringify(trimmed);
 }
