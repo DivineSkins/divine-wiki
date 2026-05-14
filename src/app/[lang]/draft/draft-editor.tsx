@@ -65,7 +65,9 @@ export function DraftEditor({
   const [showHandoff, setShowHandoff] = useState(false);
   const [editLoadError, setEditLoadError] = useState(false);
   const [loadingSource, setLoadingSource] = useState(mode === "edit");
-  const [restorePrompt, setRestorePrompt] = useState<number | null>(null);
+  const [restorePrompt, setRestorePrompt] = useState<ReturnType<
+    typeof loadDraft
+  > | null>(null);
 
   const editorRef = useRef<CodeEditorHandle>(null);
 
@@ -91,7 +93,7 @@ export function DraftEditor({
       const existing = loadDraft(storageKey);
       if (existing) {
         // eslint-disable-next-line react-hooks/set-state-in-effect
-        setRestorePrompt(existing.savedAt);
+        setRestorePrompt(existing);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -148,14 +150,13 @@ export function DraftEditor({
   const handleScan = () => setScanResults(scanForLinks(body));
 
   const handleRestore = () => {
-    const saved = loadDraft(storageKey);
-    if (!saved) return;
-    setTitle(saved.title);
-    setDescription(saved.description);
-    setCategory(saved.category);
-    setSlug(saved.slug);
+    if (!restorePrompt) return;
+    setTitle(restorePrompt.title);
+    setDescription(restorePrompt.description);
+    setCategory(restorePrompt.category);
     setSlugTouched(true);
-    setBody(saved.body);
+    setSlug(restorePrompt.slug);
+    setBody(restorePrompt.body);
     setRestorePrompt(null);
   };
 
@@ -194,7 +195,7 @@ export function DraftEditor({
         <div className="bg-divine-surface border-divine-border flex items-center gap-3 border-b px-4 py-2 text-sm">
           <span className="text-divine-text-muted">
             Unsaved draft from{" "}
-            {new Date(restorePrompt).toLocaleTimeString([], {
+            {new Date(restorePrompt.savedAt).toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",
             })}
