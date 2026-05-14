@@ -27,6 +27,7 @@ export function PreviewPane({ mdx }: PreviewPaneProps) {
 
   useEffect(() => {
     if (timer.current) clearTimeout(timer.current);
+    const controller = new AbortController();
     timer.current = setTimeout(async () => {
       setState({ status: "loading" });
       try {
@@ -34,6 +35,7 @@ export function PreviewPane({ mdx }: PreviewPaneProps) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ mdx }),
+          signal: controller.signal,
         });
         const data = await res.json();
         if (data.ok) {
@@ -45,12 +47,14 @@ export function PreviewPane({ mdx }: PreviewPaneProps) {
             line: data.line ?? null,
           });
         }
-      } catch {
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") return;
         setState({ status: "unavailable" });
       }
     }, DEBOUNCE_MS);
     return () => {
       if (timer.current) clearTimeout(timer.current);
+      controller.abort();
     };
   }, [mdx]);
 
