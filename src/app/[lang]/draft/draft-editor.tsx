@@ -6,6 +6,7 @@ import { useMessages } from "@/lib/hooks/useMessages";
 import { deriveSlug } from "@/lib/draft/slug";
 import { CodeEditor, type CodeEditorHandle } from "./code-editor";
 import { assembleMdx } from "@/lib/draft/frontmatter";
+import { mentionExtension } from "@/lib/draft/mention-extension";
 import { PreviewPane } from "./preview-pane";
 import { Toolbar } from "./toolbar";
 
@@ -133,6 +134,7 @@ export function DraftEditor({
             value={body}
             onChange={setBody}
             placeholder={d.bodyPlaceholder}
+            extraExtensions={[mentionExtension]}
           />
         </div>
         <div className="overflow-auto p-4">
