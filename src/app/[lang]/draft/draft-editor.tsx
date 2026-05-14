@@ -19,6 +19,7 @@ import {
   saveDraft,
   clearDraft,
 } from "@/lib/draft/persistence";
+import { entities } from "@/lib/draft/entities";
 
 export interface DraftEditorProps {
   mode: "new" | "edit";
@@ -85,6 +86,12 @@ export function DraftEditor({
     title.trim().length > 0 &&
     body.trim().length > 0 &&
     isValidSlug(effectiveSlug);
+
+  const slugCollision =
+    mode === "new" &&
+    entities.some(
+      (e) => e.category === category && e.slug === effectiveSlug,
+    );
 
   // Restore-check: runs once on mount. SSR-safe — localStorage is not available
   // during server render, so we must read it in an effect.
@@ -262,6 +269,11 @@ export function DraftEditor({
             disabled={mode === "edit"}
           />
         </label>
+        {slugCollision && (
+          <p className="text-divine-warning w-full text-xs">
+            {d.slugCollision}
+          </p>
+        )}
         <label className="flex w-full flex-col gap-1">
           <span className="text-divine-text-muted text-xs">
             {d.fieldDescription}
