@@ -52,3 +52,51 @@ try {
   mkdirSync(dirname(OUT), { recursive: true });
   writeFileSync(OUT, JSON.stringify({ branch: "unknown", commit: "unknown" }, null, 2) + "\n");
 }
+
+// --- Entity index for the draft editor's @-mention smart-linking ---------
+// Scans content/docs/en/** for guides and writes a flat list of linkable
+// entities (title + slug + category + url). Pure Node, no front-matter lib.
+
+import { readdirSync, statSync } from "node:fs";
+
+const ENTITY_OUT = resolve("src/lib/draft/entity-index.json");
+const EN_DIR = resolve("content/docs/en");
+
+function readTitle(filePath) {
+  const text = readFileSync(filePath, "utf-8");
+  const fm = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  if (!fm) return null;
+  const titleLine = fm[1].match(/^title:\s*(.+)$/m);
+  if (!titleLine) return null;
+  return titleLine[1].trim().replace(/^["']|["']$/g, "");
+}
+
+function buildEntityIndex() {
+  if (!existsSync(EN_DIR)) return [];
+  const entities = [];
+  for (const category of readdirSync(EN_DIR)) {
+    const categoryDir = resolve(EN_DIR, category);
+    if (!statSync(categoryDir).isDirectory()) continue;
+    for (const file of readdirSync(categoryDir)) {
+      if (!file.endsWith(".mdx")) continue;
+      const slug = file.replace(/\.mdx$/, "");
+      const title = readTitle(resolve(categoryDir, file));
+      if (!title) continue;
+      const url =
+        slug === "index" ? `/docs/${category}` : `/docs/${category}/${slug}`;
+      entities.push({ title, slug, category, url });
+    }
+  }
+  return entities;
+}
+
+try {
+  const entities = buildEntityIndex();
+  mkdirSync(dirname(ENTITY_OUT), { recursive: true });
+  writeFileSync(ENTITY_OUT, JSON.stringify(entities, null, 2) + "\n");
+  console.log(`entity-index.json generated: ${entities.length} entities`);
+} catch (err) {
+  console.warn("Could not generate entity-index.json:", err.message);
+  mkdirSync(dirname(ENTITY_OUT), { recursive: true });
+  writeFileSync(ENTITY_OUT, "[]\n");
+}
