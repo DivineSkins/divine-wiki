@@ -207,27 +207,23 @@ export function DraftEditor({
     <div className="flex h-[calc(100vh-3.5rem)] flex-col">
       {restorePrompt !== null && (
         <div className="bg-divine-surface border-divine-border flex items-center gap-3 border-b px-4 py-2 text-sm">
-          <span className="text-divine-text-muted">
-            Unsaved draft from{" "}
-            {new Date(restorePrompt.savedAt).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-            . Restore it?
+          <span className="text-divine-text font-semibold">
+            {d.unsavedHeading}
           </span>
+          <span className="text-divine-text-muted">{d.unsavedBody}</span>
           <button
             type="button"
             className="text-divine-primary-light font-semibold"
             onClick={handleRestore}
           >
-            Restore
+            {d.restore}
           </button>
           <button
             type="button"
             className="text-divine-text-muted"
             onClick={handleDiscard}
           >
-            Discard
+            {d.discard}
           </button>
         </div>
       )}

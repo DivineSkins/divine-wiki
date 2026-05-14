@@ -93,7 +93,7 @@ export function Handoff({
           className="text-divine-text-muted mt-4 text-sm"
           onClick={onClose}
         >
-          Close
+          {d.close}
         </button>
       </div>
     </div>
