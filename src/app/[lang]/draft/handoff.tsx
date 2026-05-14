@@ -35,10 +35,23 @@ export function Handoff({
   const [copied, setCopied] = useState(false);
 
   const copyMdx = async () => {
-    await navigator.clipboard.writeText(mdx);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(mdx);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard can reject (non-HTTPS context, denied permission).
+      // Non-fatal — the MDX stays visible in the panel for manual selection.
+    }
   };
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
 
   const metaSnippet = `"pages": [ …, "${slug}" ]`;
 
@@ -49,6 +62,9 @@ export function Handoff({
     >
       <div
         className="bg-divine-surface border-divine-border max-h-[85vh] w-full max-w-lg overflow-auto rounded-xl border p-5"
+        role="dialog"
+        aria-modal="true"
+        aria-label={d.contribute}
         onClick={(e) => e.stopPropagation()}
       >
         {mode === "new" ? (
