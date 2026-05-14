@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { MDXRemote, type MDXRemoteSerializeResult } from "next-mdx-remote";
 import { useMessages } from "@/lib/hooks/useMessages";
 import { getMDXComponents } from "@/mdx-components";
@@ -92,6 +92,7 @@ function Tooltip({
   docsHref: (anchor: string) => string;
 }) {
   const [preview, setPreview] = useState<MDXRemoteSerializeResult | null>(null);
+  const components = useMemo(() => getMDXComponents(), []);
 
   useEffect(() => {
     let cancelled = false;
@@ -122,7 +123,7 @@ function Tooltip({
       </div>
       <div className="prose prose-invert mt-1 max-w-none text-xs">
         {preview ? (
-          <MDXRemote {...preview} components={getMDXComponents()} />
+          <MDXRemote {...preview} components={components} />
         ) : (
           <span className="text-divine-text-muted">{d.previewLoading}</span>
         )}
