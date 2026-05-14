@@ -3,13 +3,14 @@
 import { useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { useMessages } from "@/lib/hooks/useMessages";
-import { deriveSlug } from "@/lib/draft/slug";
+import { deriveSlug, isValidSlug } from "@/lib/draft/slug";
 import { CodeEditor, type CodeEditorHandle } from "./code-editor";
 import { assembleMdx } from "@/lib/draft/frontmatter";
 import { mentionExtension } from "@/lib/draft/mention-extension";
 import { scanForLinks, applySuggestion } from "@/lib/draft/scan-links";
 import { PreviewPane } from "./preview-pane";
 import { Toolbar } from "./toolbar";
+import { Handoff } from "./handoff";
 
 export interface DraftEditorProps {
   mode: "new" | "edit";
@@ -52,6 +53,7 @@ export function DraftEditor({
   const [scanResults, setScanResults] = useState<
     ReturnType<typeof scanForLinks>
   >([]);
+  const [showHandoff, setShowHandoff] = useState(false);
 
   const editorRef = useRef<CodeEditorHandle>(null);
 
@@ -64,6 +66,11 @@ export function DraftEditor({
     () => assembleMdx({ title, description, body }),
     [title, description, body],
   );
+
+  const canContribute =
+    title.trim().length > 0 &&
+    body.trim().length > 0 &&
+    isValidSlug(effectiveSlug);
 
   const handleInsert = (snippet: string) => {
     editorRef.current?.insertAtCursor(snippet);
@@ -139,6 +146,14 @@ export function DraftEditor({
         >
           {d.scanLinks}
         </button>
+        <button
+          type="button"
+          className="bg-divine-primary rounded-md px-4 py-1.5 text-sm font-bold text-white disabled:opacity-40"
+          disabled={!canContribute}
+          onClick={() => setShowHandoff(true)}
+        >
+          {d.contribute}
+        </button>
       </div>
 
       {scanResults.length > 0 && (
@@ -177,6 +192,16 @@ export function DraftEditor({
           <PreviewPane mdx={assembledMdx} />
         </div>
       </div>
+      {showHandoff && (
+        <Handoff
+          mode={mode}
+          mdx={assembledMdx}
+          category={category}
+          slug={effectiveSlug}
+          editPath={editPath}
+          onClose={() => setShowHandoff(false)}
+        />
+      )}
     </div>
   );
 }
