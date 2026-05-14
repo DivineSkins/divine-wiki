@@ -7,6 +7,7 @@ import { deriveSlug } from "@/lib/draft/slug";
 import { CodeEditor, type CodeEditorHandle } from "./code-editor";
 import { assembleMdx } from "@/lib/draft/frontmatter";
 import { mentionExtension } from "@/lib/draft/mention-extension";
+import { scanForLinks, applySuggestion } from "@/lib/draft/scan-links";
 import { PreviewPane } from "./preview-pane";
 import { Toolbar } from "./toolbar";
 
@@ -48,6 +49,9 @@ export function DraftEditor({
   const [slugTouched, setSlugTouched] = useState(false);
   const [slug, setSlug] = useState("");
   const [body, setBody] = useState("");
+  const [scanResults, setScanResults] = useState<
+    ReturnType<typeof scanForLinks>
+  >([]);
 
   const editorRef = useRef<CodeEditorHandle>(null);
 
@@ -63,6 +67,16 @@ export function DraftEditor({
 
   const handleInsert = (snippet: string) => {
     editorRef.current?.insertAtCursor(snippet);
+  };
+
+  const handleScan = () => setScanResults(scanForLinks(body));
+
+  const handleApplySuggestion = (
+    suggestion: ReturnType<typeof scanForLinks>[number],
+  ) => {
+    const next = applySuggestion(body, suggestion);
+    setBody(next);
+    setScanResults(scanForLinks(next));
   };
 
   return (
@@ -118,7 +132,29 @@ export function DraftEditor({
             onChange={(e) => setDescription(e.target.value)}
           />
         </label>
+        <button
+          type="button"
+          className="text-divine-primary-light bg-divine-primary/15 rounded-md px-3 py-1.5 text-sm"
+          onClick={handleScan}
+        >
+          {d.scanLinks}
+        </button>
       </div>
+
+      {scanResults.length > 0 && (
+        <div className="border-divine-border flex flex-wrap gap-2 border-b px-4 py-2">
+          {scanResults.map((suggestion, i) => (
+            <button
+              key={`${suggestion.entity.slug}-${i}`}
+              type="button"
+              className="bg-divine-surface border-divine-border rounded-md border px-2 py-1 text-xs"
+              onClick={() => handleApplySuggestion(suggestion)}
+            >
+              Link &ldquo;{suggestion.match}&rdquo; → {suggestion.entity.url}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Split: editor | preview */}
       <div className="grid flex-1 grid-cols-2 overflow-hidden">
