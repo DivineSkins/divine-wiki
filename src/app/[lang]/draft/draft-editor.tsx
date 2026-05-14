@@ -89,9 +89,7 @@ export function DraftEditor({
 
   const slugCollision =
     mode === "new" &&
-    entities.some(
-      (e) => e.category === category && e.slug === effectiveSlug,
-    );
+    entities.some((e) => e.category === category && e.slug === effectiveSlug);
 
   // Restore-check: runs once on mount. SSR-safe — localStorage is not available
   // during server render, so we must read it in an effect.
@@ -119,7 +117,15 @@ export function DraftEditor({
       body,
       savedAt: Date.now(),
     });
-  }, [storageKey, title, description, category, effectiveSlug, body, loadingSource]);
+  }, [
+    storageKey,
+    title,
+    description,
+    category,
+    effectiveSlug,
+    body,
+    loadingSource,
+  ]);
 
   useEffect(() => {
     if (mode !== "edit" || !editPath) return;
