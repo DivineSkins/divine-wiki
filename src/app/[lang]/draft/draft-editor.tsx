@@ -1,11 +1,13 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
+import { useParams } from "next/navigation";
 import { useMessages } from "@/lib/hooks/useMessages";
 import { deriveSlug } from "@/lib/draft/slug";
 import { CodeEditor, type CodeEditorHandle } from "./code-editor";
 import { assembleMdx } from "@/lib/draft/frontmatter";
 import { PreviewPane } from "./preview-pane";
+import { Toolbar } from "./toolbar";
 
 export interface DraftEditorProps {
   mode: "new" | "edit";
@@ -32,6 +34,8 @@ export function DraftEditor({
 }: DraftEditorProps) {
   const messages = useMessages();
   const d = messages.draft;
+  const params = useParams();
+  const lang = (params?.lang as string) ?? "en";
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -55,6 +59,10 @@ export function DraftEditor({
     () => assembleMdx({ title, description, body }),
     [title, description, body],
   );
+
+  const handleInsert = (snippet: string) => {
+    editorRef.current?.insertAtCursor(snippet);
+  };
 
   return (
     <div className="flex h-[calc(100vh-3.5rem)] flex-col">
@@ -114,6 +122,12 @@ export function DraftEditor({
       {/* Split: editor | preview */}
       <div className="grid flex-1 grid-cols-2 overflow-hidden">
         <div className="border-divine-border flex flex-col overflow-hidden border-r">
+          <Toolbar
+            onInsert={handleInsert}
+            docsHref={(anchor) =>
+              `/${lang}/docs/contributing/components#${anchor}`
+            }
+          />
           <CodeEditor
             ref={editorRef}
             value={body}
