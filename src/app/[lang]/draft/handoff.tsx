@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMessages } from "@/lib/hooks/useMessages";
 import {
   newFileUrl,
@@ -120,7 +120,12 @@ function NewGuideHandoff({
   const handoff = newFileUrl(category, slug, mdx);
 
   // Open the GitHub tab once, when this screen mounts, if the URL is prefilled.
+  // The ref guard makes this survive React Strict Mode's double-invoked
+  // effects in dev — without it, two identical tabs open.
+  const openedRef = useRef(false);
   useEffect(() => {
+    if (openedRef.current) return;
+    openedRef.current = true;
     if (handoff.prefilled) window.open(handoff.url, "_blank", "noopener");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
