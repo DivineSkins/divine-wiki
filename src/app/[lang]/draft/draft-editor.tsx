@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { useMessages } from "@/lib/hooks/useMessages";
 import { deriveSlug, isValidSlug } from "@/lib/draft/slug";
@@ -11,6 +11,8 @@ import { scanForLinks, applySuggestion } from "@/lib/draft/scan-links";
 import { PreviewPane } from "./preview-pane";
 import { Toolbar } from "./toolbar";
 import { Handoff } from "./handoff";
+import matter from "gray-matter";
+import { rawSourceUrl, editFileUrl } from "@/lib/draft/github";
 
 export interface DraftEditorProps {
   mode: "new" | "edit";
@@ -54,6 +56,8 @@ export function DraftEditor({
     ReturnType<typeof scanForLinks>
   >([]);
   const [showHandoff, setShowHandoff] = useState(false);
+  const [editLoadError, setEditLoadError] = useState(false);
+  const [loadingSource, setLoadingSource] = useState(mode === "edit");
 
   const editorRef = useRef<CodeEditorHandle>(null);
 
@@ -72,6 +76,36 @@ export function DraftEditor({
     body.trim().length > 0 &&
     isValidSlug(effectiveSlug);
 
+  useEffect(() => {
+    if (mode !== "edit" || !editPath) return;
+    let cancelled = false;
+    fetch(rawSourceUrl(editPath))
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.text();
+      })
+      .then((raw) => {
+        if (cancelled) return;
+        const parsed = matter(raw);
+        setTitle((parsed.data.title as string) ?? "");
+        setDescription((parsed.data.description as string) ?? "");
+        setBody(parsed.content.replace(/^\s+/, ""));
+        const parts = editPath.split("/");
+        setCategory(parts[0] ?? "tools");
+        setSlugTouched(true);
+        setSlug(parts[parts.length - 1] ?? "");
+        setLoadingSource(false);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setEditLoadError(true);
+        setLoadingSource(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [mode, editPath]);
+
   const handleInsert = (snippet: string) => {
     editorRef.current?.insertAtCursor(snippet);
   };
@@ -86,10 +120,30 @@ export function DraftEditor({
     setScanResults(scanForLinks(next));
   };
 
+  if (editLoadError && editPath) {
+    return (
+      <div className="p-8">
+        <p className="text-divine-text">{d.editLoadError}</p>
+        <a
+          href={editFileUrl(editPath)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-divine-primary-light mt-2 inline-block text-sm"
+        >
+          {d.openGuideOnGithub} →
+        </a>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-[calc(100vh-3.5rem)] flex-col">
       {/* Header bar: frontmatter inputs + Contribute */}
       <div className="border-divine-border flex flex-wrap items-end gap-3 border-b px-4 py-3">
+        <div className="text-divine-text w-full text-sm font-semibold">
+          {mode === "edit" ? d.editTitle : d.newTitle}
+          {loadingSource ? ` — ${messages.misc.loading}` : ""}
+        </div>
         <label className="flex flex-1 flex-col gap-1">
           <span className="text-divine-text-muted text-xs">{d.fieldTitle}</span>
           <input
