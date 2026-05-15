@@ -51,6 +51,7 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
         <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:gap-6">
           <ContributeCtaButton
             text={t.ctaContribute}
+            icon={<PencilLineIcon className="size-4" aria-hidden />}
             className={textLinkClass}
           />
           <Link
