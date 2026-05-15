@@ -2,14 +2,12 @@
 
 import {
   createContext,
-  useCallback,
   useContext,
   useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from "react";
-import Link from "next/link";
 import { useParams } from "next/navigation";
 import { PencilIcon, PencilLine, Github } from "lucide-react";
 import { useMessages } from "@/lib/hooks/useMessages";
@@ -144,7 +142,7 @@ export function ContributeButton() {
 }
 
 /**
- * Homepage CTA trigger. Renders a button styled to match the existing
+ * Homepage CTA trigger. Renders a single button styled to match the existing
  * text-link CTA the home page already uses for "Write a guide".
  */
 export function ContributeCtaButton({
@@ -163,16 +161,7 @@ export function ContributeCtaButton({
         className ?? "text-divine-primary-light text-sm hover:underline"
       }
     >
-      <Link
-        href="#"
-        className="contents"
-        onClick={(e) => {
-          e.preventDefault();
-          open();
-        }}
-      >
-        {text}
-      </Link>
+      {text}
     </button>
   );
 }
