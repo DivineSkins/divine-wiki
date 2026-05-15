@@ -5,10 +5,11 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
-import { useParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { PencilIcon, PencilLine, Github } from "lucide-react";
 import { useMessages } from "@/lib/hooks/useMessages";
 import { PremiumCard } from "@/components/mdx/PremiumCard";
@@ -56,6 +57,8 @@ export function ContributePickerModal() {
   const { isOpen, close } = useContributePicker();
   const params = useParams();
   const lang = (params?.lang as string) ?? "en";
+  const pathname = usePathname();
+  const initialPathnameRef = useRef(pathname);
 
   // Escape-to-close, mirroring src/app/[lang]/draft/handoff.tsx.
   useEffect(() => {
@@ -66,6 +69,16 @@ export function ContributePickerModal() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [isOpen, close]);
+
+  // Close the modal on navigation — without this, clicking a card opens the
+  // target route but the modal stays mounted (the provider lives in the
+  // layout) and covers the page.
+  useEffect(() => {
+    if (pathname !== initialPathnameRef.current) {
+      close();
+      initialPathnameRef.current = pathname;
+    }
+  }, [pathname, close]);
 
   if (!isOpen) return null;
 
