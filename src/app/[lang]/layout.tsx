@@ -6,6 +6,10 @@ import { Manrope, Poppins, Inter, JetBrains_Mono } from "next/font/google";
 import type { Metadata } from "next";
 import { baseUrl } from "@/lib/config";
 import { cn } from "@/lib/utils";
+import {
+  ContributePickerProvider,
+  ContributePickerModal,
+} from "@/components/contribute-picker";
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -100,7 +104,12 @@ export default async function RootLayout({
             jetbrainsMono.variable,
           )}
         >
-          <RootProvider i18n={provider(lang)}>{children}</RootProvider>
+          <RootProvider i18n={provider(lang)}>
+            <ContributePickerProvider>
+              {children}
+              <ContributePickerModal />
+            </ContributePickerProvider>
+          </RootProvider>
         </div>
       </body>
     </html>
