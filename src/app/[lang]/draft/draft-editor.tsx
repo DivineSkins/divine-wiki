@@ -398,6 +398,7 @@ export function DraftEditor({
           category={category}
           slug={effectiveSlug}
           editPath={editPath}
+          stagedImages={stagedImages}
           onClose={() => {
             setShowHandoff(false);
             clearDraft(storageKey);
