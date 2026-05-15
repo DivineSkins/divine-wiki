@@ -1,0 +1,122 @@
+---
+title: Components
+description: The components you can use in a guide. What each one is for, and how to write it.
+---
+
+The wiki has a small set of components you can drop into any guide. The draft editor's toolbar inserts these for you. This page is the full reference.
+
+## Callout
+
+A colored box for warnings, tips, and the Korea/China safety note. Use `type="danger"` for real risk, `info` for tips, `warning` for "this can go wrong", `success` for confirmation.
+
+```mdx
+<Callout type="danger" title="Don't use custom skins in Korea or China">
+  The anti-cheat there blocks all mods. Accounts get banned.
+</Callout>
+```
+
+## Tabs
+
+Alternative paths — operating-system-specific steps, tool-specific workflows. Every `<Tabs>` needs a closing `</Tabs>`, and every `<Tab>` a closing `</Tab>`.
+
+```mdx
+<Tabs items={["Windows", "macOS"]}>
+  <Tab value="Windows">Windows steps here.</Tab>
+  <Tab value="macOS">macOS steps here.</Tab>
+</Tabs>
+```
+
+## Accordion
+
+Collapsible sections. Good for FAQs and optional detail.
+
+```mdx
+<Accordions>
+  <Accordion title="Question here">Answer here.</Accordion>
+</Accordions>
+```
+
+## Image
+
+A screenshot. `alt` text is required — reviewers reject images without it. Keep files under 500 KB and put them in `public/wiki-images/`.
+
+```mdx
+<img
+  src="/wiki-images/your-screenshot.png"
+  alt="Short description of the image"
+/>
+```
+
+## Code block
+
+A fenced code block. Add a language after the opening fence for highlighting.
+
+```bash
+npm run dev
+```
+
+## Table
+
+A Markdown table. Keep it to a few columns so it reads on mobile.
+
+```mdx
+| Column A | Column B |
+| -------- | -------- |
+| Value    | Value    |
+```
+
+## ToolCard
+
+A single tool row — name, link, one-line description. Optional `badge`.
+
+```mdx
+<ToolCard name="Flint" href="/docs/tools/flint" badge="Recommended">
+  All-in-one skin creation tool.
+</ToolCard>
+```
+
+## LevelPill
+
+A difficulty marker. Put it at the top of a guide. `level` is `beginner`, `intermediate`, or `advanced`.
+
+```mdx
+<LevelPill level="beginner" />
+```
+
+## ParameterList
+
+A two-column name/description table for reference pages.
+
+```mdx
+<ParameterList
+  parameters={[
+    { name: "champion", description: "The champion the skin belongs to." },
+  ]}
+/>
+```
+
+## PremiumCard
+
+A prominent gradient card for a featured link.
+
+```mdx
+<PremiumCard title="Guided walkthrough" href="/docs/guided-walkthrough">
+  Start here if you are new.
+</PremiumCard>
+```
+
+## GlowCTA
+
+A glowing call-to-action button. Use sparingly — one per page at most.
+
+```mdx
+<GlowCTA href="/docs">Browse the guides</GlowCTA>
+```
+
+## YouTube
+
+An embedded YouTube video. Pass the video id, not the full URL.
+
+```mdx
+<YouTube id="VIDEO_ID" title="What the video shows" />
+```
