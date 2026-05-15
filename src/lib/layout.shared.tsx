@@ -4,6 +4,7 @@ import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
 import { i18n } from "@/lib/i18n";
 import { discordInviteUrl } from "@/lib/config";
 import { getMessages } from "./locale";
+import { ContributeButton } from "@/components/contribute-picker";
 
 export function baseOptions(
   locale: string,
@@ -44,9 +45,8 @@ export function baseOptions(
         active: "nested-url",
       },
       {
-        icon: <PencilIcon />,
-        text: messages.nav.contribute,
-        url: `/${locale}/draft`,
+        type: "custom",
+        children: <ContributeButton />,
       },
       {
         icon: <MessageCircleIcon />,
