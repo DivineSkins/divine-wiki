@@ -143,13 +143,16 @@ export function ContributeButton() {
 
 /**
  * Homepage CTA trigger. Renders a single button styled to match the existing
- * text-link CTA the home page already uses for "Write a guide".
+ * text-link CTA the home page already uses for "Write a guide". An optional
+ * `icon` is rendered before the text.
  */
 export function ContributeCtaButton({
   text,
+  icon,
   className,
 }: {
   text: string;
+  icon?: ReactNode;
   className?: string;
 }) {
   const { open } = useContributePicker();
@@ -161,6 +164,7 @@ export function ContributeCtaButton({
         className ?? "text-divine-primary-light text-sm hover:underline"
       }
     >
+      {icon}
       {text}
     </button>
   );
