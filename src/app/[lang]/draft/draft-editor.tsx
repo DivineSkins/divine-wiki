@@ -388,7 +388,7 @@ export function DraftEditor({
           />
         </div>
         <div className="overflow-auto p-4">
-          <PreviewPane mdx={assembledMdx} />
+          <PreviewPane mdx={assembledMdx} stagedImages={stagedImages} />
         </div>
       </div>
       {showHandoff && (
