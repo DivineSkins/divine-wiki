@@ -35,7 +35,10 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
           {t.tagline}
         </p>
         <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:gap-3.5">
-          <GlowCTA href={`/${lang}/docs/lol/guided-walkthrough`} variant="primary">
+          <GlowCTA
+            href={`/${lang}/docs/lol/guided-walkthrough`}
+            variant="primary"
+          >
             <BookOpenIcon className="size-4" aria-hidden />
             {t.ctaStart}
           </GlowCTA>
@@ -45,7 +48,10 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
         </div>
 
         <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:gap-6">
-          <Link href={`/${lang}/docs/lol/contributing`} className={textLinkClass}>
+          <Link
+            href={`/${lang}/docs/lol/contributing`}
+            className={textLinkClass}
+          >
             <PencilLineIcon className="size-4" aria-hidden />
             {t.ctaContribute}
           </Link>
