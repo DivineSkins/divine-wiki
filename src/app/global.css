@@ -206,10 +206,10 @@
   color: transparent;
 }
 
-/* Gradient HR — gold → purple, the signature divider. */
+/* Divider — structural chrome tone. Used on home + 404 hairline rules. */
 @utility divine-hr {
   height: 1px;
-  background: linear-gradient(90deg, #ecb96a 0%, #783cb5 100%);
+  background: var(--color-divine-border);
   border: 0;
 }
 
@@ -224,7 +224,7 @@
   inset: -1px;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(180deg, #ecb96a 0%, #c084fc 40%);
+  background: #783cb5;
   -webkit-mask:
     linear-gradient(#000 0 0) content-box,
     linear-gradient(#000 0 0);
@@ -297,7 +297,7 @@
   }
   .dark [data-toc-thumb],
   .dark [data-toc] [data-thumb] {
-    background: linear-gradient(180deg, #ecb96a 0%, #c084fc 100%) !important;
+    background: #783cb5 !important;
     width: 2px !important;
     border-radius: 2px;
   }
@@ -318,7 +318,7 @@
     font-weight: 600 !important;
     font-size: 1.375rem !important;
     line-height: 1.3 !important;
-    color: var(--color-divine-primary-light) !important;
+    color: var(--color-divine-text) !important;
     margin-top: 2rem !important;
   }
 
@@ -401,8 +401,17 @@
     top: 0;
     bottom: 0;
     width: 3px;
-    background: linear-gradient(180deg, #ecb96a 0%, #783cb5 100%);
+    background: #783cb5;
     border-radius: 3px;
+  }
+
+  /* Heading anchor links (the auto-injected `#section` deep-link wrappers
+     Fumadocs renders inside h1–h6) must inherit the heading color and stay
+     un-underlined — otherwise the prose link rule below paints every heading
+     lilac and underlines it, even H2s that should be white. */
+  .prose :is(h1, h2, h3, h4, h5, h6) a:not(.not-prose a) {
+    color: inherit !important;
+    text-decoration: none !important;
   }
 
   /* Links — purple-light, subtle underline that animates on hover. */
@@ -556,12 +565,12 @@
     margin-bottom: 0 !important;
   }
 
-  /* Horizontal rule — gold→purple gradient. */
+  /* Horizontal rule — match the structural chrome divider tone so every
+     hairline on the page reads as one element. */
   .prose hr {
     height: 1px;
     border: 0;
-    background: linear-gradient(90deg, #ecb96a 0%, #783cb5 100%);
-    opacity: 0.55;
+    background: var(--color-divine-border);
     margin: 2.5rem 0;
   }
 
@@ -688,9 +697,9 @@
     color: var(--color-divine-primary-light) !important;
   }
 
-  /* Active bar — gold→purple gradient rail on nested items. */
+  /* Active bar — solid divine purple rail on nested items. */
   .dark #nd-sidebar a[data-active="true"]::before {
-    background: linear-gradient(180deg, #ecb96a 0%, #c084fc 100%) !important;
+    background: #783cb5 !important;
     width: 2px !important;
     border-radius: 2px;
     inset-block: 0.4rem !important;

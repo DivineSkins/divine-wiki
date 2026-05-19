@@ -46,8 +46,7 @@ export async function GET(
           left: 0,
           right: 0,
           height: 6,
-          background:
-            "linear-gradient(90deg, #ecb96a 0%, #c084fc 50%, #783cb5 100%)",
+          background: "#783cb5",
           display: "flex",
         }}
       />
@@ -74,7 +73,7 @@ export async function GET(
           style={{
             height: 2,
             width: 280,
-            background: "linear-gradient(90deg, #ecb96a 0%, #783cb5 100%)",
+            background: "#783cb5",
             display: "flex",
           }}
         />
