@@ -447,42 +447,62 @@
     color: color-mix(in srgb, var(--color-divine-text) 88%, transparent);
   }
 
-  /* Tables — surface bg, hover row highlight. */
+  /* Tables — surface bg + hover row highlight.
+     `!important` mirrors the rest of the prose rules: Fumadocs typography
+     preset (`.prose :where(table):not(...)`) sets backgrounds to
+     `var(--color-fd-card)` / `--color-fd-muted` which wash out without
+     overrides — every wiki table renders white-on-light otherwise. */
   .prose table {
     border-collapse: separate;
     border-spacing: 0;
     width: 100%;
     border-radius: 10px;
     overflow: hidden;
-    border: 1px solid var(--color-divine-border);
-    background: color-mix(in srgb, #15141c 70%, transparent);
+    border: 1px solid var(--color-divine-border) !important;
+    background: color-mix(
+      in srgb,
+      var(--color-divine-surface) 70%,
+      transparent
+    ) !important;
   }
   .prose thead {
     background: color-mix(
       in srgb,
       var(--color-divine-primary) 12%,
       transparent
-    );
+    ) !important;
   }
   .prose th {
-    font-family: var(--font-poppins), system-ui, sans-serif;
-    font-weight: 600;
-    text-align: left;
+    font-family: var(--font-poppins), system-ui, sans-serif !important;
+    font-weight: 600 !important;
+    text-align: left !important;
     padding: 0.75rem 1rem !important;
-    color: var(--color-divine-text);
-    border-bottom: 1px solid var(--color-divine-border);
+    color: var(--color-divine-text) !important;
+    /* rgba(0 0 0 / 0) survives Lightning CSS optimization that strips
+       `background: transparent`. Without this the th picks up Fumadocs'
+       --color-fd-muted background and the thead tint is hidden. */
+    background-color: rgba(0, 0, 0, 0) !important;
+    border-bottom: 1px solid var(--color-divine-border) !important;
   }
   .prose td {
     padding: 0.75rem 1rem !important;
     border-bottom: 1px solid
-      color-mix(in srgb, var(--color-divine-border) 60%, transparent);
-    color: color-mix(in srgb, var(--color-divine-text) 88%, transparent);
+      color-mix(in srgb, var(--color-divine-border) 60%, transparent) !important;
+    color: color-mix(
+      in srgb,
+      var(--color-divine-text) 88%,
+      transparent
+    ) !important;
   }
   .prose tbody tr:last-child td {
-    border-bottom: 0;
+    border-bottom: 0 !important;
   }
   .prose tbody tr:hover td {
-    background: color-mix(in srgb, var(--color-divine-primary) 6%, transparent);
+    background: color-mix(
+      in srgb,
+      var(--color-divine-primary) 6%,
+      transparent
+    ) !important;
   }
 
   /* FAQ details — clean collapsible row with chevron. No box, no gradient. */
