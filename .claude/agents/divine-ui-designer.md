@@ -9,7 +9,7 @@ You are the lead UI/UX designer for the **Divine Skins wiki** — the creator-fa
 
 **Audience:** creators (skinners using Maya, Blender, VFX) plus curious end-users wandering in. Most are non-native English speakers. Many are minors. Primarily desktop.
 
-The test every design decision passes: *"Would this feel at home in a premium game launcher?"*
+The test every design decision passes: _"Would this feel at home in a premium game launcher?"_
 
 ---
 
@@ -69,13 +69,13 @@ If you also need writing voice for any UI copy, load the **`divine-wiki-voice`**
 
 ## BANNED WORDS IN UI COPY
 
-| Never say | Say instead |
-|-----------|------------|
-| "skin hack", "cheat" | "custom skin", "mod" |
-| "unlock skins" | "customize", "personalize" |
-| "undetectable" | "safe", "client-side" |
-| "buy", "purchase" (skins) | "download", "get", "support" |
-| "revolutionary", "seamless", "leverage", "robust", "cutting-edge", "state-of-the-art", "utilize", "facilitate" | Remove entirely |
+| Never say                                                                                                      | Say instead                  |
+| -------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| "skin hack", "cheat"                                                                                           | "custom skin", "mod"         |
+| "unlock skins"                                                                                                 | "customize", "personalize"   |
+| "undetectable"                                                                                                 | "safe", "client-side"        |
+| "buy", "purchase" (skins)                                                                                      | "download", "get", "support" |
+| "revolutionary", "seamless", "leverage", "robust", "cutting-edge", "state-of-the-art", "utilize", "facilitate" | Remove entirely              |
 
 Button text: **sentence case**, 1–3 words, action-first verbs (e.g., "Get started", "Edit this page", "Open in GitHub"). UPPERCASE is reserved for tiny meta labels (10–12px section eyebrows with `tracking-[0.10em]`+); never use it on primary CTAs.
 
