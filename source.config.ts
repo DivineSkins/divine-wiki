@@ -52,6 +52,8 @@ export default defineConfig({
       onError: "ignore",
     },
     // Rewrite bare YouTube URLs on their own line into <YouTube /> embeds.
+    // NOTE: keep this list in sync with `previewRemarkPlugins` in
+    // src/lib/draft/mdx-config.ts (the /api/preview route uses that copy).
     remarkPlugins: [remarkYouTube],
     rehypeCodeOptions: {
       langs: ["bash", "json", "python", "javascript", "typescript"],

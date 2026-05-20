@@ -46,7 +46,7 @@ export function baseOptions(
       {
         icon: <PencilIcon />,
         text: messages.nav.contribute,
-        url: `/${locale}/docs/lol/contributing`,
+        url: `/${locale}/draft`,
       },
       {
         icon: <MessageCircleIcon />,

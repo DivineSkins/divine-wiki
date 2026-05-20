@@ -95,6 +95,10 @@ function Carousel({
 
   React.useEffect(() => {
     if (!api) return;
+    // Embla only emits scroll-state events after init, so the arrow state
+    // has to be seeded once synchronously here. This is the upstream shadcn
+    // carousel pattern and the one render flush it causes is unavoidable.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     onSelect(api);
     api.on("reInit", onSelect);
     api.on("select", onSelect);

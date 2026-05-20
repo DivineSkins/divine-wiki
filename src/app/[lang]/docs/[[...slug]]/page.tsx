@@ -9,7 +9,6 @@ import { notFound } from "next/navigation";
 import { getMDXComponents } from "@/mdx-components";
 import type { Metadata } from "next";
 import { createRelativeLink } from "fumadocs-ui/mdx";
-import { branch } from "@/git-info.json";
 import Link from "next/link";
 import { ogLanguageBlacklist } from "@/lib/i18n";
 import { Separator } from "@/components/ui/separator";
@@ -35,12 +34,6 @@ export default async function Page(
       toc={loadedPageData.toc}
       tableOfContent={{ style: "clerk" }}
       full={page.data.full}
-      editOnGithub={{
-        owner: "DivineSkins",
-        repo: "divine-wiki",
-        path: `content/docs/${page.path}`,
-        sha: branch,
-      }}
     >
       <DocsTitle className="divine-doc-title">{page.data.title}</DocsTitle>
       <DocsDescription className="divine-doc-description mb-0">
@@ -78,6 +71,13 @@ export default async function Page(
             a: createRelativeLink(source, page),
           })}
         />
+        <hr className="border-divine-border my-8" />
+        <Link
+          href={`/${params.lang}/draft?edit=${page.slugs.join("/")}`}
+          className="text-divine-primary-light text-sm hover:underline"
+        >
+          {messages.misc?.editOnGithub ?? "Edit on GitHub"} →
+        </Link>
       </DocsBody>
     </DocsPage>
   );
