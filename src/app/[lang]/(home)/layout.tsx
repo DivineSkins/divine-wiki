@@ -18,10 +18,7 @@ export default async function Layout({
 }) {
   const { lang } = await params;
   return (
-    <HomeLayout
-      {...baseOptions(lang)}
-      className="flex min-h-screen flex-col"
-    >
+    <HomeLayout {...baseOptions(lang)} className="flex min-h-screen flex-col">
       {children}
     </HomeLayout>
   );

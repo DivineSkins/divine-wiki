@@ -1,0 +1,174 @@
+---
+title: "Full walkthrough"
+description: "The end-to-end video walkthrough for making a custom League skin. From first tool install to published mod."
+category: "guided-walkthrough"
+---
+
+> Creating custom League skins is a journey. This walks you from beginner to advanced modding.
+
+## Getting Started
+
+### Required Tools & Downloads
+
+- Assets Library
+- Tools
+- **LtMAO**
+
+---
+
+## Step-by-Step Walkthrough
+
+---
+
+### Part 1 — Obsidian
+
+Learn how to explore League’s internal game files using **Obsidian**, understand the basics of modding, and prepare your project folders.
+
+Includes:
+
+- File exploration
+- Modding fundamentals
+- Project setup
+
+https://www.youtube.com/watch?v=lUq29txlCCE
+
+---
+
+### Part 2 — Hacksaw
+
+Recolor existing visual effects using a visual palette system.  
+No coding required.
+
+https://www.youtube.com/watch?v=ZswaStGq7VU&t=1s
+
+---
+
+### Part 3 — Replacing a Model (Maya or Blender)
+
+Learn how to fully replace a champion model using **Autodesk Maya** and the **LoL Maya Plugin**. **Blender** model swap tutorial can be found here: https://wiki.divineskins.gg/docs/blender/3d-model-swap
+
+#### Important Notes
+
+- **Install LoL Maya first**
+- Do **not** delete faces, vertices, or edges after binding the mesh
+- On first import of `.skn` / `.skl` files, use **Import**, not drag-and-drop
+- Ensure **separated materials and meshes** are enabled
+
+https://www.youtube.com/watch?v=xqB84ga55hI&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=3&ab_channel=Frog
+
+See the [Maya Error List](/docs/lol/errors/maya-errors).
+
+---
+
+### Part 4 — Maya Materials, Submeshes, and Bin
+
+Understand how materials work in Maya and how to reference them inside `.bin` files using `MaterialOverride`.
+
+https://www.youtube.com/watch?v=dS-lvovFmVw&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=4&ab_channel=Frog
+
+---
+
+### Part 5 — Matrix and Idle Particles
+
+Scale, rotate, and move visual effects using transformation matrices.  
+Add idle auras or passive visual effects.
+
+Includes:
+
+- How to place a VFX system (important)
+- Code used in this tutorial
+
+https://www.youtube.com/watch?v=bUJSVlVHEZM&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=5&ab_channel=Frog
+
+---
+
+### Part 6 — Particle Systems and Triggered VFX
+
+Trigger visual effects using:
+
+- Animation events
+- Game logic (`PersistentEffectConditions`)
+
+https://www.youtube.com/watch?v=T7ALG5M4twQ&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=6&ab_channel=Frog
+Code used in this tutorial
+
+---
+
+### Part 7 — Voiceover and Sound Effects (Outdated)
+
+Replace voiceovers and sound effects such as spell sounds or taunts.
+
+> **Note:** This tutorial is outdated.  
+> You can now use **LtMAO from GitHub** to convert `.wem` files to `.wav` and back.
+
+https://youtu.be/QlJRc4hQNA0?si=w0E0iB6Grcl2n8Ga
+Download LtMAO
+
+https://github.com/tarngaina/LtMAO
+
+---
+
+### Part 8 — Retargeting Animations
+
+Transfer animations from other games or champions (for example, Fortnite) to League rigs.
+
+#### Tool
+
+| Tool                  | Description                                 |
+| --------------------- | ------------------------------------------- |
+| Fortnite Porting Tool | Ports Fortnite animations for use in League |
+
+https://www.youtube.com/watch?v=jnAXvFzYlb4&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=8&ab_channel=Frog
+
+---
+
+### Part 9 — League Materials (Glow and Toon Shader)
+
+Apply League-style materials such as **Glow** and **Toon Shader** to your custom skins.
+
+https://www.youtube.com/watch?v=mJDehGDIL00&ab_channel=Frog
+Material Collection
+
+---
+
+### Part 10 — Repathing and Publishing
+
+Repath your mod files correctly and publish your skin on the website.
+
+https://youtu.be/WxdHs9oauP4
+
+---
+
+## Extras
+
+### Adding Bones and Physics (Hair, Tails, Capes)
+
+Learn how to add bones and physics-based motion to League skins.
+
+#### Tools Required
+
+| Tool          | Description                                                 |
+| ------------- | ----------------------------------------------------------- |
+| Autodesk Maya | Industry-standard 3D software for rigging and UV mapping    |
+| RitoBin       | Converts `.bin` files to `.py` and back using `ritobin_cli` |
+
+https://www.youtube.com/watch?v=ejg5IAkEDTY&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=9&ab_channel=Frog
+
+---
+
+### Example Configuration
+
+```cpp
+rigPoseModifierData: list[pointer] = {
+    ConformToPathRigPoseModifierData {
+        mStartingJointName: hash = 0x41f70632
+        mEndingJointName: hash = 0x3cf6fe53
+        mDefaultMaskName: hash = 0x7136e1bc
+        mMaxBoneAngle: f32 = 45
+        mDampingValue: f32 = 5
+        mFrequency: f32 = 3
+    }
+}
+
+
+```

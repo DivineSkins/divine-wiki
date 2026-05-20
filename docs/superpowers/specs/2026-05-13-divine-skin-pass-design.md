@@ -43,9 +43,8 @@ transition-[background-color,box-shadow] duration-300
 with inline style:
 
 ```ts
-boxShadow:
-  "inset 0px 1px 1px 0px rgba(255,255,255,0.35), " +
-  "0px 0px 44px 0px rgba(120,60,181,0.55)"
+boxShadow: "inset 0px 1px 1px 0px rgba(255,255,255,0.35), " +
+  "0px 0px 44px 0px rgba(120,60,181,0.55)";
 ```
 
 **Secondary variant** — translucent white pill, used for the alternate action:
@@ -95,11 +94,11 @@ File: `src/app/[lang]/(home)/page.tsx`
 
 Match production's hero scale exactly:
 
-| Element | Class |
-| --- | --- |
-| H1 | `font-manrope font-bold tracking-tight leading-[1.05] text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-center` |
-| Subtitle | `font-manrope font-medium text-base sm:text-lg md:text-xl text-[#8B8D98] text-center max-w-2xl mt-2` |
-| Section heading (Tracks) | `font-manrope font-bold text-2xl md:text-[26px] tracking-tight text-[#E4E4E7]` |
+| Element                  | Class                                                                                                           |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| H1                       | `font-manrope font-bold tracking-tight leading-[1.05] text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-center` |
+| Subtitle                 | `font-manrope font-medium text-base sm:text-lg md:text-xl text-[#8B8D98] text-center max-w-2xl mt-2`            |
+| Section heading (Tracks) | `font-manrope font-bold text-2xl md:text-[26px] tracking-tight text-[#E4E4E7]`                                  |
 
 The H1 keeps `renderTitleWithBrandAccent` so the brand word (`Divine Skins` / `Divine` / `League of Legends`) gets the gold→purple gradient via `.divine-gradient-text`.
 
@@ -122,7 +121,8 @@ Reduce from three pills to **one primary + one secondary** + a text link, mirror
 Keep the existing radial purple wash:
 
 ```tsx
-className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,rgba(120,60,181,0.22),transparent_60%)]"
+className =
+  "absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,rgba(120,60,181,0.22),transparent_60%)]";
 ```
 
 No stars, no particles, no animated columns — production's hero motion is brand marketing; the wiki's job is to get readers into content fast.
@@ -149,7 +149,7 @@ font-weight: 800 !important;
 font-size: clamp(2rem, 1.4rem + 2vw, 2.75rem) !important;
 line-height: 1.1 !important;
 letter-spacing: -0.02em !important;
-color: var(--color-divine-text) !important;   /* was a gold→purple gradient */
+color: var(--color-divine-text) !important; /* was a gold→purple gradient */
 margin-bottom: 0.4em !important;
 ```
 
@@ -167,11 +167,11 @@ Audit `.dark` selectors for the Fumadocs TOC (`[data-toc-thumb]`, `[data-toc-lin
 
 ## Files touched
 
-| Path | Change |
-| --- | --- |
-| `src/components/mdx/GlowCTA.tsx` | Replace gradient + `rounded-[12px]` with prod's pill recipe. Add `secondary` variant. Keep `ghost`. |
+| Path                             | Change                                                                                                                              |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `src/components/mdx/GlowCTA.tsx` | Replace gradient + `rounded-[12px]` with prod's pill recipe. Add `secondary` variant. Keep `ghost`.                                 |
 | `src/app/[lang]/(home)/page.tsx` | Update H1/subtitle/section typography to Manrope ladder. Reduce hero CTAs to primary + secondary. Demote "Contribute" to text link. |
-| `src/app/global.css` | (a) `.divine-doc-title` → white Manrope, drop gradient. (b) Edit-on-GitHub button styling. (c) TOC active-state polish. |
+| `src/app/global.css`             | (a) `.divine-doc-title` → white Manrope, drop gradient. (b) Edit-on-GitHub button styling. (c) TOC active-state polish.             |
 
 **Not touched:** `src/components/ui/button.tsx`, content MDX, sidebar CSS (already correct), prose styling (already correct).
 
@@ -190,8 +190,8 @@ Audit `.dark` selectors for the Fumadocs TOC (`[data-toc-thumb]`, `[data-toc-lin
 
 ## Open questions resolved during brainstorming
 
-| Question | Answer |
-| --- | --- |
-| Pill vs `rounded-[12px]`? | Pill (`rounded-full`) — matches production. |
-| Three hero CTAs vs two + text link? | Two pills + text link — production never shows three competing CTAs. |
-| Keep gradient on docs page H1? | No — make it white Manrope. Gradient stays for hero accent word and `divine-hr` divider. |
+| Question                            | Answer                                                                                   |
+| ----------------------------------- | ---------------------------------------------------------------------------------------- |
+| Pill vs `rounded-[12px]`?           | Pill (`rounded-full`) — matches production.                                              |
+| Three hero CTAs vs two + text link? | Two pills + text link — production never shows three competing CTAs.                     |
+| Keep gradient on docs page H1?      | No — make it white Manrope. Gradient stays for hero accent word and `divine-hr` divider. |

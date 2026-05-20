@@ -10,14 +10,14 @@ Pair this with [`voice.md`](./voice.md) (how to write) and [`product.md`](./prod
 
 Five types. One template per type. Don't invent new ones.
 
-| Type | Purpose | Examples |
-|---|---|---|
-| **Hub** | Routing only — icon grid that points elsewhere | Landing page, "For creators" hub, "Use skins" hub |
-| **Tutorial** | One linear happy path, beginner-first | "Install Celestial", "Submit your first skin" |
-| **How-to** | One task, goal-oriented, intermediate | "Install a skin", "Update Celestial", "Move skins to a new PC" |
-| **Reference** | One entity per page, identical layout | Per-skin pages, per-launcher-feature pages, file format spec |
-| **Troubleshooting** | Symptom → cause → fix | "Skin doesn't show in game", "Celestial won't open" |
-| **Changelog** | Dated, never edited after publish | Per-LoL-patch status page, Celestial release notes |
+| Type                | Purpose                                        | Examples                                                       |
+| ------------------- | ---------------------------------------------- | -------------------------------------------------------------- |
+| **Hub**             | Routing only — icon grid that points elsewhere | Landing page, "For creators" hub, "Use skins" hub              |
+| **Tutorial**        | One linear happy path, beginner-first          | "Install Celestial", "Submit your first skin"                  |
+| **How-to**          | One task, goal-oriented, intermediate          | "Install a skin", "Update Celestial", "Move skins to a new PC" |
+| **Reference**       | One entity per page, identical layout          | Per-skin pages, per-launcher-feature pages, file format spec   |
+| **Troubleshooting** | Symptom → cause → fix                          | "Skin doesn't show in game", "Celestial won't open"            |
+| **Changelog**       | Dated, never edited after publish              | Per-LoL-patch status page, Celestial release notes             |
 
 Tutorial vs how-to is the split people get wrong. Tutorial = "I'm new, walk me through it." How-to = "I know what I want, give me the steps."
 
@@ -28,6 +28,7 @@ Tutorial vs how-to is the split people get wrong. Tutorial = "I'm new, walk me t
 **Landing page = icon-tile grid.** 6–8 tiles, max. One icon + one short label per tile (most readers are non-native English — fewer words is better). No long intro paragraph above the grid.
 
 Tile candidates:
+
 - Get Started
 - Install Celestial
 - Install a Skin
@@ -60,6 +61,7 @@ The most-read page type. Get this one right or nothing else matters.
 ```
 
 **Structure:**
+
 1. **What this guide is for** (one sentence)
 2. **Before you start** — prerequisites (LoL installed, Celestial installed, region not KR/CN)
 3. **The steps** — numbered, one verb each, screenshot per step
@@ -79,6 +81,7 @@ Celestial/
 ```
 
 **Split long flows into separate pages**, don't make one mega-page (OpenMW pattern):
+
 - Install Celestial
 - Install a skin
 - Launch with skins active
@@ -105,7 +108,7 @@ Celestial/
 
 **Cross-link from the install step where that problem usually happens** ("If you don't see the green checkmark, see [Skin doesn't show in game]"). Don't paste the troubleshooting inline.
 
-**Push Discord *after* a written page exists**, not before. BSMG explicitly says "check this page before asking in Discord." Cuts repeat questions.
+**Push Discord _after_ a written page exists**, not before. BSMG explicitly says "check this page before asking in Discord." Cuts repeat questions.
 
 ---
 
@@ -163,15 +166,16 @@ The wiki is open-source, Git-based (Markdown in a repo). Anonymous reading, but 
 
 **Three contribution tiers, one per skill level — surface all three on every page:**
 
-| Tier | Friction | Who |
-|---|---|---|
-| **Edit on GitHub** | Click "Edit this page" → GitHub web editor → propose changes. Zero Git knowledge. | Anyone with a GitHub account |
-| **Suggest on Discord** | Deep-link to `#wiki-feedback` channel | Anyone — no GitHub needed |
-| **Clone & PR** | Standard Git flow | Regular contributors |
+| Tier                   | Friction                                                                          | Who                          |
+| ---------------------- | --------------------------------------------------------------------------------- | ---------------------------- |
+| **Edit on GitHub**     | Click "Edit this page" → GitHub web editor → propose changes. Zero Git knowledge. | Anyone with a GitHub account |
+| **Suggest on Discord** | Deep-link to `#wiki-feedback` channel                                             | Anyone — no GitHub needed    |
+| **Clone & PR**         | Standard Git flow                                                                 | Regular contributors         |
 
 The GitHub web editor route is the single biggest funnel for drive-by typo fixes. Every page needs an "Edit this page" link.
 
 **Adopt ArchWiki's three rules verbatim** in `CONTRIBUTING.md`:
+
 1. Every edit needs a descriptive summary.
 2. Atomic edits only (no mega-diffs).
 3. Big changes get announced first (for us: a `#wiki-proposals` Discord thread).
@@ -183,6 +187,7 @@ These three rules are the most durable piece of wiki governance ever written. Do
 ## Review & quality control
 
 **`CODEOWNERS` file routes auto-reviewers per directory.** Tiered approval:
+
 - Typo / translation PRs → any merged contributor can approve
 - Structural / policy / safety PRs → named maintainers only
 
@@ -193,6 +198,7 @@ These three rules are the most durable piece of wiki governance ever written. Do
 **CI gate (kept deliberately thin):** Prettier formatting only. Markdown lint, broken-link scans, and spell-check were tried and removed — they failed PRs on legitimate champion names and flaky third-party links, which scared off the drive-by contributors the wiki depends on. Reviewers handle voice, links, and image hygiene at PR time.
 
 **PR template checklist** (reviewers tick publicly):
+
 - [ ] Voice sounds like a gamer friend, not marketing
 - [ ] No banned terms (skin hack, undetectable, buy, etc.)
 - [ ] Screenshots compressed

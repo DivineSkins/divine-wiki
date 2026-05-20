@@ -14,18 +14,19 @@
 
 ## File Structure
 
-| Path | Action | Responsibility |
-| --- | --- | --- |
-| `src/components/mdx/GlowCTA.tsx` | Modify (full rewrite, same exports) | Brand CTA component. Three variants (`primary`, `secondary`, `ghost`) × two sizes. Used by home page and MDX authors. |
-| `src/app/[lang]/(home)/page.tsx` | Modify (hero block + tracks heading) | Wiki home. Typography goes Manrope; hero CTA count drops from three pills to one primary + one secondary + a text link. |
-| `src/app/global.css` | Modify (3 small rule changes) | (a) `.divine-doc-title` → white Manrope. (b) Edit-on-GitHub button → secondary pill. (c) TOC active state → purple-light. |
-| `messages/en.json` | Modify (no key changes) | No changes; existing copy strings (`ctaStart`, `ctaBrowse`, `ctaContribute`) already fit the new layout. Non-English locales are Crowdin-managed and must not be hand-edited. |
+| Path                             | Action                               | Responsibility                                                                                                                                                                |
+| -------------------------------- | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/components/mdx/GlowCTA.tsx` | Modify (full rewrite, same exports)  | Brand CTA component. Three variants (`primary`, `secondary`, `ghost`) × two sizes. Used by home page and MDX authors.                                                         |
+| `src/app/[lang]/(home)/page.tsx` | Modify (hero block + tracks heading) | Wiki home. Typography goes Manrope; hero CTA count drops from three pills to one primary + one secondary + a text link.                                                       |
+| `src/app/global.css`             | Modify (3 small rule changes)        | (a) `.divine-doc-title` → white Manrope. (b) Edit-on-GitHub button → secondary pill. (c) TOC active state → purple-light.                                                     |
+| `messages/en.json`               | Modify (no key changes)              | No changes; existing copy strings (`ctaStart`, `ctaBrowse`, `ctaContribute`) already fit the new layout. Non-English locales are Crowdin-managed and must not be hand-edited. |
 
 ---
 
 ### Task 1: Rewrite GlowCTA — pill shape, three variants
 
 **Files:**
+
 - Modify: `src/components/mdx/GlowCTA.tsx` (full rewrite, keeps the same export name)
 
 - [ ] **Step 1: Replace the file contents**
@@ -118,6 +119,7 @@ git commit -m "feat(home): rewrite GlowCTA to pill shape with prod-aligned glow"
 ### Task 2: Home page — Manrope hero + two-pill CTA layout
 
 **Files:**
+
 - Modify: `src/app/[lang]/(home)/page.tsx` (hero `<section>` block plus the tracks `<h2>`/subheading; lines ~27–69 in current file)
 
 - [ ] **Step 1: Update the hero `<h1>`, subtitle, and CTA block**
@@ -126,7 +128,7 @@ In `src/app/[lang]/(home)/page.tsx`, replace the hero `<section>` (the one start
 
 ```tsx
 <section className="flex flex-col items-center px-6 pt-24 pb-16 text-center md:pt-32 md:pb-20">
-  <h1 className="text-divine-text font-manrope max-w-4xl text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
+  <h1 className="text-divine-text font-manrope max-w-4xl text-4xl leading-[1.05] font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
     {renderTitleWithBrandAccent(t.title)}
   </h1>
   <p className="font-manrope mt-6 max-w-2xl text-base font-medium text-[#8B8D98] sm:text-lg md:text-xl">
@@ -189,6 +191,7 @@ Confirm the top of the file already imports `Link`, `BookOpenIcon`, `PencilLineI
 Run: `npm run dev`
 
 Open `http://localhost:3000/en` and confirm:
+
 - H1 reads in Manrope, with `Divine Skins` (or the brand word in the title string) wrapped in the gold→purple gradient via `.divine-gradient-text`.
 - Primary CTA `Start here` is a solid purple pill with a soft purple bloom around it at rest; hover deepens the bloom.
 - Secondary CTA `Browse guides` is a translucent white pill; hover lightens it.
@@ -214,6 +217,7 @@ git commit -m "feat(home): adopt prod hero typography and two-pill CTA layout"
 ### Task 3: Docs page title — drop gradient, use white Manrope
 
 **Files:**
+
 - Modify: `src/app/global.css` (the `.divine-doc-title` rule, lines ~249–262)
 
 - [ ] **Step 1: Replace the `.divine-doc-title` rule**
@@ -221,16 +225,16 @@ git commit -m "feat(home): adopt prod hero typography and two-pill CTA layout"
 In `src/app/global.css`, find the block starting `.divine-doc-title {` inside the `@layer components` and replace its body with:
 
 ```css
-  .divine-doc-title {
-    font-family: var(--font-manrope), system-ui, sans-serif !important;
-    font-weight: 800 !important;
-    font-size: clamp(2rem, 1.4rem + 2vw, 2.75rem) !important;
-    line-height: 1.1 !important;
-    letter-spacing: -0.02em !important;
-    color: var(--color-divine-text) !important;
-    padding-bottom: 0.1em;
-    margin-bottom: 0.4em !important;
-  }
+.divine-doc-title {
+  font-family: var(--font-manrope), system-ui, sans-serif !important;
+  font-weight: 800 !important;
+  font-size: clamp(2rem, 1.4rem + 2vw, 2.75rem) !important;
+  line-height: 1.1 !important;
+  letter-spacing: -0.02em !important;
+  color: var(--color-divine-text) !important;
+  padding-bottom: 0.1em;
+  margin-bottom: 0.4em !important;
+}
 ```
 
 Removed: the `background: linear-gradient(...)`, `-webkit-background-clip`, `background-clip`, and the `color: transparent` declarations. Everything else (Manrope, weight 800, size, spacing) stays.
@@ -240,6 +244,7 @@ Removed: the `background: linear-gradient(...)`, `-webkit-background-clip`, `bac
 Run: `npm run dev`
 
 Open `http://localhost:3000/en/docs/guided-walkthrough` and confirm:
+
 - The page title is white Manrope, **no gradient**.
 - Subheadings (`##` → purple light h3s, `##` → white h2s) are unaffected.
 - Body prose, code blocks, callouts unchanged.
@@ -263,6 +268,7 @@ git commit -m "style(docs): drop gradient from docs page title, use white Manrop
 ### Task 4: Style the edit-on-GitHub button as a secondary pill
 
 **Files:**
+
 - Modify: `src/app/global.css` (add a new rule inside the existing `@layer components`)
 
 - [ ] **Step 1: Identify the live selector**
@@ -285,29 +291,29 @@ Stop the dev server.
 In `src/app/global.css`, inside the existing `@layer components { ... }` block (after the `.divine-doc-description` rule is a good landing spot), add:
 
 ```css
-  /* Edit-on-GitHub button — secondary pill, matches home CTA language. */
-  a[href*="github.com"][href*="/edit/"] {
-    display: inline-flex !important;
-    align-items: center;
-    gap: 0.5rem;
-    height: 2.5rem;
-    padding-inline: 1.25rem;
-    border-radius: 999px !important;
-    background: color-mix(in srgb, #ffffff 10%, transparent) !important;
-    color: var(--color-divine-text) !important;
-    font-family: var(--font-inter), system-ui, sans-serif;
-    font-size: 0.8125rem;
-    font-weight: 600;
-    text-decoration: none !important;
-    border: 0 !important;
-    transition:
-      background-color 0.2s,
-      color 0.2s;
-  }
-  a[href*="github.com"][href*="/edit/"]:hover {
-    background: color-mix(in srgb, #ffffff 20%, transparent) !important;
-    color: #ffffff !important;
-  }
+/* Edit-on-GitHub button — secondary pill, matches home CTA language. */
+a[href*="github.com"][href*="/edit/"] {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 0.5rem;
+  height: 2.5rem;
+  padding-inline: 1.25rem;
+  border-radius: 999px !important;
+  background: color-mix(in srgb, #ffffff 10%, transparent) !important;
+  color: var(--color-divine-text) !important;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none !important;
+  border: 0 !important;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+}
+a[href*="github.com"][href*="/edit/"]:hover {
+  background: color-mix(in srgb, #ffffff 20%, transparent) !important;
+  color: #ffffff !important;
+}
 ```
 
 The `[href*="/edit/"]` attribute filter scopes the rule to Fumadocs' edit-on-GitHub link only (its href is `github.com/<owner>/<repo>/edit/<branch>/...`), avoiding collateral damage to other GitHub links in prose.
@@ -337,6 +343,7 @@ git commit -m "style(docs): match edit-on-GitHub link to secondary pill button"
 ### Task 5: TOC active state — purple-light + gold→purple rail
 
 **Files:**
+
 - Modify: `src/app/global.css` (add a new rule inside `@layer components`)
 
 - [ ] **Step 1: Inspect the TOC selectors**
@@ -352,18 +359,18 @@ Stop the dev server.
 In `src/app/global.css`, inside the same `@layer components` block, append:
 
 ```css
-  /* TOC active state — align with sidebar's purple-light + gold→purple rail. */
-  .dark [data-toc] a[data-active="true"],
-  .dark nav[aria-label*="able of contents"] a[data-active="true"] {
-    color: var(--color-divine-primary-light) !important;
-    font-weight: 600;
-  }
-  .dark [data-toc-thumb],
-  .dark [data-toc] [data-thumb] {
-    background: linear-gradient(180deg, #ecb96a 0%, #c084fc 100%) !important;
-    width: 2px !important;
-    border-radius: 2px;
-  }
+/* TOC active state — align with sidebar's purple-light + gold→purple rail. */
+.dark [data-toc] a[data-active="true"],
+.dark nav[aria-label*="able of contents"] a[data-active="true"] {
+  color: var(--color-divine-primary-light) !important;
+  font-weight: 600;
+}
+.dark [data-toc-thumb],
+.dark [data-toc] [data-thumb] {
+  background: linear-gradient(180deg, #ecb96a 0%, #c084fc 100%) !important;
+  width: 2px !important;
+  border-radius: 2px;
+}
 ```
 
 Both selectors are belt-and-suspenders for Fumadocs releases that toggle between `[data-toc]` and the ARIA-labelled `<nav>`. If your inspection in Step 1 shows a single canonical attribute, you can drop the other.
@@ -373,6 +380,7 @@ Both selectors are belt-and-suspenders for Fumadocs releases that toggle between
 Run: `npm run dev`
 
 Scroll a long docs page. As you scroll, confirm:
+
 - The active TOC item turns purple-light (`#c084fc`) and bolder.
 - The active rail/thumb beside the TOC items is a gold→purple gradient (matches the sidebar's active rail).
 - Inactive items keep their muted style.
@@ -410,6 +418,7 @@ Expected: all three pass.
 Run: `npm run dev`
 
 Walk through these paths and confirm everything reads as one site with the live product:
+
 - `http://localhost:3000/en` — hero in Manrope, two pills, two text links beneath.
 - `http://localhost:3000/en/docs` — sidebar purple/gold, top-level category cards.
 - `http://localhost:3000/en/docs/guided-walkthrough` — white Manrope page title (no gradient), prose intact, edit-on-GitHub pill at the bottom, TOC purple-light active state.

@@ -52,16 +52,16 @@ Reference/                Legacy codebases (Hytale + Divine Academy). IGNORE.
 
 ## Stack
 
-| Layer | Pick |
-|---|---|
-| Framework | Next.js 16 (App Router, Turbopack dev) |
-| MDX engine | Fumadocs 16.2.3 (core, mdx, ui) — sidebar from meta.json, Orama search, OG API |
-| UI | Tailwind v4 + shadcn (new-york) + Radix primitives |
-| Auth | None — site is fully static |
+| Layer         | Pick                                                                            |
+| ------------- | ------------------------------------------------------------------------------- |
+| Framework     | Next.js 16 (App Router, Turbopack dev)                                          |
+| MDX engine    | Fumadocs 16.2.3 (core, mdx, ui) — sidebar from meta.json, Orama search, OG API  |
+| UI            | Tailwind v4 + shadcn (new-york) + Radix primitives                              |
+| Auth          | None — site is fully static                                                     |
 | Contributions | GitHub-native: edit-in-browser via Fumadocs "Edit on GitHub" link, or fork + PR |
-| i18n | Fumadocs i18n + Crowdin. Scope: en, fr-FR, tr-TR, pt-BR |
-| Hosting | Cloudflare Pages (Next.js SSR mode). _redirects + _headers at edge |
-| Analytics | PostHog (cookieless, currently disabled pending key) |
+| i18n          | Fumadocs i18n + Crowdin. Scope: en, fr-FR, tr-TR, pt-BR                         |
+| Hosting       | Cloudflare Pages (Next.js SSR mode). \_redirects + \_headers at edge            |
+| Analytics     | PostHog (cookieless, currently disabled pending key)                            |
 
 ## Conventions
 

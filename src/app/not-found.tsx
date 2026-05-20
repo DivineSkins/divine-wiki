@@ -140,7 +140,7 @@ export default function RootNotFound() {
               width: 160,
               height: 1,
               border: 0,
-              background: "linear-gradient(90deg, #ecb96a 0%, #783cb5 100%)",
+              background: "#783cb5",
               opacity: 0.6,
             }}
           />

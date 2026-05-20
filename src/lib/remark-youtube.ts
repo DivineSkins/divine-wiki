@@ -93,7 +93,9 @@ function makeEmbedNode(info: YouTubeInfo): RootContent {
   } as unknown as RootContent;
 }
 
-function childToEmbedInfo(child: Paragraph["children"][number]): YouTubeInfo | null {
+function childToEmbedInfo(
+  child: Paragraph["children"][number],
+): YouTubeInfo | null {
   if (child.type === "link") {
     const link = child as Link;
     const text = mdastToString(link).trim();

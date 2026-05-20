@@ -101,16 +101,19 @@ const META = {
 // folder was flattened into maya/ and blender/ during the Supabase export,
 // but link text still references the old structure.
 const LEGACY_REMAPS = {
-  "/wiki/3d-modelling/lol-maya-plugin": "/docs/maya/lol-maya-plugin",
-  "/wiki/3d-modelling/lol-blender-plugin": "/docs/blender/lol-blender-plugin",
-  "/wiki/3d-modelling/rigging--uvs": "/docs/maya/rigging-uvs",
-  "/wiki/3d-modelling/rigging-uvs": "/docs/maya/rigging-uvs",
-  "/wiki/3d-modelling/3d-model-swap": "/docs/maya/3d-model-swap",
-  "/wiki/3d-modelling/animation-retarget": "/docs/animations/animation-retargeting",
-  "/wiki/3d-modelling/animation-import-export": "/docs/animations/animation-import-export",
-  "/wiki/3d-modelling/material-atlas": "/docs/blender/material-atlas",
-  "/wiki/vfx--bins": "/docs/vfx-bins",
-  "/wiki/assets--library": "/docs/assets-library",
+  "/wiki/3d-modelling/lol-maya-plugin": "/docs/lol/maya/lol-maya-plugin",
+  "/wiki/3d-modelling/lol-blender-plugin":
+    "/docs/lol/blender/lol-blender-plugin",
+  "/wiki/3d-modelling/rigging--uvs": "/docs/lol/maya/rigging-uvs",
+  "/wiki/3d-modelling/rigging-uvs": "/docs/lol/maya/rigging-uvs",
+  "/wiki/3d-modelling/3d-model-swap": "/docs/lol/maya/3d-model-swap",
+  "/wiki/3d-modelling/animation-retarget":
+    "/docs/lol/animations/animation-retargeting",
+  "/wiki/3d-modelling/animation-import-export":
+    "/docs/lol/animations/animation-import-export",
+  "/wiki/3d-modelling/material-atlas": "/docs/lol/blender/material-atlas",
+  "/wiki/vfx--bins": "/docs/lol/vfx-bins",
+  "/wiki/assets--library": "/docs/lol/assets-library",
 };
 
 function parseFrontmatter(raw) {
@@ -168,7 +171,9 @@ function firstDescriptionLine(body) {
     if (plain.length <= 160) return plain;
     const truncated = plain.slice(0, 160);
     const lastPeriod = truncated.lastIndexOf(". ");
-    return lastPeriod > 80 ? truncated.slice(0, lastPeriod + 1) : truncated + "…";
+    return lastPeriod > 80
+      ? truncated.slice(0, lastPeriod + 1)
+      : truncated + "…";
   }
   return "";
 }
@@ -205,7 +210,10 @@ function convertTabs(body) {
       const tabMatch = lines[i].match(/^::tab\s+(.+)$/);
       if (tabMatch) {
         if (currentLabel !== null) {
-          tabs.push({ label: currentLabel, content: currentLines.join("\n").trim() });
+          tabs.push({
+            label: currentLabel,
+            content: currentLines.join("\n").trim(),
+          });
         }
         currentLabel = tabMatch[1].trim();
         currentLines = [];
@@ -216,7 +224,10 @@ function convertTabs(body) {
     }
 
     if (currentLabel !== null) {
-      tabs.push({ label: currentLabel, content: currentLines.join("\n").trim() });
+      tabs.push({
+        label: currentLabel,
+        content: currentLines.join("\n").trim(),
+      });
     }
 
     // Skip the closing :::
@@ -227,7 +238,13 @@ function convertTabs(body) {
     const items = tabs.map((t) => JSON.stringify(t.label)).join(", ");
     out.push(`<Tabs items={[${items}]}>`);
     for (const tab of tabs) {
-      out.push(`<Tab value=${JSON.stringify(tab.label)}>`, "", tab.content, "", "</Tab>");
+      out.push(
+        `<Tab value=${JSON.stringify(tab.label)}>`,
+        "",
+        tab.content,
+        "",
+        "</Tab>",
+      );
     }
     out.push("</Tabs>", "");
   }

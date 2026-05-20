@@ -35,7 +35,10 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
           {t.tagline}
         </p>
         <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:gap-3.5">
-          <GlowCTA href={`/${lang}/docs/guided-walkthrough`} variant="primary">
+          <GlowCTA
+            href={`/${lang}/docs/lol/guided-walkthrough`}
+            variant="primary"
+          >
             <BookOpenIcon className="size-4" aria-hidden />
             {t.ctaStart}
           </GlowCTA>
@@ -45,7 +48,10 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
         </div>
 
         <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:gap-6">
-          <Link href={`/${lang}/docs/contributing`} className={textLinkClass}>
+          <Link
+            href={`/${lang}/docs/lol/contributing`}
+            className={textLinkClass}
+          >
             <PencilLineIcon className="size-4" aria-hidden />
             {t.ctaContribute}
           </Link>
@@ -75,21 +81,21 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
 
         <div className="grid gap-4 md:grid-cols-3">
           <PremiumCard
-            href={`/${lang}/docs/guided-walkthrough`}
+            href={`/${lang}/docs/lol/guided-walkthrough`}
             title={t.trackWalkthroughTitle}
             icon={<CompassIcon className="size-5" aria-hidden />}
           >
             {t.trackWalkthroughDesc}
           </PremiumCard>
           <PremiumCard
-            href={`/${lang}/docs/maya`}
+            href={`/${lang}/docs/lol/maya`}
             title={t.trackMayaTitle}
             icon={<PaintbrushIcon className="size-5" aria-hidden />}
           >
             {t.trackMayaDesc}
           </PremiumCard>
           <PremiumCard
-            href={`/${lang}/docs/vfx-bins`}
+            href={`/${lang}/docs/lol/vfx-bins`}
             title={t.trackVfxTitle}
             icon={<SparklesIcon className="size-5" aria-hidden />}
           >

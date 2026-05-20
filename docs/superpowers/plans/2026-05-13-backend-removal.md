@@ -15,6 +15,7 @@
 ## Task 1: Create the new "Contributing" docs category
 
 **Files:**
+
 - Create: `content/docs/en/contributing/meta.json`
 - Create: `content/docs/en/contributing/index.mdx`
 - Modify: `content/docs/en/meta.json`
@@ -70,7 +71,7 @@ In `content/docs/en/meta.json`, append `"contributing"` to the `pages` array:
 
 Write this file. Stay in plain English per `docs/voice.md`: short sentences, verb-first instructions, no banned terms (`skin hack`, `skin changer`, `unlock skins`, `undetectable`, `free-to-play skins`, `exploit`).
 
-```mdx
+````mdx
 ---
 title: How to Contribute
 description: Edit guides or write new ones. Two paths — one in the browser, one local. Both end with a pull request a maintainer reviews and merges.
@@ -80,10 +81,10 @@ The Divine Skins Wiki is a public GitHub repo. Every guide is a Markdown file. T
 
 ## Two ways to contribute
 
-| Path | Best for | What you need |
-|---|---|---|
-| **Edit in browser** | Fixes, typos, single-page changes | A GitHub account |
-| **Edit locally** | New categories, big rewrites, image-heavy guides | Node 22+, Git, an editor |
+| Path                | Best for                                         | What you need            |
+| ------------------- | ------------------------------------------------ | ------------------------ |
+| **Edit in browser** | Fixes, typos, single-page changes                | A GitHub account         |
+| **Edit locally**    | New categories, big rewrites, image-heavy guides | Node 22+, Git, an editor |
 
 If you only want to fix a typo, use **Edit in browser**. It takes one minute.
 
@@ -108,6 +109,8 @@ Use this path for new pages, new categories, or anything image-heavy.
    git clone https://github.com/<your-username>/divine-wiki.git
    cd divine-wiki
    ```
+````
+
 3. Install:
    ```bash
    npm install
@@ -152,7 +155,10 @@ A guide is one `.mdx` file under `content/docs/en/<category>/`.
 Drop images into `public/wiki-images/` in the same pull request. Reference them in your guide like this:
 
 ```mdx
-<img src="/wiki-images/your-screenshot.png" alt="Short description of the image" />
+<img
+  src="/wiki-images/your-screenshot.png"
+  alt="Short description of the image"
+/>
 ```
 
 Rules:
@@ -184,7 +190,8 @@ A few rules that block merges:
 - **Voice or style questions:** check [`docs/voice.md`](https://github.com/DivineSkins/divine-wiki/blob/main/docs/voice.md) and [`docs/playbook.md`](https://github.com/DivineSkins/divine-wiki/blob/main/docs/playbook.md).
 - **Bigger changes (new category, restructure, mass rename):** start a thread in `#wiki-proposals` on Discord first. Saves you from doing work that gets rejected.
 - **Stuck on Git or the editor:** ask in `#wiki-help` on Discord.
-```
+
+````
 
 - [ ] **Step 6: Verify the new page renders**
 
@@ -197,7 +204,8 @@ Stop the dev server before proceeding.
 Run:
 ```bash
 npm run types:check && npm run lint
-```
+````
+
 Expected: both pass.
 
 - [ ] **Step 8: Commit**
@@ -212,6 +220,7 @@ git commit -m "docs(contributing): add How to Contribute guide and sidebar entry
 ## Task 2: Rewire navigation and homepage CTA to new page
 
 **Files:**
+
 - Modify: `src/lib/layout.shared.tsx` (the `nav.contribute` entry)
 - Modify: `src/app/[lang]/(home)/page.tsx` (the homepage `ctaContribute` button)
 
@@ -224,6 +233,7 @@ Open `src/lib/layout.shared.tsx`. Find the section that defines `nav.contribute`
 Replace `url: \`/${locale}/contribute\`,` with `url: \`/${locale}/docs/contributing\`,`.
 
 Exact change:
+
 ```diff
        {
          icon: <PencilIcon />,
@@ -238,6 +248,7 @@ Exact change:
 Open `src/app/[lang]/(home)/page.tsx`. Find the `GlowCTA` with `href={\`/${lang}/contribute\`}` around line 42.
 
 Exact change:
+
 ```diff
 -          <GlowCTA href={`/${lang}/contribute`} size="lg" variant="ghost">
 +          <GlowCTA href={`/${lang}/docs/contributing`} size="lg" variant="ghost">
@@ -249,6 +260,7 @@ Exact change:
 - [ ] **Step 4: Verify in dev**
 
 Run: `npm run dev`. In a browser:
+
 1. Visit `http://localhost:3000/en` (homepage). Click "Write a guide" — should land on `/en/docs/contributing`.
 2. Click "Contribute" in the top nav from any page — should land on `/en/docs/contributing`.
 
@@ -257,9 +269,11 @@ Stop the dev server.
 - [ ] **Step 5: Lint and types**
 
 Run:
+
 ```bash
 npm run types:check && npm run lint
 ```
+
 Expected: both pass.
 
 - [ ] **Step 6: Commit**
@@ -274,6 +288,7 @@ git commit -m "feat(nav): point Contribute link to /docs/contributing"
 ## Task 3: Add `/contribute` → `/docs/contributing` redirects
 
 **Files:**
+
 - Modify: `public/_redirects` (Cloudflare Pages edge redirects)
 - Modify: `next.config.mjs` (local dev fallback)
 
@@ -290,6 +305,7 @@ Open `public/_redirects`. Append these lines at the end:
 ```
 
 Final file should look like:
+
 ```
 # Cloudflare Pages `_redirects` — evaluated at the edge, zero Function cost.
 # Next.js redirects() in next.config.mjs stay for local dev + as a fallback.
@@ -362,21 +378,25 @@ git commit -m "feat(redirects): 301 old /contribute paths to /docs/contributing"
 ## Task 4: Delete the OAuth API route
 
 **Files:**
+
 - Delete: `src/app/api/oauth/` (entire directory)
 - Delete: `src/lib/github-oauth.ts`
 
 - [ ] **Step 1: Confirm what's about to be deleted**
 
 Run:
+
 ```bash
 ls -R src/app/api/oauth/
 ls -la src/lib/github-oauth.ts
 ```
+
 Expected: lists `github/route.ts` (or similar) and the `github-oauth.ts` helper file.
 
 - [ ] **Step 2: Delete the OAuth route directory**
 
 Run:
+
 ```bash
 rm -rf src/app/api/oauth/
 ```
@@ -384,6 +404,7 @@ rm -rf src/app/api/oauth/
 - [ ] **Step 3: Delete the OAuth helper lib**
 
 Run:
+
 ```bash
 rm src/lib/github-oauth.ts
 ```
@@ -391,9 +412,11 @@ rm src/lib/github-oauth.ts
 - [ ] **Step 4: Confirm no remaining references**
 
 Run:
+
 ```bash
 grep -rEn "github-oauth|/api/oauth|GITHUB_OAUTH" src/ workers/ 2>/dev/null
 ```
+
 Expected: matches only inside files that will be deleted in Tasks 5 and 6 (`src/app/[lang]/contribute/`, `src/components/editor/`, `workers/submit-pr/`). No matches elsewhere.
 
 If anything else matches (e.g., something in `src/app/api/health/` or `src/lib/` outside the deleted file), STOP and investigate. Do not proceed to commit.
@@ -412,20 +435,24 @@ git commit -m "chore: remove GitHub OAuth route and helper"
 ## Task 5: Delete the submit and upload-image API routes
 
 **Files:**
+
 - Delete: `src/app/api/submit/`
 - Delete: `src/app/api/upload-image/`
 
 - [ ] **Step 1: Confirm what's about to be deleted**
 
 Run:
+
 ```bash
 ls -R src/app/api/submit/ src/app/api/upload-image/
 ```
+
 Expected: each has at least `route.ts`.
 
 - [ ] **Step 2: Delete both route directories**
 
 Run:
+
 ```bash
 rm -rf src/app/api/submit/ src/app/api/upload-image/
 ```
@@ -433,17 +460,21 @@ rm -rf src/app/api/submit/ src/app/api/upload-image/
 - [ ] **Step 3: Confirm what remains in `src/app/api/`**
 
 Run:
+
 ```bash
 ls src/app/api/
 ```
+
 Expected: only `health`, `og`, `search`.
 
 - [ ] **Step 4: Confirm no remaining references**
 
 Run:
+
 ```bash
 grep -rEn "/api/submit|/api/upload-image|octokit" src/ workers/ 2>/dev/null
 ```
+
 Expected: matches only in `src/app/[lang]/contribute/`, `src/components/editor/`, or `workers/submit-pr/` (all of which get deleted in the next two tasks).
 
 - [ ] **Step 5: Commit**
@@ -458,22 +489,27 @@ git commit -m "chore: remove submit and upload-image API routes"
 ## Task 6: Delete the `/contribute` page and editor components
 
 **Files:**
+
 - Delete: `src/app/[lang]/contribute/` (entire directory)
 - Delete: `src/components/editor/` (entire directory)
 
 - [ ] **Step 1: Confirm what's about to be deleted**
 
 Run:
+
 ```bash
 ls "src/app/[lang]/contribute/" src/components/editor/
 ```
+
 Expected:
+
 - `contribute/`: `ContributeClient.tsx`, `page.tsx`
 - `editor/`: `GuideEditor.tsx`, `SubmitDialog.tsx`, `autosave.ts`
 
 - [ ] **Step 2: Delete both directories**
 
 Run:
+
 ```bash
 rm -rf "src/app/[lang]/contribute/" src/components/editor/
 ```
@@ -481,9 +517,11 @@ rm -rf "src/app/[lang]/contribute/" src/components/editor/
 - [ ] **Step 3: Confirm no stale imports anywhere in `src/`**
 
 Run:
+
 ```bash
 grep -rEn "components/editor|app/\[lang\]/contribute|GuideEditor|SubmitDialog|useDraft|autosave" src/ 2>/dev/null
 ```
+
 Expected: no matches.
 
 If any match exists, fix the import or delete the orphaned file before continuing.
@@ -491,9 +529,11 @@ If any match exists, fix the import or delete the orphaned file before continuin
 - [ ] **Step 4: Verify the build still succeeds**
 
 Run:
+
 ```bash
 npm run build
 ```
+
 Expected: build completes without `Module not found` errors.
 
 - [ ] **Step 5: Commit**
@@ -508,19 +548,23 @@ git commit -m "chore: remove /contribute page and MDXEditor components"
 ## Task 7: Delete the optional Cloudflare submit-pr Worker
 
 **Files:**
+
 - Delete: `workers/submit-pr/` (entire directory)
 
 - [ ] **Step 1: Confirm what's about to be deleted**
 
 Run:
+
 ```bash
 ls -R workers/submit-pr/
 ```
+
 Expected: lists files like `wrangler.toml`, `src/index.ts`, etc.
 
 - [ ] **Step 2: Delete the directory**
 
 Run:
+
 ```bash
 rm -rf workers/submit-pr/
 ```
@@ -528,11 +572,13 @@ rm -rf workers/submit-pr/
 - [ ] **Step 3: Decide whether to delete the `workers/` parent**
 
 Run:
+
 ```bash
 ls workers/ 2>/dev/null
 ```
 
 If `workers/` is now empty, remove it:
+
 ```bash
 rmdir workers/
 ```
@@ -551,20 +597,24 @@ git commit -m "chore: remove submit-pr Cloudflare Worker"
 ## Task 8: Remove backend dependencies from `package.json`
 
 **Files:**
+
 - Modify: `package.json`
 - Modify: `package-lock.json` (regenerated by `npm install`)
 
 - [ ] **Step 1: Confirm current deps before removal**
 
 Run:
+
 ```bash
 grep -E '"(@mdxeditor|@octokit)/' package.json
 ```
+
 Expected: at least `@mdxeditor/editor` and `@octokit/rest` appear.
 
 - [ ] **Step 2: Search for any other `@mdxeditor/*` packages**
 
 Run:
+
 ```bash
 grep -E '"@mdxeditor/' package.json
 ```
@@ -574,6 +624,7 @@ If only `@mdxeditor/editor` shows, that's all. If others appear (e.g., plugins),
 - [ ] **Step 3: Uninstall the packages**
 
 Run:
+
 ```bash
 npm uninstall @mdxeditor/editor @octokit/rest
 ```
@@ -585,23 +636,29 @@ This rewrites both `package.json` and `package-lock.json`.
 - [ ] **Step 4: Confirm removal**
 
 Run:
+
 ```bash
 grep -E '"(@mdxeditor|@octokit)"' package.json
 ```
+
 Expected: no matches.
 
 Run:
+
 ```bash
 grep -E '(@mdxeditor|@octokit)' package-lock.json | head -5
 ```
+
 Expected: no matches (the lockfile is clean of these packages and their transitives).
 
 - [ ] **Step 5: Verify the build still passes**
 
 Run:
+
 ```bash
 npm run build
 ```
+
 Expected: build completes without `Module not found` errors.
 
 - [ ] **Step 6: Commit**
@@ -616,14 +673,17 @@ git commit -m "chore(deps): remove @mdxeditor/editor and @octokit/rest"
 ## Task 9: Strip OAuth/Worker/Turnstile env vars from `.env.example`
 
 **Files:**
+
 - Modify: `.env.example`
 
 - [ ] **Step 1: Confirm current env block**
 
 Run:
+
 ```bash
 grep -E "(GITHUB_OAUTH|CLOUDFLARE_SUBMIT_WORKER|TURNSTILE)" .env.example
 ```
+
 Expected: 4 matches.
 
 - [ ] **Step 2: Rewrite `.env.example`**
@@ -650,9 +710,11 @@ CROWDIN_PERSONAL_TOKEN=
 - [ ] **Step 3: Confirm the unwanted keys are gone**
 
 Run:
+
 ```bash
 grep -E "(GITHUB_OAUTH|CLOUDFLARE_SUBMIT_WORKER|TURNSTILE)" .env.example
 ```
+
 Expected: no matches.
 
 - [ ] **Step 4: Commit**
@@ -667,6 +729,7 @@ git commit -m "chore(env): remove OAuth, Worker, and Turnstile vars"
 ## Task 10: Remove unused `contribute` block from `messages/en.json`
 
 **Files:**
+
 - Modify: `messages/en.json`
 
 The `messages.contribute` object (editor strings: `editorTab`, `signInGithub`, etc.) was only consumed by `src/app/[lang]/contribute/page.tsx`, which was deleted in Task 6. Keep `nav.contribute` and `home.ctaContribute` — those labels still appear in the rewired nav/CTA.
@@ -674,9 +737,11 @@ The `messages.contribute` object (editor strings: `editorTab`, `signInGithub`, e
 - [ ] **Step 1: Confirm nothing references the block**
 
 Run:
+
 ```bash
 grep -rEn "messages\.contribute\.|messages\[\"contribute\"\]" src/ 2>/dev/null
 ```
+
 Expected: no matches.
 
 - [ ] **Step 2: Remove the block**
@@ -702,9 +767,11 @@ Delete the entire block, including the trailing comma. Make sure the JSON remain
 - [ ] **Step 3: Validate JSON**
 
 Run:
+
 ```bash
 node -e "JSON.parse(require('fs').readFileSync('messages/en.json','utf8')); console.log('valid')"
 ```
+
 Expected: `valid`.
 
 - [ ] **Step 4: Verify the site still boots**
@@ -724,6 +791,7 @@ git commit -m "chore(i18n): remove unused contribute editor strings"
 ## Task 11: Rewrite the root `CONTRIBUTING.md`
 
 **Files:**
+
 - Modify: `CONTRIBUTING.md`
 
 - [ ] **Step 1: Replace the file contents**
@@ -770,6 +838,7 @@ git commit -m "docs(contributing): rewrite root guide to point at the wiki page"
 ## Task 12: Update `CLAUDE.md` to reflect the static model
 
 **Files:**
+
 - Modify: `CLAUDE.md`
 
 The current `CLAUDE.md` documents the deleted submission flow, OAuth env vars, and PR-backend stack. Strip those out.
@@ -832,9 +901,11 @@ src/app/api/              health, og, search — read-only, no secrets.
 - [ ] **Step 7: Verify CLAUDE.md is still under reasonable length**
 
 Run:
+
 ```bash
 wc -l CLAUDE.md
 ```
+
 Expected: file is shorter than before (was around 120 lines; should now be around 95–105).
 
 - [ ] **Step 8: Commit**
@@ -849,6 +920,7 @@ git commit -m "docs(claude-md): drop submission flow and OAuth references"
 ## Task 13: Sweep `docs/` for stale references
 
 **Files:**
+
 - Modify: `docs/playbook.md` (if it references the editor)
 - Modify: `docs/product.md` (if it references the editor)
 - Modify: `docs/voice.md` (only if it references the editor — unlikely)
@@ -856,6 +928,7 @@ git commit -m "docs(claude-md): drop submission flow and OAuth references"
 - [ ] **Step 1: Find all stale references**
 
 Run:
+
 ```bash
 grep -nEi "(/contribute|mdxeditor|octokit|github oauth|turnstile|submit-pr worker)" docs/*.md 2>/dev/null
 ```
@@ -871,14 +944,17 @@ If a file has no matches, skip it.
 - [ ] **Step 3: Re-verify no stale references remain**
 
 Run:
+
 ```bash
 grep -nEi "(/contribute[^a-z]|mdxeditor|octokit|github oauth|turnstile|submit-pr worker)" docs/*.md 2>/dev/null
 ```
+
 Expected: no matches (the `[^a-z]` boundary avoids matching `contributing`, which is fine).
 
 - [ ] **Step 4: Commit**
 
 If files were changed:
+
 ```bash
 git add docs/
 git commit -m "docs: drop references to deleted submission flow"
@@ -895,25 +971,31 @@ This task runs every check from the spec's verification section and confirms the
 - [ ] **Step 1: Production build**
 
 Run:
+
 ```bash
 npm run build
 ```
+
 Expected: build completes successfully. No `Module not found`, no missing env var errors.
 
 - [ ] **Step 2: Lint**
 
 Run:
+
 ```bash
 npm run lint
 ```
+
 Expected: passes.
 
 - [ ] **Step 3: Type check**
 
 Run:
+
 ```bash
 npm run types:check
 ```
+
 Expected: passes.
 
 - [ ] **Step 4: Dev server boots**
@@ -936,11 +1018,13 @@ Stop the dev server.
 - [ ] **Step 6: Final grep — no orphaned references**
 
 Run:
+
 ```bash
 grep -rEn "octokit|mdxeditor|GITHUB_OAUTH|CLOUDFLARE_SUBMIT_WORKER|TURNSTILE" \
   src/ docs/ .env.example CLAUDE.md package.json package-lock.json \
   2>/dev/null | grep -v "docs/superpowers/"
 ```
+
 Expected: no matches.
 
 (The `grep -v docs/superpowers/` excludes this plan and the spec, which intentionally mention the deleted symbols.)
@@ -948,18 +1032,23 @@ Expected: no matches.
 - [ ] **Step 7: Final grep — no orphaned `/contribute` page paths**
 
 Run:
+
 ```bash
 grep -rEn "/contribute[\"\` ]" src/ messages/ public/ 2>/dev/null | grep -v _redirects | grep -v next.config
 ```
+
 Expected: no matches. (Allowed: `_redirects` and `next.config.mjs` which contain the redirect rules themselves.)
 
 - [ ] **Step 8: Confirm `src/app/api/` is down to three routes**
 
 Run:
+
 ```bash
 ls src/app/api/
 ```
+
 Expected exactly:
+
 ```
 health
 og
@@ -969,6 +1058,7 @@ search
 - [ ] **Step 9: Write the deploy-side note**
 
 Add a one-line note to the bottom of the spec (or open an issue, depending on team flow) reminding the deploy operator to **remove these four secrets from the Cloudflare Pages production environment**:
+
 - `GITHUB_OAUTH_CLIENT_ID`
 - `GITHUB_OAUTH_CLIENT_SECRET`
 - `CLOUDFLARE_SUBMIT_WORKER_URL`
@@ -979,12 +1069,12 @@ This is a manual Cloudflare dashboard action — the plan does not execute it.
 Open `docs/superpowers/specs/2026-05-13-backend-removal-design.md` and append at the end:
 
 ```markdown
-
 ---
 
 ## Post-implementation TODO (manual, deploy operator)
 
 Remove these four secrets from the Cloudflare Pages production environment dashboard:
+
 - `GITHUB_OAUTH_CLIENT_ID`
 - `GITHUB_OAUTH_CLIENT_SECRET`
 - `CLOUDFLARE_SUBMIT_WORKER_URL`
@@ -992,6 +1082,7 @@ Remove these four secrets from the Cloudflare Pages production environment dashb
 ```
 
 Commit:
+
 ```bash
 git add docs/superpowers/specs/2026-05-13-backend-removal-design.md
 git commit -m "docs(spec): note Cloudflare secret cleanup as post-merge TODO"
@@ -1000,6 +1091,7 @@ git commit -m "docs(spec): note Cloudflare secret cleanup as post-merge TODO"
 - [ ] **Step 10: Summarize for the user**
 
 Report back to the user:
+
 - Total commits made (should be 10–13 depending on whether docs/ needed changes).
 - Confirmation all verification steps pass.
 - Reminder that the Cloudflare Pages secrets still need manual removal in the dashboard.

@@ -44,12 +44,12 @@ const config = {
       },
       {
         source: "/:lang/contribute",
-        destination: "/:lang/docs/contributing",
+        destination: "/:lang/docs/lol/contributing",
         permanent: true,
       },
       {
         source: "/contribute",
-        destination: "/en/docs/contributing",
+        destination: "/en/docs/lol/contributing",
         permanent: true,
       },
     ];

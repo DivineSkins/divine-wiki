@@ -4,6 +4,7 @@
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
+@custom-variant light (&:is(.light *));
 
 /* Divine Skins design system — synced with prod (DivineSkinsWEB-PROD/tailwind.config.js).
    Three-tier dark depth: void → surface → border. Purple primary with restrained gold. */
@@ -109,6 +110,8 @@
   --sidebar-accent-foreground: #e4e4e7;
   --sidebar-border: #363242;
   --sidebar-ring: #c084fc;
+  --prose-code-text: #e9d5ff;
+  --prose-code-bg: #0a0913;
 }
 
 .dark {
@@ -139,6 +142,10 @@
   --sidebar-border: #363242;
   --sidebar-ring: #c084fc;
 
+  /* Inline code pill text — pale lilac reads well on the purple-tinted pill. */
+  --prose-code-text: #e9d5ff;
+  --prose-code-bg: #0a0913;
+
   /* Fumadocs tokens — override neutral grayscale with Divine brand so
      EVERY Fumadocs surface (sidebar, search dialog, TOC, popovers,
      callouts, cards, tabs, code blocks) inherits the purple/gold palette. */
@@ -159,6 +166,88 @@
   --color-fd-border: color-mix(in srgb, #783cb5 22%, transparent);
   --color-fd-ring: #c084fc;
   --color-fd-overlay: color-mix(in srgb, #0b0a0f 82%, transparent);
+}
+
+/* Light mode — gold becomes the brand accent (replaces purple).
+   Purple drops out almost entirely in light theme: the wiki's purple has
+   poor contrast on white, and our brand has gold sitting unused as a
+   secondary tone — light mode is where it earns its place.
+
+   Contrast notes:
+   - #8b6914 (deep amber) for link/active text: ~5.0:1 on white, passes WCAG AA.
+   - #ecb96a (brand gold) for borders/fills/large UI accents: too light for
+     body text on white but fine as decorative/interactive surface tint.
+   - Body text uses near-black (#0b0a0f), muted uses neutral gray. */
+.light {
+  color-scheme: light;
+
+  /* Divine surfaces (light mode) */
+  --color-divine-void: #ffffff;
+  --color-divine-surface: #f7f7fa;
+  --color-divine-elevated: #f1f1f5;
+  --color-divine-border: #e4e4e7;
+  --color-divine-popover: #ffffff;
+
+  /* Divine brand (light mode) — gold replaces purple as the primary accent */
+  --color-divine-primary: #8b6914;
+  --color-divine-primary-light: #ecb96a;
+  --color-divine-primary-lilac: #d9a746;
+
+  /* Divine text (light mode) */
+  --color-divine-text: #0b0a0f;
+  --color-divine-text-muted: #6b6b76;
+
+  /* shadcn tokens */
+  --background: #ffffff;
+  --foreground: #0b0a0f;
+  --card: #f7f7fa;
+  --card-foreground: #0b0a0f;
+  --popover: #ffffff;
+  --popover-foreground: #0b0a0f;
+  --primary: #8b6914;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f1f5;
+  --secondary-foreground: #0b0a0f;
+  --muted: #f5f5f7;
+  --muted-foreground: #6b6b76;
+  --accent: #ecb96a;
+  --accent-foreground: #0b0a0f;
+  --destructive: #dc2626;
+  --border: #e4e4e7;
+  --input: #e4e4e7;
+  --ring: #ecb96a;
+  --sidebar: #fafafa;
+  --sidebar-foreground: #0b0a0f;
+  --sidebar-primary: #8b6914;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f5f5f7;
+  --sidebar-accent-foreground: #0b0a0f;
+  --sidebar-border: #e4e4e7;
+  --sidebar-ring: #ecb96a;
+
+  /* Inline code pill text — deep amber pops on the gold-tinted pill. */
+  --prose-code-text: #5b430d;
+  /* Code block bg — light surface so shiki's light-plus tokens stay readable. */
+  --prose-code-bg: #f7f7fa;
+
+  /* Fumadocs tokens (light mode) */
+  --color-fd-background: #ffffff;
+  --color-fd-foreground: #0b0a0f;
+  --color-fd-card: #f7f7fa;
+  --color-fd-card-foreground: #0b0a0f;
+  --color-fd-popover: #ffffff;
+  --color-fd-popover-foreground: #0b0a0f;
+  --color-fd-primary: #8b6914;
+  --color-fd-primary-foreground: #ffffff;
+  --color-fd-secondary: #f5f5f7;
+  --color-fd-secondary-foreground: #0b0a0f;
+  --color-fd-muted: #f5f5f7;
+  --color-fd-muted-foreground: #6b6b76;
+  --color-fd-accent: color-mix(in srgb, #ecb96a 28%, transparent);
+  --color-fd-accent-foreground: #0b0a0f;
+  --color-fd-border: #e4e4e7;
+  --color-fd-ring: #ecb96a;
+  --color-fd-overlay: color-mix(in srgb, #ffffff 82%, transparent);
 }
 
 @layer base {
@@ -206,10 +295,10 @@
   color: transparent;
 }
 
-/* Gradient HR — gold → purple, the signature divider. */
+/* Divider — structural chrome tone. Used on home + 404 hairline rules. */
 @utility divine-hr {
   height: 1px;
-  background: linear-gradient(90deg, #ecb96a 0%, #783cb5 100%);
+  background: var(--color-divine-border);
   border: 0;
 }
 
@@ -224,7 +313,7 @@
   inset: -1px;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(180deg, #ecb96a 0%, #c084fc 40%);
+  background: #783cb5;
   -webkit-mask:
     linear-gradient(#000 0 0) content-box,
     linear-gradient(#000 0 0);
@@ -285,8 +374,12 @@
       color 0.2s;
   }
   a[href*="github.com"][href*="/edit/"]:hover {
-    background: color-mix(in srgb, #ffffff 20%, transparent) !important;
-    color: #ffffff !important;
+    background: color-mix(
+      in srgb,
+      var(--color-divine-text) 18%,
+      transparent
+    ) !important;
+    color: var(--color-divine-text) !important;
   }
 
   /* TOC active state — align with sidebar's purple-light + gold→purple rail. */
@@ -297,7 +390,7 @@
   }
   .dark [data-toc-thumb],
   .dark [data-toc] [data-thumb] {
-    background: linear-gradient(180deg, #ecb96a 0%, #c084fc 100%) !important;
+    background: #783cb5 !important;
     width: 2px !important;
     border-radius: 2px;
   }
@@ -318,7 +411,7 @@
     font-weight: 600 !important;
     font-size: 1.375rem !important;
     line-height: 1.3 !important;
-    color: var(--color-divine-primary-light) !important;
+    color: var(--color-divine-text) !important;
     margin-top: 2rem !important;
   }
 
@@ -357,7 +450,7 @@
     ) !important;
     border: 1px solid
       color-mix(in srgb, var(--color-divine-primary) 30%, transparent);
-    color: #e9d5ff !important;
+    color: var(--prose-code-text) !important;
     padding: 0.15em 0.4em !important;
     border-radius: 6px !important;
     font-family: var(--font-jetbrains-mono), ui-monospace, monospace !important;
@@ -365,10 +458,12 @@
     font-weight: 500 !important;
   }
 
-  /* Code blocks — surface bg with a purple accent rail on the left. */
+  /* Code blocks — surface bg with a brand-accent rail on the left.
+     Background flips per theme so shiki's dual-theme tokens (light-plus /
+     github-dark) stay readable. */
   .prose pre,
   .prose figure[data-rehype-pretty-code-figure] pre {
-    background: #0a0913 !important;
+    background: var(--prose-code-bg) !important;
     border: 1px solid var(--color-divine-border) !important;
     border-left: 3px solid var(--color-divine-primary) !important;
     border-radius: 10px !important;
@@ -379,11 +474,15 @@
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   }
 
-  /* Blockquotes — gold→purple gradient left border, italic body. */
+  /* Blockquotes — accent left border, italic body. Surface flips per theme. */
   .prose blockquote {
     position: relative;
     border-left: 0 !important;
-    background: color-mix(in srgb, #15141c 60%, transparent);
+    background: color-mix(
+      in srgb,
+      var(--color-divine-surface) 60%,
+      transparent
+    );
     border-radius: 0 8px 8px 0;
     padding: 1rem 1.25rem 1rem 1.5rem !important;
     margin: 1.5rem 0;
@@ -401,8 +500,17 @@
     top: 0;
     bottom: 0;
     width: 3px;
-    background: linear-gradient(180deg, #ecb96a 0%, #783cb5 100%);
+    background: #783cb5;
     border-radius: 3px;
+  }
+
+  /* Heading anchor links (the auto-injected `#section` deep-link wrappers
+     Fumadocs renders inside h1–h6) must inherit the heading color and stay
+     un-underlined — otherwise the prose link rule below paints every heading
+     lilac and underlines it, even H2s that should be white. */
+  .prose :is(h1, h2, h3, h4, h5, h6) a:not(.not-prose a) {
+    color: inherit !important;
+    text-decoration: none !important;
   }
 
   /* Links — purple-light, subtle underline that animates on hover. */
@@ -421,7 +529,7 @@
       text-decoration-color 0.2s;
   }
   .prose a:not(.not-prose a):hover {
-    color: #ffffff !important;
+    color: var(--color-divine-text) !important;
     text-decoration-color: var(--color-divine-primary-light);
   }
 
@@ -438,42 +546,62 @@
     color: color-mix(in srgb, var(--color-divine-text) 88%, transparent);
   }
 
-  /* Tables — surface bg, hover row highlight. */
+  /* Tables — surface bg + hover row highlight.
+     `!important` mirrors the rest of the prose rules: Fumadocs typography
+     preset (`.prose :where(table):not(...)`) sets backgrounds to
+     `var(--color-fd-card)` / `--color-fd-muted` which wash out without
+     overrides — every wiki table renders white-on-light otherwise. */
   .prose table {
     border-collapse: separate;
     border-spacing: 0;
     width: 100%;
     border-radius: 10px;
     overflow: hidden;
-    border: 1px solid var(--color-divine-border);
-    background: color-mix(in srgb, #15141c 70%, transparent);
+    border: 1px solid var(--color-divine-border) !important;
+    background: color-mix(
+      in srgb,
+      var(--color-divine-surface) 70%,
+      transparent
+    ) !important;
   }
   .prose thead {
     background: color-mix(
       in srgb,
       var(--color-divine-primary) 12%,
       transparent
-    );
+    ) !important;
   }
   .prose th {
-    font-family: var(--font-poppins), system-ui, sans-serif;
-    font-weight: 600;
-    text-align: left;
+    font-family: var(--font-poppins), system-ui, sans-serif !important;
+    font-weight: 600 !important;
+    text-align: left !important;
     padding: 0.75rem 1rem !important;
-    color: var(--color-divine-text);
-    border-bottom: 1px solid var(--color-divine-border);
+    color: var(--color-divine-text) !important;
+    /* rgba(0 0 0 / 0) survives Lightning CSS optimization that strips
+       `background: transparent`. Without this the th picks up Fumadocs'
+       --color-fd-muted background and the thead tint is hidden. */
+    background-color: rgba(0, 0, 0, 0) !important;
+    border-bottom: 1px solid var(--color-divine-border) !important;
   }
   .prose td {
     padding: 0.75rem 1rem !important;
     border-bottom: 1px solid
-      color-mix(in srgb, var(--color-divine-border) 60%, transparent);
-    color: color-mix(in srgb, var(--color-divine-text) 88%, transparent);
+      color-mix(in srgb, var(--color-divine-border) 60%, transparent) !important;
+    color: color-mix(
+      in srgb,
+      var(--color-divine-text) 88%,
+      transparent
+    ) !important;
   }
   .prose tbody tr:last-child td {
-    border-bottom: 0;
+    border-bottom: 0 !important;
   }
   .prose tbody tr:hover td {
-    background: color-mix(in srgb, var(--color-divine-primary) 6%, transparent);
+    background: color-mix(
+      in srgb,
+      var(--color-divine-primary) 6%,
+      transparent
+    ) !important;
   }
 
   /* FAQ details — clean collapsible row with chevron. No box, no gradient. */
@@ -556,12 +684,12 @@
     margin-bottom: 0 !important;
   }
 
-  /* Horizontal rule — gold→purple gradient. */
+  /* Horizontal rule — match the structural chrome divider tone so every
+     hairline on the page reads as one element. */
   .prose hr {
     height: 1px;
     border: 0;
-    background: linear-gradient(90deg, #ecb96a 0%, #783cb5 100%);
-    opacity: 0.55;
+    background: var(--color-divine-border);
     margin: 2.5rem 0;
   }
 
@@ -688,9 +816,9 @@
     color: var(--color-divine-primary-light) !important;
   }
 
-  /* Active bar — gold→purple gradient rail on nested items. */
+  /* Active bar — solid divine purple rail on nested items. */
   .dark #nd-sidebar a[data-active="true"]::before {
-    background: linear-gradient(180deg, #ecb96a 0%, #c084fc 100%) !important;
+    background: #783cb5 !important;
     width: 2px !important;
     border-radius: 2px;
     inset-block: 0.4rem !important;

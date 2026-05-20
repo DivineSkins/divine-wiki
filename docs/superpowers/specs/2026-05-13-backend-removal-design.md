@@ -19,11 +19,13 @@ We accept the tradeoff: the contribution funnel narrows to creators willing to u
 ## What gets deleted
 
 **API routes** (`src/app/api/`):
+
 - `oauth/` — GitHub OAuth start + callback handlers
 - `submit/` — Zod validation + Octokit fork/branch/commit/PR
 - `upload-image/` — image upload endpoint used by the editor
 
 **Pages and UI**:
+
 - `src/app/[lang]/contribute/page.tsx`
 - `src/app/[lang]/contribute/ContributeClient.tsx`
 - `src/components/editor/GuideEditor.tsx`
@@ -31,15 +33,18 @@ We accept the tradeoff: the contribution funnel narrows to creators willing to u
 - `src/components/editor/autosave.ts`
 
 **Libs and workers**:
+
 - `src/lib/github-oauth.ts`
 - `workers/submit-pr/` — entire optional Cloudflare Worker directory
 
 **Dependencies** (removed from `package.json`):
+
 - `@mdxeditor/editor` and any companion plugins (`@mdxeditor/*`)
 - `@octokit/rest`
 - Any cookie or JWT helper that is OAuth-only — verify during execution by `grep` before removal
 
 **Environment variables** (stripped from `.env.example` and the production Cloudflare Pages environment):
+
 - `GITHUB_OAUTH_CLIENT_ID`
 - `GITHUB_OAUTH_CLIENT_SECRET`
 - `CLOUDFLARE_SUBMIT_WORKER_URL`
@@ -62,8 +67,8 @@ The per-page **"Edit on GitHub"** affordance at `src/app/[lang]/docs/[[...slug]]
 Create `content/docs/en/contributing/index.mdx` (plus `content/docs/en/contributing/meta.json` for the new category, and add `"contributing"` to the top-level `content/docs/en/meta.json` so it shows in the sidebar). Written in plain English per `docs/voice.md`. Outline:
 
 1. **Two ways to contribute**
-   - *Edit in browser* — GitHub's web editor, no install, recommended for typos, fixes, single-page edits.
-   - *Edit locally* — fork + clone + `npm run dev`, for larger changes or new categories.
+   - _Edit in browser_ — GitHub's web editor, no install, recommended for typos, fixes, single-page edits.
+   - _Edit locally_ — fork + clone + `npm run dev`, for larger changes or new categories.
 2. **Editing an existing guide (in browser)**
    - On the guide, click "Edit on GitHub" at the bottom.
    - On GitHub, click the pencil icon.
@@ -142,10 +147,10 @@ Before declaring the cleanup done, all of the following must hold:
 
 ## Risks and mitigations
 
-- **Risk:** Cloudflare Pages still has the deleted env vars in its production environment, and a future code change accidentally re-introduces a reference. *Mitigation:* implementation plan ends with a checklist item to remove them from the dashboard; CLAUDE.md drops them from the documented surface.
-- **Risk:** A returning contributor bookmarked `/contribute` and lands on a 404. *Mitigation:* `_redirects` covers all four locales.
-- **Risk:** A localized `messages/<locale>.json` references something that no longer exists. *Mitigation:* we only change URLs, not keys, so Crowdin-managed labels remain valid.
-- **Risk:** Removing `@octokit/rest` or `@mdxeditor/editor` leaves transitive dependencies that are now unused but still installed. *Mitigation:* run `npm prune` after removal; a deeper dep audit is part of the follow-up brainstorm, not this one.
+- **Risk:** Cloudflare Pages still has the deleted env vars in its production environment, and a future code change accidentally re-introduces a reference. _Mitigation:_ implementation plan ends with a checklist item to remove them from the dashboard; CLAUDE.md drops them from the documented surface.
+- **Risk:** A returning contributor bookmarked `/contribute` and lands on a 404. _Mitigation:_ `_redirects` covers all four locales.
+- **Risk:** A localized `messages/<locale>.json` references something that no longer exists. _Mitigation:_ we only change URLs, not keys, so Crowdin-managed labels remain valid.
+- **Risk:** Removing `@octokit/rest` or `@mdxeditor/editor` leaves transitive dependencies that are now unused but still installed. _Mitigation:_ run `npm prune` after removal; a deeper dep audit is part of the follow-up brainstorm, not this one.
 
 ---
 

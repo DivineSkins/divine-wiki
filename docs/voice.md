@@ -15,38 +15,38 @@ Write so a 12-year-old can follow every step without getting stuck. Most readers
 
 Pick the plain word over the fancy one.
 
-| Don't write | Write |
-|-------------|-------|
-| Utilize | Use |
-| Initiate | Start |
-| Navigate to | Go to, open |
-| Terminate | Close, stop |
+| Don't write  | Write       |
+| ------------ | ----------- |
+| Utilize      | Use         |
+| Initiate     | Start       |
+| Navigate to  | Go to, open |
+| Terminate    | Close, stop |
 | Subsequently | Then, after |
-| In order to | To |
-| Ensure that | Make sure |
-| Prior to | Before |
-| Execute | Run |
-| Select | Click, pick |
+| In order to  | To          |
+| Ensure that  | Make sure   |
+| Prior to     | Before      |
+| Execute      | Run         |
+| Select       | Click, pick |
 
 ### Talk to the reader directly
 
 Use **"you"**. Don't use "the user" or "one should".
 
-- Bad: *The user should then proceed to launch the application.*
-- Good: *Open Celestial.*
+- Bad: _The user should then proceed to launch the application._
+- Good: _Open Celestial._
 
 ### Give commands, not descriptions
 
 Each step starts with a verb. Tell the reader what to do.
 
-- Bad: *There is a settings button in the top right corner that you can press.*
-- Good: *Click the settings button in the top right corner.*
+- Bad: _There is a settings button in the top right corner that you can press._
+- Good: _Click the settings button in the top right corner._
 
 ### Explain jargon the first time you use it
 
 If you have to use a technical word, explain it the first time, then use it freely.
 
-- Good: *A mod is a file that changes how the game looks. Download the mod you want.*
+- Good: _A mod is a file that changes how the game looks. Download the mod you want._
 
 Words that always need explaining on first use: mod, fantome file, client, patch, champion (for non-LoL-players reading tool docs), import, override.
 
@@ -55,11 +55,13 @@ Words that always need explaining on first use: mod, fantome file, client, patch
 Number the steps. Don't put multiple actions in one step.
 
 Bad:
+
 ```
 1. Open Celestial, log in, then go to the catalog and pick a skin.
 ```
 
 Good:
+
 ```
 1. Open Celestial.
 2. Log in.
@@ -71,13 +73,13 @@ Good:
 
 After a step, tell the reader what they should see. This helps them know if something went wrong.
 
-- *Click Install. A green checkmark appears when the skin is ready.*
+- _Click Install. A green checkmark appears when the skin is ready._
 
 ### Warn before the danger, not after
 
 If a step has a risk, the warning goes **before** the step — not after.
 
-- Good: *Before you install, close League of Legends. Installing while the game is open can break it.*
+- Good: _Before you install, close League of Legends. Installing while the game is open can break it._
 
 ### Link, don't repeat
 
@@ -100,11 +102,11 @@ Never use em dashes (`—`) or en dashes (`–`) in prose. They look fancy but s
 
 Rewrite with a period, comma, colon, or parentheses instead.
 
-| Don't write | Write |
-|-------------|-------|
-| *It's safe — outside Korea.* | *It's safe outside Korea.* |
-| *Open Flint — the all-in-one tool.* | *Open Flint, the all-in-one tool.* |
-| *Three things to check — files, paths, names.* | *Three things to check: files, paths, names.* |
+| Don't write                                    | Write                                         |
+| ---------------------------------------------- | --------------------------------------------- |
+| _It's safe — outside Korea._                   | _It's safe outside Korea._                    |
+| _Open Flint — the all-in-one tool._            | _Open Flint, the all-in-one tool._            |
+| _Three things to check — files, paths, names._ | _Three things to check: files, paths, names._ |
 
 Regular hyphens (`-`) in compound words (`client-side`, `step-by-step`) are fine.
 
@@ -121,14 +123,14 @@ Put safety info **at the top of install guides**, not buried in a footnote.
 
 ## Terminology (do not break these)
 
-| Never write | Write instead |
-|-------------|---------------|
-| Skin hack, skin changer | Custom skin, mod |
-| Cheat, exploit | Mod, custom skin |
-| Unlock skins | Customize, change the look |
-| Undetectable | Safe, client-side |
-| Buy, purchase | Download, get |
-| Free-to-play skins | Custom skins |
+| Never write             | Write instead              |
+| ----------------------- | -------------------------- |
+| Skin hack, skin changer | Custom skin, mod           |
+| Cheat, exploit          | Mod, custom skin           |
+| Unlock skins            | Customize, change the look |
+| Undetectable            | Safe, client-side          |
+| Buy, purchase           | Download, get              |
+| Free-to-play skins      | Custom skins               |
 
 These are not style preferences. "Hack" and "undetectable" suggest breaking rules. Custom skins don't break rules — the wrong word makes the whole wiki look shady.
 
