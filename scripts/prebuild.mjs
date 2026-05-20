@@ -50,7 +50,10 @@ try {
   console.warn("Could not generate git-info.json:", err.message);
   // Write a sentinel so the import in src/components/git-info-button.tsx doesn't explode
   mkdirSync(dirname(OUT), { recursive: true });
-  writeFileSync(OUT, JSON.stringify({ branch: "unknown", commit: "unknown" }, null, 2) + "\n");
+  writeFileSync(
+    OUT,
+    JSON.stringify({ branch: "unknown", commit: "unknown" }, null, 2) + "\n",
+  );
 }
 
 // --- Entity index for the draft editor's @-mention smart-linking ---------
@@ -74,17 +77,34 @@ function readTitle(filePath) {
 function buildEntityIndex() {
   if (!existsSync(EN_DIR)) return [];
   const entities = [];
-  for (const category of readdirSync(EN_DIR)) {
-    const categoryDir = resolve(EN_DIR, category);
-    if (!statSync(categoryDir).isDirectory()) continue;
-    for (const file of readdirSync(categoryDir)) {
-      if (!file.endsWith(".mdx")) continue;
-      const slug = file.replace(/\.mdx$/, "");
-      const title = readTitle(resolve(categoryDir, file));
-      if (!title) continue;
-      const url =
-        slug === "index" ? `/docs/${category}` : `/docs/${category}/${slug}`;
-      entities.push({ title, slug, category, url });
+  for (const game of readdirSync(EN_DIR)) {
+    const gameDir = resolve(EN_DIR, game);
+    if (!statSync(gameDir).isDirectory()) continue;
+    for (const entry of readdirSync(gameDir)) {
+      const entryPath = resolve(gameDir, entry);
+      const entryStat = statSync(entryPath);
+      if (entryStat.isFile() && entry.endsWith(".mdx")) {
+        const slug = entry.replace(/\.mdx$/, "");
+        const title = readTitle(entryPath);
+        if (!title) continue;
+        const url =
+          slug === "index" ? `/docs/${game}` : `/docs/${game}/${slug}`;
+        entities.push({ title, slug, category: game, url });
+        continue;
+      }
+      if (!entryStat.isDirectory()) continue;
+      const category = entry;
+      for (const file of readdirSync(entryPath)) {
+        if (!file.endsWith(".mdx")) continue;
+        const slug = file.replace(/\.mdx$/, "");
+        const title = readTitle(resolve(entryPath, file));
+        if (!title) continue;
+        const url =
+          slug === "index"
+            ? `/docs/${game}/${category}`
+            : `/docs/${game}/${category}/${slug}`;
+        entities.push({ title, slug, category, url });
+      }
     }
   }
   return entities;
