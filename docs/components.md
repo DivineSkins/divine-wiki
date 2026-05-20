@@ -14,21 +14,21 @@ Colored box for warnings, info, safety notes, and difficulty markers.
 
 Props:
 
-| Prop | Type | Default | Purpose |
-|---|---|---|---|
-| `type` | `"info"` \| `"warning"` \| `"danger"` \| `"success"` \| `"lvl_beginner"` \| `"lvl_intermediate"` \| `"lvl_advanced"` | `"info"` | Visual + icon |
-| `title` | string | Localised default per type | Bold heading inside the box |
-| `children` | MDX | required | Body |
+| Prop       | Type                                                                                                                 | Default                    | Purpose                     |
+| ---------- | -------------------------------------------------------------------------------------------------------------------- | -------------------------- | --------------------------- |
+| `type`     | `"info"` \| `"warning"` \| `"danger"` \| `"success"` \| `"lvl_beginner"` \| `"lvl_intermediate"` \| `"lvl_advanced"` | `"info"`                   | Visual + icon               |
+| `title`    | string                                                                                                               | Localised default per type | Bold heading inside the box |
+| `children` | MDX                                                                                                                  | required                   | Body                        |
 
 When to use which:
 
-| Type | Use for |
-|---|---|
-| `info` | Neutral tips. "Good to know" asides. |
-| `success` | Confirming a step worked. |
-| `warning` | Something can go wrong but isn't dangerous. |
-| `danger` | Real risk — bans, data loss, irreversible steps. Always use this for the KR/CN safety note. |
-| `lvl_beginner` / `lvl_intermediate` / `lvl_advanced` | Difficulty markers at the top of a guide. |
+| Type                                                 | Use for                                                                                     |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `info`                                               | Neutral tips. "Good to know" asides.                                                        |
+| `success`                                            | Confirming a step worked.                                                                   |
+| `warning`                                            | Something can go wrong but isn't dangerous.                                                 |
+| `danger`                                             | Real risk — bans, data loss, irreversible steps. Always use this for the KR/CN safety note. |
+| `lvl_beginner` / `lvl_intermediate` / `lvl_advanced` | Difficulty markers at the top of a guide.                                                   |
 
 Defaults titles come from `messages/<locale>.json` (`callout.defaultTitles.*`).
 
@@ -38,11 +38,10 @@ Fumadocs-provided. Use for alternative install paths, OS-specific steps, or tool
 
 ```mdx
 <Tabs items={["Windows", "macOS"]}>
-  <Tab value="Windows">
-    Open Celestial from the Start menu.
-  </Tab>
+  <Tab value="Windows">Open Celestial from the Start menu.</Tab>
   <Tab value="macOS">
-    Celestial doesn't run on macOS today. See [Install on Mac](./install-on-mac).
+    Celestial doesn't run on macOS today. See [Install on
+    Mac](./install-on-mac).
   </Tab>
 </Tabs>
 ```
@@ -63,15 +62,18 @@ Two-column table for listing arguments, flags, API parameters. Used inside refer
 <ParameterList
   parameters={[
     { name: "name", description: "Champion the skin belongs to. e.g. Ahri." },
-    { name: "skinline", description: "Marketing theme, if any. e.g. Spirit Blossom." },
+    {
+      name: "skinline",
+      description: "Marketing theme, if any. e.g. Spirit Blossom.",
+    },
   ]}
 />
 ```
 
 Props:
 
-| Prop | Type | Notes |
-|---|---|---|
+| Prop         | Type                                           | Notes             |
+| ------------ | ---------------------------------------------- | ----------------- |
 | `parameters` | `Array<{ name: string; description: string }>` | Rendered in order |
 
 ## `<img>` (auto-zoom)
@@ -79,7 +81,10 @@ Props:
 Standard `<img>` is remapped to `ImageZoom` — clicking the image opens a lightbox.
 
 ```mdx
-<img src="/wiki-images/celestial-install-button.png" alt="The Install button, highlighted in purple" />
+<img
+  src="/wiki-images/celestial-install-button.png"
+  alt="The Install button, highlighted in purple"
+/>
 ```
 
 Rules:

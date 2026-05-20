@@ -12,18 +12,18 @@ The wiki moved to GitHub-native contributions in the 2026-05-13 backend removal.
 
 ## Decisions (from brainstorming)
 
-| Question | Decision |
-|---|---|
-| MVP scope | The full feature: editor, live preview, smart-linking, click-to-insert toolbar, creator-facing component docs. Built in layers so it ships incrementally. |
-| "No backend" line | A stateless `/api/preview` route (no auth, no secrets, no DB) is acceptable — same risk class as the kept `/api/og` and `/api/search` routes. |
-| New vs edit | `/draft` is the single entry point for all contributions. It replaces the raw per-page "Edit on GitHub" link. |
-| Edit handoff | New guides get automatic GitHub URL prefill. Edits use a copy-paste handoff — GitHub has no URL-prefill for existing files. |
-| meta.json | "Instructions + copy block" — a "one more step" panel after the main handoff, with the exact snippet and a link to the file. |
-| Editor surface | CodeMirror 6 — enables real inline autocomplete for smart-linking and clean snippet insertion. |
-| Layout | Two columns (editor \| preview) with the component cheatsheet as a compact toolbar above the editor. |
-| Component tooltips | Each toolbar chip's tooltip shows: name, "when to use this", a live rendered preview, the snippet, and an insert button. |
-| Smart-link trigger | `@` character opens an autocomplete dropdown. Plus an optional on-demand "Scan for links" button. No passive "underline every known word" behavior. |
-| Testing | Lightweight — pure logic lives as testable functions in `src/lib/draft/`, covered by TypeScript and a written manual test plan. No new test runner. |
+| Question           | Decision                                                                                                                                                  |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| MVP scope          | The full feature: editor, live preview, smart-linking, click-to-insert toolbar, creator-facing component docs. Built in layers so it ships incrementally. |
+| "No backend" line  | A stateless `/api/preview` route (no auth, no secrets, no DB) is acceptable — same risk class as the kept `/api/og` and `/api/search` routes.             |
+| New vs edit        | `/draft` is the single entry point for all contributions. It replaces the raw per-page "Edit on GitHub" link.                                             |
+| Edit handoff       | New guides get automatic GitHub URL prefill. Edits use a copy-paste handoff — GitHub has no URL-prefill for existing files.                               |
+| meta.json          | "Instructions + copy block" — a "one more step" panel after the main handoff, with the exact snippet and a link to the file.                              |
+| Editor surface     | CodeMirror 6 — enables real inline autocomplete for smart-linking and clean snippet insertion.                                                            |
+| Layout             | Two columns (editor \| preview) with the component cheatsheet as a compact toolbar above the editor.                                                      |
+| Component tooltips | Each toolbar chip's tooltip shows: name, "when to use this", a live rendered preview, the snippet, and an insert button.                                  |
+| Smart-link trigger | `@` character opens an autocomplete dropdown. Plus an optional on-demand "Scan for links" button. No passive "underline every known word" behavior.       |
+| Testing            | Lightweight — pure logic lives as testable functions in `src/lib/draft/`, covered by TypeScript and a written manual test plan. No new test runner.       |
 
 ## Architecture
 
@@ -75,19 +75,21 @@ The fuller creator-facing component reference — every prop, screenshots, examp
 
 **Trigger:** the `@` character opens a CodeMirror autocomplete dropdown filtered against the entity index. Selecting an entry inserts `[Visible Text](/docs/<category>/<slug>)`. If nothing matches, no suggestion appears and the creator types normally.
 
-**Optional "Scan for links" button:** an on-demand pass over the whole draft that *suggests* (never auto-applies) wrapping unlinked entity names. On-demand, so it is never in the way.
+**Optional "Scan for links" button:** an on-demand pass over the whole draft that _suggests_ (never auto-applies) wrapping unlinked entity names. On-demand, so it is never in the way.
 
 ### 4. The GitHub handoff
 
 On "Contribute", `/draft` assembles the full MDX (frontmatter from the header inputs + body) and branches:
 
 **New guide:**
+
 1. If the assembled MDX is under a safe URL limit (~6 KB, conservative against GitHub's ~8 KB cap), open `github.com/DivineSkins/divine-wiki/new/main?filename=content/docs/en/<category>/<slug>.mdx&value=<urlencoded>` in a new tab — GitHub's editor opens pre-filled.
 2. If it is over the limit, fall back to the copy-paste panel (same as edits).
 3. Show a "one more step" panel: the meta.json snippet to paste and a link to the category's `meta.json` on GitHub.
 4. Show an images reminder: upload any referenced images to `public/wiki-images/` in the same PR, with a link to GitHub's upload UI.
 
 **Edit existing:**
+
 1. Show a copy-paste panel: the edited MDX with a prominent "Copy MDX" button.
 2. A "then" step: an "Open guide on GitHub" button → `github.com/DivineSkins/divine-wiki/edit/main/content/docs/en/<path>`. The creator selects all, pastes, commits.
 3. Images reminder shows. No meta.json step — the page already exists.
@@ -103,6 +105,7 @@ On "Contribute", `/draft` assembles the full MDX (frontmatter from the header in
 **Draft persistence:** localStorage auto-save, keyed by mode + slug/path. A refresh or accidental tab-close does not lose work — restore with an "unsaved draft" prompt on load. This doubles as the URL-length fallback safety net.
 
 **State ownership:**
+
 - `draft-editor.tsx` owns `{ title, category, slug, description, body, mode }`.
 - `preview-pane.tsx` owns the fetch-to-`/api/preview` and render.
 - `toolbar.tsx` calls back into the editor to insert at the cursor.
@@ -122,6 +125,7 @@ On "Contribute", `/draft` assembles the full MDX (frontmatter from the header in
 Lightweight, matching the project's deliberately thin toolchain. The pure logic — GitHub URL builders, slug derivation, frontmatter assembly, entity-index matching — lives in `src/lib/draft/` as pure functions, covered by TypeScript types. No new test runner is added.
 
 Manual test plan:
+
 - New-guide happy path: fill inputs, write body, preview renders, Contribute opens a pre-filled GitHub editor.
 - Edit happy path: open `?edit=<path>`, source loads, edit, Contribute shows the copy-paste panel.
 - Oversized-draft fallback: a long new-guide draft falls back to copy-paste.

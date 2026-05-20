@@ -6,8 +6,7 @@ interface YouTubeProps {
 }
 
 export function YouTube({ id, start, list, title }: YouTubeProps) {
-  const startSeconds =
-    typeof start === "string" ? parseInt(start, 10) : start;
+  const startSeconds = typeof start === "string" ? parseInt(start, 10) : start;
   const params = new URLSearchParams();
   if (startSeconds && startSeconds > 0)
     params.set("start", String(startSeconds));

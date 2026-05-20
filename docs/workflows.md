@@ -19,7 +19,11 @@ Cookbook for the tasks that come up most often. Follow these recipes instead of 
 5. Add the slug to the category's `meta.json` in the position you want it:
 
    ```json
-   { "title": "Tools", "icon": "Wrench", "pages": ["index", "cs-lol-manager", "league-mod-repather", "..."] }
+   {
+     "title": "Tools",
+     "icon": "Wrench",
+     "pages": ["index", "cs-lol-manager", "league-mod-repather", "..."]
+   }
    ```
 
 6. `npm run dev` → `/en/docs/<category>/<slug>` should render.
@@ -52,6 +56,7 @@ Rare. Creator-scope is deliberately capped at eight categories.
    ```
 
    `icon` **must** be a lucide-react icon name from `lucide-react/dynamicIconImports`. Unknown names 500 the docs layout (known gotcha).
+
 4. Add the category to the top-level `content/docs/en/meta.json` `pages` array.
 5. Make sure Crowdin picks up the folder — no config change needed; `crowdin.yml` globs `content/docs/en/**/*.mdx`.
 

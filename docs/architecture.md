@@ -12,16 +12,16 @@ How the wiki is wired. Read this before editing anything outside `content/`.
 
 ## Request map
 
-| Route | Handler | Notes |
-|---|---|---|
-| `/` | redirect → `/en` | `next.config.mjs` redirect (permanent) |
-| `/en`, `/fr-FR`, `/tr-TR`, `/pt-BR` | `src/app/[lang]/(home)/page.tsx` | Landing (icon-tile grid) |
-| `/{lang}/docs/{...slug}` | `src/app/[lang]/docs/[[...slug]]/page.tsx` | Fumadocs `DocsPage` + MDX |
-| `/{lang}/docs/contributing` | MDX guide | How to contribute via GitHub (browser or local fork) |
-| `/api/og/docs/[lang]/[...slug]` | Dynamic OG image | Fumadocs' built-in generator |
-| `/api/search` | Orama search index | Fumadocs built-in |
-| `/api/health` | Liveness probe | Returns `{ok: true}` |
-| `/sitemap*.xml`, `/robots.txt` | Next metadata routes | Auto-generated per locale |
+| Route                               | Handler                                    | Notes                                                |
+| ----------------------------------- | ------------------------------------------ | ---------------------------------------------------- |
+| `/`                                 | redirect → `/en`                           | `next.config.mjs` redirect (permanent)               |
+| `/en`, `/fr-FR`, `/tr-TR`, `/pt-BR` | `src/app/[lang]/(home)/page.tsx`           | Landing (icon-tile grid)                             |
+| `/{lang}/docs/{...slug}`            | `src/app/[lang]/docs/[[...slug]]/page.tsx` | Fumadocs `DocsPage` + MDX                            |
+| `/{lang}/docs/contributing`         | MDX guide                                  | How to contribute via GitHub (browser or local fork) |
+| `/api/og/docs/[lang]/[...slug]`     | Dynamic OG image                           | Fumadocs' built-in generator                         |
+| `/api/search`                       | Orama search index                         | Fumadocs built-in                                    |
+| `/api/health`                       | Liveness probe                             | Returns `{ok: true}`                                 |
+| `/sitemap*.xml`, `/robots.txt`      | Next metadata routes                       | Auto-generated per locale                            |
 
 ## The MDX pipeline
 
@@ -99,14 +99,14 @@ The previous content-lint suite (markdownlint, lychee, cSpell, alt-text diff) wa
 
 ## Key file index
 
-| File | What to remember |
-|---|---|
-| `next.config.mjs` | Image remotePatterns, redirects. **Don't** re-enable `experimental.viewTransition` (React 19.2 stable lacks `ViewTransition`). |
-| `source.config.ts` | Frontmatter schema. Fresh Zod object, not `.extend()`. External-image prefetch disabled. |
-| `src/mdx-components.tsx` | Register new MDX components here so authors can use them. |
-| `src/lib/source.ts` | Fumadocs loader. Also exposes LLM helpers. |
-| `src/lib/i18n.ts` | Locale list. Add new locales here + in `crowdin.yml`. |
-| `src/lib/layout.shared.tsx` | Top nav links. |
-| `src/app/[lang]/docs/[[...slug]]/page.tsx` | The MDX page renderer. Don't put logic here — add it to `mdx-components.tsx` or a component. |
-| `scripts/prebuild.mjs` | Runs before dev + build. Writes `src/git-info.json`. |
-| `scripts/migrate-content.mjs` | One-shot migration. Idempotent. Only rerun if reorganising categories wholesale. |
+| File                                       | What to remember                                                                                                               |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| `next.config.mjs`                          | Image remotePatterns, redirects. **Don't** re-enable `experimental.viewTransition` (React 19.2 stable lacks `ViewTransition`). |
+| `source.config.ts`                         | Frontmatter schema. Fresh Zod object, not `.extend()`. External-image prefetch disabled.                                       |
+| `src/mdx-components.tsx`                   | Register new MDX components here so authors can use them.                                                                      |
+| `src/lib/source.ts`                        | Fumadocs loader. Also exposes LLM helpers.                                                                                     |
+| `src/lib/i18n.ts`                          | Locale list. Add new locales here + in `crowdin.yml`.                                                                          |
+| `src/lib/layout.shared.tsx`                | Top nav links.                                                                                                                 |
+| `src/app/[lang]/docs/[[...slug]]/page.tsx` | The MDX page renderer. Don't put logic here — add it to `mdx-components.tsx` or a component.                                   |
+| `scripts/prebuild.mjs`                     | Runs before dev + build. Writes `src/git-info.json`.                                                                           |
+| `scripts/migrate-content.mjs`              | One-shot migration. Idempotent. Only rerun if reorganising categories wholesale.                                               |

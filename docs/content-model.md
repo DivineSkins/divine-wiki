@@ -6,15 +6,15 @@ How `.mdx` files, frontmatter, and `meta.json` fit together. This is the contrac
 
 Defined in `source.config.ts`. Extra keys are **rejected** by Fumadocs — add them to the schema first.
 
-| Key | Type | Required | Notes |
-|---|---|---|---|
-| `title` | string | yes | Shown as the H1 and in search. Keep under ~60 chars. |
-| `description` | string | no (strongly advised) | SEO description + OG card. 120–160 chars ideal. |
-| `icon` | string | no | Lucide icon name (e.g. `"Wrench"`). Must exist in `lucide-react/dynamicIconImports` or the page 500s. |
-| `full` | boolean | no | `true` hides the right-side TOC (use for hub pages). |
-| `category` | string | no | Usually redundant — Fumadocs infers it from the folder path. Keep only if the folder can't. |
-| `authors` | array | no | `[{ name: "handle", url?: "https://..." }]`. Shown under the title. |
-| `patch` | string | no | e.g. `"14.23"`. Reserved for future "last tested on patch" badge. |
+| Key           | Type    | Required              | Notes                                                                                                 |
+| ------------- | ------- | --------------------- | ----------------------------------------------------------------------------------------------------- |
+| `title`       | string  | yes                   | Shown as the H1 and in search. Keep under ~60 chars.                                                  |
+| `description` | string  | no (strongly advised) | SEO description + OG card. 120–160 chars ideal.                                                       |
+| `icon`        | string  | no                    | Lucide icon name (e.g. `"Wrench"`). Must exist in `lucide-react/dynamicIconImports` or the page 500s. |
+| `full`        | boolean | no                    | `true` hides the right-side TOC (use for hub pages).                                                  |
+| `category`    | string  | no                    | Usually redundant — Fumadocs infers it from the folder path. Keep only if the folder can't.           |
+| `authors`     | array   | no                    | `[{ name: "handle", url?: "https://..." }]`. Shown under the title.                                   |
+| `patch`       | string  | no                    | e.g. `"14.23"`. Reserved for future "last tested on patch" badge.                                     |
 
 Example:
 
@@ -67,7 +67,16 @@ One per folder. Two shapes:
 ```json
 {
   "title": "Divine Skins Wiki",
-  "pages": ["guided-walkthrough", "tools", "maya", "blender", "animations", "vfx-bins", "assets-library", "errors"]
+  "pages": [
+    "guided-walkthrough",
+    "tools",
+    "maya",
+    "blender",
+    "animations",
+    "vfx-bins",
+    "assets-library",
+    "errors"
+  ]
 }
 ```
 
@@ -87,11 +96,11 @@ One per folder. Two shapes:
 
 Supported `meta.json` directives (Fumadocs):
 
-| Directive | Purpose |
-|---|---|
-| `"---<name>---"` | Separator with a heading label in the sidebar. |
-| `"..."` | Rest marker — "insert remaining pages here in alphabetical order". |
-| `"!<slug>"` | Hide `<slug>` from the sidebar (still reachable by URL). |
+| Directive        | Purpose                                                            |
+| ---------------- | ------------------------------------------------------------------ |
+| `"---<name>---"` | Separator with a heading label in the sidebar.                     |
+| `"..."`          | Rest marker — "insert remaining pages here in alphabetical order". |
+| `"!<slug>"`      | Hide `<slug>` from the sidebar (still reachable by URL).           |
 
 Example with a separator and a hidden draft:
 
