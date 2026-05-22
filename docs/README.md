@@ -17,7 +17,7 @@ Read this folder before writing or editing anything non-trivial. `CLAUDE.md` at 
 
 - [`architecture.md`](./architecture.md) — runtime shape, route map, MDX pipeline, GitHub-native contribution flow, build + CI.
 - [`content-model.md`](./content-model.md) — frontmatter schema, `meta.json`, slugs, images, MDX quirks, i18n.
-- [`components.md`](./components.md) — MDX components available to authors (`Callout`, `Tabs`, `ParameterList`, `img`) with usage.
+- [`components.md`](./components.md) — MDX components available to authors (`Callout`, `Tabs`, `Accordions`, `ParameterList`, `YouTube`, `PremiumCard`, `ToolCard`, `GlowCTA`, `LevelPill`, `img`) with usage.
 - [`workflows.md`](./workflows.md) — cookbook for common tasks (add a guide, add a category, add a locale, debug dev, change voice rules).
 
 ## When to read what

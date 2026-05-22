@@ -147,7 +147,7 @@ For each piece reviewed, return:
 - **Curious end-users wandering in:** Don't assume modding background. Explain _mod_, _fantome file_, _client_, _patch_ on first use.
 - **Global readers (FR / TR / BR / US):** Avoid US-only idioms. Plain English translates better. Crowdin will thank you.
 - **Minors:** A meaningful chunk of readers are under 16. No swearing. No edgy jokes.
-- **Translators:** Don't hand-edit `content/docs/fr-FR/**`, `tr-TR`, `pt-BR` — Crowdin overwrites the whole tree weekly.
+- **Translators:** Don't hand-edit `content/docs/fr-FR/lol/**`, `tr-TR/lol/**`, `pt-BR/lol/**` — Crowdin overwrites the whole tree weekly.
 
 ---
 

@@ -4,8 +4,22 @@ Cookbook for the tasks that come up most often. Follow these recipes instead of 
 
 ## Add a new guide
 
-1. Pick the category. Categories live under `content/docs/en/`.
-2. Create `content/docs/en/<category>/<kebab-slug>.mdx`.
+Three ways. Pick whichever fits — they all converge on a GitHub PR.
+
+### Via the `/draft` in-browser editor (recommended for non-devs)
+
+1. Open `https://wiki.divineskins.gg/en/draft?new=<category>` (or just `/en/draft` and pick a category).
+2. Write the MDX in the left pane; live preview on the right.
+3. Click **Submit** — it authorizes via GitHub device flow, forks the repo if needed, commits the file at `content/docs/en/lol/<category>/<slug>.mdx`, and opens a PR.
+
+### Via Fumadocs "Edit on GitHub"
+
+Every page has an Edit link at the bottom that drops you into GitHub's web editor.
+
+### Via local clone
+
+1. Pick the category. Categories live under `content/docs/en/lol/`.
+2. Create `content/docs/en/lol/<category>/<kebab-slug>.mdx`.
 3. Frontmatter — `title` is required; `description` strongly recommended:
 
    ```yaml
@@ -20,22 +34,22 @@ Cookbook for the tasks that come up most often. Follow these recipes instead of 
 
    ```json
    {
-     "title": "Tools",
+     "title": "{meta.tools.title}",
      "icon": "Wrench",
-     "pages": ["index", "cs-lol-manager", "league-mod-repather", "..."]
+     "pages": ["index", "flint", "jade", "ltmao", "ritobin", "..."]
    }
    ```
 
-6. `npm run dev` → `/en/docs/<category>/<slug>` should render.
+6. `npm run dev` → `/en/docs/lol/<category>/<slug>` should render.
 7. Check voice: no banned terms (see [`voice.md`](./voice.md)); every `<img>` has `alt`; safety callout near the top if the guide touches install.
 8. Commit. CI runs Prettier in check mode; a reviewer handles voice and link checks.
 
 ## Add a new category
 
-Rare. Creator-scope is deliberately capped at eight categories.
+Rare. Creator-scope is deliberately capped at eight content categories plus `contributing`.
 
-1. `mkdir content/docs/en/<category>`.
-2. Create `content/docs/en/<category>/index.mdx` (the landing page):
+1. `mkdir content/docs/en/lol/<category>`.
+2. Create `content/docs/en/lol/<category>/index.mdx` (the landing page):
 
    ```mdx
    ---
@@ -49,16 +63,25 @@ Rare. Creator-scope is deliberately capped at eight categories.
    - [Guide B](./guide-b)
    ```
 
-3. Create `content/docs/en/<category>/meta.json`:
+3. Create `content/docs/en/lol/<category>/meta.json`:
 
    ```json
    { "title": "Category Name", "icon": "IconName", "pages": ["index", "..."] }
    ```
 
-   `icon` **must** be a lucide-react icon name from `lucide-react/dynamicIconImports`. Unknown names 500 the docs layout (known gotcha).
+   `icon` **must** be a lucide-react icon name resolved by `lucideIconsPlugin`. Unknown names 500 the docs layout (known gotcha).
 
-4. Add the category to the top-level `content/docs/en/meta.json` `pages` array.
+4. Add the category slug to `content/docs/en/lol/meta.json`'s `pages` array, in the order you want it.
 5. Make sure Crowdin picks up the folder — no config change needed; `crowdin.yml` globs `content/docs/en/**/*.mdx`.
+
+## Add a new game segment
+
+Today the only segment is `lol/`. To add another (e.g. Valorant):
+
+1. `mkdir content/docs/en/valorant`.
+2. Create `content/docs/en/valorant/meta.json` with `root: true`, an icon, and a `pages` array.
+3. Add `"valorant"` to `content/docs/en/meta.json`'s `pages` array.
+4. Add a `meta.valorant.title` key (and any category title interpolations) to `messages/en.json`.
 
 ## Add a new locale
 
@@ -97,6 +120,7 @@ Most frequent causes:
 
 1. Change [`voice.md`](./voice.md) (human-readable source of truth).
 2. Mirror any banned-term changes in the "Conventions" section of `CLAUDE.md` so humans + AI see the same rules.
+3. Mirror in `.claude/skills/divine-wiki-voice/SKILL.md` and `.claude/skills/divine-wiki-voice/references/wiki-voice-guide.md` so the voice skill stays accurate.
 
 ## Add a new Lucide icon to a category
 
@@ -117,7 +141,7 @@ If the build later says an icon is missing, it's a typo or a name that only exis
 
 ## Run the content migration script
 
-Only do this if you're reorganising categories wholesale. The script is idempotent.
+Only do this if you're reorganising categories wholesale. The script is idempotent and historical — it was written for the original migration from the legacy Divine Academy wiki.
 
 ```bash
 node scripts/migrate-content.mjs
@@ -125,14 +149,14 @@ node scripts/migrate-content.mjs
 
 It:
 
-- Moves `content/<cat>/` → `content/docs/en/<cat>/`
+- Moves `content/<cat>/` → `content/docs/en/<cat>/` (predates the `lol/` game-segment refactor)
 - Backfills `description` (first non-heading sentence) and `category` (folder name)
 - Converts legacy `:::tabs`/`::tab` directives to `<Tabs>`/`<Tab>` JSX
 - Remaps legacy `/wiki/3d-modelling/*` paths
 - Replaces `YOUR_LINK_HERE` with `#`
 - Generates per-category `meta.json` (Lucide icon auto-picked from a lookup table)
 
-Inspect the diff after running; a human pass almost always finds 2–3 things that need tightening.
+Inspect the diff after running; a human pass almost always finds 2–3 things that need tightening. If you rerun this on the current tree, you'll likely need to move the result back under `lol/` by hand afterwards.
 
 ## Bring up a local dev session
 
@@ -143,11 +167,19 @@ npm run dev   # boots at http://localhost:3000 (will redirect → /en)
 
 No env vars needed — the site is fully static. Contributors edit guides via GitHub (browser or local fork) and open a PR; there's no in-site editor to wire up locally.
 
+## Debug `/draft` editor preview vs published divergence
+
+The editor's preview pane renders MDX through `src/lib/draft/mdx-config.ts` (via `/api/preview`). The published site uses `source.config.ts`. If a guide looks right in `/draft` but wrong once merged (or vice versa), the two pipelines have drifted.
+
+1. Open `source.config.ts` and note `mdxOptions.remarkPlugins` and `rehypeCodeOptions`.
+2. Open `src/lib/draft/mdx-config.ts` and confirm `previewRemarkPlugins` matches.
+3. Add any missing plugin to the lagging side. They must stay in lockstep.
+
 ## When working as AI on this repo
 
 - **Read `CLAUDE.md` first every turn** — it's the tight source of truth; these `docs/` files are the deep dive.
 - **Check `docs/playbook.md` before proposing structural changes** — page types, sidebar shape, and contribution tiers are already settled.
-- **Check `docs/voice.md` before writing any user-facing copy** — voice is enforced in CI.
+- **Check `docs/voice.md` before writing any user-facing copy.**
 - **Don't touch non-English MDX** — Crowdin overwrites it.
 - **Don't import from `Reference/`** — it's legacy reference material, not project code.
 - **Trust but verify recalled memory** — memories about specific file paths / flags / components can go stale. Grep before recommending.
