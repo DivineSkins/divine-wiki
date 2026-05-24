@@ -458,11 +458,34 @@
     font-weight: 500 !important;
   }
 
-  /* Code blocks — surface bg with a brand-accent rail on the left.
-     Background flips per theme so shiki's dual-theme tokens (light-plus /
-     github-dark) stay readable. */
-  .prose pre,
+  /* Code blocks — brand-accent rail on the outer Fumadocs CodeBlock figure.
+     Fumadocs wraps every <pre> in <figure class="shiki ... rounded-xl border">
+     with its own copy button; restyle that wrapper directly so we don't paint
+     a second border + rail onto the inner <pre>. Background flips per theme
+     so shiki's dual-theme tokens (light-plus / github-dark) stay readable. */
+  .prose figure.shiki,
+  .prose figure[data-rehype-pretty-code-figure] {
+    background: var(--prose-code-bg) !important;
+    border: 1px solid var(--color-divine-border) !important;
+    border-left: 3px solid var(--color-divine-primary) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  }
+
+  .prose figure.shiki pre,
   .prose figure[data-rehype-pretty-code-figure] pre {
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    padding: 1rem 1.25rem !important;
+    font-family: var(--font-jetbrains-mono), ui-monospace, monospace !important;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    box-shadow: none !important;
+  }
+
+  /* Bare <pre> with no figure wrapper still gets the brand treatment. */
+  .prose > pre {
     background: var(--prose-code-bg) !important;
     border: 1px solid var(--color-divine-border) !important;
     border-left: 3px solid var(--color-divine-primary) !important;
@@ -478,11 +501,9 @@
   .prose blockquote {
     position: relative;
     border-left: 0 !important;
-    background: color-mix(
-      in srgb,
-      var(--color-divine-surface) 60%,
-      transparent
-    );
+    background: var(--color-divine-surface);
+    border: 1px solid
+      color-mix(in srgb, var(--color-divine-border) 70%, transparent);
     border-radius: 0 8px 8px 0;
     padding: 1rem 1.25rem 1rem 1.5rem !important;
     margin: 1.5rem 0;
@@ -500,8 +521,15 @@
     top: 0;
     bottom: 0;
     width: 3px;
-    background: #783cb5;
+    background: var(--color-divine-primary);
     border-radius: 3px;
+  }
+  /* Suppress the Typography preset's open-quote/close-quote characters that
+     otherwise wrap blockquote text in literal “ ” — we already convey the
+     blockquote via the left rail + surface panel. */
+  .prose blockquote p::before,
+  .prose blockquote p::after {
+    content: none !important;
   }
 
   /* Heading anchor links (the auto-injected `#section` deep-link wrappers
