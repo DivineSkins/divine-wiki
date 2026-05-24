@@ -1,0 +1,167 @@
+---
+title: "League Mod Repather"
+description: "A standalone tool that fixes broken League of Legends mods after a patch."
+category: "tools"
+---
+
+When Riot patches League, old mods break. League Mod Repather rebuilds
+your mod so it works on the current patch.
+
+Download the latest version from the
+[GitHub releases page](https://github.com/RitoShark/League-Mod-Repather/releases).
+The guide below was checked against **v2.0.4**.
+
+---
+
+## How to Use
+
+### First Time Setup
+
+1. Download `LeagueModRepather.exe` and open it.
+2. Click **Download** to fetch the hash files from CommunityDragon.
+3. Wait for the download to finish (~1 minute, ~220 MB).
+
+Hash files only download once. When a new patch ships, click **Update** to
+refresh them.
+
+---
+
+### Step 1: Select Files
+
+**Champions Folder:**
+
+- Click **Browse** next to "Champions folder".
+- Go to: `C:\Riot Games\League of Legends\Game\DATA\FINAL\Champions`
+- Click **Select Folder**.
+
+**Your Mod:**
+
+- **Option A:** Select a `.fantome` file. You can pick more than one for bulk
+  repathing.
+- **Option B:** Select a mod folder. This option is for mod creators working on
+  an extracted mod. Regular users should pick Option A.
+
+**Custom Prefix** (Optional):
+
+- Leave blank for a random prefix like `shadow` or `dragon`.
+- Or type your own prefix like `mymod` for consistent file names.
+
+---
+
+### Step 2: Crash-Fix Toggles
+
+These toggles sit under the mod selection. They fix specific crashes. Leave
+them off unless you need them.
+
+<Callout type="info">
+**Merge Linked BINs** is on by default. Keep it on. It pulls newer linked BIN
+paths from the fresh game files and adds them to your mod. This repairs old
+mods missing entries from recent patches (for example, the Yone E crash).
+</Callout>
+
+- **No Skin Lite**. Copies Base/Skin0 to every other skin slot (1 to 99).
+  Only works on Base/Skin0 mods.
+- **Nuke Materials (crash fix)**. Removes `StaticMaterialDef` entries and
+  swaps material links for direct texture paths. Try this if a mod crashes the
+  game on champions like Yasuo or Zed.
+- **Fix TEX Dimensions (Crash Fix)**. Resizes `.tex` files with dimensions
+  not divisible by 4 (for example, 257x257 becomes 256x256). Turn on if your
+  mod crashes on load.
+
+Click **Next**.
+
+---
+
+### Step 3: Processing
+
+The tool runs through these steps:
+
+- Detects the champion in your mod.
+- Extracts your mod and the fresh game files.
+- Converts `.tex` files to `.dds`.
+
+Processing takes 2-5 minutes. The status reads `Overlay complete` when it's
+done.
+
+Click **Next**.
+
+---
+
+### Step 4: Select Main BIN
+
+Pick the skin from the dropdown. Use **Skin0** for the base skin. For a
+chroma or another skin, pick the matching slot (Skin1, Skin5, and so on).
+
+Click **Next**.
+
+---
+
+### Step 5: Repathing
+
+The tool fixes all file paths, merges linked BINs (if you left that toggle
+on), and packs everything into a new `.fantome`. VFX go into a separate bin
+so the main bin stays clean (added in v2.0.3).
+
+When it finishes you see: `DONE! Created {name}_repathed.fantome`
+
+---
+
+### Output Location
+
+Your new mod is saved in two places:
+
+```text
+C:\Users\<YourName>\Documents\FantomeRepathTool\
+```
+
+It's also saved next to the original `.fantome` you picked.
+
+Look for the file ending in `_repathed.fantome`.
+
+---
+
+## Installation
+
+1. Open your mod manager (Fantome, LCS Manager, or similar).
+2. Import the `_repathed.fantome` file.
+3. Enable the mod and start the game.
+
+---
+
+## Troubleshooting
+
+**Mod still doesn't work after repathing:**
+
+- Check that you picked the right skin slot (Skin0 for base).
+- Click **Update** to refresh hash files, then try again.
+- Turn on **Merge Linked BINs** if you turned it off.
+
+**Game crashes on champion load (Yasuo, Zed, others):**
+
+- Turn on **Nuke Materials (crash fix)** and repath again.
+
+**Yone E crash or missing effects:**
+
+- Make sure **Merge Linked BINs** is on. It's on by default.
+
+**Crash on game start with this mod:**
+
+- Turn on **Fix TEX Dimensions (Crash Fix)** and repath again.
+
+**Tool stuck on "Converting TEX to DDS":**
+
+- This is normal on large mods. Give it 2-5 minutes.
+
+**Hash file location:**
+
+```text
+C:\Users\<YourName>\AppData\Roaming\FrogTools\hashes\
+```
+
+---
+
+## Credits
+
+- **GuiSaiUwU** - [pyRitoFile](https://github.com/GuiSaiUwU/pyritofile-package), healthbar fix and static mat fix code
+- **tarngaina** - [pyRitoFile](https://github.com/tarngaina/pyRitoFile), [LtMAO](https://github.com/tarngaina/LtMAO)
+- **CommunityDragon** - [Hash tables](https://github.com/CommunityDragon/Data)

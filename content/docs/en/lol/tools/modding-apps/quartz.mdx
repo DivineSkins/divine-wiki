@@ -1,0 +1,265 @@
+---
+title: "Quartz"
+description: "An all-in-one modding suite focused on VFX work. Recolor particles, port effects between champions, extract assets, and upscale textures."
+category: "tools"
+---
+
+Quartz is a desktop app by **RitoShark** built for VFX-heavy modding.
+If you spend most of your time on particles, textures, and asset porting,
+this is the tool to reach for. It bundles Jade's BIN engine, LtMAO, and
+the Upscayl AI upscaler into one window.
+
+[Download the latest release](https://github.com/RitoShark/Quartz/releases)
+
+{/* SCREENSHOT: Quartz main window with the sidebar showing all pages (Paint, Port, VfxHub, Asset Extractor, etc.) */}
+
+---
+
+## What it does
+
+- **Recolor particles** in the **Paint** page with hue shift, blend
+  modes, custom palettes, and random gradients.
+- **Port VFX** between champions and skins. Drag a vfxsystem from a
+  donor BIN onto your target.
+- **Share VFX** through **VfxHub**, a community database hosted on
+  GitHub.
+- **Extract WAD files** by champion and skin ID, with automatic
+  repathing.
+- **Scale particle parameters** (birthscale, scale) in batch through
+  the **Bineditor** page.
+- **Recolor images** (PNG, JPG, DDS, TEX) with hue, saturation, and
+  brightness controls.
+- **Upscale textures** with the built-in Upscayl AI upscaler.
+- **Pick colors** with the **RGBA** tool and get League-formatted RGB
+  codes with alpha.
+- **Port animations** between champions and skins with **AniPort
+  Simple**.
+- **Run custom .exe tools** by drag-and-drop (for example,
+  `staticmatfix`).
+- **Randomize or rename files** in batch through the **File Handler**
+  page.
+- **Repath mods** with **Bumpath**, using built-in hash files.
+- **Customize the UI** with the **Theme Creator** (colors, fonts, page
+  visibility).
+
+---
+
+## Install
+
+1. Go to the [releases page](https://github.com/RitoShark/Quartz/releases).
+2. Download the latest Windows installer.
+3. Run it. The installer opens.
+4. Follow the prompts. Quartz opens to the home screen when it's done.
+
+<Callout type="info" title="First-time setup">
+  Before you extract assets, open **Settings** and point Quartz at your
+  League of Legends Champions folder and a WAD output directory. The
+  Asset Extractor page needs both.
+</Callout>
+
+---
+
+## How to use it
+
+### Paint (recolor particles)
+
+The Paint page is what most people open Quartz for. It recolors particle
+textures while keeping lightness and saturation consistent.
+
+1. Open the **Paint** page from the sidebar.
+2. Load your project BIN. The emitter list fills in.
+3. Click an emitter or vfxsystem to see its textures.
+4. Pick a color with the color picker.
+5. Choose a blend mode (use blend mode 1 if you want true black).
+6. Click apply. The texture updates in the preview.
+7. Click the **Backup** button in the bottom right before you save
+   destructive changes.
+
+<Callout type="info" title="Hover for preview">
+  Hover over any texture symbol in the list to preview the image
+  without opening it. Saves a lot of clicks on big projects.
+</Callout>
+
+{/* SCREENSHOT: Paint page with an emitter selected, color picker open, and a texture preview visible */}
+
+### Port (move VFX between projects)
+
+The Port page transfers emitters and vfxsystems from one BIN to another.
+This is how you take an effect from a donor skin and drop it onto your
+target.
+
+1. Open the **Port** page.
+2. Load your **target** BIN (the skin you're building).
+3. Load a **donor** BIN (the skin you're copying from).
+4. Find the emitter or vfxsystem you want in the donor list. Use the
+   filter bar to search by name or texture.
+5. Drag it onto your target. Quartz copies the entry and moves the
+   textures into your target's project folder.
+6. (Optional) Set the vfxsystem as the **Idle particle** if that's what
+   you need.
+7. (Optional) Click the persistent button in the bottom right to add a
+   persistent effect.
+
+{/* SCREENSHOT: Port page showing target on one side, donor on the other, with a vfxsystem being dragged across */}
+
+### VfxHub (community database)
+
+VfxHub is a shared library of vfxsystems hosted on GitHub. You can
+upload your own or grab someone else's.
+
+1. Open the **VfxHub** page.
+2. Click the download menu at the top. The list of uploaded vfxsystems
+   loads.
+3. Click any entry to download it.
+4. Port it into your target the same way you would from a local donor.
+
+To upload your own:
+
+1. Open VfxHub.
+2. Click upload.
+3. Pick a vfxsystem from your project. Add an image if you want it to
+   show up in previews.
+4. Submit. Your entry appears in the database for everyone else.
+
+### Asset Extractor (pull files from the game)
+
+This page pulls raw assets out of League's WAD files. You need to point
+Quartz at your Champions folder first (see the install callout above).
+
+1. Open the **Asset Extractor** page.
+2. Pick a champion from the dropdown.
+3. Pick a skin ID.
+4. (Optional) Turn on voiceover extraction if you want audio files too.
+5. Click extract. The WAD unpacks to your configured output directory.
+6. Quartz repaths the extracted files automatically.
+
+### Bineditor (batch scale particles)
+
+Use the Bineditor when you need to scale a lot of particles at once,
+for example fixing matrix bugs where transforms don't apply right.
+
+1. Open the **Bineditor** page.
+2. Load your BIN.
+3. Pick **emitters** or **vfxsystems** mode.
+4. Select the entries you want to scale.
+5. Enter your scale value (for example, `2` for 2x birthscale).
+6. Click apply. Every selected entry updates at once.
+
+### Image Recolor (texture color shifts)
+
+For one-off texture work outside the Paint page.
+
+1. Open the **Image Recolor** page.
+2. Drag in a PNG, JPG, DDS, or TEX file.
+3. Adjust hue, saturation, and brightness with the sliders. The preview
+   updates live.
+4. Click export. The recolored file saves next to the original.
+
+### Upscale (AI texture upscaler)
+
+Quartz wraps Upscayl, an open-source AI upscaler. Useful for old
+low-resolution textures.
+
+1. Open the **Upscale** page.
+2. Drag in one image or a folder of images.
+3. Pick the upscale model.
+4. Click upscale. Each image saves to the output folder when it's done.
+
+<Callout type="warning" title="Upscaling is slow on weak GPUs">
+  The first run downloads the model. After that, expect a few seconds
+  per image on a decent GPU. Older or integrated GPUs can take minutes.
+</Callout>
+
+### RGBA (color codes for BIN files)
+
+A small tool for grabbing League-formatted RGB codes with alpha.
+
+1. Open the **RGBA** page.
+2. Pick a color with the picker, or paste a hex code.
+3. Set the alpha value.
+4. Copy the formatted code. Paste it into your BIN.
+
+### AniPort Simple (port animations)
+
+Ports animations between champions or skins, including the resource
+data structure that Riot expects.
+
+1. Open the **AniPort Simple** page.
+2. Load your target and donor.
+3. Pick the animations you want to port.
+4. Apply. Quartz creates the AtomicClipData and event maps for you.
+
+### Tools (run custom .exe files)
+
+For one-off CLI tools that don't have a GUI of their own (like
+`staticmatfix`).
+
+1. Open the **Tools** page.
+2. Drag your `.exe` into the window. Quartz stores it.
+3. Drag a folder onto the stored exe to process every file in it.
+
+### File Handler (randomize or rename in batch)
+
+Two modes in one page.
+
+**Randomizer mode**, for custom emotes:
+
+1. Open **File Handler**. Pick **Randomizer**.
+2. Select your source images.
+3. Pick the target folder.
+4. Run. Every `.tex` or `.dds` in the target folder gets replaced by
+   a random pick from your source images.
+
+**Renamer mode**, for map mods:
+
+1. Open **File Handler**. Pick **Renamer**.
+2. Set the prefix or suffix you want to add or remove.
+3. Pick the folder.
+4. Run. Every file gets the rename applied at once.
+
+### Bumpath (repath a finished mod)
+
+Repaths a mod so it lines up with current game paths.
+
+1. Open the **Bumpath** page.
+2. Load your mod.
+3. Leave **Ignore Missing Files** and **Combine Linked BINs** on
+   (defaults are right for most cases).
+4. Click run. Quartz repaths every file using its built-in hash list.
+
+### Theme Creator (customize the UI)
+
+If you don't like the default colors, build your own theme.
+
+1. Open **Settings**, then **Theme Creator**.
+2. Pick base colors with the color picker.
+3. Tweak derived colors with the sliders.
+4. Save. The whole app updates live as you change values.
+
+---
+
+## When to use Quartz vs other tools
+
+- **Use Quartz** if your work is mostly VFX: particle recoloring,
+  porting effects between skins, or upscaling textures.
+- **Use [Flint](/docs/lol/tools/modding-apps/flint)** if you want one app for the
+  full flow (extract, edit BINs, pack the mod). Flint integrates with
+  Quartz, so you can run both side by side.
+- **Use [Jade](/docs/lol/tools/modding-apps/jade)** if you only edit BIN files and
+  want a focused editor. Quartz uses Jade's engine under the hood.
+- **Use [LtMAO](/docs/lol/tools/modding-apps/ltmao)** for batch jobs and right-click
+  conversions. LtMAO is also bundled into Quartz.
+
+---
+
+## Tips
+
+- The **Theme Creator**, **Font Manager**, and **Page Visibility**
+  controls live in **Settings**. Hide pages you never use to keep the
+  sidebar short.
+- Hash files download automatically. You don't need to manage them
+  yourself.
+- Flint detects when Quartz changes a file you have open and offers to
+  refresh. Run both together if you like.
+- The Backup button in Paint is in the bottom right. Use it before any
+  destructive change you might want to undo.

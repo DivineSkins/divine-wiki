@@ -1,0 +1,328 @@
+---
+title: "LtMAO"
+description: "LtMAO-hai is a toolpack by tarngaina for League of Legends modding."
+category: "tools"
+---
+
+https://github.com/tarngaina/LtMAO
+
+---
+
+**LtMAO** is a toolpack for League of Legends modding by tarngaina. It adds a right-click context menu for file conversions and pairs it with a set of GUI tools for WAD packing, 3D files, audio, textures, and more.
+
+---
+
+<img
+  src="/wiki-images/1767185228356-6fun2k.png"
+  alt="LtMAO application window"
+  width={400}
+/>
+
+## What the right-click menu does
+
+LtMAO adds a right-click context menu in Windows Explorer. From it you can:
+
+### Convert files
+
+| From   | To     | What it does                              |
+| ------ | ------ | ----------------------------------------- |
+| `.dds` | `.tex` | Convert textures for use in-game          |
+| `.tex` | `.dds` | Extract textures so you can edit them     |
+| `.wem` | `.wav` | Convert audio files to an editable format |
+| `.bin` | `.py`  | Convert binary files to readable Python   |
+| `.py`  | `.bin` | Repack edited Python files back to binary |
+
+### Work with WAD files
+
+- Unpack `.wad.client` files using custom extracted hashes.
+- Open WADs from repathed or hard-modified mods.
+- Extract single files or a whole WAD archive.
+
+### Print file info
+
+Print details about:
+
+- `.bin` files: structure and properties.
+- `.skn` files: skin mesh data.
+- `.skl` files: skeleton and rig data.
+
+---
+
+https://www.youtube.com/watch?v=lJZGedIojDQ
+
+## LtMAO-hai
+
+`LtMAO-hai` is tarngaina's toolpack for League modding. It bundles the right-click menu and a set of GUI tools described below.
+
+<img
+  src="https://i.postimg.cc/W4HnKJXs/screenshot-14.png"
+  alt="LtMAO-hai main window"
+  width={700}
+/>
+
+## Installation
+
+1. Download [LtMAO-hai.zip](https://github.com/tarngaina/LtMAO/archive/refs/heads/hai.zip).
+2. Extract the zip.
+3. Run `LtMAO-hai/start.bat`. The app opens.
+
+## Updates
+
+LtMAO-hai checks for a new version every time you open the app. When one is out, an update message appears in the title bar.
+
+To update fully:
+
+1. Re-download the app from GitHub.
+2. Extract it to the same location, overwriting the old files.
+
+To update the quick way:
+
+1. Open the app.
+2. Go to the settings page.
+3. Click **Redownload LtMAO**. This is not the recommended path, but it often works.
+
+## Documentation
+
+### Shortcut
+
+The first time you run the app, a `LtMAO.lnk` shortcut file appears in the same folder as `start.bat`.
+
+   <img
+     src="https://i.imgur.com/5eIWMKJ.png"
+     alt="LtMAO.lnk shortcut in the install folder"
+     width={700}
+   />
+
+To make a desktop shortcut, open the settings tab and create one from there.
+
+### Theme
+
+You can make your own theme. Add a new folder inside `LtMAO-hai/res/themes`.
+
+Rules:
+
+- Your image sizes must use the same ratio as the original images.
+- The accent color of the app comes from the dominant color of your `background.gif`.
+- If the theme name has an `_` in it, the accent color is a gradient between the two most dominant colors.
+
+<img
+  src="https://i.imgur.com/Gn9bz17.png"
+  alt="LtMAO with a custom theme applied"
+  width={700}
+/>
+
+### cslmao
+
+A mod manager UI built into LtMAO. Installs and tests `.fantome` mods against your League install.
+
+Before you use it, set the game folder:
+
+1. Click **Show settings** in the top-right corner.
+2. Point it at your `League of Legends/Game` folder.
+
+<img
+  src="https://i.postimg.cc/BZdzbR5J/screenshot-0.png"
+  alt="cslmao interface with settings button"
+  width={700}
+/>
+
+### hash_helper
+
+<img
+  src="https://i.postimg.cc/7Y0W2XX0/screenshot-1.png"
+  alt="hash_helper interface"
+  width={700}
+/>
+
+<Callout type="warning">
+  Wait for syncing, updating, and hash loading to finish before you run any
+  other `LtMAO` function.
+</Callout>
+
+Three hash sources feed into LtMAO:
+
+1. **CDTB Hashes**: auto-synced from [CommunityDragon](https://github.com/CommunityDragon/CDTB/tree/master/cdragontoolbox). You can also download them by hand from the same link.
+2. **Extracted Hashes**: hashes you extract yourself. You can extract these:
+   - binentries:
+     - VfxSystemDefinitionData → particlePath in BIN.
+     - StaticMaterialDef → name in BIN.
+   - binhashes:
+     - Joint hashes → joint names in SKL.
+     - Submesh hashes → submesh names in SKN.
+   - game:
+     - File paths starting with `assets/` or `data/` in BIN. If the file type is `.dds`, 2x and 4x dds are extracted too.
+3. **Custom Hashes**: the hash set every LtMAO function uses (ritobin, wad_tool, no_skin, and others).
+   - Custom Hashes = CDTB Hashes + Extracted Hashes + hashes you add by hand.
+
+`hash_helper` also has a WAD and BIN hash generator. You can push the generated hashes into Custom Hashes with one button.
+
+### mask_viewer
+
+Edit MaskData weights inside animation BINs.
+
+<img
+  src="https://i.postimg.cc/TPY7BxxJ/screenshot-2.png"
+  alt="mask_viewer editing animation BIN weights"
+  width={700}
+/>
+
+### hapiBin
+
+An app with multiple functions related to BIN files.
+
+<img
+  src="https://i.postimg.cc/kgChF8hZ/screenshot-3.png"
+  alt="hapiBin interface"
+  width={700}
+/>
+
+### no_skin
+
+Makes a NO SKIN mod that swaps **almost** every League skin back to its default look.
+
+<img
+  src="https://i.imgur.com/AfQyzFN.png"
+  alt="no_skin tool interface"
+  width={700}
+/>
+
+`SKIPS.json` is a list of skins that crash League when swapped back to base. The tool reads it and skips those skins.
+
+There are two modes:
+
+1. **Full**: builds a full `NO SKIN.fantome` from every champion inside `League of Legends/Game/DATA/FINAL/Champions`.
+
+   <img
+     src="https://i.postimg.cc/ht0ZCjkG/screenshot-4.png"
+     alt="no_skin Full mode output"
+     width={700}
+   />
+
+2. **Lite**: turns each selected `skinx.bin` into `skin0.bin`.
+
+   <img
+     src="https://i.postimg.cc/c18DpTp2/screenshot-7.png"
+     alt="no_skin Lite mode result"
+     width={700}
+   />
+
+### wad_tool
+
+A small tool to unpack and pack WAD files.
+
+It can bulk-unpack many WADs into one output folder with a filter.
+
+<img
+  src="https://i.postimg.cc/qRNmMGzt/screenshot-5.png"
+  alt="wad_tool interface"
+  width={700}
+/>
+
+### sborf
+
+Fixes skins using Riot's original files: moonwalk animations, layering animations, and more.
+
+It can also adapt your custom animation BIN MaskData from Riot's source files.
+
+<img
+  src="https://i.postimg.cc/KzC0KgM0/screenshot-6.png"
+  alt="sborf interface"
+  width={700}
+/>
+
+### lemon3d
+
+Works with League 3D files.
+
+1. **fbx**:
+
+   <img
+     src="https://i.postimg.cc/q7bbTFMV/screenshot-8.png"
+     alt="lemon3d FBX workflow"
+     width={700}
+   />
+
+   Converts League files to FBX and back. This part of the tool mainly supports Blender. For Maya, use the Maya plugin instead.
+
+   Supports: SKN, SKL, ANM. Planned: SCO, SCB, MAPGEO.
+
+2. **maya**:
+
+   <img
+     src="https://i.postimg.cc/L6Ky2LRX/screenshot-9.png"
+     alt="lemon3d Maya plugin interface"
+     width={700}
+   />
+
+   <img
+     src="https://i.imgur.com/BWuIm1y.png"
+     alt="lol_maya rewritten plugin interface"
+     width={700}
+   />
+
+   A rewritten `lol_maya`. Plugin for Maya 2023+ with 3D support.
+
+   Supports: SKN, SKL, ANM, SCO, SCB, MAPGEO.
+
+[Read the full lemon3d documentation](https://github.com/tarngaina/LtMAO/blob/main/src/LtMAO/lemon3d/README.md)
+
+### texsmart
+
+Convert League texture files.
+
+<img
+  src="https://i.postimg.cc/pXfsTrXB/screenshot-10.png"
+  alt="texsmart interface"
+  width={700}
+/>
+
+### bnk_tool
+
+Copy of `bnk-extract-GUI`, but extracts `.wav` instead of `.ogg`.
+
+<img
+  src="https://i.postimg.cc/Dw55rNGJ/screenshot-11.png"
+  alt="bnk_tool interface"
+  width={700}
+/>
+
+### wiwawe
+
+Convert audio files.
+
+<img
+  src="https://i.postimg.cc/6Q3cYhVH/screenshot-12.png"
+  alt="wiwawe audio converter"
+  width={700}
+/>
+
+### winLT
+
+Adds a custom LtMAO context menu to Windows Explorer.
+
+<img
+  src="https://i.imgur.com/f3XIP4M.png"
+  alt="winLT context menu entries"
+  width={700}
+/>
+
+<Callout type="warning">
+  Run `LtMAO` as Admin through the shortcut. Without admin rights, you will hit
+  Windows permission errors.
+</Callout>
+
+<img
+  src="https://i.postimg.cc/W3qnPbHg/screenshot-13.png"
+  alt="LtMAO admin shortcut dialog"
+  width={700}
+/>
+
+## Extra
+
+- [LeagueToolKit](https://github.com/LeagueToolkit/LeagueToolkit)
+- [CDTB](https://github.com/CommunityDragon/CDTB)
+- [ritobin](https://github.com/moonshadow565/ritobin)
+- [Hacksaw](https://github.com/TheMartynasXS/Hacksaw)
+- [Uvee](https://github.com/LeagueToolkit/Uvee)
+- [Ritoddstex](https://github.com/Morilli/Ritoddstex)
+- [bnk-extract-GUI](https://github.com/Morilli/bnk-extract-GUI)

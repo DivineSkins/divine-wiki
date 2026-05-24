@@ -1,0 +1,122 @@
+---
+title: "Ritobin"
+description: "Convert League .bin files to readable text and back with Ritobin by Moonshadow. Drag-and-drop guide for skin creators."
+category: "tools"
+---
+
+Ritobin is a tool by **Moonshadow** that converts League's `.bin` files into readable text you can edit, then converts them back. Older than Jade, still solid for batch jobs and scripts.
+
+The latest Windows build is on GitHub: [ritobin releases](https://github.com/moonshadow565/ritobin/releases/latest).
+
+<Callout type="info" title="Use Jade instead for most edits">
+  [Jade](/docs/lol/tools/modding-apps/jade) is the newer workflow. It edits
+  `.bin` files visually with syntax coloring, hover previews, and live
+  hash lookups. No converting back and forth. Pick Ritobin only if you
+  need batch scripts or you're already comfortable with the text workflow.
+</Callout>
+
+---
+
+## What you need before you start
+
+- A Windows PC.
+- The latest `ritobin.zip` from the [releases page](https://github.com/moonshadow565/ritobin/releases/latest).
+- A `.bin` file from a skin you want to edit.
+
+---
+
+## Install
+
+1. Download `ritobin.zip` from the [latest release](https://github.com/moonshadow565/ritobin/releases/latest).
+2. Make a folder for Ritobin and your `.bin` files.
+3. Extract the zip into that folder.
+
+<Callout type="warning">
+  Keep the **hashes** folder in the same directory as `ritobin_cli.exe` and `ritobin_gui.exe`. If the hashes go missing or move, conversions fail.
+</Callout>
+
+---
+
+## Convert files
+
+<Tabs items={[".bin to .py", ".py to .bin"]}>
+<Tab value=".bin to .py">
+
+### Convert `.bin` to `.py`
+
+1. Make a desktop shortcut for `ritobin_cli.exe`.
+2. Drag the `.bin` file onto the shortcut.
+
+A `.py` file appears next to the original. This is a readable version of the `.bin` you can edit.
+
+### Open the `.py` file
+
+You need a text editor or IDE to edit it. The file is plain text, not real Python, so any editor works:
+
+- **[Visual Studio Code](https://code.visualstudio.com/)** is free and has Python syntax coloring out of the box. Best pick if you don't already have an editor.
+- **[Notepad++](https://notepad-plus-plus.org/)** is lighter weight. Good for quick edits.
+- Any other code editor or IDE works too.
+
+Save your changes, then move to the next tab to convert it back.
+
+</Tab>
+<Tab value=".py to .bin">
+
+### Convert `.py` back to `.bin`
+
+Once you've edited the `.py` file and want to test it in-game:
+
+1. Drag the edited `.py` file onto `ritobin_cli.exe`.
+
+A working `.bin` file appears next to it, ready to load.
+
+</Tab>
+</Tabs>
+
+---
+
+## Tip: quick convert with default program
+
+Set `ritobin_cli.exe` as the default program for `.py` files. Then a double-click converts the file. No more drag-and-drop.
+
+| Step | Action                                        |
+| ---- | --------------------------------------------- |
+| 1    | Right-click the `.py` file                    |
+| 2    | Select **Open with** then **Choose another app** |
+| 3    | Pick `ritobin_cli.exe`                        |
+| 4    | Check **Always use this app**                 |
+
+---
+
+## Other formats
+
+Ritobin also reads and writes `json` and `info`, not only `text` (`.py`). Useful if you want to script edits in another language.
+
+Open a terminal in the Ritobin folder and run:
+
+```bash
+ritobin_cli.exe -o json input.bin output.json
+ritobin_cli.exe -o text input.json output.py
+```
+
+The `-o` flag sets the output format. The `-i` flag sets the input format if Ritobin can't guess from the extension.
+
+---
+
+## Troubleshooting
+
+### Conversion does nothing or output is empty
+Check the `hashes` folder is next to `ritobin_cli.exe`. Without it, Ritobin can't resolve names.
+
+### Output file has hashed names instead of words
+Update your `hashes` folder. Old hashes don't cover new patch content. Pull fresh hashes from [CommunityDragon's CDTB](https://github.com/CommunityDragon/CDTB).
+
+### "This app can't run on your PC" error
+You downloaded the wrong build. Get the Windows `ritobin.zip` from the [latest release](https://github.com/moonshadow565/ritobin/releases/latest), not the source code zip.
+
+---
+
+## Source
+
+**Tool by:** [Moonshadow](https://github.com/moonshadow565)
+**Repo:** [moonshadow565/ritobin](https://github.com/moonshadow565/ritobin)
