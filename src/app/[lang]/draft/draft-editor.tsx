@@ -20,6 +20,13 @@ import {
   clearDraft,
 } from "@/lib/draft/persistence";
 import { entities } from "@/lib/draft/entities";
+import {
+  normalizeFilename,
+  dedupeName,
+  wikiImageSrc,
+  type StagedImage,
+  type StagedImages,
+} from "@/lib/draft/staged-images";
 
 export interface DraftEditorProps {
   mode: "new" | "edit";
@@ -69,8 +76,12 @@ export function DraftEditor({
   const [restorePrompt, setRestorePrompt] = useState<ReturnType<
     typeof loadDraft
   > | null>(null);
+  const [stagedImages, setStagedImages] = useState<StagedImages>(
+    () => new Map(),
+  );
 
   const editorRef = useRef<CodeEditorHandle>(null);
+  const stagedImagesRef = useRef<StagedImages>(stagedImages);
 
   const effectiveSlug = useMemo(
     () => (slugTouched ? slug : deriveSlug(title)),
@@ -126,6 +137,20 @@ export function DraftEditor({
     body,
     loadingSource,
   ]);
+
+  // Keep the ref in sync with the latest staged map.
+  useEffect(() => {
+    stagedImagesRef.current = stagedImages;
+  }, [stagedImages]);
+
+  // On unmount, revoke every blob URL we created.
+  useEffect(() => {
+    return () => {
+      stagedImagesRef.current.forEach(({ objectUrl }) =>
+        URL.revokeObjectURL(objectUrl),
+      );
+    };
+  }, []);
 
   useEffect(() => {
     if (mode !== "edit" || !editPath) return;
@@ -185,6 +210,31 @@ export function DraftEditor({
     const next = applySuggestion(body, suggestion);
     setBody(next);
     setScanResults(scanForLinks(next));
+  };
+
+  const addImages = (files: File[]) => {
+    if (files.length === 0) return;
+    const taken = new Set(stagedImages.keys());
+    const additions: [string, StagedImage][] = [];
+    for (const file of files) {
+      const desired = normalizeFilename(file.name);
+      const filename = dedupeName(desired, taken);
+      taken.add(filename);
+      additions.push([
+        filename,
+        { file, objectUrl: URL.createObjectURL(file) },
+      ]);
+    }
+    setStagedImages((current) => {
+      const next = new Map(current);
+      for (const [name, img] of additions) next.set(name, img);
+      return next;
+    });
+    const snippet =
+      additions
+        .map(([name]) => `<img src="${wikiImageSrc(name)}" alt="" />`)
+        .join("\n") + "\n";
+    editorRef.current?.insertAtCursor(snippet);
   };
 
   if (editLoadError && editPath) {
@@ -324,6 +374,7 @@ export function DraftEditor({
         <div className="border-divine-border flex flex-col overflow-hidden border-r">
           <Toolbar
             onInsert={handleInsert}
+            onUploadImage={addImages}
             docsHref={(anchor) =>
               `/${lang}/docs/contributing/components#${anchor}`
             }
@@ -337,7 +388,7 @@ export function DraftEditor({
           />
         </div>
         <div className="overflow-auto p-4">
-          <PreviewPane mdx={assembledMdx} />
+          <PreviewPane mdx={assembledMdx} stagedImages={stagedImages} />
         </div>
       </div>
       {showHandoff && (
@@ -347,6 +398,7 @@ export function DraftEditor({
           category={category}
           slug={effectiveSlug}
           editPath={editPath}
+          stagedImages={stagedImages}
           onClose={() => {
             setShowHandoff(false);
             clearDraft(storageKey);

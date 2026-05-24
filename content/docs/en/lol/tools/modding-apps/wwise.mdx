@@ -1,0 +1,156 @@
+---
+title: "Wwise"
+description: "Pro audio middleware by Audiokinetic. Only needed if you're rebuilding full League soundbanks from scratch."
+category: "tools"
+---
+
+**Wwise** is pro audio middleware made by Audiokinetic. League of Legends uses it to build the `.bnk` soundbank files that hold every champion's voice lines and sound effects.
+
+You only need Wwise if you're rebuilding a full soundbank. For most audio mods, you don't. Skip to [Alternatives](#alternatives-most-modders-want-this-instead) if you only want to swap one or two sounds.
+
+[Get the Wwise Launcher](https://www.audiokinetic.com/en/download/)
+
+---
+
+## When you actually need Wwise
+
+You need Wwise if you want to:
+
+- Add brand new sound events that don't exist on the base skin.
+- Rebuild a full `.bnk` from scratch (custom voice lines with new triggers, new ability sounds tied to new events, full audio overhauls).
+- Match the exact authoring pipeline Riot uses.
+
+You don't need Wwise if you want to:
+
+- Swap one champion's voice lines for another. Use [LtMAO](/docs/lol/tools/modding-apps/ltmao) `bnk_tool` or `wiwawe`.
+- Replace ability or attack sounds with a different `.wav`. Same as above.
+- Convert `.wem` to `.wav` to listen. LtMAO does this in one right-click.
+
+Most audio mods are sound swaps. They don't need Wwise.
+
+---
+
+## What it does for League modding
+
+- Imports your `.wav` files and converts them to `.wem` (the format League uses).
+- Lets you wire `.wem` files to **events** (the names the game calls, like `Play_vo_CharacterName_Joke`).
+- Generates the final `.bnk` soundbank that ships inside your mod.
+- Matches the authoring tool Riot uses internally, so the output works the same way in-game.
+
+---
+
+## Free vs paid
+
+Wwise is free for hobbyists and small projects. You only pay if your game ships commercially past a revenue threshold. Custom skin mods are non-commercial, so the free tier is enough.
+
+The free tier requires a free Audiokinetic account. Sign up before you install.
+
+Check the [official Audiokinetic pricing page](https://www.audiokinetic.com/en/products/pricing/) for the current revenue threshold and terms. They change occasionally.
+
+<Callout type="warning">
+  Don't pirate Wwise. The free tier covers everything you need for League
+  modding.
+</Callout>
+
+---
+
+## Required version: Wwise 2019
+
+<Callout type="warning">
+  Use **Wwise 2019** (any 2019.x build). Newer versions (2021, 2022, 2023+) use
+  a different soundbank format that the League client cannot read. Your mod
+  will not load.
+</Callout>
+
+The Audiokinetic Launcher lets you install older versions side by side with the latest one. You'll pick the 2019 version during install.
+
+---
+
+## Install
+
+You'll do this in two steps: install the Launcher, then use the Launcher to install Wwise 2019.
+
+### Step 1. Make an Audiokinetic account
+
+1. Go to [audiokinetic.com](https://www.audiokinetic.com/en/download/).
+2. Click **Sign up** in the top-right corner.
+3. Fill in your email and a password. Confirm the email Audiokinetic sends you.
+
+You need this account to download anything.
+
+### Step 2. Install the Audiokinetic Launcher
+
+1. Open the [download page](https://www.audiokinetic.com/en/download/).
+2. Click **Download** under **Audiokinetic Launcher** for your operating system (Windows or macOS).
+3. Run the installer. Accept the defaults.
+4. Open the Launcher and sign in with your Audiokinetic account.
+
+{/* SCREENSHOT: Audiokinetic Launcher home tab after sign-in */}
+
+### Step 3. Install Wwise 2019
+
+1. In the Launcher, click the **Wwise** tab on the left.
+2. Find a **2019.x** version in the list. The latest 2019 build (2019.2.x) is fine.
+3. Click **Install** next to that version.
+4. On the install options screen, leave the default plugins selected. You can skip platform SDKs (Windows, Linux, etc.) since you're not building a game engine.
+5. Click **Install** and wait. It takes a few minutes.
+
+{/* SCREENSHOT: Wwise tab in the Launcher with 2019 version highlighted */}
+
+When it finishes, you'll see Wwise 2019 listed under **Installed**.
+
+### Step 4. Open Wwise
+
+1. Click **Launch** next to Wwise 2019 in the Launcher.
+2. On first open, you'll see the Project Launcher window. Pick **New Project** or **Open Other** to load an existing one.
+
+You're ready to author.
+
+---
+
+## Workflow basics
+
+This is the short version. Audiokinetic's docs cover the full thing.
+
+1. **Create a project.** File > New Project. Pick a folder you'll remember.
+2. **Import audio.** Drag your `.wav` files into the **Project Explorer** under **Actor-Mixer Hierarchy**. Wwise converts them to `.wem` on the fly.
+3. **Set up events.** Right-click an audio object and choose **New Event > Play**. Name the event to match the game's expected event name (the string League calls, like `Play_vo_Yasuo_Joke`). Getting this name right is the whole job.
+4. **Assign the source bank.** In the **SoundBank Manager**, create a SoundBank and drag your events into it.
+5. **Generate the bank.** Click **Generate Selected** in the SoundBank Manager. Wwise writes a `.bnk` file to your project's `GeneratedSoundBanks` folder.
+6. **Drop the `.bnk` into your mod.** Replace the original `.bnk` path inside your mod folder.
+
+[Read the official Wwise tutorials](https://www.audiokinetic.com/en/learn/) for the full picture. They have free video courses.
+
+<Callout type="info">
+  The event names League looks for come from the original `.bnk`. Extract the
+  original with **LtMAO** `bnk_tool` first so you know which event names to
+  match.
+</Callout>
+
+---
+
+## Alternatives (most modders want this instead)
+
+If you only want to swap sounds, skip Wwise entirely.
+
+- **[LtMAO](/docs/lol/tools/modding-apps/ltmao) `bnk_tool`** extracts `.bnk` contents to `.wav` and packs them back. Best default for sound swaps.
+- **[LtMAO](/docs/lol/tools/modding-apps/ltmao) `wiwawe`** converts audio formats (`.wem`, `.wav`, `.ogg`).
+
+Use Wwise only when you need to rebuild the soundbank itself, not when you're swapping the audio inside it.
+
+---
+
+## Region warning
+
+Custom skins are cosmetic-only and client-side. They still are not allowed on **Korea (KR)** or **China (CN)** servers. The anti-cheat there blocks all mods and your account can be banned. This applies to audio mods too.
+
+Safe regions: NA, EUW, EUNE, LAN, LAS, BR, OCE, TR, RU, JP, SEA, VN, PH, TW. Not KR. Not CN.
+
+---
+
+## Helpful links
+
+- [Audiokinetic Launcher download](https://www.audiokinetic.com/en/download/)
+- [Wwise pricing and free tier terms](https://www.audiokinetic.com/en/products/pricing/)
+- [Official Wwise learning resources](https://www.audiokinetic.com/en/learn/)
+- [LtMAO](/docs/lol/tools/modding-apps/ltmao) (for sound swaps, no Wwise needed)

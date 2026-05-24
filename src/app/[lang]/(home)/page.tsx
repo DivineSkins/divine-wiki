@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { GlowCTA } from "@/components/mdx/GlowCTA";
 import { PremiumCard } from "@/components/mdx/PremiumCard";
+import { ContributeCtaButton } from "@/components/contribute-picker";
 import { getMessages } from "@/lib/locale";
 import { discordInviteUrl } from "@/lib/config";
 
@@ -48,13 +49,11 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
         </div>
 
         <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:gap-6">
-          <Link
-            href={`/${lang}/docs/lol/contributing`}
+          <ContributeCtaButton
+            text={t.ctaContribute}
+            icon={<PencilLineIcon className="size-4" aria-hidden />}
             className={textLinkClass}
-          >
-            <PencilLineIcon className="size-4" aria-hidden />
-            {t.ctaContribute}
-          </Link>
+          />
           <Link
             href={discordInviteUrl}
             target="_blank"

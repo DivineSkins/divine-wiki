@@ -1,0 +1,111 @@
+---
+title: "Photoshop TEX Plugin"
+description: "Load and save League of Legends .tex texture files in Adobe Photoshop. Originally by GuiSai, finished by Frog."
+category: "tools"
+---
+
+A Photoshop plugin that opens and saves League's `.tex` texture files
+directly. Originally made by **GuiSai**, finished by **Frog**.
+
+It is based on Intel's discontinued Texture Works Plugin, modified to support
+the TEX file format used by League of Legends.
+
+Repo: https://github.com/LeagueToolkit/Photoshop-Tex-Plugin
+
+## What you need before you start
+
+- Adobe Photoshop CS6 or later (64-bit). 32-bit Photoshop will not work.
+- Windows 10 or later.
+
+## Install
+
+1. Close Photoshop. If Photoshop is open, the plugin will not load.
+2. Download the latest release from the [GitHub Releases page](https://github.com/LeagueToolkit/Photoshop-Tex-Plugin/releases).
+3. Open the `Plugins\x64` folder from the download.
+4. Copy `TexPlugin.8bi` into your Photoshop plugins folder. The default path is:
+
+   ```text
+   C:\Program Files\Adobe\Adobe Photoshop [VERSION]\Plug-ins
+   ```
+
+   Example: `C:\Program Files\Adobe\Adobe Photoshop 2024\Plug-ins`.
+
+5. Start Photoshop.
+
+To check it worked: open `File > Open` and pick a `.tex` file. If the image
+loads, the plugin is installed.
+
+## Open `.tex` files
+
+You have two ways to open a TEX file:
+
+- `File > Open` and pick the `.tex` file.
+- Drag the `.tex` file into Photoshop.
+
+The plugin auto-detects the compression (DXT1, DXT5, or BGRA8) and the mipmaps.
+
+## Save `.tex` files (quick save)
+
+Use this when you want the plugin to reuse the file's detected settings.
+
+1. Click `File > Save As`.
+2. Pick **League of Legends TEX** from the file type dropdown.
+3. Click **Save**. The file saves right away with the detected or last-used
+   settings.
+
+## Save `.tex` files with options
+
+Use this when you need to pick the compression yourself or change quality
+settings.
+
+1. Click `File > Save As`.
+2. Pick **League of Legends TEX - Options** from the file type dropdown.
+3. A settings dialog opens. Set the options you want:
+   - **Compression format**: `DXT5 (BC3)`, `DXT1 (BC1)`, or `BGRA8`
+     (uncompressed). Use DXT5 for textures with alpha.
+   - **Error diffusion dithering**: turn on Floyd-Steinberg dithering for
+     smoother gradients.
+   - **Error metric**: `Perceptual` (recommended) or `Uniform`.
+   - **Mipmaps**: auto-generate mipmaps for the texture.
+4. Click **OK**. The file saves with your settings.
+
+Settings persist between saves (stored in the Windows Registry), so you only
+need to set them once.
+
+## Features at a glance
+
+- Loads DXT1, DXT5, and BGRA8 textures.
+- Auto-detects compression and mipmaps on save.
+- Optional dialog to pick compression, dithering, and mipmap settings by hand.
+- Preview window to compare the original and the compressed texture.
+- Fast DXT compression using Intel ISPC.
+- Floyd-Steinberg error diffusion dithering.
+- Full alpha channel support.
+
+## Troubleshooting
+
+### The plugin doesn't show up in Photoshop
+
+Check each of these:
+
+- Photoshop was fully closed before you copied the file.
+- The file is in the correct `Plug-ins` folder.
+- You are running 64-bit Photoshop.
+- The file is named `TexPlugin.8bi` (with the `.8bi` extension).
+
+### "Image dimensions must be divisible by 4" when saving
+
+TEX files need image dimensions divisible by 4 for every compression format.
+Resize your image to a valid size, like `1024x1024`, `2048x2048`, or `512x256`.
+
+### The texture looks wrong in game
+
+- Turn on error diffusion dithering for cleaner gradients.
+- Check you picked the right compression. Use DXT5 for textures with alpha.
+
+## Credits
+
+- **Original Photoshop TEX work**: GuiSai.
+- **Current version**: Frog (FrogCsLoL).
+- **Base plugin**: [Intel Texture Works Plugin](https://github.com/GameTechDev/Intel-Texture-Works-Plugin).
+- **Compression and dithering**: [Microsoft DirectXTex](https://github.com/microsoft/DirectXTex) (MIT License).

@@ -28,27 +28,47 @@ CI runs on every PR: `.github/workflows/format-check.yml` (Prettier). Content ch
 ## Directory layout
 
 ```
-content/docs/en/          Creator guides. Nine categories, each with meta.json
-                          (eight content categories + `contributing`).
-                          Top-level meta.json controls sidebar order.
-content/docs/<locale>/    Crowdin-populated translations. Never hand-edit.
+content/docs/en/lol/      Creator guides for League of Legends. `lol/` is a
+                          "game segment" — future games (Valorant, etc.) get
+                          their own sibling segment. Nine categories live
+                          under it (eight content + `contributing`), each with
+                          its own meta.json. The top-level content/docs/en/meta.json
+                          just lists ["index", "lol"].
+content/docs/<locale>/lol/  Crowdin-populated translations. Never hand-edit.
 docs/                     AI-context pack (product, voice, playbook, this file).
                           product.md, voice.md, playbook.md are load-bearing.
 messages/<locale>.json    UI strings. en.json is source of truth; others via Crowdin.
 public/                   Static assets. /wiki-images/* are legacy migrated images.
                           /_redirects and /_headers are Cloudflare Pages edge config.
-scripts/                  prebuild.mjs (git-info) and migrate-content.mjs.
+scripts/                  prebuild.mjs (git-info + entity index) and one-shot
+                          migrate-content.mjs.
 src/app/                  App Router. Root layout passes children through; [lang]/
                           layout.tsx sets html, body, fonts, RootProvider.
 src/app/[lang]/docs/      Docs pages (DocsLayout + MDX renderer).
-src/app/api/              health, og, search — read-only, no secrets.
+src/app/[lang]/draft/     In-browser MDX draft editor (CodeMirror + live preview).
+                          ?edit=<path> edits an existing page; ?new=<category>
+                          starts a fresh one. Opens a PR via src/lib/draft/github.ts.
+src/app/api/              health, og, search, preview — read-only, no secrets.
+                          /api/preview renders draft MDX server-side for the editor.
+src/app/llms.txt/         /llms.txt + /llms-full.txt routes for LLM crawlers.
+src/app/proxy.ts          Fumadocs i18n middleware (this is Next's middleware —
+                          named proxy.ts in this project, not middleware.ts).
 src/components/ui/        shadcn primitives (copied once, don't rely on CLI).
-src/components/mdx/       Components exposed to MDX authors (Callout, etc.).
-src/lib/source.ts         Fumadocs source loader.
+src/components/mdx/       Components exposed to MDX authors. Current roster:
+                          Callout, ParameterList, YouTube, PremiumCard, GlowCTA,
+                          LevelPill, ToolCard. Plus Accordions/Accordion from
+                          fumadocs-ui. `img` is remapped to ImageZoom.
+src/lib/source.ts         Fumadocs source loader + getLLMIndex / getLLMFullText.
+src/lib/draft/            Draft-editor internals: GitHub PR flow, MDX preview
+                          config, entity mention extension, IndexedDB persistence,
+                          link scanner, slug helpers.
+src/lib/remark-youtube.ts Rewrites bare YouTube URLs on their own line into <YouTube/>.
 src/lib/layout.shared.tsx Nav config used by both home and docs layouts.
 src/lib/i18n.ts           Fumadocs i18n (en, fr-FR, tr-TR, pt-BR — top markets).
 Reference/                Legacy codebases (Hytale + Divine Academy). IGNORE.
 ```
+
+The nine categories under `lol/` are: `guided-walkthrough`, `tools`, `maya`, `blender`, `animations`, `vfx-bins`, `assets-library`, `errors`, `contributing`. Sidebar order is set in `content/docs/en/lol/meta.json`.
 
 ## Stack
 
@@ -58,7 +78,7 @@ Reference/                Legacy codebases (Hytale + Divine Academy). IGNORE.
 | MDX engine    | Fumadocs 16.2.3 (core, mdx, ui) — sidebar from meta.json, Orama search, OG API  |
 | UI            | Tailwind v4 + shadcn (new-york) + Radix primitives                              |
 | Auth          | None — site is fully static                                                     |
-| Contributions | GitHub-native: edit-in-browser via Fumadocs "Edit on GitHub" link, or fork + PR |
+| Contributions | GitHub-native: in-browser /draft editor (opens PR), Fumadocs "Edit on GitHub" link, or local fork + PR |
 | i18n          | Fumadocs i18n + Crowdin. Scope: en, fr-FR, tr-TR, pt-BR                         |
 | Hosting       | Cloudflare Pages (Next.js SSR mode). \_redirects + \_headers at edge            |
 | Analytics     | PostHog (cookieless, currently disabled pending key)                            |
@@ -90,21 +110,23 @@ See `.env.example` for the full list. None are required for local dev or for pro
 3. **External images in MDX timeout the build.** Legacy content links to `postimg.cc` and YouTube thumbnails; Fumadocs' remark-image plugin prefetches dimensions by default. `source.config.ts` sets `remarkImageOptions: { external: false, onError: "ignore" }` — keep it that way.
 4. **Turbopack caches `source.config.ts` compiled output in `.source/`.** If a config edit doesn't seem to take effect, `rm -rf .next .source` and restart `npm run dev`.
 5. **`z.looseObject` is not exposed** by the top-level zod install. Don't use it; plain `z.object({})` is fine.
-6. **`scripts/prebuild.mjs`** reads `.git/HEAD` and refs directly (pure Node, no shell). It's safe to run anywhere; if `.git` is missing it writes `branch: "unknown"` and continues.
+6. **`scripts/prebuild.mjs`** reads `.git/HEAD` and refs directly (pure Node, no shell). It also walks `content/docs/en/<game>/<category>/` levels to write `src/lib/draft/entity-index.json` — the index the /draft editor's @-mention dropdown uses. Safe to run anywhere; if `.git` is missing it writes `branch: "unknown"` and continues.
 7. **Localized pages** (fr-FR, tr-TR, pt-BR) are **Crowdin-managed**. Never hand-edit `content/docs/fr-FR/**` or similar — they get overwritten by the weekly sync.
 8. **`.prettierignore` excludes non-English MDX** from format so Crowdin-managed content doesn't churn.
 9. **`Reference/` is git-ignored and read-only for our purposes.** Two big reference codebases live there (Hytale Modding's Fumadocs site we scaffolded from, and the legacy Divine Academy site). Do not modify or import from them.
+10. **`/draft` editor uses two MDX pipelines.** Build-time uses `source.config.ts` (fumadocs-mdx). Runtime preview uses `src/lib/draft/mdx-config.ts` via `/api/preview`. If you add a remark/rehype plugin to one, mirror it in the other or the editor preview will diverge from the published page.
+11. **Middleware file is `src/app/proxy.ts`, not `middleware.ts`.** Fumadocs' i18n middleware factory is what's exported. Don't rename it; Next still picks it up via the `proxy.ts` convention used here.
 
 ## When adding a new guide (sanity checklist)
 
-- [ ] File at `content/docs/en/<category>/<slug>.mdx`, kebab-case
+- [ ] File at `content/docs/en/lol/<category>/<slug>.mdx`, kebab-case
 - [ ] Frontmatter has `title` + `description`
 - [ ] `meta.json` in that category updated with the slug in the right order
 - [ ] No banned terms (see `docs/voice.md`)
 - [ ] All `<img>` have `alt="..."`
 - [ ] Images ≤ 500 KB (more = slow Pages build)
 - [ ] Safety callout near the top if the guide touches install or regions
-- [ ] `npm run dev` boots and the new page renders at `/en/docs/<category>/<slug>`
+- [ ] `npm run dev` boots and the new page renders at `/en/docs/lol/<category>/<slug>`
 
 ## What NOT to do
 

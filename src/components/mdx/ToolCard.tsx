@@ -30,7 +30,7 @@ export function ToolCard({ name, href, children, badge }: ToolCardProps) {
         aria-hidden
         className="from-divine-primary-light to-divine-primary absolute inset-y-2 left-0 w-[3px] rounded-full bg-gradient-to-b opacity-80 transition-opacity duration-200 group-hover:opacity-100"
       />
-      <span className="text-divine-primary-light text-[15px] font-[var(--font-poppins),system-ui,sans-serif] font-semibold transition-colors duration-200 group-hover:text-white">
+      <span className="text-divine-primary-light group-hover:text-divine-text text-[15px] font-[var(--font-poppins),system-ui,sans-serif] font-semibold transition-colors duration-200">
         {name}
       </span>
       <span className="text-divine-text-muted/60" aria-hidden>

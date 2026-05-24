@@ -1,0 +1,130 @@
+---
+title: "Photoshop"
+description: "Adobe Photoshop is a professional image editing tool available via subscription. While Photoshop doesn't natively support DDS files (commonly used in game moddi…"
+category: "tools"
+---
+
+Photoshop is the industry standard for serious texture work. To open
+the file types League uses, you'll need two plugins: one for `.dds`
+and one for `.tex`.
+
+<ToolCard name=".Tex Plugin" href="/docs/lol/tools/texturing/photoshop-tex-plugin">
+  Plugin to natively support `.tex` files.
+</ToolCard>
+
+https://github.com/RitoShark/Photoshop-Tex-Plugin/releases
+
+[View Photoshop Plans](https://www.adobe.com/products/photoshop.html)
+
+---
+
+## DDS Plugin Options
+
+There are three popular plugins for working with DDS files in Photoshop:
+
+| Plugin               | Best For                           | GPU Required |
+| -------------------- | ---------------------------------- | ------------ |
+| Intel Texture Works  | General use, works on all systems  | No           |
+| NVIDIA Texture Tools | NVIDIA GPU users, advanced options | Yes (NVIDIA) |
+| Simple DDS Plugin    | Quick batch exports, minimal UI    | No           |
+
+---
+
+## Intel Texture Works
+
+A versatile DDS plugin that works regardless of your graphics card manufacturer.
+
+### Download
+
+1. Visit the [Intel Texture Works](https://www.intel.com/content/www/us/en/developer/articles/tool/intel-texture-works-plugin.html) page
+2. Click the download link at the top
+3. On the redirect page, select the **ZIP** option
+
+### Installation
+
+1. Close Photoshop completely
+2. Extract the downloaded ZIP file
+3. Locate the plugin file based on your system:
+   - **64-bit:** `IntelTextureWorks_1.0.4/Plugins/x64/IntelTextureWorks.8bi`
+   - **32-bit:** `IntelTextureWorks_1.0.4/Plugins/Win32/IntelTextureWorks.8bi`
+4. Copy the `.8bi` file to your Photoshop plugins folder:
+
+   ```text
+   C:\Program Files\Adobe\Adobe Photoshop [VERSION]\Required\Plug-Ins\File Formats
+   ```
+
+5. (Optional) For cubemap support, copy the scripts from `PhotoshopScripts/` to:
+
+   ```text
+   C:\Program Files\Adobe Photoshop [VERSION]\Presets\Scripts
+   ```
+
+### Exporting DDS Files
+
+1. Go to **File > Save As**
+2. Select **Intel Texture Works (\*.DDS)** as the file type
+3. Choose your save location and filename
+4. In the plugin dialog, configure:
+   - **Texture Type:** Color + Alpha
+   - **Compression:** BC3 8bpp (Linear)
+   - **Mip Maps:** None
+5. Save these as a preset for quick access
+6. Click **OK** to export
+
+---
+
+## NVIDIA Texture Tools
+
+An advanced DDS plugin optimized for NVIDIA graphics cards.
+
+> **Note:** Requires an NVIDIA GPU and a free developer account.
+
+### Download
+
+1. Go to the [NVIDIA Texture Tools](https://developer.nvidia.com/nvidia-texture-tools-exporter) page
+2. Scroll down and download the Photoshop extension
+3. Create a developer account if prompted (free)
+
+### Installation
+
+1. Close Photoshop
+2. Run the installer and follow the prompts
+3. The installer auto-detects your Photoshop installation
+4. Reopen Photoshop when complete
+
+### Exporting DDS Files
+
+1. Go to **File > Save As** (or `Ctrl+Shift+S`)
+2. Select **DDS - NVIDIA Texture Tools Exporter (\*.DDS)**
+3. Configure the export settings:
+   - **Format:** BC3 RGBA 8bpp | DXT5 (interpolated alpha)
+   - **Compression Quality:** Highest
+   - Leave other settings as default
+4. Click **Save**
+
+> **Tip:** Always check your specific guide for recommended export settings, as some textures may require different compression formats.
+
+## Simple DDS Plugin
+
+### Exporting DDS Files with Simple DDS
+
+1. Go to **File > Save As**
+2. Select **DDS (\*.DDS)** as the file type
+3. Choose your save location and filename
+4. In the dialog, set **Format** to **DXT5**
+5. Click **OK**
+
+> **Advantage:** This plugin doesn't require confirmation dialogs, making it faster for batch exports.
+
+---
+
+## Recommended Export Settings
+
+For most League of Legends textures, use these settings:
+
+| Setting     | Value                   |
+| ----------- | ----------------------- |
+| Format      | BC3 / DXT5              |
+| Alpha       | Interpolated            |
+| Mip Maps    | None (unless specified) |
+| Compression | Highest quality         |

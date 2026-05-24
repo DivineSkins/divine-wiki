@@ -8,6 +8,7 @@ import {
   metaJsonUrl,
   uploadImagesUrl,
 } from "@/lib/draft/github";
+import { type StagedImages } from "@/lib/draft/staged-images";
 
 interface HandoffProps {
   mode: "new" | "edit";
@@ -17,6 +18,7 @@ interface HandoffProps {
   slug: string;
   /** For edit mode: the slug path, e.g. "tools/flint". */
   editPath: string | null;
+  stagedImages?: StagedImages;
   onClose: () => void;
 }
 
@@ -28,6 +30,7 @@ export function Handoff({
   category,
   slug,
   editPath,
+  stagedImages,
   onClose,
 }: HandoffProps) {
   const messages = useMessages();
@@ -86,7 +89,7 @@ export function Handoff({
           />
         )}
 
-        <ImagesReminder d={d} />
+        <ImagesReminder d={d} stagedImages={stagedImages} />
 
         <button
           type="button"
@@ -224,18 +227,37 @@ function EditHandoff({
   );
 }
 
-function ImagesReminder({ d }: { d: DraftMessages }) {
+function ImagesReminder({
+  d,
+  stagedImages,
+}: {
+  d: DraftMessages;
+  stagedImages?: StagedImages;
+}) {
+  const filenames = stagedImages ? Array.from(stagedImages.keys()).sort() : [];
   return (
     <div className="border-divine-border mt-3 rounded-lg border p-3">
       <h4 className="text-divine-text text-sm font-semibold">
         {d.imagesHeading}
       </h4>
       <p className="text-divine-text-muted mt-1 text-sm">{d.imagesBody}</p>
+      {filenames.length > 0 && (
+        <>
+          <p className="text-divine-text-muted mt-2 text-sm font-semibold">
+            {d.imagesToUpload}
+          </p>
+          <ul className="text-divine-text-muted mt-1 list-inside list-disc font-mono text-sm">
+            {filenames.map((name) => (
+              <li key={name}>{name}</li>
+            ))}
+          </ul>
+        </>
+      )}
       <a
         href={uploadImagesUrl()}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-divine-primary-light mt-1 inline-block text-sm"
+        className="text-divine-primary-light mt-2 inline-block text-sm"
       >
         {d.uploadOnGithub} →
       </a>

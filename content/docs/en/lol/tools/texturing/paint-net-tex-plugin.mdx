@@ -1,0 +1,121 @@
+---
+title: "Paint.NET Tex Plugin"
+description: "Paint.NET plugin by RitoShark that opens and saves League of Legends .tex texture files."
+category: "tools"
+---
+
+A Paint.NET plugin by **RitoShark** that opens and saves League of Legends `.tex` texture files. It auto-detects compression and mipmaps on open, and gives you a normal save option or a save option with full settings.
+
+[Download the latest release](https://github.com/RitoShark/Paint.NET-Tex-Plugin/releases)
+
+{/* SCREENSHOT: Paint.NET with a champion .tex file open in the canvas */}
+
+---
+
+## What it does
+
+- Opens `.tex` files in Paint.NET (DXT1, DXT5, and BGRA8).
+- Saves `.tex` files. Auto-detects compression and mipmaps when you save.
+- Adds a second save option with a menu for picking compression, dithering, and mipmap settings.
+- Uses native C# for fast DXT compression and decompression.
+- Keeps the full alpha channel.
+- Uses Floyd-Steinberg error diffusion dithering for clean results.
+
+---
+
+## Before you start
+
+You need:
+
+- **Paint.NET 5.1 or later** (uses .NET 9). The latest 5.1.x build is recommended.
+- **Windows 10 or later**.
+- The `TexFileType.dll` file from the [latest release](https://github.com/RitoShark/Paint.NET-Tex-Plugin/releases).
+
+---
+
+## Install
+
+1. Close Paint.NET if it is open.
+2. Open the Paint.NET `FileTypes` folder. For most installs that is `C:\Program Files\Paint.NET\FileTypes`.
+3. Copy `TexFileType.dll` from the release into the `FileTypes` folder.
+4. Open Paint.NET. The plugin loads on startup.
+
+{/* SCREENSHOT: The FileTypes folder with TexFileType.dll dropped inside */}
+
+<Callout type="info">
+  **Portable Paint.NET.** If you use the portable version, paste the DLL into
+  `[Paint.NET folder]\FileTypes` instead. Same file, different parent folder.
+</Callout>
+
+---
+
+## Open a `.tex` file
+
+You have two ways to open a `.tex` file:
+
+1. In Paint.NET, click **File → Open** and pick your `.tex` file.
+2. Or drag the `.tex` file straight onto the Paint.NET window.
+
+The texture appears on the canvas. Mipmaps and compression are read automatically.
+
+{/* SCREENSHOT: File → Open dialog showing a .tex file selected */}
+
+---
+
+## Save a `.tex` file
+
+You have two save modes. Use the first one for normal work. Use the second one when you need control over compression or mipmaps.
+
+### Save with auto settings
+
+1. Click **File → Save As**.
+2. In the file type dropdown, pick **League of Legends TEX**.
+3. Click **Save**.
+
+The plugin keeps the compression and mipmap setup it detected when you opened the file.
+
+### Save with custom settings
+
+1. Click **File → Save As**.
+2. In the file type dropdown, pick **League of Legends TEX (with options)**.
+3. Pick your compression, dithering, and mipmap settings in the menu.
+4. Click **Save**.
+
+{/* SCREENSHOT: Save As dialog with the "League of Legends TEX (with options)" menu open */}
+
+---
+
+## How to check it worked
+
+- Re-open the file you saved. It loads without errors and looks the same.
+- Or load it in your skin tool (Flint or LtMAO) and it shows up correctly.
+
+---
+
+## Troubleshooting
+
+### Paint.NET crashes or the file doesn't load
+
+Update Paint.NET to the latest 5.1.x build. The plugin needs 5.1 or later.
+
+### Plugin doesn't appear in Paint.NET
+
+Close Paint.NET completely, then check three things:
+
+- The folder `C:\Program Files\Paint.NET\FileTypes` exists.
+- `TexFileType.dll` is inside that folder.
+- You are not running an older Paint.NET (below 5.1).
+
+Open Paint.NET again. The plugin should now show up in the file type list.
+
+### "There was an error while saving the file."
+
+Check your canvas size. Both width and height must be divisible by 4. League requires this for `.tex` files. Resize the image and save again.
+
+---
+
+## Credits
+
+- Plugin by **RitoShark**.
+- `.tex` reading logic from [LtMAO](https://github.com/tarngaina/LtMAO) by Tarngaina.
+- BC1 and BC3 compression with Floyd-Steinberg dithering is based on [Microsoft DirectXTex](https://github.com/microsoft/DirectXTex) (MIT License).

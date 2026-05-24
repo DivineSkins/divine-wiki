@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { MDXRemote, type MDXRemoteSerializeResult } from "next-mdx-remote";
 import { useMessages } from "@/lib/hooks/useMessages";
 import { getMDXComponents } from "@/mdx-components";
+import { resolveStagedSrc, type StagedImages } from "@/lib/draft/staged-images";
 
 interface PreviewPaneProps {
   /** The fully assembled .mdx text (frontmatter + body). */
   mdx: string;
+  stagedImages?: StagedImages;
 }
 
 type PreviewState =
@@ -19,11 +21,51 @@ type PreviewState =
 
 const DEBOUNCE_MS = 400;
 
-export function PreviewPane({ mdx }: PreviewPaneProps) {
+export function PreviewPane({ mdx, stagedImages }: PreviewPaneProps) {
   const messages = useMessages();
   const d = messages.draft;
   const [state, setState] = useState<PreviewState>({ status: "idle" });
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const components = useMemo(() => {
+    const base = getMDXComponents();
+    if (!stagedImages || stagedImages.size === 0) return base;
+    const OriginalImg = base.img;
+    return {
+      ...base,
+      img: (
+        props: { src?: unknown; alt?: string } & Record<string, unknown>,
+      ) => {
+        const blobUrl =
+          typeof props.src === "string"
+            ? resolveStagedSrc(props.src, stagedImages)
+            : null;
+        if (blobUrl && OriginalImg) {
+          const Img = OriginalImg as any;
+          return <Img {...props} src={blobUrl} />;
+        }
+        if (blobUrl) {
+          // Fallback — no base img override, render a plain <img>.
+          // eslint-disable-next-line @next/next/no-img-element
+          return (
+            <img
+              {...(props as Record<string, unknown>)}
+              src={blobUrl}
+              alt={props.alt ?? ""}
+            />
+          );
+        }
+        if (OriginalImg) {
+          const Img = OriginalImg as any;
+          return <Img {...props} />;
+        }
+        // eslint-disable-next-line @next/next/no-img-element
+        return (
+          <img {...(props as Record<string, unknown>)} alt={props.alt ?? ""} />
+        );
+      },
+    };
+  }, [stagedImages]);
 
   useEffect(() => {
     if (timer.current) clearTimeout(timer.current);
@@ -84,7 +126,7 @@ export function PreviewPane({ mdx }: PreviewPaneProps) {
 
   return (
     <div className="prose prose-invert max-w-none">
-      <MDXRemote {...state.serialized} components={getMDXComponents()} />
+      <MDXRemote {...state.serialized} components={components} />
     </div>
   );
 }

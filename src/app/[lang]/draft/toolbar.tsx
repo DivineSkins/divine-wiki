@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ImagePlus } from "lucide-react";
 import { MDXRemote, type MDXRemoteSerializeResult } from "next-mdx-remote";
 import { useMessages } from "@/lib/hooks/useMessages";
 import { getMDXComponents } from "@/mdx-components";
@@ -12,15 +13,17 @@ import {
 
 interface ToolbarProps {
   onInsert: (snippet: string) => void;
+  onUploadImage: (files: File[]) => void;
   /** Builds /<lang>/docs/contributing/components#anchor links. */
   docsHref: (anchor: string) => string;
 }
 
-export function Toolbar({ onInsert, docsHref }: ToolbarProps) {
+export function Toolbar({ onInsert, onUploadImage, docsHref }: ToolbarProps) {
   const messages = useMessages();
   const d = messages.draft;
   const [hovered, setHovered] = useState<ComponentSnippet | null>(null);
   const [showOverflow, setShowOverflow] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <div className="border-divine-border relative flex flex-wrap items-center gap-1.5 border-b px-3 py-2">
@@ -32,6 +35,26 @@ export function Toolbar({ onInsert, docsHref }: ToolbarProps) {
           onHover={setHovered}
         />
       ))}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        hidden
+        onChange={(e) => {
+          const files = Array.from(e.target.files ?? []);
+          if (files.length > 0) onUploadImage(files);
+          e.target.value = "";
+        }}
+      />
+      <button
+        type="button"
+        className="bg-divine-primary/15 text-divine-primary-light hover:bg-divine-primary/25 inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold"
+        onClick={() => fileInputRef.current?.click()}
+      >
+        <ImagePlus className="h-3.5 w-3.5" />
+        {d.uploadImage}
+      </button>
       <button
         type="button"
         className="text-divine-text-muted bg-divine-surface border-divine-border rounded-md border px-2.5 py-1 text-xs"

@@ -1,0 +1,115 @@
+---
+title: "LTK Tex Thumb Handler"
+description: "LeagueToolkit's thumbnail handler shows .tex files as image previews in Windows Explorer. Sibling tool to Guisai's Tex Thumbnail Provider."
+category: "tools"
+---
+
+LTK Tex Thumb Handler is the **LeagueToolkit** team's Windows shell
+extension. It shows `.tex` files as image previews in Windows Explorer.
+
+It does the same job as [Tex Thumbnail Provider](/en/docs/lol/tools/texturing/tex-thumbnail-provider)
+by GuiSai. Pick one, not both.
+
+[Download the latest release](https://github.com/LeagueToolkit/ltk-tex-utils/releases)
+
+---
+
+## What it does
+
+- Shows `.tex` files as thumbnail previews in Windows Explorer.
+- Works on any folder with `.tex` textures (game files, exports, mod assets).
+- Runs as a registered COM DLL. No app to open. No background process.
+
+{/* SCREENSHOT: Windows Explorer showing a folder of .tex files with image thumbnails instead of generic icons */}
+
+---
+
+## Before you start
+
+- Windows 10 or 11.
+- Administrator access (the installer registers a system DLL).
+- PowerShell.
+
+---
+
+## Install
+
+1. Close any Windows Explorer windows that show `.tex` files.
+2. Right-click PowerShell and pick **Run as administrator**.
+3. Paste this command and press Enter:
+
+   ```powershell
+   iwr -useb https://raw.githubusercontent.com/LeagueToolkit/ltk-tex-utils/main/scripts/install-thumbnail-handler.ps1 | iex
+   ```
+
+4. Wait for the installer to finish. It downloads `ltk-tex-thumb-handler.dll`,
+   copies it to `%ProgramFiles%\LeagueToolkit\ltk-tex-thumb-handler`, and
+   registers it with Windows.
+5. Restart Windows Explorer (or restart your PC).
+
+{/* SCREENSHOT: PowerShell window showing the install script output with success message */}
+
+---
+
+## How to check it worked
+
+Open any folder with `.tex` files. The icons turn into image previews. If
+they still look like blank icons, restart Explorer or reboot.
+
+---
+
+## Uninstall
+
+1. Right-click PowerShell and pick **Run as administrator**.
+2. Run:
+
+   ```powershell
+   regsvr32.exe /u "%ProgramFiles%\LeagueToolkit\ltk-tex-thumb-handler\ltk_tex_thumb_handler.dll"
+   ```
+
+3. Delete the folder at `%ProgramFiles%\LeagueToolkit\ltk-tex-thumb-handler`.
+
+---
+
+## When to use this vs Tex Thumbnail Provider
+
+Both tools do the same thing: show `.tex` previews in Explorer. Run only
+one at a time.
+
+| Tool                        | Made by          | Install method                  |
+| --------------------------- | ---------------- | ------------------------------- |
+| **LTK Tex Thumb Handler**   | LeagueToolkit    | PowerShell one-liner (admin)    |
+| **Tex Thumbnail Provider**  | GuiSai           | `installer.rar` from GitHub     |
+
+Pick LTK Tex Thumb Handler if you already use other LeagueToolkit tools.
+Pick GuiSai's version if you prefer a packaged installer.
+
+> **Warning.** Don't install both. Two thumbnail handlers for the same
+> file type can fight each other and leave you with no previews at all.
+> Uninstall one before you install the other.
+
+---
+
+## Troubleshooting
+
+### Thumbnails don't appear
+
+Restart Windows Explorer. Open Task Manager, find **Windows Explorer**,
+right-click, and pick **Restart**. Open the folder again.
+
+### Still no thumbnails after a restart
+
+Check that the DLL is at
+`%ProgramFiles%\LeagueToolkit\ltk-tex-thumb-handler\ltk_tex_thumb_handler.dll`.
+If it's missing, run the install command again.
+
+### Old GuiSai DLL still registered
+
+Uninstall the other thumbnail provider first. See the
+[Tex Thumbnail Provider page](/en/docs/lol/tools/texturing/tex-thumbnail-provider)
+for its uninstall steps.
+
+### Install script fails
+
+Make sure PowerShell is running as administrator. The script needs admin
+rights to register the DLL with Windows.

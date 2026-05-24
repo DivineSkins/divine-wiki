@@ -10,11 +10,11 @@ Creators who use Maya, Blender, and VFX tools to build custom LoL skins. End-use
 
 Three ways, pick what fits you:
 
+- **In-browser editor** — go to [wiki.divineskins.gg/en/draft](https://wiki.divineskins.gg/en/draft). Write your guide with a live preview, hit submit, the editor forks the repo and opens a PR for you.
 - **Edit on GitHub** — on any guide, click "Edit on GitHub" at the bottom. GitHub's web editor opens. Make a change, open a PR. No clone, no install.
 - **Fork and PR** on GitHub. For devs. See [CONTRIBUTING.md](./CONTRIBUTING.md).
-- **Suggest edits** in Discord `#wiki-feedback`.
 
-Full walkthrough: [wiki.divineskins.gg/en/docs/contributing](https://wiki.divineskins.gg/en/docs/contributing).
+Full walkthrough: [wiki.divineskins.gg/en/docs/lol/contributing](https://wiki.divineskins.gg/en/docs/lol/contributing).
 
 ## Local dev
 
@@ -31,9 +31,9 @@ Open http://localhost:3000.
 
 ## Content layout
 
-Guides live in `content/docs/en/<category>/*.mdx`. Each category has a `meta.json` that controls sidebar order.
+Guides live in `content/docs/en/lol/<category>/*.mdx`. `lol/` is a "game segment" so future games (Valorant, etc.) can sit alongside it. Each category has a `meta.json` that controls sidebar order.
 
-The nine categories:
+The nine LoL categories:
 
 - `guided-walkthrough`
 - `tools`

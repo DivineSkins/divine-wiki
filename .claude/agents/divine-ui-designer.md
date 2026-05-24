@@ -85,7 +85,7 @@ For longer copy (callout body, prose), defer to the **`divine-wiki-voice`** skil
 
 ## WIKI-SPECIFIC CONSTRAINTS
 
-- **Don't hand-edit non-English MDX.** `content/docs/fr-FR/**`, `tr-TR`, `pt-BR` are Crowdin-managed and get overwritten by the weekly sync. UI changes that affect MDX components must keep token classes intact.
+- **Don't hand-edit non-English MDX.** `content/docs/fr-FR/lol/**`, `tr-TR/lol/**`, `pt-BR/lol/**` are Crowdin-managed and get overwritten by the weekly sync. UI changes that affect MDX components must keep token classes intact.
 - **Image assets** drop into `public/wiki-images/` and reference as `<img src="/wiki-images/..." alt="...">`. Compress to ≤ 500 KB before committing — Cloudflare Pages build is sensitive to large blobs. Always include meaningful `alt`.
 - **Don't fight Fumadocs.** It owns the docs layout, sidebar, TOC, breadcrumbs, search. Style by:
   - Setting `--color-divine-*` CSS variables in `global.css` so Fumadocs' neutral preset picks them up.

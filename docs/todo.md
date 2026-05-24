@@ -10,7 +10,7 @@ Right now every category (`tools/`, `maya/`, `vfx-bins/`, etc.) is a flat list o
 
 ### Tasks
 
-- [ ] Audit each category in `content/docs/en/*/meta.json` and decide which ones need grouping.
+- [ ] Audit each category in `content/docs/en/lol/*/meta.json` and decide which ones need grouping.
   - Likely candidates: **tools/** (extract, BIN, textures, audio, packaging), **vfx-bins/**, **maya/**.
 - [ ] Pick a grouping pattern. Two options to pick from:
   - **Nested folders** — move pages into subfolders, each with its own `meta.json`. Renders as nested sidebar groups.
@@ -22,7 +22,7 @@ Right now every category (`tools/`, `maya/`, `vfx-bins/`, etc.) is a flat list o
 ### Gotchas
 
 - Moving an MDX file changes its URL. Either set up redirects in `public/_redirects`, or change paths before we send out a lot of external links.
-- Contributors edit via GitHub (browser or local fork) and open a PR. If we add a subfolder layer, update `/docs/contributing` so the documented paths match.
+- Contributors edit via the `/draft` editor, the GitHub web editor, or a local fork. If we add a subfolder layer, update `/docs/lol/contributing` so the documented paths match.
 
 ---
 
@@ -30,7 +30,7 @@ Right now every category (`tools/`, `maya/`, `vfx-bins/`, etc.) is a flat list o
 
 ### Tasks
 
-- [ ] Review `content/docs/en/tools/index.mdx` layout against the design DNA. `<ToolCard>` rows can feel dense on wide screens — try a 2-column grid for cards inside `<Tabs>`.
+- [ ] Review `content/docs/en/lol/tools/index.mdx` layout against the design DNA. `<ToolCard>` rows can feel dense on wide screens — try a 2-column grid for cards inside `<Tabs>`.
 - [ ] Fix the gradient `<hr>` component in `src/app/global.css` (`.prose hr`). It's currently a flat 1px gold→purple bar. Options:
   - Soften it (lower opacity, taller, fade to transparent on the edges).
   - Replace with a subtle centered ornament instead of a full-width bar.
@@ -41,7 +41,7 @@ Right now every category (`tools/`, `maya/`, `vfx-bins/`, etc.) is a flat list o
 
 ### Files to touch
 
-- `content/docs/en/tools/index.mdx`
+- `content/docs/en/lol/tools/index.mdx`
 - `src/components/mdx/ToolCard.tsx` (maybe add `size="sm|md"` or a `grid` wrapper)
 - `src/app/global.css` — `.prose hr` styling
 
@@ -49,7 +49,7 @@ Right now every category (`tools/`, `maya/`, `vfx-bins/`, etc.) is a flat list o
 
 ## 3. Quick Start page — spacing, text, look
 
-The FAQ page (`content/docs/en/guided-walkthrough/index.mdx`) still feels bland. Collapsibles render fine but the page lacks visual rhythm.
+The FAQ page (`content/docs/en/lol/guided-walkthrough/index.mdx`) still feels bland. Collapsibles render fine but the page lacks visual rhythm.
 
 ### Tasks
 
@@ -63,7 +63,7 @@ The FAQ page (`content/docs/en/guided-walkthrough/index.mdx`) still feels bland.
 
 ### Files to touch
 
-- `content/docs/en/guided-walkthrough/index.mdx`
+- `content/docs/en/lol/guided-walkthrough/index.mdx`
 - `src/app/global.css` — the `.prose details` block, possibly add a `.faq-heading` variant
 - Maybe a new `<FaqItem>` MDX component if plain `<details>` can't be styled the way we want
 
@@ -83,4 +83,4 @@ The FAQ page (`content/docs/en/guided-walkthrough/index.mdx`) still feels bland.
 - Translations / Crowdin re-sync.
 - R2 image CDN migration.
 - PostHog re-enable.
-- `/docs/contributing` polish.
+- `/docs/lol/contributing` polish.

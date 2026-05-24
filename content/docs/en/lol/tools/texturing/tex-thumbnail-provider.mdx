@@ -1,0 +1,101 @@
+---
+title: "Tex Thumbnail Provider"
+description: "GuiSai's Windows shell extension that shows .tex files as image thumbnails in Explorer. No more guessing what is inside a texture."
+category: "tools"
+---
+
+Tex Thumbnail Provider by **GuiSai** lets you see `.tex` files as
+thumbnails in Windows Explorer. No more guessing what is inside.
+
+[Download the latest release](https://github.com/RitoShark/TexThumbnailProvider/releases/latest)
+
+Latest version: **v1.0.0** (November 2025).
+
+---
+
+## What it does
+
+- Shows `.tex` files as image previews in Windows Explorer.
+- Works in any folder with `.tex` textures (game files, exports, mod assets).
+- Runs as a registered COM DLL. No app to open. No background process.
+
+{/* SCREENSHOT: Windows Explorer showing a folder of .tex files with image thumbnails instead of generic icons */}
+
+---
+
+## Before you start
+
+- Windows 10 or 11.
+- Administrator access (the installer registers a system DLL).
+- A tool that can extract `.rar` files (7-Zip or WinRAR).
+
+---
+
+## Installation
+
+1. Download `TexThumbnailProvider.Installer.rar` from the [latest release](https://github.com/RitoShark/TexThumbnailProvider/releases/latest).
+2. Extract the archive to a folder you will keep (for example, `C:\TexThumbnailProvider\`).
+3. Right-click the installer and pick **Run as administrator**.
+4. Open any folder with `.tex` files. Thumbnails appear in place of generic icons.
+
+<Callout type="info">
+The installer registers the DLL with Windows. You do not need to run
+`regsvr32` by hand unless something goes wrong.
+</Callout>
+
+---
+
+## Important
+
+| Rule                                               | Why                       |
+| -------------------------------------------------- | ------------------------- |
+| Do **not** move the `.dll` after installation      | Breaks thumbnail previews |
+| Do **not** rename the `.dll`                       | Windows cannot find it    |
+| Keep the install folder. Do not delete it          | The DLL lives there       |
+
+If you need to move the DLL, uninstall first, then install again from the new location.
+
+---
+
+## Troubleshooting
+
+<Tabs items={["Quick Fixes", "Manual Fix"]}>
+<Tab value="Quick Fixes">
+
+### Thumbnails not showing
+
+1. Check the DLL is still in the folder where you installed it.
+2. Make sure you ran the installer as **Administrator**.
+3. Restart Windows Explorer:
+   - Open Task Manager.
+   - Find **Windows Explorer**.
+   - Right-click. Pick **Restart**.
+
+If thumbnails still do not show, try the manual fix.
+
+</Tab>
+<Tab value="Manual Fix">
+
+### Re-register the DLL by hand
+
+Open **Command Prompt as Administrator**. Run these two commands, one
+at a time. Replace the path if you installed somewhere else.
+
+```cmd
+regsvr32 "C:\TexThumbnailProvider\texthumbnailprovider_by_guisai_v2.dll" /u
+regsvr32 "C:\TexThumbnailProvider\texthumbnailprovider_by_guisai_v2.dll"
+```
+
+The first line unregisters the DLL. The second line registers it again.
+A Windows pop-up tells you when each one succeeds.
+
+</Tab>
+</Tabs>
+
+---
+
+## Alternatives
+
+[LTK Tex Thumb Handler](/en/docs/lol/tools/texturing/ltk-tex-thumb-handler) by the
+LeagueToolkit team does the same job. Pick one tool, not both. Running
+two thumbnail handlers for the same file type can cause conflicts.
