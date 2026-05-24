@@ -1,0 +1,150 @@
+---
+title: "Hexbelt"
+description: "Browser-based WAD and BIN explorer for League custom skins. No install. Drop a file in your browser, browse the contents, download what you need."
+category: "tools"
+---
+
+Hexbelt is a browser-based toolkit for League custom skin creation, built by **alanpq**.
+It opens `.wad` and `.bin` files right in your browser. Nothing to install.
+
+[Open Hexbelt](https://alanpq.github.io/hexbelt)
+
+{/* SCREENSHOT: hexbelt landing page showing the Wad Walker and Bin Explorer cards */}
+
+<Callout type="info" title="What is a WAD file?">
+  A `.wad.client` file is an archive that holds champion models, textures, VFX,
+  animations, and sound. Riot ships almost every game asset inside these
+  archives. A `.bin` file is a smaller data file inside a WAD that holds
+  settings, paths, and references (skin data, skill timings, particle setup,
+  and so on).
+</Callout>
+
+---
+
+## What it does
+
+Hexbelt has two tools today, with more on the way.
+
+- **Wad Walker.** Open a `.wad` or `.wad.client` file. Browse the folder tree inside it. Preview images. Download a single file you need.
+- **Bin Explorer.** Open a `.bin` file and read its fields in a Key / Type / Value tree. Useful for inspecting skin data without converting to text first.
+- **No install.** Runs in any modern browser (Chrome, Edge, Firefox). Your files never leave your machine. Hexbelt does all the parsing locally.
+- **Cross-platform.** Works on Windows, macOS, and Linux. Handy if you're not on Windows and most modding tools won't run.
+
+---
+
+## Before you start
+
+You need:
+
+- A modern browser (Chrome, Edge, or Firefox is fine).
+- A `.wad`, `.wad.client`, or `.bin` file on your machine.
+
+If you don't have a WAD file yet, [Flint](/docs/lol/tools/modding-apps/flint) can copy the originals out of your League install. Or grab a `.bin` from a finished skin you're inspecting.
+
+---
+
+## How to use it
+
+### Open a WAD file
+
+1. Go to [alanpq.github.io/hexbelt](https://alanpq.github.io/hexbelt). The landing page loads with two cards: **Wad Walker** and **Bin Explorer**.
+2. Drag a `.wad.client` file onto the **Wad Walker** card. Or click **Upload** and pick the file. Hexbelt opens the file and switches to the Wad Walker view.
+3. Look at the folder tree on the left. Double-click a folder to go in. Click `...` at the top of the list to go back up.
+4. Click a file to select it. The Inspector pane on the right shows its info.
+
+{/* SCREENSHOT: Wad Walker view with folder tree on the left and Inspector on the right */}
+
+<Callout type="info" title="Breadcrumbs show your path">
+  The path at the top of the page (like `/` then `data` then `final`) shows
+  where you are inside the WAD. Click any segment to jump back to that folder.
+</Callout>
+
+### Preview an image
+
+Hexbelt can preview these image formats: `dds`, `tex`, `png`, `jpg`, `svg`.
+
+1. Right-click an image file in the tree.
+2. Click **Preview**. The Inspector pane shows the image.
+
+For other file types (`.anm`, `.skn`, `.skl`, `.bin`, `.scb`, `.sco`, `.stringtable`), preview is not supported yet. You can still download them.
+
+### Download a single file
+
+1. Right-click the file you want.
+2. Click **Download**. Your browser saves the file to your downloads folder.
+
+<Callout type="warning" title="One file at a time">
+  Hexbelt downloads one file per action. Folder-level extract is not built yet.
+  If you need to pull a whole champion folder out of a WAD, use
+  [Flint](/docs/lol/tools/modding-apps/flint) instead. Hexbelt is best for quick
+  one-off lookups.
+</Callout>
+
+### Open a BIN file inside a WAD
+
+If you're already in Wad Walker and find a `.bin` file you want to read:
+
+1. Right-click the `.bin` file in the tree.
+2. Click **Open in Bin Explorer**. Hexbelt switches to the Bin Explorer view with that file loaded.
+
+### Open a BIN file directly
+
+1. Go to [alanpq.github.io/hexbelt](https://alanpq.github.io/hexbelt).
+2. Drag a `.bin` file onto the **Bin Explorer** card. Or click **Upload** and pick the file.
+3. The file opens as a tree. Each row shows a **Key**, a **Type**, and a **Value**.
+4. Click an arrow to expand a nested field.
+
+{/* SCREENSHOT: Bin Explorer view with Key / Type / Value columns */}
+
+---
+
+## How to check it worked
+
+- **WAD opened:** The page changes from "No file open" to a folder tree with breadcrumbs at the top.
+- **Image previewed:** The Inspector pane shows the image when you pick **Preview**.
+- **File downloaded:** Your browser shows a download notification, and the file lands in your downloads folder.
+- **BIN opened:** The page changes from "No file open" to a tree with the **Key / Type / Value** header row.
+
+---
+
+## When to use Hexbelt vs other tools
+
+| You want to...                                | Use this                                                                          |
+| --------------------------------------------- | --------------------------------------------------------------------------------- |
+| Quickly look inside a WAD on any OS           | **Hexbelt**                                                                       |
+| Extract a whole champion folder from a WAD    | [Flint](/docs/lol/tools/modding-apps/flint)                                                  |
+| Inspect a `.bin` file in your browser         | **Hexbelt**                                                                       |
+| Convert a `.bin` file to text and back        | [Ritobin](/docs/lol/tools/modding-apps/ritobin)                                                |
+| Build a finished `.fantome` mod from scratch  | [Flint](/docs/lol/tools/modding-apps/flint) or [LtMAO](/docs/lol/tools/modding-apps/ltmao)                  |
+
+Hexbelt's strength is speed. No install, no setup, no Windows-only `.exe`. Open the URL, drop your file, find what you need, close the tab.
+
+---
+
+## Troubleshooting
+
+### "No file open" still shows after dropping a file
+
+Make sure the file ends in `.wad`, `.wad.client`, or `.bin`. Drop a WAD onto the **Wad Walker** card and a BIN onto the **Bin Explorer** card. Mixing them up shows nothing.
+
+### Preview is greyed out in the right-click menu
+
+The file type is not previewable. Hexbelt previews `dds`, `tex`, `png`, `jpg`, and `svg`. Anything else (models, animations, audio) you'll have to download and open in another tool.
+
+### Big WAD files load slowly
+
+Champion WADs can be tens of megabytes, and parsing happens in your browser. Give it a few seconds on the first open. If your browser tab freezes, try Chrome or Edge, which handle big WASM workloads better.
+
+### Nothing downloads when I click Download
+
+Check that your browser is not blocking downloads from the page. Some browsers warn the first time. Allow it once and try again.
+
+---
+
+## Links
+
+- **Web app:** [alanpq.github.io/hexbelt](https://alanpq.github.io/hexbelt)
+- **Source code:** [github.com/alanpq/hexbelt](https://github.com/alanpq/hexbelt)
+- **Author:** alanpq
+
+Hexbelt is open source and free to use. If you find a bug or want a feature, open an issue on the GitHub repo.

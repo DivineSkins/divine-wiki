@@ -1,0 +1,136 @@
+---
+title: "Manifest Downloader GUI"
+description: "A GUI for downloading Riot manifest files. Grab old League patches, PBE builds, or missing assets without the command line."
+category: "tools"
+---
+
+Manifest Downloader GUI is a desktop app by **dazashu** that wraps
+**Morilli's** command-line `ManifestDownloader` in a window with two
+tabs. You use it to download Riot manifest files and then pull the
+game assets they describe.
+
+A manifest is a file Riot uses to describe a game build: which files
+exist, where they live, and what version they are. With the right
+manifest you can download an older League patch, a PBE build, or one
+specific asset, without waiting for the live client to do it.
+
+[Download the latest release](https://github.com/dazashu/ManifestDownloaderGUI/releases)
+
+{/* SCREENSHOT: ManifestDownloaderGUI main window with the Downloader and Library tabs visible */}
+
+---
+
+## What it does
+
+- **Download manifests** from Riot's public repositories in one click.
+- **Browse a local library** of manifests you've already downloaded.
+- **Pull the actual game content** described by a manifest (the files inside the build).
+- **Set download options** through a settings panel (paths, filters, threads).
+- **Keep everything portable.** App data lives in `LocalAppData`, so your install folder stays clean.
+
+It supports the same games Morilli's CLI does. That covers League of Legends, Legends of Runeterra, Valorant, and other Riot titles that use manifest files.
+
+---
+
+## What you need
+
+- Windows 10 or 11 (64-bit). No Mac or Linux build.
+- [.NET 8.0 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0). The app will not start without it.
+- About 1 GB of free disk space for small jobs. Full League builds need 20 to 30 GB.
+- A decent internet connection. You're pulling from Riot's CDN.
+
+---
+
+## Install
+
+1. Open the [releases page](https://github.com/dazashu/ManifestDownloaderGUI/releases).
+2. Download `ManifestDownloaderGUI.exe` from the latest release.
+3. Move the `.exe` to a folder you can find again. (For example, `C:\Tools\ManifestDownloader\`.)
+4. Double-click `ManifestDownloaderGUI.exe`. The app opens to the Downloader tab.
+
+If Windows shows a SmartScreen warning, click **More info**, then **Run anyway**. The app is open source and unsigned, which is normal for community tools.
+
+{/* SCREENSHOT: Windows SmartScreen warning with the "More info" link circled */}
+
+---
+
+## How to use it
+
+### Download a manifest
+
+1. Open the app. The **Downloader** tab loads by default.
+2. Pick the game and channel you want (for example, League of Legends live or PBE).
+3. Click the manifest you want from the list. The download starts.
+4. Wait for the progress bar to finish. The manifest moves to your local library.
+
+{/* SCREENSHOT: Downloader tab with a manifest mid-download */}
+
+### Download the game content
+
+1. Switch to the **Library** tab.
+2. Click the manifest you just downloaded.
+3. Check the download settings (output folder, filters, threads).
+4. Click **Start**. The app pulls the files from Riot's CDN.
+5. Wait. A full League build can take 30 minutes or more, depending on your connection.
+
+When it finishes, your output folder holds the raw game files: `.wad`, `.bin`, textures, and the rest.
+
+{/* SCREENSHOT: Library tab with a manifest selected and the Start button visible */}
+
+### Filter what you download
+
+You usually don't want the whole build. The settings panel lets you narrow it down:
+
+- **Filter by path.** Only pull files whose path matches a pattern (for example, `*champion*`).
+- **Filter by language.** Skip voiceover packs you don't need.
+- **Set thread count.** More threads is faster, but heavy on your connection.
+
+---
+
+## When you actually need this
+
+Most modders never touch manifests. The live League client already keeps you up to date, and tools like [Flint](/docs/lol/tools/modding-apps/flint) extract what you need from the current install. Reach for Manifest Downloader GUI when:
+
+- **You want an older patch.** A skin built on patch 14.3 may break on 14.10. Pulling the 14.3 files lets you check the source mesh or texture.
+- **You want PBE files.** Public Beta Environment builds ship new champions and skins before live. The manifest is how you grab them without installing the PBE client.
+- **A specific asset is missing locally.** Sometimes the live client doesn't ship every file (cut content, region-specific assets). A manifest lets you pull just that file.
+- **You're working on a different Riot game.** Legends of Runeterra and Valorant use the same manifest format.
+
+For day-to-day skin work, stay on Flint or LtMAO. Use this when one of the cases above hits.
+
+---
+
+## Difference from the auto-patch flow
+
+The League client patches itself. So does Celestial when a skin needs an update. Both are automatic and you don't pick what they pull.
+
+Manifest Downloader GUI is the opposite: **you choose the build, you choose the files, you trigger the download**. It does not patch your installed League. It does not change your live game. It writes files to a folder you pick, and that's it.
+
+---
+
+## Troubleshooting
+
+### The app won't start
+
+Install the [.NET 8.0 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0) and try again. The app needs it to run.
+
+### Downloads are very slow
+
+Lower the thread count in settings, or check whether your network or VPN is throttling the connection. Riot's CDN is fast in most regions.
+
+### The download finishes but the folder is empty
+
+Check your path filter. If you set a pattern that doesn't match any files, the run completes with zero files. Clear the filter and try again.
+
+### A manifest fails to download
+
+Some older manifests get removed from Riot's public sources. If a manifest in the list errors out, pick a different version or check [Morilli's saved-manifests repo](https://github.com/Morilli/riot-manifests) for an archive.
+
+---
+
+## Credits
+
+- **GUI by [dazashu](https://github.com/dazashu).**
+- **CLI core by [Morilli](https://github.com/Morilli/ManifestDownloader).** The GUI wraps Morilli's tool, so all the actual downloading logic comes from there.
+
+Both projects are MIT-licensed and open source.
