@@ -18,35 +18,35 @@ The draft editor's toolbar inserts an `<img src="/wiki-images/<name>" />` snippe
 
 ## Decisions
 
-| Question | Decision |
-|---|---|
-| Trigger UI | New "Upload image" toolbar chip (with hidden `<input type="file" accept="image/*" multiple>`). No drag-and-drop in v1. |
-| Filename | Kebab-case the basename, preserve extension (lowercased): `My Screenshot.PNG` → `my-screenshot.png`. On collision, suffix `-2`, `-3`. |
-| Storage | In-memory `Map<filename, { file: File, objectUrl: string }>` in `draft-editor.tsx`. Not persisted across refresh — explicit trade-off, IndexedDB out of scope. |
-| MDX inserted | `<img src="/wiki-images/<filename>" alt="" />` (canonical path, so production rendering after upload works as-is). |
-| Preview rendering | Preview-pane wraps the `getMDXComponents()` `img` override: if the `src` resolves to a staged file, rewrite `src` to that file's blob URL before delegating to the existing `ImageZoom`. |
-| Multiple files | One pick can select multiple files; each gets a deduped filename and an inserted `<img>` line. |
-| Blob URL cleanup | `URL.revokeObjectURL` called when the staged Map is replaced and on component unmount. Acceptable to leak a small number of session-lifetime blob URLs. |
-| Handoff reminder | Existing "Added images?" panel lists `Array.from(stagedImages.keys())` as a bullet list. |
-| Existing "Image" toolbar chip | Unchanged — still inserts the template snippet for when you don't yet have a file. |
+| Question                      | Decision                                                                                                                                                                                 |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Trigger UI                    | New "Upload image" toolbar chip (with hidden `<input type="file" accept="image/*" multiple>`). No drag-and-drop in v1.                                                                   |
+| Filename                      | Kebab-case the basename, preserve extension (lowercased): `My Screenshot.PNG` → `my-screenshot.png`. On collision, suffix `-2`, `-3`.                                                    |
+| Storage                       | In-memory `Map<filename, { file: File, objectUrl: string }>` in `draft-editor.tsx`. Not persisted across refresh — explicit trade-off, IndexedDB out of scope.                           |
+| MDX inserted                  | `<img src="/wiki-images/<filename>" alt="" />` (canonical path, so production rendering after upload works as-is).                                                                       |
+| Preview rendering             | Preview-pane wraps the `getMDXComponents()` `img` override: if the `src` resolves to a staged file, rewrite `src` to that file's blob URL before delegating to the existing `ImageZoom`. |
+| Multiple files                | One pick can select multiple files; each gets a deduped filename and an inserted `<img>` line.                                                                                           |
+| Blob URL cleanup              | `URL.revokeObjectURL` called when the staged Map is replaced and on component unmount. Acceptable to leak a small number of session-lifetime blob URLs.                                  |
+| Handoff reminder              | Existing "Added images?" panel lists `Array.from(stagedImages.keys())` as a bullet list.                                                                                                 |
+| Existing "Image" toolbar chip | Unchanged — still inserts the template snippet for when you don't yet have a file.                                                                                                       |
 
 ## Architecture
 
 ### New file
 
-| File | Responsibility |
-|---|---|
+| File                             | Responsibility                                                                                                                                                                         |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `src/lib/draft/staged-images.ts` | Pure utilities: `normalizeFilename(original)`, `dedupeName(desired, taken)`, `wikiImageSrc(filename)`, `resolveStagedSrc(src, staged)`. Plus the `StagedImage` / `StagedImages` types. |
 
 ### Modified files
 
-| File | Change |
-|---|---|
+| File                                    | Change                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `src/app/[lang]/draft/draft-editor.tsx` | Owns the `stagedImages` state (a `Map<string, StagedImage>`), an `addImages(files: File[])` handler that normalizes/dedupes filenames, creates blob URLs, and inserts the corresponding `<img>` lines via the existing `editorRef.current?.insertAtCursor()`. Threads the map down to `<Toolbar onUploadImage={...} />`, `<PreviewPane stagedImages={...} />`, and `<Handoff stagedImages={...} />`. On unmount, revokes all object URLs. |
-| `src/app/[lang]/draft/toolbar.tsx` | Add a new "Upload image" chip. It renders a `<button>` + hidden `<input type="file" accept="image/*" multiple>`; clicking the chip programmatically clicks the input. On `change`, calls `onUploadImage(files)` and resets the input value so re-selecting the same file works. |
-| `src/app/[lang]/draft/preview-pane.tsx` | Accepts a `stagedImages?: StagedImages` prop. The `components` passed to `<MDXRemote>` is now memoized: it overrides `img` to first check `resolveStagedSrc(src, stagedImages)` — if a blob URL exists, rewrite the `src` before delegating to the existing `getMDXComponents().img` (`ImageZoom`). |
-| `src/app/[lang]/draft/handoff.tsx` | Accepts a `stagedImages?: StagedImages` prop. In the existing `<ImagesReminder>` block, when `stagedImages.size > 0`, render a `<ul>` of `Array.from(stagedImages.keys())` with a "you need to upload these" lead-in (new i18n string). |
-| `messages/en.json` | Add 3 strings under the `draft` block: `uploadImage` ("Upload image"), `uploadImageBlurb` ("Pick a file. It shows in the preview and is referenced in your guide. Upload it to GitHub after Contribute."), `imagesToUpload` ("Files to upload along with this guide:"). |
+| `src/app/[lang]/draft/toolbar.tsx`      | Add a new "Upload image" chip. It renders a `<button>` + hidden `<input type="file" accept="image/*" multiple>`; clicking the chip programmatically clicks the input. On `change`, calls `onUploadImage(files)` and resets the input value so re-selecting the same file works.                                                                                                                                                           |
+| `src/app/[lang]/draft/preview-pane.tsx` | Accepts a `stagedImages?: StagedImages` prop. The `components` passed to `<MDXRemote>` is now memoized: it overrides `img` to first check `resolveStagedSrc(src, stagedImages)` — if a blob URL exists, rewrite the `src` before delegating to the existing `getMDXComponents().img` (`ImageZoom`).                                                                                                                                       |
+| `src/app/[lang]/draft/handoff.tsx`      | Accepts a `stagedImages?: StagedImages` prop. In the existing `<ImagesReminder>` block, when `stagedImages.size > 0`, render a `<ul>` of `Array.from(stagedImages.keys())` with a "you need to upload these" lead-in (new i18n string).                                                                                                                                                                                                   |
+| `messages/en.json`                      | Add 3 strings under the `draft` block: `uploadImage` ("Upload image"), `uploadImageBlurb` ("Pick a file. It shows in the preview and is referenced in your guide. Upload it to GitHub after Contribute."), `imagesToUpload` ("Files to upload along with this guide:").                                                                                                                                                                   |
 
 ## Data flow
 
@@ -84,5 +84,6 @@ The draft editor's toolbar inserts an `<img src="/wiki-images/<name>" />` snippe
 ## Testing
 
 Project-standard lightweight gates:
+
 - `npm run types:check`, `npm run lint`, `npm run build`, `npx prettier --check` all pass.
 - Interactive browser: click "Upload image" → file picker opens → pick an image → `<img src="/wiki-images/<name>" alt="" />` appears at cursor → preview shows the image (not broken) → click Contribute → handoff modal lists the filename in the images reminder.

@@ -18,25 +18,26 @@
 
 **New files:**
 
-| File | Responsibility |
-|---|---|
+| File                             | Responsibility                                                                                                                |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | `src/lib/draft/staged-images.ts` | Pure utilities + types: `StagedImage`, `StagedImages`, `normalizeFilename`, `dedupeName`, `wikiImageSrc`, `resolveStagedSrc`. |
 
 **Modified files:**
 
-| File | Change |
-|---|---|
-| `messages/en.json` | Add 3 strings to the `draft` block. |
+| File                                    | Change                                                                                                                                  |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `messages/en.json`                      | Add 3 strings to the `draft` block.                                                                                                     |
 | `src/app/[lang]/draft/draft-editor.tsx` | Add `stagedImages` state, `addImages` handler, blob-URL cleanup on unmount. Pass the map + handler to children as props in later tasks. |
-| `src/app/[lang]/draft/toolbar.tsx` | Add an "Upload image" chip with a hidden `<input type="file">`. Calls a new `onUploadImage` prop. |
-| `src/app/[lang]/draft/preview-pane.tsx` | Accept `stagedImages` prop. Wrap the `img` component override to substitute staged blob URLs. |
-| `src/app/[lang]/draft/handoff.tsx` | Accept `stagedImages` prop. List staged filenames in the existing `ImagesReminder` when the map is non-empty. |
+| `src/app/[lang]/draft/toolbar.tsx`      | Add an "Upload image" chip with a hidden `<input type="file">`. Calls a new `onUploadImage` prop.                                       |
+| `src/app/[lang]/draft/preview-pane.tsx` | Accept `stagedImages` prop. Wrap the `img` component override to substitute staged blob URLs.                                           |
+| `src/app/[lang]/draft/handoff.tsx`      | Accept `stagedImages` prop. List staged filenames in the existing `ImagesReminder` when the map is non-empty.                           |
 
 ---
 
 ## Task 1 — Foundation: messages, helpers, editor state
 
 **Files:**
+
 - Modify: `messages/en.json`
 - Create: `src/lib/draft/staged-images.ts`
 - Modify: `src/app/[lang]/draft/draft-editor.tsx`
@@ -119,6 +120,7 @@ export function resolveStagedSrc(
 - [ ] **Step 3: Modify `src/app/[lang]/draft/draft-editor.tsx`** — add the imports, state, handler, and unmount cleanup. The children don't consume these yet (separate tasks); this step prepares the orchestrator.
 
   (a) Add imports near the existing `@/lib/draft/*` imports:
+
   ```tsx
   import {
     normalizeFilename,
@@ -130,59 +132,66 @@ export function resolveStagedSrc(
   ```
 
   (b) Add the state. Place it immediately AFTER the existing `restorePrompt` state (search for `setRestorePrompt`):
+
   ```tsx
-    const [stagedImages, setStagedImages] = useState<StagedImages>(
-      () => new Map(),
-    );
+  const [stagedImages, setStagedImages] = useState<StagedImages>(
+    () => new Map(),
+  );
   ```
 
   (c) Add the `addImages` handler. Place it near the other handlers like `handleInsert`, `handleScan`, etc. — anywhere in the same vicinity is fine:
+
   ```tsx
-    const addImages = (files: File[]) => {
-      if (files.length === 0) return;
-      const taken = new Set(stagedImages.keys());
-      const additions: [string, StagedImage][] = [];
-      for (const file of files) {
-        const desired = normalizeFilename(file.name);
-        const filename = dedupeName(desired, taken);
-        taken.add(filename);
-        additions.push([filename, { file, objectUrl: URL.createObjectURL(file) }]);
-      }
-      setStagedImages((current) => {
-        const next = new Map(current);
-        for (const [name, img] of additions) next.set(name, img);
-        return next;
-      });
-      const snippet =
-        additions
-          .map(([name]) => `<img src="${wikiImageSrc(name)}" alt="" />`)
-          .join("\n") + "\n";
-      editorRef.current?.insertAtCursor(snippet);
-    };
+  const addImages = (files: File[]) => {
+    if (files.length === 0) return;
+    const taken = new Set(stagedImages.keys());
+    const additions: [string, StagedImage][] = [];
+    for (const file of files) {
+      const desired = normalizeFilename(file.name);
+      const filename = dedupeName(desired, taken);
+      taken.add(filename);
+      additions.push([
+        filename,
+        { file, objectUrl: URL.createObjectURL(file) },
+      ]);
+    }
+    setStagedImages((current) => {
+      const next = new Map(current);
+      for (const [name, img] of additions) next.set(name, img);
+      return next;
+    });
+    const snippet =
+      additions
+        .map(([name]) => `<img src="${wikiImageSrc(name)}" alt="" />`)
+        .join("\n") + "\n";
+    editorRef.current?.insertAtCursor(snippet);
+  };
   ```
 
   (d) Add the blob-URL cleanup effect. Place it near the other `useEffect`s, with `[]` dependency so it ONLY runs on unmount. Use a ref to read the latest map at unmount time without making the effect re-run on every state change:
 
   First, add a ref next to the other refs (e.g. near `editorRef`):
+
   ```tsx
-    const stagedImagesRef = useRef<StagedImages>(stagedImages);
+  const stagedImagesRef = useRef<StagedImages>(stagedImages);
   ```
 
   Then, near the other effects, add:
-  ```tsx
-    // Keep the ref in sync with the latest staged map.
-    useEffect(() => {
-      stagedImagesRef.current = stagedImages;
-    }, [stagedImages]);
 
-    // On unmount, revoke every blob URL we created.
-    useEffect(() => {
-      return () => {
-        stagedImagesRef.current.forEach(({ objectUrl }) =>
-          URL.revokeObjectURL(objectUrl),
-        );
-      };
-    }, []);
+  ```tsx
+  // Keep the ref in sync with the latest staged map.
+  useEffect(() => {
+    stagedImagesRef.current = stagedImages;
+  }, [stagedImages]);
+
+  // On unmount, revoke every blob URL we created.
+  useEffect(() => {
+    return () => {
+      stagedImagesRef.current.forEach(({ objectUrl }) =>
+        URL.revokeObjectURL(objectUrl),
+      );
+    };
+  }, []);
   ```
 
   (e) NOTE — `stagedImages` and `addImages` are NOT passed to any child component yet; Tasks 2, 3, 4 do that wiring. After Step 3 the file compiles but `stagedImages`, `addImages`, and `stagedImagesRef` show as unused. **That triggers `no-unused-vars` lint errors** (the project's ESLint is strict). Mitigation: add a leading underscore to the names ONLY for this task's commit, then rename them properly when consumers arrive in Tasks 2-4. Simpler: silence with a single inline comment OR — better — also include a placeholder consumer to suppress the unused warnings.
@@ -210,6 +219,7 @@ export function resolveStagedSrc(
 ## Task 2 — Toolbar "Upload image" chip + editor state + handler
 
 **Files:**
+
 - Modify: `src/app/[lang]/draft/draft-editor.tsx`
 - Modify: `src/app/[lang]/draft/toolbar.tsx`
 
@@ -218,90 +228,103 @@ This task adds the actual state to `draft-editor.tsx` (the consumer arrives, so 
 - [ ] **Step 1: Add state, handler, ref, and cleanup effect in `draft-editor.tsx`.** Apply changes (b), (c), and (d) from Task 1 Step 3 verbatim. (Re-paste the code blocks from Task 1 here for clarity — do not skip.)
 
   State:
+
   ```tsx
-    const [stagedImages, setStagedImages] = useState<StagedImages>(
-      () => new Map(),
-    );
+  const [stagedImages, setStagedImages] = useState<StagedImages>(
+    () => new Map(),
+  );
   ```
 
   Ref (near `editorRef`):
+
   ```tsx
-    const stagedImagesRef = useRef<StagedImages>(stagedImages);
+  const stagedImagesRef = useRef<StagedImages>(stagedImages);
   ```
 
   Handler:
+
   ```tsx
-    const addImages = (files: File[]) => {
-      if (files.length === 0) return;
-      const taken = new Set(stagedImages.keys());
-      const additions: [string, StagedImage][] = [];
-      for (const file of files) {
-        const desired = normalizeFilename(file.name);
-        const filename = dedupeName(desired, taken);
-        taken.add(filename);
-        additions.push([filename, { file, objectUrl: URL.createObjectURL(file) }]);
-      }
-      setStagedImages((current) => {
-        const next = new Map(current);
-        for (const [name, img] of additions) next.set(name, img);
-        return next;
-      });
-      const snippet =
-        additions
-          .map(([name]) => `<img src="${wikiImageSrc(name)}" alt="" />`)
-          .join("\n") + "\n";
-      editorRef.current?.insertAtCursor(snippet);
-    };
+  const addImages = (files: File[]) => {
+    if (files.length === 0) return;
+    const taken = new Set(stagedImages.keys());
+    const additions: [string, StagedImage][] = [];
+    for (const file of files) {
+      const desired = normalizeFilename(file.name);
+      const filename = dedupeName(desired, taken);
+      taken.add(filename);
+      additions.push([
+        filename,
+        { file, objectUrl: URL.createObjectURL(file) },
+      ]);
+    }
+    setStagedImages((current) => {
+      const next = new Map(current);
+      for (const [name, img] of additions) next.set(name, img);
+      return next;
+    });
+    const snippet =
+      additions
+        .map(([name]) => `<img src="${wikiImageSrc(name)}" alt="" />`)
+        .join("\n") + "\n";
+    editorRef.current?.insertAtCursor(snippet);
+  };
   ```
 
   Effects:
-  ```tsx
-    useEffect(() => {
-      stagedImagesRef.current = stagedImages;
-    }, [stagedImages]);
 
-    useEffect(() => {
-      return () => {
-        stagedImagesRef.current.forEach(({ objectUrl }) =>
-          URL.revokeObjectURL(objectUrl),
-        );
-      };
-    }, []);
+  ```tsx
+  useEffect(() => {
+    stagedImagesRef.current = stagedImages;
+  }, [stagedImages]);
+
+  useEffect(() => {
+    return () => {
+      stagedImagesRef.current.forEach(({ objectUrl }) =>
+        URL.revokeObjectURL(objectUrl),
+      );
+    };
+  }, []);
   ```
 
   Then pass `addImages` down to the existing `<Toolbar>` element as a new `onUploadImage` prop:
+
   ```tsx
-        <Toolbar
-          onInsert={handleInsert}
-          onUploadImage={addImages}
-          docsHref={(anchor) =>
-            `/${lang}/docs/contributing/components#${anchor}`
-          }
-        />
+  <Toolbar
+    onInsert={handleInsert}
+    onUploadImage={addImages}
+    docsHref={(anchor) => `/${lang}/docs/contributing/components#${anchor}`}
+  />
   ```
+
   Keep the existing `onInsert` and `docsHref` props exactly as they are; just add the new `onUploadImage={addImages}` line.
 
 - [ ] **Step 2: Add the "Upload image" chip in `toolbar.tsx`.**
 
   (a) Add a `useRef` import if not already imported. Check the top of `toolbar.tsx` — the React import line currently imports `{ useEffect, useMemo, useState }` (from Tasks 14-15 of the draft editor). Add `useRef`:
+
   ```tsx
   import { useEffect, useMemo, useRef, useState } from "react";
   ```
 
   (b) Add an icon import — the project uses lucide-react. Add `ImagePlus`:
+
   ```tsx
   import { ImagePlus } from "lucide-react";
   ```
+
   (or extend the existing lucide-react import line in this file if there is one).
 
   (c) Update the `ToolbarProps` interface to accept the new callback. Find:
+
   ```tsx
   interface ToolbarProps {
     onInsert: (snippet: string) => void;
     docsHref: (anchor: string) => string;
   }
   ```
+
   Change it to:
+
   ```tsx
   interface ToolbarProps {
     onInsert: (snippet: string) => void;
@@ -311,18 +334,22 @@ This task adds the actual state to `draft-editor.tsx` (the consumer arrives, so 
   ```
 
   (d) Update the `Toolbar` function signature to destructure `onUploadImage`:
+
   ```tsx
   export function Toolbar({ onInsert, onUploadImage, docsHref }: ToolbarProps) {
   ```
 
   (e) Inside `Toolbar`, add a file-input ref and a click handler. Place them near the existing hooks (after `useMessages`/`useState`):
+
   ```tsx
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const messages_d = messages.draft; // alias if `d` is the existing local var; otherwise reuse `d`
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const messages_d = messages.draft; // alias if `d` is the existing local var; otherwise reuse `d`
   ```
-  *(If a local `d` variable already aliases `messages.draft` in this component, USE that; otherwise reference `messages.draft.uploadImage` directly. Don't introduce a redundant alias.)*
+
+  _(If a local `d` variable already aliases `messages.draft` in this component, USE that; otherwise reference `messages.draft.uploadImage` directly. Don't introduce a redundant alias.)_
 
   (f) In the toolbar's JSX (the row of chips, alongside other `<Chip>` entries — find where `mainSnippets.map((snippet) => <Chip ... />)` is rendered), add a new chip as the LAST item in the main row, just BEFORE the "More" overflow button (or wherever feels naturally adjacent to the other chips). Use this JSX:
+
   ```tsx
         <input
           ref={fileInputRef}
@@ -345,6 +372,7 @@ This task adds the actual state to `draft-editor.tsx` (the consumer arrives, so 
           {d.uploadImage}
         </button>
   ```
+
   Replace `d.uploadImage` with `messages.draft.uploadImage` if no `d` alias exists. The styling mirrors the existing Chip component for visual continuity.
 
 - [ ] **Step 3: Verify.**
@@ -375,12 +403,14 @@ This task adds the actual state to `draft-editor.tsx` (the consumer arrives, so 
 ## Task 3 — Preview pane substitutes blob URLs for staged images
 
 **Files:**
+
 - Modify: `src/app/[lang]/draft/preview-pane.tsx`
 - Modify: `src/app/[lang]/draft/draft-editor.tsx`
 
 - [ ] **Step 1: Update `preview-pane.tsx` to accept a stagedImages prop and override `img`.**
 
   (a) Add the import near the existing `@/lib/draft/*` imports (if there are none, place it sensibly with other library imports):
+
   ```tsx
   import {
     resolveStagedSrc,
@@ -389,6 +419,7 @@ This task adds the actual state to `draft-editor.tsx` (the consumer arrives, so 
   ```
 
   (b) Add the optional prop to `PreviewPaneProps`:
+
   ```tsx
   interface PreviewPaneProps {
     mdx: string;
@@ -397,60 +428,78 @@ This task adds the actual state to `draft-editor.tsx` (the consumer arrives, so 
   ```
 
   (c) Destructure it in the function signature:
+
   ```tsx
   export function PreviewPane({ mdx, stagedImages }: PreviewPaneProps) {
   ```
 
   (d) Replace the direct `getMDXComponents()` usage in the success-branch render with a memoized override. Find:
+
   ```tsx
-    return (
-      <div className="prose prose-invert max-w-none">
-        <MDXRemote {...state.serialized} components={getMDXComponents()} />
-      </div>
-    );
+  return (
+    <div className="prose prose-invert max-w-none">
+      <MDXRemote {...state.serialized} components={getMDXComponents()} />
+    </div>
+  );
   ```
+
   Above the `if (state.status === ...)` chain (or right inside the function body, before the early returns), add:
+
   ```tsx
-    const components = useMemo(() => {
-      const base = getMDXComponents();
-      if (!stagedImages || stagedImages.size === 0) return base;
-      const OriginalImg = base.img;
-      return {
-        ...base,
-        img: (props: { src?: unknown; alt?: string } & Record<string, unknown>) => {
-          const blobUrl =
-            typeof props.src === "string"
-              ? resolveStagedSrc(props.src, stagedImages)
-              : null;
-          if (blobUrl && OriginalImg) {
-            return <OriginalImg {...props} src={blobUrl} />;
-          }
-          if (blobUrl) {
-            return <img {...(props as Record<string, unknown>)} src={blobUrl} alt={props.alt ?? ""} />;
-          }
-          if (OriginalImg) return <OriginalImg {...props} />;
-          return <img {...(props as Record<string, unknown>)} alt={props.alt ?? ""} />;
-        },
-      };
-    }, [stagedImages]);
+  const components = useMemo(() => {
+    const base = getMDXComponents();
+    if (!stagedImages || stagedImages.size === 0) return base;
+    const OriginalImg = base.img;
+    return {
+      ...base,
+      img: (
+        props: { src?: unknown; alt?: string } & Record<string, unknown>,
+      ) => {
+        const blobUrl =
+          typeof props.src === "string"
+            ? resolveStagedSrc(props.src, stagedImages)
+            : null;
+        if (blobUrl && OriginalImg) {
+          return <OriginalImg {...props} src={blobUrl} />;
+        }
+        if (blobUrl) {
+          return (
+            <img
+              {...(props as Record<string, unknown>)}
+              src={blobUrl}
+              alt={props.alt ?? ""}
+            />
+          );
+        }
+        if (OriginalImg) return <OriginalImg {...props} />;
+        return (
+          <img {...(props as Record<string, unknown>)} alt={props.alt ?? ""} />
+        );
+      },
+    };
+  }, [stagedImages]);
   ```
+
   And change the success branch render to use the memoized `components`:
+
   ```tsx
-    return (
-      <div className="prose prose-invert max-w-none">
-        <MDXRemote {...state.serialized} components={components} />
-      </div>
-    );
+  return (
+    <div className="prose prose-invert max-w-none">
+      <MDXRemote {...state.serialized} components={components} />
+    </div>
+  );
   ```
+
   Also add `useMemo` to the existing `react` import line if it's not already there.
 
 - [ ] **Step 2: Pass the stagedImages prop from `draft-editor.tsx`.**
 
   Find the existing `<PreviewPane mdx={assembledMdx} />` usage and add the new prop:
+
   ```tsx
-        <div className="overflow-auto p-4">
-          <PreviewPane mdx={assembledMdx} stagedImages={stagedImages} />
-        </div>
+  <div className="overflow-auto p-4">
+    <PreviewPane mdx={assembledMdx} stagedImages={stagedImages} />
+  </div>
   ```
 
 - [ ] **Step 3: Verify.**
@@ -471,17 +520,20 @@ This task adds the actual state to `draft-editor.tsx` (the consumer arrives, so 
 ## Task 4 — Handoff lists staged filenames + interactive verify
 
 **Files:**
+
 - Modify: `src/app/[lang]/draft/handoff.tsx`
 - Modify: `src/app/[lang]/draft/draft-editor.tsx`
 
 - [ ] **Step 1: Update `handoff.tsx` to accept a stagedImages prop and list filenames.**
 
   (a) Add the import:
+
   ```tsx
   import { type StagedImages } from "@/lib/draft/staged-images";
   ```
 
   (b) Add the optional prop to `HandoffProps`:
+
   ```tsx
   interface HandoffProps {
     mode: "new" | "edit";
@@ -495,6 +547,7 @@ This task adds the actual state to `draft-editor.tsx` (the consumer arrives, so 
   ```
 
   (c) Destructure it in `Handoff`:
+
   ```tsx
   export function Handoff({
     mode,
@@ -508,11 +561,13 @@ This task adds the actual state to `draft-editor.tsx` (the consumer arrives, so 
   ```
 
   (d) Pass `stagedImages` to `<ImagesReminder>`:
+
   ```tsx
-          <ImagesReminder d={d} stagedImages={stagedImages} />
+  <ImagesReminder d={d} stagedImages={stagedImages} />
   ```
 
   (e) Update `ImagesReminder` to accept the prop and render a filenames list when non-empty. Replace the `ImagesReminder` function entirely:
+
   ```tsx
   function ImagesReminder({
     d,
@@ -535,7 +590,7 @@ This task adds the actual state to `draft-editor.tsx` (the consumer arrives, so 
             <p className="text-divine-text-muted mt-2 text-sm font-semibold">
               {d.imagesToUpload}
             </p>
-            <ul className="text-divine-text-muted mt-1 list-inside list-disc text-sm font-mono">
+            <ul className="text-divine-text-muted mt-1 list-inside list-disc font-mono text-sm">
               {filenames.map((name) => (
                 <li key={name}>{name}</li>
               ))}
@@ -558,27 +613,32 @@ This task adds the actual state to `draft-editor.tsx` (the consumer arrives, so 
 - [ ] **Step 2: Pass stagedImages from `draft-editor.tsx`.**
 
   Find the existing `<Handoff ... />` JSX and add the new prop:
+
   ```tsx
-        {showHandoff && (
-          <Handoff
-            mode={mode}
-            mdx={assembledMdx}
-            category={category}
-            slug={effectiveSlug}
-            editPath={editPath}
-            stagedImages={stagedImages}
-            onClose={() => {
-              clearDraft(storageKey);
-              setShowHandoff(false);
-            }}
-          />
-        )}
+  {
+    showHandoff && (
+      <Handoff
+        mode={mode}
+        mdx={assembledMdx}
+        category={category}
+        slug={effectiveSlug}
+        editPath={editPath}
+        stagedImages={stagedImages}
+        onClose={() => {
+          clearDraft(storageKey);
+          setShowHandoff(false);
+        }}
+      />
+    );
+  }
   ```
+
   (Add the `stagedImages={stagedImages}` line; keep everything else as-is.)
 
 - [ ] **Step 3: Final verification — full gates and interactive check.**
 
   Clean build + gates:
+
   ```bash
   pkill -f "next dev" 2>/dev/null; sleep 2
   rm -rf .next .source
@@ -587,9 +647,11 @@ This task adds the actual state to `draft-editor.tsx` (the consumer arrives, so 
   npm run lint
   npx prettier --check messages/en.json src/lib/draft/staged-images.ts "src/app/[lang]/draft/draft-editor.tsx" "src/app/[lang]/draft/toolbar.tsx" "src/app/[lang]/draft/preview-pane.tsx" "src/app/[lang]/draft/handoff.tsx"
   ```
+
   All must PASS. Build must complete with no export errors (pre-existing `LANGUAGE_NOT_SUPPORTED` warnings are non-fatal — acceptable).
 
   Interactive smoke (via Playwright MCP or manual):
+
   ```
   Start dev → visit /en/draft → click "Upload image" → pick a local PNG/JPG →
   the image appears in the preview pane and an <img> line appears in the editor →

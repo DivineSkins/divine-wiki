@@ -18,23 +18,23 @@
 
 **New files:**
 
-| File | Responsibility |
-|---|---|
+| File                                   | Responsibility                                                                                                                                               |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `src/components/contribute-picker.tsx` | Provider + `useContributePicker()` hook + `<ContributePickerModal />` + `<ContributeButton />` (nav trigger) + `<ContributeCtaButton />` (homepage trigger). |
 
 **Modified files:**
 
-| File | Change |
-|---|---|
-| `messages/en.json` | Add a new `picker` block (6 strings). |
-| `src/app/[lang]/layout.tsx` | Wrap children with `<ContributePickerProvider>` and mount `<ContributePickerModal />` once. |
-| `src/app/[lang]/(home)/page.tsx` | Replace the homepage "Write a guide" `<Link>` with `<ContributeCtaButton>` so it opens the modal. |
-| `src/lib/layout.shared.tsx` | Replace the Contribute nav `links[]` entry with a Fumadocs `type: "custom"` item rendering `<ContributeButton />`. If `type: "custom"` is rejected by Fumadocs v16.2.3 types — see Task 5's fallback branch. |
+| File                             | Change                                                                                                                                                                                                       |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `messages/en.json`               | Add a new `picker` block (6 strings).                                                                                                                                                                        |
+| `src/app/[lang]/layout.tsx`      | Wrap children with `<ContributePickerProvider>` and mount `<ContributePickerModal />` once.                                                                                                                  |
+| `src/app/[lang]/(home)/page.tsx` | Replace the homepage "Write a guide" `<Link>` with `<ContributeCtaButton>` so it opens the modal.                                                                                                            |
+| `src/lib/layout.shared.tsx`      | Replace the Contribute nav `links[]` entry with a Fumadocs `type: "custom"` item rendering `<ContributeButton />`. If `type: "custom"` is rejected by Fumadocs v16.2.3 types — see Task 5's fallback branch. |
 
 **Conditional file (only if Fumadocs fallback is needed):**
 
-| File | Responsibility |
-|---|---|
+| File                                 | Responsibility                                                                                                                                |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | `src/app/[lang]/contribute/page.tsx` | Tiny client route that auto-opens the picker modal on mount. Renders the picker's two cards as a static fallback below for JS-disabled users. |
 
 ---
@@ -42,6 +42,7 @@
 ## Task 1 — Add picker UI strings
 
 **Files:**
+
 - Modify: `messages/en.json`
 
 - [ ] **Step 1: Add the `picker` block.** In `messages/en.json`, after the existing top-level `"draft"` block (the last block before the closing `}`), insert this new top-level key (add a comma after `draft`'s closing brace, then this block):
@@ -60,10 +61,12 @@
 - [ ] **Step 2: Verify.** Run `npx prettier --check messages/en.json` — must PASS (run `--write` then re-check if needed). Run `npm run types:check` — must PASS (the derived `Messages` type picks up the new keys automatically).
 
 - [ ] **Step 3: Commit.**
+
 ```bash
 git add messages/en.json
 git commit -m "feat(picker): add contribute picker UI strings"
 ```
+
 NO co-author trailer, NO emoji.
 
 ---
@@ -71,6 +74,7 @@ NO co-author trailer, NO emoji.
 ## Task 2 — Create the picker component module
 
 **Files:**
+
 - Create: `src/components/contribute-picker.tsx`
 
 - [ ] **Step 1: Create the file** with EXACTLY this content:
@@ -101,7 +105,11 @@ interface PickerContextValue {
 
 const PickerContext = createContext<PickerContextValue | null>(null);
 
-export function ContributePickerProvider({ children }: { children: ReactNode }) {
+export function ContributePickerProvider({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const value = useMemo<PickerContextValue>(
     () => ({
@@ -256,6 +264,7 @@ Note: the `<ContributeCtaButton>` wraps a `<Link>` for visual consistency — `c
 - [ ] **Step 2: Verify.** Run `npm run types:check` — must PASS. Run `npm run lint` — must PASS. Run `npx prettier --check src/components/contribute-picker.tsx` — must PASS (write + recheck if needed).
 
 - [ ] **Step 3: Commit.**
+
 ```bash
 git add src/components/contribute-picker.tsx
 git commit -m "feat(picker): add contribute picker provider, modal, and triggers"
@@ -266,6 +275,7 @@ git commit -m "feat(picker): add contribute picker provider, modal, and triggers
 ## Task 3 — Mount the provider and modal in the [lang] layout
 
 **Files:**
+
 - Modify: `src/app/[lang]/layout.tsx`
 
 - [ ] **Step 1: Read the file.** Confirm it's a server component that renders `<html>`/`<body>` and `<RootProvider>`-like wiring (it does — it sets up fonts and `RootProvider`).
@@ -282,12 +292,15 @@ import {
 - [ ] **Step 3: Wrap the existing children render.** Find the part of the JSX where `{children}` is rendered (inside whatever Fumadocs `RootProvider` wraps). Change the surrounding so children are wrapped with `<ContributePickerProvider>` and `<ContributePickerModal />` is rendered once as a sibling.
 
 For example, if the current shape is:
+
 ```tsx
         <RootProvider i18n={...}>
           {children}
         </RootProvider>
 ```
+
 change it to:
+
 ```tsx
         <RootProvider i18n={...}>
           <ContributePickerProvider>
@@ -300,6 +313,7 @@ change it to:
 The exact ancestor element may differ — the goal is that ALL routes under `[lang]/*` (home, docs, draft) end up inside the provider, and the modal is mounted exactly once.
 
 - [ ] **Step 4: Verify.** Run `npm run types:check` and `npm run lint` — both must PASS. Then a brief dev smoke test:
+
 ```bash
 pkill -f "next dev" 2>/dev/null; sleep 2
 (npm run dev > /tmp/picker-dev.log 2>&1 &)
@@ -309,9 +323,11 @@ curl -s -o /dev/null -w "/en/draft -> %{http_code}\n" http://localhost:3000/en/d
 tail -6 /tmp/picker-dev.log
 pkill -f "next dev" 2>/dev/null
 ```
+
 Expected: both routes 200, no compile/runtime errors in the log.
 
 - [ ] **Step 5: Restore generated files + commit.**
+
 ```bash
 git checkout -- src/git-info.json 2>/dev/null
 git add "src/app/[lang]/layout.tsx"
@@ -323,28 +339,35 @@ git commit -m "feat(picker): mount picker provider and modal in [lang] layout"
 ## Task 4 — Wire the homepage CTA to open the modal
 
 **Files:**
+
 - Modify: `src/app/[lang]/(home)/page.tsx`
 
 - [ ] **Step 1: Read the file.** Find the existing "Write a guide" link. It currently looks like:
+
 ```tsx
-          <Link href={`/${lang}/docs/contributing`} className={textLinkClass}>
-            {t.ctaContribute}
-          </Link>
+<Link href={`/${lang}/docs/contributing`} className={textLinkClass}>
+  {t.ctaContribute}
+</Link>
 ```
+
 (There may be small variations — the className is the project's text-link class.)
 
 - [ ] **Step 2: Add the import.** Near the existing imports, add:
+
 ```tsx
 import { ContributeCtaButton } from "@/components/contribute-picker";
 ```
 
 - [ ] **Step 3: Replace the `<Link>` with `<ContributeCtaButton>`.** Change the block to:
+
 ```tsx
-          <ContributeCtaButton text={t.ctaContribute} className={textLinkClass} />
+<ContributeCtaButton text={t.ctaContribute} className={textLinkClass} />
 ```
+
 Pass the SAME `className` the original `<Link>` used (e.g. `textLinkClass`) so visual styling stays identical. If the `<Link>` import is no longer used anywhere else in the file after this change, remove it; otherwise leave it.
 
 - [ ] **Step 4: Verify.** Run `npm run types:check`, `npm run lint` — both must PASS. Then a dev smoke test:
+
 ```bash
 pkill -f "next dev" 2>/dev/null; sleep 2
 (npm run dev > /tmp/picker-dev.log 2>&1 &)
@@ -353,9 +376,11 @@ curl -s -o /dev/null -w "/en -> %{http_code}\n" http://localhost:3000/en
 tail -6 /tmp/picker-dev.log
 pkill -f "next dev" 2>/dev/null
 ```
+
 Expected: 200, no errors. (Interactive verification of the click → modal is done in Task 6.)
 
 - [ ] **Step 5: Restore + commit.**
+
 ```bash
 git checkout -- src/git-info.json 2>/dev/null
 git add "src/app/[lang]/(home)/page.tsx"
@@ -367,10 +392,12 @@ git commit -m "feat(picker): wire homepage CTA to open the picker modal"
 ## Task 5 — Wire the nav Contribute entry to open the modal
 
 **Files:**
+
 - Modify: `src/lib/layout.shared.tsx`
 - Conditionally create: `src/app/[lang]/contribute/page.tsx` (fallback only)
 
 - [ ] **Step 1: Inspect the current nav entry.** In `src/lib/layout.shared.tsx`, the Contribute entry currently is:
+
 ```tsx
       {
         icon: <PencilIcon />,
@@ -380,10 +407,13 @@ git commit -m "feat(picker): wire homepage CTA to open the picker modal"
 ```
 
 - [ ] **Step 2: Try the `type: "custom"` approach first.** Add this import near the existing imports:
+
 ```tsx
 import { ContributeButton } from "@/components/contribute-picker";
 ```
+
 Then replace the Contribute entry above with:
+
 ```tsx
       {
         type: "custom",
@@ -395,42 +425,44 @@ Then replace the Contribute entry above with:
 
 - [ ] **Step 4: Fallback path if types:check FAILS at Step 3.** Fumadocs doesn't accept the custom item — revert the nav entry to use a URL link instead, AND create a tiny route that opens the modal:
 
-    a. In `src/lib/layout.shared.tsx`, remove the import you added in Step 2, and change the Contribute entry to:
-    ```tsx
-          {
-            icon: <PencilIcon />,
-            text: messages.nav.contribute,
-            url: `/${locale}/contribute`,
-          },
-    ```
+  a. In `src/lib/layout.shared.tsx`, remove the import you added in Step 2, and change the Contribute entry to:
 
-    b. Create `src/app/[lang]/contribute/page.tsx` with EXACTLY this content:
-    ```tsx
-    "use client";
+  ```tsx
+        {
+          icon: <PencilIcon />,
+          text: messages.nav.contribute,
+          url: `/${locale}/contribute`,
+        },
+  ```
 
-    import { useEffect } from "react";
-    import { useRouter } from "next/navigation";
-    import {
-      useContributePicker,
-    } from "@/components/contribute-picker";
+  b. Create `src/app/[lang]/contribute/page.tsx` with EXACTLY this content:
 
-    export default function ContributeFallback() {
-      const router = useRouter();
-      const { open } = useContributePicker();
+  ```tsx
+  "use client";
 
-      useEffect(() => {
-        open();
-        router.back();
-      }, [open, router]);
+  import { useEffect } from "react";
+  import { useRouter } from "next/navigation";
+  import { useContributePicker } from "@/components/contribute-picker";
 
-      return null;
-    }
-    ```
-    This route, when navigated to via the nav link, opens the modal and then routes back to wherever the user came from — so the modal appears OVER the previous page, matching the spec's intent. If `router.back()` isn't safe (no previous history), this still leaves the page on `/contribute` with the modal open, which is acceptable.
+  export default function ContributeFallback() {
+    const router = useRouter();
+    const { open } = useContributePicker();
 
-    c. Re-run `npm run types:check` — must PASS now.
+    useEffect(() => {
+      open();
+      router.back();
+    }, [open, router]);
+
+    return null;
+  }
+  ```
+
+  This route, when navigated to via the nav link, opens the modal and then routes back to wherever the user came from — so the modal appears OVER the previous page, matching the spec's intent. If `router.back()` isn't safe (no previous history), this still leaves the page on `/contribute` with the modal open, which is acceptable.
+
+  c. Re-run `npm run types:check` — must PASS now.
 
 - [ ] **Step 5: Verify.** Run `npm run lint` — must PASS. Then a dev smoke test for both branches:
+
 ```bash
 pkill -f "next dev" 2>/dev/null; sleep 2
 (npm run dev > /tmp/picker-dev.log 2>&1 &)
@@ -440,9 +472,11 @@ curl -s -o /dev/null -w "/en/contribute -> %{http_code}\n" http://localhost:3000
 tail -6 /tmp/picker-dev.log
 pkill -f "next dev" 2>/dev/null
 ```
+
 Expected: 200 from `/en` (always). If you went the fallback route, `/en/contribute` also serves 200; if you used `type: "custom"`, `/en/contribute` returns 404 and that's fine.
 
 - [ ] **Step 6: Restore + commit.**
+
 ```bash
 git checkout -- src/git-info.json 2>/dev/null
 # If you used the custom item:
@@ -451,6 +485,7 @@ git add src/lib/layout.shared.tsx
 # git add "src/app/[lang]/contribute/page.tsx"
 git commit -m "feat(picker): wire nav Contribute button to open the picker modal"
 ```
+
 Report in the implementer note which path was taken (custom item vs fallback route).
 
 ---
@@ -460,28 +495,35 @@ Report in the implementer note which path was taken (custom item vs fallback rou
 **Files:** none (verification only).
 
 - [ ] **Step 1: Clean build.**
+
 ```bash
 pkill -f "next dev" 2>/dev/null
 rm -rf .next .source
 npm run build
 ```
+
 Expected: build COMPLETES SUCCESSFULLY. `/en/contribute` may or may not appear in the route list depending on Task 5's branch.
 
 - [ ] **Step 2: Lint + types + prettier-targeted.**
+
 ```bash
 npm run types:check
 npm run lint
 npx prettier --check messages/en.json src/components/contribute-picker.tsx "src/app/[lang]/layout.tsx" "src/app/[lang]/(home)/page.tsx" src/lib/layout.shared.tsx
 ```
+
 All three must PASS. If `prettier` fails on any of the files this plan touched, run `npx prettier --write` on those specific files and recheck. (Repo-wide pre-existing Prettier failures on unrelated files are out of scope.)
 
 - [ ] **Step 3: Interactive browser smoke test.** Start dev:
+
 ```bash
 pkill -f "next dev" 2>/dev/null; sleep 2
 (npm run dev > /tmp/picker-dev.log 2>&1 &)
 until curl -s -o /dev/null http://localhost:3000/en; do sleep 2; done
 ```
+
 Then manually verify (or via Playwright MCP):
+
 - Visit `http://localhost:3000/en`. Click the "Write a guide" CTA in the page body. The modal opens with two cards.
 - Press Escape — modal closes.
 - Open the modal again, click outside the inner panel (the dim backdrop). Modal closes.
@@ -493,15 +535,19 @@ Then manually verify (or via Playwright MCP):
 - Check browser console for errors — must be clean.
 
 - [ ] **Step 4: Clean up.**
+
 ```bash
 pkill -f "next dev" 2>/dev/null
 git checkout -- src/git-info.json 2>/dev/null
 ```
+
 Should be no uncommitted changes after this. If there are any formatting-only changes from Step 2, commit them:
+
 ```bash
 git add -A
 git commit -m "style(picker): prettier-format picker module"
 ```
+
 (Skip if nothing to add.)
 
 ---
