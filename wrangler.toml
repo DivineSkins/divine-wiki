@@ -8,17 +8,16 @@ compatibility_flags = ["nodejs_compat"]
 # frontend, /api/* routes, and i18n middleware all run here. Build output is
 # generated, so .open-next/ is gitignored.
 
+# Bind the production hostname straight to this Worker. Requires divineskins.gg
+# to be a zone on this Cloudflare account; the record + TLS cert are created on
+# first deploy. NOTE: this MUST stay above any [table] header below, or TOML
+# parses it as a key inside that table (wrangler then warns and ignores it).
+routes = [{ pattern = "wiki.divineskins.gg", custom_domain = true }]
+
 # Static assets (the built Next.js client bundle + public/) served from the edge.
 [assets]
 directory = ".open-next/assets"
 binding = "ASSETS"
-
-# Binds the production hostname straight to this Worker. Requires divineskins.gg
-# to be a zone on this Cloudflare account; the record + TLS cert are created on
-# first deploy.
-routes = [
-  { pattern = "wiki.divineskins.gg", custom_domain = true }
-]
 
 # Public, non-secret build-time config (mirrors .env.example). Real secrets, if
 # any are ever needed, go in the dashboard or `wrangler secret put`, never here.
