@@ -9,7 +9,7 @@ card for the full guide.
 
 **New here?** Grab [Flint](/docs/lol/tools/modding-apps/flint),
 [Jade](/docs/lol/tools/modding-apps/jade), and
-[LtMAO](/docs/lol/tools/modding-apps/ltmao) first. Those three cover most
+[Quartz](/docs/lol/tools/modding-apps/quartz) first. Those three cover most
 of the work. The rest you'll pick up as you need them.
 
 ---
@@ -23,44 +23,48 @@ The core toolkit: extracting, editing, packing, fixing, audio.
   href="/docs/lol/tools/modding-apps/flint"
   badge="Recommended"
 >
-  All-in-one modding app. Extract, preview, edit BIN files, and pack the
-  mod. The easiest start if you don't want to juggle separate tools.
+  All-in-one modding app. Extract, preview, edit BIN files, and pack the mod.
+  The easiest start if you don't want to juggle separate tools.
 </ToolCard>
 <ToolCard
   name="Jade"
   href="/docs/lol/tools/modding-apps/jade"
   badge="Recommended"
 >
-  Visual BIN editor with syntax coloring, hover previews, and live hash
-  lookups. Newer workflow than Ritobin.
+  Visual BIN editor with syntax coloring, hover previews, and live hash lookups.
+  Newer workflow than Ritobin.
 </ToolCard>
 <ToolCard name="Quartz" href="/docs/lol/tools/modding-apps/quartz">
-  VFX and material editor. Paint mode for particle recoloring, Port for
-  moving VFX between champions, RGBA helper, batch image recolor.
+  VFX and material editor. Paint mode for particle recoloring, Port for moving
+  VFX between champions, RGBA helper, batch image recolor.
 </ToolCard>
-<ToolCard name="LtMAO" href="/docs/lol/tools/modding-apps/ltmao">
-  Toolpack covering BIN, audio (`bnk_tool`, `wiwawe`), WAD packing, no-skin
-  builder, animation fixes, and a built-in mod manager (`cslmao`).
+<ToolCard name="LtMAO" href="/docs/lol/tools/modding-apps/ltmao" badge="Legacy">
+  Older all-in-one toolpack: BIN, audio (`bnk_tool`, `wiwawe`), WAD packing,
+  no-skin builder, animation fixes, mod manager (`cslmao`). Kept as a fallback.
 </ToolCard>
 <ToolCard
   name="Hexbelt"
   href="/docs/lol/tools/modding-apps/hexbelt"
   badge="Web"
 >
-  Browser-based WAD and BIN viewer. No install. Files stay on your machine.
-  Best for quick one-off lookups.
+  Browser-based WAD and BIN viewer. No install. Files stay on your machine. Best
+  for quick one-off lookups.
+</ToolCard>
+<ToolCard name="Obsidian" href="/docs/lol/tools/modding-apps/obsidian">
+  Standalone WAD explorer and extractor by Crauzer. A neutral, tool-agnostic
+  browser. The community standard when you want a dedicated extractor.
 </ToolCard>
 <ToolCard
   name="Ritobin"
   href="/docs/lol/tools/modding-apps/ritobin"
   badge="Older workflow"
 >
-  Drag-and-drop converter that turns `.bin` into editable text. Solid for
-  batch scripts. Jade covers most cases now.
+  Drag-and-drop converter that turns `.bin` into editable text. Solid for batch
+  scripts. Jade covers most cases now.
 </ToolCard>
 <ToolCard name="Hematite" href="/docs/lol/tools/modding-apps/hematite">
-  Auto-detects and fixes common skin issues. Invisible HP bars, white
-  models, missing icons, broken particles.
+  Auto-detects and fixes common skin issues. Invisible HP bars, white models,
+  missing icons, broken particles.
 </ToolCard>
 <ToolCard
   name="League Mod Repather"
@@ -73,8 +77,8 @@ The core toolkit: extracting, editing, packing, fixing, audio.
   href="/docs/lol/tools/modding-apps/wwise"
   badge="Advanced"
 >
-  Pro audio middleware. Only needed if you're rebuilding full `.bnk`
-  soundbanks. Free tier covers hobby projects.
+  Pro audio middleware. Only needed if you're rebuilding full `.bnk` soundbanks.
+  Free tier covers hobby projects.
 </ToolCard>
 <ToolCard
   name="Manifest Downloader GUI"
@@ -83,6 +87,28 @@ The core toolkit: extracting, editing, packing, fixing, audio.
   Downloads Riot manifest files. Useful for older patches, PBE, or missing
   assets.
 </ToolCard>
+
+<Callout type="info" title="How to extract assets">
+
+Several tools pull files out of League's WAD archives. Pick by job:
+
+- **[Flint](/docs/lol/tools/modding-apps/flint) or [Quartz](/docs/lol/tools/modding-apps/quartz)** know skin IDs and repath the files for you. This is the recommended Divine flow.
+- **[Obsidian](/docs/lol/tools/modding-apps/obsidian)** is a neutral standalone browser. Reach for it when you want a dedicated, tool-agnostic extractor.
+- **[Hexbelt](/docs/lol/tools/modding-apps/hexbelt)** runs in your browser. No install. Best for quick one-off lookups.
+- **`wadtools`** by LeagueToolkit is a command-line tool for batch extraction.
+
+</Callout>
+
+<Callout type="info" title="How hashes work">
+
+WAD and BIN files store names as hashes. Tools need a hash table to turn them back into readable paths.
+
+- **CommunityDragon** publishes the raw hash tables.
+- **[lmdb-hashes](https://github.com/RitoShark/lmdb-hashes)** repacks them into a fast LMDB database every 6 hours.
+- **Flint and Quartz** auto-fetch that database. No hashes folder to manage.
+- **Ritobin and standalone Jade** use the older CommunityDragon folder model instead.
+
+</Callout>
 
 ---
 
@@ -107,9 +133,8 @@ For champion models, rigging, and animations.
   href="/docs/lol/tools/3d-modeling/aventurine"
   badge="Divine team"
 >
-  Blender addon by Bud and Frog. Imports and exports League meshes,
-  skeletons, and animations. Adds hair / cloth physics and animation
-  retargeting.
+  Blender addon by Bud and Frog. Imports and exports League meshes, skeletons,
+  and animations. Adds hair / cloth physics and animation retargeting.
 </ToolCard>
 
 ---
@@ -130,15 +155,12 @@ previews.
   href="/docs/lol/tools/texturing/paint-net"
   badge="Free"
 >
-  Lightweight Windows image editor. The simplest option if Photoshop and
-  GIMP feel like overkill.
+  Lightweight Windows image editor. The simplest option if Photoshop and GIMP
+  feel like overkill.
 </ToolCard>
-<ToolCard
-  name="Photoshop TEX Plugin"
-  href="/docs/lol/tools/texturing/photoshop-tex-plugin"
->
-  Adds `.tex` open and save support to Photoshop. Required for League
-  texture work in Photoshop.
+<ToolCard name="RitoTex" href="/docs/lol/tools/texturing/photoshop-tex-plugin">
+  Adds `.tex` and `.dds` open and save support to Photoshop. Formerly the
+  Photoshop TEX Plugin. Required for League texture work in Photoshop.
 </ToolCard>
 <ToolCard
   name="GIMP Tex Plugin"
@@ -156,12 +178,12 @@ previews.
   name="Tex Thumbnail Provider"
   href="/docs/lol/tools/texturing/tex-thumbnail-provider"
 >
-  Shows `.tex` files as image thumbnails in Windows Explorer. By GuiSai.
+  Shows `.tex` files as image thumbnails in Windows Explorer. By RitoShark.
 </ToolCard>
 <ToolCard
   name="LTK Tex Thumb Handler"
   href="/docs/lol/tools/texturing/ltk-tex-thumb-handler"
 >
-  Same idea as the GuiSai handler, from the LeagueToolkit team. Pick one,
-  not both.
+  Same idea as the GuiSai handler, from the LeagueToolkit team. Pick one, not
+  both.
 </ToolCard>

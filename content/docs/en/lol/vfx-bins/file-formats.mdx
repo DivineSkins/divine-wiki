@@ -6,11 +6,11 @@ category: "vfx-bins"
 
 ## Quick Reference
 
-| File   | What It Is              | Convert With                       |
-| ------ | ----------------------- | ---------------------------------- |
-| `.bin` | Logic & config data     | [RitoBin](/docs/lol/tools/Ritobin) |
-| `.dds` | Standard texture format | Direct edit                        |
-| `.tex` | Riot's texture format   | [tex2dds](/docs/lol/tools/modding-apps/ltmao) |
+| File   | What It Is              | Edit / Convert With                                                                                                 |
+| ------ | ----------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `.bin` | Logic & config data     | [Jade](/docs/lol/tools/modding-apps/jade) or [Ritobin](/docs/lol/tools/modding-apps/ritobin)                        |
+| `.dds` | Standard texture format | Direct edit                                                                                                         |
+| `.tex` | Riot's texture format   | [TEX plugin](/docs/lol/tools/texturing/photoshop-tex-plugin), [Flint](/docs/lol/tools/modding-apps/flint), or LtMAO |
 
 ---
 
@@ -19,9 +19,9 @@ category: "vfx-bins"
 <Tabs items={[".bin Files", ".dds Files", ".tex Files"]}>
 <Tab value=".bin Files">
 
-## .bin Files – Data & Logic
+## .bin Files: Data & Logic
 
-`.bin` files store **all the logic** in League — particle systems, skin definitions, animations, sounds, and more.
+`.bin` files store **all the logic** in League: particle systems, skin definitions, animations, sounds, and more.
 
 | Contains          | Examples                   |
 | ----------------- | -------------------------- |
@@ -38,12 +38,12 @@ category: "vfx-bins"
 4. Convert back to `.bin`
 5. Add to your mod folder
 
-> 💡 `.py` files are human-readable — you can search, edit, and understand them easily.
+> 💡 `.py` files are human-readable. You can search and edit them.
 
 </Tab>
 <Tab value=".dds Files">
 
-## .dds Files – Textures
+## .dds Files: Textures
 
 `.dds` (DirectDraw Surface) is the **standard texture format** used for:
 
@@ -80,7 +80,7 @@ category: "vfx-bins"
 </Tab>
 <Tab value=".tex Files">
 
-## .tex Files – Riot's Format
+## .tex Files: Riot's Format
 
 `.tex` is Riot's **proprietary texture format** found in `.wad.client` files.
 
@@ -90,8 +90,38 @@ category: "vfx-bins"
 | ✅ Must convert first   | Use tex2dds            |
 | ✅ Convert back after   | Before reimporting     |
 
-<ToolCard name="tex2dds" href="/docs/lol/tools/modding-apps/ltmao">
-  Convert `.tex` ↔ `.dds` files.
+You have two ways to work with `.tex`:
+
+1. **Open it directly** with a TEX plugin for your image editor. No conversion step.
+2. **Convert** `.tex` to `.dds` and back with Flint or LtMAO.
+
+<ToolCard
+  name="RitoTex (Photoshop)"
+  href="/docs/lol/tools/texturing/photoshop-tex-plugin"
+>
+  Open and save `.tex` and `.dds` in Photoshop. No conversion step.
+</ToolCard>
+
+<ToolCard
+  name="Paint.NET Tex Plugin"
+  href="/docs/lol/tools/texturing/paint-net-tex-plugin"
+>
+  Open and save `.tex` in Paint.NET.
+</ToolCard>
+
+<ToolCard
+  name="GIMP Tex Plugin"
+  href="/docs/lol/tools/texturing/gimp-tex-plugin"
+>
+  Open and save `.tex` in GIMP.
+</ToolCard>
+
+<ToolCard name="Flint" href="/docs/lol/tools/modding-apps/flint">
+  Converts `.tex` ↔ `.dds`, plus full extract and pack.
+</ToolCard>
+
+<ToolCard name="tex2dds (LtMAO)" href="/docs/lol/tools/modding-apps/ltmao">
+  Right-click `.tex` ↔ `.dds` conversion. Legacy fallback.
 </ToolCard>
 
 > 💡 Always keep the original `.tex` as backup before converting.
@@ -103,20 +133,21 @@ category: "vfx-bins"
 
 ## Complete Workflow Chart
 
-| Task                 | File   | Tool              | Output          |
-| -------------------- | ------ | ----------------- | --------------- |
-| Edit VFX/particles   | `.bin` | Jade (or Ritobin) | `.bin`          |
-| Edit champion skin   | `.dds` | Photoshop/GIMP    | `.dds`          |
-| Extract game texture | `.tex` | LtMAO             | `.dds`          |
-| Reimport texture     | `.dds` | LtMAO             | `.tex`          |
-| Browse game files    | `.wad` | Flint or Hexbelt  | Extracted files |
+| Task                    | File   | Tool                               | Output          |
+| ----------------------- | ------ | ---------------------------------- | --------------- |
+| Edit VFX/particles      | `.bin` | Jade (or Ritobin)                  | `.bin`          |
+| Edit champion skin      | `.dds` | Photoshop/GIMP                     | `.dds`          |
+| Edit a texture directly | `.tex` | RitoTex, Paint.NET, or GIMP plugin | `.tex`          |
+| Convert a texture       | `.tex` | Flint or LtMAO                     | `.dds`          |
+| Reimport a texture      | `.dds` | Flint or LtMAO                     | `.tex`          |
+| Browse game files       | `.wad` | Flint or Hexbelt                   | Extracted files |
 
 ---
 
 ## Essential Tools
 
 <ToolCard name="Jade" href="/docs/lol/tools/modding-apps/jade">
-  Visual BIN editor — no conversion needed.
+  Visual BIN editor. No conversion needed.
 </ToolCard>
 
 <ToolCard name="Ritobin" href="/docs/lol/tools/modding-apps/ritobin">

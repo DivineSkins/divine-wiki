@@ -1,15 +1,15 @@
 ---
 title: "Tex Thumbnail Provider"
-description: "GuiSai's Windows shell extension that shows .tex files as image thumbnails in Explorer. No more guessing what is inside a texture."
+description: "RitoShark's Windows shell extension shows .tex files as image thumbnails in File Explorer. Per-user install, no admin. See what is inside a texture at a glance."
 category: "tools"
 ---
 
-Tex Thumbnail Provider by **GuiSai** lets you see `.tex` files as
+Tex Thumbnail Provider by **RitoShark** lets you see `.tex` files as
 thumbnails in Windows Explorer. No more guessing what is inside.
 
 [Download the latest release](https://github.com/RitoShark/TexThumbnailProvider/releases/latest)
 
-Latest version: **v1.0.0** (November 2025).
+Latest version: **v1.1.0**.
 
 ---
 
@@ -26,76 +26,73 @@ Latest version: **v1.0.0** (November 2025).
 ## Before you start
 
 - Windows 10 or 11.
-- Administrator access (the installer registers a system DLL).
-- A tool that can extract `.rar` files (7-Zip or WinRAR).
+- PowerShell. No administrator rights needed. The installer registers the DLL for your user only.
 
 ---
 
 ## Installation
 
-1. Download `TexThumbnailProvider.Installer.rar` from the [latest release](https://github.com/RitoShark/TexThumbnailProvider/releases/latest).
-2. Extract the archive to a folder you will keep (for example, `C:\TexThumbnailProvider\`).
-3. Right-click the installer and pick **Run as administrator**.
-4. Open any folder with `.tex` files. Thumbnails appear in place of generic icons.
+1. Close any Windows Explorer windows that show `.tex` files.
+2. Open PowerShell. A normal window is fine. You do not need to run it as administrator.
+3. Paste this command and press Enter:
+
+   ```powershell
+   iwr -useb https://raw.githubusercontent.com/RitoShark/TexThumbnailProvider/master/scripts/install-thumbnail-handler.ps1 | iex
+   ```
+
+4. Wait for the installer to finish. It downloads `TexThumbnailProvider.dll`, copies it to `%LOCALAPPDATA%\RitoShark\TexThumbnailProvider`, and registers it for your user.
+5. Open any folder with `.tex` files. Thumbnails appear in place of generic icons.
+
+{/* SCREENSHOT: PowerShell window showing the install script output with a success message */}
 
 <Callout type="info">
-The installer registers the DLL with Windows. You do not need to run
-`regsvr32` by hand unless something goes wrong.
+  The installer registers the DLL for the current user. That is why it does not
+  need admin rights. Keep the install folder. If you delete it, the previews
+  stop working.
 </Callout>
 
 ---
 
-## Important
+## If you also use RitoTex
 
-| Rule                                               | Why                       |
-| -------------------------------------------------- | ------------------------- |
-| Do **not** move the `.dll` after installation      | Breaks thumbnail previews |
-| Do **not** rename the `.dll`                       | Windows cannot find it    |
-| Keep the install folder. Do not delete it          | The DLL lives there       |
+The [RitoTex](/docs/lol/tools/texturing/photoshop-tex-plugin) Photoshop plugin
+also registers a `.tex` thumbnail handler. Two handlers for one file type would
+normally fight.
 
-If you need to move the DLL, uninstall first, then install again from the new location.
+This installer writes its handler under your user account, which wins over the
+machine-wide one. So your `.tex` thumbnails keep showing even with RitoTex
+installed. You do not have to choose between them.
 
 ---
 
 ## Troubleshooting
 
-<Tabs items={["Quick Fixes", "Manual Fix"]}>
-<Tab value="Quick Fixes">
+### Thumbnails don't show
 
-### Thumbnails not showing
-
-1. Check the DLL is still in the folder where you installed it.
-2. Make sure you ran the installer as **Administrator**.
-3. Restart Windows Explorer:
+1. Restart Windows Explorer:
    - Open Task Manager.
    - Find **Windows Explorer**.
    - Right-click. Pick **Restart**.
+2. Open the folder again.
 
-If thumbnails still do not show, try the manual fix.
+### Old thumbnails still look like generic icons
 
-</Tab>
-<Tab value="Manual Fix">
+Windows caches thumbnails. A `.tex` file repaints only after its modified time
+changes or after you clear the cache.
 
-### Re-register the DLL by hand
+1. Open **Disk Cleanup**.
+2. Tick **Thumbnails**.
+3. Click **OK**.
+4. Open the folder again.
 
-Open **Command Prompt as Administrator**. Run these two commands, one
-at a time. Replace the path if you installed somewhere else.
+### Still nothing after a restart
 
-```cmd
-regsvr32 "C:\TexThumbnailProvider\texthumbnailprovider_by_guisai_v2.dll" /u
-regsvr32 "C:\TexThumbnailProvider\texthumbnailprovider_by_guisai_v2.dll"
-```
-
-The first line unregisters the DLL. The second line registers it again.
-A Windows pop-up tells you when each one succeeds.
-
-</Tab>
-</Tabs>
+Run the install command again. It re-downloads and re-registers the DLL.
 
 ---
 
 ## Alternatives
 
-[LTK Tex Thumb Handler](/en/docs/lol/tools/texturing/ltk-tex-thumb-handler) by the
-LeagueToolkit team does the same job. Pick one tool, not both. Running
-two thumbnail handlers for the same file type can cause conflicts.
+[LTK Tex Thumb Handler](/docs/lol/tools/texturing/ltk-tex-thumb-handler) by the
+LeagueToolkit team does the same job. Pick one tool, not both. Running two
+thumbnail handlers for the same file type can cause conflicts.

@@ -1,72 +1,75 @@
 ---
-title: "Photoshop TEX Plugin"
-description: "Load and save League of Legends .tex texture files in Adobe Photoshop. Originally by GuiSai, finished by Frog."
+title: "RitoTex"
+description: "Open and save League of Legends .tex and .dds textures in Adobe Photoshop. RitoTex by RitoShark, formerly the Photoshop TEX Plugin. BC1 to BC7, cube maps, mips."
 category: "tools"
 ---
 
-A Photoshop plugin that opens and saves League's `.tex` texture files
-directly. Originally made by **GuiSai**, finished by **Frog**.
+RitoTex is a Photoshop plugin by **RitoShark** that opens and saves League's
+`.tex` and `.dds` textures directly. It was rebuilt from the old Photoshop TEX
+Plugin and renamed, so older guides may still call it by the old name.
 
-It is based on Intel's discontinued Texture Works Plugin, modified to support
-the TEX file format used by League of Legends.
+It is built on Intel's Texture Works Plugin with Microsoft's DirectXTex for
+compression. Version 2 added native `.dds` support, more formats, and a faster
+BC7 encoder.
 
-Repo: https://github.com/LeagueToolkit/Photoshop-Tex-Plugin
+Repo: [github.com/RitoShark/RitoTex-Photoshop](https://github.com/RitoShark/RitoTex-Photoshop)
+
+[Download the latest release](https://github.com/RitoShark/RitoTex-Photoshop/releases)
+
+Latest version: **v2.0.2**.
 
 ## What you need before you start
 
 - Adobe Photoshop CS6 or later (64-bit). 32-bit Photoshop will not work.
-- Windows 10 or later.
+- Windows.
 
 ## Install
 
 1. Close Photoshop. If Photoshop is open, the plugin will not load.
-2. Download the latest release from the [GitHub Releases page](https://github.com/LeagueToolkit/Photoshop-Tex-Plugin/releases).
-3. Open the `Plugins\x64` folder from the download.
-4. Copy `TexPlugin.8bi` into your Photoshop plugins folder. The default path is:
+2. Download `RitoTex.8bi` from the [Releases page](https://github.com/RitoShark/RitoTex-Photoshop/releases). It is one self-contained file. No extra DLLs to copy.
+3. Copy `RitoTex.8bi` into your Photoshop File Formats folder. The default path is:
 
    ```text
-   C:\Program Files\Adobe\Adobe Photoshop [VERSION]\Plug-ins
+   C:\Program Files\Adobe\Adobe Photoshop [version]\Required\Plug-ins\File Formats
    ```
 
-   Example: `C:\Program Files\Adobe\Adobe Photoshop 2024\Plug-ins`.
+   Example: `C:\Program Files\Adobe\Adobe Photoshop 2026\Required\Plug-ins\File Formats`.
 
-5. Start Photoshop.
+4. Start Photoshop.
 
 To check it worked: open `File > Open` and pick a `.tex` file. If the image
 loads, the plugin is installed.
 
-## Open `.tex` files
+## Open `.tex` and `.dds` files
 
-You have two ways to open a TEX file:
+You have two ways to open a file:
 
-- `File > Open` and pick the `.tex` file.
-- Drag the `.tex` file into Photoshop.
+- Click `File > Open` and pick the `.tex` or `.dds` file.
+- Drag the file into Photoshop.
 
-The plugin auto-detects the compression (DXT1, DXT5, or BGRA8) and the mipmaps.
+The plugin reads the compression and the mipmaps for you.
 
-## Save `.tex` files (quick save)
+## Save a file (quick save)
 
 Use this when you want the plugin to reuse the file's detected settings.
 
 1. Click `File > Save As`.
-2. Pick **League of Legends TEX** from the file type dropdown.
-3. Click **Save**. The file saves right away with the detected or last-used
-   settings.
+2. Pick **League of Legends TEX** (or the DDS option) from the file type dropdown.
+3. Click **Save**. The file saves right away with the detected or last-used settings.
 
-## Save `.tex` files with options
+## Save a file with options
 
-Use this when you need to pick the compression yourself or change quality
-settings.
+Use this when you want to pick the compression or change quality settings.
 
 1. Click `File > Save As`.
-2. Pick **League of Legends TEX - Options** from the file type dropdown.
+2. Pick the **Options** version of the TEX or DDS file type.
 3. A settings dialog opens. Set the options you want:
-   - **Compression format**: `DXT5 (BC3)`, `DXT1 (BC1)`, or `BGRA8`
-     (uncompressed). Use DXT5 for textures with alpha.
-   - **Error diffusion dithering**: turn on Floyd-Steinberg dithering for
-     smoother gradients.
+   - **Compression format**: BC1, BC3, BC5, BC7, or BGRA8 (uncompressed). Use BC3 for textures with alpha. Use BC5 for normal maps. BC7 is highest quality and is the default.
+   - **Error diffusion dithering**: turn on Floyd-Steinberg dithering for smoother gradients (BC1 and BC3).
    - **Error metric**: `Perceptual` (recommended) or `Uniform`.
-   - **Mipmaps**: auto-generate mipmaps for the texture.
+   - **Mipmaps**: auto-generate the chain, or build it from your Photoshop layers.
+   - **Cube maps**: save a cross or layer layout for `.dds`.
+   - **Normal maps**: flip the X or Y channel and renormalize.
 4. Click **OK**. The file saves with your settings.
 
 Settings persist between saves (stored in the Windows Registry), so you only
@@ -74,13 +77,17 @@ need to set them once.
 
 ## Features at a glance
 
-- Loads DXT1, DXT5, and BGRA8 textures.
-- Auto-detects compression and mipmaps on save.
-- Optional dialog to pick compression, dithering, and mipmap settings by hand.
-- Preview window to compare the original and the compressed texture.
-- Fast DXT compression using Intel ISPC.
-- Floyd-Steinberg error diffusion dithering.
-- Full alpha channel support.
+- Opens and saves both `.tex` and `.dds`, so you may not need a separate DDS plugin.
+- Compression formats BC1, BC3, BC5, BC7, and BGRA8 (uncompressed).
+- GPU-accelerated BC7 through DirectCompute, with a WARP and CPU fallback. This makes BC7 saves fast.
+- Fast multi-threaded compression with the Intel ISPC encoder.
+- Auto-detects compression and mipmaps on open.
+- Builds mipmaps for you, or from your Photoshop layers.
+- Cube map support (cross and layer layouts).
+- Normal-map channel flip and renormalize.
+- Optional Floyd-Steinberg dithering with a Perceptual or Uniform error metric.
+- Preview window to compare the original and the compressed texture before you save.
+- Quiet built-in update checker that looks at GitHub Releases about once a day.
 
 ## Troubleshooting
 
@@ -89,23 +96,22 @@ need to set them once.
 Check each of these:
 
 - Photoshop was fully closed before you copied the file.
-- The file is in the correct `Plug-ins` folder.
+- The file is in the `Required\Plug-ins\File Formats` folder, not the plain `Plug-ins` folder.
 - You are running 64-bit Photoshop.
-- The file is named `TexPlugin.8bi` (with the `.8bi` extension).
+- The file is named `RitoTex.8bi` (with the `.8bi` extension).
 
 ### "Image dimensions must be divisible by 4" when saving
 
-TEX files need image dimensions divisible by 4 for every compression format.
-Resize your image to a valid size, like `1024x1024`, `2048x2048`, or `512x256`.
+Block-compressed `.tex` files need image dimensions divisible by 4. Resize your
+image to a valid size, like `1024x1024`, `2048x2048`, or `512x256`.
 
 ### The texture looks wrong in game
 
 - Turn on error diffusion dithering for cleaner gradients.
-- Check you picked the right compression. Use DXT5 for textures with alpha.
+- Check you picked the right compression. Use BC3 for textures with alpha and BC5 for normal maps.
 
 ## Credits
 
-- **Original Photoshop TEX work**: GuiSai.
-- **Current version**: Frog (FrogCsLoL).
-- **Base plugin**: [Intel Texture Works Plugin](https://github.com/GameTechDev/Intel-Texture-Works-Plugin).
-- **Compression and dithering**: [Microsoft DirectXTex](https://github.com/microsoft/DirectXTex) (MIT License).
+- **RitoTex**: [RitoShark](https://github.com/RitoShark).
+- **Base plugin**: [Intel Texture Works Plugin](https://github.com/GameTechDev/Intel-Texture-Works-Plugin) (Apache 2.0).
+- **Compression**: [Microsoft DirectXTex](https://github.com/microsoft/DirectXTex) (MIT License) and the Intel ISPC Texture Compressor.

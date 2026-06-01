@@ -4,15 +4,50 @@ description: "The end-to-end video walkthrough for making a custom League skin. 
 category: "guided-walkthrough"
 ---
 
-> Creating custom League skins is a journey. This walks you from beginner to advanced modding.
+> This guide takes you from your first tool install to a finished, published skin. Follow the parts in order.
 
-## Getting Started
+<Callout type="warning" title="Safety first">
+  Custom skins are safe outside Korea and China. No bans since 2014 when you use
+  trusted tools. They are client-side only: only you see them, and they give no
+  gameplay advantage. Never use custom skins in Korea or China. The anti-cheat
+  there blocks all mods.
+</Callout>
 
-### Required Tools & Downloads
+<Callout type="info" title="Videos may be out of date">
+  Some videos below use older tools. New tools have shipped since, and each one
+  has its own guide in the [Tools](/docs/lol/tools) section. The videos are
+  still a great way to learn the whole flow start to finish. For day-to-day
+  work, reach for the newer tools long term.
+</Callout>
 
-- Assets Library
-- Tools
-- **LtMAO**
+## How the pipeline works
+
+Modern skin making follows one path. [Flint](/docs/lol/tools/modding-apps/flint)
+covers most of it in one window.
+
+1. **Extract** the skin's files from the game.
+2. **Preview** the model, textures, and VFX.
+3. **Edit** what you want to change: model, textures, particles, or sound.
+4. **Validate** the mod and fix common bugs with [Hematite](/docs/lol/tools/modding-apps/hematite).
+5. **Pack** the mod into a `.fantome` or `.modpkg` file. These are the mod package formats a skin manager installs.
+6. **Install** it with a skin manager to test in-game.
+
+Each part below maps onto one of these steps.
+
+## Getting started
+
+### Tools you need
+
+Start with these three. They cover most of the work:
+
+- **[Flint](/docs/lol/tools/modding-apps/flint)**: extract, preview, edit, validate, and pack. The all-in-one app.
+- **[Jade](/docs/lol/tools/modding-apps/jade)**: a focused BIN editor for when you want one.
+- **[Quartz](/docs/lol/tools/modding-apps/quartz)**: VFX recoloring, porting, and light audio work.
+
+You will also want:
+
+- The [Tools](/docs/lol/tools) overview for everything else.
+- **[LtMAO](/docs/lol/tools/modding-apps/ltmao)** is optional. It is an older toolpack, kept as a fallback for batch jobs and full soundbank work.
 
 ---
 
@@ -22,7 +57,7 @@ category: "guided-walkthrough"
 
 ### Part 1: Flint
 
-Learn how to explore League's internal game files using **Flint**, understand the basics of modding, and prepare your project folders.
+Explore League's game files with **Flint**. Learn the modding basics and set up your project folders.
 
 Includes:
 
@@ -34,18 +69,24 @@ https://www.youtube.com/watch?v=lUq29txlCCE
 
 ---
 
-### Part 2 — Hacksaw
+### Part 2: Hacksaw
 
-Recolor existing visual effects using a visual palette system.  
-No coding required.
+Recolor existing visual effects using a visual palette system. No coding required.
+
+<Callout type="info" title="Newer option: Quartz Paint">
+  [Quartz](/docs/lol/tools/modding-apps/quartz) has a Paint page that recolors
+  particles in-app, with no `ritobin_cli` setup. The [Hacksaw
+  guide](/docs/lol/vfx-bins/hacksaw) still works, and the video below walks
+  through it.
+</Callout>
 
 https://www.youtube.com/watch?v=ZswaStGq7VU&t=1s
 
 ---
 
-### Part 3 — Replacing a Model (Maya or Blender)
+### Part 3: Replacing a Model (Maya or Blender)
 
-Learn how to fully replace a champion model using **Autodesk Maya** and the **LoL Maya Plugin**. **Blender** model swap tutorial can be found here: https://wiki.divineskins.gg/docs/blender/3d-model-swap
+Replace a champion model with **Autodesk Maya** and the **LoL Maya Plugin**. For Blender, see the [Blender model swap guide](/docs/lol/blender/3d-model-swap).
 
 #### Important Notes
 
@@ -60,7 +101,7 @@ See the [Maya Error List](/docs/lol/errors/maya-errors).
 
 ---
 
-### Part 4 — Maya Materials, Submeshes, and Bin
+### Part 4: Maya Materials, Submeshes, and Bin
 
 Understand how materials work in Maya and how to reference them inside `.bin` files using `MaterialOverride`.
 
@@ -68,21 +109,26 @@ https://www.youtube.com/watch?v=dS-lvovFmVw&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgv
 
 ---
 
-### Part 5 — Matrix and Idle Particles
+### Part 5: Matrix and Idle Particles
 
-Scale, rotate, and move visual effects using transformation matrices.  
-Add idle auras or passive visual effects.
+Scale, rotate, and move visual effects using transformation matrices. Add idle auras or passive visual effects.
 
 Includes:
 
 - How to place a VFX system (important)
 - Code used in this tutorial
 
+<Callout type="info" title="You can edit these BINs in Jade or Quartz">
+  The video edits the `.bin` by hand. You can do the same edits visually in
+  [Jade](/docs/lol/tools/modding-apps/jade), or scale particles in batch on
+  Quartz's Bineditor page.
+</Callout>
+
 https://www.youtube.com/watch?v=bUJSVlVHEZM&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=5&ab_channel=Frog
 
 ---
 
-### Part 6 — Particle Systems and Triggered VFX
+### Part 6: Particle Systems and Triggered VFX
 
 Trigger visual effects using:
 
@@ -90,25 +136,25 @@ Trigger visual effects using:
 - Game logic (`PersistentEffectConditions`)
 
 https://www.youtube.com/watch?v=T7ALG5M4twQ&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=6&ab_channel=Frog
-Code used in this tutorial
 
 ---
 
-### Part 7 — Voiceover and Sound Effects (Outdated)
+### Part 7: Voiceover and Sound Effects
 
-Replace voiceovers and sound effects such as spell sounds or taunts.
+Replace voiceovers and sound effects, such as spell sounds or taunts.
 
-> **Note:** This tutorial is outdated.  
-> You can now use **LtMAO from GitHub** to convert `.wem` files to `.wav` and back.
+<Callout type="info" title="Tools have changed since this video">
+  [Quartz](/docs/lol/tools/modding-apps/quartz) now handles `.bnk` and `.wpk`
+  audio for light work, like swapping a sound. Use Wwise or
+  [LtMAO](/docs/lol/tools/modding-apps/ltmao) only when you need to rebuild a
+  full soundbank. The video below is older, but the idea is the same.
+</Callout>
 
 https://youtu.be/QlJRc4hQNA0?si=w0E0iB6Grcl2n8Ga
-Download LtMAO
-
-https://github.com/tarngaina/LtMAO
 
 ---
 
-### Part 8 — Retargeting Animations
+### Part 8: Retargeting Animations
 
 Transfer animations from other games or champions (for example, Fortnite) to League rigs.
 
@@ -122,18 +168,26 @@ https://www.youtube.com/watch?v=jnAXvFzYlb4&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgv
 
 ---
 
-### Part 9 — League Materials (Glow and Toon Shader)
+### Part 9: League Materials (Glow and Toon Shader)
 
 Apply League-style materials such as **Glow** and **Toon Shader** to your custom skins.
 
 https://www.youtube.com/watch?v=mJDehGDIL00&ab_channel=Frog
-Material Collection
 
 ---
 
-### Part 10 — Repathing and Publishing
+### Part 10: Repathing and Publishing
 
-Repath your mod files correctly and publish your skin on the website.
+Repath your mod so it lines up with the current game files, then publish it.
+
+**Pack and export.** In Flint, export your mod as a `.fantome` or `.modpkg` file.
+
+**Repath options.** If a path is wrong, or a patch broke the mod, repath it with
+[League Mod Repather](/docs/lol/tools/modding-apps/league-mod-repather) or
+Quartz's Bumpath page.
+
+**Install and test.** Load the mod in a skin manager like LTK Manager or
+Celestial, then test it in a custom game.
 
 https://youtu.be/WxdHs9oauP4
 
@@ -143,14 +197,15 @@ https://youtu.be/WxdHs9oauP4
 
 ### Adding Bones and Physics (Hair, Tails, Capes)
 
-Learn how to add bones and physics-based motion to League skins.
+Add bones and physics-based motion to your skin.
 
 #### Tools Required
 
-| Tool          | Description                                                 |
-| ------------- | ----------------------------------------------------------- |
-| Autodesk Maya | Industry-standard 3D software for rigging and UV mapping    |
-| RitoBin       | Converts `.bin` files to `.py` and back using `ritobin_cli` |
+| Tool          | Description                                                           |
+| ------------- | --------------------------------------------------------------------- |
+| Autodesk Maya | Industry-standard 3D software for rigging and UV mapping              |
+| Jade          | Edits the physics `.bin` directly. No converting back and forth.      |
+| RitoBin       | Optional fallback. Converts `.bin` to `.py` and back (`ritobin_cli`). |
 
 https://www.youtube.com/watch?v=ejg5IAkEDTY&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=9&ab_channel=Frog
 
