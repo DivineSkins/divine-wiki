@@ -7,7 +7,7 @@ Read this folder before writing or editing anything non-trivial. `CLAUDE.md` at 
 ### Product + voice
 
 - [`product.md`](./product.md) — what Divine Skins is, what custom skins are, who reads the wiki.
-- [`voice.md`](./voice.md) — voice, tone, banned terms. **Non-negotiable.** Enforced in CI.
+- [`voice.md`](./voice.md) — voice, tone, banned terms. **Non-negotiable.** Enforced by reviewers (not CI).
 
 ### Wiki strategy
 
