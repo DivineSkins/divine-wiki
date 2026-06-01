@@ -14,10 +14,10 @@ A Paint.NET plugin by **RitoShark** that opens and saves League of Legends `.tex
 
 ## What it does
 
-- Opens `.tex` files in Paint.NET (DXT1, DXT5, and BGRA8).
+- Opens `.tex` files in Paint.NET (DXT1, DXT5, BC5, BC7, and BGRA8).
 - Saves `.tex` files. Auto-detects compression and mipmaps when you save.
-- Adds a second save option with a menu for picking compression, dithering, and mipmap settings.
-- Uses native C# for fast DXT compression and decompression.
+- Adds a second save option with a menu for picking compression, dithering, error metric, and mipmap settings.
+- Compresses BC7 fast with a native helper DLL. Falls back to slow software BC7 without it.
 - Keeps the full alpha channel.
 - Uses Floyd-Steinberg error diffusion dithering for clean results.
 
@@ -29,22 +29,31 @@ You need:
 
 - **Paint.NET 5.1 or later** (uses .NET 9). The latest 5.1.x build is recommended.
 - **Windows 10 or later**.
-- The `TexFileType.dll` file from the [latest release](https://github.com/RitoShark/Paint.NET-Tex-Plugin/releases).
+- The latest release from the [releases page](https://github.com/RitoShark/Paint.NET-Tex-Plugin/releases): either the `TexFileTypeSetup.exe` installer, or the `TexFileType.dll` and `Bc7Native.dll` files for a manual install.
 
 ---
 
-## Install
+## Install with the installer
 
 1. Close Paint.NET if it is open.
-2. Open the Paint.NET `FileTypes` folder. For most installs that is `C:\Program Files\Paint.NET\FileTypes`.
-3. Copy `TexFileType.dll` from the release into the `FileTypes` folder.
+2. Download `TexFileTypeSetup.exe` from the [latest release](https://github.com/RitoShark/Paint.NET-Tex-Plugin/releases).
+3. Run it. The installer finds your Paint.NET `FileTypes` folder and copies both DLLs for you.
 4. Open Paint.NET. The plugin loads on startup.
 
-{/* SCREENSHOT: The FileTypes folder with TexFileType.dll dropped inside */}
+## Install manually
 
-<Callout type="info">
-  **Portable Paint.NET.** If you use the portable version, paste the DLL into
-  `[Paint.NET folder]\FileTypes` instead. Same file, different parent folder.
+Use this if you prefer not to run the installer, or you use portable Paint.NET.
+
+1. Close Paint.NET if it is open.
+2. Open the Paint.NET `FileTypes` folder. For most installs that is `C:\Program Files\Paint.NET\FileTypes`. For portable Paint.NET, use `[Paint.NET folder]\FileTypes`.
+3. Copy both `TexFileType.dll` and `Bc7Native.dll` from the release into the `FileTypes` folder. Keep them together.
+4. Open Paint.NET. The plugin loads on startup.
+
+{/* SCREENSHOT: The FileTypes folder with TexFileType.dll and Bc7Native.dll dropped inside */}
+
+<Callout type="warning">
+  `Bc7Native.dll` is what makes BC7 saving fast. Without it, BC7 still works but
+  saves very slowly. Always copy both DLLs.
 </Callout>
 
 ---
@@ -78,7 +87,11 @@ The plugin keeps the compression and mipmap setup it detected when you opened th
 
 1. Click **File → Save As**.
 2. In the file type dropdown, pick **League of Legends TEX (with options)**.
-3. Pick your compression, dithering, and mipmap settings in the menu.
+3. Pick your settings in the menu:
+   - **Compression**: DXT1, DXT5, BC5, BC7, or BGRA8 (uncompressed). Use DXT5 or BC7 for textures with alpha. Use BC5 for normal maps.
+   - **Dithering**: Floyd-Steinberg, for smoother gradients.
+   - **Error metric**: Perceptual (recommended) or Uniform. This applies to DXT1 and DXT5 only.
+   - **Mipmaps**: generate a full mipmap chain.
 4. Click **Save**.
 
 {/* SCREENSHOT: Save As dialog with the "League of Legends TEX (with options)" menu open */}
@@ -100,13 +113,18 @@ Update Paint.NET to the latest 5.1.x build. The plugin needs 5.1 or later.
 
 ### Plugin doesn't appear in Paint.NET
 
-Close Paint.NET completely, then check three things:
+Close Paint.NET completely, then check these things:
 
 - The folder `C:\Program Files\Paint.NET\FileTypes` exists.
-- `TexFileType.dll` is inside that folder.
+- Both `TexFileType.dll` and `Bc7Native.dll` are inside that folder.
 - You are not running an older Paint.NET (below 5.1).
 
 Open Paint.NET again. The plugin should now show up in the file type list.
+
+### BC7 saves are very slow
+
+`Bc7Native.dll` is missing from your `FileTypes` folder. Copy it in next to
+`TexFileType.dll`, then restart Paint.NET. The installer adds it for you.
 
 ### "There was an error while saving the file."
 

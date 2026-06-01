@@ -1,0 +1,148 @@
+---
+title: "Obsidian"
+description: "Obsidian is Crauzer's standalone WAD explorer and extractor for League of Legends. Browse game archives, pull out the files you need, then open them in your tools."
+category: "tools"
+---
+
+Obsidian is a standalone WAD explorer and extractor by **Crauzer**. It opens
+League's WAD archives, lets you browse the files inside, and exports the ones
+you want. It is one of the most widely used extractors in the community.
+
+[Open the Obsidian repo](https://github.com/Crauzer/Obsidian)
+
+<Callout type="info" title="What is a WAD file?">
+  A `.wad.client` file is an archive. Riot ships almost every game asset inside
+  these archives: champion models, textures, VFX, animations, and sound.
+</Callout>
+
+Reach for Obsidian when you want a dedicated, tool-agnostic extractor.
+[Flint](/docs/lol/tools/modding-apps/flint) and
+[Quartz](/docs/lol/tools/modding-apps/quartz) also extract, and they know skin
+IDs and repath the files for you. Obsidian stays neutral. It browses and
+pulls out raw files.
+
+<Callout type="warning" title="Use the stable build on Windows">
+  Obsidian is built for Windows. The latest stable release is **5.1.8**. Version
+  **6.0 is still beta**, so expect rough edges. Pick 5.1.8 unless you know you
+  want to test the beta.
+</Callout>
+
+---
+
+## What it does
+
+- Opens a `.wad` or `.wad.client` file and shows the folder tree inside.
+- Previews and searches files.
+- Exports a single file or a whole folder.
+- Turns hashed names back into readable paths once you add hashtables (see below).
+
+---
+
+## Before you start
+
+You need:
+
+- A Windows PC.
+- The latest stable Obsidian (5.1.8) from the [releases page](https://github.com/Crauzer/Obsidian/releases).
+- A `.wad.client` file. If you don't have one yet, [Flint](/docs/lol/tools/modding-apps/flint) can copy the originals out of your League install.
+
+---
+
+## Install
+
+1. Download the latest stable release (5.1.8) from GitHub.
+2. Run the installer.
+3. Open Obsidian.
+
+---
+
+## Set up hashtables first
+
+WAD files store names as hashes, not words. A hashtable is a lookup file that
+turns those hashes back into readable names. Without it, paths look like random
+numbers and exports come out unnamed.
+
+Add the hashtables once. Then Obsidian shows real paths.
+
+1. Download these files from the [CommunityDragon Data repo](https://github.com/CommunityDragon/Data):
+   - `hashes.game.txt` (plus any split parts like `hashes.game.txt.0`)
+   - `hashes.lcu.txt` (plus any split parts)
+2. In Obsidian, click **Open App Directory** in the bottom toolbar.
+3. Find the `wad_hashtables` folder.
+4. Paste the hashtable files into it.
+5. Click **Reload Hashtables**, next to the app directory button.
+
+Open a WAD now. You should see readable file paths instead of numbers.
+
+---
+
+## Extract files
+
+1. Open a `.wad.client` file in Obsidian.
+2. Browse the folder tree to the file or folder you want.
+3. Right-click it.
+4. Pick extract. Choose where to save.
+
+---
+
+## Open what you extracted
+
+Extracted textures are usually `.tex` or `.dds`. To edit them, open them with a
+TEX plugin, or convert them first:
+
+- [RitoTex](/docs/lol/tools/texturing/photoshop-tex-plugin) opens `.tex` and `.dds` in Photoshop.
+- [Paint.NET Tex Plugin](/docs/lol/tools/texturing/paint-net-tex-plugin) and [GIMP Tex Plugin](/docs/lol/tools/texturing/gimp-tex-plugin) open `.tex` in those editors.
+- [Flint](/docs/lol/tools/modding-apps/flint) converts `.tex` to `.dds` and back.
+
+---
+
+## How to check it worked
+
+- **WAD opened:** the folder tree fills with named folders, not hashes.
+- **Hashtables loaded:** file paths read as words, like `assets/characters/...`.
+- **File extracted:** the file lands in the folder you picked.
+
+---
+
+## When to use Obsidian vs other tools
+
+| You want to...                               | Use this                                                                                     |
+| -------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| A dedicated, neutral extractor on Windows    | **Obsidian**                                                                                 |
+| Extract by champion and skin ID, auto-repath | [Flint](/docs/lol/tools/modding-apps/flint) or [Quartz](/docs/lol/tools/modding-apps/quartz) |
+| A quick one-off lookup with no install       | [Hexbelt](/docs/lol/tools/modding-apps/hexbelt)                                              |
+
+---
+
+## Troubleshooting
+
+### Paths show as numbers
+
+The hashtables are not loaded. Redo the hashtable steps above, then click
+**Reload Hashtables**.
+
+### Exports come out with unnamed files
+
+Same cause. Load the hashtables, then extract again.
+
+### Old content still shows hashes
+
+Your hashtables are out of date. Download fresh `hashes.game.txt` and
+`hashes.lcu.txt` from the [CommunityDragon Data repo](https://github.com/CommunityDragon/Data) and reload them.
+
+---
+
+<Callout type="info" title="Safety">
+  Extracting assets happens offline on your PC. It does not touch the game or
+  Riot's servers. The usual rule still applies to any mod you build and test:
+  never use custom skins in Korea or China. The anti-cheat there blocks all
+  mods.
+</Callout>
+
+---
+
+## Links
+
+- **Repo:** [github.com/Crauzer/Obsidian](https://github.com/Crauzer/Obsidian)
+- **Hashtables:** [github.com/CommunityDragon/Data](https://github.com/CommunityDragon/Data)
+- **Author:** Crauzer

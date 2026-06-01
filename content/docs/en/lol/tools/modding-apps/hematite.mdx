@@ -28,6 +28,8 @@ Things it catches:
 - **White or chrome-looking model** (broken material textures).
 - **Missing or black icons** in the loadout / shop UI.
 - **Broken particle textures** in VFX.
+- **Particles that show up as squares** from bad mipmaps (the 2026 texture regression). Hematite strips the mipmaps to fix it.
+- **TEX textures with sizes not divisible by 4.** Hematite rounds them to a valid size.
 - **Outdated champion data** left over from old patches.
 - **Crackling or silent audio** from old Wwise BNK files.
 - **Animations that lock the rig** in T-pose or break it.
@@ -110,13 +112,15 @@ To process every mod in a folder at once:
 
 ### Useful flags
 
-| Flag           | What it does                                                |
-| -------------- | ----------------------------------------------------------- |
-| `--check`      | Detect only. Print issues. Don't change the file.           |
-| `--dry-run`    | Show what would be fixed. Don't write the output.           |
-| `--json`       | Print machine-readable output. Useful for scripts.          |
-| `--repath`     | Rename mod assets with a unique prefix so they can't clash. |
-| `-v verbose`   | Show every fix as it's applied.                             |
+| Flag                | What it does                                                            |
+| ------------------- | ----------------------------------------------------------------------- |
+| `--check`           | Detect only. Print issues. Don't change the file.                       |
+| `--dry-run`         | Show what would be fixed. Don't write the output.                       |
+| `--json`            | Print machine-readable output. Useful for scripts.                      |
+| `--repath`          | Rename mod assets with a unique prefix so they can't clash.             |
+| `--game-wad <path>` | Pull missing files from the base game WAD so the mod is self-contained. |
+| `--invis-texture`   | Add invisible placeholders for missing texture refs after a repath.     |
+| `-v verbose`        | Show every fix as it's applied.                                         |
 
 Run `hematite-cli.exe --help` for the full list.
 
@@ -127,7 +131,7 @@ Run `hematite-cli.exe --help` for the full list.
 After a successful run, you should see a line like:
 
 ```text
-Done — 1 mod processed, 18 fixes applied in 1.9s.
+Done. 1 mod processed, 18 fixes applied in 1.9s.
 Wrote YourSkin.fixed.fantome (4.2 MB)
 ```
 
