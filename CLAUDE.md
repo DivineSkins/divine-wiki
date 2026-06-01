@@ -4,7 +4,7 @@ Project-level guidance for Claude Code. Read on every turn, so keep it tight.
 
 ## What this is
 
-The Divine Skins community wiki — guides for making custom skins for **League of Legends**. Next.js 16 + Fumadocs + MDX, hosted on Cloudflare Pages. Live at `https://wiki.divineskins.gg`.
+The Divine Skins community wiki — guides for making custom skins for **League of Legends**. Next.js 16 + Fumadocs + MDX, deployed to Cloudflare Workers via the OpenNext adapter. Live at `https://wiki.divineskins.gg`.
 
 Audience is **creators** (people building skins with Maya, Blender, VFX tools). End-users who only install skins are served by the Celestial launcher and Discord — not the wiki.
 
@@ -39,7 +39,7 @@ docs/                     AI-context pack (product, voice, playbook, this file).
                           product.md, voice.md, playbook.md are load-bearing.
 messages/<locale>.json    UI strings. en.json is source of truth; others via Crowdin.
 public/                   Static assets. /wiki-images/* are legacy migrated images.
-                          /_redirects and /_headers are Cloudflare Pages edge config.
+                          /_redirects and /_headers are Cloudflare edge config (served from Workers static assets).
 scripts/                  prebuild.mjs (git-info + entity index) and one-shot
                           migrate-content.mjs.
 src/app/                  App Router. Root layout passes children through; [lang]/
@@ -72,16 +72,16 @@ The nine categories under `lol/` are: `guided-walkthrough`, `tools`, `maya`, `bl
 
 ## Stack
 
-| Layer         | Pick                                                                            |
-| ------------- | ------------------------------------------------------------------------------- |
-| Framework     | Next.js 16 (App Router, Turbopack dev)                                          |
-| MDX engine    | Fumadocs 16.2.3 (core, mdx, ui) — sidebar from meta.json, Orama search, OG API  |
-| UI            | Tailwind v4 + shadcn (new-york) + Radix primitives                              |
-| Auth          | None — site is fully static                                                     |
+| Layer         | Pick                                                                                                   |
+| ------------- | ------------------------------------------------------------------------------------------------------ |
+| Framework     | Next.js 16 (App Router, Turbopack dev)                                                                 |
+| MDX engine    | Fumadocs 16.2.3 (core, mdx, ui) — sidebar from meta.json, Orama search, OG API                         |
+| UI            | Tailwind v4 + shadcn (new-york) + Radix primitives                                                     |
+| Auth          | None — no login or user accounts (but the app is SSR, not a static export)                             |
 | Contributions | GitHub-native: in-browser /draft editor (opens PR), Fumadocs "Edit on GitHub" link, or local fork + PR |
-| i18n          | Fumadocs i18n + Crowdin. Scope: en, fr-FR, tr-TR, pt-BR                         |
-| Hosting       | Cloudflare Pages (Next.js SSR mode). \_redirects + \_headers at edge            |
-| Analytics     | PostHog (cookieless, currently disabled pending key)                            |
+| i18n          | Fumadocs i18n + Crowdin. Scope: en, fr-FR, tr-TR, pt-BR                                                |
+| Hosting       | Cloudflare Workers via @opennextjs/cloudflare (SSR). \_redirects + \_headers served from static assets |
+| Analytics     | PostHog (cookieless, currently disabled pending key)                                                   |
 
 ## Conventions
 
@@ -101,7 +101,7 @@ The nine categories under `lol/` are: `guided-walkthrough`, `tools`, `maya`, `bl
 
 ## Environment variables
 
-See `.env.example` for the full list. None are required for local dev or for production builds — the site is fully static. The runtime API routes (`health`, `og`, `search`) need no secrets. `NEXT_PUBLIC_POSTHOG_*` and `NEXT_PUBLIC_DIVINE_API_URL` are optional. `CROWDIN_PROJECT_ID` + `CROWDIN_PERSONAL_TOKEN` are CI-only for translation sync.
+See `.env.example` for the full list. None are required for local dev or for production builds. The app runs SSR on Cloudflare Workers but holds no secrets — the runtime API routes (`health`, `og`, `search`, `preview`) are read-only. `NEXT_PUBLIC_*` are public build-time config (set in `wrangler.toml` `[vars]`). `CROWDIN_PROJECT_ID` + `CROWDIN_PERSONAL_TOKEN` are CI-only for translation sync. Cloudflare deploy: Workers Builds runs `npx opennextjs-cloudflare build` then `npx wrangler deploy` on push to `main`.
 
 ## Known gotchas — save yourself time
 
