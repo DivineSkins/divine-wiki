@@ -27,13 +27,17 @@ const VARIANT_CLASSES: Record<Variant, string> = {
   primary:
     "bg-[#783CB5] hover:bg-[#8b4dd4] text-white " +
     "transition-[background-color,box-shadow] duration-300",
-  // Theme-aware solid fill. `divine-primary` resolves to purple in dark mode
-  // and gold in light mode, so this button follows the theme toggle (unlike
-  // `primary`, which is a hardcoded purple marketing glow). Subtle tinted
-  // lift instead of a heavy glow.
+  // Theme-aware solid fill (unlike `primary`, a hardcoded purple marketing
+  // glow). Dark mode: purple fill, white text. Light mode: divine-primary is
+  // #8b6914 — a deep amber tuned for TEXT contrast, muddy as a fill — so the
+  // fill switches to the brand gold with near-black text, and hover darkens
+  // instead of brightens.
   solid:
     "bg-divine-primary text-white shadow-md shadow-divine-primary/25 " +
-    "hover:brightness-110 transition-[filter] duration-200",
+    "light:bg-divine-primary-light light:text-divine-text " +
+    "light:shadow-divine-primary-light/40 " +
+    "hover:brightness-110 light:hover:brightness-95 " +
+    "transition-[filter] duration-200",
   secondary:
     "bg-white/10 hover:bg-white/20 text-white transition-colors duration-200",
   ghost:

@@ -284,7 +284,8 @@
 
 /* Card hover lift — soft purple wash under elevated cards. */
 @utility divine-card-hover {
-  box-shadow: 0 8px 25px rgba(120, 60, 181, 0.15);
+  box-shadow: 0 8px 25px
+    color-mix(in srgb, var(--color-divine-primary) 15%, transparent);
 }
 
 /* Gradient text — purple-light → primary, used on brand words and hero accents. */
@@ -319,7 +320,9 @@
   );
 }
 
-/* Premium card border — gold-to-purple hairline via masked pseudo-element. */
+/* Premium card border — accent hairline via masked pseudo-element.
+   Uses the theme token, not a literal: purple in dark mode, deep amber in
+   light mode (purple borders clash on white — see the .light block notes). */
 @utility divine-card-gradient-border {
   position: relative;
   isolation: isolate;
@@ -330,7 +333,7 @@
   inset: -1px;
   border-radius: inherit;
   padding: 1px;
-  background: #783cb5;
+  background: var(--color-divine-primary);
   -webkit-mask:
     linear-gradient(#000 0 0) content-box,
     linear-gradient(#000 0 0);

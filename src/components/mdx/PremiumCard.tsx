@@ -26,7 +26,7 @@ export function PremiumCard({ title, href, icon, children }: PremiumCardProps) {
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-3">
             {icon ? (
-              <div className="bg-divine-primary/15 text-divine-primary-light inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[6px]">
+              <div className="bg-divine-primary/15 text-divine-primary-light light:text-divine-primary inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[6px]">
                 {icon}
               </div>
             ) : null}
