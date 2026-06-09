@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FoldHorizontalIcon, UnfoldHorizontalIcon } from "lucide-react";
+import { AlignCenterIcon, AlignJustifyIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -53,7 +53,10 @@ export function ReadingWidthToggle({ label }: { label: string }) {
         onClick={() => apply(!centered)}
         className="inline-flex items-center rounded-full border p-1"
       >
-        <UnfoldHorizontalIcon
+        {/* AlignJustify (full-width lines) = wide, AlignCenter = centered —
+            solid multi-line glyphs that stay legible at pill size, unlike
+            the wispy fold/unfold arrows. */}
+        <AlignJustifyIcon
           className={cn(
             ITEM_CLASSES,
             !centered
@@ -62,7 +65,7 @@ export function ReadingWidthToggle({ label }: { label: string }) {
           )}
           aria-hidden
         />
-        <FoldHorizontalIcon
+        <AlignCenterIcon
           className={cn(
             ITEM_CLASSES,
             centered
