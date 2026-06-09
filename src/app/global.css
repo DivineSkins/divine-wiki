@@ -284,7 +284,8 @@
 
 /* Card hover lift — soft purple wash under elevated cards. */
 @utility divine-card-hover {
-  box-shadow: 0 8px 25px rgba(120, 60, 181, 0.15);
+  box-shadow: 0 8px 25px
+    color-mix(in srgb, var(--color-divine-primary) 15%, transparent);
 }
 
 /* Gradient text — purple-light → primary, used on brand words and hero accents. */
@@ -302,7 +303,26 @@
   border: 0;
 }
 
-/* Premium card border — gold-to-purple hairline via masked pseudo-element. */
+/* Cut-corner panel — sharp, angular "sliced corner" look used on the
+   docs landing boxes. Chamfers the top-left + bottom-right corners.
+   Pair with `rounded-none`. The border on the two cut diagonals is
+   clipped away (that's the intentional "cut"); straight edges keep
+   their border. */
+@utility divine-cut {
+  --cut: 12px;
+  clip-path: polygon(
+    var(--cut) 0,
+    100% 0,
+    100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%,
+    0 100%,
+    0 var(--cut)
+  );
+}
+
+/* Premium card border — accent hairline via masked pseudo-element.
+   Uses the theme token, not a literal: purple in dark mode, deep amber in
+   light mode (purple borders clash on white — see the .light block notes). */
 @utility divine-card-gradient-border {
   position: relative;
   isolation: isolate;
@@ -313,7 +333,7 @@
   inset: -1px;
   border-radius: inherit;
   padding: 1px;
-  background: #783cb5;
+  background: var(--color-divine-primary);
   -webkit-mask:
     linear-gradient(#000 0 0) content-box,
     linear-gradient(#000 0 0);
@@ -497,6 +517,13 @@
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   }
 
+  /* Code-block rails get the same light-mode gold treatment as blockquotes. */
+  .light .prose figure.shiki,
+  .light .prose figure[data-rehype-pretty-code-figure],
+  .light .prose > pre {
+    border-left-color: var(--color-divine-primary-light) !important;
+  }
+
   /* Blockquotes — accent left border, italic body. Surface flips per theme. */
   .prose blockquote {
     position: relative;
@@ -504,7 +531,9 @@
     background: var(--color-divine-surface);
     border: 1px solid
       color-mix(in srgb, var(--color-divine-border) 70%, transparent);
-    border-radius: 0 8px 8px 0;
+    border-radius: 8px;
+    /* Clip the ::before rail into the rounded left corners. */
+    overflow: hidden;
     padding: 1rem 1.25rem 1rem 1.5rem !important;
     margin: 1.5rem 0;
     font-style: italic;
@@ -522,7 +551,12 @@
     bottom: 0;
     width: 3px;
     background: var(--color-divine-primary);
-    border-radius: 3px;
+  }
+  /* Light mode — decorative rails use the brand gold; the deep-amber
+     divine-primary is tuned for text contrast and reads muddy as a fill
+     (see the .light block notes). */
+  .light .prose blockquote::before {
+    background: var(--color-divine-primary-light);
   }
   /* Suppress the Typography preset's open-quote/close-quote characters that
      otherwise wrap blockquote text in literal “ ” — we already convey the
@@ -942,3 +976,42 @@
     outline-color: var(--color-divine-primary-light);
   }
 } /* end @layer components */
+
+/* Full-width docs article. Fumadocs caps the prose column at 900px and
+   centers it; combined with the widened `--fd-layout-width` (see
+   app/[lang]/docs/layout.tsx) that left dead space on either side of the
+   content. Dropping the cap lets the article fill the whole content column
+   so it spans edge to edge between the sidebar and the TOC (the article's
+   own px-4/md:px-6/xl:px-8 padding keeps text off the literal edges).
+   Kept UNLAYERED (not in @layer) on purpose: fumadocs' `max-w-[900px]` is a
+   Tailwind utility, and the utilities layer beats @layer components regardless
+   of selector specificity — an unlayered rule overrides it cleanly. */
+#nd-page[data-full="false"] {
+  max-width: none;
+}
+
+/* Centered reading mode — opt-in via the sidebar-footer toggle
+   (reading-width-toggle.tsx adds `centered-reading` to <html>). Restores a
+   capped column; the article's own `mx-auto` centers it between the sidebar
+   and the TOC, Obsidian-style. */
+.centered-reading #nd-page[data-full="false"] {
+  max-width: 900px;
+}
+
+/* Consistent top alignment regardless of breadcrumb.
+   Fumadocs pads the article top by `xl:pt-14` (~56px) and renders the
+   breadcrumb (a div) as the first child only when the page has parent
+   segments — otherwise the <h1> title is the first child. That made the
+   title start at different heights on breadcrumb vs. non-breadcrumb pages.
+
+   1) Pull the top padding in so the breadcrumb sits near the top.
+   2) When the title is the FIRST child (no breadcrumb), add top margin equal
+      to the breadcrumb's footprint (its ~20px line + the article's gap-4),
+      so the title lines up with pages that do show a breadcrumb.
+   Unlayered so it overrides fumadocs' Tailwind padding utilities. */
+#nd-page {
+  padding-top: 1.5rem;
+}
+#nd-page > h1.divine-doc-title:first-child {
+  margin-top: 2.25rem;
+}

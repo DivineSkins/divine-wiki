@@ -2,11 +2,10 @@ import Link from "next/link";
 import {
   BookOpenIcon,
   PencilLineIcon,
-  MessageCircleIcon,
   CompassIcon,
-  PaintbrushIcon,
   SparklesIcon,
 } from "lucide-react";
+import { MayaLogo, DiscordLogo } from "@/components/brand-logos";
 import { GlowCTA } from "@/components/mdx/GlowCTA";
 import { PremiumCard } from "@/components/mdx/PremiumCard";
 import { ContributeCtaButton } from "@/components/contribute-picker";
@@ -60,7 +59,7 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
             rel="noopener noreferrer"
             className={textLinkClass}
           >
-            <MessageCircleIcon className="size-4" aria-hidden />
+            <DiscordLogo className="size-4" />
             {t.joinDiscord}
           </Link>
         </div>
@@ -89,7 +88,7 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
           <PremiumCard
             href={`/${lang}/docs/lol/maya`}
             title={t.trackMayaTitle}
-            icon={<PaintbrushIcon className="size-5" aria-hidden />}
+            icon={<MayaLogo className="size-5" />}
           >
             {t.trackMayaDesc}
           </PremiumCard>

@@ -6,6 +6,7 @@ interface ToolCardProps {
   href: string;
   children: ReactNode;
   badge?: string;
+  icon?: ReactNode;
 }
 
 /**
@@ -13,7 +14,7 @@ interface ToolCardProps {
  * renders as its own row with a purple-light left rail, the name as a
  * link, a pipe separator, and the description trailing in muted text.
  */
-export function ToolCard({ name, href, children, badge }: ToolCardProps) {
+export function ToolCard({ name, href, children, badge, icon }: ToolCardProps) {
   const isExternal = /^https?:\/\//i.test(href);
   const Tag = isExternal ? "a" : Link;
   const externalProps = isExternal
@@ -28,8 +29,13 @@ export function ToolCard({ name, href, children, badge }: ToolCardProps) {
     >
       <span
         aria-hidden
-        className="from-divine-primary-light to-divine-primary absolute inset-y-2 left-0 w-[3px] rounded-full bg-gradient-to-b opacity-80 transition-opacity duration-200 group-hover:opacity-100"
+        className="from-divine-primary-light to-divine-primary absolute inset-y-0 left-0 w-[3px] bg-gradient-to-b opacity-80 transition-opacity duration-200 group-hover:opacity-100"
       />
+      {icon ? (
+        <span className="text-divine-primary-light flex shrink-0 items-center [&_svg]:size-[18px]">
+          {icon}
+        </span>
+      ) : null}
       <span className="text-divine-primary-light group-hover:text-divine-text text-[15px] font-[var(--font-poppins),system-ui,sans-serif] font-semibold transition-colors duration-200">
         {name}
       </span>

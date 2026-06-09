@@ -67,7 +67,7 @@ export function Callout({ type = "info", title, children }: CalloutProps) {
 
   return (
     <div
-      className="bg-divine-surface ring-divine-border my-4 rounded-r-[8px] border-l-4 p-4 ring-1"
+      className="bg-divine-surface ring-divine-border my-4 rounded-[8px] border-l-4 p-4 ring-1"
       style={{ borderLeftColor: tone }}
     >
       <div className="flex gap-3">

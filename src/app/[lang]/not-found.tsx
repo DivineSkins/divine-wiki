@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MessageCircleIcon } from "lucide-react";
+import { DiscordLogo } from "@/components/brand-logos";
 import { GlowCTA } from "@/components/mdx/GlowCTA";
 import { discordInviteUrl } from "@/lib/config";
 
@@ -39,7 +39,7 @@ export default function NotFound() {
         rel="noopener noreferrer"
         className="text-divine-text-muted hover:text-divine-primary-light mt-6 inline-flex items-center gap-2 text-sm no-underline transition-colors"
       >
-        <MessageCircleIcon className="size-4" aria-hidden />
+        <DiscordLogo className="size-4" />
         Ask in the Divine Discord
       </Link>
     </main>

@@ -8,6 +8,7 @@ import { PremiumCard } from "@/components/mdx/PremiumCard";
 import { GlowCTA } from "@/components/mdx/GlowCTA";
 import { LevelPill } from "@/components/mdx/LevelPill";
 import { ToolCard } from "@/components/mdx/ToolCard";
+import { Icon } from "@/components/icon";
 import * as TabsComponents from "fumadocs-ui/components/tabs";
 import { Accordions, Accordion } from "fumadocs-ui/components/accordion";
 
@@ -25,6 +26,7 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     GlowCTA,
     LevelPill,
     ToolCard,
+    Icon,
     img: ImageZoom,
   };
 }

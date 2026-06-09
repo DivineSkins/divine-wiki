@@ -96,6 +96,14 @@ export default async function RootLayout({
   return (
     <html lang={lang} dir="ltr" className="dark" suppressHydrationWarning>
       <body>
+        {/* Apply the persisted reading-width preference before first paint,
+            the same way next-themes applies the theme class. Keep the
+            localStorage key in sync with reading-width-toggle.tsx. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(localStorage.getItem("divine-reading-width")==="centered")document.documentElement.classList.add("centered-reading")}catch(e){}`,
+          }}
+        />
         <div
           className={cn(
             manrope.variable,
