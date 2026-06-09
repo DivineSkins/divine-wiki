@@ -40,12 +40,11 @@ export function PreviewPane({ mdx, stagedImages }: PreviewPaneProps) {
           typeof props.src === "string"
             ? resolveStagedSrc(props.src, stagedImages)
             : null;
-        if (blobUrl && OriginalImg) {
-          const Img = OriginalImg as any;
-          return <Img {...props} src={blobUrl} />;
-        }
         if (blobUrl) {
-          // Fallback — no base img override, render a plain <img>.
+          // Blob URLs can't go through ImageZoom → next/image: that path
+          // requires explicit width/height which we don't have for arbitrary
+          // uploads, and next/image throws on missing dimensions regardless
+          // of protocol. Render a plain <img> so the preview just works.
           // eslint-disable-next-line @next/next/no-img-element
           return (
             <img
