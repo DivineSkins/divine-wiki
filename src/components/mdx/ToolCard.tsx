@@ -29,7 +29,7 @@ export function ToolCard({ name, href, children, badge, icon }: ToolCardProps) {
     >
       <span
         aria-hidden
-        className="from-divine-primary-light to-divine-primary absolute inset-y-2 left-0 w-[3px] rounded-full bg-gradient-to-b opacity-80 transition-opacity duration-200 group-hover:opacity-100"
+        className="from-divine-primary-light to-divine-primary absolute inset-y-0 left-0 w-[3px] bg-gradient-to-b opacity-80 transition-opacity duration-200 group-hover:opacity-100"
       />
       {icon ? (
         <span className="text-divine-primary-light flex shrink-0 items-center [&_svg]:size-[18px]">
