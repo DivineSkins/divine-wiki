@@ -52,19 +52,19 @@ const config = {
         destination: "/en/docs/lol/contributing",
         permanent: true,
       },
-/*comment out the 2 brackets below if u wanna stop redirecting mainpage
+      /*comment out the 2 brackets below if u wanna stop redirecting mainpage
 and docs page, i replaced both with the new one technically
 - bud*/
-{
-source: "/:lang/docs",
-destination: "/:lang/docs/lol",
-permanent: false,
-},
-{
-source: "/:lang",
-destination: "/:lang/docs/lol",
-permanent: false,
-},
+      {
+        source: "/:lang/docs",
+        destination: "/:lang/docs/lol",
+        permanent: false,
+      },
+      {
+        source: "/:lang",
+        destination: "/:lang/docs/lol",
+        permanent: false,
+      },
     ];
   },
   // experimental.viewTransition needs React 19 Canary. Stable React 19.2 ships

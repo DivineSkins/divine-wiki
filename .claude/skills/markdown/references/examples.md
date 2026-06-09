@@ -24,10 +24,11 @@ This is a paragraph after the list.
 
 ```markdown
 This is a paragraph before the list.
+
 - First item
 - Second item
 - Third item
-This is a paragraph after the list.
+  This is a paragraph after the list.
 ```
 
 **Problem:** Missing blank lines (MD032 violation). Parser may not recognize
@@ -52,8 +53,10 @@ The list ends here.
 
 ```markdown
 - Item 1
+
 * Item 2
-+ Item 3
+
+- Item 3
 ```
 
 **Problem:** Mixed markers (MD004 violation). Use one style throughout.
@@ -68,7 +71,7 @@ More complex example:
 
    ```javascript
    function hello() {
-       console.log("Hello, World!");
+     console.log("Hello, World!");
    }
    ```
 
@@ -81,14 +84,18 @@ maintains list context.
 
 ### ❌ Incorrect: Code Block Breaks List
 
-```markdown
+````markdown
 1. First step
 2. Second step with code:
+
 ```python
 code here
 ```
+````
+
 3. Third step
-```
+
+````
 
 **Problem:** Code block not indented, breaks list continuity. Step 3 becomes
 new list starting at 1.
@@ -105,7 +112,7 @@ new list starting at 1.
 ### Level 3 Heading
 
 #### Level 4 Heading
-```
+````
 
 **Why correct:** Increments by one level, blank lines around headings.
 
@@ -135,7 +142,9 @@ This paragraph comes after the heading with proper blank lines.
 
 ```markdown
 This paragraph comes before the heading.
+
 ## A Section Heading
+
 This paragraph comes after the heading.
 ```
 
@@ -183,10 +192,12 @@ The code block has blank lines before and after.
 
 ````markdown
 Here's an example:
+
 ```
 def hello_world():
     print("Hello, World!")
 ```
+
 More text.
 ````
 
@@ -208,8 +219,8 @@ JavaScript implementation:
 
 ```javascript
 function fibonacci(n) {
-    if (n <= 1) return n;
-    return fibonacci(n-1) + fibonacci(n-2);
+  if (n <= 1) return n;
+  return fibonacci(n - 1) + fibonacci(n - 2);
 }
 ```
 
@@ -294,7 +305,7 @@ level.
 Here's a properly formatted table:
 
 | Header 1 | Header 2 | Header 3 |
-|----------|----------|----------|
+| -------- | -------- | -------- |
 | Cell 1   | Cell 2   | Cell 3   |
 | Cell 4   | Cell 5   | Cell 6   |
 
@@ -321,9 +332,9 @@ More content.
 ```markdown
 **Bold text** using double asterisks.
 
-*Italic text* using single asterisks.
+_Italic text_ using single asterisks.
 
-***Bold and italic*** using triple asterisks.
+**_Bold and italic_** using triple asterisks.
 
 `Inline code` using backticks.
 ```
@@ -334,8 +345,9 @@ More content.
 
 ```markdown
 ** bold **
-* italic *
-` code `
+
+- italic \*
+  `code`
 ```
 
 **Problem:** Spaces inside markers (MD037, MD038 violations). Won't render
@@ -423,31 +435,33 @@ Term 2
 
 ### ✅ Correct: Regular Spaces for Indentation
 
-```markdown
+````markdown
 - List item
 
-    ```python
-    # Four regular spaces (U+0020) before fence
-    code_here()
-    ```
+  ```python
+  # Four regular spaces (U+0020) before fence
+  code_here()
+  ```
 
 - Next item
-```
+````
 
 **Why correct:** Uses regular ASCII spaces (U+0020) for indentation.
 
 ### ❌ Incorrect: Non-Breaking Spaces
 
-```markdown
+````markdown
 - List item
 
-   ```python
-   # Three nbsp (U+00A0) break parsing
-   code_here()
-   ```
+  ```python
+  # Three nbsp (U+00A0) break parsing
+  code_here()
+  ```
+````
 
 - Next item (will restart numbering!)
-```
+
+````
 
 **Problem:** Non-breaking spaces aren't recognized as indentation. Code block
 doesn't nest properly.
@@ -466,7 +480,7 @@ doesn't nest properly.
 Introduction paragraph.
 
 ## First Section
-```
+````
 
 **Why correct:** No blank line needed before first heading.
 
@@ -478,7 +492,6 @@ Last paragraph.
 ## Final Section
 
 Final content.
-
 ```
 
 **Why correct:** File ends with exactly one newline.
@@ -487,9 +500,6 @@ Final content.
 
 ```markdown
 Final content.
-
-
-
 ```
 
 **Problem:** MD047 violation. File should end with exactly one newline.
@@ -644,7 +654,7 @@ JavaScript code:
 
 ```javascript
 function hello() {
-    console.log("Hello");
+  console.log("Hello");
 }
 ```
 
@@ -659,9 +669,9 @@ function hello() {
 code1()
 ```
 
-~~~javascript
+```javascript
 code2();
-~~~
+```
 ````
 
 <!-- markdownlint-enable MD048 -->
@@ -674,7 +684,9 @@ code2();
 
 ```markdown
 ## Installation
+
 ## Prerequisites
+
 ## Getting Started
 ```
 
@@ -684,6 +696,7 @@ code2();
 
 ```markdown
 ## What's Next
+
 ## Why Use This Tool
 ```
 
@@ -695,7 +708,9 @@ code2();
 
 ```markdown
 ## Installation.
+
 ## Prerequisites:
+
 ## Getting Started;
 ```
 
@@ -711,7 +726,7 @@ Content formatting:
 
 **Bold text** using markdown syntax.
 
-*Italic text* using markdown syntax.
+_Italic text_ using markdown syntax.
 
 Use two trailing spaces for line break.
 

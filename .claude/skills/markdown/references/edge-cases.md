@@ -72,15 +72,17 @@ nested code blocks, the markdown parser doesn't recognize them as proper
 indentation. This causes the code block to be treated as a separate entity,
 breaking list continuity.
 
-```markdown
+````markdown
 - List item
 
-   ```python
-   code()
-   ```
+  ```python
+  code()
+  ```
+````
 
 - Next item (will be renumbered as item 1!)
-```
+
+````
 
 In the above example, if those three spaces before the code fence are nbsp
 characters instead of regular spaces, the code block won't nest properly and
@@ -99,7 +101,7 @@ grep -o $'\u00A0' file.md | wc -l
 
 # Show hex dump to see character codes
 od -c file.md | grep -C2 '240'  # 240 octal = 160 decimal = U+00A0
-```
+````
 
 Visual detection in VS Code:
 
@@ -160,19 +162,21 @@ Always check for invisible characters when:
 The proper way to nest a code block in a list is to use regular spaces for
 indentation, matching the list item's content indentation level:
 
-```markdown
+````markdown
 - First item
 
 - Second item with code:
 
-   ```python
-   # Note: Three regular spaces (U+0020) before the fence
-   def example():
-       return True
-   ```
+  ```python
+  # Note: Three regular spaces (U+0020) before the fence
+  def example():
+      return True
+  ```
+````
 
 - Third item (continues list properly)
-```
+
+````
 
 Three spaces (for `-` marker lists) or four spaces (for numbered lists)
 before the fence tell the parser this code block is part of the list item.
@@ -196,7 +200,7 @@ align with first non-whitespace character after parent marker.
 
 10. Tenth item (marker is 4 chars: "10. ")
     Nested content needs 4-space indent
-```
+````
 
 **Our standard:** Use 2 or 4 spaces consistently. The SKILL recommends 2
 spaces for unordered lists (with `-` marker).
@@ -206,18 +210,18 @@ spaces for unordered lists (with `-` marker).
 Must be indented to match list content level, not the list marker. Fenced
 code blocks need their fences indented too.
 
-```markdown
+````markdown
 1. First step
 
 2. Second step with code (4-space indent for ordered lists):
 
-    ```python
-    def example():
-        return True
-    ```
+   ```python
+   def example():
+       return True
+   ```
 
 3. Third step
-```
+````
 
 **Without proper indentation, the code block ends the list.**
 
@@ -275,11 +279,7 @@ separate them.
 <div>**bold**</div>
 
 <!-- Works -->
-<div>
-
-**bold**
-
-</div>
+<div>**bold**</div>
 ```
 
 **GitHub filters dangerous tags:**
@@ -344,12 +344,13 @@ However, definitions can follow headings directly without blank lines.
 
 ```markdown
 Some paragraph text.
-[ref]: /url    <!-- This becomes part of the paragraph -->
+[ref]: /url <!-- This becomes part of the paragraph -->
 
 <!-- Correct: -->
+
 Some paragraph text.
 
-[ref]: /url    <!-- This is a valid reference -->
+[ref]: /url <!-- This is a valid reference -->
 ```
 
 **URLs with spaces:**
@@ -541,7 +542,7 @@ Content.
 
 ```markdown
 {
-  "title": "Document Title"
+"title": "Document Title"
 }
 
 # Main Title
@@ -565,16 +566,18 @@ trigger MD041 violations.
 
 When code blocks break list continuity due to improper indentation:
 
-```markdown
+````markdown
 1. First step
 2. Second step
 
 ```python
 code()  # Not indented, breaks list
 ```
+````
 
 3. Third step (becomes item 1 in new list!)
-```
+
+````
 
 **Using 1. for all items (recommended):**
 
@@ -584,10 +587,11 @@ code()  # Not indented, breaks list
 
    ```python
    code()  # Properly indented
-   ```
+````
 
 1. Third step (continues as item 3)
-```
+
+````
 
 **Platform differences:**
 
@@ -614,7 +618,7 @@ maintain. Let renderer handle numbering.
 ![System architecture showing three-tier web application with load balancer,
 application servers, and database cluster](diagram.png)
 # Screen reader says: [full descriptive text] (very helpful)
-```
+````
 
 **Alt text best practices:**
 
@@ -644,9 +648,9 @@ Both backticks and tildes work:
 code()
 ```
 
-~~~python
+```python
 code()
-~~~
+```
 ````
 
 **VS Code preview:**
@@ -688,9 +692,11 @@ clearer nesting.
 **Question mark examples:**
 
 ```markdown
-## What's Next  <!-- Usually allowed -->
-## Why Choose This Tool  <!-- Better as statement -->
-## How Does It Work  <!-- Better: How It Works -->
+## What's Next <!-- Usually allowed -->
+
+## Why Choose This Tool <!-- Better as statement -->
+
+## How Does It Work <!-- Better: How It Works -->
 ```
 
 **Markdownlint MD026 configuration:**

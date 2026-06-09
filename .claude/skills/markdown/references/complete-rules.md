@@ -89,16 +89,18 @@ Lists (ordered and unordered) MUST have blank lines before and after them, excep
 
 ```markdown
 Some text
+
 - Item 1
 - Item 2
-More text
+  More text
 ```
 
 ```markdown
 A paragraph.
+
 1. First
 2. Second
-Another paragraph.
+   Another paragraph.
 ```
 
 ### Correct Examples
@@ -143,8 +145,10 @@ Unordered list markers should be consistent throughout the document. Valid marke
 
 ```markdown
 - Item 1
+
 * Item 2
-+ Item 3
+
+- Item 3
 ```
 
 ### Correct Example
@@ -173,13 +177,14 @@ Files should end with exactly one newline character.
 
 ```markdown
 # Document
+
 Content here[EOF - no newline]
 ```
 
 ```markdown
 # Document
-Content here
 
+Content here
 
 [EOF - multiple blank lines]
 ```
@@ -188,6 +193,7 @@ Content here
 
 ```markdown
 # Document
+
 Content here
 [EOF - single newline]
 ```
@@ -251,8 +257,7 @@ Use consistent heading style throughout the document. Options:
 ```markdown
 # Heading 1
 
-Heading 2
----------
+## Heading 2
 
 # Heading 3
 ```
@@ -289,7 +294,9 @@ Headings should have blank lines before and after them, except:
 
 ```markdown
 Some text
+
 ## Heading
+
 More text
 ```
 
@@ -319,13 +326,17 @@ Fenced code blocks (using ``` or ~~~) should have blank lines before and after t
 
 ### Incorrect Example
 
-```markdown
+````markdown
 Some text
+
 ```javascript
 const x = 1;
 ```
+````
+
 More text
-```
+
+````
 
 ### Correct Example
 
@@ -334,10 +345,11 @@ Some text
 
 ```javascript
 const x = 1;
-```
+````
 
 More text
-```
+
+`````
 
 ### Rationale
 
@@ -356,10 +368,13 @@ Always specify a language identifier for fenced code blocks.
 ### Incorrect Example
 
 ````markdown
-```
+`````
+
 const x = 1;
+
 ```
-````
+
+```
 
 ### Correct Example
 
@@ -575,7 +590,9 @@ configuration.
 
 ```markdown
 ## Installation.
+
 ## Prerequisites:
+
 ## Getting Started;
 ```
 
@@ -583,7 +600,9 @@ configuration.
 
 ```markdown
 ## Installation
+
 ## Prerequisites
+
 ## Getting Started
 
 ## What's Next (question marks often allowed)
@@ -637,7 +656,7 @@ Alt text is essential for:
 
 Use consistent code fence style throughout document. Options:
 
-- Backticks: `` ``` `` (RECOMMENDED)
+- Backticks: ` ``` ` (RECOMMENDED)
 - Tildes: `~~~`
 
 #### Incorrect Example (mixed styles)
@@ -647,9 +666,9 @@ Use consistent code fence style throughout document. Options:
 code1()
 ```
 
-~~~javascript
+```javascript
 code2();
-~~~
+```
 ````
 
 #### Correct Example

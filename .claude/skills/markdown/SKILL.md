@@ -105,7 +105,6 @@ use **one more backtick** than the deepest level:
 ```bash
 command
 ```
-
 ````
 `````
 
@@ -163,9 +162,9 @@ Use consistent spacing in tables. Three styles:
 **Compact (recommended):** `| cell |` - single space around content
 
 ```markdown
-| Header 1 | Header 2 |
-| --- | --- |
-| Data | More data |
+| Header 1 | Header 2  |
+| -------- | --------- |
+| Data     | More data |
 ```
 
 **Aligned:** Pipes vertically aligned with padding
@@ -193,8 +192,9 @@ remove them.
 
 ```markdown
 Text:
+
 - Item
-Text.
+  Text.
 ```
 
 <!-- markdownlint-enable MD032 -->
@@ -217,7 +217,9 @@ Text.
 
 ```markdown
 Text.
+
 ## Head
+
 Text.
 ```
 
@@ -241,9 +243,11 @@ Text.
 
 ````markdown
 Text:
+
 ```
 code
 ```
+
 Text.
 ````
 
@@ -269,6 +273,7 @@ Text.
 
 ```markdown
 - Item
+
 * Item
 ```
 
@@ -400,8 +405,8 @@ text
 text
 
 | Header | Header |
-| --- | --- |
-| Cell | Cell |
+| ------ | ------ |
+| Cell   | Cell   |
 
 text
 ```

@@ -120,10 +120,10 @@ Tiny pill for marking guide difficulty. Drop it at the top of a guide, near the 
 
 Props:
 
-| Prop    | Type                                          | Notes                          |
-| ------- | --------------------------------------------- | ------------------------------ |
-| `level` | `"beginner" \| "intermediate" \| "advanced"`  | Controls color.                |
-| `label` | string                                        | Optional override of the text. |
+| Prop    | Type                                         | Notes                          |
+| ------- | -------------------------------------------- | ------------------------------ |
+| `level` | `"beginner" \| "intermediate" \| "advanced"` | Controls color.                |
+| `label` | string                                       | Optional override of the text. |
 
 ## `<PremiumCard>`
 
@@ -141,12 +141,12 @@ Gold-to-purple gradient-bordered card for the "highlighted" links on hub pages (
 
 Props:
 
-| Prop       | Type      | Notes                                                                       |
-| ---------- | --------- | --------------------------------------------------------------------------- |
-| `title`    | string    | Card heading.                                                               |
-| `href`     | string    | Internal path (`/docs/lol/...`) or external URL — external opens new tab.   |
-| `icon`     | ReactNode | Optional. A `lucide-react` icon sized with `size-4`.                        |
-| `children` | MDX       | Card description.                                                           |
+| Prop       | Type      | Notes                                                                     |
+| ---------- | --------- | ------------------------------------------------------------------------- |
+| `title`    | string    | Card heading.                                                             |
+| `href`     | string    | Internal path (`/docs/lol/...`) or external URL — external opens new tab. |
+| `icon`     | ReactNode | Optional. A `lucide-react` icon sized with `size-4`.                      |
+| `children` | MDX       | Card description.                                                         |
 
 ## `<ToolCard>`
 
@@ -160,12 +160,12 @@ Compact horizontal row card for tool indexes. Less visual weight than `<PremiumC
 
 Props:
 
-| Prop       | Type   | Notes                                                                       |
-| ---------- | ------ | --------------------------------------------------------------------------- |
-| `name`     | string | Tool name (the link).                                                       |
-| `href`     | string | Internal path or external URL.                                              |
-| `badge`    | string | Optional small label (e.g. "Recommended", "Beta").                          |
-| `children` | MDX    | One-line description.                                                       |
+| Prop       | Type   | Notes                                              |
+| ---------- | ------ | -------------------------------------------------- |
+| `name`     | string | Tool name (the link).                              |
+| `href`     | string | Internal path or external URL.                     |
+| `badge`    | string | Optional small label (e.g. "Recommended", "Beta"). |
+| `children` | MDX    | One-line description.                              |
 
 ## `<GlowCTA>`
 
@@ -179,12 +179,12 @@ Branded call-to-action button. Use sparingly — usually only on landing / hub p
 
 Props:
 
-| Prop       | Type                                  | Notes                                                       |
-| ---------- | ------------------------------------- | ----------------------------------------------------------- |
-| `href`     | string                                | Internal path or external URL.                              |
-| `variant`  | `"primary" \| "secondary" \| "ghost"` | Default `primary` (purple fill + glow on hover).            |
-| `size`     | `"md" \| "lg"`                        | Default `md`.                                               |
-| `children` | ReactNode                             | Button label. Sentence case, 1–3 words, action-first verb.  |
+| Prop       | Type                                  | Notes                                                      |
+| ---------- | ------------------------------------- | ---------------------------------------------------------- |
+| `href`     | string                                | Internal path or external URL.                             |
+| `variant`  | `"primary" \| "secondary" \| "ghost"` | Default `primary` (purple fill + glow on hover).           |
+| `size`     | `"md" \| "lg"`                        | Default `md`.                                              |
+| `children` | ReactNode                             | Button label. Sentence case, 1–3 words, action-first verb. |
 
 ## `<img>` (auto-zoom)
 
