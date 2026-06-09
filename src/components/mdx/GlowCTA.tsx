@@ -3,7 +3,7 @@ import type { CSSProperties, ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-type Variant = "primary" | "secondary" | "ghost";
+type Variant = "primary" | "solid" | "secondary" | "ghost";
 type Size = "md" | "lg";
 
 interface GlowCTAProps {
@@ -27,6 +27,13 @@ const VARIANT_CLASSES: Record<Variant, string> = {
   primary:
     "bg-[#783CB5] hover:bg-[#8b4dd4] text-white " +
     "transition-[background-color,box-shadow] duration-300",
+  // Theme-aware solid fill. `divine-primary` resolves to purple in dark mode
+  // and gold in light mode, so this button follows the theme toggle (unlike
+  // `primary`, which is a hardcoded purple marketing glow). Subtle tinted
+  // lift instead of a heavy glow.
+  solid:
+    "bg-divine-primary text-white shadow-md shadow-divine-primary/25 " +
+    "hover:brightness-110 transition-[filter] duration-200",
   secondary:
     "bg-white/10 hover:bg-white/20 text-white transition-colors duration-200",
   ghost:

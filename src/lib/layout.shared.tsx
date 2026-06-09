@@ -1,5 +1,6 @@
 import Image from "next/image";
-import { BookIcon, MessageCircleIcon } from "lucide-react";
+import { BookIcon } from "lucide-react";
+import { DiscordLogo } from "@/components/brand-logos";
 import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
 import { i18n } from "@/lib/i18n";
 import { discordInviteUrl } from "@/lib/config";
@@ -49,7 +50,7 @@ export function baseOptions(
         children: <ContributeButton />,
       },
       {
-        icon: <MessageCircleIcon />,
+        icon: <DiscordLogo className="size-4" />,
         text: messages.nav.discord,
         url: discordInviteUrl,
       },

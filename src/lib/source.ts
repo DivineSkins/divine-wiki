@@ -1,14 +1,16 @@
 import { docs } from "fumadocs-mdx:collections/server";
 import { type InferPageType, loader } from "fumadocs-core/source";
-import { lucideIconsPlugin } from "fumadocs-core/source/lucide-icons";
 import type { Node } from "fumadocs-core/page-tree";
 import { i18n } from "@/lib/i18n";
 import { localizePageTree } from "@/lib/tree-localization";
+import { resolveIcon } from "@/components/icon";
 
 export const source = loader({
   baseUrl: "/docs",
   source: docs.toFumadocsSource(),
-  plugins: [lucideIconsPlugin()],
+  // Sidebar icons by name (meta.json `icon`). Brand logos (Maya, Blender,
+  // LeagueOfLegends) plus any Lucide icon — see src/components/icon.tsx.
+  icon: (name) => resolveIcon(name) ?? undefined,
   i18n,
 });
 

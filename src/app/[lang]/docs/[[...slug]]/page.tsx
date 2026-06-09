@@ -12,11 +12,22 @@ import { createRelativeLink } from "fumadocs-ui/mdx";
 import Link from "next/link";
 import { ogLanguageBlacklist } from "@/lib/i18n";
 import { Separator } from "@/components/ui/separator";
+import { DocsLanding } from "@/components/home/docs-landing";
+import { DocsBanner } from "../docs-banner";
 
 export default async function Page(
   props: PageProps<"/[lang]/docs/[[...slug]]">,
 ) {
   const params = await props.params;
+
+  // Docs root (`/{lang}/docs`) gets a custom landing instead of an MDX
+  // page. Rendered OUTSIDE DocsPage so it isn't capped by the prose
+  // container's max-width — it fills the whole content area to the
+  // right (no TOC, no breadcrumb). Sidebar still comes from the layout.
+  if (!params.slug || params.slug.length === 0) {
+    return <DocsLanding lang={params.lang} />;
+  }
+
   const page =
     source.getPage(params.slug, params.lang) ??
     source.getPage(params.slug, "en");
@@ -32,7 +43,7 @@ export default async function Page(
   return (
     <DocsPage
       toc={loadedPageData.toc}
-      tableOfContent={{ style: "clerk" }}
+      tableOfContent={{ style: "clerk", footer: <DocsBanner /> }}
       full={page.data.full}
     >
       <DocsTitle className="divine-doc-title">{page.data.title}</DocsTitle>

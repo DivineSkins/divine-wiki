@@ -24,13 +24,15 @@ export function PremiumCard({ title, href, icon, children }: PremiumCardProps) {
     >
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
-          {icon ? (
-            <div className="bg-divine-primary/15 text-divine-primary-light mb-3 inline-flex h-9 w-9 items-center justify-center rounded-[6px]">
-              {icon}
+          <div className="flex items-center gap-3">
+            {icon ? (
+              <div className="bg-divine-primary/15 text-divine-primary-light inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[6px]">
+                {icon}
+              </div>
+            ) : null}
+            <div className="text-divine-text text-lg leading-tight font-[var(--font-section)] font-semibold">
+              {title}
             </div>
-          ) : null}
-          <div className="text-divine-text text-lg leading-tight font-[var(--font-section)] font-semibold">
-            {title}
           </div>
           {children ? (
             <div className="text-divine-text-muted mt-2 text-sm leading-relaxed">

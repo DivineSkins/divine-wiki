@@ -302,6 +302,23 @@
   border: 0;
 }
 
+/* Cut-corner panel — sharp, angular "sliced corner" look used on the
+   docs landing boxes. Chamfers the top-left + bottom-right corners.
+   Pair with `rounded-none`. The border on the two cut diagonals is
+   clipped away (that's the intentional "cut"); straight edges keep
+   their border. */
+@utility divine-cut {
+  --cut: 12px;
+  clip-path: polygon(
+    var(--cut) 0,
+    100% 0,
+    100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%,
+    0 100%,
+    0 var(--cut)
+  );
+}
+
 /* Premium card border — gold-to-purple hairline via masked pseudo-element. */
 @utility divine-card-gradient-border {
   position: relative;
@@ -942,3 +959,34 @@
     outline-color: var(--color-divine-primary-light);
   }
 } /* end @layer components */
+
+/* Full-width docs article. Fumadocs caps the prose column at 900px and
+   centers it; combined with the widened `--fd-layout-width` (see
+   app/[lang]/docs/layout.tsx) that left dead space on either side of the
+   content. Dropping the cap lets the article fill the whole content column
+   so it spans edge to edge between the sidebar and the TOC (the article's
+   own px-4/md:px-6/xl:px-8 padding keeps text off the literal edges).
+   Kept UNLAYERED (not in @layer) on purpose: fumadocs' `max-w-[900px]` is a
+   Tailwind utility, and the utilities layer beats @layer components regardless
+   of selector specificity — an unlayered rule overrides it cleanly. */
+#nd-page[data-full="false"] {
+  max-width: none;
+}
+
+/* Consistent top alignment regardless of breadcrumb.
+   Fumadocs pads the article top by `xl:pt-14` (~56px) and renders the
+   breadcrumb (a div) as the first child only when the page has parent
+   segments — otherwise the <h1> title is the first child. That made the
+   title start at different heights on breadcrumb vs. non-breadcrumb pages.
+
+   1) Pull the top padding in so the breadcrumb sits near the top.
+   2) When the title is the FIRST child (no breadcrumb), add top margin equal
+      to the breadcrumb's footprint (its ~20px line + the article's gap-4),
+      so the title lines up with pages that do show a breadcrumb.
+   Unlayered so it overrides fumadocs' Tailwind padding utilities. */
+#nd-page {
+  padding-top: 1.5rem;
+}
+#nd-page > h1.divine-doc-title:first-child {
+  margin-top: 2.25rem;
+}
