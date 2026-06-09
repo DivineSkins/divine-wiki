@@ -3,22 +3,26 @@ main = ".open-next/worker.js"
 compatibility_date = "2026-06-01"
 compatibility_flags = ["nodejs_compat"]
 
+# Keep the divine-wiki.<account>.workers.dev URL enabled so there is always a
+# working address, and keep per-version preview URLs.
+workers_dev = true
+preview_urls = true
+
 # Cloudflare Workers deploy via the OpenNext adapter (@opennextjs/cloudflare).
 # `npm run deploy` builds the app into .open-next/ and ships it as one Worker:
 # frontend, /api/* routes, and i18n middleware all run here. Build output is
 # generated, so .open-next/ is gitignored.
+#
+# Custom domain (wiki.divineskins.gg) is intentionally NOT set here. Attaching it
+# via `custom_domain` in config makes every deploy fail if the domain record can't
+# be created (zone not on this account, or a conflicting DNS record). Add it once
+# in the dashboard instead: Workers & Pages -> divine-wiki -> Domains & Routes ->
+# Add Domain -> wiki.divineskins.gg. It persists across deploys.
 
 # Static assets (the built Next.js client bundle + public/) served from the edge.
 [assets]
 directory = ".open-next/assets"
 binding = "ASSETS"
-
-# Binds the production hostname straight to this Worker. Requires divineskins.gg
-# to be a zone on this Cloudflare account; the record + TLS cert are created on
-# first deploy.
-routes = [
-  { pattern = "wiki.divineskins.gg", custom_domain = true }
-]
 
 # Public, non-secret build-time config (mirrors .env.example). Real secrets, if
 # any are ever needed, go in the dashboard or `wrangler secret put`, never here.
