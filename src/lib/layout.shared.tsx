@@ -34,27 +34,26 @@ export function baseOptions(
       ),
       url: `/${locale}/`,
     },
-    links: [],
-  };
-
-  if (!docsLayout) {
-    options.links?.push(
-      {
-        icon: <BookIcon />,
-        text: messages.nav.documentation,
-        url: `/${locale}/docs`,
-        active: "nested-url",
-      },
+    links: [
       {
         type: "custom",
         children: <ContributeButton />,
       },
-      {
-        icon: <DiscordLogo className="size-4" />,
-        text: messages.nav.discord,
-        url: discordInviteUrl,
-      },
-    );
+    ],
+  };
+
+  if (!docsLayout) {
+    options.links?.unshift({
+      icon: <BookIcon />,
+      text: messages.nav.documentation,
+      url: `/${locale}/docs`,
+      active: "nested-url",
+    });
+    options.links?.push({
+      icon: <DiscordLogo className="size-4" />,
+      text: messages.nav.discord,
+      url: discordInviteUrl,
+    });
   }
 
   return options;
