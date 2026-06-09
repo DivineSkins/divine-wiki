@@ -41,10 +41,7 @@ export default function remarkImgJsx() {
   return (tree: Root) => {
     visit(tree, (node, index, parent) => {
       const el = node as unknown as MdxJsxElement;
-      if (
-        el.type !== "mdxJsxTextElement" &&
-        el.type !== "mdxJsxFlowElement"
-      ) {
+      if (el.type !== "mdxJsxTextElement" && el.type !== "mdxJsxFlowElement") {
         return;
       }
       if (el.name !== "img" || !parent || index == null) return;
