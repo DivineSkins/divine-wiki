@@ -2,6 +2,8 @@ import { DocsLayout } from "fumadocs-ui/layouts/docs";
 import { source } from "@/lib/source";
 import { baseOptions } from "@/lib/layout.shared";
 import { localizePageTree } from "@/lib/tree-localization";
+import { getMessages } from "@/lib/locale";
+import { ReadingWidthToggle } from "@/components/reading-width-toggle";
 
 export default async function Layout({
   params,
@@ -18,6 +20,7 @@ export default async function Layout({
     translateIndex: false,
     translateChildren: true,
   });
+  const messages = getMessages(lang);
 
   return (
     // `--fd-layout-width` is the cap fumadocs uses for the whole docs grid
@@ -32,6 +35,9 @@ export default async function Layout({
         tree={tree}
         {...baseOptions(lang, true)}
         githubUrl="https://github.com/DivineSkins/divine-wiki"
+        sidebar={{
+          footer: <ReadingWidthToggle label={messages.nav.readingWidth} />,
+        }}
       >
         {children}
       </DocsLayout>
