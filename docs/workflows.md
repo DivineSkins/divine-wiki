@@ -30,7 +30,9 @@ Every page has an Edit link at the bottom that drops you into GitHub's web edito
    ```
 
 4. Content starts at `##`. (H1 comes from `title`.)
-5. Add the slug to the category's `meta.json` in the position you want it:
+5. Optional: pin a sidebar position. Every category `meta.json` ends with
+   `"..."`, so unlisted pages auto-append alphabetically. To pin, add the slug
+   to `pages` before the `"..."`:
 
    ```json
    {

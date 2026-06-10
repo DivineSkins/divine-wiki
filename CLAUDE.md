@@ -121,7 +121,7 @@ See `.env.example` for the full list. None are required for local dev or for pro
 
 - [ ] File at `content/docs/en/lol/<category>/<slug>.mdx`, kebab-case
 - [ ] Frontmatter has `title` + `description`
-- [ ] `meta.json` in that category updated with the slug in the right order
+- [ ] Sidebar position OK? Category meta.json files end with `"..."` so new pages auto-append; list the slug explicitly only to pin a position
 - [ ] No banned terms (see `docs/voice.md`)
 - [ ] All `<img>` have `alt="..."`
 - [ ] Images ≤ 500 KB (more = slow Pages build)

@@ -54,10 +54,10 @@ Use this path for new pages, new categories, or anything image-heavy.
 
 ## Add a new guide
 
-A guide is one `.mdx` file under `content/docs/en/<category>/`.
+A guide is one `.mdx` file under `content/docs/en/lol/<category>/`.
 
 1. Pick a category (e.g. `tools`, `maya`, `blender`).
-2. Create a file like `content/docs/en/tools/my-tool.mdx`. Use kebab-case for the filename.
+2. Create a file like `content/docs/en/lol/tools/my-tool.mdx`. Use kebab-case for the filename.
 3. Paste this template:
 
    ```mdx
@@ -71,9 +71,10 @@ A guide is one `.mdx` file under `content/docs/en/<category>/`.
    Write here.
    ```
 
-4. Open `content/docs/en/<category>/meta.json`. Add your slug to the `pages` array in the position you want it to appear in the sidebar.
-5. Run `npm run dev` and confirm your page renders at `/en/docs/<category>/<slug>`.
-6. Commit and open a PR.
+4. Run `npm run dev` and confirm your page renders at `/en/docs/lol/<category>/<slug>`.
+5. Commit and open a PR.
+
+New pages show up in the sidebar on their own, at the end of the category. Want a different spot? Open `content/docs/en/lol/<category>/meta.json` and add your file name to the `pages` array in the position you want.
 
 ## Add images
 
@@ -89,15 +90,15 @@ Drop images into `public/wiki-images/` in the same pull request. Reference them 
 Rules:
 
 - Filenames use lowercase and dashes (`my-screenshot.png`, not `My Screenshot.png`).
-- Every image needs an `alt` attribute. The lint check blocks merges otherwise.
+- Every image needs an `alt` attribute. Reviewers check this.
 - Keep each file under **500 KB**. Bigger files slow the site build.
 - PNG for screenshots, JPG for photos. WebP is fine too.
 
 ## What happens after you open a PR
 
-1. Cloudflare Pages builds a preview. It posts a link as a comment on your PR. Open it to see your changes live.
-2. CI runs lint checks: spelling, dead links, Markdown style, alt-text. Fix anything it flags.
-3. A maintainer reviews. They may ask for small changes.
+1. Cloudflare builds a preview. It posts a link as a comment on your PR. Open it to see your changes live.
+2. CI checks code formatting. Fix anything it flags.
+3. A maintainer reviews voice, links, and image alt text. They may ask for small changes.
 4. Once approved, the PR gets merged. Within a few minutes, your change is live on `wiki.divineskins.gg`.
 
 ## Style and safety rules
