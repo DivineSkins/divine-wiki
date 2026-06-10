@@ -105,13 +105,13 @@ One per folder. Two shapes:
 {
   "title": "{meta.tools.title}",
   "icon": "Wrench",
-  "pages": ["index", "flint", "jade", "ltmao", "ritobin"]
+  "pages": ["index", "flint", "jade", "ltmao", "ritobin", "..."]
 }
 ```
 
 - `title`: shown as the sidebar section header. `{meta.<key>}` interpolations pull from `messages/<locale>.json` so the header translates (handled by `src/lib/tree-localization.ts`).
 - `icon`: **must be a lucide-react icon name resolved by `lucideIconsPlugin`**. Unknown names 500 the whole docs layout.
-- `pages`: order matters. Entries that aren't listed are appended alphabetically after the listed ones.
+- `pages`: order matters. **Every category ends with `"..."`** so pages that aren't listed get appended alphabetically — a new guide shows in the sidebar without touching meta.json. Without `"..."`, unlisted pages are silently dropped from the sidebar. The /draft editor's handoff relies on this.
 - `root: true`: only used on the game-segment `meta.json` (`lol/meta.json`) so Fumadocs treats it as a sidebar root rather than a nested folder.
 
 Supported `meta.json` directives (Fumadocs):
