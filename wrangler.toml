@@ -18,6 +18,14 @@ preview_urls = true
 # be created (zone not on this account, or a conflicting DNS record). Add it once
 # in the dashboard instead: Workers & Pages -> divine-wiki -> Domains & Routes ->
 # Add Domain -> wiki.divineskins.gg. It persists across deploys.
+#
+# Status as of 2026-06-10: wiki.divineskins.gg is a DNS-only CNAME to Vercel
+# (serves the main site, decision was to keep it there for now), so the wiki is
+# only live at divine-wiki.divineskins.workers.dev. When attaching the domain,
+# the dashboard will prompt to override that Vercel CNAME; accept it. Then add
+# the zone WAF rate-limiting rule for /api/* (Security -> WAF -> Rate limiting
+# rules, ~30 req / 10 s per IP, block): it only takes effect once traffic is
+# proxied through the zone, which a Workers custom domain does.
 
 # Static assets (the built Next.js client bundle + public/) served from the edge.
 [assets]
