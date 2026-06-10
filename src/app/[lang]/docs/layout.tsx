@@ -1,10 +1,39 @@
 import { DocsLayout } from "fumadocs-ui/layouts/docs";
+import type * as PageTree from "fumadocs-core/page-tree";
 import { source } from "@/lib/source";
 import { baseOptions } from "@/lib/layout.shared";
 import { localizePageTree } from "@/lib/tree-localization";
 import { getMessages } from "@/lib/locale";
 import { ReadingWidthToggle } from "@/components/reading-width-toggle";
-import { ContributeButton } from "@/components/contribute-picker";
+import { SidebarSeparatorWithContribute } from "@/components/sidebar-contribute";
+import { contributeSidebarNodeId } from "@/lib/config";
+
+/**
+ * Appends the Contribute sentinel node after the last item of every list the
+ * sidebar can render: the top level, and the children of each `root: true`
+ * folder (game segments) — fumadocs swaps the visible tree to the active
+ * root's children, so the sentinel has to exist in both places. The sidebar's
+ * Separator renderer turns it into the Contribute button
+ * (see src/components/sidebar-contribute.tsx).
+ */
+function appendContributeNode(root: PageTree.Root): PageTree.Root {
+  const sentinel: PageTree.Separator = {
+    type: "separator",
+    $id: contributeSidebarNodeId,
+  };
+  const mapNodes = (nodes: PageTree.Node[]): PageTree.Node[] =>
+    nodes.map((node) =>
+      node.type === "folder"
+        ? {
+            ...node,
+            children: node.root
+              ? [...mapNodes(node.children), sentinel]
+              : mapNodes(node.children),
+          }
+        : node,
+    );
+  return { ...root, children: [...mapNodes(root.children), sentinel] };
+}
 
 export default async function Layout({
   params,
@@ -15,12 +44,14 @@ export default async function Layout({
   // lands translated content. `source.pageTree[lang]` can be undefined for
   // locales with no content dir yet.
   const rawTree = source.pageTree[lang] ?? source.pageTree["en"];
-  const tree = localizePageTree(rawTree, lang, {
-    translateName: true,
-    translateTitle: true,
-    translateIndex: false,
-    translateChildren: true,
-  });
+  const tree = appendContributeNode(
+    localizePageTree(rawTree, lang, {
+      translateName: true,
+      translateTitle: true,
+      translateIndex: false,
+      translateChildren: true,
+    }),
+  );
   const messages = getMessages(lang);
 
   return (
@@ -37,14 +68,8 @@ export default async function Layout({
         {...baseOptions(lang, true)}
         githubUrl="https://github.com/DivineSkins/divine-wiki"
         sidebar={{
-          footer: (
-            <>
-              {/* -mx-2 cancels the button's hover padding so its text lines
-                  up with the Reading width label below. */}
-              <ContributeButton className="-mx-2 mt-1 self-start" />
-              <ReadingWidthToggle label={messages.nav.readingWidth} />
-            </>
-          ),
+          components: { Separator: SidebarSeparatorWithContribute },
+          footer: <ReadingWidthToggle label={messages.nav.readingWidth} />,
         }}
       >
         {children}
