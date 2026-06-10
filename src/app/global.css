@@ -433,8 +433,13 @@
     border-radius: 2px;
   }
 
-  /* Headings inside prose — Manrope/Poppins, H3 in light purple. */
-  .prose h2 {
+  /* Headings inside prose — Manrope/Poppins, H3 in light purple.
+     The `:not(:where(...))` guard mirrors Tailwind typography's `not-prose`
+     escape hatch: components like the fumadocs Accordion render their
+     trigger inside an `h3.not-prose`, and without the guard our
+     `!important` margins/sizes leak into them. `:where()` keeps
+     specificity unchanged. */
+  .prose h2:not(:where([class~="not-prose"], [class~="not-prose"] *)) {
     font-family: var(--font-manrope), system-ui, sans-serif !important;
     font-weight: 700 !important;
     font-size: 1.875rem !important;
@@ -444,7 +449,7 @@
     margin-top: 2.5rem !important;
   }
 
-  .prose h3 {
+  .prose h3:not(:where([class~="not-prose"], [class~="not-prose"] *)) {
     font-family: var(--font-poppins), system-ui, sans-serif !important;
     font-weight: 600 !important;
     font-size: 1.375rem !important;
@@ -453,9 +458,9 @@
     margin-top: 2rem !important;
   }
 
-  .prose h4,
-  .prose h5,
-  .prose h6 {
+  .prose h4:not(:where([class~="not-prose"], [class~="not-prose"] *)),
+  .prose h5:not(:where([class~="not-prose"], [class~="not-prose"] *)),
+  .prose h6:not(:where([class~="not-prose"], [class~="not-prose"] *)) {
     font-family: var(--font-poppins), system-ui, sans-serif !important;
     font-weight: 600 !important;
     color: var(--color-divine-text) !important;
@@ -762,6 +767,57 @@
   .prose details li > p {
     margin-top: 0 !important;
     margin-bottom: 0 !important;
+  }
+
+  /* Accordions (fumadocs) — reskinned to match the FAQ `details` rows
+     above so both collapsible patterns read as one design: flat rows,
+     hairline dividers, chevron on the right, purple on hover/open.
+     Scoped by the `divine-faq` class added by the wrapper in
+     src/components/mdx/Accordions.tsx. Redefining --color-fd-border
+     recolors the divide-y dividers between items. */
+  .divine-faq {
+    --color-fd-border: color-mix(
+      in srgb,
+      var(--color-divine-border) 60%,
+      transparent
+    );
+    border: 0 !important;
+    border-block: 1px solid var(--color-fd-border) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+  }
+  .divine-faq h3 > button {
+    font-family: var(--font-poppins), system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 1.0625rem;
+    color: var(--color-divine-text);
+    padding: 1rem 0.25rem !important;
+    transition: color 0.15s;
+  }
+  .divine-faq h3 > button:hover,
+  .divine-faq h3 > button[data-state="open"] {
+    color: var(--color-divine-primary-light);
+  }
+  /* Chevron: move to the right edge, point down closed and up open,
+     the same motion as the `details` marker. Fumadocs rotates it with
+     the Tailwind v4 `rotate` property, hence the rotate overrides. */
+  .divine-faq h3 > button > svg {
+    order: 1;
+    margin-left: auto;
+    color: var(--color-divine-text-muted);
+    rotate: 90deg !important;
+    transition:
+      rotate 0.25s ease,
+      color 0.2s;
+  }
+  .divine-faq h3 > button[data-state="open"] > svg {
+    rotate: -90deg !important;
+    color: var(--color-divine-primary-light);
+  }
+  .divine-faq [role="region"] > div {
+    padding: 0 0.25rem 1rem !important;
+    color: color-mix(in srgb, var(--color-divine-text) 88%, transparent);
+    line-height: 1.55;
   }
 
   /* Horizontal rule — match the structural chrome divider tone so every

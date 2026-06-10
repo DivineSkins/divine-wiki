@@ -10,7 +10,7 @@ import { LevelPill } from "@/components/mdx/LevelPill";
 import { ToolCard } from "@/components/mdx/ToolCard";
 import { Icon } from "@/components/icon";
 import * as TabsComponents from "fumadocs-ui/components/tabs";
-import { Accordions, Accordion } from "fumadocs-ui/components/accordion";
+import { Accordions, Accordion } from "@/components/mdx/Accordions";
 
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
   return {

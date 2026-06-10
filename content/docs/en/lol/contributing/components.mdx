@@ -1,13 +1,34 @@
 ---
 title: Components
-description: The components you can use in a guide. What each one is for, and how to write it.
+description: Every component you can use in a guide. Each one shown live, with the code to copy.
 ---
 
-The wiki has a small set of components you can drop into any guide. The draft editor's toolbar inserts these for you. This page is the full reference.
+The wiki has a small set of components you can drop into any guide. The
+draft editor's toolbar inserts them for you. This page is the full
+reference. Each section shows the component first, then the code that
+makes it.
 
 ## Callout
 
-A colored box for warnings, tips, and the Korea/China safety note. Use `type="danger"` for real risk, `info` for tips, `warning` for "this can go wrong", `success` for confirmation.
+A colored box for warnings, tips, and the Korea/China safety note. Use
+`type="danger"` for real risk, `info` for tips, `warning` for "this can
+go wrong", and `success` for confirmation.
+
+<Callout type="info" title="Tip">
+  You can skip this step if you already installed the tool.
+</Callout>
+
+<Callout type="warning" title="Heads up">
+  Saving over the original file cannot be undone. Make a copy first.
+</Callout>
+
+<Callout type="danger" title="Don't use custom skins in Korea or China">
+  The anti-cheat there blocks all mods. Accounts get banned.
+</Callout>
+
+<Callout type="success" title="Done">
+  A green checkmark appears when the skin is ready.
+</Callout>
 
 ```mdx
 <Callout type="danger" title="Don't use custom skins in Korea or China">
@@ -15,9 +36,29 @@ A colored box for warnings, tips, and the Korea/China safety note. Use `type="da
 </Callout>
 ```
 
+Props:
+
+- `type` is `info`, `warning`, `danger`, or `success`. Defaults to `info`.
+- `title` is optional. Each type has a default title.
+
+There are also three level types for marking difficulty inside a page:
+`lvl_beginner`, `lvl_intermediate`, and `lvl_advanced`. For a small
+difficulty badge at the top of a guide, use [LevelPill](#levelpill)
+instead.
+
 ## Tabs
 
-Alternative paths — operating-system-specific steps, tool-specific workflows. Every `<Tabs>` needs a closing `</Tabs>`, and every `<Tab>` a closing `</Tab>`.
+Alternative paths. Use tabs for operating-system-specific steps or
+tool-specific workflows. Every `<Tabs>` needs a closing `</Tabs>`, and
+every `<Tab>` a closing `</Tab>`.
+
+<Tabs items={["Windows", "macOS"]}>
+
+<Tab value="Windows">Windows steps here.</Tab>
+
+<Tab value="macOS">macOS steps here.</Tab>
+
+</Tabs>
 
 ```mdx
 <Tabs items={["Windows", "macOS"]}>
@@ -30,6 +71,19 @@ Alternative paths — operating-system-specific steps, tool-specific workflows. 
 
 Collapsible sections. Good for FAQs and optional detail.
 
+<Accordions>
+
+<Accordion title="Do I need Maya to make a skin?">
+  No. Blender works for the full workflow, and many edits need no 3D tool at
+  all.
+</Accordion>
+
+<Accordion title="How big can my mod file be?">
+  There is no hard limit, but keep textures small so the mod loads fast.
+</Accordion>
+
+</Accordions>
+
 ```mdx
 <Accordions>
   <Accordion title="Question here">Answer here.</Accordion>
@@ -38,7 +92,14 @@ Collapsible sections. Good for FAQs and optional detail.
 
 ## Image
 
-A screenshot. `alt` text is required — reviewers reject images without it. Keep files under 500 KB and put them in `public/wiki-images/`.
+A screenshot. `alt` text is required. Reviewers reject images without
+it. Keep files under 500 KB and put them in `public/wiki-images/`.
+Readers can click any image to zoom it.
+
+<img
+  src="/wiki-images/1767019072359-dfx5or.png"
+  alt="LtMAO with the maya tab open, showing the lemon3d install steps"
+/>
 
 ```mdx
 <img
@@ -49,15 +110,26 @@ A screenshot. `alt` text is required — reviewers reject images without it. Kee
 
 ## Code block
 
-A fenced code block. Add a language after the opening fence for highlighting.
+A fenced code block. Add a language after the opening fence for
+highlighting.
 
 ```bash
 npm run dev
 ```
 
+````mdx
+```bash
+npm run dev
+```
+````
+
 ## Table
 
 A Markdown table. Keep it to a few columns so it reads on mobile.
+
+| Column A | Column B |
+| -------- | -------- |
+| Value    | Value    |
 
 ```mdx
 | Column A | Column B |
@@ -67,7 +139,16 @@ A Markdown table. Keep it to a few columns so it reads on mobile.
 
 ## ToolCard
 
-A single tool row — name, link, one-line description. Optional `badge`.
+A single tool row with a name, a link, and a one-line description. Use
+it on tool list pages.
+
+<ToolCard
+  name="Flint"
+  href="/docs/lol/tools/modding-apps/flint"
+  badge="Recommended"
+>
+  All-in-one skin creation tool.
+</ToolCard>
 
 ```mdx
 <ToolCard
@@ -79,48 +160,113 @@ A single tool row — name, link, one-line description. Optional `badge`.
 </ToolCard>
 ```
 
+Props:
+
+- `name` and `href` are required. External links open in a new tab.
+- `badge` is optional. It renders as a small pill on the right.
+
 ## LevelPill
 
-A difficulty marker. Put it at the top of a guide. `level` is `beginner`, `intermediate`, or `advanced`.
+A difficulty marker. Put it at the top of a guide, right under the
+title. `level` is `beginner`, `intermediate`, or `advanced`.
+
+<LevelPill level="beginner" /> <LevelPill level="intermediate" />
+<LevelPill level="advanced" />
 
 ```mdx
 <LevelPill level="beginner" />
 ```
 
+Use the optional `label` prop to change the text:
+`<LevelPill level="advanced" label="Expert" />`.
+
 ## ParameterList
 
 A two-column name/description table for reference pages.
+
+<ParameterList
+  parameters={[
+    { name: "champion", description: "The champion the skin belongs to." },
+    { name: "skin_id", description: "The numeric id of the base skin." },
+  ]}
+/>
 
 ```mdx
 <ParameterList
   parameters={[
     { name: "champion", description: "The champion the skin belongs to." },
+    { name: "skin_id", description: "The numeric id of the base skin." },
   ]}
 />
 ```
 
 ## PremiumCard
 
-A prominent gradient card for a featured link.
+A prominent card with a gradient border for one featured link. Use it
+to point readers at the most important next page.
+
+<PremiumCard title="Guided walkthrough" href="/docs/lol/guided-walkthrough">
+  Start here if you are new. One path from empty folder to finished skin.
+</PremiumCard>
 
 ```mdx
-<PremiumCard title="Guided walkthrough" href="/docs/guided-walkthrough">
+<PremiumCard title="Guided walkthrough" href="/docs/lol/guided-walkthrough">
   Start here if you are new.
 </PremiumCard>
 ```
 
 ## GlowCTA
 
-A glowing call-to-action button. Use sparingly — one per page at most.
+A glowing call-to-action button. Use it for the one action you want
+the reader to take. One per page at most.
+
+<GlowCTA href="/docs/lol">Browse the guides</GlowCTA>
 
 ```mdx
-<GlowCTA href="/docs">Browse the guides</GlowCTA>
+<GlowCTA href="/docs/lol">Browse the guides</GlowCTA>
 ```
+
+Props:
+
+- `variant` is `primary` (purple glow, default), `solid`, `secondary`,
+  or `ghost`.
+- `size` is `md` (default) or `lg`.
 
 ## YouTube
 
-An embedded YouTube video. Pass the video id, not the full URL.
+An embedded YouTube video. Pass the video id, not the full URL. The id
+is the part after `watch?v=` or `youtu.be/`.
+
+<YouTube
+  id="xqB84ga55hI"
+  title="Custom skin walkthrough for League of Legends"
+/>
 
 ```mdx
-<YouTube id="VIDEO_ID" title="What the video shows" />
+<YouTube id="xqB84ga55hI" title="What the video shows" />
 ```
+
+Props:
+
+- `id` is required.
+- `title` describes the video for screen readers.
+- `start` is optional. It starts playback at that second.
+
+Shortcut: paste a plain YouTube link on its own line and the wiki turns
+it into an embed for you.
+
+## Icon
+
+An inline icon. Use any [Lucide icon name](https://lucide.dev/icons/),
+or one of the brand names: `Maya`, `Blender`, `Discord`,
+`LeagueOfLegends`.
+
+<Icon name="Wrench" /> <Icon name="Sparkles" /> <Icon name="Blender" />
+<Icon name="Discord" />
+
+```mdx
+<Icon name="Wrench" />
+```
+
+Use the optional `className` prop to change the size, for example
+`className="size-4"`.
