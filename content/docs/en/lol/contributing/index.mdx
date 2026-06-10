@@ -1,118 +1,120 @@
 ---
-title: How to Contribute
-description: Edit guides or write new ones. Two paths. One in the browser, one local. Both end with a pull request a maintainer reviews and merges.
+title: How to contribute
+description: Write or edit wiki guides in your browser. Step-by-step instructions for your first pull request, made for people who have never used GitHub.
 ---
 
-The Divine Skins Wiki is a public GitHub repo. Every guide is a Markdown file. To change a guide or add one, open a pull request. A maintainer reviews it, then merges. The merge ships the change live within minutes.
+Anyone can add to this wiki. Every guide is a text file stored on GitHub, a free website where people work on files together. You suggest a change. A maintainer checks it and publishes it.
 
-## Two ways to contribute
+## Before you start
 
-| Path                | Best for                                         | What you need            |
-| ------------------- | ------------------------------------------------ | ------------------------ |
-| **Edit in browser** | Fixes, typos, single-page changes                | A GitHub account         |
-| **Edit locally**    | New categories, big rewrites, image-heavy guides | Node 22+, Git, an editor |
+You need a free GitHub account. Create one at [github.com/signup](https://github.com/signup). That is the only setup.
 
-If you only want to fix a typo, use **Edit in browser**. It takes one minute.
+Three words you will see a lot:
 
-## Edit in browser
+- A **fork** is your own copy of the wiki's files on GitHub.
+- A **commit** is a saved change to those files.
+- A **pull request** (or **PR**) asks the maintainers to publish your change.
 
-1. Open the guide you want to fix.
-2. Look for the **Edit on GitHub** link. It sits in the right-hand panel on desktop, or near the bottom of the page on mobile. Click it.
-3. On GitHub, click the pencil icon (top right of the file).
-4. Make your changes.
-5. If you don't have write access, GitHub will offer to fork the repo for you. Accept it and keep going.
-6. Scroll down. Pick "Create a new branch for this commit and start a pull request".
-7. Click **Propose changes**, then **Create pull request**.
+## Write a new guide
 
-That's it. A maintainer will see it, review it, and merge it.
+The wiki has a visual editor. You write in the browser and see a live preview. No downloads, no code.
 
-## Edit locally
+{/* Screenshot: the Contribute picker with the Visual editor and Manual on GitHub cards */}
 
-Use this path for new pages, new categories, or anything image-heavy.
+1. Click **Contribute** in the top bar. A window with two options opens.
+2. Pick **Visual editor**. The editor opens.
+3. Fill in **Title**, **Category**, and **Description**.
+4. Write your guide on the left. The right side shows how the published page will look.
 
-1. Fork the repo at [github.com/DivineSkins/divine-wiki](https://github.com/DivineSkins/divine-wiki).
-2. Clone your fork:
-   ```bash
-   git clone https://github.com/<your-username>/divine-wiki.git
-   cd divine-wiki
-   ```
-3. Install:
-   ```bash
-   npm install
-   ```
-4. Start the dev server:
-   ```bash
-   npm run dev
-   ```
-5. Open `http://localhost:3000`. Confirm the site loads.
-6. Make a branch:
-   ```bash
-   git checkout -b add-my-guide
-   ```
-7. Make your changes (see [Add a new guide](#add-a-new-guide) below).
-8. Commit, push, open a pull request to `main`.
+{/* Screenshot: the draft editor with the live preview on the right */}
 
-## Add a new guide
+<Callout type="info" title="Editor tips">
+  The toolbar drops in ready-made components like callouts and video embeds.
+  Type `@` to link to another guide. See the [components
+  page](/docs/lol/contributing/components) for everything you can use.
+</Callout>
 
-A guide is one `.mdx` file under `content/docs/en/lol/<category>/`.
+Ready to send it in?
 
-1. Pick a category (e.g. `tools`, `maya`, `blender`).
-2. Create a file like `content/docs/en/lol/tools/my-tool.mdx`. Use kebab-case for the filename.
-3. Paste this template:
+5. Click **Contribute** in the top right.
+6. The editor may suggest links to other guides it found in your text. Click the ones you want, then click **Continue to GitHub**.
+7. A GitHub tab opens with your guide already filled in. Sign in if GitHub asks.
+8. GitHub may ask you to fork the project first. Click the green **Fork this repository** button.
+9. Click **Commit changes...** in the top right. A small window opens.
+10. Click **Propose changes**.
+11. Click **Create pull request**. A form opens. Click **Create pull request** again.
 
-   ```mdx
-   ---
-   title: My Tool
-   description: One sentence about what this is and who it's for. About 160 characters.
-   ---
+{/* Screenshot: GitHub's "Propose changes" window */}
 
-   ## What it is
+That's it. A maintainer reviews your guide and publishes it.
 
-   Write here.
-   ```
+<Callout type="info">
+  Long draft? GitHub can't pre-fill very long files. The editor shows a **Copy
+  MDX** button instead. Copy your draft, then paste it into the empty file
+  GitHub opens.
+</Callout>
 
-4. Run `npm run dev` and confirm your page renders at `/en/docs/lol/<category>/<slug>`.
-5. Commit and open a PR.
+## Edit an existing guide
 
-New pages show up in the sidebar on their own, at the end of the category. Want a different spot? Open `content/docs/en/lol/<category>/meta.json` and add your file name to the `pages` array in the position you want.
+1. Open the guide you want to change.
+2. Scroll to the bottom. Click **Edit on GitHub**. The visual editor opens with the guide loaded.
+3. Make your changes.
+4. Click **Contribute**.
+5. Click **Copy MDX**. GitHub can't pre-fill edits, so you paste them yourself.
+6. Click **Open guide on GitHub**.
+7. Click the pencil icon at the top right of the file.
+8. Select all the old text. Paste your copy over it.
+9. Click **Commit changes...**, then **Propose changes**, then **Create pull request**.
 
 ## Add images
 
-Drop images into `public/wiki-images/` in the same pull request. Reference them in your guide like this:
+In the editor, click **Upload image** to put a picture in your guide. The picture shows in your preview right away. But the image file does not travel to GitHub with your text. You upload it yourself, after you commit the guide.
 
-```mdx
-<img
-  src="/wiki-images/your-screenshot.png"
-  alt="Short description of the image"
-/>
+### Upload your images after you commit
+
+When your draft uses images, the Contribute window lists the exact file names to upload. Keep that list handy.
+
+{/* Screenshot: the "One more step: upload your images" reminder in the Contribute window */}
+
+1. Commit your guide first (the steps above), so your pull request exists.
+2. Open your pull request on GitHub.
+3. Find the branch name near the top of the page. It looks like `yourname:patch-1`. Click it. Your fork opens on that branch.
+4. Open the `public` folder, then `wiki-images`.
+5. Click **Add file**, then **Upload files**.
+6. Drag your images in. Keep the file names exactly as your guide uses them.
+7. Click **Commit changes**. Check that **Commit directly to the patch-1 branch** is selected (your branch name may differ).
+
+{/* Screenshot: GitHub's Upload files page inside public/wiki-images */}
+
+The images join your pull request on their own. They show on the wiki once your pull request is merged.
+
+### Image rules
+
+- Use lowercase file names with dashes: `my-screenshot.png`, not `My Screenshot.png`.
+- Give every image an alt text that describes it. Reviewers check this.
+- Keep each file under 500 KB. Bigger files slow the site down.
+- Use PNG for screenshots, JPG for photos. WebP works too.
+
+## What happens after you open a pull request
+
+1. A preview link appears as a comment on your pull request. Open it to see your change live.
+2. A maintainer reviews your text, links, and images. They may ask for small changes.
+3. Once approved, your change is merged. It goes live on the wiki within minutes.
+
+## Work on your computer (advanced)
+
+For new categories, big rewrites, or many files at once, work locally. You need Node 22+, Git, and a code editor.
+
+```bash
+git clone https://github.com/<your-username>/divine-wiki.git
+cd divine-wiki
+npm install
+npm run dev
 ```
 
-Rules:
-
-- Filenames use lowercase and dashes (`my-screenshot.png`, not `My Screenshot.png`).
-- Every image needs an `alt` attribute. Reviewers check this.
-- Keep each file under **500 KB**. Bigger files slow the site build.
-- PNG for screenshots, JPG for photos. WebP is fine too.
-
-## What happens after you open a PR
-
-1. Cloudflare builds a preview. It posts a link as a comment on your PR. Open it to see your changes live.
-2. CI checks code formatting. Fix anything it flags.
-3. A maintainer reviews voice, links, and image alt text. They may ask for small changes.
-4. Once approved, the PR gets merged. Within a few minutes, your change is live on `wiki.divineskins.gg`.
-
-## Style and safety rules
-
-Before you write, read [the voice guide](https://github.com/DivineSkins/divine-wiki/blob/main/docs/voice.md). Reviewers reject PRs that miss the voice.
-
-A few rules that block merges:
-
-- **Banned words.** A short list of words and phrases is off-limits. They make the site feel like a piracy guide, not a creator wiki. The full list lives in [`docs/voice.md`](https://github.com/DivineSkins/divine-wiki/blob/main/docs/voice.md). Use `custom skin`, `safe`, `customize`, or `download` in their place.
-- **No KR / CN server advice.** Never tell readers to use custom skins on Korean or Chinese League servers. Anti-cheat there is strict. Accounts get banned.
-- **Safety callouts.** Any guide that touches install or region settings needs a warning callout near the top.
+Fork the repo at [github.com/DivineSkins/divine-wiki](https://github.com/DivineSkins/divine-wiki) first, then clone your fork. Open `http://localhost:3000` to check the site loads. Make a branch, change files under `content/docs/en/lol/`, drop images into `public/wiki-images/`, then push and open a pull request to `main`.
 
 ## Need help?
 
-- **Voice or style questions:** check [`docs/voice.md`](https://github.com/DivineSkins/divine-wiki/blob/main/docs/voice.md) and [`docs/playbook.md`](https://github.com/DivineSkins/divine-wiki/blob/main/docs/playbook.md).
-- **Bigger changes (new category, restructure, mass rename):** start a thread in `#wiki-proposals` on Discord first. Saves you from doing work that gets rejected.
-- **Stuck on Git or the editor:** ask in `#wiki-feedback` on Discord.
+- Stuck on GitHub or the editor? Ask in `#wiki-feedback` on Discord.
+- Planning a big change, like a new category or a restructure? Post in `#wiki-proposals` first. It saves you from doing work that gets rejected.
