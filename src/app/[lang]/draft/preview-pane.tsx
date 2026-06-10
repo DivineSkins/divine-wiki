@@ -3,74 +3,61 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { MDXRemote, type MDXRemoteSerializeResult } from "next-mdx-remote";
 import { useMessages } from "@/lib/hooks/useMessages";
-import { getMDXComponents } from "@/mdx-components";
-import { resolveStagedSrc, type StagedImages } from "@/lib/draft/staged-images";
+import { type StagedImages } from "@/lib/draft/staged-images";
+import { buildPreviewComponents } from "./preview-components";
+
+export type PreviewStatus = "loading" | "ok" | "error" | "unavailable";
 
 interface PreviewPaneProps {
   /** The fully assembled .mdx text (frontmatter + body). */
   mdx: string;
   stagedImages?: StagedImages;
+  /** Rendered as the page header above the body, like the published page. */
+  title?: string;
+  description?: string;
+  /** Lets the parent surface a live/error indicator in the pane header. */
+  onStatusChange?: (status: PreviewStatus) => void;
 }
-
-type PreviewState =
-  | { status: "idle" }
-  | { status: "loading" }
-  | { status: "ok"; serialized: MDXRemoteSerializeResult }
-  | { status: "error"; message: string; line: number | null }
-  | { status: "unavailable" };
 
 const DEBOUNCE_MS = 400;
 
-export function PreviewPane({ mdx, stagedImages }: PreviewPaneProps) {
+export function PreviewPane({
+  mdx,
+  stagedImages,
+  title,
+  description,
+  onStatusChange,
+}: PreviewPaneProps) {
   const messages = useMessages();
   const d = messages.draft;
-  const [state, setState] = useState<PreviewState>({ status: "idle" });
+  // The last successful render stays mounted while the next compile is in
+  // flight — no "Rendering preview…" flash on every keystroke.
+  const [serialized, setSerialized] = useState<MDXRemoteSerializeResult | null>(
+    null,
+  );
+  const [error, setError] = useState<{
+    message: string;
+    line: number | null;
+  } | null>(null);
+  const [status, setStatus] = useState<PreviewStatus>("loading");
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const components = useMemo(() => {
-    const base = getMDXComponents();
-    if (!stagedImages || stagedImages.size === 0) return base;
-    const OriginalImg = base.img;
-    return {
-      ...base,
-      img: (
-        props: { src?: unknown; alt?: string } & Record<string, unknown>,
-      ) => {
-        const blobUrl =
-          typeof props.src === "string"
-            ? resolveStagedSrc(props.src, stagedImages)
-            : null;
-        if (blobUrl) {
-          // Blob URLs can't go through ImageZoom → next/image: that path
-          // requires explicit width/height which we don't have for arbitrary
-          // uploads, and next/image throws on missing dimensions regardless
-          // of protocol. Render a plain <img> so the preview just works.
-          // eslint-disable-next-line @next/next/no-img-element
-          return (
-            <img
-              {...(props as Record<string, unknown>)}
-              src={blobUrl}
-              alt={props.alt ?? ""}
-            />
-          );
-        }
-        if (OriginalImg) {
-          const Img = OriginalImg as any;
-          return <Img {...props} />;
-        }
-        // eslint-disable-next-line @next/next/no-img-element
-        return (
-          <img {...(props as Record<string, unknown>)} alt={props.alt ?? ""} />
-        );
-      },
-    };
-  }, [stagedImages]);
+  const components = useMemo(
+    () => buildPreviewComponents(stagedImages),
+    [stagedImages],
+  );
 
   useEffect(() => {
     if (timer.current) clearTimeout(timer.current);
     const controller = new AbortController();
+    // Status updates also notify the parent (live/error dot in the pane
+    // header). `onStatusChange` is in the deps; the parent memoizes it.
+    const apply = (next: PreviewStatus) => {
+      setStatus(next);
+      onStatusChange?.(next);
+    };
     timer.current = setTimeout(async () => {
-      setState({ status: "loading" });
+      apply("loading");
       try {
         const res = await fetch("/api/preview", {
           method: "POST",
@@ -80,52 +67,70 @@ export function PreviewPane({ mdx, stagedImages }: PreviewPaneProps) {
         });
         const data = await res.json();
         if (data.ok) {
-          setState({ status: "ok", serialized: data.serialized });
+          setSerialized(data.serialized);
+          setError(null);
+          apply("ok");
         } else {
-          setState({
-            status: "error",
+          setError({
             message: data.error ?? "MDX failed to compile",
             line: data.line ?? null,
           });
+          apply("error");
         }
       } catch (err) {
         if (err instanceof DOMException && err.name === "AbortError") return;
-        setState({ status: "unavailable" });
+        apply("unavailable");
       }
     }, DEBOUNCE_MS);
     return () => {
       if (timer.current) clearTimeout(timer.current);
       controller.abort();
     };
-  }, [mdx]);
-
-  if (state.status === "idle" || state.status === "loading") {
-    return <p className="text-divine-text-muted text-sm">{d.previewLoading}</p>;
-  }
-
-  if (state.status === "unavailable") {
-    return (
-      <p className="text-divine-text-muted text-sm">{d.previewUnavailable}</p>
-    );
-  }
-
-  if (state.status === "error") {
-    return (
-      <div className="bg-divine-surface ring-divine-border rounded-md p-3 ring-1">
-        <p className="text-divine-error text-sm font-semibold">
-          {d.previewError}
-        </p>
-        <p className="text-divine-text-muted mt-1 font-mono text-xs">
-          {state.line ? `Line ${state.line}: ` : ""}
-          {state.message}
-        </p>
-      </div>
-    );
-  }
+  }, [mdx, onStatusChange]);
 
   return (
-    <div className="prose prose-invert max-w-none">
-      <MDXRemote {...state.serialized} components={components} />
+    <div>
+      {status === "unavailable" && (
+        <p className="text-divine-text-muted mb-4 text-sm">
+          {d.previewUnavailable}
+        </p>
+      )}
+
+      {error && (
+        <div className="bg-divine-error/10 border-divine-error/40 rounded-divine-lg mb-4 border p-3">
+          <p className="text-divine-error text-sm font-semibold">
+            {d.previewError}
+          </p>
+          <p className="text-divine-text-muted mt-1 font-mono text-xs">
+            {error.line ? `Line ${error.line}: ` : ""}
+            {error.message}
+          </p>
+        </div>
+      )}
+
+      {/* Page header — same treatment as the published docs page. */}
+      {(title || description) && (
+        <header className="border-divine-border/60 mb-6 border-b pb-5">
+          {title && <h1 className="divine-doc-title">{title}</h1>}
+          {description && (
+            <p className="divine-doc-description">{description}</p>
+          )}
+        </header>
+      )}
+
+      {serialized === null && !error ? (
+        <p className="text-divine-text-muted text-sm">{d.previewLoading}</p>
+      ) : (
+        serialized && (
+          <div
+            className={`prose prose-invert max-w-none transition-opacity ${
+              error ? "opacity-40" : "opacity-100"
+            }`}
+          >
+            <MDXRemote {...serialized} components={components} />
+          </div>
+        )
+      )}
     </div>
   );
 }

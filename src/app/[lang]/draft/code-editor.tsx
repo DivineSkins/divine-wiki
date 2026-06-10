@@ -5,6 +5,7 @@ import CodeMirror, { type ReactCodeMirrorRef } from "@uiw/react-codemirror";
 import { markdown } from "@codemirror/lang-markdown";
 import { EditorView } from "@codemirror/view";
 import type { Extension } from "@codemirror/state";
+import { divineEditorTheme } from "./cm-theme";
 
 export interface CodeEditorHandle {
   /** Insert text at the current cursor and move the cursor after it. */
@@ -54,9 +55,9 @@ export const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        theme="dark"
+        theme={divineEditorTheme}
         height="100%"
-        className="h-full text-sm"
+        className="h-full"
         basicSetup={{ lineNumbers: true, foldGutter: false }}
         extensions={[markdown(), EditorView.lineWrapping, ...extraExtensions]}
       />

@@ -26,6 +26,10 @@ export function ReadingWidthToggle({ label }: { label: string }) {
   const [centered, setCentered] = useState(false);
 
   useEffect(() => {
+    // One-time post-hydration sync from the <html> class (set pre-paint by
+    // the inline script in the root layout) — same pattern as the draft
+    // editor's restore-prompt check.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCentered(document.documentElement.classList.contains(HTML_CLASS));
   }, []);
 

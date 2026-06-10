@@ -1,15 +1,46 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ImagePlus } from "lucide-react";
+import {
+  ChevronDown,
+  Code,
+  Columns2,
+  Gauge,
+  Image as ImageIcon,
+  ImagePlus,
+  Info,
+  List,
+  ListCollapse,
+  MousePointerClick,
+  Sparkles,
+  Table,
+  Wrench,
+  Youtube,
+  type LucideIcon,
+} from "lucide-react";
 import { MDXRemote, type MDXRemoteSerializeResult } from "next-mdx-remote";
 import { useMessages } from "@/lib/hooks/useMessages";
-import { getMDXComponents } from "@/mdx-components";
 import {
   mainSnippets,
   overflowSnippets,
   type ComponentSnippet,
 } from "@/lib/draft/snippets";
+import { buildPreviewComponents } from "./preview-components";
+
+const SNIPPET_ICONS: Record<string, LucideIcon> = {
+  callout: Info,
+  tabs: Columns2,
+  accordion: ListCollapse,
+  image: ImageIcon,
+  code: Code,
+  table: Table,
+  toolcard: Wrench,
+  levelpill: Gauge,
+  parameterlist: List,
+  premiumcard: Sparkles,
+  glowcta: MousePointerClick,
+  youtube: Youtube,
+};
 
 interface ToolbarProps {
   onInsert: (snippet: string) => void;
@@ -26,7 +57,7 @@ export function Toolbar({ onInsert, onUploadImage, docsHref }: ToolbarProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className="border-divine-border relative flex flex-wrap items-center gap-1.5 border-b px-3 py-2">
+    <div className="border-divine-primary/15 relative flex flex-wrap items-center gap-1.5 border-b bg-white/[0.02] px-3 py-2">
       {mainSnippets.map((snippet) => (
         <Chip
           key={snippet.id}
@@ -35,6 +66,23 @@ export function Toolbar({ onInsert, onUploadImage, docsHref }: ToolbarProps) {
           onHover={setHovered}
         />
       ))}
+      <button
+        type="button"
+        className="text-divine-text-muted hover:text-divine-text hover:border-divine-primary/40 hover:bg-divine-primary/10 inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-xs font-medium transition-colors"
+        onClick={() => setShowOverflow((v) => !v)}
+        aria-expanded={showOverflow}
+      >
+        {d.more}
+        <ChevronDown
+          className={`size-3 transition-transform ${showOverflow ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      <span
+        aria-hidden
+        className="bg-divine-border/70 mx-1 hidden h-4 w-px sm:block"
+      />
+
       <input
         ref={fileInputRef}
         type="file"
@@ -49,21 +97,15 @@ export function Toolbar({ onInsert, onUploadImage, docsHref }: ToolbarProps) {
       />
       <button
         type="button"
-        className="bg-divine-primary/15 text-divine-primary-light hover:bg-divine-primary/25 inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold"
+        className="bg-divine-primary/15 text-divine-primary-light hover:bg-divine-primary/25 border-divine-primary/30 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold transition-colors"
         onClick={() => fileInputRef.current?.click()}
       >
-        <ImagePlus className="h-3.5 w-3.5" />
+        <ImagePlus className="size-3.5" />
         {d.uploadImage}
       </button>
-      <button
-        type="button"
-        className="text-divine-text-muted bg-divine-surface border-divine-border rounded-md border px-2.5 py-1 text-xs"
-        onClick={() => setShowOverflow((v) => !v)}
-      >
-        {d.components} ▾
-      </button>
+
       {showOverflow && (
-        <div className="bg-divine-surface border-divine-border absolute top-full left-3 z-20 mt-1 flex flex-col gap-1 rounded-md border p-2">
+        <div className="bg-divine-popover border-divine-primary/25 rounded-divine-lg absolute top-full left-3 z-20 mt-1.5 flex flex-col gap-1 border p-1.5 shadow-[0_12px_32px_rgba(0,0,0,0.55)]">
           {overflowSnippets.map((snippet) => (
             <Chip
               key={snippet.id}
@@ -92,14 +134,16 @@ function Chip({
   onInsert: (snippet: string) => void;
   onHover: (snippet: ComponentSnippet | null) => void;
 }) {
+  const Icon = SNIPPET_ICONS[snippet.id];
   return (
     <button
       type="button"
-      className="bg-divine-primary/15 text-divine-primary-light hover:bg-divine-primary/25 rounded-md px-2.5 py-1 text-xs font-semibold"
+      className="text-divine-text-muted hover:text-divine-text hover:border-divine-primary/40 hover:bg-divine-primary/10 inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-xs font-medium transition-colors"
       onClick={() => onInsert(snippet.snippet)}
       onMouseEnter={() => onHover(snippet)}
       onMouseLeave={() => onHover(null)}
     >
+      {Icon && <Icon className="text-divine-primary-light/80 size-3.5" />}
       {snippet.label}
     </button>
   );
@@ -115,7 +159,7 @@ function Tooltip({
   docsHref: (anchor: string) => string;
 }) {
   const [preview, setPreview] = useState<MDXRemoteSerializeResult | null>(null);
-  const components = useMemo(() => getMDXComponents(), []);
+  const components = useMemo(() => buildPreviewComponents(), []);
 
   useEffect(() => {
     let cancelled = false;
@@ -137,11 +181,13 @@ function Tooltip({
   }, [snippet.preview]);
 
   return (
-    <div className="bg-divine-surface border-divine-primary absolute top-full left-3 z-30 mt-1 w-80 rounded-lg border p-3 shadow-xl">
+    <div className="bg-divine-popover border-divine-primary/35 rounded-divine-xl absolute top-full left-3 z-30 mt-1.5 w-80 border p-3.5 shadow-[0_16px_40px_rgba(0,0,0,0.6),0_0_40px_-12px_rgba(120,60,181,0.45)]">
       <div className="text-divine-text text-sm font-bold">{snippet.label}</div>
-      <p className="text-divine-text-muted mt-1 text-xs">{snippet.blurb}</p>
+      <p className="text-divine-text-muted mt-1 text-xs leading-relaxed">
+        {snippet.blurb}
+      </p>
 
-      <div className="text-divine-primary-light mt-2 text-[10px] tracking-wider uppercase">
+      <div className="text-divine-primary-light mt-3 text-[10px] font-semibold tracking-[0.1em] uppercase">
         {d.previewHeading}
       </div>
       <div className="prose prose-invert mt-1 max-w-none text-xs">
@@ -152,16 +198,16 @@ function Tooltip({
         )}
       </div>
 
-      <div className="text-divine-primary-light mt-2 text-[10px] tracking-wider uppercase">
+      <div className="text-divine-primary-light mt-3 text-[10px] font-semibold tracking-[0.1em] uppercase">
         {d.snippetLabel}
       </div>
-      <pre className="bg-divine-void mt-1 overflow-x-auto rounded p-2 text-[10px]">
+      <pre className="bg-divine-void border-divine-border/60 rounded-divine-md mt-1 overflow-x-auto border p-2 font-mono text-[10px] leading-relaxed">
         {snippet.snippet}
       </pre>
 
       <a
         href={docsHref(snippet.docsAnchor)}
-        className="text-divine-primary-light mt-2 inline-block text-xs"
+        className="text-divine-primary-light hover:text-divine-text mt-2.5 inline-block text-xs font-medium transition-colors"
       >
         {d.fullDocs} →
       </a>
