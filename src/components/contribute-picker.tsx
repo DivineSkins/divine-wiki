@@ -13,6 +13,7 @@ import { useParams, usePathname } from "next/navigation";
 import { PencilIcon, PencilLine, Github } from "lucide-react";
 import { useMessages } from "@/lib/hooks/useMessages";
 import { PremiumCard } from "@/components/mdx/PremiumCard";
+import { cn } from "@/lib/utils";
 
 interface PickerContextValue {
   open: () => void;
@@ -139,14 +140,17 @@ export function ContributePickerModal() {
  * other Fumadocs nav links. Fumadocs renders this as a `type: "custom"` item
  * (or the fallback route imports it).
  */
-export function ContributeButton() {
+export function ContributeButton({ className }: { className?: string }) {
   const messages = useMessages();
   const { open } = useContributePicker();
   return (
     <button
       type="button"
       onClick={open}
-      className="text-fd-muted-foreground hover:text-fd-accent-foreground inline-flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors"
+      className={cn(
+        "text-fd-muted-foreground hover:text-fd-accent-foreground inline-flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors",
+        className,
+      )}
     >
       <PencilIcon className="h-4 w-4" />
       <span>{messages.nav.contribute}</span>
