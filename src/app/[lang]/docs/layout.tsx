@@ -4,6 +4,7 @@ import { baseOptions } from "@/lib/layout.shared";
 import { localizePageTree } from "@/lib/tree-localization";
 import { getMessages } from "@/lib/locale";
 import { ReadingWidthToggle } from "@/components/reading-width-toggle";
+import { ContributeButton } from "@/components/contribute-picker";
 
 export default async function Layout({
   params,
@@ -36,7 +37,14 @@ export default async function Layout({
         {...baseOptions(lang, true)}
         githubUrl="https://github.com/DivineSkins/divine-wiki"
         sidebar={{
-          footer: <ReadingWidthToggle label={messages.nav.readingWidth} />,
+          footer: (
+            <>
+              {/* -mx-2 cancels the button's hover padding so its text lines
+                  up with the Reading width label below. */}
+              <ContributeButton className="-mx-2 mt-1 self-start" />
+              <ReadingWidthToggle label={messages.nav.readingWidth} />
+            </>
+          ),
         }}
       >
         {children}

@@ -34,26 +34,28 @@ export function baseOptions(
       ),
       url: `/${locale}/`,
     },
-    links: [
+  };
+
+  // On docs pages the Contribute trigger lives in the sidebar footer
+  // (see src/app/[lang]/docs/layout.tsx), not in the nav links.
+  if (!docsLayout) {
+    options.links = [
+      {
+        icon: <BookIcon />,
+        text: messages.nav.documentation,
+        url: `/${locale}/docs`,
+        active: "nested-url",
+      },
       {
         type: "custom",
         children: <ContributeButton />,
       },
-    ],
-  };
-
-  if (!docsLayout) {
-    options.links?.unshift({
-      icon: <BookIcon />,
-      text: messages.nav.documentation,
-      url: `/${locale}/docs`,
-      active: "nested-url",
-    });
-    options.links?.push({
-      icon: <DiscordLogo className="size-4" />,
-      text: messages.nav.discord,
-      url: discordInviteUrl,
-    });
+      {
+        icon: <DiscordLogo className="size-4" />,
+        text: messages.nav.discord,
+        url: discordInviteUrl,
+      },
+    ];
   }
 
   return options;
