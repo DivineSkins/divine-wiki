@@ -1,4 +1,7 @@
-# Cloudflare Pages security + caching headers.
+# Security + caching headers for STATIC ASSETS ONLY. On Workers static
+# assets, _headers never applies to Worker-generated responses (SSR pages,
+# /api/*): those get their headers from next.config.mjs headers() or the
+# route handlers themselves.
 
 /*
   X-Frame-Options: SAMEORIGIN
@@ -11,6 +14,3 @@
 
 /favicon.ico
   Cache-Control: public, max-age=86400
-
-/api/*
-  Cache-Control: no-store

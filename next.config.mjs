@@ -25,6 +25,36 @@ const config = {
       },
     ],
   },
+  // public/_headers only covers static asset responses on Workers, so the
+  // security headers for Worker-generated responses (SSR pages, /api/*) live
+  // here. Keep the two lists in sync.
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          {
+            key: "Referrer-Policy",
+            value: "strict-origin-when-cross-origin",
+          },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=()",
+          },
+        ],
+      },
+      {
+        source: "/api/preview",
+        headers: [{ key: "Cache-Control", value: "no-store" }],
+      },
+      {
+        source: "/api/search",
+        headers: [{ key: "Cache-Control", value: "no-store" }],
+      },
+    ];
+  },
   async redirects() {
     return [
       {

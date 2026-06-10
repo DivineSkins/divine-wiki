@@ -139,6 +139,14 @@ export async function GET(
       {/* Reference origin so unused-var lints stay happy in case we want it later */}
       <span style={{ display: "none" }}>{origin}</span>
     </div>,
+    {
+      // Worker responses aren't edge-cached by Cloudflare, but social crawlers
+      // and browsers honor this, so repeat shares don't re-render the image.
+      headers: {
+        "Cache-Control":
+          "public, max-age=86400, s-maxage=604800, stale-while-revalidate=86400",
+      },
+    },
   );
 }
 
