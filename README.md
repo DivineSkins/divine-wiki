@@ -51,7 +51,7 @@ The nine LoL categories:
 - Fumadocs (MDX engine, sidebar, search)
 - Tailwind v4
 - shadcn/ui
-- Cloudflare Pages hosting
+- Cloudflare Workers hosting (via @opennextjs/cloudflare)
 - Crowdin i18n
 
 ## Links
@@ -62,4 +62,5 @@ The nine LoL categories:
 
 ## License
 
-MIT. See [LICENSE](./LICENSE).
+Code is MIT, see [LICENSE](./LICENSE). Guide content under `content/` is
+[CC BY-SA 4.0](./content/LICENSE). By contributing you agree to these terms.
