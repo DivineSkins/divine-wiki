@@ -93,21 +93,29 @@ function buildEntityIndex() {
         continue;
       }
       if (!entryStat.isDirectory()) continue;
-      const category = entry;
-      for (const file of readdirSync(entryPath)) {
-        if (!file.endsWith(".mdx")) continue;
-        const slug = file.replace(/\.mdx$/, "");
-        const title = readTitle(resolve(entryPath, file));
-        if (!title) continue;
-        const url =
-          slug === "index"
-            ? `/docs/${game}/${category}`
-            : `/docs/${game}/${category}/${slug}`;
-        entities.push({ title, slug, category, url });
-      }
+      // Recurse the whole category: guides can sit in sub-folders
+      // (e.g. tools/modding-apps/flint.mdx) and must be linkable too.
+      walkCategory(entryPath, game, entry, [], entities);
     }
   }
   return entities;
+}
+
+function walkCategory(dirPath, game, category, relParts, entities) {
+  for (const entry of readdirSync(dirPath)) {
+    const entryPath = resolve(dirPath, entry);
+    if (statSync(entryPath).isDirectory()) {
+      walkCategory(entryPath, game, category, [...relParts, entry], entities);
+      continue;
+    }
+    if (!entry.endsWith(".mdx")) continue;
+    const slug = entry.replace(/\.mdx$/, "");
+    const title = readTitle(entryPath);
+    if (!title) continue;
+    const parts = [game, category, ...relParts];
+    if (slug !== "index") parts.push(slug);
+    entities.push({ title, slug, category, url: `/docs/${parts.join("/")}` });
+  }
 }
 
 try {

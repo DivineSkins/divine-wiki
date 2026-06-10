@@ -1,5 +1,7 @@
 const REPO = "DivineSkins/divine-wiki";
 const BRANCH = "main";
+/** Game segment under content/docs/en/ — the draft editor is LoL-only today. */
+const GAME = "lol";
 
 /**
  * Conservative cap on the total prefill URL length. GitHub + browsers start
@@ -9,7 +11,7 @@ const MAX_PREFILL_URL_BYTES = 6000;
 
 /** Repo-relative path to a guide's .mdx file. */
 export function contentPath(category: string, slug: string): string {
-  return `content/docs/en/${category}/${slug}.mdx`;
+  return `content/docs/en/${GAME}/${category}/${slug}.mdx`;
 }
 
 export interface NewFileHandoff {
@@ -49,7 +51,7 @@ export function editFileUrl(path: string): string {
 
 /** GitHub "edit" URL for a category's meta.json. */
 export function metaJsonUrl(category: string): string {
-  return `https://github.com/${REPO}/edit/${BRANCH}/content/docs/en/${category}/meta.json`;
+  return `https://github.com/${REPO}/edit/${BRANCH}/content/docs/en/${GAME}/${category}/meta.json`;
 }
 
 /** raw.githubusercontent URL for a guide's source. `path` e.g. "tools/flint". */
