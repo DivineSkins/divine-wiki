@@ -75,7 +75,7 @@ The nine categories under `lol/` are: `guided-walkthrough`, `tools`, `maya`, `bl
 | Layer         | Pick                                                                                                   |
 | ------------- | ------------------------------------------------------------------------------------------------------ |
 | Framework     | Next.js 16 (App Router, Turbopack dev)                                                                 |
-| MDX engine    | Fumadocs 16.x (core, ui; mdx 14.x) — sidebar from meta.json, Orama search, OG API                      |
+| MDX engine    | Fumadocs 16.x (core, ui; mdx 15.x) — sidebar from meta.json, Orama search, OG API                      |
 | UI            | Tailwind v4 + shadcn (new-york) + Radix primitives                                                     |
 | Auth          | None — no login or user accounts (but the app is SSR, not a static export)                             |
 | Contributions | GitHub-native: in-browser /draft editor (opens PR), Fumadocs "Edit on GitHub" link, or local fork + PR |
