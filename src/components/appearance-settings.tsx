@@ -202,35 +202,32 @@ export function AppearanceSettings({ labels }: { labels: SettingsLabels }) {
             ]}
           />
         </Row>
-        <div className="flex flex-col gap-1.5">
-          <span className="text-fd-muted-foreground text-xs">
-            {labels.font}
-          </span>
-          <div
-            role="radiogroup"
+        <Row label={labels.font}>
+          {/* Native select keeps the row compact and dependency-free.
+              The trigger previews the current font via fontFamily; the
+              per-option fontFamily styles the open list where the
+              browser supports it (desktop Chrome/Firefox). */}
+          <select
             aria-label={labels.font}
-            className="flex flex-col"
+            value={font}
+            onChange={(event) => applyFont(event.target.value as FontId)}
+            style={{
+              fontFamily: FONT_OPTIONS.find((option) => option.id === font)
+                ?.family,
+            }}
+            className="text-fd-foreground bg-fd-popover max-w-44 rounded-full border px-3 py-1.5 text-xs"
           >
             {FONT_OPTIONS.map((option) => (
-              <button
+              <option
                 key={option.id}
-                type="button"
-                role="radio"
-                aria-checked={font === option.id}
-                onClick={() => applyFont(option.id)}
+                value={option.id}
                 style={{ fontFamily: option.family }}
-                className={cn(
-                  "rounded-md px-2 py-1.5 text-left text-sm transition-colors",
-                  font === option.id
-                    ? "bg-fd-accent text-fd-accent-foreground font-medium"
-                    : "text-fd-muted-foreground hover:text-fd-foreground",
-                )}
               >
                 {option.label || labels.fontSystem}
-              </button>
+              </option>
             ))}
-          </div>
-        </div>
+          </select>
+        </Row>
         <Row label={labels.width}>
           <Segmented
             groupLabel={labels.width}
