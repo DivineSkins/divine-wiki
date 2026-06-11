@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ComponentType,
+} from "react";
 import {
   ChevronDown,
   Code,
@@ -15,10 +21,9 @@ import {
   Sparkles,
   Table,
   Wrench,
-  Youtube,
-  type LucideIcon,
 } from "lucide-react";
 import { MDXRemote, type MDXRemoteSerializeResult } from "next-mdx-remote";
+import { YouTubeLogo } from "@/components/brand-logos";
 import { useMessages } from "@/lib/hooks/useMessages";
 import {
   mainSnippets,
@@ -27,7 +32,8 @@ import {
 } from "@/lib/draft/snippets";
 import { buildPreviewComponents } from "./preview-components";
 
-const SNIPPET_ICONS: Record<string, LucideIcon> = {
+// Lucide icons plus our Simple Icons brand logos (lucide v1 dropped brands).
+const SNIPPET_ICONS: Record<string, ComponentType<{ className?: string }>> = {
   callout: Info,
   tabs: Columns2,
   accordion: ListCollapse,
@@ -39,7 +45,7 @@ const SNIPPET_ICONS: Record<string, LucideIcon> = {
   parameterlist: List,
   premiumcard: Sparkles,
   glowcta: MousePointerClick,
-  youtube: Youtube,
+  youtube: YouTubeLogo,
 };
 
 interface ToolbarProps {
