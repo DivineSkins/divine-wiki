@@ -37,23 +37,21 @@ and pre-`lol/` paths), SECURITY.md and the PR template corrected, squash-only
 merges with branch auto-delete, topics set, Dependabot alerts and security
 updates enabled.
 
-Still open (see [Fix list](#fix-list)):
-
-- `CROWDIN_PROJECT_ID` and `CROWDIN_PERSONAL_TOKEN` secrets were never set,
-  so both Crowdin workflows had failed every scheduled run for weeks. They
-  are now **disabled** (`gh workflow enable <name>` after setting secrets).
-- "Allow GitHub Actions to create and approve pull requests" is blocked by
-  an org-level setting that needs the `admin:org` token scope to change.
-  Required before crowdin-download can open its sync PRs.
-- Everything gated on going public (free-plan limits on private repos):
-  branch protection, secret scanning, CodeQL, private vulnerability
-  reporting, auto-merge.
+Completed in the second pass, same day: the Crowdin sync workflows were
+removed entirely (never configured, won't be used; `crowdin.yml` stays as
+inert config), the repo went **public**, `harden-github.sh` ran (1 required
+PR review on `main`, no force pushes or deletions, first-time contributors
+need approval before workflows run), secret scanning with push protection
+came on (0 alerts across the full history), CodeQL default setup and
+private vulnerability reporting were enabled, auto-merge was turned on,
+and allowed actions were restricted to GitHub-owned only.
 
 ---
 
 ## Go-public runbook
 
-Do these in order. Steps 1 and 2 are the only ones that can't be undone.
+Executed 2026-06-11. Kept as the reference for how the setup was built and
+what to re-check if settings ever drift. Steps 1 and 2 can't be undone.
 
 1. **Final history check.** Flipping public exposes the entire git history
    forever, including deleted files and old commits. Forks and caches mean
@@ -164,12 +162,12 @@ The rules, in order of importance:
      contents: read
    ```
 
-   The crowdin-download workflow needs more
-   (`contents: write`, `pull-requests: write`) because it pushes a branch
-   and opens a PR. Grant exactly that, nothing else. It also needs
-   "Allow GitHub Actions to create and approve pull requests" enabled in
-   Settings, then Actions, or PR creation fails even with the right
-   permissions.
+   If a future workflow needs to push a branch or open a PR, grant exactly
+   `contents: write` and `pull-requests: write`, nothing else, and enable
+   "Allow GitHub Actions to create and approve pull requests" in Settings,
+   then Actions. Also note: allowed actions are restricted to GitHub-owned
+   only, so any third-party action (zizmor, Crowdin, etc.) needs an
+   allowlist entry in Settings, then Actions before it will run.
 
 1. **Never interpolate untrusted input into `run:` scripts.** PR titles,
    branch names, issue bodies, and comments are attacker-controlled on a
@@ -284,8 +282,10 @@ The recurring work after going public, roughly 30 minutes a week:
   quick questions to Discord.
 - **Watch the security tab.** Secret scanning, CodeQL, and Dependabot alerts
   all land there. Empty most weeks.
-- **Crowdin sync PRs** (once secrets are set): review per locale, merge, and
-  never hand-edit `content/docs/<locale>/` directly.
+- **Translations are frozen.** The Crowdin sync workflows were removed
+  (2026-06-11, never configured, won't be used). Existing
+  `content/docs/<locale>/` pages stay as they are; still never hand-edit
+  them, so Crowdin can resume as source of truth if sync ever returns.
 - **First-time contributor workflow approvals.** Each fork PR from a new
   contributor waits for a maintainer to click "Approve and run". Glance at
   the diff for workflow-file changes before approving.
@@ -294,29 +294,12 @@ The recurring work after going public, roughly 30 minutes a week:
 
 ## Fix list
 
-Updated 2026-06-11 after the first hardening pass. Remaining, in order:
+Updated 2026-06-11 after going public. Remaining:
 
-1. **Go public** (runbook above), run `./scripts/harden-github.sh`, then in
-   Settings enable CodeQL default setup and private vulnerability reporting.
-1. **Crowdin secrets.** Needs the maintainer's Crowdin values plus an org
-   permission our token couldn't change:
-
-   ```bash
-   gh auth refresh -h github.com -s admin:org
-   gh secret set CROWDIN_PROJECT_ID
-   gh secret set CROWDIN_PERSONAL_TOKEN
-   gh api -X PUT orgs/DivineSkins/actions/permissions/workflow \
-     -f default_workflow_permissions=read \
-     -F can_approve_pull_request_reviews=true
-   gh api -X PUT repos/DivineSkins/divine-wiki/actions/permissions/workflow \
-     -f default_workflow_permissions=read \
-     -F can_approve_pull_request_reviews=true
-   gh workflow enable crowdin-upload.yml
-   gh workflow enable crowdin-download.yml
-   gh workflow run crowdin-upload.yml
-   ```
-
-1. **Social preview image** (Settings, then General). Used when the repo
+1. **Social preview image** (Settings, then General). Shown when the repo
    link is shared on Discord and social media.
-1. **Auto-merge** (optional, Settings, then General) once public; the free
-   plan blocks it on private repos. Handy for Dependabot PRs.
+1. **postcss Dependabot alert** (moderate). It's pinned inside Next.js
+   itself, build-time only, and not exploitable here. It clears when a
+   Next release bumps it; nothing to do but wait.
+1. **Watch the first CodeQL run** (Actions tab) and the next PR's
+   format-check; both should pass without attention.
