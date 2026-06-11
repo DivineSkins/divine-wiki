@@ -10,6 +10,12 @@ updates:
     groups:
       minor-and-patch:
         update-types: ["minor", "patch"]
+    ignore:
+      # eslint 10 crashes with eslint-config-next (its typescript-eslint 8.x
+      # predates the new scope-manager API). Re-test majors once
+      # eslint-config-next depends on typescript-eslint >= 9. See PR #13.
+      - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "github-actions"
     directory: "/"
