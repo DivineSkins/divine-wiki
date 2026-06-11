@@ -62,10 +62,12 @@ The nine LoL categories:
 
 ## License
 
-Code is MIT, see [LICENSE](./LICENSE). Guide content under `content/` is
-[CC BY-NC-SA 4.0](./content/LICENSE): you may share and adapt it with credit,
-but not for commercial use. Re-hosting the wiki on a monetized site is not
-allowed. By contributing you agree to these terms.
+Everything in this repository, code and guide content, is licensed under
+[CC BY-NC-SA 4.0](./LICENSE): you may share and adapt it with credit, but
+not for commercial use. Re-hosting the wiki on a monetized site is not
+allowed. Contributor terms for guide content are in
+[content/LICENSE](./content/LICENSE). By contributing you agree to these
+terms.
 
 ## Disclaimer
 

@@ -12,9 +12,9 @@ The full guide lives on the wiki: **[wiki.divineskins.gg/en/docs/lol/contributin
 
 A maintainer reviews. Once merged, your change is live within a few minutes.
 
-By contributing you agree that your guide content is licensed under
-[CC BY-NC-SA 4.0](./content/LICENSE) and code under [MIT](./LICENSE). You
-keep your copyright; these licenses just let the wiki publish your work.
+By contributing you agree that your contribution, guide content and code
+alike, is licensed under [CC BY-NC-SA 4.0](./LICENSE). You keep your
+copyright; the license just lets the wiki publish your work.
 
 ## Style and safety
 
