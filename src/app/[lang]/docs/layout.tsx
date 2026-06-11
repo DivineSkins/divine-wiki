@@ -6,7 +6,8 @@ import { localizePageTree } from "@/lib/tree-localization";
 import { getMessages } from "@/lib/locale";
 import { ReadingWidthToggle } from "@/components/reading-width-toggle";
 import { SidebarSeparatorWithContribute } from "@/components/sidebar-contribute";
-import { contributeSidebarNodeId } from "@/lib/config";
+import { SiteFooter } from "@/components/site-footer";
+import { contributeSidebarNodeId, githubRepoUrl } from "@/lib/config";
 
 /**
  * Appends the Contribute sentinel node after the last item of every list the
@@ -66,7 +67,7 @@ export default async function Layout({
       <DocsLayout
         tree={tree}
         {...baseOptions(lang, true)}
-        githubUrl="https://github.com/DivineSkins/divine-wiki"
+        githubUrl={githubRepoUrl}
         sidebar={{
           components: { Separator: SidebarSeparatorWithContribute },
           footer: <ReadingWidthToggle label={messages.nav.readingWidth} />,
@@ -74,6 +75,7 @@ export default async function Layout({
       >
         {children}
       </DocsLayout>
+      <SiteFooter locale={lang} />
     </div>
   );
 }

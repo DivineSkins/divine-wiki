@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { githubRepoUrl } from "@/lib/config";
 
 /**
  * Attribution banner pinned to the bottom of the table-of-contents rail —
@@ -13,7 +14,7 @@ export function DocsBanner() {
     <div className="border-divine-border text-divine-text-muted mt-auto border-t pt-4 text-xs leading-relaxed">
       Written by the Divine Skins community. Open source on{" "}
       <Link
-        href="https://github.com/DivineSkins/divine-wiki"
+        href={githubRepoUrl}
         target="_blank"
         rel="noopener noreferrer"
         className="text-divine-primary-light underline-offset-4 hover:text-white hover:underline"
