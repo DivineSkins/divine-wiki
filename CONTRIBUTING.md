@@ -14,10 +14,12 @@ A maintainer reviews. Once merged, your change is live within a few minutes.
 
 ## Style and safety
 
-Read [`docs/voice.md`](./docs/voice.md) before writing. A few rules block merges:
+Write so a 12-year-old can follow every step. Most readers are not native English speakers: short sentences, one action per step, start each step with a verb, talk to the reader as "you". Skip filler like "simply", "just", and "please".
 
-- No banned terms. The full list is in `docs/voice.md`.
-- Never recommend custom skins on Korean or Chinese League servers.
+A few rules block merges:
+
+- No banned terms. Never write "skin hack", "skin changer", "unlock skins", "undetectable", "cheat", "exploit", "buy", or "free-to-play skins". Write "custom skin", "mod", "safe", "client-side", "customize", "download" instead. Custom skins don't break rules — the wrong word makes the whole wiki look shady.
+- Never recommend custom skins on Korean or Chinese League servers. The anti-cheat there blocks all mods. Guides that touch installing or testing skins need that warning near the top.
 - Every `<img>` needs `alt="..."`.
 - Images go in `public/wiki-images/` and stay under 500 KB.
 

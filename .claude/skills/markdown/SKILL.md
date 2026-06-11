@@ -1,6 +1,6 @@
 ---
 name: markdown
-description: Generate clean, lint-compliant GitHub Flavored Markdown. Use whenever creating or editing markdown or MDX files in this repo (content/docs/**, docs/, README) so structure stays consistent (blank lines around blocks, balanced fences, one H1, proper heading hierarchy). Covers formatting only; for wording and tone see docs/voice.md.
+description: Generate clean, lint-compliant GitHub Flavored Markdown. Use whenever creating or editing markdown or MDX files in this repo (content/docs/**, README) so structure stays consistent (blank lines around blocks, balanced fences, one H1, proper heading hierarchy). Covers formatting only; for wording and tone see the Voice rules in CLAUDE.md.
 license: MIT. See LICENSE for complete terms
 ---
 

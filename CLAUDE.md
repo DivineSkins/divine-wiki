@@ -23,7 +23,7 @@ node scripts/migrate-content.mjs   # one-shot content migration; idempotent
 node scripts/prebuild.mjs          # regenerates src/git-info.json
 ```
 
-CI runs on every PR: `.github/workflows/format-check.yml` (Prettier). Content checks (markdownlint, link check, spell check, alt-text guard) were removed in favor of trust + review — failing CI on legitimate champion names or third-party link flakes scared off Edit-on-GitHub contributors. Image `alt` and the banned-term list are still enforced by reviewers per `docs/voice.md`.
+CI runs on every PR: `.github/workflows/format-check.yml` (Prettier). Content checks (markdownlint, link check, spell check, alt-text guard) were removed in favor of trust + review — failing CI on legitimate champion names or third-party link flakes scared off Edit-on-GitHub contributors. Image `alt` and the banned-term list are still enforced by reviewers per the Voice rules below and `CONTRIBUTING.md`.
 
 ## Directory layout
 
@@ -35,8 +35,6 @@ content/docs/en/lol/      Creator guides for League of Legends. `lol/` is a
                           its own meta.json. The top-level content/docs/en/meta.json
                           just lists ["index", "lol"].
 content/docs/<locale>/lol/  Crowdin-populated translations. Never hand-edit.
-docs/                     AI-context pack (product, voice, playbook, this file).
-                          product.md, voice.md, playbook.md are load-bearing.
 messages/<locale>.json    UI strings. en.json is source of truth; others via Crowdin.
 public/                   Static assets. /wiki-images/* are legacy migrated images.
                           /_redirects and /_headers are Cloudflare edge config (served from Workers static assets).
@@ -94,8 +92,13 @@ The nine categories under `lol/` are: `guided-walkthrough`, `tools`, `maya`, `bl
   - `<` before a digit (e.g. `<3`, `<60k`) must be escaped as `\<3`.
   - Every `<Tabs>` needs a matching `</Tabs>`. Every `<Tab value="x">` needs `</Tab>`. Blank lines between JSX and Markdown content.
   - Code fences must balance. Don't nest them.
-- **Voice**: read `docs/voice.md` before writing anything user-facing. **Banned terms**: `skin hack`, `skin changer`, `unlock skins`, `undetectable`, `free-to-play skins`, `exploit`. Use: `custom skin`, `safe`, `customize`, `download`.
-- **Never recommend custom skins on Korean or Chinese servers.** Anti-cheat blocks all mods there; accounts get banned.
+- **Voice** (user-facing content; most readers are non-native English speakers):
+  - Write so a 12-year-old can follow. Short sentences (under 20 words), one action per step, every step starts with a verb, talk to the reader as "you".
+  - No filler: `simply`, `just`, `basically`, `easily`, `please`, `utilize`, `navigate to`, `in order to`, `ensure that`, `prior to`.
+  - No em or en dashes in content prose — use periods, commas, colons.
+  - **Banned terms**: `skin hack`, `skin changer`, `unlock skins`, `undetectable`, `free-to-play skins`, `exploit`, `cheat`, `buy`/`purchase` (for skins). Use: `custom skin`, `mod`, `safe`, `client-side`, `customize`, `download`. Not style preferences — the wrong word makes the wiki look shady.
+  - Canonical safety phrasing, same every time: custom skins are safe outside Korea and China; client-side only (only you see them); no gameplay advantage.
+- **Never recommend custom skins on Korean or Chinese servers.** Anti-cheat blocks all mods there; accounts get banned. Every guide that touches installing or testing skins gets a `danger` callout near the top.
 - **TypeScript**: strict; path alias `@/*` → `src/*`.
 - **Commits**: Conventional Commits preferred, not required. No Claude co-author trailers, no emoji.
 
@@ -122,9 +125,9 @@ See `.env.example` for the full list. None are required for local dev or for pro
 - [ ] File at `content/docs/en/lol/<category>/<slug>.mdx`, kebab-case
 - [ ] Frontmatter has `title` + `description`
 - [ ] Sidebar position OK? Category meta.json files end with `"..."` so new pages auto-append; list the slug explicitly only to pin a position
-- [ ] No banned terms (see `docs/voice.md`)
+- [ ] No banned terms (see Voice in Conventions)
 - [ ] All `<img>` have `alt="..."`
-- [ ] Images ≤ 500 KB (more = slow Pages build)
+- [ ] Images ≤ 500 KB (more = slow builds)
 - [ ] Safety callout near the top if the guide touches install or regions
 - [ ] `npm run dev` boots and the new page renders at `/en/docs/lol/<category>/<slug>`
 

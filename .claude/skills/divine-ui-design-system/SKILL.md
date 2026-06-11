@@ -101,4 +101,4 @@ bg-divine-info                                            font-mono
 - **Headlines:** Title Case. Real: "Install Celestial", "Make a custom skin".
 - **Subtitles:** sentence case, one plain sentence.
 
-For long-form copy (guide bodies, tutorial steps), follow `docs/voice.md` — it owns the writing voice. This skill owns the visuals.
+For long-form copy (guide bodies, tutorial steps), follow the Voice rules in `CLAUDE.md` — they own the writing voice. This skill owns the visuals.
