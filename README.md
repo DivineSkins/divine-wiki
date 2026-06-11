@@ -63,4 +63,12 @@ The nine LoL categories:
 ## License
 
 Code is MIT, see [LICENSE](./LICENSE). Guide content under `content/` is
-[CC BY-SA 4.0](./content/LICENSE). By contributing you agree to these terms.
+[CC BY-NC-SA 4.0](./content/LICENSE): you may share and adapt it with credit,
+but not for commercial use. Re-hosting the wiki on a monetized site is not
+allowed. By contributing you agree to these terms.
+
+## Disclaimer
+
+This is an unofficial community project. It is not affiliated with or
+endorsed by Riot Games. League of Legends and all related trademarks and
+game content are property of Riot Games, Inc.
