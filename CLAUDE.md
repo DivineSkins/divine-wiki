@@ -109,7 +109,7 @@ See `.env.example` for the full list. None are required for local dev or for pro
 2. **React 19.2 stable does NOT export `ViewTransition`.** Only React 19 Canary does. Don't `import { ViewTransition } from "react"` — it's `undefined` at runtime and collapses the page with `Element type is invalid`.
 3. **External images in MDX timeout the build.** Legacy content links to `postimg.cc` and YouTube thumbnails; Fumadocs' remark-image plugin prefetches dimensions by default. `source.config.ts` sets `remarkImageOptions: { external: false, onError: "ignore" }` — keep it that way.
 4. **Turbopack caches `source.config.ts` compiled output in `.source/`.** If a config edit doesn't seem to take effect, `rm -rf .next .source` and restart `npm run dev`.
-5. **`z.looseObject` is not exposed** by the top-level zod install. Don't use it; plain `z.object({})` is fine.
+5. **Top-level zod is v4** (bumped 2026-06-11 to match fumadocs-core's peer range). Gotcha #1 still applies: declare schemas with our own import, never extend fumadocs' re-exported ones.
 6. **`scripts/prebuild.mjs`** reads `.git/HEAD` and refs directly (pure Node, no shell). It also walks `content/docs/en/<game>/<category>/` levels to write `src/lib/draft/entity-index.json` — the index the /draft editor's @-mention dropdown uses. Safe to run anywhere; if `.git` is missing it writes `branch: "unknown"` and continues.
 7. **Localized pages** (fr-FR, tr-TR, pt-BR) are **Crowdin-managed**. Never hand-edit `content/docs/fr-FR/**` or similar. The CI sync workflows were removed 2026-06-11 (never configured), so locales are frozen for now; Crowdin stays the source of truth if sync returns.
 8. **`.prettierignore` excludes non-English MDX** from format so Crowdin-managed content doesn't churn.
