@@ -120,7 +120,11 @@
    settings task on this branch). --font-body is the single
    indirection every body-text rule consumes; headings keep their
    display fonts in Divine style and collapse to --font-body in
-   Minimal (see the .minimal font overrides below). */
+   Minimal (see the .minimal font overrides below).
+   "inter" is the default — no block needed, :root provides it.
+   The var(--font-*) references here resolve on <html>, so the
+   next/font .variable classes must stay on <html> in
+   src/app/[lang]/layout.tsx. */
 html[data-font="geist"] {
   --font-body: var(--font-geist), system-ui, sans-serif;
 }
@@ -551,7 +555,7 @@ html[data-font="system"] {
 
   /* Page-level title — bigger, Manrope 800, white (no gradient). */
   .divine-doc-title {
-    font-family: var(--font-manrope), system-ui, sans-serif !important;
+    font-family: var(--font-hero) !important;
     font-weight: 800 !important;
     font-size: clamp(2rem, 1.4rem + 2vw, 2.75rem) !important;
     line-height: 1.1 !important;
@@ -562,7 +566,7 @@ html[data-font="system"] {
   }
 
   .divine-doc-description {
-    font-family: var(--font-poppins), system-ui, sans-serif !important;
+    font-family: var(--font-section) !important;
     font-size: 1.0625rem !important;
     line-height: 1.55 !important;
     color: var(--color-divine-text-muted) !important;
@@ -619,7 +623,7 @@ html[data-font="system"] {
      `!important` margins/sizes leak into them. `:where()` keeps
      specificity unchanged. */
   .prose h2:not(:where([class~="not-prose"], [class~="not-prose"] *)) {
-    font-family: var(--font-manrope), system-ui, sans-serif !important;
+    font-family: var(--font-hero) !important;
     font-weight: 700 !important;
     font-size: 1.875rem !important;
     line-height: 1.2 !important;
@@ -629,7 +633,7 @@ html[data-font="system"] {
   }
 
   .prose h3:not(:where([class~="not-prose"], [class~="not-prose"] *)) {
-    font-family: var(--font-poppins), system-ui, sans-serif !important;
+    font-family: var(--font-section) !important;
     font-weight: 600 !important;
     font-size: 1.375rem !important;
     line-height: 1.3 !important;
@@ -640,7 +644,7 @@ html[data-font="system"] {
   .prose h4:not(:where([class~="not-prose"], [class~="not-prose"] *)),
   .prose h5:not(:where([class~="not-prose"], [class~="not-prose"] *)),
   .prose h6:not(:where([class~="not-prose"], [class~="not-prose"] *)) {
-    font-family: var(--font-poppins), system-ui, sans-serif !important;
+    font-family: var(--font-section) !important;
     font-weight: 600 !important;
     color: var(--color-divine-text) !important;
   }
@@ -836,7 +840,7 @@ html[data-font="system"] {
     ) !important;
   }
   .prose th {
-    font-family: var(--font-poppins), system-ui, sans-serif !important;
+    font-family: var(--font-section) !important;
     font-weight: 600 !important;
     text-align: left !important;
     padding: 0.75rem 1rem !important;
@@ -880,7 +884,7 @@ html[data-font="system"] {
   .prose details > summary {
     cursor: pointer;
     list-style: none;
-    font-family: var(--font-poppins), system-ui, sans-serif;
+    font-family: var(--font-section);
     font-weight: 600;
     font-size: 1.0625rem;
     color: var(--color-divine-text);
@@ -966,7 +970,7 @@ html[data-font="system"] {
     background: transparent !important;
   }
   .divine-faq h3 > button {
-    font-family: var(--font-poppins), system-ui, sans-serif;
+    font-family: var(--font-section);
     font-weight: 600;
     font-size: 1.0625rem;
     color: var(--color-divine-text);
@@ -1233,22 +1237,6 @@ html[data-font="system"] {
   /* Any ring/outline inside dialogs uses purple-light. */
   .dark:not(.minimal) [role="dialog"] :focus-visible {
     outline-color: var(--color-divine-primary-light);
-  }
-
-  /* Minimal style — single-typeface, reference-like: display fonts
-     (Manrope/Poppins) drop out and every heading-ish element follows
-     the selected body font. */
-  .minimal .divine-doc-title,
-  .minimal .divine-doc-description,
-  .minimal .prose h2:not(:where([class~="not-prose"], [class~="not-prose"] *)),
-  .minimal .prose h3:not(:where([class~="not-prose"], [class~="not-prose"] *)),
-  .minimal .prose h4:not(:where([class~="not-prose"], [class~="not-prose"] *)),
-  .minimal .prose h5:not(:where([class~="not-prose"], [class~="not-prose"] *)),
-  .minimal .prose h6:not(:where([class~="not-prose"], [class~="not-prose"] *)),
-  .minimal .prose th,
-  .minimal .prose details > summary,
-  .minimal .divine-faq h3 > button {
-    font-family: var(--font-body) !important;
   }
 } /* end @layer components */
 

@@ -53,6 +53,7 @@ const geist = Geist({
 
 const lora = Lora({
   subsets: ["latin"],
+  style: ["normal", "italic"],
   variable: "--font-lora",
   preload: false,
 });
@@ -60,6 +61,7 @@ const lora = Lora({
 const atkinson = Atkinson_Hyperlegible({
   subsets: ["latin"],
   weight: ["400", "700"],
+  style: ["normal", "italic"],
   variable: "--font-atkinson",
   preload: false,
 });
