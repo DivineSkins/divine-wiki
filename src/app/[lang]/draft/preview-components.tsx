@@ -1,3 +1,4 @@
+import type { ComponentProps } from "react";
 import { getMDXComponents } from "@/mdx-components";
 import { resolveStagedSrc, type StagedImages } from "@/lib/draft/staged-images";
 
@@ -15,7 +16,7 @@ export function buildPreviewComponents(stagedImages?: StagedImages) {
   const base = getMDXComponents();
   return {
     ...base,
-    img: (props: { src?: unknown; alt?: string } & Record<string, unknown>) => {
+    img: (props: ComponentProps<"img">) => {
       const src =
         typeof props.src === "string"
           ? stagedImages
@@ -24,11 +25,7 @@ export function buildPreviewComponents(stagedImages?: StagedImages) {
           : undefined;
       return (
         // eslint-disable-next-line @next/next/no-img-element
-        <img
-          {...(props as Record<string, unknown>)}
-          src={src}
-          alt={props.alt ?? ""}
-        />
+        <img {...props} src={src} alt={props.alt ?? ""} />
       );
     },
   };
