@@ -9,7 +9,7 @@
 
 ## Preview
 
-<!-- Cloudflare Pages will add a preview URL as a comment. Paste it here once it appears. -->
+<!-- Cloudflare Workers Builds adds a preview URL as a comment. Paste it here once it appears. -->
 
 ## Checklist
 

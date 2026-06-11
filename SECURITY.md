@@ -2,7 +2,8 @@
 
 ## Reporting a vulnerability
 
-Email `security@divineskins.gg`. Include:
+Use GitHub's **Report a vulnerability** button on this repo's Security tab,
+or email `security@divineskins.gg`. Include:
 
 - What you found
 - How to reproduce it
@@ -18,7 +19,7 @@ This policy covers:
 - The in-browser draft editor at `/draft`
 - The read-only API routes under `/api/` (`health`, `og`, `search`, `preview`)
 
-The site is fully static and has no backend, auth, or secrets. Contributions are GitHub-native: the `/draft` editor opens a pull request via a client-side GitHub URL handoff (`src/lib/draft/github.ts`); it never holds a token or acts on a user's behalf.
+The site renders server-side on Cloudflare Workers but has no auth, no user accounts, and no runtime secrets; the API routes are read-only. Contributions are GitHub-native: the `/draft` editor opens a pull request via a client-side GitHub URL handoff (`src/lib/draft/github.ts`); it never holds a token or acts on a user's behalf.
 
 ## What we care about most
 
