@@ -146,12 +146,13 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body>
-        {/* Apply the persisted reading-width preference before first paint,
-            the same way next-themes applies the theme class. Keep the
-            localStorage key in sync with reading-width-toggle.tsx. */}
+        {/* Apply persisted appearance preferences (reading width, Minimal
+            style, font) before first paint — same no-flash trick next-themes
+            uses for the theme class. Keys stay in sync with
+            src/components/appearance-settings.tsx. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{if(localStorage.getItem("divine-reading-width")==="centered")document.documentElement.classList.add("centered-reading")}catch(e){}`,
+            __html: `try{var c=document.documentElement.classList;if(localStorage.getItem("divine-reading-width")==="centered")c.add("centered-reading");if(localStorage.getItem("divine-style")==="minimal")c.add("minimal");var f=localStorage.getItem("divine-font");if(f&&f!=="inter")document.documentElement.setAttribute("data-font",f)}catch(e){}`,
           }}
         />
         <RootProvider i18n={provider(lang)}>
