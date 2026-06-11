@@ -101,7 +101,7 @@ The nine categories under `lol/` are: `guided-walkthrough`, `tools`, `maya`, `bl
 
 ## Environment variables
 
-See `.env.example` for the full list. None are required for local dev or for production builds. The app runs SSR on Cloudflare Workers but holds no secrets — the runtime API routes (`health`, `og`, `search`, `preview`) are read-only. `NEXT_PUBLIC_*` are public build-time config (set in `wrangler.toml` `[vars]`). `CROWDIN_PROJECT_ID` + `CROWDIN_PERSONAL_TOKEN` are CI-only for translation sync. Cloudflare deploy: Workers Builds runs `npx opennextjs-cloudflare build` then `npx wrangler deploy` on push to `main`.
+See `.env.example` for the full list. None are required for local dev or for production builds. The app runs SSR on Cloudflare Workers but holds no secrets — the runtime API routes (`health`, `og`, `search`, `preview`) are read-only. `NEXT_PUBLIC_*` are public build-time config (set in `wrangler.toml` `[vars]`). `CROWDIN_PROJECT_ID` + `CROWDIN_PERSONAL_TOKEN` are unused (the Crowdin sync workflows were removed 2026-06-11, never configured); kept in `.env.example` in case manual sync returns. Cloudflare deploy: Workers Builds runs `npx opennextjs-cloudflare build` then `npx wrangler deploy` on push to `main`.
 
 ## Known gotchas — save yourself time
 
@@ -111,7 +111,7 @@ See `.env.example` for the full list. None are required for local dev or for pro
 4. **Turbopack caches `source.config.ts` compiled output in `.source/`.** If a config edit doesn't seem to take effect, `rm -rf .next .source` and restart `npm run dev`.
 5. **`z.looseObject` is not exposed** by the top-level zod install. Don't use it; plain `z.object({})` is fine.
 6. **`scripts/prebuild.mjs`** reads `.git/HEAD` and refs directly (pure Node, no shell). It also walks `content/docs/en/<game>/<category>/` levels to write `src/lib/draft/entity-index.json` — the index the /draft editor's @-mention dropdown uses. Safe to run anywhere; if `.git` is missing it writes `branch: "unknown"` and continues.
-7. **Localized pages** (fr-FR, tr-TR, pt-BR) are **Crowdin-managed**. Never hand-edit `content/docs/fr-FR/**` or similar — they get overwritten by the weekly sync.
+7. **Localized pages** (fr-FR, tr-TR, pt-BR) are **Crowdin-managed**. Never hand-edit `content/docs/fr-FR/**` or similar. The CI sync workflows were removed 2026-06-11 (never configured), so locales are frozen for now; Crowdin stays the source of truth if sync returns.
 8. **`.prettierignore` excludes non-English MDX** from format so Crowdin-managed content doesn't churn.
 9. **`Reference/` is git-ignored and read-only for our purposes.** Two big reference codebases live there (Hytale Modding's Fumadocs site we scaffolded from, and the legacy Divine Academy site). Do not modify or import from them.
 10. **`/draft` editor uses two MDX pipelines.** Build-time uses `source.config.ts` (fumadocs-mdx). Runtime preview uses `src/lib/draft/mdx-config.ts` via `/api/preview`. If you add a remark/rehype plugin to one, mirror it in the other or the editor preview will diverge from the published page.
