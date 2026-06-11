@@ -84,6 +84,7 @@
   --font-hero: var(--font-manrope), system-ui, sans-serif;
   --font-section: var(--font-poppins), system-ui, sans-serif;
   --font-ui: var(--font-inter), system-ui, sans-serif;
+  --font-body: var(--font-inter), system-ui, sans-serif;
   --background: #0b0a0f;
   --foreground: #e4e4e7;
   --card: #15141c;
@@ -112,6 +113,31 @@
   --sidebar-ring: #c084fc;
   --prose-code-text: #e9d5ff;
   --prose-code-bg: #0a0913;
+}
+
+/* Font preference — the settings popover sets data-font on <html>
+   (pre-paint via the root-layout inline script; both added by the
+   settings task on this branch). --font-body is the single
+   indirection every body-text rule consumes; headings keep their
+   display fonts in Divine style and collapse to --font-body in
+   Minimal (see the .minimal font overrides below). */
+html[data-font="geist"] {
+  --font-body: var(--font-geist), system-ui, sans-serif;
+}
+html[data-font="lora"] {
+  --font-body: var(--font-lora), Georgia, serif;
+}
+html[data-font="atkinson"] {
+  --font-body: var(--font-atkinson), system-ui, sans-serif;
+}
+html[data-font="system"] {
+  --font-body: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+.minimal {
+  --font-hero: var(--font-body);
+  --font-section: var(--font-body);
+  --font-ui: var(--font-body);
 }
 
 .dark {
@@ -425,7 +451,7 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "cv11";
-    font-family: var(--font-inter), system-ui, sans-serif;
+    font-family: var(--font-body);
   }
   a,
   button {
@@ -553,7 +579,7 @@
     border-radius: 999px !important;
     background: color-mix(in srgb, #ffffff 10%, transparent) !important;
     color: var(--color-divine-text) !important;
-    font-family: var(--font-inter), system-ui, sans-serif;
+    font-family: var(--font-body);
     font-size: 0.8125rem;
     font-weight: 600;
     text-decoration: none !important;
@@ -621,7 +647,7 @@
 
   /* Body text — Inter, slightly muted, comfortable line-height. */
   .prose p {
-    font-family: var(--font-inter), system-ui, sans-serif !important;
+    font-family: var(--font-body) !important;
     font-weight: 400 !important;
     font-size: 1rem;
     line-height: 1.75;
@@ -780,7 +806,7 @@
     font-weight: 600;
   }
   .prose li {
-    font-family: var(--font-inter), system-ui, sans-serif;
+    font-family: var(--font-body);
     color: color-mix(in srgb, var(--color-divine-text) 88%, transparent);
   }
 
@@ -1207,6 +1233,22 @@
   /* Any ring/outline inside dialogs uses purple-light. */
   .dark:not(.minimal) [role="dialog"] :focus-visible {
     outline-color: var(--color-divine-primary-light);
+  }
+
+  /* Minimal style — single-typeface, reference-like: display fonts
+     (Manrope/Poppins) drop out and every heading-ish element follows
+     the selected body font. */
+  .minimal .divine-doc-title,
+  .minimal .divine-doc-description,
+  .minimal .prose h2:not(:where([class~="not-prose"], [class~="not-prose"] *)),
+  .minimal .prose h3:not(:where([class~="not-prose"], [class~="not-prose"] *)),
+  .minimal .prose h4:not(:where([class~="not-prose"], [class~="not-prose"] *)),
+  .minimal .prose h5:not(:where([class~="not-prose"], [class~="not-prose"] *)),
+  .minimal .prose h6:not(:where([class~="not-prose"], [class~="not-prose"] *)),
+  .minimal .prose th,
+  .minimal .prose details > summary,
+  .minimal .divine-faq h3 > button {
+    font-family: var(--font-body) !important;
   }
 } /* end @layer components */
 

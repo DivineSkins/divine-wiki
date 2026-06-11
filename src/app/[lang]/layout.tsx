@@ -2,7 +2,15 @@ import { RootProvider } from "fumadocs-ui/provider/next";
 import { defineI18nUI } from "fumadocs-ui/i18n";
 import { i18n } from "@/lib/i18n";
 import englishTranslations from "@/../messages/en.json";
-import { Manrope, Poppins, Inter, JetBrains_Mono } from "next/font/google";
+import {
+  Manrope,
+  Poppins,
+  Inter,
+  JetBrains_Mono,
+  Geist,
+  Lora,
+  Atkinson_Hyperlegible,
+} from "next/font/google";
 import type { Metadata } from "next";
 import { baseUrl } from "@/lib/config";
 import { cn } from "@/lib/utils";
@@ -32,6 +40,28 @@ const inter = Inter({
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-jetbrains-mono",
+});
+
+// Picker fonts — preload:false means the @font-face CSS ships but the
+// browser only downloads a font when the selected setting actually uses
+// it, so visitors who never open the font picker pay ~nothing.
+const geist = Geist({
+  subsets: ["latin"],
+  variable: "--font-geist",
+  preload: false,
+});
+
+const lora = Lora({
+  subsets: ["latin"],
+  variable: "--font-lora",
+  preload: false,
+});
+
+const atkinson = Atkinson_Hyperlegible({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-atkinson",
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -94,7 +124,17 @@ export default async function RootLayout({
 
   return (
     <html lang={lang} dir="ltr" className="dark" suppressHydrationWarning>
-      <body>
+      <body
+        className={cn(
+          manrope.variable,
+          poppins.variable,
+          inter.variable,
+          jetbrainsMono.variable,
+          geist.variable,
+          lora.variable,
+          atkinson.variable,
+        )}
+      >
         {/* Apply the persisted reading-width preference before first paint,
             the same way next-themes applies the theme class. Keep the
             localStorage key in sync with reading-width-toggle.tsx. */}
@@ -103,21 +143,12 @@ export default async function RootLayout({
             __html: `try{if(localStorage.getItem("divine-reading-width")==="centered")document.documentElement.classList.add("centered-reading")}catch(e){}`,
           }}
         />
-        <div
-          className={cn(
-            manrope.variable,
-            poppins.variable,
-            inter.variable,
-            jetbrainsMono.variable,
-          )}
-        >
-          <RootProvider i18n={provider(lang)}>
-            <ContributePickerProvider>
-              {children}
-              <ContributePickerModal />
-            </ContributePickerProvider>
-          </RootProvider>
-        </div>
+        <RootProvider i18n={provider(lang)}>
+          <ContributePickerProvider>
+            {children}
+            <ContributePickerModal />
+          </ContributePickerProvider>
+        </RootProvider>
       </body>
     </html>
   );
