@@ -123,18 +123,27 @@ export default async function RootLayout({
   const { lang } = await params;
 
   return (
-    <html lang={lang} dir="ltr" className="dark" suppressHydrationWarning>
-      <body
-        className={cn(
-          manrope.variable,
-          poppins.variable,
-          inter.variable,
-          jetbrainsMono.variable,
-          geist.variable,
-          lora.variable,
-          atkinson.variable,
-        )}
-      >
+    // The font .variable classes must live on <html>, not <body>: the
+    // --font-body / --font-hero promotion vars in global.css are declared at
+    // :root/html, and var() substitution inside a custom property happens at
+    // the element where it is declared. If the next/font variables were only
+    // on <body>, --font-body would compute to guaranteed-invalid on <html>.
+    <html
+      lang={lang}
+      dir="ltr"
+      className={cn(
+        "dark",
+        manrope.variable,
+        poppins.variable,
+        inter.variable,
+        jetbrainsMono.variable,
+        geist.variable,
+        lora.variable,
+        atkinson.variable,
+      )}
+      suppressHydrationWarning
+    >
+      <body>
         {/* Apply the persisted reading-width preference before first paint,
             the same way next-themes applies the theme class. Keep the
             localStorage key in sync with reading-width-toggle.tsx. */}
