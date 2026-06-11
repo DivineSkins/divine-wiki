@@ -152,7 +152,7 @@ export default async function RootLayout({
             src/components/appearance-settings.tsx. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{var c=document.documentElement.classList;if(localStorage.getItem("divine-reading-width")==="centered")c.add("centered-reading");if(localStorage.getItem("divine-style")==="minimal")c.add("minimal");var f=localStorage.getItem("divine-font");if(f&&f!=="inter")document.documentElement.setAttribute("data-font",f)}catch(e){}`,
+            __html: `try{var c=document.documentElement.classList;if(localStorage.getItem("divine-reading-width")==="centered")c.add("centered-reading");if(localStorage.getItem("divine-style")==="minimal")c.add("minimal");var f=localStorage.getItem("divine-font");if(f==="geist"||f==="lora"||f==="atkinson"||f==="system")document.documentElement.setAttribute("data-font",f)}catch(e){}`,
           }}
         />
         <RootProvider i18n={provider(lang)}>

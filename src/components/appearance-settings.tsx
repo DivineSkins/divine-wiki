@@ -122,7 +122,15 @@ export function AppearanceSettings({ labels }: { labels: SettingsLabels }) {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     setStyle(root.classList.contains(MINIMAL_CLASS) ? "minimal" : "divine");
-    setFont((root.getAttribute("data-font") as FontId) ?? "inter");
+    // Validate against the known options: an unknown data-font value
+    // (hand-edited DOM or storage) must not leave the radio list with
+    // nothing checked.
+    const storedFont = root.getAttribute("data-font");
+    setFont(
+      FONT_OPTIONS.some((option) => option.id === storedFont)
+        ? (storedFont as FontId)
+        : "inter",
+    );
     setCentered(root.classList.contains(CENTERED_CLASS));
   }, []);
 
