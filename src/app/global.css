@@ -273,7 +273,8 @@
    Values mirror fumadocs' stock neutral palette (the look of the
    reference Fumadocs site this mode is modeled on). Activated by
    a `minimal` class on <html>: set pre-paint by the root-layout
-   inline script, toggled by the appearance-settings popover.
+   inline script, toggled by the appearance-settings popover
+   (both added by the settings task on this branch).
    Composes with .light/.dark, so all four combos work.
    Re-declares all three token groups (divine, shadcn, fd) — the
    wiki's styling consumes these vars, so recoloring them is what
@@ -327,7 +328,8 @@
   --prose-code-text: hsl(0, 0%, 92%);
   --prose-code-bg: hsl(0, 0%, 9.8%);
 
-  /* Fumadocs tokens → stock neutral (every fumadocs surface). */
+  /* Fumadocs tokens → stock neutral (every fumadocs surface);
+     values verbatim from fumadocs default-colors.css. */
   --color-fd-background: hsl(0, 0%, 7.04%);
   --color-fd-foreground: hsl(0, 0%, 92%);
   --color-fd-muted: hsl(0, 0%, 12.9%);
@@ -517,6 +519,10 @@
    ────────────────────────────────────────────────────────────── */
 
 @layer components {
+  /* NOTE: any branded rule scoped under `.dark ` in this layer must use
+     `.dark:not(.minimal)` so the Minimal style stays neutral — see the
+     .minimal token blocks above. */
+
   /* Page-level title — bigger, Manrope 800, white (no gradient). */
   .divine-doc-title {
     font-family: var(--font-manrope), system-ui, sans-serif !important;
@@ -1245,16 +1251,20 @@
 
 /* ──────────────────────────────────────────────────────────────
    Minimal style — decoration resets. Token recoloring (see the
-   .minimal.dark/.minimal.light blocks) flattens everything that
-   reads vars; these kill the effects that don't: glows, the
-   gradient text, and the card-hover bloom.
+   .minimal.dark/.minimal.light blocks) flattens every var-driven
+   effect; these kill the literal-hex ones: the glow stacks and
+   the gradient text. Kept UNLAYERED on purpose: divine-glow etc.
+   are @utility classes emitted in the utilities layer, and an
+   unlayered rule overrides any layered one. The escaped
+   `.hover\:` selector catches Tailwind's variant-prefixed form.
+   Note: unlike the `:not(.minimal)` guards above, these resets
+   also reach the /draft editor's forced-dark subtree — fine while
+   no draft-previewable MDX component uses these utilities.
    ────────────────────────────────────────────────────────────── */
 .minimal .divine-glow,
-.minimal .divine-glow-hover {
+.minimal .divine-glow-hover,
+.minimal .hover\:divine-glow-hover {
   box-shadow: none;
-}
-.minimal .divine-card-hover {
-  box-shadow: 0 8px 25px rgb(0 0 0 / 0.12);
 }
 .minimal .divine-gradient-text {
   background: none;
