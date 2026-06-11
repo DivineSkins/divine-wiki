@@ -658,8 +658,13 @@ html[data-font] {
     color: var(--color-divine-text) !important;
   }
 
-  /* Body text — Inter, slightly muted, comfortable line-height. */
-  .prose p {
+  /* Body text — Inter, slightly muted, comfortable line-height. The same
+     `not-prose` guard as the headings above: MDX wraps loose text inside
+     components (e.g. a GlowCTA label) in a `<p>`, and without the guard
+     this `!important` color leaks in and overrides the component's own
+     text color — invisible under the Minimal style, where button fills
+     flip but this stray muted color does not. */
+  .prose p:not(:where([class~="not-prose"], [class~="not-prose"] *)) {
     font-family: var(--font-body) !important;
     font-weight: 400 !important;
     font-size: 1rem;
