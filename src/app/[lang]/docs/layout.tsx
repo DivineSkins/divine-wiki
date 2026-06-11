@@ -6,7 +6,6 @@ import { localizePageTree } from "@/lib/tree-localization";
 import { getMessages } from "@/lib/locale";
 import { AppearanceSettings } from "@/components/appearance-settings";
 import { SidebarSeparatorWithContribute } from "@/components/sidebar-contribute";
-import { SiteFooter } from "@/components/site-footer";
 import { contributeSidebarNodeId, githubRepoUrl } from "@/lib/config";
 
 /**
@@ -82,7 +81,6 @@ export default async function Layout({
       >
         {children}
       </DocsLayout>
-      <SiteFooter locale={lang} />
     </div>
   );
 }

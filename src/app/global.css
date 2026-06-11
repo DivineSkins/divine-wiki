@@ -137,6 +137,17 @@ html[data-font="system"] {
   --font-body: system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
+/* An explicit font choice applies everywhere, Divine style included:
+   the data-font attribute only exists for non-default fonts, so picking
+   one collapses the display-font tokens too. The default (Inter) keeps
+   the brand display fonts in Divine. 0-1-1 beats the :root promotions. */
+html[data-font] {
+  --font-hero: var(--font-body);
+  --font-section: var(--font-body);
+  --font-ui: var(--font-body);
+}
+
+/* Minimal is single-typeface even on the default font. */
 .minimal {
   --font-hero: var(--font-body);
   --font-section: var(--font-body);
@@ -1299,4 +1310,18 @@ html[data-font="system"] {
   -webkit-background-clip: border-box;
   background-clip: border-box;
   color: var(--color-divine-text);
+}
+
+/* GlowCTA solid fill — its light: classes pair divine-primary-light with
+   divine-text, which are both near-black under Minimal's neutral tokens
+   (black-on-black button). Use the stock fd primary pair instead: black
+   pill / white text in light, white pill / black text in dark. */
+.minimal .divine-cta-solid {
+  background: var(--color-fd-primary);
+  color: var(--color-fd-primary-foreground);
+  box-shadow: none;
+}
+.minimal .divine-cta-solid:hover {
+  filter: none;
+  opacity: 0.85;
 }
