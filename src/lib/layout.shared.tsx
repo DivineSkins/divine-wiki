@@ -41,20 +41,11 @@ export function baseOptions(
     themeSwitch: { enabled: false },
   };
 
-  // On docs pages the Contribute trigger lives in the sidebar footer
-  // (see src/app/[lang]/docs/layout.tsx), not in the nav links. Icon links
-  // render in that same footer row, next to the GitHub icon from `githubUrl`.
+  // On docs pages the sidebar footer (see src/app/[lang]/docs/layout.tsx)
+  // renders its own flat icon row (Discord, GitHub, appearance gear), so no
+  // nav icon links — they'd produce fumadocs' boxed icon strip on top of it.
   if (docsLayout) {
-    options.links = [
-      {
-        type: "icon",
-        icon: <DiscordLogo className="size-4" />,
-        text: messages.nav.discord,
-        label: messages.nav.discord,
-        url: discordInviteUrl,
-        external: true,
-      },
-    ];
+    options.links = [];
   } else {
     options.links = [
       {

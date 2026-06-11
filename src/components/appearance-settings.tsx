@@ -7,7 +7,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "fumadocs-ui/components/ui/popover";
-import { Settings2Icon } from "lucide-react";
+import { SettingsIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -170,11 +170,13 @@ export function AppearanceSettings({ labels }: { labels: SettingsLabels }) {
 
   return (
     <Popover>
+      {/* Plain icon button — styled to sit in a row with the Discord and
+          GitHub icon links in the sidebar footer. */}
       <PopoverTrigger
         aria-label={labels.trigger}
-        className="text-fd-muted-foreground hover:text-fd-accent-foreground hover:bg-fd-accent inline-flex items-center justify-center rounded-full border p-1.5"
+        className="text-fd-muted-foreground hover:text-fd-accent-foreground hover:bg-fd-accent inline-flex items-center justify-center rounded-md p-1.5 transition-colors"
       >
-        <Settings2Icon className="size-4" aria-hidden />
+        <SettingsIcon className="size-4" aria-hidden />
       </PopoverTrigger>
       <PopoverContent className="flex w-64 flex-col gap-3 p-3">
         <Row label={labels.mode}>
