@@ -4,10 +4,14 @@ import { source } from "@/lib/source";
 import { baseOptions } from "@/lib/layout.shared";
 import { localizePageTree } from "@/lib/tree-localization";
 import { getMessages } from "@/lib/locale";
-import { ReadingWidthToggle } from "@/components/reading-width-toggle";
+import { AppearanceSettings } from "@/components/appearance-settings";
 import { SidebarSeparatorWithContribute } from "@/components/sidebar-contribute";
-import { SiteFooter } from "@/components/site-footer";
-import { contributeSidebarNodeId, githubRepoUrl } from "@/lib/config";
+import { DiscordLogo, GitHubLogo } from "@/components/brand-logos";
+import {
+  contributeSidebarNodeId,
+  discordInviteUrl,
+  githubRepoUrl,
+} from "@/lib/config";
 
 /**
  * Appends the Contribute sentinel node after the last item of every list the
@@ -67,15 +71,40 @@ export default async function Layout({
       <DocsLayout
         tree={tree}
         {...baseOptions(lang, true)}
-        githubUrl={githubRepoUrl}
         sidebar={{
           components: { Separator: SidebarSeparatorWithContribute },
-          footer: <ReadingWidthToggle label={messages.nav.readingWidth} />,
+          // One flat icon row: Discord + GitHub on the left, the
+          // appearance gear on the right. Replaces fumadocs' boxed
+          // icon strip (no `githubUrl` / icon links on docs pages) so
+          // the footer has no bordered containers.
+          footer: (
+            <div className="flex items-center gap-1 pt-1">
+              <a
+                href={discordInviteUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={messages.nav.discord}
+                className="text-fd-muted-foreground hover:text-fd-accent-foreground hover:bg-fd-accent rounded-md p-1.5 transition-colors"
+              >
+                <DiscordLogo className="size-4" />
+              </a>
+              <a
+                href={githubRepoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="GitHub"
+                className="text-fd-muted-foreground hover:text-fd-accent-foreground hover:bg-fd-accent rounded-md p-1.5 transition-colors"
+              >
+                <GitHubLogo className="size-4" />
+              </a>
+              <div className="flex-1" />
+              <AppearanceSettings labels={messages.settings} />
+            </div>
+          ),
         }}
       >
         {children}
       </DocsLayout>
-      <SiteFooter locale={lang} />
     </div>
   );
 }

@@ -32,7 +32,11 @@ const VARIANT_CLASSES: Record<Variant, string> = {
   // #8b6914 — a deep amber tuned for TEXT contrast, muddy as a fill — so the
   // fill switches to the brand gold with near-black text, and hover darkens
   // instead of brightens.
+  // `divine-cta-solid` is a marker for the Minimal-style override in
+  // global.css: the light: pair below turns near-black-on-near-black
+  // under Minimal's neutral tokens, so Minimal restyles the fill there.
   solid:
+    "divine-cta-solid " +
     "bg-divine-primary text-white shadow-md shadow-divine-primary/25 " +
     "light:bg-divine-primary-light light:text-divine-text " +
     "light:shadow-divine-primary-light/40 " +

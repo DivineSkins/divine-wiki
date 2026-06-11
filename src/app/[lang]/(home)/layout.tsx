@@ -1,7 +1,6 @@
 import { type ReactNode } from "react";
 import { HomeLayout } from "fumadocs-ui/layouts/home";
 import { baseOptions } from "@/lib/layout.shared";
-import { SiteFooter } from "@/components/site-footer";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -21,7 +20,6 @@ export default async function Layout({
   return (
     <HomeLayout {...baseOptions(lang)} className="flex min-h-screen flex-col">
       {children}
-      <SiteFooter locale={lang} />
     </HomeLayout>
   );
 }

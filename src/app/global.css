@@ -84,6 +84,7 @@
   --font-hero: var(--font-manrope), system-ui, sans-serif;
   --font-section: var(--font-poppins), system-ui, sans-serif;
   --font-ui: var(--font-inter), system-ui, sans-serif;
+  --font-body: var(--font-inter), system-ui, sans-serif;
   --background: #0b0a0f;
   --foreground: #e4e4e7;
   --card: #15141c;
@@ -112,6 +113,45 @@
   --sidebar-ring: #c084fc;
   --prose-code-text: #e9d5ff;
   --prose-code-bg: #0a0913;
+}
+
+/* Font preference — the settings popover sets data-font on <html>
+   (pre-paint via the root-layout inline script). --font-body is the single
+   indirection every body-text rule consumes; headings keep their
+   display fonts in Divine style and collapse to --font-body in
+   Minimal (see the .minimal font overrides below).
+   "inter" is the default — no block needed, :root provides it.
+   The var(--font-*) references here resolve on <html>, so the
+   next/font .variable classes must stay on <html> in
+   src/app/[lang]/layout.tsx. */
+html[data-font="geist"] {
+  --font-body: var(--font-geist), system-ui, sans-serif;
+}
+html[data-font="lora"] {
+  --font-body: var(--font-lora), Georgia, serif;
+}
+html[data-font="atkinson"] {
+  --font-body: var(--font-atkinson), system-ui, sans-serif;
+}
+html[data-font="system"] {
+  --font-body: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* An explicit font choice applies everywhere, Divine style included:
+   the data-font attribute only exists for non-default fonts, so picking
+   one collapses the display-font tokens too. The default (Inter) keeps
+   the brand display fonts in Divine. 0-1-1 beats the :root promotions. */
+html[data-font] {
+  --font-hero: var(--font-body);
+  --font-section: var(--font-body);
+  --font-ui: var(--font-body);
+}
+
+/* Minimal is single-typeface even on the default font. */
+.minimal {
+  --font-hero: var(--font-body);
+  --font-section: var(--font-body);
+  --font-ui: var(--font-body);
 }
 
 .dark {
@@ -268,6 +308,152 @@
   --color-fd-overlay: color-mix(in srgb, #ffffff 82%, transparent);
 }
 
+/* ──────────────────────────────────────────────────────────────
+   Minimal style — neutral grayscale, no brand decoration.
+   Values mirror fumadocs' stock neutral palette (the look of the
+   reference Fumadocs site this mode is modeled on). Activated by
+   a `minimal` class on <html>: set pre-paint by the root-layout
+   inline script, toggled by the appearance-settings popover.
+   Composes with .light/.dark, so all four combos work.
+   Re-declares all three token groups (divine, shadcn, fd) — the
+   wiki's styling consumes these vars, so recoloring them is what
+   flattens the branding. Two classes (0-2-0) out-rank the .dark /
+   .light blocks above (0-1-0).
+   ────────────────────────────────────────────────────────────── */
+.minimal.dark {
+  /* Divine tokens → neutral, so token-driven accents (code rails,
+     blockquote rails, links, list markers, table tints) go gray. */
+  --color-divine-void: hsl(0, 0%, 7%);
+  --color-divine-surface: hsl(0, 0%, 9.8%);
+  --color-divine-elevated: hsl(0, 0%, 12.9%);
+  --color-divine-border: hsla(0, 0%, 40%, 0.2);
+  --color-divine-popover: hsl(0, 0%, 11.6%);
+  --color-divine-primary: hsl(0, 0%, 55%);
+  --color-divine-primary-light: hsl(0, 0%, 92%);
+  --color-divine-primary-lilac: hsl(0, 0%, 92%);
+  --color-divine-secondary: hsl(0, 0%, 70%);
+  --color-divine-text: hsl(0, 0%, 92%);
+  --color-divine-text-muted: hsla(0, 0%, 70%, 0.8);
+
+  /* shadcn tokens */
+  --background: hsl(0, 0%, 7%);
+  --foreground: hsl(0, 0%, 92%);
+  --card: hsl(0, 0%, 9.8%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --popover: hsl(0, 0%, 11.6%);
+  --popover-foreground: hsl(0, 0%, 86.9%);
+  --primary: hsl(0, 0%, 98%);
+  --primary-foreground: hsl(0, 0%, 9%);
+  --secondary: hsl(0, 0%, 12.9%);
+  --secondary-foreground: hsl(0, 0%, 92%);
+  --muted: hsl(0, 0%, 12.9%);
+  --muted-foreground: hsla(0, 0%, 70%, 0.8);
+  --accent: hsla(0, 0%, 40.9%, 0.3);
+  --accent-foreground: hsl(0, 0%, 90%);
+  --destructive: #ef4444;
+  --border: hsla(0, 0%, 40%, 0.2);
+  --input: hsla(0, 0%, 40%, 0.2);
+  --ring: hsl(0, 0%, 54.9%);
+  --sidebar: hsl(0, 0%, 7%);
+  --sidebar-foreground: hsl(0, 0%, 92%);
+  --sidebar-primary: hsl(0, 0%, 98%);
+  --sidebar-primary-foreground: hsl(0, 0%, 9%);
+  --sidebar-accent: hsla(0, 0%, 40.9%, 0.3);
+  --sidebar-accent-foreground: hsl(0, 0%, 90%);
+  --sidebar-border: hsla(0, 0%, 40%, 0.2);
+  --sidebar-ring: hsl(0, 0%, 54.9%);
+
+  /* Code */
+  --prose-code-text: hsl(0, 0%, 92%);
+  --prose-code-bg: hsl(0, 0%, 9.8%);
+
+  /* Fumadocs tokens → stock neutral (every fumadocs surface);
+     values verbatim from fumadocs default-colors.css. */
+  --color-fd-background: hsl(0, 0%, 7.04%);
+  --color-fd-foreground: hsl(0, 0%, 92%);
+  --color-fd-muted: hsl(0, 0%, 12.9%);
+  --color-fd-muted-foreground: hsla(0, 0%, 70%, 0.8);
+  --color-fd-popover: hsl(0, 0%, 11.6%);
+  --color-fd-popover-foreground: hsl(0, 0%, 86.9%);
+  --color-fd-card: hsl(0, 0%, 9.8%);
+  --color-fd-card-foreground: hsl(0, 0%, 98%);
+  --color-fd-border: hsla(0, 0%, 40%, 0.2);
+  --color-fd-primary: hsl(0, 0%, 98%);
+  --color-fd-primary-foreground: hsl(0, 0%, 9%);
+  --color-fd-secondary: hsl(0, 0%, 12.9%);
+  --color-fd-secondary-foreground: hsl(0, 0%, 92%);
+  --color-fd-accent: hsla(0, 0%, 40.9%, 0.3);
+  --color-fd-accent-foreground: hsl(0, 0%, 90%);
+  --color-fd-ring: hsl(0, 0%, 54.9%);
+  --color-fd-overlay: hsla(0, 0%, 0%, 0.2);
+}
+
+.minimal.light {
+  /* Divine tokens → neutral */
+  --color-divine-void: hsl(0, 0%, 100%);
+  --color-divine-surface: hsl(0, 0%, 97%);
+  --color-divine-elevated: hsl(0, 0%, 94.7%);
+  --color-divine-border: hsla(0, 0%, 80%, 0.5);
+  --color-divine-popover: hsl(0, 0%, 98%);
+  --color-divine-primary: hsl(0, 0%, 45%);
+  --color-divine-primary-light: hsl(0, 0%, 9%);
+  --color-divine-primary-lilac: hsl(0, 0%, 9%);
+  --color-divine-secondary: hsl(0, 0%, 45%);
+  --color-divine-text: hsl(0, 0%, 3.9%);
+  --color-divine-text-muted: hsl(0, 0%, 45.1%);
+
+  /* shadcn tokens */
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(0, 0%, 3.9%);
+  --card: hsl(0, 0%, 97%);
+  --card-foreground: hsl(0, 0%, 3.9%);
+  --popover: hsl(0, 0%, 98%);
+  --popover-foreground: hsl(0, 0%, 15.1%);
+  --primary: hsl(0, 0%, 9%);
+  --primary-foreground: hsl(0, 0%, 98%);
+  --secondary: hsl(0, 0%, 93.1%);
+  --secondary-foreground: hsl(0, 0%, 9%);
+  --muted: hsl(0, 0%, 96.1%);
+  --muted-foreground: hsl(0, 0%, 45.1%);
+  --accent: hsla(0, 0%, 82%, 0.5);
+  --accent-foreground: hsl(0, 0%, 9%);
+  --destructive: #dc2626;
+  --border: hsla(0, 0%, 80%, 0.5);
+  --input: hsla(0, 0%, 80%, 0.5);
+  --ring: hsl(0, 0%, 63.9%);
+  --sidebar: hsl(0, 0%, 98%);
+  --sidebar-foreground: hsl(0, 0%, 3.9%);
+  --sidebar-primary: hsl(0, 0%, 9%);
+  --sidebar-primary-foreground: hsl(0, 0%, 98%);
+  --sidebar-accent: hsla(0, 0%, 82%, 0.5);
+  --sidebar-accent-foreground: hsl(0, 0%, 9%);
+  --sidebar-border: hsla(0, 0%, 80%, 0.5);
+  --sidebar-ring: hsl(0, 0%, 63.9%);
+
+  /* Code */
+  --prose-code-text: hsl(0, 0%, 15%);
+  --prose-code-bg: hsl(0, 0%, 97%);
+
+  /* Fumadocs tokens → stock neutral */
+  --color-fd-background: hsl(0, 0%, 96%);
+  --color-fd-foreground: hsl(0, 0%, 3.9%);
+  --color-fd-muted: hsl(0, 0%, 96.1%);
+  --color-fd-muted-foreground: hsl(0, 0%, 45.1%);
+  --color-fd-popover: hsl(0, 0%, 98%);
+  --color-fd-popover-foreground: hsl(0, 0%, 15.1%);
+  --color-fd-card: hsl(0, 0%, 94.7%);
+  --color-fd-card-foreground: hsl(0, 0%, 3.9%);
+  --color-fd-border: hsla(0, 0%, 80%, 0.5);
+  --color-fd-primary: hsl(0, 0%, 9%);
+  --color-fd-primary-foreground: hsl(0, 0%, 98%);
+  --color-fd-secondary: hsl(0, 0%, 93.1%);
+  --color-fd-secondary-foreground: hsl(0, 0%, 9%);
+  --color-fd-accent: hsla(0, 0%, 82%, 0.5);
+  --color-fd-accent-foreground: hsl(0, 0%, 9%);
+  --color-fd-ring: hsl(0, 0%, 63.9%);
+  --color-fd-overlay: hsla(0, 0%, 0%, 0.2);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -278,7 +464,7 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "cv11";
-    font-family: var(--font-inter), system-ui, sans-serif;
+    font-family: var(--font-body);
   }
   a,
   button {
@@ -372,9 +558,13 @@
    ────────────────────────────────────────────────────────────── */
 
 @layer components {
+  /* NOTE: any branded rule scoped under `.dark ` in this layer must use
+     `.dark:not(.minimal)` so the Minimal style stays neutral — see the
+     .minimal token blocks above. */
+
   /* Page-level title — bigger, Manrope 800, white (no gradient). */
   .divine-doc-title {
-    font-family: var(--font-manrope), system-ui, sans-serif !important;
+    font-family: var(--font-hero) !important;
     font-weight: 800 !important;
     font-size: clamp(2rem, 1.4rem + 2vw, 2.75rem) !important;
     line-height: 1.1 !important;
@@ -385,7 +575,7 @@
   }
 
   .divine-doc-description {
-    font-family: var(--font-poppins), system-ui, sans-serif !important;
+    font-family: var(--font-section) !important;
     font-size: 1.0625rem !important;
     line-height: 1.55 !important;
     color: var(--color-divine-text-muted) !important;
@@ -402,7 +592,7 @@
     border-radius: 999px !important;
     background: color-mix(in srgb, #ffffff 10%, transparent) !important;
     color: var(--color-divine-text) !important;
-    font-family: var(--font-inter), system-ui, sans-serif;
+    font-family: var(--font-body);
     font-size: 0.8125rem;
     font-weight: 600;
     text-decoration: none !important;
@@ -421,13 +611,15 @@
   }
 
   /* TOC active state — align with sidebar's purple-light + gold→purple rail. */
-  .dark [data-toc] a[data-active="true"],
-  .dark nav[aria-label*="able of contents"] a[data-active="true"] {
+  .dark:not(.minimal) [data-toc] a[data-active="true"],
+  .dark:not(.minimal)
+    nav[aria-label*="able of contents"]
+    a[data-active="true"] {
     color: var(--color-divine-primary-light) !important;
     font-weight: 600;
   }
-  .dark [data-toc-thumb],
-  .dark [data-toc] [data-thumb] {
+  .dark:not(.minimal) [data-toc-thumb],
+  .dark:not(.minimal) [data-toc] [data-thumb] {
     background: #783cb5 !important;
     width: 2px !important;
     border-radius: 2px;
@@ -440,7 +632,7 @@
      `!important` margins/sizes leak into them. `:where()` keeps
      specificity unchanged. */
   .prose h2:not(:where([class~="not-prose"], [class~="not-prose"] *)) {
-    font-family: var(--font-manrope), system-ui, sans-serif !important;
+    font-family: var(--font-hero) !important;
     font-weight: 700 !important;
     font-size: 1.875rem !important;
     line-height: 1.2 !important;
@@ -450,7 +642,7 @@
   }
 
   .prose h3:not(:where([class~="not-prose"], [class~="not-prose"] *)) {
-    font-family: var(--font-poppins), system-ui, sans-serif !important;
+    font-family: var(--font-section) !important;
     font-weight: 600 !important;
     font-size: 1.375rem !important;
     line-height: 1.3 !important;
@@ -461,14 +653,14 @@
   .prose h4:not(:where([class~="not-prose"], [class~="not-prose"] *)),
   .prose h5:not(:where([class~="not-prose"], [class~="not-prose"] *)),
   .prose h6:not(:where([class~="not-prose"], [class~="not-prose"] *)) {
-    font-family: var(--font-poppins), system-ui, sans-serif !important;
+    font-family: var(--font-section) !important;
     font-weight: 600 !important;
     color: var(--color-divine-text) !important;
   }
 
   /* Body text — Inter, slightly muted, comfortable line-height. */
   .prose p {
-    font-family: var(--font-inter), system-ui, sans-serif !important;
+    font-family: var(--font-body) !important;
     font-weight: 400 !important;
     font-size: 1rem;
     line-height: 1.75;
@@ -627,7 +819,7 @@
     font-weight: 600;
   }
   .prose li {
-    font-family: var(--font-inter), system-ui, sans-serif;
+    font-family: var(--font-body);
     color: color-mix(in srgb, var(--color-divine-text) 88%, transparent);
   }
 
@@ -657,7 +849,7 @@
     ) !important;
   }
   .prose th {
-    font-family: var(--font-poppins), system-ui, sans-serif !important;
+    font-family: var(--font-section) !important;
     font-weight: 600 !important;
     text-align: left !important;
     padding: 0.75rem 1rem !important;
@@ -701,7 +893,7 @@
   .prose details > summary {
     cursor: pointer;
     list-style: none;
-    font-family: var(--font-poppins), system-ui, sans-serif;
+    font-family: var(--font-section);
     font-weight: 600;
     font-size: 1.0625rem;
     color: var(--color-divine-text);
@@ -787,7 +979,7 @@
     background: transparent !important;
   }
   .divine-faq h3 > button {
-    font-family: var(--font-poppins), system-ui, sans-serif;
+    font-family: var(--font-section);
     font-weight: 600;
     font-size: 1.0625rem;
     color: var(--color-divine-text);
@@ -844,7 +1036,7 @@
      radial purple ambient so the lower half never feels empty.
      ────────────────────────────────────────────────────────────── */
 
-  .dark #nd-sidebar {
+  .dark:not(.minimal) #nd-sidebar {
     --color-fd-card: #0a0910;
     --color-fd-background: #0a0910;
     --color-fd-foreground: var(--color-divine-text);
@@ -887,7 +1079,7 @@
   }
 
   /* Header block — logo + collapse button, a thin brand separator. */
-  .dark #nd-sidebar > div:first-child {
+  .dark:not(.minimal) #nd-sidebar > div:first-child {
     gap: 0.6rem;
     padding-bottom: 0.6rem;
     border-bottom: 1px solid
@@ -896,8 +1088,8 @@
   }
 
   /* Search trigger — purple-tinted pill that matches the brand. */
-  .dark #nd-sidebar button[aria-label="Search"],
-  .dark #nd-sidebar [data-search-full] {
+  .dark:not(.minimal) #nd-sidebar button[aria-label="Search"],
+  .dark:not(.minimal) #nd-sidebar [data-search-full] {
     background: color-mix(
       in srgb,
       var(--color-divine-primary) 6%,
@@ -907,8 +1099,8 @@
       color-mix(in srgb, var(--color-divine-primary) 22%, transparent) !important;
     color: var(--color-divine-text-muted);
   }
-  .dark #nd-sidebar button[aria-label="Search"]:hover,
-  .dark #nd-sidebar [data-search-full]:hover {
+  .dark:not(.minimal) #nd-sidebar button[aria-label="Search"]:hover,
+  .dark:not(.minimal) #nd-sidebar [data-search-full]:hover {
     border-color: color-mix(
       in srgb,
       var(--color-divine-primary) 40%,
@@ -917,8 +1109,8 @@
   }
 
   /* Nav items — tighter rows, consistent line-height. */
-  .dark #nd-sidebar a[data-active],
-  .dark #nd-sidebar button[data-active] {
+  .dark:not(.minimal) #nd-sidebar a[data-active],
+  .dark:not(.minimal) #nd-sidebar button[data-active] {
     padding-block: 0.3rem;
     font-size: 0.8125rem;
     line-height: 1.25rem;
@@ -926,8 +1118,8 @@
   }
 
   /* Hover — subtle purple wash instead of gray. */
-  .dark #nd-sidebar a[data-active="false"]:hover,
-  .dark #nd-sidebar button[data-active="false"]:hover {
+  .dark:not(.minimal) #nd-sidebar a[data-active="false"]:hover,
+  .dark:not(.minimal) #nd-sidebar button[data-active="false"]:hover {
     background: color-mix(
       in srgb,
       var(--color-divine-primary) 9%,
@@ -937,8 +1129,8 @@
   }
 
   /* Active — purple-light text on purple wash, bold. */
-  .dark #nd-sidebar a[data-active="true"],
-  .dark #nd-sidebar button[data-active="true"] {
+  .dark:not(.minimal) #nd-sidebar a[data-active="true"],
+  .dark:not(.minimal) #nd-sidebar button[data-active="true"] {
     color: var(--color-divine-primary-light) !important;
     background: color-mix(
       in srgb,
@@ -947,13 +1139,13 @@
     ) !important;
     font-weight: 600;
   }
-  .dark #nd-sidebar a[data-active="true"] svg,
-  .dark #nd-sidebar button[data-active="true"] svg {
+  .dark:not(.minimal) #nd-sidebar a[data-active="true"] svg,
+  .dark:not(.minimal) #nd-sidebar button[data-active="true"] svg {
     color: var(--color-divine-primary-light) !important;
   }
 
   /* Active bar — solid divine purple rail on nested items. */
-  .dark #nd-sidebar a[data-active="true"]::before {
+  .dark:not(.minimal) #nd-sidebar a[data-active="true"]::before {
     background: #783cb5 !important;
     width: 2px !important;
     border-radius: 2px;
@@ -961,7 +1153,7 @@
   }
 
   /* Folder tree guide line — softer, purple-tinted. */
-  .dark #nd-sidebar [class*="before:bg-fd-border"]::before {
+  .dark:not(.minimal) #nd-sidebar [class*="before:bg-fd-border"]::before {
     background: color-mix(
       in srgb,
       var(--color-divine-primary) 22%,
@@ -971,7 +1163,7 @@
 
   /* Sidebar footer (language + GitHub + theme toggle) — pinned,
      with a brand divider and muted foreground that matches the site. */
-  .dark #nd-sidebar > div:last-child {
+  .dark:not(.minimal) #nd-sidebar > div:last-child {
     border-top: 1px solid
       color-mix(in srgb, var(--color-divine-primary) 18%, transparent);
     margin-top: auto;
@@ -984,8 +1176,10 @@
      ────────────────────────────────────────────────────────────── */
 
   /* Backdrop overlay — darker + stronger blur + faint purple wash. */
-  .dark [data-state="open"][data-slot="overlay"],
-  .dark [data-radix-popper-content-wrapper] + div[data-state="open"] {
+  .dark:not(.minimal) [data-state="open"][data-slot="overlay"],
+  .dark:not(.minimal)
+    [data-radix-popper-content-wrapper]
+    + div[data-state="open"] {
     background: radial-gradient(
       120% 80% at 50% 30%,
       color-mix(in srgb, var(--color-divine-primary) 12%, transparent) 0%,
@@ -998,8 +1192,10 @@
   /* The Fumadocs search dialog content — brighter than body, purple
      rim, soft purple ambient shadow. `[role="dialog"]` catches the
      search modal; we narrow further with the `cmdk`-style structure. */
-  .dark [role="dialog"][data-state="open"]:has(input[placeholder]),
-  .dark [role="dialog"][data-state="open"][aria-labelledby*="radix"] {
+  .dark:not(.minimal)
+    [role="dialog"][data-state="open"]:has(input[placeholder]),
+  .dark:not(.minimal)
+    [role="dialog"][data-state="open"][aria-labelledby*="radix"] {
     background: linear-gradient(180deg, #1a1624 0%, #15121f 100%) !important;
     border: 1px solid
       color-mix(in srgb, var(--color-divine-primary) 35%, transparent) !important;
@@ -1010,12 +1206,14 @@
   }
 
   /* Search input placeholder + caret — muted divine, purple caret. */
-  .dark [role="dialog"] input[placeholder] {
+  .dark:not(.minimal) [role="dialog"] input[placeholder] {
     caret-color: var(--color-divine-primary-light);
   }
 
   /* ESC pill — align with Divine surface + border. */
-  .dark [role="dialog"] button[type="button"]:has(> *:only-child) {
+  .dark:not(.minimal)
+    [role="dialog"]
+    button[type="button"]:has(> *:only-child) {
     border-color: color-mix(
       in srgb,
       var(--color-divine-primary) 25%,
@@ -1025,7 +1223,7 @@
 
   /* Search result rows — hover/active uses purple wash, highlighted
      match text uses purple-light (already via --color-fd-primary). */
-  .dark [role="dialog"] button[aria-selected="true"] {
+  .dark:not(.minimal) [role="dialog"] button[aria-selected="true"] {
     background: color-mix(
       in srgb,
       var(--color-divine-primary) 18%,
@@ -1035,7 +1233,7 @@
   }
 
   /* Footer strip inside search dialog (keyboard hints, tags). */
-  .dark [role="dialog"] [class*="bg-fd-secondary"] {
+  .dark:not(.minimal) [role="dialog"] [class*="bg-fd-secondary"] {
     background: color-mix(
       in srgb,
       var(--color-divine-primary) 8%,
@@ -1046,7 +1244,7 @@
   }
 
   /* Any ring/outline inside dialogs uses purple-light. */
-  .dark [role="dialog"] :focus-visible {
+  .dark:not(.minimal) [role="dialog"] :focus-visible {
     outline-color: var(--color-divine-primary-light);
   }
 } /* end @layer components */
@@ -1064,8 +1262,8 @@
   max-width: none;
 }
 
-/* Centered reading mode — opt-in via the sidebar-footer toggle
-   (reading-width-toggle.tsx adds `centered-reading` to <html>). Restores a
+/* Centered reading mode — opt-in via the appearance popover's Width row
+   (appearance-settings.tsx adds `centered-reading` to <html>). Restores a
    capped column; the article's own `mx-auto` centers it between the sidebar
    and the TOC, Obsidian-style. */
 .centered-reading #nd-page[data-full="false"] {
@@ -1088,4 +1286,42 @@
 }
 #nd-page > h1.divine-doc-title:first-child {
   margin-top: 2.25rem;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   Minimal style — decoration resets. Token recoloring (see the
+   .minimal.dark/.minimal.light blocks) flattens every var-driven
+   effect; these kill the literal-hex ones: the glow stacks and
+   the gradient text. Kept UNLAYERED on purpose: divine-glow etc.
+   are @utility classes emitted in the utilities layer, and an
+   unlayered rule overrides any layered one. The escaped
+   `.hover\:` selector catches Tailwind's variant-prefixed form.
+   Note: unlike the `:not(.minimal)` guards above, these resets
+   also reach the /draft editor's forced-dark subtree — fine while
+   no draft-previewable MDX component uses these utilities.
+   ────────────────────────────────────────────────────────────── */
+.minimal .divine-glow,
+.minimal .divine-glow-hover,
+.minimal .hover\:divine-glow-hover {
+  box-shadow: none;
+}
+.minimal .divine-gradient-text {
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  color: var(--color-divine-text);
+}
+
+/* GlowCTA solid fill — its light: classes pair divine-primary-light with
+   divine-text, which are both near-black under Minimal's neutral tokens
+   (black-on-black button). Use the stock fd primary pair instead: black
+   pill / white text in light, white pill / black text in dark. */
+.minimal .divine-cta-solid {
+  background: var(--color-fd-primary);
+  color: var(--color-fd-primary-foreground);
+  box-shadow: none;
+}
+.minimal .divine-cta-solid:hover {
+  filter: none;
+  opacity: 0.85;
 }
