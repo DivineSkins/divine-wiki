@@ -6,11 +6,11 @@ import {
   CircleCheck,
   Copy,
   ExternalLink,
-  Github,
   ImagePlus,
   Link2,
   X,
 } from "lucide-react";
+import { GitHubLogo } from "@/components/brand-logos";
 import { useMessages } from "@/lib/hooks/useMessages";
 import { newFileUrl, editFileUrl, uploadImagesUrl } from "@/lib/draft/github";
 import { type StagedImages } from "@/lib/draft/staged-images";
@@ -260,7 +260,7 @@ function NewGuideHandoff({
   const handoff = newFileUrl(category, slug, mdx);
   return (
     <div className="flex items-start gap-3">
-      <Github className="text-divine-text mt-0.5 size-5 shrink-0" />
+      <GitHubLogo className="text-divine-text mt-0.5 size-5 shrink-0" />
       <div>
         <h3 className="text-divine-text font-semibold">
           {d.handoffFallbackHeading}
@@ -290,7 +290,7 @@ function EditHandoff({
 }) {
   return (
     <div className="flex items-start gap-3">
-      <Github className="text-divine-text mt-0.5 size-5 shrink-0" />
+      <GitHubLogo className="text-divine-text mt-0.5 size-5 shrink-0" />
       <div>
         <h3 className="text-divine-text font-semibold">
           {d.handoffEditHeading}

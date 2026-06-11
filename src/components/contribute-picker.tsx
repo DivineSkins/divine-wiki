@@ -10,7 +10,8 @@ import {
   type ReactNode,
 } from "react";
 import { useParams, usePathname } from "next/navigation";
-import { PencilIcon, PencilLine, Github } from "lucide-react";
+import { PencilIcon, PencilLine } from "lucide-react";
+import { GitHubLogo } from "@/components/brand-logos";
 import { useMessages } from "@/lib/hooks/useMessages";
 import { PremiumCard } from "@/components/mdx/PremiumCard";
 import { cn } from "@/lib/utils";
@@ -125,7 +126,7 @@ export function ContributePickerModal() {
           <PremiumCard
             title={p.manualGithubTitle}
             href={`/${lang}/docs/contributing`}
-            icon={<Github className="h-5 w-5" />}
+            icon={<GitHubLogo className="h-5 w-5" />}
           >
             {p.manualGithubBody}
           </PremiumCard>
