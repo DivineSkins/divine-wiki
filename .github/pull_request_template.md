@@ -13,8 +13,6 @@
 
 ## Checklist
 
-- [ ] Voice sounds like a gamer friend, not a marketing department
-- [ ] No banned terms (see `docs/voice.md`)
 - [ ] All images have `alt=""`
 - [ ] All images compressed (< 500 KB where possible)
 - [ ] Linked from the relevant category's `meta.json`

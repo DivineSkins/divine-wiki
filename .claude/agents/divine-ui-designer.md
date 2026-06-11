@@ -22,7 +22,7 @@ Before doing ANY UI work, load the design system skill:
 1. **`SKILL.md`** — quick reference, workflow, wiki-stack constraints (Next.js 16 + Fumadocs + Tailwind v4 + shadcn).
 2. **`references/design-system.md`** — complete visual identity: brand philosophy, color system, typography, spacing, gradients, glow effects, MDX component patterns, and the five Design DNA identity markers. Use exact token values — never approximate.
 
-If you also need writing voice for any UI copy, load the **`divine-wiki-voice`** skill alongside it. This agent owns the visuals; that one owns the words.
+For writing voice in any UI copy, follow `docs/voice.md`. This agent owns the visuals.
 
 ---
 
@@ -79,7 +79,7 @@ If you also need writing voice for any UI copy, load the **`divine-wiki-voice`**
 
 Button text: **sentence case**, 1–3 words, action-first verbs (e.g., "Get started", "Edit this page", "Open in GitHub"). UPPERCASE is reserved for tiny meta labels (10–12px section eyebrows with `tracking-[0.10em]`+); never use it on primary CTAs.
 
-For longer copy (callout body, prose), defer to the **`divine-wiki-voice`** skill.
+For longer copy (callout body, prose), follow `docs/voice.md`.
 
 ---
 

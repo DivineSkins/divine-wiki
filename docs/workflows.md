@@ -122,7 +122,6 @@ Most frequent causes:
 
 1. Change [`voice.md`](./voice.md) (human-readable source of truth).
 2. Mirror any banned-term changes in the "Conventions" section of `CLAUDE.md` so humans + AI see the same rules.
-3. Mirror in `.claude/skills/divine-wiki-voice/SKILL.md` and `.claude/skills/divine-wiki-voice/references/wiki-voice-guide.md` so the voice skill stays accurate.
 
 ## Add a new Lucide icon to a category
 
