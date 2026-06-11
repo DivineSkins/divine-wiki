@@ -16,12 +16,12 @@ preferences persist in localStorage and apply before first paint.
 
 One popover, four settings:
 
-| Setting | Values                                            | Mechanism                                | Persistence              |
-| ------- | ------------------------------------------------- | ---------------------------------------- | ------------------------ |
-| Mode    | light / dark / system                              | next-themes via Fumadocs RootProvider    | next-themes built-in     |
-| Style   | divine (default) / minimal                         | `minimal` class on `<html>`              | `divine-style` key       |
-| Font    | inter (default) / geist / lora / atkinson / system | `data-font="..."` attribute on `<html>`  | `divine-font` key        |
-| Width   | wide (default) / centered                          | `centered-reading` class on `<html>`     | `divine-reading-width`   |
+| Setting | Values                                             | Mechanism                               | Persistence            |
+| ------- | -------------------------------------------------- | --------------------------------------- | ---------------------- |
+| Mode    | light / dark / system                              | next-themes via Fumadocs RootProvider   | next-themes built-in   |
+| Style   | divine (default) / minimal                         | `minimal` class on `<html>`             | `divine-style` key     |
+| Font    | inter (default) / geist / lora / atkinson / system | `data-font="..."` attribute on `<html>` | `divine-font` key      |
+| Width   | wide (default) / centered                          | `centered-reading` class on `<html>`    | `divine-reading-width` |
 
 Style and Mode compose freely: Divine dark, Divine light, Minimal dark,
 Minimal light are all valid combinations.

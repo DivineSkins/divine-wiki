@@ -511,15 +511,17 @@ one) with one that applies all three persisted preferences before first
 paint. Keys must match `appearance-settings.tsx` (Task 5):
 
 ```tsx
-{/* Apply persisted appearance preferences (reading width, Minimal
+{
+  /* Apply persisted appearance preferences (reading width, Minimal
     style, font) before first paint — same no-flash trick next-themes
     uses for the theme class. Keys stay in sync with
-    src/components/appearance-settings.tsx. */}
+    src/components/appearance-settings.tsx. */
+}
 <script
   dangerouslySetInnerHTML={{
     __html: `try{var c=document.documentElement.classList;if(localStorage.getItem("divine-reading-width")==="centered")c.add("centered-reading");if(localStorage.getItem("divine-style")==="minimal")c.add("minimal");var f=localStorage.getItem("divine-font");if(f&&f!=="inter")document.documentElement.setAttribute("data-font",f)}catch(e){}`,
   }}
-/>
+/>;
 ```
 
 (`<html>` already has `suppressHydrationWarning`, which covers the class
@@ -740,7 +742,10 @@ export function AppearanceSettings({ labels }: { labels: SettingsLabels }) {
 
   function applyStyle(next: "divine" | "minimal") {
     setStyle(next);
-    document.documentElement.classList.toggle(MINIMAL_CLASS, next === "minimal");
+    document.documentElement.classList.toggle(
+      MINIMAL_CLASS,
+      next === "minimal",
+    );
     persist(STYLE_STORAGE_KEY, next);
   }
 
@@ -798,7 +803,11 @@ export function AppearanceSettings({ labels }: { labels: SettingsLabels }) {
           <span className="text-fd-muted-foreground text-xs">
             {labels.font}
           </span>
-          <div role="radiogroup" aria-label={labels.font} className="flex flex-col">
+          <div
+            role="radiogroup"
+            aria-label={labels.font}
+            className="flex flex-col"
+          >
             {FONT_OPTIONS.map((option) => (
               <button
                 key={option.id}
