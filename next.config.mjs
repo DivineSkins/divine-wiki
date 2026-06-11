@@ -46,8 +46,17 @@ const config = {
         ],
       },
       {
-        source: "/api/search",
-        headers: [{ key: "Cache-Control", value: "no-store" }],
+        // The static search index export (one route per locale). The client
+        // always requests it with a `?v=<commit>` cache-buster, so each
+        // deployed version can be cached forever — browsers re-download only
+        // when a deploy changes the URL.
+        source: "/api/search/:locale",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
       },
     ];
   },

@@ -18,6 +18,7 @@ import {
   ContributePickerProvider,
   ContributePickerModal,
 } from "@/components/contribute-picker";
+import StaticSearchDialog from "@/components/search-dialog";
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -155,7 +156,10 @@ export default async function RootLayout({
             __html: `try{var c=document.documentElement.classList;if(localStorage.getItem("divine-reading-width")==="centered")c.add("centered-reading");if(localStorage.getItem("divine-style")==="minimal")c.add("minimal");var f=localStorage.getItem("divine-font");if(f==="geist"||f==="lora"||f==="atkinson"||f==="system")document.documentElement.setAttribute("data-font",f)}catch(e){}`,
           }}
         />
-        <RootProvider i18n={provider(lang)}>
+        <RootProvider
+          i18n={provider(lang)}
+          search={{ SearchDialog: StaticSearchDialog }}
+        >
           <ContributePickerProvider>
             {children}
             <ContributePickerModal />
