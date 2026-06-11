@@ -83,9 +83,8 @@ const translations = Object.fromEntries(
   }),
 );
 
-const { provider } = defineI18nUI(i18n, {
-  translations,
-});
+// fumadocs-ui 16.10 takes the per-locale translations map directly.
+const { provider } = defineI18nUI(i18n, translations);
 
 export default async function RootLayout({
   children,
