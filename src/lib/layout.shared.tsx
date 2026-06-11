@@ -5,6 +5,7 @@ import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
 import { discordInviteUrl } from "@/lib/config";
 import { getMessages } from "./locale";
 import { ContributeButton } from "@/components/contribute-picker";
+import { AppearanceSettings } from "@/components/appearance-settings";
 
 export function baseOptions(
   locale: string,
@@ -36,6 +37,8 @@ export function baseOptions(
       ),
       url: `/${locale}/`,
     },
+    // The appearance popover's Mode row replaces fumadocs' ThemeToggle.
+    themeSwitch: { enabled: false },
   };
 
   // On docs pages the Contribute trigger lives in the sidebar footer
@@ -68,6 +71,10 @@ export function baseOptions(
         icon: <DiscordLogo className="size-4" />,
         text: messages.nav.discord,
         url: discordInviteUrl,
+      },
+      {
+        type: "custom",
+        children: <AppearanceSettings labels={messages.settings} />,
       },
     ];
   }

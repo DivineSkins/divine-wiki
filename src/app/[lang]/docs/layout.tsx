@@ -4,7 +4,7 @@ import { source } from "@/lib/source";
 import { baseOptions } from "@/lib/layout.shared";
 import { localizePageTree } from "@/lib/tree-localization";
 import { getMessages } from "@/lib/locale";
-import { ReadingWidthToggle } from "@/components/reading-width-toggle";
+import { AppearanceSettings } from "@/components/appearance-settings";
 import { SidebarSeparatorWithContribute } from "@/components/sidebar-contribute";
 import { SiteFooter } from "@/components/site-footer";
 import { contributeSidebarNodeId, githubRepoUrl } from "@/lib/config";
@@ -70,7 +70,14 @@ export default async function Layout({
         githubUrl={githubRepoUrl}
         sidebar={{
           components: { Separator: SidebarSeparatorWithContribute },
-          footer: <ReadingWidthToggle label={messages.nav.readingWidth} />,
+          footer: (
+            <div className="flex items-center justify-between gap-2 pt-2">
+              <span className="text-fd-muted-foreground text-xs">
+                {messages.settings.trigger}
+              </span>
+              <AppearanceSettings labels={messages.settings} />
+            </div>
+          ),
         }}
       >
         {children}
