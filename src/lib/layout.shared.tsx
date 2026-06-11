@@ -2,7 +2,6 @@ import Image from "next/image";
 import { BookIcon } from "lucide-react";
 import { DiscordLogo } from "@/components/brand-logos";
 import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
-import { i18n } from "@/lib/i18n";
 import { discordInviteUrl } from "@/lib/config";
 import { getMessages } from "./locale";
 import { ContributeButton } from "@/components/contribute-picker";
@@ -14,7 +13,10 @@ export function baseOptions(
   const messages = getMessages(locale);
 
   const options: BaseLayoutProps = {
-    i18n,
+    // Just toggles the language selector. Don't pass the i18n config object:
+    // fumadocs-core 16.10 attaches a translations() method to it, which can't
+    // cross the server-to-client boundary (locales come from RootProvider).
+    i18n: true,
     nav: {
       title: (
         <>

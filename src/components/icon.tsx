@@ -4,16 +4,24 @@ import {
   MayaLogo,
   BlenderLogo,
   DiscordLogo,
+  GitHubLogo,
+  YouTubeLogo,
   LeagueOfLegendsLogo,
 } from "@/components/brand-logos";
 
 // Brand logos (Simple Icons) keyed by the names used in meta.json `icon`
 // fields and the MDX `<Icon name="..." />` helper. Everything else falls
-// through to a Lucide icon by name.
+// through to a Lucide icon by name. Lucide v1 removed its brand icons, so
+// GitHub/YouTube live here (the lowercase-h/t spellings keep content that
+// used the old Lucide names working).
 const brandIcons = {
   Maya: MayaLogo,
   Blender: BlenderLogo,
   Discord: DiscordLogo,
+  GitHub: GitHubLogo,
+  Github: GitHubLogo,
+  YouTube: YouTubeLogo,
+  Youtube: YouTubeLogo,
   LeagueOfLegends: LeagueOfLegendsLogo,
 };
 
