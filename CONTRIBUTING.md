@@ -6,7 +6,7 @@ The full guide lives on the wiki: **[wiki.divineskins.gg/en/docs/lol/contributin
 
 ## Quick version
 
-- **In-browser editor** → go to [wiki.divineskins.gg/en/draft](https://wiki.divineskins.gg/en/draft). Write the guide, hit submit, the editor opens a PR for you.
+- **In-browser editor** → go to [wiki.divineskins.gg/en/draft](https://wiki.divineskins.gg/en/draft). Write the guide, hit **Contribute**, follow the three steps: fork the wiki, create the prefilled file on your fork, open the pull request.
 - **Small fix or typo** → on any guide, scroll to the bottom and click **Edit on GitHub**. GitHub's web editor opens. Make your change, open a pull request.
 - **New page or bigger change** → fork this repo, clone, `npm install`, `npm run dev`, edit MDX under `content/docs/en/lol/<category>/`, push, open a PR.
 
