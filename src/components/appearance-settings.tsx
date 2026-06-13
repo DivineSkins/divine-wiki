@@ -117,7 +117,10 @@ export function AppearanceSettings({ labels }: { labels: SettingsLabels }) {
   const [mounted, setMounted] = useState(false);
   const [style, setStyle] = useState<"divine" | "minimal">("divine");
   const [font, setFont] = useState<FontId>("inter");
-  const [centered, setCentered] = useState(false);
+  // Centered is the default reading width (see the pre-paint script in
+  // src/app/[lang]/layout.tsx); the effect below reconciles with the actual
+  // <html> class on mount, so visitors who chose "wide" still sync correctly.
+  const [centered, setCentered] = useState(true);
 
   useEffect(() => {
     const root = document.documentElement;

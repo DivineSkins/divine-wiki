@@ -150,10 +150,11 @@ export default async function RootLayout({
         {/* Apply persisted appearance preferences (reading width, Minimal
             style, font) before first paint — same no-flash trick next-themes
             uses for the theme class. Keys stay in sync with
-            src/components/appearance-settings.tsx. */}
+            src/components/appearance-settings.tsx. Centered reading is the
+            default: add the class unless the visitor explicitly chose "wide". */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{var c=document.documentElement.classList;if(localStorage.getItem("divine-reading-width")==="centered")c.add("centered-reading");if(localStorage.getItem("divine-style")==="minimal")c.add("minimal");var f=localStorage.getItem("divine-font");if(f==="geist"||f==="lora"||f==="atkinson"||f==="system")document.documentElement.setAttribute("data-font",f)}catch(e){}`,
+            __html: `try{var c=document.documentElement.classList;if(localStorage.getItem("divine-reading-width")!=="wide")c.add("centered-reading");if(localStorage.getItem("divine-style")==="minimal")c.add("minimal");var f=localStorage.getItem("divine-font");if(f==="geist"||f==="lora"||f==="atkinson"||f==="system")document.documentElement.setAttribute("data-font",f)}catch(e){}`,
           }}
         />
         <RootProvider
