@@ -11,7 +11,15 @@ import type { Metadata } from "next";
 import { createRelativeLink } from "fumadocs-ui/mdx";
 import Link from "next/link";
 import { i18n, ogLanguageBlacklist } from "@/lib/i18n";
-import { baseOpenGraph, baseTwitter, llmAlternateTypes } from "@/lib/seo";
+import {
+  baseOpenGraph,
+  baseTwitter,
+  llmAlternateTypes,
+  LANDING_OG_IMAGE,
+  LANDING_OG_WIDTH,
+  LANDING_OG_HEIGHT,
+  SITE_NAME,
+} from "@/lib/seo";
 import { Separator } from "@/components/ui/separator";
 import { DocsLanding } from "@/components/home/docs-landing";
 import { PageCredits } from "@/components/page-credits";
@@ -120,6 +128,24 @@ export async function generateMetadata(
 
   const slug = params.slug || [];
   const imageUrl = `/api/og/docs/${params.lang}${slug.length > 0 ? "/" + slug.join("/") : ""}`;
+
+  // The LoL guides index (slug ["lol"]) is the redirect target for the site
+  // root (/:lang -> /:lang/docs/lol), so it's the de-facto landing page a
+  // shared site link resolves to. Give it the static branded banner instead of
+  // the dynamic per-page card. The banner is a static image with no localized
+  // text, so it's safe to serve even for OG-blacklisted locales.
+  const isLandingTarget = slug.length === 1 && slug[0] === "lol";
+  const ogImages = isLandingTarget
+    ? [
+        {
+          url: LANDING_OG_IMAGE,
+          width: LANDING_OG_WIDTH,
+          height: LANDING_OG_HEIGHT,
+          alt: SITE_NAME,
+        },
+      ]
+    : [{ url: imageUrl, width: 1200, height: 630 }];
+  const twitterImages = isLandingTarget ? [LANDING_OG_IMAGE] : [imageUrl];
   const pageKeywords = (page.data as any).keywords || [];
   const globalKeywords = [
     "league of legends",
@@ -147,7 +173,9 @@ export async function generateMetadata(
     types: llmAlternateTypes,
   };
 
-  if (ogLanguageBlacklist.includes(params.lang))
+  // Blacklisted locales skip the DYNAMIC card (it renders text that breaks for
+  // those scripts), but the landing target's static banner is always safe.
+  if (ogLanguageBlacklist.includes(params.lang) && !isLandingTarget)
     return {
       title: page.data.title,
       description: page.data.description,
@@ -162,17 +190,11 @@ export async function generateMetadata(
     alternates,
     openGraph: {
       ...baseOpenGraph,
-      images: [
-        {
-          url: imageUrl,
-          width: 1200,
-          height: 630,
-        },
-      ],
+      images: ogImages,
     },
     twitter: {
       ...baseTwitter,
-      images: [imageUrl],
+      images: twitterImages,
     },
   };
 }

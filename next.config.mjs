@@ -92,14 +92,16 @@ const config = {
         destination: "/en/docs/lol/contributing",
         permanent: true,
       },
-      /*comment out the 2 brackets below if u wanna stop redirecting mainpage
-and docs page, i replaced both with the new one technically
-- bud*/
+      // Bare /:lang/docs (no game segment) lands on the LoL guides index.
       {
         source: `/:lang(${locale})/docs`,
         destination: "/:lang/docs/lol",
         permanent: false,
       },
+      // Root /:lang sends visitors straight into the LoL guides index. That
+      // target page (slug ["lol"]) carries the branded social card, set in the
+      // docs generateMetadata, so a shared site link still previews the banner
+      // even though crawlers follow this redirect.
       {
         source: `/:lang(${locale})`,
         destination: "/:lang/docs/lol",
