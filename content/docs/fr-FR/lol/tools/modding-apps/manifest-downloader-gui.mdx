@@ -1,0 +1,136 @@
+---
+title: "Manifest Downloader GUI"
+description: "Une interface pour télécharger les fichiers manifest de Riot. Récupère de vieux patchs League, des builds PBE ou des assets manquants sans ligne de commande."
+category: "tools"
+---
+
+Manifest Downloader GUI est une app de bureau signée **dazashu** qui habille
+le `ManifestDownloader` en ligne de commande de **Morilli** dans une fenêtre à
+deux onglets. Tu l'utilises pour télécharger les fichiers manifest de Riot,
+puis récupérer les assets du jeu qu'ils décrivent.
+
+Un manifest est un fichier que Riot utilise pour décrire un build de jeu :
+quels fichiers existent, où ils se trouvent et quelle version ils ont. Avec le
+bon manifest, tu peux télécharger un ancien patch de League, un build PBE ou
+un asset précis, sans attendre que le client live le fasse.
+
+[Télécharge la dernière version](https://github.com/dazashu/ManifestDownloaderGUI/releases)
+
+{/* SCREENSHOT: ManifestDownloaderGUI main window with the Downloader and Library tabs visible */}
+
+---
+
+## Ce qu'il fait
+
+- **Télécharge des manifests** depuis les dépôts publics de Riot en un clic.
+- **Parcourt une bibliothèque locale** des manifests déjà téléchargés.
+- **Récupère le vrai contenu du jeu** décrit par un manifest (les fichiers à l'intérieur du build).
+- **Règle les options de téléchargement** via un panneau de paramètres (chemins, filtres, threads).
+- **Garde tout portable.** Les données de l'app vivent dans `LocalAppData`, donc ton dossier d'installation reste propre.
+
+Il supporte les mêmes jeux que la CLI de Morilli. Ça couvre League of Legends, Legends of Runeterra, Valorant et les autres titres Riot qui utilisent des fichiers manifest.
+
+---
+
+## Ce qu'il te faut
+
+- Windows 10 ou 11 (64 bits). Pas de build Mac ou Linux.
+- [.NET 8.0 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0). L'app ne démarre pas sans ça.
+- Environ 1 Go d'espace disque libre pour les petits jobs. Les builds complets de League ont besoin de 20 à 30 Go.
+- Une connexion Internet correcte. Tu tires depuis le CDN de Riot.
+
+---
+
+## Installation
+
+1. Ouvre la [page des releases](https://github.com/dazashu/ManifestDownloaderGUI/releases).
+2. Télécharge `ManifestDownloaderGUI.exe` depuis la dernière version.
+3. Déplace le `.exe` dans un dossier que tu retrouveras. (Par exemple, `C:\Tools\ManifestDownloader\`.)
+4. Double-clique sur `ManifestDownloaderGUI.exe`. L'app s'ouvre sur l'onglet Downloader.
+
+Si Windows affiche un avertissement SmartScreen, clique sur **More info**, puis **Run anyway**. L'app est open source et non signée, ce qui est normal pour les outils communautaires.
+
+{/* SCREENSHOT: Windows SmartScreen warning with the "More info" link circled */}
+
+---
+
+## Comment l'utiliser
+
+### Télécharger un manifest
+
+1. Ouvre l'app. L'onglet **Downloader** se charge par défaut.
+2. Choisis le jeu et le canal que tu veux (par exemple, League of Legends live ou PBE).
+3. Clique sur le manifest que tu veux dans la liste. Le téléchargement démarre.
+4. Attends la fin de la barre de progression. Le manifest rejoint ta bibliothèque locale.
+
+{/* SCREENSHOT: Downloader tab with a manifest mid-download */}
+
+### Télécharger le contenu du jeu
+
+1. Passe à l'onglet **Library**.
+2. Clique sur le manifest que tu viens de télécharger.
+3. Vérifie les paramètres de téléchargement (dossier de sortie, filtres, threads).
+4. Clique sur **Start**. L'app tire les fichiers depuis le CDN de Riot.
+5. Attends. Un build complet de League peut prendre 30 minutes ou plus, selon ta connexion.
+
+À la fin, ton dossier de sortie contient les fichiers bruts du jeu : `.wad`, `.bin`, textures et le reste.
+
+{/* SCREENSHOT: Library tab with a manifest selected and the Start button visible */}
+
+### Filtrer ce que tu télécharges
+
+En général, tu ne veux pas tout le build. Le panneau de paramètres te laisse cibler :
+
+- **Filtrer par chemin.** Ne tire que les fichiers dont le chemin correspond à un motif (par exemple, `*champion*`).
+- **Filtrer par langue.** Saute les packs de voix dont tu n'as pas besoin.
+- **Régler le nombre de threads.** Plus de threads, c'est plus rapide, mais ça charge ta connexion.
+
+---
+
+## Quand tu en as vraiment besoin
+
+La plupart des moddeurs ne touchent jamais aux manifests. Le client live de League te garde déjà à jour, et des outils comme [Flint](/docs/lol/tools/modding-apps/flint) extraient ce qu'il te faut de l'installation actuelle. Sors Manifest Downloader GUI quand :
+
+- **Tu veux un ancien patch.** Un skin construit sur le patch 14.3 peut casser en 14.10. Tirer les fichiers de 14.3 te laisse vérifier le mesh ou la texture source.
+- **Tu veux des fichiers PBE.** Les builds du Public Beta Environment livrent de nouveaux champions et skins avant le live. Le manifest est la façon de les récupérer sans installer le client PBE.
+- **Un asset précis manque en local.** Parfois le client live ne livre pas tous les fichiers (contenu coupé, assets spécifiques à une région). Un manifest te laisse tirer juste ce fichier.
+- **Tu travailles sur un autre jeu Riot.** Legends of Runeterra et Valorant utilisent le même format de manifest.
+
+Pour le travail de skin au quotidien, reste sur Flint ou LtMAO. Utilise ceci quand un des cas ci-dessus se présente.
+
+---
+
+## Différence avec le flux d'auto-patch
+
+Le client de League se patche tout seul. Celestial aussi, quand un skin a besoin d'une mise à jour. Les deux sont automatiques et tu ne choisis pas ce qu'ils tirent.
+
+Manifest Downloader GUI, c'est l'inverse : **tu choisis le build, tu choisis les fichiers, tu déclenches le téléchargement**. Il ne patche pas ton League installé. Il ne change pas ton jeu live. Il écrit des fichiers dans un dossier que tu choisis, et c'est tout.
+
+---
+
+## Dépannage
+
+### L'app ne démarre pas
+
+Installe le [.NET 8.0 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0) et réessaie. L'app en a besoin pour tourner.
+
+### Les téléchargements sont très lents
+
+Baisse le nombre de threads dans les paramètres, ou vérifie si ton réseau ou ton VPN bride la connexion. Le CDN de Riot est rapide dans la plupart des régions.
+
+### Le téléchargement finit mais le dossier est vide
+
+Vérifie ton filtre de chemin. Si tu as mis un motif qui ne correspond à aucun fichier, le job se termine avec zéro fichier. Efface le filtre et réessaie.
+
+### Un manifest ne se télécharge pas
+
+Certains anciens manifests sont retirés des sources publiques de Riot. Si un manifest de la liste renvoie une erreur, choisis une autre version ou consulte le [dépôt de manifests sauvegardés de Morilli](https://github.com/Morilli/riot-manifests) pour une archive.
+
+---
+
+## Crédits
+
+- **Interface par [dazashu](https://github.com/dazashu).**
+- **Cœur CLI par [Morilli](https://github.com/Morilli/ManifestDownloader).** L'interface habille l'outil de Morilli, donc toute la logique de téléchargement vient de là.
+
+Les deux projets sont sous licence MIT et open source.

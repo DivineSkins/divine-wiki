@@ -1,0 +1,130 @@
+---
+title: "TextureSwap Fakegear"
+description: "Un tutoriel assez basique qui touche à l'édition de bins."
+category: "vfx-bins"
+---
+
+## 1. Préparer tes Static Materials
+
+Tu croyais qu'on allait juste échanger des textures ? J'aurais aimé que ce soit aussi simple.
+
+Tu dois copier le `staticmaterial` existant lié à la texture de base de ce mesh. Pour le corps de Yuumi, c'est `Orb_Cat_inst`. Tu le trouves en cherchant le nom de la texture dans le bin du skin.
+
+<img src="/wiki-images/1767149443636-vvzsnj.png" alt="Image" width={800} />
+
+Ensuite, copie le tout, colle-le quelque part, renomme les éléments et ajoute ton fichier de texture. Dans mon cas, le nom sera `"mine"`, tout comme le fichier de texture.
+
+<img src="/wiki-images/1767149464084-1r81lr.png" alt="Image" width={500} />
+
+---
+
+## 2. VFX
+
+Tu vas avoir besoin de ce bout de code. Je te conseille de le coller près de ton staticmaterial pour tout avoir au même endroit.
+
+```py
+"Hide" = VfxSystemDefinitionData {
+    timeBeforeFirstEmission: f32 = 1
+    complexEmitterDefinitionData: list[pointer] = {
+        VfxEmitterDefinitionData {
+            rate: embed = ValueFloat {
+                constantValue: f32 = 1
+            }
+            particleLifetime: embed = ValueFloat {
+                constantValue: f32 = 1e+14
+            }
+            isSingleParticle: flag = true
+            emitterName: string = "Override"
+            meshRenderFlags: u8 = 0
+            materialOverrideDefinitions: list[embed] = {
+                VfxMaterialOverrideDefinitionData {
+                    priority: i32 = 1
+                    subMeshName: option[string] = {
+                        "Yourmaterialnamefrommaya"
+                    }
+                    material: link = "Characters/urchamp/Skins/urskin/Materials/urstaticmaterial"
+                    transitionSample: f32 = 1
+                }
+            }
+        }
+    }
+    particleName: string = "Hide"
+    particlePath: string = "Hide"
+}
+```
+
+```py
+"Show" = VfxSystemDefinitionData {
+    timeBeforeFirstEmission: f32 = 1
+    complexEmitterDefinitionData: list[pointer] = {
+        VfxEmitterDefinitionData {
+            rate: embed = ValueFloat {
+                constantValue: f32 = 1
+            }
+            particleLifetime: embed = ValueFloat {
+                constantValue: f32 = 1e+14
+            }
+            isSingleParticle: flag = true
+            emitterName: string = "Override"
+            meshRenderFlags: u8 = 0
+            materialOverrideDefinitions: list[embed] = {
+                VfxMaterialOverrideDefinitionData {
+                    priority: i32 = 1
+                    subMeshName: option[string] = {
+                        "Yourmaterialnamefrommaya"
+                    }
+                    material: link = "Characters/urchamp/Skins/urskin/Materials/defaultstaticmaterial"
+                    transitionSample: f32 = 1
+                }
+            }
+        }
+    }
+    particleName: string = "Show"
+    particlePath: string = "Show"
+}
+```
+
+---
+
+## 3. Resource Resolver
+
+Tu auras aussi besoin de ça dans `ResourceResolver` :
+
+```py
+"Hide" = "Hide"
+"Show" = "Show"
+```
+
+---
+
+## 4. Bin d'animation
+
+Après ça, tu as besoin du bin d'animation. Trouve l'animation que tu veux utiliser comme bascule et colle ces bouts de code comme ceci :
+
+<img src="/wiki-images/1767149506632-k9q8d.png" alt="Image" width={700} />
+
+```py
+"Hide" = ParticleEventData {
+    mEffectKey: hash = "Hide"
+    mParticleEventDataPairList: list[embed] = {
+        ParticleEventDataPair {}
+    }
+    mIsLoop: bool = false
+    mIsKillEvent: bool = false
+}
+```
+
+```py
+"Show" = ParticleEventData {
+    mEffectKey: hash = "Show"
+    mParticleEventDataPairList: list[embed] = {
+        ParticleEventDataPair {}
+    }
+    mIsLoop: bool = false
+    mIsKillEvent: bool = false
+}
+```
+
+---
+
+> ✅ Après ça, tout devrait être bon si tu as tout fait correctement et bien tout remplacé !

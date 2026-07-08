@@ -1,0 +1,142 @@
+---
+title: "Hacksaw"
+description: "Ce tutoriel explique comment recolorier les VFX (particules) de League of Legends avec Hacksaw, un outil créé pour la communauté du skin custom par Martynas."
+category: "vfx-bins"
+---
+
+Ce tutoriel explique comment recolorier les VFX (particules) de League of Legends avec **Hacksaw**, un outil créé pour la communauté du skin custom par Martynas. Tu vas apprendre à ouvrir des fichiers `.bin`, à ajuster les couleurs et à sauvegarder tes changements de particules en toute sécurité.
+
+<Callout type="info" title="Option plus récente : Quartz Paint">
+  [Quartz](/docs/lol/tools/modding-apps/quartz) a une page Paint qui recolorie
+  les particules directement dans l'app. Elle lit et écrit le `.bin` pour toi,
+  donc tu n'as pas besoin de configurer `ritobin_cli`. Ce guide Hacksaw marche
+  toujours et reste une bonne alternative, mais la plupart des créateurs
+  passent maintenant par Quartz en premier.
+</Callout>
+
+---
+
+## Prérequis
+
+<ToolCard name="Hacksaw" href="https://github.com/TheMartynasXS/Hacksaw">
+  Un outil créé par Martynas pour éditer les bins.
+</ToolCard>
+
+<ToolCard name="RitoBin" href="/docs/lol/tools/modding-apps/ritobin">
+  Un convertisseur créé par Moonshadow pour convertir le `.bin` en `.py`.
+</ToolCard>
+
+---
+
+## Étape 1 : Configurer Hacksaw
+
+1. Télécharge et ouvre Hacksaw
+   <img src="/wiki-images/1767146058191-p47ap.png" alt="Image" width={500} />
+2. Va dans l'onglet **Settings**
+   <img src="/wiki-images/1767146063211-rh626f.png" alt="Image" width={400} />
+3. Clique sur **Select Ritobin_Cli**
+   <img src="/wiki-images/1767146098137-0kfjp.png" alt="Image" width={500} />
+4. Sélectionne `ritobin_cli.exe`
+
+<img src="/wiki-images/1767146109516-brjqcp.png" alt="Image" width={500} />
+
+> 💡 Hacksaw a besoin de `ritobin_cli` pour lire et écrire les fichiers `.bin` utilisés par les effets visuels.
+
+---
+
+## Étape 2 : Trouver le fichier BIN
+
+Ton fichier `.bin` de particules se trouve en général dans l'un de ces dossiers :
+
+/yourWadFolder/data/ /yourWadFolder/data/characters/YourChamp/skins/SkinXX/
+
+`SkinXX` correspond à l'ID de ton skin.
+
+<img src="/wiki-images/1767146144586-3z25vn.png" alt="Image" width={600} />
+
+<img src="/wiki-images/1767146157874-buswuj.png" alt="Image" width={600} />
+
+Pour trouver ton numéro de skin, regarde le dossier HUD. Il contient d'habitude des images d'aperçu.
+
+<img src="/wiki-images/1767146166101-ajvkvb.png" alt="Image" width={600} />
+
+---
+
+## Étape 3 : Ouvrir le fichier BIN
+
+1. Va dans l'onglet **Splash** de Hacksaw
+   <img src="/wiki-images/1767146179052-z4hk9c.png" alt="Image" width={300} />
+2. Clique sur **Open Bin**
+   <img src="/wiki-images/1767146185172-7lewvd.png" alt="Image" width={300} />
+
+<img src="/wiki-images/1767146198483-5k0ae.png" alt="Image" width={500} />
+
+Tu vas maintenant voir une liste d'entrées de particules comme :
+
+- `_Q_mis` → VFX du missile de la compétence Q
+- `_W_tar` → Effet d'impact sur la cible du W
+- `_E_cas` → Animation d'incantation du E
+
+> 💡 **Termes de nommage courants :** mis = missile • tar = target (cible) • cas = cast (incantation) • trail = traînée • exp = explosion
+
+---
+
+## Étape 4 : Recolorier les particules
+
+1. Choisis ta nouvelle couleur avec la palette
+   <img src="/wiki-images/1767146233766-gxzbj.png" alt="Image" width={500} />
+2. Sélectionne le ParticleSystem que tu veux recolorier
+   <img src="/wiki-images/1767146238999-n11n14.png" alt="Image" width={500} />
+3. Appuie sur **Recolor Selected** en bas de Hacksaw
+   <img src="/wiki-images/1767146242759-dx73al.png" alt="Image" width={500} />
+4. Sauvegarde tes changements en cliquant sur **Save Bin**
+   <img src="/wiki-images/1767146246511-68brzq.png" alt="Image" width={500} />
+
+---
+
+## Étape 5 : Certaines particules tirent leur couleur de textures
+
+Toutes les particules ne se recolorient pas via la palette intégrée de Hacksaw. Certains VFX prennent leur couleur dans un fichier de texture externe. C'est en général un `.dds` ou un `.tex` dans le dossier Particles.
+
+### Ce qu'il faut faire
+
+1. Trouve le dossier Particles : `Assets/Characters/LeeSin/Skins/Skin31/Particles`
+2. Ouvre le fichier de texture dans Photoshop, GIMP ou tout logiciel d'édition d'image qui gère le `.dds`
+3. Recolorie la texture à la main
+4. Sauvegarde la texture éditée en `.dds` avec la compression **BC3 / DXT5**
+5. Remplace le fichier d'origine dans ton dossier Particles ou VFX
+
+> 💡 **Chemins de texture courants :**
+>
+> - `Assets/Characters/LeeSin/Skins/Skin31/Particles`
+> - `Assets/Shared/Particles`
+> - `Assets/Characters/LeeSin/Skins/Base/Particles`
+
+---
+
+## Conseils importants
+
+### Ne recolorie pas le noir ni le blanc (par défaut)
+
+Les valeurs de noir et de blanc servent souvent à la **transparence** dans les VFX de League. Les recolorier peut casser ou masquer complètement des effets.
+
+Si tu veux volontairement recolorier le noir/blanc :
+
+1. Va dans **Settings**
+2. Désactive **"Ignore Black/White Values"**
+
+---
+
+### Comprendre les BlendModes
+
+Chaque particule utilise un BlendMode, affiché à droite dans Hacksaw :
+
+| BlendMode | Comportement                                                                             |
+| --------- | ---------------------------------------------------------------------------------------- |
+| 1         | Pas de transparence, tu peux recolorier le noir/blanc sans souci                         |
+| 3         | Transparence SCB                                                                          |
+| 4         | Transparence standard, ne recolorie pas en trop noir sinon ça deviendra invisible en jeu |
+
+<img src="/wiki-images/1767146259378-b1tf5.png" alt="Image" width={500} />
+
+> 💡 Savoir comment les blend modes affectent le rendu t'aide à éviter les bugs visuels ou les glows involontaires.

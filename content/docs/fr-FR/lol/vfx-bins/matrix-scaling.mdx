@@ -1,0 +1,139 @@
+---
+title: "Matrix Scaling"
+description: "Ce guide explique comment utiliser les matrices de transformation pour redimensionner, déplacer et faire tourner des particules custom dans le modding League of Legends."
+category: "vfx-bins"
+---
+
+Ce guide explique comment utiliser les matrices de transformation pour redimensionner, déplacer et faire tourner des particules custom dans le modding League of Legends. Il s'appuie sur un système courant du rendu 3D, adapté ici à la manipulation des particules.
+
+---
+
+## Outils requis
+
+| Outil                    | Rôle                                             |
+| :----------------------- | :----------------------------------------------- |
+| **Jade**                 | Éditer les fichiers `.bin` visuellement (recommandé) |
+| **Ritobin**              | Alternative : convertir le `.bin` en `.py` pour l'éditer |
+| **VS Code ou Notepad++** | Nécessaire uniquement avec le workflow texte de Ritobin |
+
+---
+
+## Guide écrit
+
+### Comment fonctionnent les matrices
+
+Les matrices de transformation sont une façon mathématique de gérer :
+
+- **La translation** (déplacement)
+- **La rotation**
+- **La mise à l'échelle**
+
+https://youtu.be/bUJSVlVHEZM?si=Uj_CYOs-wsNyIrCm&t=23
+
+https://www.youtube.com/watch?v=VZ1L7Y_78-8
+
+---
+
+### Étape 1 : Ajouter une matrice par défaut
+
+D'abord, ajoute une matrice par défaut à la fin de ton bloc `VfxSystemDefinitionData`. Cette matrice par défaut ne change rien : elle sert juste de placeholder.
+
+**Exemple :**
+
+```py
+Transform: mtx44 = {
+    1, 0, 0, 0
+    0, 1, 0, 0
+    0, 0, 1, 0
+    0, 0, 0, 1
+}
+```
+
+> Ça garde ta transformation "neutre" : pas de mise à l'échelle, de déplacement ni de rotation par défaut.
+
+---
+
+### Étape 2 : Modifier la taille (mise à l'échelle des particules)
+
+#### Réduire la taille (rétrécir)
+
+Pour rendre une particule plus petite, utilise des valeurs sous 1.
+
+**Exemple (2× plus petit) :**
+
+```py
+Transform: mtx44 = {
+    0.5, 0, 0, 0
+    0, 0.5, 0, 0
+    0, 0, 0.5, 0
+    0, 0, 0, 1
+}
+```
+
+#### Augmenter la taille (agrandir)
+
+Pour rendre une particule plus grande, utilise des valeurs supérieures à 1.
+
+**Exemple (2× ou 4× plus grand) :**
+
+```py
+Transform: mtx44 = {
+    2, 0, 0, 0
+    0, 2, 0, 0
+    0, 0, 2, 0
+    0, 0, 0, 1
+}
+```
+
+---
+
+### Étape 3 : Déplacer la particule (modifier les positions XYZ)
+
+Tu peux déplacer une particule sur des axes précis en changeant les valeurs de la **dernière ligne** de la matrice.
+
+#### Monter (axe Y)
+
+Déplace le VFX vers le haut :
+
+```py
+Transform: mtx44 = {
+    1, 0, 0, 0
+    0, 1, 0, 0
+    0, 0, 1, 0
+    0, 250, 0, 1
+}
+```
+
+(Monte de 250 unités.)
+
+#### Déplacer sur le côté (axe Z)
+
+Déplace le VFX à gauche ou à droite :
+
+```py
+Transform: mtx44 = {
+    1, 0, 0, 0
+    0, 1, 0, 0
+    0, 0, 1, 0
+    0, 0, 250, 1
+}
+```
+
+(Déplace de 250 unités sur Z.)
+
+> 💡 **Astuce :** tu devras peut-être tester et ajuster les valeurs pour obtenir le placement exact que tu veux !
+
+---
+
+### Système de particules en miroir
+
+Pour mettre entièrement un système de particules en miroir :
+
+```py
+Transform: mtx44 = {
+    -1, 0, 0, 0
+    0, 1, 0, 0
+    0, 0, -1, 0
+    0, 0, 0, 1
+}
+```

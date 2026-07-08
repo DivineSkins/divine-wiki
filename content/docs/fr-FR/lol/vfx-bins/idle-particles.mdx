@@ -1,0 +1,161 @@
+---
+title: "Idle Particles"
+description: "Ce guide explique comment créer des idle particles (souvent appelées auras) à partir de packs d'aura prêts à l'emploi."
+category: "vfx-bins"
+---
+
+Ce guide explique comment créer des idle particles (souvent appelées auras) à partir de packs d'aura prêts à l'emploi. Il ne t'apprend pas à créer des idle particles de zéro : il est pensé pour intégrer des packs de particules existants par copier-coller dans le fichier `.wad.client` de ton champion.
+
+---
+
+## Outils requis
+
+| Outil            | Rôle                                |
+| :--------------- | :---------------------------------- |
+| **Flint**        | Extraire les fichiers `.wad.client` |
+| **LtMAO cslmao** | Installer et tester ton mod         |
+| **Jade**         | Éditer les fichiers `.bin` visuellement |
+| **Ritobin**      | Alternative : convertir le `.bin` en texte |
+
+---
+
+## ❓ C'est quoi les idle particles ?
+
+Les idle particles sont des effets visuels d'ambiance attachés à un champion : des flammes, des glows ou des cercles magiques par exemple. Elles sont définies dans la section `IdleParticlesEffects` du `main.bin` de ton champion.
+
+<img src="/wiki-images/1767147062141-8qgzh.gif" alt="Image" width={500} />
+
+---
+
+## Guide vidéo
+
+https://www.youtube.com/watch?v=S4YCct-Kv78
+https://youtu.be/bUJSVlVHEZM?si=t5x9KsKktPGM6ejD&t=133 Recommandé
+
+---
+
+## C'est difficile ?
+
+Ce n'est pas trop dur si tu utilises des packs prêts à l'emploi comme ceux fournis ici. Le plus dur, c'est de trouver la bonne section et de placer le code au bon endroit, surtout quand tu débutes. Suis bien les étapes et prends ton temps !
+
+> ⚠️ Si quelque chose ne marche pas, revérifie les accolades `{}` et les indentations.
+
+---
+
+## Guide écrit
+
+### Étape 1 : Télécharger un pack d'aura
+
+Tu trouveras des packs sur [notre Discord](https://discord.gg/PbMwcWHqA3). Télécharge celui que tu veux utiliser.
+
+---
+
+### Étape 2 : Extraire les fichiers du champion
+
+Ouvre Flint, trouve le fichier `.wad.client` de ton champion et extrais son contenu dans un dossier.
+
+[Notre guide Flint](/docs/lol/tools/modding-apps/flint)
+
+---
+
+### Étape 3 : Ajouter les particules custom
+
+Ouvre le dossier du champion que tu viens de créer et le dossier du pack d'aura que tu as téléchargé.
+
+Copie le dossier `customparticles` (dans `assets`) du pack d'aura vers le dossier `assets` de ton mod.
+
+<img src="/wiki-images/1767147539214-dhjbp7.png" alt="Image" width={1000} />
+
+---
+
+### Étape 4 : Convertir skin0.bin en .py
+
+Va dans :
+
+yourchamp\data\characters\yourchamp\skins\
+
+Glisse `skin0.bin` sur `ritobin_cli.exe`. Si tout se passe bien, ça crée un fichier `skin0.py`.
+
+[Notre guide Ritobin](/docs/lol/tools/modding-apps/ritobin)
+
+---
+
+### Étape 4.1 : Copier le code des idle particles
+
+Ouvre le fichier `.py` du pack d'aura et ton fichier `skin0.py` converti dans un éditeur de code (par exemple Visual Studio Code).
+
+Copie la section des idle particles concernée et colle-la au bon endroit dans ton propre `.py`.
+
+<img src="/wiki-images/1767147886867-x4kafe.png" alt="Image" width={700} />
+
+- `effectKey:` = lien vers la particule
+- `boneName:` = endroit où l'aura apparaît sur le modèle
+
+**Bones que tu peux utiliser :**
+
+| Nom du bone                   | Emplacement de l'effet    |
+| :---------------------------- | :------------------------ |
+| `"Spine1"`                    | Milieu du corps           |
+| `"Head"`                      | Haut du corps             |
+| `"L_Hand"` / `"R_Hand"`       | Main gauche / droite      |
+| `"Pelvis"`                    | Bas du torse              |
+| `"L_Foot"` / `"R_Foot"`       | Pieds                     |
+| `"C_Buffbone_Glb_Layout_Loc"` | Bone fixe au sol          |
+| `"Weapon"`                    | En général pour les armes |
+
+> Les bones d'arme varient selon le champion ; vérifie le fichier `.skl` pour confirmer.
+
+---
+
+### Étape 4.5 : Si des idle particles existent déjà
+
+Si ton `skin0.py` contient déjà une section `IdleParticlesEffects` :
+
+<img src="/wiki-images/1767147902024-j5s8m.png" alt="Image" width={700} />
+
+<img src="/wiki-images/1767147916490-msprgc.png" alt="Image" width={700} />
+
+Copie seulement le bloc de particules du `.py` de l'aura. Colle-le entre deux containers quelconques.
+
+---
+
+### Étape 5 : Ajouter le container de particules
+
+Copie le code `particlecontainer`, qui commence toujours par un nom hashé (`0x3432432`) et se termine par `particlePath: string`, dans ton `skin0.bin/.py`. Juste entre deux containers de particules, peu importe lesquels.
+
+<img src="/wiki-images/1767147931233-ste8fj.png" alt="Image" width={500} />
+<img src="/wiki-images/1767147939520-owvpfu.png" alt="Image" width={500} />
+
+---
+
+### Étape 6 : Ajouter au Resource Resolver
+
+Insère le code que tu as copié entre ces deux lignes :
+
+mResourceResolver: link = "Characters/YourChamp/Skins/Skin0/Resources"
+
+et l'endroit où se trouvent tes autres containers. Tu peux le coller n'importe où dans ce bloc.
+
+<img src="/wiki-images/1767147949870-57eit9.png" alt="Image" width={500} />
+
+![Image 700](/wiki-images/1767147956921-v0mbfx.png)
+
+---
+
+### Étape 7 : Sauvegarder le fichier
+
+1. Clique sur **File > Save** dans ton éditeur
+2. Puis glisse `skin0.py` de nouveau sur `ritobin_cli.exe`
+3. Ça le recompile en un nouveau `skin0.bin`
+
+> Si l'horodatage du fichier se met à jour, tes changements ont réussi. Sinon, revérifie ta mise en forme.
+
+---
+
+## ➜ Packs d'aura
+
+Télécharge les packs d'aura sur notre Discord !
+
+---
+
+Guide et packs par Frog

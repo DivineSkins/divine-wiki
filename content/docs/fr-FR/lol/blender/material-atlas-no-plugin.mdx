@@ -1,0 +1,316 @@
+---
+title: "Material Atlas (No Plugin)"
+description: "Ce tutoriel explique comment faire des atlas de matériaux à la main. Aucun plugin nécessaire."
+category: "blender"
+---
+
+<LevelPill level="intermediate" />
+
+<Callout type="info">
+  Avant de commencer, il existe un autre guide sur ce sujet qui fait la même
+  chose et plus vite avec un plugin [ici](material-atlas). Au cas où tu l'aurais
+  raté.
+</Callout>
+Mais si :
+
+- Le plugin est cassé ou a des soucis
+- Tu es trop flemmard pour mettre à jour Blender vers la version 5.xxx (mon cas mdr)
+- Tu es raciste envers les plugins.
+
+Alors continuons.
+
+Première chose, c'est quoi un atlas de matériaux ? En gros, on veut avoir les textures du modèle 3D regroupées dans une seule image pour pouvoir les importer dans League. Parfois, quand tu télécharges un modèle, sa vue matériaux ressemble à ça :
+
+<figure>
+  <img
+    id="img-1"
+    src="/wiki-images/j3-img-1.png"
+    alt="Liste des matériaux d'un modèle 3D importé"
+  />
+  <figcaption>Image 1. Liste des matériaux d'un modèle 3D importé</figcaption>
+</figure>
+
+Comme tu peux le voir, il y a une longue liste de matériaux et chacun est lié à une image contenant une portion des textures de ton modèle. On va la réduire à 1 seul.
+
+Pour ça, on doit suivre ces étapes :
+
+1. Déplie les UVs de ton modèle dans une nouvelle image vierge **en utilisant une nouvelle uv map**.
+2. Configure le baking
+3. Bake les textures dans notre image vierge.
+4. Touche finale et nettoyage
+
+# Étape 1
+
+<Callout>
+C'est sans doute la partie la plus dure du processus, donc une fois finie tu auras fait 80 % du travail.
+
+Pour ce tutoriel, on va sauter la partie des "bons UVs" et laisser Blender tout faire automatiquement pour nous. Mais garde en tête que ce sera toujours mieux de créer manuellement les seams de ton modèle et de les déplier correctement.
+
+</Callout>
+Tout d'abord, crée une nouvelle uv map pour accueillir nos nouveaux changements. Pour ça, va dans le panneau latéral de droite dans Blender et clique sur le triangle vert comme montré ici :
+<figure>
+  <img
+    id="img-2"
+    src="/wiki-images/j3-img-2.png"
+    alt="Création d'une nouvelle UVMap"
+  />
+  <figcaption>Image 2. Création d'une nouvelle UVMap</figcaption>
+</figure>
+
+Tu peux nommer la nouvelle uv map comme tu veux, tu devrais maintenant avoir quelque chose comme
+
+<figure>
+  <img
+    id="img-3"
+    src="/wiki-images/j3-img-3.png"
+    alt="Résultat de la création de la nouvelle UVMap"
+  />
+  <figcaption>Image 3. Nouvelle UVMap créée</figcaption>
+</figure>
+
+<Callout type="warning">
+  Remarque comment elle est surlignée en bleu mais l'icône appareil photo est
+  désactivée, contrairement à l'UVMap par défaut qui l'a activée, **c'est
+  important**. Ça dit à Blender "Montre les UVs de UVMap dans le rendu mais toute
+  action ou modification est enregistrée sur celle en bleu".
+</Callout>
+Ensuite, va dans l'onglet <b>UV Editing</b>
+<figure>
+  <img id="img-4" src="/wiki-images/j3-img-4.png" alt="Vue UV Editing" />
+  <figcaption>Image 4. Vue UV Editing</figcaption>
+</figure>
+Le panneau de gauche est là où tu édites tes UVs. Par défaut, une image au hasard
+parmi les matériaux du modèle sera sélectionnée, mais ce qu'on veut, c'est créer
+une nouvelle image de zéro. Je règle en général les images en 2K → 2048 x 2048.
+<figure>
+  <img
+    id="img-5"
+    src="/wiki-images/j3-img-5.png"
+    alt="Création d'une nouvelle image pour notre texture"
+  />
+  <figcaption>Image 5. Nouvelle image de texture</figcaption>
+</figure>
+Une fois l'image créée, assure-toi que tu édites bien cette image et
+aussi que tu utilises ta nouvelle uv map :
+<figure>
+  <img id="img-6" src="/wiki-images/j3-img-6.png" alt="Résultat de la nouvelle image" />
+  <figcaption>Image 6. Résultat de la création de l'image</figcaption>
+</figure>
+On doit maintenant réorganiser les UVs pour qu'ils soient bien rangés. Là tout de
+suite, si tu sélectionnes une partie du modèle tu vas voir un bazar :
+<figure>
+  <img id="img-7" src="/wiki-images/j3-img-7.png" alt="Bazar UV" />
+  <figcaption>Image 7. Bazar UV</figcaption>
+</figure>
+Pas de panique, le processus est en grande partie automatique.
+
+Sélectionne tout le modèle 3D en appuyant sur "a" puis appuie sur "u" et choisis "Smart UV Project", copie mes réglages ou joue avec comme tu veux si besoin.
+
+<figure>
+  <img
+    id="img-8"
+    src="/wiki-images/j3-img-8.png"
+    alt="Correction du bazar UV en cours"
+  />
+  <figcaption>Image 8. Correction du bazar UV</figcaption>
+</figure>
+Tu devrais maintenant avoir quelque chose comme
+<figure>
+  <img
+    id="img-9"
+    src="/wiki-images/j3-img-9.png"
+    alt="Résultat du smart UV project"
+  />
+  <figcaption>Image 9. Résultat du smart UV project</figcaption>
+</figure>
+<Callout type="warning">
+  Ça peut sembler "bien" mais tu dois faire attention, car le dépliage UV
+  automatique n'est pas parfait et il peut y avoir des chevauchements.
+</Callout>
+Par exemple, si on zoome sur le coin en bas à gauche, on voit que ça n'a pas été
+déplié si joliment que ça
+<figure>
+  <img
+    id="img-10"
+    src="/wiki-images/j3-img-10.png"
+    alt="Problèmes possibles du smart UV project"
+  />
+  <figcaption>Image 10. Problèmes possibles du smart UV project</figcaption>
+</figure>
+Comment on corrige ça ? Facile. D'abord, sélectionne la partie concernée. Pour ça,
+tu dois activer la petite icône dans le coin en haut à gauche de l'image ci-dessous.
+Assure-toi aussi d'être en "face selection" (l'icône soulignée)
+<figure>
+  <img
+    id="img-11"
+    src="/wiki-images/j3-img-11.png"
+    alt="Problèmes possibles du smart UV project"
+  />
+  <figcaption>Image 11. Active la sélection bidirectionnelle inverse des UV</figcaption>
+</figure>
+Maintenant toutes les îles UV seront visibles sur le côté gauche, tu peux aller
+sur la zone problématique, survole une face de là avec la souris et appuie sur L pour
+sélectionner uniquement cette île, tu verras qu'elle est aussi surlignée dans le modèle 3D.
+Déplions celle-ci toute seule, après l'avoir sélectionnée, appuie sur U mais cette fois choisis
+"Unwrap minimum stretch".
+<figure>
+  <img
+    id="img-12"
+    src="/wiki-images/j3-img-12.png"
+    alt="Résultat de l'unwrap minimum stretch de la zone sélectionnée"
+  />
+  <figcaption>
+    Image 12. Résultat de l'unwrap minimum stretch de la zone sélectionnée
+  </figcaption>
+</figure>
+Tu pourrais la redimensionner à la main jusqu'à ce qu'elle rentre dans les espaces
+vides de notre image, ou tu pourrais laisser Blender le faire pour toi ! Pour cette
+option, appuie de nouveau sur "A" pour tout resélectionner. Puis va dans le menu UV et choisis pack islands
+<figure>
+  <img
+    id="img-13"
+    src="/wiki-images/j3-img-13.png"
+    alt="Packing des îles à nouveau"
+  />
+  <figcaption>Image 13. Packing des îles à nouveau</figcaption>
+</figure>
+<Callout>
+  Essaie d'utiliser la même valeur d'espacement que dans <a href="#img-8">l'image 8</a>
+</Callout>
+<figure>
+  <img
+    id="img-14"
+    src="/wiki-images/j3-img-14.png"
+    alt="Packing des îles à nouveau (2)"
+  />
+  <figcaption>Image 14. Packing des îles à nouveau (2)</figcaption>
+</figure>
+Tes UVs sont maintenant prêts. Passons au baking.
+
+# Étape 2
+
+Le baking dit à Blender de transférer certaines parties de l'apparence actuelle du modèle 3D vers un autre endroit, généralement une image de texture.
+
+Pour cette étape, on va utiliser l'onglet <b>shading</b> du menu d'onglets en haut de la fenêtre Blender.
+
+Sur le côté gauche, pense à ouvrir notre image "one_texture" créée précédemment, qui devrait encore être noire.
+
+<figure>
+  <img id="img-15" src="/wiki-images/j3-img-15.png" alt="Onglet Shading" />
+  <figcaption>Image 15. Onglet Shading</figcaption>
+</figure>
+
+Maintenant vient la partie ennuyeuse. Va dans le panneau latéral de droite, la vue matériaux, et sélectionne le premier. Puis, dans le panneau des nodes (les boîtes juste en dessous de notre modèle 3D) appuie sur F3 et tape "Image texture"
+
+<figure>
+  <img
+    id="img-16"
+    src="/wiki-images/j3-img-16.png"
+    alt="Création d'une nouvelle image texture"
+  />
+  <figcaption>Image 16. Création d'une nouvelle image texture</figcaption>
+</figure>
+Maintenant sélectionne notre image "one_texture" depuis l'icône "picture". Tu devrais avoir
+quelque chose comme ça
+<figure>
+  <img
+    id="img-17"
+    src="/wiki-images/j3-img-17.png"
+    alt="Résultat de la création d'une nouvelle image texture"
+  />
+  <figcaption>Image 17. Résultat de la création d'une nouvelle image texture</figcaption>
+</figure>
+Au passage, j'aime bien changer l'espace colorimétrique en sRGB, laisse le reste tel quel.
+
+Remarque comme tu as un contour blanc autour de la boîte ? Ça veut dire qu'elle est sélectionnée, <b>c'est aussi important pour le baking</b>.
+
+Une fois fait, appuie sur ctrl+c pour copier le node, et passe sur chacun des matériaux restants dans la liste du panneau de droite et appuie sur ctrl+v pour le coller.
+
+Si tu as bien fait, tu auras maintenant une boîte comme la <a href="#img-17">Image 17</a> par matériau, assure-toi qu'elles sont toutes sélectionnées.
+
+# Étape 3
+
+Va dans l'onglet render du panneau latéral de droite
+
+<figure>
+  <img id="img-18" src="/wiki-images/j3-img-18.png" alt="Onglet Render" />
+  <figcaption>Image 18. Résultat de la création d'une nouvelle image texture</figcaption>
+</figure>
+<Callout type="warning">
+  Change le moteur de rendu d'EEVEE à Cycles, car EEVEE ne supporte pas le
+  baking.
+</Callout>
+
+Entre dans le sous-menu "Bake" et sélectionne ces réglages :
+
+<figure>
+  <img
+    id="img-19"
+    src="/wiki-images/j3-img-19.png"
+    alt="Réglages du sous-menu Bake"
+  />
+  <figcaption>Image 19. Réglages du sous-menu Bake</figcaption>
+</figure>
+Une diffuse map bake la couleur de la texture, on désactive direct et indirect
+car on ne veut aucun éclairage qui interfère.
+
+<b>Avant d'appuyer sur le bouton "Bake", assure-toi de ceci</b>
+
+1. La UV map sélectionnée est celle que tu as créée.
+2. Il y a un nouveau node image texture sélectionné pour chaque matériau.
+3. Ton modèle 3D est aussi sélectionné
+
+<figure>
+  <img id="img-20" src="/wiki-images/j3-img-20.png" alt="Vérifie les réglages du bake" />
+  <figcaption>Image 20. Vérifie les réglages du bake</figcaption>
+</figure>
+
+Une fois prêt, appuie sur bake.
+
+Si tu as bien suivi le tutoriel, tu auras maintenant quelque chose comme ça
+
+<figure>
+  <img id="img-21" src="/wiki-images/j3-img-21.png" alt="Résultat du bake" />
+  <figcaption>Image 21. Résultat du bake</figcaption>
+</figure>
+
+<Callout type="danger" title="Attention">
+  Enregistre l'image en local ou tu vas la perdre.
+</Callout>
+
+<figure>
+  <img id="img-22" src="/wiki-images/j3-img-22.png" alt="Enregistre le résultat" />
+  <figcaption>Image 22. Enregistre le résultat</figcaption>
+</figure>
+
+# Étape 4
+
+C'est l'heure de nettoyer et de tester le résultat.
+
+Retourne dans la vue layout (dans la barre de menu en haut), ton modèle 3D devrait avoir l'air bon maintenant, on va le casser un peu. D'abord, créons un nouveau matériau pour accueillir notre nouvelle texture.
+
+<figure>
+  <img id="img-23" src="/wiki-images/j3-img-23.png" alt="Crée un nouveau matériau" />
+  <figcaption>Image 23. Crée un nouveau matériau</figcaption>
+</figure>
+Donne-lui un nom, comme "one_texture" et passe au layout shading puis place les
+nodes comme dans l'image suivante.
+<figure>
+  <img id="img-24" src="/wiki-images/j3-img-24.png" alt="Placement des nodes" />
+  <figcaption>Image 24. Placement des nodes</figcaption>
+</figure>
+Retourne dans l'onglet layout et supprime tous les matériaux sauf celui qu'on a créé.
+Tu vas te retrouver avec un bazar comme ça
+<figure>
+  <img id="img-25" src="/wiki-images/j3-img-25.png" alt="Apocalypse des matériaux" />
+  <figcaption>Image 25. Matériapocalypse</figcaption>
+</figure>
+Tu te souviens du menu UV map à l'<a href="#img-2">image 2</a> ? Change l'icône
+appareil photo pour que ta nouvelle uv map soit celle qui l'a active et regarde la
+magie opérer.
+
+<Callout type="success">
+  Maintenant la touche finale, supprime l'ancienne "UVMap" et renomme la nouvelle
+  avec le même nom "UVMap". Je ne suis pas sûr mais j'ai lu quelque part que le nom
+  UVMap est important pour que les skins marchent dans League.
+</Callout>

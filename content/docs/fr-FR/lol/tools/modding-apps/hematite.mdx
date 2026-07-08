@@ -1,0 +1,221 @@
+---
+title: "Hematite"
+description: "Un outil glisser-déposer qui détecte et corrige les bugs les plus courants des skins custom de League of Legends."
+category: "tools"
+---
+
+Hematite est un outil en ligne de commande signé **RitoShark** qui répare
+les skins custom cassés. Dépose un fichier `.fantome` dessus. Il vérifie le
+fichier, corrige ce qu'il peut, et écrit le mod réparé à côté de l'original.
+
+Les mêmes règles de correction tournent aussi dans [Flint](/docs/lol/tools/modding-apps/flint),
+donc tu utilises peut-être déjà Hematite sans le savoir.
+
+[Télécharge la dernière version](https://github.com/RitoShark/Hematite/releases)
+
+{/* SCREENSHOT: Hematite running in a terminal, showing the fix log for a sample skin */}
+
+---
+
+## Ce qu'il fait
+
+Hematite scanne un mod à la recherche de problèmes connus et les corrige sur
+place. La liste des corrections vient d'un fichier de config, donc les
+nouvelles règles arrivent sans nouvelle version de l'app.
+
+Ce qu'il repère :
+
+- **Barre de vie invisible** au-dessus du champion en jeu.
+- **Modèle blanc ou chromé** (textures de matériaux cassées).
+- **Icônes manquantes ou noires** dans l'interface de loadout ou de boutique.
+- **Textures de particules cassées** dans les VFX.
+- **Particules qui apparaissent en carrés** à cause de mauvais mipmaps (la régression de textures de 2026). Hematite retire les mipmaps pour corriger ça.
+- **Textures TEX dont la taille n'est pas divisible par 4.** Hematite les arrondit à une taille valide.
+- **Données de champion obsolètes** restées d'anciens patchs.
+- **Audio qui grésille ou reste muet** à cause de vieux fichiers BNK Wwise.
+- **Animations qui bloquent le rig** en T-pose ou le cassent.
+- **VFX à la forme incorrecte** après le changement de moteur 14.1+.
+- **Modèle invisible dû à une mauvaise référence de shader.**
+- **Entrées BIN orphelines** qui gonflent le fichier.
+
+Quand tu le lances sans option, il tente toutes les corrections. Passe
+`--check` pour seulement détecter les problèmes sans modifier le fichier.
+
+---
+
+## Hematite est-il autonome ou intégré à Flint ?
+
+Les deux.
+
+- **CLI autonome.** `hematite-cli.exe` est un seul binaire Windows.
+  Glisse un fichier dessus, ou lance-le depuis le terminal. Aucune
+  installation.
+- **Dans [Flint](/docs/lol/tools/modding-apps/flint).** Flint embarque les mêmes
+  règles de correction sous sa fonction **Validate and Fix**. Tu n'as pas
+  besoin d'installer Hematite à part.
+
+Utilise la CLI autonome quand tu veux corriger en masse un dossier de mods,
+scripter des corrections dans un pipeline de build, ou déboguer vite un seul
+fichier. Utilise Flint quand tu es déjà dedans à éditer le mod de toute façon.
+
+---
+
+## Ce qu'il te faut avant de commencer
+
+- Un PC Windows.
+- Un fichier `.fantome`, `.wad.client` ou `.bin` à vérifier ou réparer.
+- Environ 1 minute. La CLI télécharge un dictionnaire de 1,8 million de hashes
+  au premier lancement.
+
+---
+
+## Installation
+
+1. Ouvre la [page des releases](https://github.com/RitoShark/Hematite/releases).
+2. Télécharge le dernier zip `hematite-cli` pour Windows.
+3. Décompresse-le où tu veux. Un dossier avec `hematite-cli.exe` apparaît.
+
+C'est tout. Pas d'installeur, pas de droits admin.
+
+{/* SCREENSHOT: Unzipped Hematite folder showing hematite-cli.exe */}
+
+---
+
+## Comment l'utiliser
+
+### Correction rapide (glisser-déposer)
+
+1. Ouvre le dossier où tu as décompressé Hematite.
+2. Glisse un fichier `.fantome` sur `hematite-cli.exe`.
+3. Une fenêtre de terminal s'ouvre et affiche le journal des corrections.
+4. À la fin, un nouveau fichier apparaît à côté de l'original :
+   `TonSkin.fixed.fantome`.
+
+Installe `TonSkin.fixed.fantome` dans ton gestionnaire de skins. Le fichier
+d'origine reste intact.
+
+### Vérification seule (aucun changement)
+
+Si tu veux savoir ce qui est cassé sans le réparer :
+
+1. Ouvre un terminal dans le dossier Hematite.
+2. Lance : `hematite-cli.exe "C:\path\to\skin.fantome" --check`
+3. Hematite affiche le champion, le slot de skin et une liste de problèmes.
+
+C'est sûr. Il n'écrit jamais dans le fichier.
+
+### Corriger un dossier entier
+
+Pour traiter tous les mods d'un dossier d'un coup :
+
+1. Ouvre un terminal dans le dossier Hematite.
+2. Lance : `hematite-cli.exe "C:\path\to\mods\"`
+3. Hematite parcourt le dossier et écrit une copie `.fixed` de chaque mod.
+
+### Options utiles
+
+| Option              | Ce qu'elle fait                                                            |
+| ------------------- | ----------------------------------------------------------------------- |
+| `--check`           | Détecte seulement. Affiche les problèmes. Ne modifie pas le fichier.    |
+| `--dry-run`         | Montre ce qui serait corrigé. N'écrit pas le résultat.                  |
+| `--json`            | Affiche une sortie lisible par machine. Utile pour les scripts.        |
+| `--repath`          | Renomme les assets du mod avec un préfixe unique pour éviter les conflits. |
+| `--game-wad <path>` | Récupère les fichiers manquants dans le WAD du jeu de base pour rendre le mod autonome. |
+| `--invis-texture`   | Ajoute des placeholders invisibles pour les textures manquantes après un repath. |
+| `-v verbose`        | Affiche chaque correction au fur et à mesure.                          |
+
+Lance `hematite-cli.exe --help` pour la liste complète.
+
+---
+
+## Comment vérifier que ça a marché
+
+Après un lancement réussi, tu devrais voir une ligne comme :
+
+```text
+Done. 1 mod processed, 18 fixes applied in 1.9s.
+Wrote YourSkin.fixed.fantome (4.2 MB)
+```
+
+Ensuite :
+
+1. Installe le fichier `.fixed.fantome` dans ton gestionnaire de skins.
+2. Lance une partie personnalisée avec le champion.
+3. Le modèle, les textures, la barre de vie et les VFX doivent tous
+   s'afficher correctement.
+
+Si quelque chose cloche encore, va voir le Dépannage plus bas.
+
+---
+
+## Sécurité
+
+Les skins custom sont sûrs en dehors de la Corée et de la Chine. Aucun ban
+depuis 2014 quand tu utilises des outils de confiance. Hematite modifie
+seulement le fichier du mod sur ton disque. Il ne touche pas aux fichiers du
+jeu et ne parle pas aux serveurs de Riot.
+
+N'utilise jamais de skins custom sur les serveurs coréens ou chinois.
+L'anti-cheat y bloque tous les mods.
+
+---
+
+## Dépannage
+
+### "CLI is older than the published minimum"
+
+Hematite refuse de tourner quand une correction critique sort. Télécharge la
+dernière version depuis
+[la page des releases](https://github.com/RitoShark/Hematite/releases)
+et réessaie.
+
+### Le mod corrigé a encore l'air cassé en jeu
+
+1. Vérifie que tu as bien installé le fichier `.fixed.fantome`, pas l'original.
+2. Lance avec `-v verbose` pour voir quelles corrections ont été appliquées.
+3. Si une correction précise ne s'est pas déclenchée, le bug n'est peut-être
+   pas encore dans les règles d'Hematite. Ouvre une issue sur le
+   [dépôt GitHub](https://github.com/RitoShark/Hematite/issues).
+
+### Le téléchargement du dictionnaire de hashes échoue
+
+Hematite a besoin d'Internet au premier lancement pour récupérer le
+dictionnaire de hashes (environ 1,8 million d'entrées). Si ton réseau le
+bloque, la version de secours intégrée tourne mais couvre moins de fichiers.
+Relance sur une connexion normale pour l'actualiser.
+
+### Le glisser-déposer ouvre le terminal puis le referme
+
+Le terminal se ferme après la fin du traitement, même en cas d'erreur. Pour
+lire le journal, ouvre d'abord un terminal, puis lance :
+
+```text
+hematite-cli.exe "C:\path\to\skin.fantome"
+```
+
+La fenêtre reste ouverte pour que tu puisses lire la sortie.
+
+---
+
+## Quand utiliser Hematite plutôt que dans Flint
+
+- **Utilise Hematite (autonome)** si tu veux corriger en masse un dossier de
+  mods, scripter une étape de correction dans un build, ou vérifier un fichier
+  avant de le publier.
+- **Utilise Validate and Fix de Flint** si tu es déjà dans Flint à éditer le
+  mod. Mêmes règles, aucun téléchargement en plus.
+- **Utilise [League Mod Repather](/docs/lol/tools/modding-apps/league-mod-repather)**
+  pour le cas précis d'un vieux mod cassé par un nouveau patch. Il repath le
+  mod contre les fichiers actuels du jeu, ce qui est une correction différente
+  de celle d'Hematite.
+
+Tu peux lancer les deux sur le même mod. Hematite d'abord, puis Repather :
+c'est un ordre courant quand un vieux mod est cassé de plein de façons à la
+fois.
+
+---
+
+## Crédits
+
+- **RitoShark** : Hematite (l'outil et les règles de correction).
+- **CommunityDragon** : les tables de hashes qui alimentent la détection.

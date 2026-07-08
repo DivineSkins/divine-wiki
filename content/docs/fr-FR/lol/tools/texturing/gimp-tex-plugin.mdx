@@ -1,0 +1,147 @@
+---
+title: "GIMP TEX Plugin"
+description: "Ouvre et exporte les fichiers de texture .tex de League of Legends dans GIMP. Fonctionne sur GIMP 2.x et 3.x, Windows, Linux et macOS."
+category: "tools"
+---
+
+Ouvre et exporte les fichiers de texture `.tex` de League of Legends dans GIMP. Créé par **Frog**.
+
+Fonctionne avec **GIMP 2.x** et **GIMP 3.x** sur Windows, Linux et macOS.
+
+Télécharger : [github.com/RitoShark/Gimp-Tex-Plugin/releases](https://github.com/RitoShark/Gimp-Tex-Plugin/releases)
+
+## Ce qu'il te faut avant de commencer
+
+- GIMP 2.10 ou GIMP 3.x installé
+- Un fichier `.tex` pour tester (n'importe quelle texture de League fait l'affaire)
+
+## Installer avec l'installateur (Windows)
+
+1. Télécharge `GIMP_TEX_Plugin_Setup.exe` depuis la dernière version.
+2. Lance l'installateur. Il détecte ta version de GIMP tout seul.
+3. Suis les étapes et clique sur **Install**.
+4. Redémarre GIMP s'il était ouvert.
+
+Le plugin est prêt quand GIMP affiche `.tex` comme format pris en charge dans Fichier > Ouvrir.
+
+## Installer à la main (GIMP 3.x)
+
+Utilise cette méthode si tu es sur Linux, macOS, ou si tu préfères ne pas lancer l'installateur.
+
+1. Télécharge le zip GIMP 3 pour ton OS depuis la dernière version.
+2. Extrais-le dans un dossier nommé `gimp3_tex_plugin` dans ton répertoire de plug-ins GIMP :
+
+   | Plateforme      | Répertoire de plug-ins                                                      |
+   | --------------- | --------------------------------------------------------------------------- |
+   | Windows         | `%APPDATA%\GIMP\<version>\plug-ins\gimp3_tex_plugin\`                       |
+   | Linux           | `~/.config/GIMP/<version>/plug-ins/gimp3_tex_plugin/`                       |
+   | Linux (Flatpak) | `~/.var/app/org.gimp.GIMP/config/GIMP/<version>/plug-ins/gimp3_tex_plugin/` |
+   | macOS           | `~/Library/Application Support/GIMP/<version>/plug-ins/gimp3_tex_plugin/`   |
+
+3. Redémarre GIMP.
+
+Si le plugin n'apparaît pas, lance `chmod +x gimp3_tex_plugin.py` dans le dossier que tu as extrait.
+
+## Installer à la main (GIMP 2.x)
+
+1. Télécharge le zip GIMP 2 pour ton OS depuis la dernière version.
+2. Extrais-le dans ton répertoire de plug-ins GIMP. Ça place `gimp2_tex_plugin.py` directement dans `plug-ins/` et les fichiers partagés dans `plug-ins/gimp2_tex_libs/`.
+
+   | Plateforme      | Répertoire de plug-ins                                     |
+   | --------------- | ---------------------------------------------------------- |
+   | Windows         | `%APPDATA%\GIMP\<version>\plug-ins\`                       |
+   | Linux           | `~/.config/GIMP/<version>/plug-ins/`                       |
+   | Linux (Flatpak) | `~/.var/app/org.gimp.GIMP/config/GIMP/<version>/plug-ins/` |
+   | macOS           | `~/Library/Application Support/GIMP/<version>/plug-ins/`   |
+
+3. Redémarre GIMP.
+
+Si le plugin n'apparaît pas, lance `chmod +x gimp2_tex_plugin.py`.
+
+<Callout type="info">
+Tu ne sais pas où est ton répertoire de plug-ins ? Dans GIMP, ouvre **Édition > Préférences > Dossiers > Greffons**.
+</Callout>
+
+## Ouvrir un fichier `.tex`
+
+- Ouvre-le depuis **Fichier > Ouvrir** et choisis ton fichier `.tex`.
+- Ou glisse-dépose un fichier `.tex` dans GIMP.
+
+## Exporter en `.tex`
+
+Tu as deux options.
+
+**Export rapide.** Va dans **Fichier > Exporter sous**, fais finir le nom du fichier par `.tex`, clique sur **Exporter**. Ça utilise tes derniers réglages (par défaut DXT5 avec tramage).
+
+**Export avec options.** Va dans **Fichier > Exporter en .tex (options)...** Une boîte de dialogue s'ouvre où tu choisis le format de compression et d'autres réglages.
+
+## Les options d'export expliquées
+
+### Format de compression
+
+| Format         | Ce qu'il fait                                                                          |
+| -------------- | ------------------------------------------------------------------------------------- |
+| **DXT1 (BC1)** | Compression 4:1. Pas de canal alpha. Le plus petit fichier pour les textures pleines. |
+| **DXT5 (BC3)** | Compression 4:1. Canal alpha 8 bits complet. Utilise ça si ta texture a de la transparence. |
+| **BGRA8**      | BGRA 32 bits non compressé. Le plus gros fichier, aucune perte de qualité.            |
+
+DXT1 et DXT5 ont besoin de dimensions d'image divisibles par 4. Si la tienne ne l'est pas, le plugin t'indique la taille valide la plus proche.
+
+### Tramage par diffusion d'erreur
+
+Répartit l'erreur de quantification sur les pixels voisins pendant la compression DXT. Réduit le banding sur les dégradés et les transitions de couleur douces.
+
+**Recommandé : activé.** Gros gain de qualité pour presque rien.
+
+Fonctionne seulement avec DXT1 et DXT5. BGRA8 n'est pas compressé, il n'a donc pas besoin de tramage.
+
+### Métrique d'erreur
+
+Contrôle la façon dont le plugin mesure les différences de couleur pendant la compression DXT.
+
+| Métrique       | Ce qu'elle fait                                                                                  |
+| -------------- | ------------------------------------------------------------------------------------------------ |
+| **Perceptual** | Pondère les couleurs selon la vision de l'œil humain (vert > rouge > bleu). Plus joli pour la plupart des gens. |
+| **Uniform**    | Traite tous les canaux à égalité. Mieux pour les textures non photographiques.                   |
+
+**Recommandé : Perceptual** pour la plupart des textures.
+
+Apparaît seulement quand le tramage est activé.
+
+### Générer les mipmaps
+
+Construit une chaîne de mipmaps complète avec un rééchantillonnage Lanczos3. Chaque niveau fait la moitié de la résolution du précédent, jusqu'à 1x1.
+
+**Recommandé : désactivé** sauf si tu sais que la texture a besoin de mipmaps. La plupart des textures de League sont redimensionnées à l'exécution, donc les mipmaps ajoutent ~33% de taille pour aucun gain visuel.
+
+## Formats pris en charge
+
+| Format     | Chargement | Export |
+| ---------- | ---------- | ------ |
+| DXT1 (BC1) | Oui        | Oui    |
+| DXT5 (BC3) | Oui        | Oui    |
+| BGRA8      | Oui        | Oui    |
+| Mipmaps    | Oui        | Oui    |
+
+## Désinstaller
+
+**Installateur (Windows).** Ouvre **Paramètres Windows > Applications > Applications installées**, trouve **GIMP TEX Plugin**, clique sur **Désinstaller**.
+
+**Installation à la main.** Supprime les fichiers du plugin de ton répertoire de plug-ins :
+
+- GIMP 3.x : supprime le dossier `gimp3_tex_plugin`.
+- GIMP 2.x : supprime `gimp2_tex_plugin.py` et le dossier `gimp2_tex_libs`.
+
+Redémarre GIMP.
+
+## Si quelque chose ne va pas
+
+- **Le plugin n'apparaît pas après une installation à la main.** Vérifie que les fichiers ont la permission d'exécution. Lance `chmod +x gimp3_tex_plugin.py` (ou la version GIMP 2) et redémarre GIMP.
+- **Impossible de trouver le dossier des plug-ins.** Ouvre **Édition > Préférences > Dossiers > Greffons** dans GIMP.
+- **L'image ne s'exporte pas en DXT1 ou DXT5.** Redimensionne pour que la largeur et la hauteur soient toutes deux divisibles par 4. Le plugin t'indique la taille valide la plus proche.
+
+## Crédits
+
+- Gestion du format TEX basée sur [LtMAO](https://github.com/tarngaina/LtMAO) par tarngaina.
+- Compression DXT portée depuis [Microsoft DirectXTex](https://github.com/microsoft/DirectXTex) (licence MIT).
+- Tests Linux par MartynasXS.

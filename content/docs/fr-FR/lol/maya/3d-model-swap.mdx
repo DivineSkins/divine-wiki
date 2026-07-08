@@ -1,0 +1,206 @@
+---
+title: "3D Model Swap"
+description: "Ce guide explique comment remodeler entièrement un champion de League of Legends en remplaçant le personnage par défaut par un modèle 3D custom, tout en gardant le r…"
+category: "maya"
+---
+
+## ➤ Tutoriel de remodélisation complète d'un champion
+
+### Remplacer un champion par un modèle custom
+
+Ce guide explique comment remodeler entièrement un champion de League of Legends en remplaçant le personnage par défaut par un **modèle 3D custom**, tout en gardant le **rig et les animations d'origine**.
+
+---
+
+## ➜ Prérequis
+
+| Outil                  | Rôle                                                      |
+| ---------------------- | --------------------------------------------------------- |
+| **LoL-Maya Plugin**    | Nécessaire pour importer/exporter les `.skn` et `.skl` dans Maya |
+| **Autodesk Maya 2023** | Logiciel 3D principal pour éditer le modèle du champion   |
+| **GIMP / Photoshop**   | Éditer et exporter les textures (`.dds`)                  |
+| **LtMAO**              | Convertir les `.tex` de League en `.dds` et inversement   |
+| **Flint**              | Extraire les fichiers d'origine du champion (`.wad.client`) |
+| **Jade**               | Éditer les `.bin` si des ajustements du skin sont requis  |
+| **LtMAO cslmao**       | Charger et tester le skin custom en jeu                   |
+
+---
+
+## ➜ Recommandé
+
+- **Guide vidéo du Full Model Swap**
+
+https://youtu.be/xqB84ga55hI?si=VFRPSomps5BPeKqe
+
+- **Le tuto Maya de Yoru** (très détaillé)
+
+https://www.youtube.com/watch?v=6MYNsT0q0R0&list=PLIlleiTfYK3mgr9imsnToABo3X0m9Txi-&ab_channel=Yor%C3%BBQueenofNight
+
+---
+
+## ➜ Étape 1 : importer les fichiers `.skn` et `.skl`
+
+https://youtu.be/xqB84ga55hI?si=dAZXFehz94KL7hre&t=149
+
+> ⚠️ **Important :**  
+> Ne supprime **aucune** face, aucun vertex, aucune edge, ni aucune géométrie **après le bind** du mesh.
+>
+> ⚠️ Premier import :  
+> Importe avec **File → Import**, **pas** en drag & drop.  
+> Vérifie que **separated materials / meshes** est activé.
+
+<img src="/wiki-images/1768001551000-3q6i4i.png" alt="Image" width={700} />
+
+### Instructions
+
+1. Installe le [**LoL-Maya Plugin**](/docs/lol/maya/lol-maya-plugin)
+2. Importe les fichiers d'origine du champion :
+   - `.skn` : le mesh (géométrie visible)
+   - `.skl` : le squelette (bones et données de rig)
+3. Importe ton modèle custom (`.fbx`, `.obj`) dans la même scène Maya
+
+---
+
+## ➜ Étape 2 : aligner les bones sur ton modèle custom
+
+https://youtu.be/xqB84ga55hI?si=QdQGjLrYZuHEHs3a&t=175
+
+Aligne le squelette de League pour qu'il colle aux proportions de ton modèle custom.
+
+### Règles
+
+- ✅ **Fais uniquement pivoter les bones** (`E`)
+- ❌ **Ne déplace PAS (`W`) et ne mets PAS à l'échelle (`R`) les bones**
+
+**Pourquoi seulement la rotation ?**  
+Déplacer ou mettre à l'échelle les bones casse la compatibilité avec les animations d'origine de League.
+
+Appuie sur ce symbole pour voir les bones à travers le mesh !
+
+<img src="/wiki-images/1768001486509-o4wnhm.png" alt="Image" width={700} />
+
+Active le **mode X-Ray / la visibilité des bones** pour voir les bones à travers le mesh.
+
+> Suis bien le guide vidéo pour un alignement correct.
+
+---
+
+## ➜ Étape 3 : bind le mesh sur le squelette
+
+https://youtu.be/xqB84ga55hI?si=jpgbLQXdCSce7Kjm&t=290
+
+Bind le mesh custom sur le squelette de League pour que les animations agissent sur le modèle.
+
+### Les bones à bind
+
+- head
+- neck
+- spine
+- chest
+- clavicle
+- shoulder
+- elbow
+- hand
+- fingers
+- hips
+- pelvis
+- knee_lower
+- foot
+- root _(seulement dans certains cas)_
+
+> ⚠️ Ne bind **pas** les bones auxiliaires comme `buffbones`, `knee_upper` ou `toe`.
+
+### Comment bind dans Maya
+
+1. **CTRL + clic** sur tous les bones voulus
+2. **CTRL + clic** sur le mesh (en dernier)
+3. Va dans **Rigging → Skin → Bind Skin → Options**
+4. Règle :
+   - ❌ Bind to : _Joint Hierarchy_
+   - ✅ Bind to : _Selected Joints_
+
+> Ce tutoriel ne couvre que le bind de base. Le weighting avancé demande de la pratique ou d'autres guides.
+
+---
+
+## ➜ Étape 4 : aligner les UVs pour les textures en jeu
+
+https://youtu.be/xqB84ga55hI?si=XbL4c6JUz9ZBnoqI&t=469
+
+Avant de texturer, les UVs doivent être alignés correctement.
+
+### Aligner les UVs dans Maya
+
+1. Passe en espace de travail **UV Editing**
+2. Appuie sur **F11** (mode de sélection des faces)
+3. Sélectionne toutes les faces du mesh
+4. Déplace tous les UVs dans **un seul coin** de l'espace UV avec les contrôles de coin
+
+> Ça évite les textures cassées ou invisibles en jeu.
+
+---
+
+### Faire correspondre la texture dans GIMP / Photoshop
+
+1. Ouvre la texture d'origine
+2. Ajuste-la et repositionne-la pour coller au nouveau layout UV
+3. Si la texture ne colle pas aux UVs, elle apparaîtra cassée en jeu
+
+---
+
+### Sauvegarder la texture correctement
+
+- Format de fichier : `.dds`
+- Compression : **BC3 / DXT5**
+- Mipmaps : optionnel (recommandé)
+
+Conseils de résolution :
+
+- 512×512
+- 1024×1024
+- 2048×2048
+
+Garde toujours des sauvegardes et teste en jeu.
+
+---
+
+## ➜ Étape 5 : inverser les normales et exporter le modèle
+
+https://youtu.be/xqB84ga55hI?si=CMoyJ-gXCcsGNLF2&t=590
+
+Si les normales sont mauvaises, le modèle peut apparaître invisible ou retourné.
+
+### Inverser les normales
+
+1. Sélectionne le mesh
+2. Va dans l'espace de travail **Modeling**
+3. **Mesh Display → Reverse**
+
+League exige que les normales pointent vers l'extérieur.
+
+---
+
+### Exporter le modèle
+
+1. Sélectionne le **mesh + le squelette**
+2. **File → Export Selection**
+3. Exporte en :
+   - `.skn` (mesh)
+   - `.skl` (squelette)
+
+> ⚠️ Les noms de fichiers **doivent être exactement identiques** à ceux du champion d'origine.
+
+**Exemple (Ahri) :**
+
+Ahri.skn
+Ahri.skl
+
+---
+
+### Remplacer les fichiers d'origine
+
+1. Va dans le dossier du champion
+2. Remplace les `.skn` et `.skl` d'origine
+3. Ne change rien à la structure des dossiers
+
+> 💡 **Astuce de pro :** sauvegarde toujours les fichiers d'origine avant de les remplacer.

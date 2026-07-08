@@ -1,0 +1,163 @@
+---
+title: "League Mod Repather"
+description: "Un outil autonome qui répare les mods League of Legends cassés après un patch."
+category: "tools"
+---
+
+Quand Riot patche League, les vieux mods cassent. League Mod Repather
+reconstruit ton mod pour qu'il marche sur le patch actuel.
+
+Télécharge la dernière version depuis la
+[page des releases GitHub](https://github.com/RitoShark/League-Mod-Repather/releases).
+Le guide ci-dessous a été vérifié avec la **v2.0.4**.
+
+---
+
+## Comment l'utiliser
+
+### Première configuration
+
+1. Télécharge `LeagueModRepather.exe` et ouvre-le.
+2. Clique sur **Download** pour récupérer les fichiers de hashes depuis CommunityDragon.
+3. Attends la fin du téléchargement (~1 minute, ~220 Mo).
+
+Les fichiers de hashes ne se téléchargent qu'une fois. Quand un nouveau patch
+sort, clique sur **Update** pour les actualiser.
+
+---
+
+### Étape 1 : Sélectionne les fichiers
+
+**Dossier Champions :**
+
+- Clique sur **Browse** à côté de "Champions folder".
+- Va dans : `C:\Riot Games\League of Legends\Game\DATA\FINAL\Champions`
+- Clique sur **Select Folder**.
+
+**Ton mod :**
+
+- **Option A :** Sélectionne un fichier `.fantome`. Tu peux en choisir plusieurs pour un repath en masse.
+- **Option B :** Sélectionne un dossier de mod. Cette option est pour les créateurs de mods qui travaillent sur un mod extrait. Les utilisateurs classiques choisissent l'Option A.
+
+**Préfixe personnalisé** (optionnel) :
+
+- Laisse vide pour un préfixe aléatoire comme `shadow` ou `dragon`.
+- Ou tape ton propre préfixe comme `mymod` pour des noms de fichiers cohérents.
+
+---
+
+### Étape 2 : Options anti-crash
+
+Ces options se trouvent sous la sélection du mod. Elles corrigent des crashs
+précis. Laisse-les désactivées sauf si tu en as besoin.
+
+<Callout type="info">
+  **Merge Linked BINs** est activé par défaut. Garde-le activé. Il tire les
+  chemins de BIN liés plus récents depuis les fichiers de jeu frais et les
+  ajoute à ton mod. Ça répare les vieux mods à qui il manque des entrées des
+  patchs récents (par exemple, le crash du E de Yone).
+</Callout>
+
+- **No Skin Lite**. Copie Base/Skin0 vers tous les autres slots de skin (1 à 99). Ne marche que sur les mods Base/Skin0.
+- **Nuke Materials (crash fix)**. Retire les entrées `StaticMaterialDef` et remplace les liens de matériaux par des chemins de textures directs. Essaie ça si un mod fait planter le jeu sur des champions comme Yasuo ou Zed.
+- **Fix TEX Dimensions (Crash Fix)**. Redimensionne les fichiers `.tex` dont les dimensions ne sont pas divisibles par 4 (par exemple, 257x257 devient 256x256). Active ça si ton mod plante au chargement.
+
+Clique sur **Next**.
+
+---
+
+### Étape 3 : Traitement
+
+L'outil enchaîne ces étapes :
+
+- Détecte le champion dans ton mod.
+- Extrait ton mod et les fichiers de jeu frais.
+- Convertit les fichiers `.tex` en `.dds`.
+
+Le traitement prend 2 à 5 minutes. Le statut affiche `Overlay complete` quand
+c'est fini.
+
+Clique sur **Next**.
+
+---
+
+### Étape 4 : Sélectionne le BIN principal
+
+Choisis le skin dans le menu déroulant. Utilise **Skin0** pour le skin de
+base. Pour un chroma ou un autre skin, choisis le slot correspondant (Skin1,
+Skin5, et ainsi de suite).
+
+Clique sur **Next**.
+
+---
+
+### Étape 5 : Repath
+
+L'outil corrige tous les chemins de fichiers, fusionne les BINs liés (si tu as
+laissé cette option activée) et packe le tout dans un nouveau `.fantome`. Les
+VFX vont dans un bin séparé pour que le bin principal reste propre (ajouté en
+v2.0.3).
+
+À la fin tu vois : `DONE! Created {name}_repathed.fantome`
+
+---
+
+### Emplacement de sortie
+
+Ton nouveau mod est enregistré à deux endroits :
+
+```text
+C:\Users\<YourName>\Documents\FantomeRepathTool\
+```
+
+Il est aussi enregistré à côté du `.fantome` d'origine que tu as choisi.
+
+Cherche le fichier qui finit par `_repathed.fantome`.
+
+---
+
+## Installation
+
+1. Ouvre ton gestionnaire de mods (Fantome, LCS Manager ou similaire).
+2. Importe le fichier `_repathed.fantome`.
+3. Active le mod et lance le jeu.
+
+---
+
+## Dépannage
+
+**Le mod ne marche toujours pas après le repath :**
+
+- Vérifie que tu as choisi le bon slot de skin (Skin0 pour la base).
+- Clique sur **Update** pour actualiser les fichiers de hashes, puis réessaie.
+- Active **Merge Linked BINs** si tu l'avais désactivé.
+
+**Le jeu plante au chargement du champion (Yasuo, Zed, autres) :**
+
+- Active **Nuke Materials (crash fix)** et refais un repath.
+
+**Crash du E de Yone ou effets manquants :**
+
+- Vérifie que **Merge Linked BINs** est activé. Il l'est par défaut.
+
+**Crash au lancement du jeu avec ce mod :**
+
+- Active **Fix TEX Dimensions (Crash Fix)** et refais un repath.
+
+**L'outil reste bloqué sur "Converting TEX to DDS" :**
+
+- C'est normal sur les gros mods. Laisse-lui 2 à 5 minutes.
+
+**Emplacement des fichiers de hashes :**
+
+```text
+C:\Users\<YourName>\AppData\Roaming\FrogTools\hashes\
+```
+
+---
+
+## Crédits
+
+- **GuiSaiUwU** - [pyRitoFile](https://github.com/GuiSaiUwU/pyritofile-package), code de correction de la barre de vie et des static mat
+- **tarngaina** - [pyRitoFile](https://github.com/tarngaina/pyRitoFile), [LtMAO](https://github.com/tarngaina/LtMAO)
+- **CommunityDragon** - [Tables de hashes](https://github.com/CommunityDragon/Data)

@@ -1,0 +1,184 @@
+---
+title: "Advanced - Lire et éditer events.bnk"
+description: "Guide avancé pour interpréter les banques wwise"
+category: "sounds"
+---
+
+## Outil requis
+
+<ToolCard name="wwiser" href="https://github.com/bnnm/wwiser">
+  La clé pour lire events.bnk.
+</ToolCard>
+
+---
+
+### Les deux approches en un coup d'œil
+
+|                            | Réplication Wwise                                              | Patch binaire                                              |
+| -------------------------- | ------------------------------------------------------------- | --------------------------------------------------------- |
+| **Comment ça marche**      | Reconstruire la hiérarchie cible dans Wwise, exporter une nouvelle banque | Éditer les valeurs d'octets brutes directement dans le `.bnk` |
+| **Vitesse**                | Plus lent à mettre en place                                   | Rapide une fois que tu connais les offsets                |
+| **Contrôle**               | Élevé : tout l'outillage Wwise dispo                          | Limité aux valeurs que tu patches                         |
+| **Stabilité aux mises à jour** | Stable : ton projet s'adapte                              | Fragile : les offsets bougent quand Riot reconstruit la banque |
+| **Idéal pour**             | Mods complexes et sur le long terme ; tout ce qui doit être maintenu | Ajustements rapides ; retouches ponctuelles ; prototypage |
+
+Utilise ce qui colle à ton objectif. Les deux ne s'excluent pas. Tu peux utiliser
+un events.bnk édité pour certains events tout en répliquant d'autres events dans
+Wwise.
+
+---
+
+### Étape 1 : générer un dump de la hiérarchie
+
+D'abord, dumpe la hiérarchie de la banque d'events sur laquelle tu veux
+travailler :
+
+```cmd
+wwiser.py -d txt {input_events_bnk_file} -dn output.txt
+```
+
+Ça produit un fichier texte lisible qui montre toute la hiérarchie d'objets
+Wwise dans cette banque : events, containers, switches, séquences, bus, tout.
+
+<img src="/wiki-images/dump.png" alt="Sortie du dump de hiérarchie wwiser" />
+
+Ce dump, c'est ta carte. `Ctrl+F` est ton ami.
+
+---
+
+### Technique 1 : répliquer dans Wwise
+
+Une fois que tu as le dump, tu peux lire la hiérarchie et reconstruire les
+parties utiles dans ton propre projet Wwise.
+
+**Travailler avec les IDs :**
+
+Beaucoup d'éléments de la hiérarchie utilisent le hash de nom FNV de Wwise comme
+ID. Tu peux convertir n'importe quel nom d'event en son ID numérique avec cette
+fonction :
+
+```python
+def wwise_hash(name: str) -> int:
+    FNV32_OFFSET = 0x811C9DC5
+    FNV32_PRIME  = 0x01000193
+    h = FNV32_OFFSET
+    for b in name.lower().encode("utf-8"):
+        h = (h * FNV32_PRIME) & 0xFFFFFFFF
+        h ^= b
+    return h
+```
+
+**Exemple :**
+
+```text
+Play_vo_Yone_Attack2DGeneral  →  681920763
+```
+
+Pour les éléments de hiérarchie qui n'utilisent pas d'IDs basés sur le nom
+(random containers, sequence containers, etc.), tu dois récupérer les valeurs
+d'ID brutes dans le dump wwiser et les définir à la main dans tes fichiers de
+projet `.wwu`. C'est la partie délicate, mais c'est ce qui permet à ta banque de
+bien remplacer les éléments de l'originale.
+
+Une fois ton projet en place, exporte ta banque custom depuis Wwise et
+insère-la dans ton mod avec la technique d'ordre de chargement de la section
+Intermediate.
+
+**Note sur la stabilité :** comme tu possèdes le projet Wwise, quand Riot met à
+jour la banque du jeu, tu peux re-dumper la nouvelle version, comparer la
+hiérarchie, ajuster ton projet et réexporter. C'est un peu de travail à chaque
+mise à jour, mais rien ne repart de zéro.
+
+---
+
+### Technique 2 : patch binaire
+
+Au lieu de reconstruire quoi que ce soit, le patch binaire te laisse aller
+directement dans le fichier `.bnk` et changer des valeurs précises à des offsets
+d'octets connus.
+
+Le dump wwiser inclut les offsets d'octets de chaque valeur du fichier. Trouve
+la valeur que tu veux changer, note son offset et son type de donnée, puis écris
+un patch.
+
+Voici un script de patch prêt à l'emploi :
+
+```python
+import struct
+
+FILE_PATH = "mus_map11_seasonal_25s2_bloom_events.bnk"
+
+patches = [
+    {"offset": 0x000028ee, "type": "d64", "value": 1}
+]
+
+def patch_file(path):
+    with open(path, "rb") as f:
+        data = bytearray(f.read())
+
+    for patch in patches:
+        offset = patch["offset"]
+        if patch["type"] == "u8":
+            data[offset] = patch["value"]
+        elif patch["type"] == "u16":
+            data[offset:offset+2] = struct.pack("<H", patch["value"])
+        elif patch["type"] == "float":
+            data[offset:offset+4] = struct.pack("<f", patch["value"])
+        elif patch["type"] == "u32":
+            data[offset:offset+4] = struct.pack("<I", patch["value"])
+        elif patch["type"] == "d64":
+            data[offset:offset+8] = struct.pack("<d", patch["value"])
+        elif patch["type"] == "set_bit":
+            current = data[offset]
+            current |= (1 << patch["bit"])
+            data[offset] = current
+
+    output_path = path.replace(".bnk", "_patched.bnk")
+    with open(output_path, "wb") as f:
+        f.write(data)
+
+    print(f"Patched file saved as: {output_path}")
+
+if __name__ == "__main__":
+    patch_file(FILE_PATH)
+```
+
+**Types de patch pris en charge :**
+
+| Type      | Taille   | Cas d'usage                     |
+| --------- | -------- | ------------------------------- |
+| `u8`      | 1 octet  | Flags, petits entiers           |
+| `u16`     | 2 octets | Entiers courts                  |
+| `u32`     | 4 octets | La plupart des valeurs entières |
+| `float`   | 4 octets | Volume, pitch, probabilité      |
+| `d64`     | 8 octets | Flottants double précision      |
+| `set_bit` | 1 octet  | Bascule un seul bit de flag     |
+
+Pour ajouter d'autres patches, ajoute des entrées à la liste `patches` :
+
+```python
+patches = [
+    {"offset": 0x000028ee, "type": "d64",   "value": 1},
+    {"offset": 0x00001a30, "type": "float",  "value": 0.75},
+    {"offset": 0x00000c12, "type": "set_bit", "bit": 3},
+]
+```
+
+**Note sur la fragilité :** quand Riot reconstruit la banque d'events (patches,
+nouvelles saisons, mises à jour de contenu), tous les offsets d'octets bougent.
+Ta liste de patches devient invalide et doit être refaite à partir d'un nouveau
+dump wwiser de la banque mise à jour. Rapide à écrire au début, mais ça demande
+de la maintenance après les mises à jour du jeu.
+
+---
+
+### Choisir entre les deux
+
+- Tu construis un **mod de musique ou de VO que tu veux maintenir sur le long
+  terme** ? Monte le projet Wwise. Le coût de départ est vite rentabilisé.
+- Tu fais un **petit test expérimental**, ou tu veux voir si un changement de
+  valeur a l'effet attendu ? Patche-le en binaire d'abord, vérifie que ça marche,
+  puis décide si ça vaut le coup de le formaliser.
+- Tu bosses sur quelque chose **piloté par events et complexe** (random
+  containers, switch containers, machines à états) ? Il te faudra sûrement le
+  projet Wwise. Le patch binaire devient vite ingérable.

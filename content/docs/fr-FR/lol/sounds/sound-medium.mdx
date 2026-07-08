@@ -1,0 +1,133 @@
+---
+title: "Intermediate - Banques de sons custom"
+description: "Guide pour créer des banques audio custom avec Wwise."
+category: "sounds"
+---
+
+## Apprends Wwise d'abord
+
+Avant de te lancer, passe un peu de temps sur le contenu d'apprentissage
+officiel de Wwise :
+
+- [Wwise 101](https://www.youtube.com/watch?v=1EhEhDyZ6o4&list=PLXMeprTk4ORPxeFVB6o5t1_IHyHkf4BgO)
+- [Wwise 201](https://www.youtube.com/watch?v=_bvus5FIjxk&list=PLXMeprTk4ORNT-u6190PcRDA7-UEUwBo-)
+
+---
+
+## Comprendre la structure des banques
+
+Riot sépare l'audio en deux fichiers distincts, et c'est voulu :
+
+- `audio.bnk` / `audio.wpk` : contient seulement les données sonores brutes.
+- `events.bnk` : contient la hiérarchie logique (events, séquences d'actions,
+  routage).
+
+`.wpk` est un format original de Riot. Il ne peut contenir que des fichiers
+audio et n'a pas d'en-tête de métadonnées. Vois-le comme un conteneur léger,
+purement pour les données sonores.
+
+La hiérarchie de Wwise n'est pas imbriquée. À la place, chaque élément porte un
+`ID` et un `ParentID`. Cette structure à plat permet d'injecter de nouveaux
+éléments qui viennent s'accrocher à des parents existants dans la hiérarchie,
+sans avoir à remplacer l'arbre entier.
+
+Par exemple : tu crées un bus appelé `MUS` dans ton projet, et en dessous un
+enfant appelé `bus_aurecueil`. Quand ta banque custom se charge, l'entrée factice
+`MUS` est ignorée (la vraie est déjà chargée), et `bus_aurecueil` s'accroche
+automatiquement au `MUS` original.
+
+---
+
+## Ordre de chargement et remplacements
+
+Dans League, **le premier chargé gagne**. Si deux banques définissent le même
+élément, la seconde est ignorée en silence.
+
+Comme les bus principaux comme `MUS` sont chargés très tôt dans le démarrage du
+jeu, tu ne peux pas les remplacer directement. En revanche, tu _peux_ remplacer
+des events individuels en t'assurant que ta banque custom se charge avant
+l'originale.
+
+Tu contrôles ça via le fichier `.bin` :
+
+```text
+bankPath: list[string] = {
+    "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Custom_VO_audio.bnk"  ← Your bank, loaded first
+    "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_VO_audio.bnk"
+    "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_VO_audio.wpk"
+    "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_VO_events.bnk"
+}
+```
+
+Ta banque custom remplace les éléments correspondants dans la banque d'events
+originale, car elle est listée en premier.
+
+**Note sur les IDs :**
+
+- Les events correspondent par **nom**, donc tant que ton event a le même nom, il
+  remplace correctement.
+- Beaucoup d'autres éléments de la hiérarchie (random containers, séquences,
+  switches, etc.) utilisent des **IDs aléatoires générés par Wwise**. Pour les
+  remplacer, tu dois faire correspondre à la main les IDs originaux dans tes
+  fichiers de projet `.wwu`.
+
+---
+
+### Réglages audio : l'atténuation
+
+L'atténuation contrôle le comportement du son avec la distance. Si tu ajoutes de
+nouveaux sons, configure toujours ça explicitement, sinon ils peuvent sonner
+faux en jeu (trop fort de près, audibles depuis l'autre bout de la map, etc.).
+La distance se définit en unités de jeu (tu peux prendre la portée d'un champion
+comme référence pour ces unités).
+
+<img src="/wiki-images/wwise-pos.png" alt="Réglages de positionnement dans Wwise" />
+
+<img src="/wiki-images/wwise-atten.png" alt="Réglages d'atténuation dans Wwise" />
+
+**Désactive toujours le Height Spread.** League se joue sur un plan plat, et le
+height spread peut causer des comportements involontaires.
+
+---
+
+### Routage audio : utiliser le bon bus
+
+Chaque son dans Wwise passe par un bus de sortie. Utilise le bon bus pour ton
+type de son, sinon il ne sera pas mixé correctement en jeu (mauvaise réverb,
+mauvais fader de volume, etc.).
+
+| ID du bus      | Rôle                                          |
+| -------------- | --------------------------------------------- |
+| `MUS`          | Musique (wet, inclut réverb/traitement)       |
+| `SFX`          | SFX (wet)                                      |
+| `daad0rhm`     | SFX (dry), **à utiliser pour les SFX de champion** |
+| `SFX_HUD`      | Notifications & UI (wet)                       |
+| `janep6uv`     | Annonceur (dry)                                |
+| `mus_lag_vp_0` | VO de champion (dry)                           |
+| `sfx_npc`      | Ambiance (wet)                                 |
+| `sfx_eog`      | Fin de partie (wet)                            |
+
+En cas de doute, préfère la version **dry** du bus pour ta catégorie. Les bus
+wet ont leurs effets déjà appliqués (par exemple, Evelynn déforme les SFX pendant
+son passif, donc router les sons par le bus `SFX` contourne cette déformation).
+
+---
+
+### Astuce diverse
+
+Tu peux utiliser des **réglages de conversion custom** dans ton projet Wwise
+pour réduire la taille finale de tes banques. Pratique si ton mod contient
+beaucoup d'audio.
+
+---
+
+## Bonus
+
+<ToolCard
+  name="Custom Announcer Template by aurecueill and Jessibee"
+  href="https://github.com/Aurecueil/Custom-Announcer-Template"
+>
+  À télécharger sur GitHub et à placer à côté de tes autres projets Wwise.
+</ToolCard>
+
+guide par aurecueil
