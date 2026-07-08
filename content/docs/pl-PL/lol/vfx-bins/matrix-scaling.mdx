@@ -1,0 +1,139 @@
+---
+title: "Matrix Scaling"
+description: "Ten poradnik pokazuje, jak używać macierzy transformacji do skalowania, przesuwania i obracania custom partikli w moddingu League of Legends."
+category: "vfx-bins"
+---
+
+Ten poradnik pokazuje, jak używać macierzy transformacji do skalowania, przesuwania i obracania custom partikli w moddingu League of Legends. Opiera się na systemie znanym z renderowania 3D, tu przystosowanym do manipulacji partiklami.
+
+---
+
+## Potrzebne narzędzia
+
+| Narzędzie                | Do czego                                          |
+| :----------------------- | :------------------------------------------------ |
+| **Jade**                 | Wizualna edycja plików `.bin` (polecane)          |
+| **Ritobin**              | Alternatywa: konwersja `.bin` na `.py` do edycji  |
+| **VS Code lub Notepad++** | Potrzebne tylko przy pracy z tekstem przez Ritobin |
+
+---
+
+## Poradnik pisany
+
+### Jak działają macierze
+
+Macierze transformacji to matematyczny sposób na obsługę:
+
+- **Translacji** (przesuwanie)
+- **Rotacji**
+- **Skalowania**
+
+https://youtu.be/bUJSVlVHEZM?si=Uj_CYOs-wsNyIrCm&t=23
+
+https://www.youtube.com/watch?v=VZ1L7Y_78-8
+
+---
+
+### Krok 1: Dodanie domyślnej macierzy
+
+Najpierw dodaj domyślną macierz na końcu bloku `VfxSystemDefinitionData`. Ta macierz niczego nie zmienia, działa tylko jako placeholder.
+
+**Przykład:**
+
+```py
+Transform: mtx44 = {
+    1, 0, 0, 0
+    0, 1, 0, 0
+    0, 0, 1, 0
+    0, 0, 0, 1
+}
+```
+
+> To utrzymuje transformację "neutralną": bez skalowania, przesuwania i obracania.
+
+---
+
+### Krok 2: Edycja rozmiaru (skalowanie partikli)
+
+#### Zmniejszanie rozmiaru
+
+Żeby zmniejszyć partikl, użyj wartości poniżej 1.
+
+**Przykład (2× mniejszy):**
+
+```py
+Transform: mtx44 = {
+    0.5, 0, 0, 0
+    0, 0.5, 0, 0
+    0, 0, 0.5, 0
+    0, 0, 0, 1
+}
+```
+
+#### Powiększanie rozmiaru
+
+Żeby powiększyć partikl, użyj wartości większych niż 1.
+
+**Przykład (2× lub 4× większy):**
+
+```py
+Transform: mtx44 = {
+    2, 0, 0, 0
+    0, 2, 0, 0
+    0, 0, 2, 0
+    0, 0, 0, 1
+}
+```
+
+---
+
+### Krok 3: Przesuwanie partikla (edycja pozycji XYZ)
+
+Partikl przesuniesz wzdłuż konkretnych osi, zmieniając wartości w **ostatnim wierszu** macierzy.
+
+#### Przesunięcie w górę (oś Y)
+
+Przesuń VFX do góry:
+
+```py
+Transform: mtx44 = {
+    1, 0, 0, 0
+    0, 1, 0, 0
+    0, 0, 1, 0
+    0, 250, 0, 1
+}
+```
+
+(Przesuwa 250 jednostek w górę.)
+
+#### Przesunięcie na boki (oś Z)
+
+Przesuń VFX w lewo lub prawo:
+
+```py
+Transform: mtx44 = {
+    1, 0, 0, 0
+    0, 1, 0, 0
+    0, 0, 1, 0
+    0, 0, 250, 1
+}
+```
+
+(Przesuwa 250 jednostek wzdłuż Z.)
+
+> 💡 **Wskazówka:** żeby trafić w dokładne ustawienie, pewnie będziesz musiał testować i dopasowywać wartości!
+
+---
+
+### Mirror systemu partikli
+
+Żeby całkowicie odbić lustrzanie system partikli:
+
+```py
+Transform: mtx44 = {
+    -1, 0, 0, 0
+    0, 1, 0, 0
+    0, 0, -1, 0
+    0, 0, 0, 1
+}
+```

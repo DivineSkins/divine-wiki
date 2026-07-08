@@ -1,0 +1,138 @@
+---
+title: "Easy - Podstawy moddingu dźwięku"
+description: "Poradnik dla początkujących o tworzeniu modów dźwiękowych"
+category: "sounds"
+---
+
+**Potrzebne narzędzia:**
+
+<ToolCard name="Quartz" href="https://github.com/RitoShark/Quartz">
+  Pobierz z GitHuba.
+</ToolCard>
+
+**Przydatne narzędzia:**
+
+<ToolCard name="Audacity" href="https://www.audacityteam.org/download/">
+  Program do edycji dźwięku.
+</ToolCard>
+
+<ToolCard name="yt-dlp" href="https://github.com/yt-dlp/yt-dlp">
+  Przydatne narzędzie do pobierania mediów z internetu.
+</ToolCard>
+
+---
+
+### Z czym pracujesz
+
+League of Legends trzyma swój dźwięk w kilku typach plików, które będziesz
+spotykać raz za razem:
+
+- `.bnk`: wwise'owy "SoundBank", który trzyma dane audio i/lub logikę oraz
+  hierarchię eventów.
+- `.wpk`: format Riotu, który trzyma tylko surowe audio (bez metadanych).
+- `.wem`: pojedynczy skompresowany format audio, którego Wwise używa
+  wewnętrznie.
+
+<Callout type="info" title="Który plik edytujesz">
+  Przy **SFX** (umiejętności, uderzenia, dźwięki UI) zwykle edytujesz plik
+  `audio.bnk`.
+
+Przy **VO** (kwestie głosowe, spiker) zwykle edytujesz plik `audio.wpk`.
+
+</Callout>
+
+---
+
+### Znajdowanie właściwych plików
+
+Żeby edytować dźwięki bohatera, potrzebujesz trzech plików:
+
+| Plik               | Przykładowa ścieżka                                                                    |
+| ------------------ | ------------------------------------------------------------------------------------- |
+| Audio (wpk lub bnk) | `ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_vo_audio.wpk`  |
+| Bank eventów        | `ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_vo_events.bnk` |
+| Plik .bin           | `data/characters/Yone/skins/skin0.bin`                                                |
+
+Możesz wczytać te pliki bezpośrednio do Quartza albo skorzystać z jednej z
+gotowych opcji:
+
+- **Z gry.** Wybierz bohatera i jego skina (opcja z lewej).
+- **Z istniejącego moda.** Jeśli edytujesz cudzy mod, bierzesz z niego materiał
+  albo na nim budujesz, wczytaj folder tego moda (druga opcja od lewej).
+
+<img src="/wiki-images/quartz-selection-2.png" alt="Wybór źródła w Quartz" />
+
+---
+
+### Krok po kroku: podmiana dźwięku
+
+**1. Otwórz zakładkę Sound Bank w Quartz.**
+
+<img src="/wiki-images/quartz-empty-2.png" alt="Pusta zakładka Sound Bank w Quartz" />
+
+**2. Wczytaj swoje pliki po LEWEJ stronie.**
+
+Kliknij lewy panel i wskaż Quartzowi swoje pliki `.bin`, audio (`.bnk` lub
+`.wpk`) oraz eventów (`.bnk`). Potem wciśnij **Parse**.
+
+To zapełnia lewą stronę listą wszystkich dźwięków z tego banku.
+
+<img src="/wiki-images/quartz-2-2.png" alt="Sparsowany bank w lewym panelu" />
+
+Możesz mieć sparsowanych i wczytanych po lewej kilka banków naraz.
+
+**3. Dodaj swoje nowe dźwięki po PRAWEJ stronie.**
+
+W prawym panelu wczytujesz nowe audio, którego chcesz użyć. Quartz przyjmuje:
+
+- `.wav`
+- `.wem`
+- `.ogg`
+- `.mp3`
+
+Konwersję formatu robi sam. Nie musisz konwertować do `.wem` przed importem.
+
+Po prawej możesz też wczytać inny sparsowany bank audio z League i wyciągnąć z
+niego dźwięki bezpośrednio.
+
+<img
+  src="/wiki-images/quartz-3-2.png"
+  alt="Nowe dźwięki w prawym panelu"
+/>
+
+**4. Przeciągnij, żeby podmienić.**
+
+Przeciągnij dźwięk z **prawego panelu** na dźwięk, który chcesz podmienić w
+**lewym panelu**. Wpis po lewej zmienia się i pokazuje podmianę.
+
+<img
+  src="/wiki-images/quartz4.png"
+  alt="Przeciąganie dźwięku, żeby go podmienić w Quartz"
+/>
+
+**5. Zapisz swój edytowany bank.**
+
+Zaznacz swój bank w lewym panelu, kliknij **"Save as BNK/WPK"** i zapisz go
+gdzieś w folderze swojego moda.
+
+<img
+  src="/wiki-images/quartz-save-2.png"
+  alt="Zapisywanie edytowanego banku w Quartz"
+/>
+
+---
+
+### Co dołączyć do moda
+
+| Typ moda | Pliki do dołączenia              |
+| -------- | -------------------------------- |
+| Mod SFX  | tylko `audio.bnk`                |
+| Mod VO   | `audio.wpk` **ORAZ** `events.bnk` |
+
+Przy modach VO bank eventów jest wymagany, bo to on określa, który plik audio
+gra przy którym evencie w grze (atak, śmierć, żart itd.). Bez niego twoje nowe
+audio nie odpali się poprawnie.
+
+---
+
+poradnik autorstwa aurecueil

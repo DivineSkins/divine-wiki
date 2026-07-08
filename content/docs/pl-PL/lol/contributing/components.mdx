@@ -1,0 +1,275 @@
+---
+title: Components
+description: Każdy komponent, którego możesz użyć w poradniku. Każdy pokazany na żywo, z kodem do skopiowania.
+---
+
+Wiki ma mały zestaw komponentów, które możesz wrzucić do dowolnego
+poradnika. Pasek narzędzi edytora draftów wstawia je za ciebie. Ta strona
+to pełna referencja. Każda sekcja pokazuje najpierw komponent, potem kod,
+który go tworzy.
+
+## Callout
+
+Kolorowe pole na ostrzeżenia, wskazówki i notkę o bezpieczeństwie w
+Korei/Chinach. Użyj `type="danger"` przy realnym ryzyku, `info` przy
+wskazówkach, `warning` przy "to może pójść źle", a `success` przy
+potwierdzeniu.
+
+<Callout type="info" title="Wskazówka">
+  Możesz pominąć ten krok, jeśli narzędzie jest już zainstalowane.
+</Callout>
+
+<Callout type="warning" title="Uwaga">
+  Zapisu na oryginalnym pliku nie da się cofnąć. Najpierw zrób kopię.
+</Callout>
+
+<Callout type="danger" title="Nie używaj własnych skinów w Korei ani Chinach">
+  Tamtejszy anti-cheat blokuje wszystkie mody. Konta dostają bany.
+</Callout>
+
+<Callout type="success" title="Gotowe">
+  Zielony ptaszek pojawia się, gdy skin jest gotowy.
+</Callout>
+
+```mdx
+<Callout type="danger" title="Don't use custom skins in Korea or China">
+  The anti-cheat there blocks all mods. Accounts get banned.
+</Callout>
+```
+
+Propsy:
+
+- `type` to `info`, `warning`, `danger` albo `success`. Domyślnie `info`.
+- `title` jest opcjonalny. Każdy typ ma domyślny tytuł.
+
+Są też trzy typy poziomów do oznaczania trudności wewnątrz strony:
+`lvl_beginner`, `lvl_intermediate` i `lvl_advanced`. Do małej plakietki
+z trudnością na górze poradnika użyj zamiast tego [LevelPill](#levelpill).
+
+## Tabs
+
+Alternatywne ścieżki. Użyj zakładek do kroków zależnych od systemu
+operacyjnego albo workflow zależnych od narzędzia. Każdy `<Tabs>`
+potrzebuje zamykającego `</Tabs>`, a każdy `<Tab>` zamykającego `</Tab>`.
+
+<Tabs items={["Windows", "macOS"]}>
+
+<Tab value="Windows">Kroki dla Windowsa tutaj.</Tab>
+
+<Tab value="macOS">Kroki dla macOS tutaj.</Tab>
+
+</Tabs>
+
+```mdx
+<Tabs items={["Windows", "macOS"]}>
+  <Tab value="Windows">Windows steps here.</Tab>
+  <Tab value="macOS">macOS steps here.</Tab>
+</Tabs>
+```
+
+## Accordion
+
+Zwijane sekcje. Dobre do FAQ i opcjonalnych szczegółów.
+
+<Accordions>
+
+<Accordion title="Czy potrzebuję Mayi, żeby zrobić skina?">
+  Nie. Blender ogarnia cały workflow, a wiele edycji w ogóle nie wymaga
+  narzędzia 3D.
+</Accordion>
+
+<Accordion title="Jak duży może być plik mojego moda?">
+  Nie ma twardego limitu, ale trzymaj tekstury małe, żeby mod ładował się
+  szybko.
+</Accordion>
+
+</Accordions>
+
+```mdx
+<Accordions>
+  <Accordion title="Question here">Answer here.</Accordion>
+</Accordions>
+```
+
+## Image
+
+Screenshot. Tekst `alt` jest wymagany. Opiekunowie odrzucają obrazki bez
+niego. Trzymaj pliki poniżej 500 KB i wrzucaj je do `public/wiki-images/`.
+Czytelnicy mogą kliknąć każdy obrazek, żeby go powiększyć.
+
+<img
+  src="/wiki-images/1767019072359-dfx5or.png"
+  alt="LtMAO z otwartą zakładką maya, pokazujące kroki instalacji lemon3d"
+/>
+
+```mdx
+<img
+  src="/wiki-images/your-screenshot.png"
+  alt="Short description of the image"
+/>
+```
+
+## Code block
+
+Blok kodu w ogrodzeniu. Dodaj język po otwierającym ogrodzeniu, żeby
+włączyć kolorowanie składni.
+
+```bash
+npm run dev
+```
+
+````mdx
+```bash
+npm run dev
+```
+````
+
+## Table
+
+Tabela w Markdownie. Trzymaj ją przy kilku kolumnach, żeby czytała się na
+telefonie.
+
+| Kolumna A | Kolumna B |
+| --------- | --------- |
+| Wartość   | Wartość   |
+
+```mdx
+| Column A | Column B |
+| -------- | -------- |
+| Value    | Value    |
+```
+
+## ToolCard
+
+Pojedynczy wiersz narzędzia z nazwą, linkiem i jednolinijkowym opisem.
+Używaj go na stronach z listami narzędzi.
+
+<ToolCard
+  name="Flint"
+  href="/docs/lol/tools/modding-apps/flint"
+  badge="Polecane"
+>
+  Narzędzie do tworzenia skinów, wszystko w jednym.
+</ToolCard>
+
+```mdx
+<ToolCard
+  name="Flint"
+  href="/docs/lol/tools/modding-apps/flint"
+  badge="Recommended"
+>
+  All-in-one skin creation tool.
+</ToolCard>
+```
+
+Propsy:
+
+- `name` i `href` są wymagane. Linki zewnętrzne otwierają się w nowej karcie.
+- `badge` jest opcjonalny. Renderuje się jako mała plakietka po prawej.
+
+## LevelPill
+
+Znacznik trudności. Umieść go na górze poradnika, tuż pod tytułem. `level`
+to `beginner`, `intermediate` albo `advanced`.
+
+<LevelPill level="beginner" /> <LevelPill level="intermediate" />
+<LevelPill level="advanced" />
+
+```mdx
+<LevelPill level="beginner" />
+```
+
+Użyj opcjonalnego propa `label`, żeby zmienić tekst:
+`<LevelPill level="advanced" label="Expert" />`.
+
+## ParameterList
+
+Dwukolumnowa tabela nazwa/opis do stron referencyjnych.
+
+<ParameterList
+  parameters={[
+    { name: "champion", description: "Bohater, do którego należy skin." },
+    { name: "skin_id", description: "Numeryczne id bazowego skina." },
+  ]}
+/>
+
+```mdx
+<ParameterList
+  parameters={[
+    { name: "champion", description: "The champion the skin belongs to." },
+    { name: "skin_id", description: "The numeric id of the base skin." },
+  ]}
+/>
+```
+
+## PremiumCard
+
+Wyróżniona karta z gradientową ramką do jednego wyeksponowanego linku.
+Używaj jej, żeby skierować czytelnika na najważniejszą kolejną stronę.
+
+<PremiumCard title="Guided walkthrough" href="/docs/lol/guided-walkthrough">
+  Zacznij tutaj, jeśli jesteś nowy. Jedna ścieżka od pustego folderu do
+  gotowego skina.
+</PremiumCard>
+
+```mdx
+<PremiumCard title="Guided walkthrough" href="/docs/lol/guided-walkthrough">
+  Start here if you are new.
+</PremiumCard>
+```
+
+## GlowCTA
+
+Świecący przycisk call-to-action. Używaj go do jednej akcji, którą chcesz,
+żeby czytelnik wykonał. Najwyżej jeden na stronę.
+
+<GlowCTA href="/docs/lol">Przejrzyj poradniki</GlowCTA>
+
+```mdx
+<GlowCTA href="/docs/lol">Browse the guides</GlowCTA>
+```
+
+Propsy:
+
+- `variant` to `primary` (fioletowa poświata, domyślnie), `solid`,
+  `secondary` albo `ghost`.
+- `size` to `md` (domyślnie) albo `lg`.
+
+## YouTube
+
+Osadzony film z YouTube. Podaj id filmu, nie pełny URL. Id to część po
+`watch?v=` albo `youtu.be/`.
+
+<YouTube
+  id="xqB84ga55hI"
+  title="Walkthrough własnego skina do League of Legends"
+/>
+
+```mdx
+<YouTube id="xqB84ga55hI" title="What the video shows" />
+```
+
+Propsy:
+
+- `id` jest wymagany.
+- `title` opisuje film dla czytników ekranu.
+- `start` jest opcjonalny. Uruchamia odtwarzanie od podanej sekundy.
+
+Skrót: wklej zwykły link do YouTube w osobnej linii, a wiki sama zamieni go
+w osadzony film.
+
+## Icon
+
+Ikona w linii tekstu. Użyj dowolnej [nazwy ikony Lucide](https://lucide.dev/icons/)
+albo jednej z nazw brandowych: `Maya`, `Blender`, `Discord`,
+`LeagueOfLegends`.
+
+<Icon name="Wrench" /> <Icon name="Sparkles" /> <Icon name="Blender" />
+<Icon name="Discord" />
+
+```mdx
+<Icon name="Wrench" />
+```
+
+Użyj opcjonalnego propa `className`, żeby zmienić rozmiar, na przykład
+`className="size-4"`.

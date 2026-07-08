@@ -1,0 +1,230 @@
+---
+title: "Pełny walkthrough"
+description: "Kompletny wideo-walkthrough tworzenia własnego skina do League. Od pierwszej instalacji narzędzia do opublikowanego moda."
+category: "guided-walkthrough"
+---
+
+> Ten poradnik prowadzi cię od pierwszej instalacji narzędzia do gotowego, opublikowanego skina. Przechodź części po kolei.
+
+<Callout type="warning" title="Najpierw bezpieczeństwo">
+  Własne skiny są bezpieczne poza Koreą i Chinami. Od 2014 roku zero banów,
+  jeśli używasz zaufanych narzędzi. Są wyłącznie client-side: widzisz je tylko
+  ty i nie dają żadnej przewagi w rozgrywce. Nigdy nie używaj własnych skinów w
+  Korei ani Chinach. Tamtejszy anti-cheat blokuje wszystkie mody.
+</Callout>
+
+<Callout type="info" title="Filmy mogą być nieaktualne">
+  Część filmów poniżej korzysta ze starszych narzędzi. Od tamtej pory pojawiły
+  się nowe, a każde ma swój poradnik w sekcji [Narzędzia](/docs/lol/tools).
+  Filmy nadal świetnie pokazują cały proces od początku do końca. Do
+  codziennej pracy na dłuższą metę sięgaj po nowsze narzędzia.
+</Callout>
+
+## Jak działa pipeline
+
+Nowoczesne robienie skinów przebiega jedną ścieżką.
+[Flint](/docs/lol/tools/modding-apps/flint) ogarnia większość z niej w jednym
+oknie.
+
+1. **Wyciągnij** (Extract) pliki skina z gry.
+2. **Podejrzyj** (Preview) model, tekstury i VFX.
+3. **Edytuj** to, co chcesz zmienić: model, tekstury, partikle albo dźwięk.
+4. **Sprawdź** (Validate) moda i napraw typowe bugi z [Hematite](/docs/lol/tools/modding-apps/hematite).
+5. **Spakuj** (Pack) moda do pliku `.fantome` albo `.modpkg`. To formaty paczek modów, które instaluje menedżer skinów.
+6. **Zainstaluj** (Install) go menedżerem skinów, żeby przetestować w grze.
+
+Każda część poniżej odpowiada jednemu z tych kroków.
+
+## Na start
+
+### Narzędzia, których potrzebujesz
+
+Zacznij od tych trzech. Ogarniają większość roboty:
+
+- **[Flint](/docs/lol/tools/modding-apps/flint)**: ekstrakcja, podgląd, edycja, walidacja i pakowanie. Aplikacja wszystko-w-jednym.
+- **[Jade](/docs/lol/tools/modding-apps/jade)**: skupiony edytor BIN, gdy akurat go potrzebujesz.
+- **[Quartz](/docs/lol/tools/modding-apps/quartz)**: przekolorowywanie VFX, portowanie i lekka robota przy dźwięku.
+
+Przyda ci się też:
+
+- Przegląd [Narzędzia](/docs/lol/tools) po całą resztę.
+- **[LtMAO](/docs/lol/tools/modding-apps/ltmao)** jest opcjonalny. To starszy toolpack, trzymany jako zapas do zadań wsadowych i pełnej roboty przy soundbankach.
+
+---
+
+## Walkthrough krok po kroku
+
+---
+
+### Część 1: Flint
+
+Eksploruj pliki gry League z **Flintem**. Poznaj podstawy moddingu i ustaw foldery projektu.
+
+Zawiera:
+
+- Eksplorację plików
+- Podstawy moddingu
+- Konfigurację projektu
+
+https://www.youtube.com/watch?v=lUq29txlCCE
+
+---
+
+### Część 2: Hacksaw
+
+Przekolorowuj istniejące efekty wizualne za pomocą wizualnego systemu palet. Bez kodowania.
+
+<Callout type="info" title="Nowsza opcja: Quartz Paint">
+  [Quartz](/docs/lol/tools/modding-apps/quartz) ma stronę Paint, która
+  przekolorowuje partikle w aplikacji, bez konfiguracji `ritobin_cli`. [Poradnik
+  Hacksaw](/docs/lol/vfx-bins/hacksaw) nadal działa, a film poniżej prowadzi
+  przez niego krok po kroku.
+</Callout>
+
+https://www.youtube.com/watch?v=ZswaStGq7VU&t=1s
+
+---
+
+### Część 3: Podmiana modelu (Maya lub Blender)
+
+Podmień model bohatera za pomocą **Autodesk Maya** i **LoL Maya Plugin**. Dla Blendera zobacz [poradnik podmiany modelu w Blenderze](/docs/lol/blender/3d-model-swap).
+
+#### Ważne uwagi
+
+- **Najpierw zainstaluj LoL Maya**
+- **Nie** usuwaj ścianek, wierzchołków ani krawędzi po zbindowaniu mesha
+- Przy pierwszym imporcie plików `.skn` / `.skl` użyj **Import**, nie przeciągania
+- Upewnij się, że włączone są **oddzielone materiały i meshe**
+
+https://www.youtube.com/watch?v=xqB84ga55hI&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=3&ab_channel=Frog
+
+Zobacz [Listę błędów Mayi](/docs/lol/errors/maya-errors).
+
+---
+
+### Część 4: Materiały, submeshe i bin w Mayi
+
+Zrozum, jak działają materiały w Mayi i jak odwoływać się do nich w plikach `.bin` przez `MaterialOverride`.
+
+https://www.youtube.com/watch?v=dS-lvovFmVw&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=4&ab_channel=Frog
+
+---
+
+### Część 5: Matrix i partikle idle
+
+Skaluj, obracaj i przesuwaj efekty wizualne za pomocą macierzy transformacji. Dodawaj aury idle albo pasywne efekty wizualne.
+
+Zawiera:
+
+- Jak umieścić system VFX (ważne)
+- Kod użyty w tym tutorialu
+
+<Callout type="info" title="Te BIN-y możesz edytować w Jade lub Quartz">
+  Film edytuje `.bin` ręcznie. Te same zmiany zrobisz wizualnie w
+  [Jade](/docs/lol/tools/modding-apps/jade) albo przeskalujesz partikle wsadowo
+  na stronie Bineditor w Quartz.
+</Callout>
+
+https://www.youtube.com/watch?v=bUJSVlVHEZM&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=5&ab_channel=Frog
+
+---
+
+### Część 6: Systemy partikli i wyzwalane VFX
+
+Wyzwalaj efekty wizualne za pomocą:
+
+- Zdarzeń animacji
+- Logiki gry (`PersistentEffectConditions`)
+
+https://www.youtube.com/watch?v=T7ALG5M4twQ&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=6&ab_channel=Frog
+
+---
+
+### Część 7: Voiceover i efekty dźwiękowe
+
+Podmieniaj voiceovery i efekty dźwiękowe, takie jak dźwięki umiejętności czy taunty.
+
+<Callout type="info" title="Narzędzia zmieniły się od czasu tego filmu">
+  [Quartz](/docs/lol/tools/modding-apps/quartz) obsługuje teraz audio `.bnk` i
+  `.wpk` do lekkiej roboty, jak podmiana dźwięku. Wwise albo
+  [LtMAO](/docs/lol/tools/modding-apps/ltmao) używaj tylko, gdy musisz
+  przebudować cały soundbank. Film poniżej jest starszy, ale idea jest ta sama.
+</Callout>
+
+https://youtu.be/QlJRc4hQNA0?si=w0E0iB6Grcl2n8Ga
+
+---
+
+### Część 8: Retargeting animacji
+
+Przenoś animacje z innych gier lub bohaterów (na przykład z Fortnite) na rigi League.
+
+#### Narzędzie
+
+| Narzędzie             | Opis                                             |
+| --------------------- | ------------------------------------------------ |
+| Fortnite Porting Tool | Portuje animacje z Fortnite do użycia w League   |
+
+https://www.youtube.com/watch?v=jnAXvFzYlb4&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=8&ab_channel=Frog
+
+---
+
+### Część 9: Materiały League (Glow i Toon Shader)
+
+Nakładaj materiały w stylu League, takie jak **Glow** i **Toon Shader**, na swoje własne skiny.
+
+https://www.youtube.com/watch?v=mJDehGDIL00&ab_channel=Frog
+
+---
+
+### Część 10: Repath i publikacja
+
+Zrób repath moda, żeby pasował do aktualnych plików gry, a potem go opublikuj.
+
+**Spakuj i wyeksportuj.** We Flincie wyeksportuj moda jako plik `.fantome` albo `.modpkg`.
+
+**Opcje repathu.** Jeśli ścieżka jest zła albo patch zepsuł moda, zrób repath z
+[League Mod Repather](/docs/lol/tools/modding-apps/league-mod-repather) albo na
+stronie Bumpath w Quartz.
+
+**Zainstaluj i przetestuj.** Wczytaj moda w menedżerze skinów, jak LTK Manager
+albo Celestial, a potem przetestuj go w grze niestandardowej.
+
+https://youtu.be/WxdHs9oauP4
+
+---
+
+## Dodatki
+
+### Dodawanie kości i fizyki (włosy, ogony, peleryny)
+
+Dodaj kości i ruch oparty na fizyce do swojego skina.
+
+#### Wymagane narzędzia
+
+| Narzędzie     | Opis                                                                  |
+| ------------- | --------------------------------------------------------------------- |
+| Autodesk Maya | Standardowe w branży oprogramowanie 3D do riggingu i mapowania UV     |
+| Jade          | Edytuje fizykę w `.bin` bezpośrednio. Bez konwertowania tam i z powrotem. |
+| RitoBin       | Opcjonalny zapas. Konwertuje `.bin` na `.py` i z powrotem (`ritobin_cli`). |
+
+https://www.youtube.com/watch?v=ejg5IAkEDTY&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=9&ab_channel=Frog
+
+---
+
+### Przykładowa konfiguracja
+
+```cpp
+rigPoseModifierData: list[pointer] = {
+    ConformToPathRigPoseModifierData {
+        mStartingJointName: hash = 0x41f70632
+        mEndingJointName: hash = 0x3cf6fe53
+        mDefaultMaskName: hash = 0x7136e1bc
+        mMaxBoneAngle: f32 = 45
+        mDampingValue: f32 = 5
+        mFrequency: f32 = 3
+    }
+}
+
+
+```

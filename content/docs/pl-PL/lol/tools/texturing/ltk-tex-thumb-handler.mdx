@@ -1,0 +1,116 @@
+---
+title: "LTK Tex Thumb Handler"
+description: "Handler miniatur od LeagueToolkit pokazuje pliki .tex jako podglądy obrazów w Eksploratorze Windows. Siostrzane narzędzie do Tex Thumbnail Provider od Guisai."
+category: "tools"
+---
+
+LTK Tex Thumb Handler to rozszerzenie powłoki Windows od zespołu
+**LeagueToolkit**. Pokazuje pliki `.tex` jako podglądy obrazów w
+Eksploratorze Windows.
+
+Robi to samo co [Tex Thumbnail Provider](/docs/lol/tools/texturing/tex-thumbnail-provider)
+od RitoSharka. Wybierz jeden, nie oba.
+
+[Pobierz najnowszą wersję](https://github.com/LeagueToolkit/ltk-tex-utils/releases)
+
+---
+
+## Co robi
+
+- Pokazuje pliki `.tex` jako podglądy miniatur w Eksploratorze Windows.
+- Działa w każdym folderze z teksturami `.tex` (pliki gry, eksporty, assety modów).
+- Działa jako zarejestrowana biblioteka COM DLL. Nie ma aplikacji do otwierania. Nie ma procesu w tle.
+
+{/* SCREENSHOT: Windows Explorer showing a folder of .tex files with image thumbnails instead of generic icons */}
+
+---
+
+## Zanim zaczniesz
+
+- Windows 10 lub 11.
+- Dostęp administratora (instalator rejestruje systemową bibliotekę DLL).
+- PowerShell.
+
+---
+
+## Instalacja
+
+1. Zamknij wszystkie okna Eksploratora Windows, które pokazują pliki `.tex`.
+2. Kliknij PowerShell prawym przyciskiem i wybierz **Uruchom jako administrator**.
+3. Wklej to polecenie i naciśnij Enter:
+
+   ```powershell
+   iwr -useb https://raw.githubusercontent.com/LeagueToolkit/ltk-tex-utils/main/scripts/install-thumbnail-handler.ps1 | iex
+   ```
+
+4. Poczekaj, aż instalator skończy. Pobiera `ltk-tex-thumb-handler.dll`,
+   kopiuje go do `%ProgramFiles%\LeagueToolkit\ltk-tex-thumb-handler` i
+   rejestruje w Windows.
+5. Zrestartuj Eksplorator Windows (albo zrestartuj komputer).
+
+{/* SCREENSHOT: PowerShell window showing the install script output with success message */}
+
+---
+
+## Jak sprawdzić, czy działa
+
+Otwórz dowolny folder z plikami `.tex`. Ikony zamieniają się w podglądy obrazów. Jeśli
+nadal wyglądają jak puste ikony, zrestartuj Eksplorator albo komputer.
+
+---
+
+## Odinstalowanie
+
+1. Kliknij PowerShell prawym przyciskiem i wybierz **Uruchom jako administrator**.
+2. Wykonaj:
+
+   ```powershell
+   regsvr32.exe /u "%ProgramFiles%\LeagueToolkit\ltk-tex-thumb-handler\ltk_tex_thumb_handler.dll"
+   ```
+
+3. Usuń folder w `%ProgramFiles%\LeagueToolkit\ltk-tex-thumb-handler`.
+
+---
+
+## Kiedy ten, a kiedy Tex Thumbnail Provider
+
+Oba narzędzia robią to samo: pokazują podglądy `.tex` w Eksploratorze. Uruchamiaj
+tylko jedno naraz.
+
+| Narzędzie                  | Autor         | Metoda instalacji               |
+| -------------------------- | ------------- | ------------------------------- |
+| **LTK Tex Thumb Handler**  | LeagueToolkit | Jedna linijka w PowerShell (admin) |
+| **Tex Thumbnail Provider** | RitoShark     | Jedna linijka w PowerShell (per-user) |
+
+Wybierz LTK Tex Thumb Handler, jeśli używasz już innych narzędzi LeagueToolkit.
+Wybierz wersję RitoSharka, jeśli chcesz instalację per-user bez praw administratora.
+
+> **Uwaga.** Nie instaluj obu. Dwa handlery miniatur dla tego samego
+> typu pliku mogą się gryźć i zostawić cię zupełnie bez podglądów.
+> Odinstaluj jeden, zanim zainstalujesz drugi.
+
+---
+
+## Rozwiązywanie problemów
+
+### Miniatury się nie pojawiają
+
+Zrestartuj Eksplorator Windows. Otwórz Menedżer zadań, znajdź **Eksplorator Windows**,
+kliknij prawym i wybierz **Uruchom ponownie**. Otwórz folder ponownie.
+
+### Nadal brak miniatur po restarcie
+
+Sprawdź, czy biblioteka DLL jest w
+`%ProgramFiles%\LeagueToolkit\ltk-tex-thumb-handler\ltk_tex_thumb_handler.dll`.
+Jeśli jej nie ma, wykonaj polecenie instalacji jeszcze raz.
+
+### Stara biblioteka DLL Tex Thumbnail Provider wciąż zarejestrowana
+
+Najpierw odinstaluj drugi provider miniatur. Zobacz
+[stronę Tex Thumbnail Provider](/docs/lol/tools/texturing/tex-thumbnail-provider),
+żeby poznać kroki instalacji i usuwania.
+
+### Skrypt instalacji nie działa
+
+Upewnij się, że PowerShell działa jako administrator. Skrypt potrzebuje praw
+administratora, żeby zarejestrować bibliotekę DLL w Windows.

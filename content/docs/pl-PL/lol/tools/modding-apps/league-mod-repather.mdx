@@ -1,0 +1,171 @@
+---
+title: "League Mod Repather"
+description: "Samodzielne narzędzie, które naprawia zepsute mody do League of Legends po patchu."
+category: "tools"
+---
+
+Gdy Riot patchuje League, stare mody się psują. League Mod Repather
+przebudowuje twój mod tak, żeby działał na aktualnym patchu.
+
+Pobierz najnowszą wersję ze
+[strony wydań na GitHubie](https://github.com/RitoShark/League-Mod-Repather/releases).
+Poradnik niżej sprawdzono na **v2.0.4**.
+
+---
+
+## Jak używać
+
+### Pierwsze uruchomienie
+
+1. Pobierz `LeagueModRepather.exe` i otwórz go.
+2. Kliknij **Download**, żeby pobrać pliki hashy z CommunityDragon.
+3. Poczekaj, aż pobieranie się skończy (~1 minuta, ~220 MB).
+
+Pliki hashy pobierają się tylko raz. Gdy wyjdzie nowy patch, kliknij
+**Update**, żeby je odświeżyć.
+
+---
+
+### Krok 1: Wybierz pliki
+
+**Folder Champions:**
+
+- Kliknij **Browse** obok "Champions folder".
+- Przejdź do: `C:\Riot Games\League of Legends\Game\DATA\FINAL\Champions`
+- Kliknij **Select Folder**.
+
+**Twój mod:**
+
+- **Opcja A:** Wybierz plik `.fantome`. Możesz zaznaczyć więcej niż jeden
+  do zbiorczego repathu.
+- **Opcja B:** Wybierz folder z modem. Ta opcja jest dla twórców modów
+  pracujących na wypakowanym modzie. Zwykli użytkownicy niech wybiorą
+  opcję A.
+
+**Custom Prefix** (opcjonalnie):
+
+- Zostaw puste, żeby dostać losowy prefiks jak `shadow` albo `dragon`.
+- Albo wpisz własny prefiks jak `mymod` dla spójnych nazw plików.
+
+---
+
+### Krok 2: Przełączniki naprawy crashy
+
+Te przełączniki są pod wyborem moda. Naprawiają konkretne crashe. Zostaw
+je wyłączone, chyba że ich potrzebujesz.
+
+<Callout type="info">
+  **Merge Linked BINs** jest domyślnie włączone. Zostaw włączone. Dociąga
+  nowsze ścieżki linkowanych BIN-ów ze świeżych plików gry i dodaje je do twojego
+  moda. Naprawia to stare mody, którym brakuje wpisów z ostatnich patchy (na
+  przykład crash Yone E).
+</Callout>
+
+- **No Skin Lite**. Kopiuje Base/Skin0 do każdego innego slotu skina (1 do
+  99). Działa tylko na modach Base/Skin0.
+- **Nuke Materials (crash fix)**. Usuwa wpisy `StaticMaterialDef` i podmienia
+  linki materiałów na bezpośrednie ścieżki tekstur. Spróbuj tego, jeśli mod
+  crashuje grę na bohaterach jak Yasuo albo Zed.
+- **Fix TEX Dimensions (Crash Fix)**. Zmienia rozmiar plików `.tex` o
+  wymiarach niepodzielnych przez 4 (na przykład 257x257 staje się 256x256).
+  Włącz, jeśli twój mod crashuje przy wczytywaniu.
+
+Kliknij **Next**.
+
+---
+
+### Krok 3: Przetwarzanie
+
+Narzędzie przechodzi przez te kroki:
+
+- Wykrywa bohatera w twoim modzie.
+- Wypakowuje twój mod i świeże pliki gry.
+- Konwertuje pliki `.tex` na `.dds`.
+
+Przetwarzanie zajmuje 2-5 minut. Status pokazuje `Overlay complete`, gdy
+skończy.
+
+Kliknij **Next**.
+
+---
+
+### Krok 4: Wybierz główny BIN
+
+Wybierz skina z listy rozwijanej. Użyj **Skin0** dla bazowego skina. Dla
+chromy albo innego skina wybierz pasujący slot (Skin1, Skin5 i tak dalej).
+
+Kliknij **Next**.
+
+---
+
+### Krok 5: Repath
+
+Narzędzie naprawia wszystkie ścieżki plików, łączy linkowane BIN-y (jeśli
+zostawiłeś ten przełącznik włączony) i pakuje wszystko w nowy `.fantome`.
+VFX trafiają do osobnego bina, żeby główny bin został czysty (dodane w
+v2.0.3).
+
+Gdy skończy, zobaczysz: `DONE! Created {name}_repathed.fantome`
+
+---
+
+### Lokalizacja wyniku
+
+Twój nowy mod zapisuje się w dwóch miejscach:
+
+```text
+C:\Users\<YourName>\Documents\FantomeRepathTool\
+```
+
+Zapisuje się też obok oryginalnego `.fantome`, który wybrałeś.
+
+Szukaj pliku kończącego się na `_repathed.fantome`.
+
+---
+
+## Instalacja
+
+1. Otwórz swój menedżer modów (Fantome, LCS Manager albo podobny).
+2. Zaimportuj plik `_repathed.fantome`.
+3. Włącz mod i odpal grę.
+
+---
+
+## Rozwiązywanie problemów
+
+**Mod nadal nie działa po repathcie:**
+
+- Sprawdź, czy wybrałeś właściwy slot skina (Skin0 dla bazowego).
+- Kliknij **Update**, żeby odświeżyć pliki hashy, i spróbuj ponownie.
+- Włącz **Merge Linked BINs**, jeśli je wyłączyłeś.
+
+**Gra crashuje przy wczytaniu bohatera (Yasuo, Zed, inni):**
+
+- Włącz **Nuke Materials (crash fix)** i zrób repath ponownie.
+
+**Crash Yone E albo brakujące efekty:**
+
+- Upewnij się, że **Merge Linked BINs** jest włączone. Jest włączone
+  domyślnie.
+
+**Crash przy starcie gry z tym modem:**
+
+- Włącz **Fix TEX Dimensions (Crash Fix)** i zrób repath ponownie.
+
+**Narzędzie utknęło na "Converting TEX to DDS":**
+
+- To normalne przy dużych modach. Daj mu 2-5 minut.
+
+**Lokalizacja plików hashy:**
+
+```text
+C:\Users\<YourName>\AppData\Roaming\FrogTools\hashes\
+```
+
+---
+
+## Podziękowania
+
+- **GuiSaiUwU** - [pyRitoFile](https://github.com/GuiSaiUwU/pyritofile-package), kod naprawy paska HP i naprawy static mat
+- **tarngaina** - [pyRitoFile](https://github.com/tarngaina/pyRitoFile), [LtMAO](https://github.com/tarngaina/LtMAO)
+- **CommunityDragon** - [Tablice hashy](https://github.com/CommunityDragon/Data)

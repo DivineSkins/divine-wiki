@@ -1,0 +1,221 @@
+---
+title: "Static Materials"
+description: '``plaintext materialOverride: list[embed] = { SkinMeshDataProperties_MaterialOverride { material: link = "a_unique_name" submesh: string = "yoursubmesh" } } ``'
+category: "vfx-bins"
+---
+
+<img src="/wiki-images/1767148331768-2yzkru.png" alt="Obraz" width={300} />
+
+[https://www.mediafire.com/file/aesxma57g6w5bh7/Mask.dds/file](https://www.mediafire.com/file/aesxma57g6w5bh7/Mask.dds/file)
+
+```plaintext
+            materialOverride: list[embed] = {
+                SkinMeshDataProperties_MaterialOverride {
+                    material: link = "a_unique_name"
+                    submesh: string = "yoursubmesh"
+                }
+            }
+```
+
+## Wideo
+
+https://www.youtube.com/watch?v=mJDehGDIL00&source_ve_path=MTc4NDI0
+
+## Glow Material
+
+<img src="/wiki-images/1767148361519-bry0a.png" alt="Obraz" width={500} />
+
+<Accordions>
+
+<Accordion title="Pokaż fragment binu">
+
+```plaintext
+---------------------------
+    "a_unique_name" = StaticMaterialDef {
+        name: string = "a_unique_name"
+        defaultTechnique: string = "normal"
+        samplerValues: list2[embed] = {
+            StaticMaterialShaderSamplerDef {
+                textureName: string = "Diffuse_Texture"
+                texturePath: string = "ASSETS/Characters/YOURCHAMP/Skins/SKINID/Maintexture.dds"
+                addressU: u32 = 1
+                addressV: u32 = 1
+                addressW: u32 = 1
+            }
+            StaticMaterialShaderSamplerDef {
+                textureName: string = "Mask_Texture"
+                texturePath: string = "ASSETS/Characters/YOURCHAMP/Skins/SKINID/Masktexturename.dds"
+            }
+        }
+        paramValues: list2[embed] = {
+            StaticMaterialShaderParamDef {
+                name: string = "Noise_Scale"
+                value: vec4 = { 1, 1, 0, 0 }
+            }
+            StaticMaterialShaderParamDef {
+                name: string = "Scroll_Speed"
+                value: vec4 = { 0, 0, 0, 0 }
+            }
+            StaticMaterialShaderParamDef {
+                name: string = "Addative_Color"
+                value: vec4 = { 0.501960814, 0, 1, 1 }
+            }
+            StaticMaterialShaderParamDef {
+                name: string = "Bloom_Intensity"
+                value: vec4 = { 3.9000001, 0, 0, 0 }
+            }
+            StaticMaterialShaderParamDef {
+                name: string = "Bloom_color"
+                value: vec4 = { 0.501960814, 0, 1, 1 }
+            }
+        }
+        switches: list2[embed] = {
+            StaticMaterialSwitchDef {
+                name: string = "OVERLAY_ADDATIVE"
+            }
+        }
+        shaderMacros: map[string,string] = {
+            "NUM_BLEND_WEIGHTS" = "4"
+        }
+        techniques: list[embed] = {
+            StaticMaterialTechniqueDef {
+                name: string = "normal"
+                passes: list[embed] = {
+                    StaticMaterialPassDef {
+                        shader: link = "Shaders/SkinnedMesh/ScrollingUVs_Simple"
+                        blendEnable: bool = true
+                        srcColorBlendFactor: u32 = 6
+                        srcAlphaBlendFactor: u32 = 6
+                        dstColorBlendFactor: u32 = 7
+                        dstAlphaBlendFactor: u32 = 7
+                    }
+                }
+            }
+        }
+        childTechniques: list[embed] = {
+            StaticMaterialChildTechniqueDef {
+                name: string = "transition"
+                parentName: string = "normal"
+                shaderMacros: map[string,string] = {
+                    "TRANSITION" = "1"
+                }
+            }
+        }
+    }
+---------------------------
+
+```
+
+</Accordion>
+
+</Accordions>
+
+## ➜ Animeshader
+
+<img src="/wiki-images/1767148371509-odd2n.png" alt="Obraz" width={500} />
+
+**POTRZEBNE PLIKI:** [https://www.mediafire.com/file/tg6whi2bfzgiqrc/Anime_Shader_Assets.rar/file](https://www.mediafire.com/file/tg6whi2bfzgiqrc/Anime_Shader_Assets.rar/file)
+
+<Accordions>
+
+<Accordion title="Pokaż fragment binu">
+
+```plaintext
+ "a_unique_name" = StaticMaterialDef {
+        Name: string = "a_unique_name"
+        SamplerValues: list2[embed] = {
+            StaticMaterialShaderSamplerDef {
+                TextureName: string = "Diffuse_Texture"
+                texturePath: string = "ASSETS/Characters/YOURCHAMP/Skins/SKINID/Maintexture.dds"
+                AddressU: u32 = 1
+                AddressV: u32 = 1
+                AddressW: u32 = 1
+            }
+            StaticMaterialShaderSamplerDef {
+                TextureName: string = "ToonShadingTex"
+                texturePath: string = "assets/ebay/ToonShading.tex" #dont edit
+                AddressU: u32 = 1
+                AddressV: u32 = 1
+                AddressW: u32 = 1
+            }
+            StaticMaterialShaderSamplerDef {
+                TextureName: string = "ToonShadingOutlineTex"
+                texturePath: string = "assets/ebay/OutlineToneMap.tex" #dont edit
+                AddressU: u32 = 1
+                AddressV: u32 = 1
+                AddressW: u32 = 1
+            }
+        }
+        ParamValues: list2[embed] = {
+            StaticMaterialShaderParamDef {
+                Name: string = "ToonShadePower"
+                Value: vec4 = { 8.39999962, 0, 0, 0 }
+            }
+            StaticMaterialShaderParamDef {
+                Name: string = "ToonOutlineControl"
+                Value: vec4 = { 0, 0, 0, 0 }
+            }
+            StaticMaterialShaderParamDef {
+                Name: string = "ToonRimControl"
+                Value: vec4 = { 1, 0.300000012, 0.100000001, 0 }
+            }
+            StaticMaterialShaderParamDef {
+                Name: string = "TintColorBase"
+                Value: vec4 = { 1, 1, 1, 1 }
+            }
+            StaticMaterialShaderParamDef {
+                Name: string = "TintColorOutline"
+                Value: vec4 = { 0, 0, 0, 1 }
+            }
+            StaticMaterialShaderParamDef {
+                Name: string = "TintColorRim"
+                Value: vec4 = { 0.0150759136, 0.549019635, 0.344335079, 0.501960814 }
+            }
+            StaticMaterialShaderParamDef {
+                Name: string = "Rim_Color_Strength"
+                Value: vec4 = { 1, 0, 0, 0 }
+            }
+        }
+        Switches: list2[embed] = {
+            StaticMaterialSwitchDef {
+                Name: string = "RIM_COLOR_ON"
+            }
+            StaticMaterialSwitchDef {
+                Name: string = "OUTLINE_ON"
+            }
+        }
+        ShaderMacros: map[string,string] = {
+            "NUM_BLEND_WEIGHTS" = "4"
+        }
+        Techniques: list[embed] = {
+            StaticMaterialTechniqueDef {
+                Name: string = "normal"
+                Passes: list[embed] = {
+                    StaticMaterialPassDef {
+                        Shader: link = 0x54d82cba
+                        BlendEnable: bool = true
+                        SrcColorBlendFactor: u32 = 6
+                        SrcAlphaBlendFactor: u32 = 6
+                        DstColorBlendFactor: u32 = 7
+                        DstAlphaBlendFactor: u32 = 7
+                    }
+                }
+            }
+        }
+        ChildTechniques: list[embed] = {
+            StaticMaterialChildTechniqueDef {
+                Name: string = "transition"
+                ParentName: string = "normal"
+                ShaderMacros: map[string,string] = {
+                    "TRANSITION" = "1"
+                }
+            }
+        }
+    }
+
+
+```
+
+</Accordion>
+
+</Accordions>

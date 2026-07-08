@@ -1,0 +1,147 @@
+---
+title: "GIMP TEX Plugin"
+description: "Otwieraj i eksportuj pliki tekstur .tex z League of Legends w GIMP-ie. Działa na GIMP 2.x i 3.x, na Windows, Linux i macOS."
+category: "tools"
+---
+
+Otwieraj i eksportuj pliki tekstur `.tex` z League of Legends w GIMP-ie. Autor: **Frog**.
+
+Działa z **GIMP 2.x** i **GIMP 3.x** na Windows, Linux i macOS.
+
+Pobierz: [github.com/RitoShark/Gimp-Tex-Plugin/releases](https://github.com/RitoShark/Gimp-Tex-Plugin/releases)
+
+## Czego potrzebujesz na start
+
+- Zainstalowany GIMP 2.10 lub GIMP 3.x
+- Plik `.tex` do testów (dowolna tekstura z League się nada)
+
+## Instalacja przez instalator (Windows)
+
+1. Pobierz `GIMP_TEX_Plugin_Setup.exe` z najnowszej wersji.
+2. Uruchom instalator. Sam wykryje twoją wersję GIMP-a.
+3. Postępuj według wskazówek i kliknij **Install**.
+4. Zrestartuj GIMP-a, jeśli był otwarty.
+
+Plugin jest gotowy, gdy GIMP pokazuje `.tex` jako obsługiwany format w File > Open.
+
+## Instalacja ręczna (GIMP 3.x)
+
+Użyj tej metody na Linuxie, macOS albo jeśli wolisz nie uruchamiać instalatora.
+
+1. Pobierz zip dla GIMP 3 pod twój system z najnowszej wersji.
+2. Wypakuj go do folderu o nazwie `gimp3_tex_plugin` w katalogu wtyczek GIMP-a:
+
+   | Platforma       | Katalog wtyczek                                                             |
+   | --------------- | --------------------------------------------------------------------------- |
+   | Windows         | `%APPDATA%\GIMP\<version>\plug-ins\gimp3_tex_plugin\`                       |
+   | Linux           | `~/.config/GIMP/<version>/plug-ins/gimp3_tex_plugin/`                       |
+   | Linux (Flatpak) | `~/.var/app/org.gimp.GIMP/config/GIMP/<version>/plug-ins/gimp3_tex_plugin/` |
+   | macOS           | `~/Library/Application Support/GIMP/<version>/plug-ins/gimp3_tex_plugin/`   |
+
+3. Zrestartuj GIMP-a.
+
+Jeśli plugin się nie pojawi, wykonaj `chmod +x gimp3_tex_plugin.py` w folderze, do którego go wypakowałeś.
+
+## Instalacja ręczna (GIMP 2.x)
+
+1. Pobierz zip dla GIMP 2 pod twój system z najnowszej wersji.
+2. Wypakuj go do katalogu wtyczek GIMP-a. Umieszcza to `gimp2_tex_plugin.py` bezpośrednio w `plug-ins/`, a pliki współdzielone w `plug-ins/gimp2_tex_libs/`.
+
+   | Platforma       | Katalog wtyczek                                            |
+   | --------------- | ---------------------------------------------------------- |
+   | Windows         | `%APPDATA%\GIMP\<version>\plug-ins\`                       |
+   | Linux           | `~/.config/GIMP/<version>/plug-ins/`                       |
+   | Linux (Flatpak) | `~/.var/app/org.gimp.GIMP/config/GIMP/<version>/plug-ins/` |
+   | macOS           | `~/Library/Application Support/GIMP/<version>/plug-ins/`   |
+
+3. Zrestartuj GIMP-a.
+
+Jeśli plugin się nie pojawi, wykonaj `chmod +x gimp2_tex_plugin.py`.
+
+<Callout type="info">
+Nie wiesz, gdzie jest twój katalog wtyczek? W GIMP-ie otwórz **Edit > Preferences > Folders > Plug-Ins**.
+</Callout>
+
+## Otwórz plik `.tex`
+
+- Otwórz go przez **File > Open** i wskaż swój plik `.tex`.
+- Albo przeciągnij i upuść plik `.tex` do GIMP-a.
+
+## Eksportuj jako `.tex`
+
+Masz dwie opcje.
+
+**Szybki eksport.** Wejdź w **File > Export As**, ustaw nazwę pliku tak, żeby kończyła się na `.tex`, kliknij **Export**. Używa to ostatnich ustawień (domyślnie DXT5 z ditheringiem).
+
+**Eksport z opcjami.** Wejdź w **File > Export as .tex (options)...** Otwiera się okno, w którym wybierasz format kompresji i inne ustawienia.
+
+## Opcje eksportu po kolei
+
+### Format kompresji
+
+| Format         | Co robi                                                                                   |
+| -------------- | ----------------------------------------------------------------------------------------- |
+| **DXT1 (BC1)** | Kompresja 4:1. Bez kanału alpha. Najmniejszy rozmiar pliku dla jednolitych tekstur.        |
+| **DXT5 (BC3)** | Kompresja 4:1. Pełny 8-bitowy kanał alpha. Użyj tego, jeśli tekstura ma przezroczystość.   |
+| **BGRA8**      | Nieskompresowane 32-bitowe BGRA. Największy plik, bez utraty jakości.                      |
+
+DXT1 i DXT5 wymagają wymiarów obrazu podzielnych przez 4. Jeśli twoje takie nie są, plugin podpowie najbliższy poprawny rozmiar.
+
+### Error diffusion dithering
+
+Rozprowadza błąd kwantyzacji na sąsiednie piksele podczas kompresji DXT. Ogranicza pasmowanie na gradientach i płynnych przejściach kolorów.
+
+**Zalecane: włączone.** Duży zysk jakości niemal bez kosztu.
+
+Działa tylko z DXT1 i DXT5. BGRA8 jest nieskompresowane, więc nie potrzebuje ditheringu.
+
+### Error metric
+
+Steruje tym, jak plugin mierzy różnice kolorów podczas kompresji DXT.
+
+| Metryka        | Co robi                                                                                            |
+| -------------- | ------------------------------------------------------------------------------------------------- |
+| **Perceptual** | Waży kolory tak, jak widzi je ludzkie oko (zielony > czerwony > niebieski). Większości wygląda lepiej. |
+| **Uniform**    | Traktuje wszystkie kanały równo. Lepsze dla tekstur niefotograficznych.                            |
+
+**Zalecane: Perceptual** dla większości tekstur.
+
+Pokazuje się tylko, gdy dithering jest włączony.
+
+### Generate mipmaps
+
+Buduje pełny łańcuch mipmap z resamplingiem Lanczos3. Każdy poziom ma połowę rozdzielczości poprzedniego, aż do 1x1.
+
+**Zalecane: wyłączone**, chyba że wiesz, że tekstura potrzebuje mipmap. Większość tekstur League jest skalowana w czasie działania gry, więc mipmapy dodają ~33% rozmiaru pliku bez zysku wizualnego.
+
+## Obsługiwane formaty
+
+| Format     | Wczytanie | Eksport |
+| ---------- | --------- | ------- |
+| DXT1 (BC1) | Tak       | Tak     |
+| DXT5 (BC3) | Tak       | Tak     |
+| BGRA8      | Tak       | Tak     |
+| Mipmapy    | Tak       | Tak     |
+
+## Odinstalowanie
+
+**Instalator (Windows).** Otwórz **Windows Settings > Apps > Installed Apps**, znajdź **GIMP TEX Plugin**, kliknij **Uninstall**.
+
+**Instalacja ręczna.** Usuń pliki pluginu z katalogu wtyczek:
+
+- GIMP 3.x: usuń folder `gimp3_tex_plugin`.
+- GIMP 2.x: usuń `gimp2_tex_plugin.py` i folder `gimp2_tex_libs`.
+
+Zrestartuj GIMP-a.
+
+## Gdy coś nie działa
+
+- **Plugin nie pojawia się po ręcznej instalacji.** Sprawdź, czy pliki mają uprawnienie do wykonywania. Wykonaj `chmod +x gimp3_tex_plugin.py` (albo wersję dla GIMP 2) i zrestartuj GIMP-a.
+- **Nie możesz znaleźć folderu wtyczek.** Otwórz **Edit > Preferences > Folders > Plug-Ins** w GIMP-ie.
+- **Obraz nie chce się wyeksportować jako DXT1 lub DXT5.** Przeskaluj tak, żeby szerokość i wysokość były podzielne przez 4. Plugin podpowie najbliższy poprawny rozmiar.
+
+## Twórcy
+
+- Obsługa formatu TEX oparta na [LtMAO](https://github.com/tarngaina/LtMAO) od tarngainy.
+- Kompresja DXT przeniesiona z [Microsoft DirectXTex](https://github.com/microsoft/DirectXTex) (licencja MIT).
+- Testy na Linuxie: MartynasXS.

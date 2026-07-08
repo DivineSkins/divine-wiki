@@ -1,0 +1,161 @@
+---
+title: "Idle Particles"
+description: "Ten poradnik pokazuje, jak zrobić idle particles (potocznie aury) przy użyciu gotowych paczek z aurami."
+category: "vfx-bins"
+---
+
+Ten poradnik pokazuje, jak zrobić idle particles (potocznie aury) przy użyciu gotowych paczek z aurami. Nie uczy tworzenia idle particles od zera. Chodzi o wklejanie gotowych paczek partikli do pliku `.wad.client` twojego bohatera.
+
+---
+
+## Potrzebne narzędzia
+
+| Narzędzie        | Do czego                            |
+| :--------------- | :---------------------------------- |
+| **Flint**        | Wypakowywanie plików `.wad.client`  |
+| **LtMAO cslmao** | Instalacja i testowanie moda        |
+| **Jade**         | Wizualna edycja plików `.bin`       |
+| **Ritobin**      | Alternatywa: konwersja `.bin` na tekst |
+
+---
+
+## ❓ Czym są idle particles?
+
+Idle particles to efekty otoczenia doczepione do bohatera: płomienie, poświaty czy magiczne kręgi. Definiuje się je w sekcji `IdleParticlesEffects` w pliku `main.bin` twojego bohatera.
+
+<img src="/wiki-images/1767147062141-8qgzh.gif" alt="Obraz" width={500} />
+
+---
+
+## Poradnik wideo
+
+https://www.youtube.com/watch?v=S4YCct-Kv78
+https://youtu.be/bUJSVlVHEZM?si=t5x9KsKktPGM6ejD&t=133 Polecane
+
+---
+
+## Czy to trudne?
+
+Z gotowymi paczkami, jak te tutaj, nie jest zbyt trudno. Najtrudniej znaleźć właściwą sekcję i wkleić kod w dobre miejsce, zwłaszcza na początku. Idź krok po kroku i nie spiesz się!
+
+> ⚠️ Jeśli coś nie działa, sprawdź jeszcze raz nawiasy `{}` i wcięcia.
+
+---
+
+## Poradnik pisany
+
+### Krok 1: Pobierz paczkę z aurą
+
+Paczki znajdziesz na [naszym Discordzie](https://discord.gg/PbMwcWHqA3). Pobierz tę, której chcesz użyć.
+
+---
+
+### Krok 2: Wypakuj pliki bohatera
+
+Otwórz Flint, znajdź plik `.wad.client` swojego bohatera i wypakuj zawartość do folderu.
+
+[Nasz poradnik do Flint](/docs/lol/tools/modding-apps/flint)
+
+---
+
+### Krok 3: Dodaj custom partikle
+
+Otwórz folder bohatera, który przed chwilą powstał, oraz folder pobranej paczki z aurą.
+
+Skopiuj folder `customparticles` (jest w `assets`) z paczki do folderu `assets` swojego moda.
+
+<img src="/wiki-images/1767147539214-dhjbp7.png" alt="Obraz" width={1000} />
+
+---
+
+### Krok 4: Skonwertuj skin0.bin na .py
+
+Przejdź do:
+
+yourchamp\data\characters\yourchamp\skins\
+
+Przeciągnij `skin0.bin` na `ritobin_cli.exe`. Jeśli zrobisz to dobrze, powstanie plik `skin0.py`.
+
+[Nasz poradnik do Ritobin](/docs/lol/tools/modding-apps/ritobin)
+
+---
+
+### Krok 4.1: Skopiuj kod idle particle
+
+Otwórz plik `.py` z paczki oraz swój skonwertowany `skin0.py` w edytorze kodu (np. Visual Studio Code).
+
+Skopiuj odpowiednią sekcję idle particle i wklej ją w dobre miejsce w swoim `.py`.
+
+<img src="/wiki-images/1767147886867-x4kafe.png" alt="Obraz" width={700} />
+
+- `effectKey:` = link do partikla
+- `boneName:` = gdzie na modelu pojawia się aura
+
+**Kości, których możesz użyć:**
+
+| Nazwa kości                   | Miejsce efektu      |
+| :---------------------------- | :------------------ |
+| `"Spine1"`                    | Środek ciała        |
+| `"Head"`                      | Góra ciała          |
+| `"L_Hand"` / `"R_Hand"`       | Lewa / prawa dłoń   |
+| `"Pelvis"`                    | Dolny tułów         |
+| `"L_Foot"` / `"R_Foot"`       | Stopy               |
+| `"C_Buffbone_Glb_Layout_Loc"` | Statyczna kość przy ziemi |
+| `"Weapon"`                    | Zwykle broń         |
+
+> Kości broni różnią się między bohaterami, sprawdź w pliku `.skl`, żeby mieć pewność.
+
+---
+
+### Krok 4.5: Jeśli idle particles już są
+
+Jeśli twój `skin0.py` ma już sekcję `IdleParticlesEffects`:
+
+<img src="/wiki-images/1767147902024-j5s8m.png" alt="Obraz" width={700} />
+
+<img src="/wiki-images/1767147916490-msprgc.png" alt="Obraz" width={700} />
+
+Skopiuj tylko blok partikla z pliku `.py` aury. Wklej go pomiędzy dowolne dwa kontenery.
+
+---
+
+### Krok 5: Dodaj kontener partikla
+
+Skopiuj kod `particlecontainer`, który zawsze zaczyna się od nazwy z hashem (`0x3432432`) i kończy na `particlePath: string`, do swojego `skin0.bin/.py`. Wklej między dowolne kontenery partikli, nie ma znaczenia między które.
+
+<img src="/wiki-images/1767147931233-ste8fj.png" alt="Obraz" width={500} />
+<img src="/wiki-images/1767147939520-owvpfu.png" alt="Obraz" width={500} />
+
+---
+
+### Krok 6: Dodaj do Resource Resolver
+
+Wklej skopiowany kod pomiędzy tymi liniami:
+
+mResourceResolver: link = "Characters/YourChamp/Skins/Skin0/Resources"
+
+a miejscem, gdzie masz inne kontenery. Możesz wkleić gdziekolwiek w tym bloku.
+
+<img src="/wiki-images/1767147949870-57eit9.png" alt="Obraz" width={500} />
+
+![Obraz 700](/wiki-images/1767147956921-v0mbfx.png)
+
+---
+
+### Krok 7: Zapisz plik
+
+1. Kliknij **File > Save** w edytorze
+2. Potem przeciągnij `skin0.py` z powrotem na `ritobin_cli.exe`
+3. Powstanie nowy, przekompilowany `skin0.bin`
+
+> Jeśli data pliku się zmieniła, zmiany się udały. Jeśli nie, sprawdź jeszcze raz formatowanie.
+
+---
+
+## ➜ Paczki z aurami
+
+Paczki z aurami pobierzesz na naszym Discordzie!
+
+---
+
+— Poradnik i paczki od Frog

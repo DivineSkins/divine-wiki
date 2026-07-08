@@ -4,7 +4,7 @@ import { defineI18n } from "fumadocs-core/i18n";
 // Additional locales get added as Crowdin translators come online.
 export const i18n = defineI18n({
   defaultLanguage: "en",
-  languages: ["en", "fr-FR", "tr-TR", "pt-BR"],
+  languages: ["en", "fr-FR", "tr-TR", "pt-BR", "pl-PL"],
   parser: "dir",
 });
 

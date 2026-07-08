@@ -1,0 +1,139 @@
+---
+title: "Paint.NET Tex Plugin"
+description: "Plugin do Paint.NET od RitoSharka, który otwiera i zapisuje pliki tekstur .tex z League of Legends."
+category: "tools"
+---
+
+Plugin do Paint.NET od **RitoSharka**, który otwiera i zapisuje pliki tekstur `.tex` z League of Legends. Przy otwieraniu sam wykrywa kompresję i mipmapy, a przy zapisie daje normalną opcję albo opcję z pełnymi ustawieniami.
+
+[Pobierz najnowszą wersję](https://github.com/RitoShark/Paint.NET-Tex-Plugin/releases)
+
+{/* SCREENSHOT: Paint.NET with a champion .tex file open in the canvas */}
+
+---
+
+## Co robi
+
+- Otwiera pliki `.tex` w Paint.NET (DXT1, DXT5, BC5, BC7 i BGRA8).
+- Zapisuje pliki `.tex`. Przy zapisie sam wykrywa kompresję i mipmapy.
+- Dodaje drugą opcję zapisu z menu do wyboru kompresji, ditheringu, error metric i ustawień mipmap.
+- Kompresuje BC7 szybko dzięki natywnej bibliotece pomocniczej DLL. Bez niej wraca do wolnego BC7 programowego.
+- Zachowuje pełny kanał alpha.
+- Używa error diffusion ditheringu Floyd-Steinberg dla czystych efektów.
+
+---
+
+## Zanim zaczniesz
+
+Potrzebujesz:
+
+- **Paint.NET 5.1 lub nowszy** (używa .NET 9). Zalecany najnowszy build 5.1.x.
+- **Windows 10 lub nowszy**.
+- Najnowszej wersji ze [strony z wydaniami](https://github.com/RitoShark/Paint.NET-Tex-Plugin/releases): albo instalatora `TexFileTypeSetup.exe`, albo plików `TexFileType.dll` i `Bc7Native.dll` do ręcznej instalacji.
+
+---
+
+## Instalacja przez instalator
+
+1. Zamknij Paint.NET, jeśli jest otwarty.
+2. Pobierz `TexFileTypeSetup.exe` z [najnowszej wersji](https://github.com/RitoShark/Paint.NET-Tex-Plugin/releases).
+3. Uruchom go. Instalator znajduje folder `FileTypes` twojego Paint.NET i kopiuje obie biblioteki DLL za ciebie.
+4. Otwórz Paint.NET. Plugin ładuje się przy starcie.
+
+## Instalacja ręczna
+
+Użyj tej metody, jeśli wolisz nie uruchamiać instalatora albo korzystasz z przenośnego Paint.NET.
+
+1. Zamknij Paint.NET, jeśli jest otwarty.
+2. Otwórz folder `FileTypes` Paint.NET. Przy większości instalacji jest to `C:\Program Files\Paint.NET\FileTypes`. Przy przenośnym Paint.NET użyj `[folder Paint.NET]\FileTypes`.
+3. Skopiuj obie biblioteki `TexFileType.dll` i `Bc7Native.dll` z wydania do folderu `FileTypes`. Trzymaj je razem.
+4. Otwórz Paint.NET. Plugin ładuje się przy starcie.
+
+{/* SCREENSHOT: The FileTypes folder with TexFileType.dll and Bc7Native.dll dropped inside */}
+
+<Callout type="warning">
+  To `Bc7Native.dll` sprawia, że zapis BC7 jest szybki. Bez niego BC7 nadal
+  działa, ale zapisuje się bardzo wolno. Zawsze kopiuj obie biblioteki DLL.
+</Callout>
+
+---
+
+## Otwórz plik `.tex`
+
+Masz dwa sposoby na otwarcie pliku `.tex`:
+
+1. W Paint.NET kliknij **File → Open** i wskaż swój plik `.tex`.
+2. Albo przeciągnij plik `.tex` prosto na okno Paint.NET.
+
+Tekstura pojawia się na płótnie. Mipmapy i kompresja są odczytywane automatycznie.
+
+{/* SCREENSHOT: File → Open dialog showing a .tex file selected */}
+
+---
+
+## Zapisz plik `.tex`
+
+Masz dwa tryby zapisu. Pierwszego używaj do normalnej pracy. Drugiego, gdy potrzebujesz kontroli nad kompresją lub mipmapami.
+
+### Zapis z automatycznymi ustawieniami
+
+1. Kliknij **File → Save As**.
+2. W liście rozwijanej typu pliku wybierz **League of Legends TEX**.
+3. Kliknij **Save**.
+
+Plugin zachowuje kompresję i układ mipmap, które wykrył przy otwieraniu pliku.
+
+### Zapis z własnymi ustawieniami
+
+1. Kliknij **File → Save As**.
+2. W liście rozwijanej typu pliku wybierz **League of Legends TEX (with options)**.
+3. Wybierz ustawienia w menu:
+   - **Compression**: DXT1, DXT5, BC5, BC7 lub BGRA8 (nieskompresowane). Użyj DXT5 lub BC7 dla tekstur z alpha. Użyj BC5 dla map normalnych.
+   - **Dithering**: Floyd-Steinberg, dla gładszych gradientów.
+   - **Error metric**: Perceptual (zalecane) lub Uniform. Dotyczy tylko DXT1 i DXT5.
+   - **Mipmaps**: wygeneruj pełny łańcuch mipmap.
+4. Kliknij **Save**.
+
+{/* SCREENSHOT: Save As dialog with the "League of Legends TEX (with options)" menu open */}
+
+---
+
+## Jak sprawdzić, czy działa
+
+- Otwórz ponownie zapisany plik. Ładuje się bez błędów i wygląda tak samo.
+- Albo wczytaj go w swoim narzędziu do skinów (Flint lub LtMAO) i pokazuje się poprawnie.
+
+---
+
+## Rozwiązywanie problemów
+
+### Paint.NET się wywala albo plik się nie wczytuje
+
+Zaktualizuj Paint.NET do najnowszego builda 5.1.x. Plugin potrzebuje 5.1 lub nowszego.
+
+### Plugin nie pojawia się w Paint.NET
+
+Zamknij Paint.NET całkowicie, potem sprawdź te rzeczy:
+
+- Folder `C:\Program Files\Paint.NET\FileTypes` istnieje.
+- Obie biblioteki `TexFileType.dll` i `Bc7Native.dll` są w tym folderze.
+- Nie używasz starszego Paint.NET (poniżej 5.1).
+
+Otwórz Paint.NET ponownie. Plugin powinien teraz być na liście typów plików.
+
+### Zapis BC7 jest bardzo wolny
+
+`Bc7Native.dll` brakuje w folderze `FileTypes`. Skopiuj go obok
+`TexFileType.dll`, potem zrestartuj Paint.NET. Instalator dodaje go za ciebie.
+
+### "There was an error while saving the file."
+
+Sprawdź rozmiar płótna. Szerokość i wysokość muszą być podzielne przez 4. League tego wymaga dla plików `.tex`. Przeskaluj obraz i zapisz ponownie.
+
+---
+
+## Twórcy
+
+- Plugin: **RitoShark**.
+- Logika odczytu `.tex` z [LtMAO](https://github.com/tarngaina/LtMAO) od Tarngainy.
+- Kompresja BC1 i BC3 z ditheringiem Floyd-Steinberg oparta na [Microsoft DirectXTex](https://github.com/microsoft/DirectXTex) (licencja MIT).

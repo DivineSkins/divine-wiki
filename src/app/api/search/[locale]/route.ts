@@ -64,6 +64,9 @@ const server = createFromSource(source, {
     "fr-FR": "french",
     "tr-TR": "turkish",
     "pt-BR": "portuguese",
+    // Orama ships no Polish stemmer; english tokenization is the fallback
+    // (exact-ish matching, no stemming of Polish inflections).
+    "pl-PL": "english",
   },
   // Mirrors fumadocs' default buildIndex, plus localized breadcrumbs (the
   // default derives them from the raw page tree, placeholders unresolved).

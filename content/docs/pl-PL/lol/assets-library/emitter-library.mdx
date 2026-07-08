@@ -1,0 +1,263 @@
+---
+title: "Biblioteka emiterów"
+description: "bindWeight steruje tym, jak mocno partikle podąża za ruchem kości, do której jest przypięty."
+category: "assets-library"
+---
+
+## Bind Weight
+
+**`bindWeight`** steruje tym, jak mocno partikle podąża za ruchem kości, do której
+jest przypięty.
+
+- `1` → w pełni podąża za kością
+- `0` → stoi w miejscu
+  <img src="/wiki-images/1769132679719-x7qanf.png" alt="Obraz" width={500} />
+
+```rust
+bindWeight: embed = ValueFloat {
+    constantValue: f32 = 1
+}
+```
+
+---
+
+## Rate
+
+**`rate`** steruje tym, ile partikli emiter spawnuje na sekundę.
+
+<img src="/wiki-images/1769132701264-5grdr.png" alt="Obraz" width={500} />
+
+### Przykład: 1 partikle
+
+```rust
+rate: embed = ValueFloat {
+    constantValue: f32 = 1 // 1 particle in emitter
+}
+```
+
+### Przykład: 20 partikli
+
+```rust
+rate: embed = ValueFloat {
+    constantValue: f32 = 20 // 20 particles spawning in 1 emitter
+}
+```
+
+---
+
+## Particle Lifetime
+
+- **`particleLifetime`** określa, jak długo żyje każdy partikle po wyemitowaniu.
+- **`lifetime`** określa, jak długo trwa sam emiter, zanim zniknie.
+
+<img src="/wiki-images/1769132720262-0d010j.png" alt="Obraz" width={500} />
+
+### Skończony czas życia
+
+```rust
+particleLifetime: embed = ValueFloat {
+    constantValue: f32 = 1
+}
+```
+
+### Nieskończony czas życia
+
+```rust
+particleLifetime: embed = ValueFloat {
+    constantValue: f32 = -1 // infinity
+}
+```
+
+### Czas życia emitera
+
+```rust
+lifetime: option[f32] = {
+    1
+}
+```
+
+---
+
+## Particle Linger
+
+**`particleLinger`** opóźnia zniknięcie partikli po tym, jak emiter skończy, więc
+zostają widoczne przez ustalony czas (w sekundach).
+
+<img src="/wiki-images/1769132745363-l0cm4s.png" alt="Obraz" width={500} />
+
+```rust
+particleLinger: option[f32] = {1}
+```
+
+---
+
+## Misc Render Flags
+
+**`miscRenderFlags`** steruje specjalnymi zachowaniami renderowania partikla.
+
+<img src="/wiki-images/1769132778060-ufd3d4.png" alt="Obraz" width={500} />
+
+```rust
+miscRenderFlags: u8 = 1
+```
+
+<img src="/wiki-images/1769132799839-vw26fb.png" alt="Obraz" width={500} />
+
+```rust
+miscRenderFlags: u8 = 0
+```
+
+---
+
+## Emitter Position
+
+**`EmitterPosition`** ustawia, gdzie partikle spawnują się względem emitera.
+
+- Wyższy **Y** → w górę
+- Niższy **Y** → w dół
+
+<img src="/wiki-images/1769132826453-dvots5.png" alt="Obraz" width={500} />
+
+### Przykłady pozycji
+
+```rust
+EmitterPosition: embed = ValueVector3 {
+    constantValue: vec3 = { 0, 100, 0 } // higher
+}
+```
+
+```rust
+EmitterPosition: embed = ValueVector3 {
+    constantValue: vec3 = { 0, -100, 0 } // lower
+}
+```
+
+```rust
+EmitterPosition: embed = ValueVector3 {
+    constantValue: vec3 = { 100, 0, 0 } // right
+}
+```
+
+```rust
+EmitterPosition: embed = ValueVector3 {
+    constantValue: vec3 = { -100, 0, 0 } // left
+}
+```
+
+```rust
+EmitterPosition: embed = ValueVector3 {
+    constantValue: vec3 = { 0, 0, 100 } // forward
+}
+```
+
+```rust
+EmitterPosition: embed = ValueVector3 {
+    constantValue: vec3 = { 0, 0, -100 } // backward
+}
+```
+
+---
+
+## Translation Override
+
+**`translationOverride`** przesuwa cały system cząsteczek niezależnie od ustawień
+emitera i offsetuje go globalnie.
+
+<img src="/wiki-images/1769132846178-bcemql.png" alt="Obraz" width={500} />
+
+```rust
+translationOverride: vec3 = { 0, 100, 0 } // higher
+translationOverride: vec3 = { 0, -100, 0 } // lower
+translationOverride: vec3 = { 100, 0, 0 } // right
+translationOverride: vec3 = { -100, 0, 0 } // left
+translationOverride: vec3 = { 0, 0, 100 } // forward
+translationOverride: vec3 = { 0, 0, -100 } // backward
+```
+
+---
+
+## Time Before First Emission
+
+**`timeBeforeFirstEmission`** określa, jak długo emiter czeka, zanim zacznie
+spawnować partikle.
+
+<img src="/wiki-images/1769132867613-zffs1n.png" alt="Obraz" width={500} />
+
+```rust
+timeBeforeFirstEmission: f32 = 1
+```
+
+---
+
+## Eye Candy
+
+**`mEyeCandy`** włącza lub wyłącza opcję **Hide Eye Candy** w ustawieniach wideo.
+
+> Musi być umieszczone na dole systemu cząsteczek.
+
+<img src="/wiki-images/1769132889330-6y5jzd.png" alt="Obraz" width={500} />
+
+```rust
+mEyeCandy: bool = true // or false
+```
+
+---
+
+## Pass (kolejność rysowania)
+
+**`Pass`** steruje kolejnością rysowania, podobnie jak warstwy w Photoshopie.
+
+<img src="/wiki-images/1769132912369-jb8tlr.png" alt="Obraz" width={500} />
+
+- `Pass = 0` → dolna warstwa (rysowana pierwsza)
+- `Pass = 16` → górna warstwa (rysowana ostatnia, renderuje się nad innymi)
+
+```rust
+Pass: i16 = 0
+```
+
+---
+
+## Blend Mode
+
+**`blendMode`** określa, jak partikle miesza się wizualnie.
+
+```rust
+blendMode: u8 = 1
+```
+
+### Wartości Blend Mode
+
+- **1**: brak przezroczystości
+  - Bezpieczne do przekolorowania na czarno lub biało
+
+- **3 / 4 (SCB)**: standardowa przezroczystość
+  ⚠️ Nie przekolorowuj na zbyt ciemno, bo partikle mogą stać się niewidoczne w grze
+
+---
+
+## Navmesh Mask
+
+**`useNavmeshMask`** steruje tym, czy system cząsteczek używa terenu jako maski.
+
+### Włączone (używa terenu jako maski)
+
+<img src="/wiki-images/1769133429180-hdk1d.gif" alt="Obraz" width={500} />
+
+```rust
+useNavmeshMask: flag = true
+```
+
+> Partikle będzie maskowany przez teren.
+
+---
+
+### Wyłączone (bez maski terenu)
+
+<img src="/wiki-images/1769133650731-8zdz6u.gif" alt="Obraz" width={500} />
+
+```rust
+useNavmeshMask: flag = false
+```
+
+> Partikle zignoruje maskowanie terenem.

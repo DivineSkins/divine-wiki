@@ -1,0 +1,137 @@
+---
+title: "Ritobin"
+description: "Konwertuj pliki .bin z League na czytelny tekst i z powrotem za pomocą Ritobin od Moonshadow. Poradnik przeciągnij i upuść dla twórców skinów."
+category: "tools"
+---
+
+Ritobin to narzędzie od **Moonshadow**, które konwertuje pliki `.bin` z League na czytelny tekst, który możesz edytować, a potem konwertuje je z powrotem. Starsze niż Jade, wciąż solidne do zadań wsadowych i skryptów.
+
+Najnowszy build dla Windowsa jest na GitHubie: [wydania ritobin](https://github.com/moonshadow565/ritobin/releases/latest).
+
+<Callout type="info" title="Do większości edycji użyj raczej Jade">
+  [Jade](/docs/lol/tools/modding-apps/jade) to nowszy workflow. Edytuje pliki
+  `.bin` wizualnie, z kolorowaniem składni, podglądem po najechaniu i
+  wyszukiwaniem hashy na żywo. Bez konwertowania tam i z powrotem. Wybierz Ritobin
+  tylko, jeśli potrzebujesz skryptów wsadowych albo już czujesz się swobodnie z
+  workflow tekstowym.
+</Callout>
+
+---
+
+## Czego potrzebujesz na start
+
+- Komputer z Windowsem.
+- Najnowszy `ritobin.zip` ze [strony wydań](https://github.com/moonshadow565/ritobin/releases/latest).
+- Plik `.bin` ze skina, który chcesz edytować.
+
+---
+
+## Instalacja
+
+1. Pobierz `ritobin.zip` z [najnowszej wersji](https://github.com/moonshadow565/ritobin/releases/latest).
+2. Zrób folder na Ritobin i twoje pliki `.bin`.
+3. Rozpakuj zip do tego folderu.
+
+<Callout type="warning">
+  Trzymaj folder **hashes** w tym samym katalogu co `ritobin_cli.exe` i
+  `ritobin_gui.exe`. Jeśli hashe znikną albo się przeniosą, konwersje się nie
+  udadzą.
+</Callout>
+
+<Callout type="info" title="Ten folder hashes jest tylko dla Ritobin">
+  Ritobin potrzebuje własnego lokalnego folderu `hashes`. Nie każde narzędzie tak
+  działa. [Flint](/docs/lol/tools/modding-apps/flint) i
+  [Quartz](/docs/lol/tools/modding-apps/quartz) same pobierają gotową bazę hashy i
+  nie potrzebują folderu. Tylko starsze narzędzia jak Ritobin i samodzielne
+  [Jade](/docs/lol/tools/modding-apps/jade) używają tego ręcznego modelu z
+  folderem CommunityDragon.
+</Callout>
+
+---
+
+## Konwertuj pliki
+
+<Tabs items={[".bin na .py", ".py na .bin"]}>
+<Tab value=".bin na .py">
+
+### Konwertuj `.bin` na `.py`
+
+1. Zrób skrót na pulpicie do `ritobin_cli.exe`.
+2. Przeciągnij plik `.bin` na skrót.
+
+Obok oryginału pojawia się plik `.py`. To czytelna wersja `.bin`, którą możesz edytować.
+
+### Otwórz plik `.py`
+
+Potrzebujesz edytora tekstu albo IDE, żeby go edytować. Plik to zwykły tekst, nie prawdziwy Python, więc każdy edytor zadziała:
+
+- **[Visual Studio Code](https://code.visualstudio.com/)** jest darmowy i ma kolorowanie składni Pythona od ręki. Najlepszy wybór, jeśli nie masz jeszcze edytora.
+- **[Notepad++](https://notepad-plus-plus.org/)** jest lżejszy. Dobry do szybkich edycji.
+- Każdy inny edytor kodu albo IDE też zadziała.
+
+Zapisz zmiany, potem przejdź do następnej zakładki, żeby przekonwertować go z powrotem.
+
+</Tab>
+<Tab value=".py na .bin">
+
+### Konwertuj `.py` z powrotem na `.bin`
+
+Gdy już zedytujesz plik `.py` i chcesz przetestować go w grze:
+
+1. Przeciągnij edytowany plik `.py` na `ritobin_cli.exe`.
+
+Obok pojawia się działający plik `.bin`, gotowy do wczytania.
+
+</Tab>
+</Tabs>
+
+---
+
+## Wskazówka: szybka konwersja domyślnym programem
+
+Ustaw `ritobin_cli.exe` jako domyślny program dla plików `.py`. Wtedy dwuklik konwertuje plik. Koniec z przeciąganiem.
+
+| Krok | Akcja                                              |
+| ---- | ------------------------------------------------- |
+| 1    | Kliknij prawym na pliku `.py`                     |
+| 2    | Wybierz **Open with**, potem **Choose another app** |
+| 3    | Wybierz `ritobin_cli.exe`                         |
+| 4    | Zaznacz **Always use this app**                   |
+
+---
+
+## Inne formaty
+
+Ritobin czyta i zapisuje też `json` oraz `info`, nie tylko `text` (`.py`). Przydatne, jeśli chcesz skryptować edycje w innym języku.
+
+Otwórz terminal w folderze Ritobin i uruchom:
+
+```bash
+ritobin_cli.exe -o json input.bin output.json
+ritobin_cli.exe -o text input.json output.py
+```
+
+Flaga `-o` ustawia format wyjściowy. Flaga `-i` ustawia format wejściowy, jeśli Ritobin nie zgadnie z rozszerzenia.
+
+---
+
+## Rozwiązywanie problemów
+
+### Konwersja nic nie robi albo wynik jest pusty
+
+Sprawdź, czy folder `hashes` jest obok `ritobin_cli.exe`. Bez niego Ritobin nie rozwiąże nazw.
+
+### Plik wyjściowy ma hashowane nazwy zamiast słów
+
+Zaktualizuj folder `hashes`. Stare hashe nie pokrywają zawartości z nowych patchy. Ściągnij świeże hashe z [CDTB od CommunityDragon](https://github.com/CommunityDragon/CDTB).
+
+### Błąd "This app can't run on your PC"
+
+Pobrałeś zły build. Weź `ritobin.zip` dla Windowsa z [najnowszej wersji](https://github.com/moonshadow565/ritobin/releases/latest), nie zip z kodem źródłowym.
+
+---
+
+## Źródło
+
+**Narzędzie od:** [Moonshadow](https://github.com/moonshadow565)
+**Repo:** [moonshadow565/ritobin](https://github.com/moonshadow565/ritobin)

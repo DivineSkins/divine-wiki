@@ -65,7 +65,7 @@ const config = {
     // top-level path (including dotted files), so an unconstrained "/:lang"
     // redirect swallows /robots.txt, /sitemap.xml, /llms.txt, etc. and sends
     // them to dead URLs. Keep this list in sync with src/lib/i18n.ts.
-    const locale = "en|fr-FR|tr-TR|pt-BR";
+    const locale = "en|fr-FR|tr-TR|pt-BR|pl-PL";
     return [
       {
         source: "/docs/:path*",

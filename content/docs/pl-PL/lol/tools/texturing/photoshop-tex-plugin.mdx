@@ -1,0 +1,117 @@
+---
+title: "RitoTex"
+description: "Otwieraj i zapisuj tekstury .tex i .dds z League of Legends w Adobe Photoshop. RitoTex od RitoSharka, dawniej Photoshop TEX Plugin. BC1 do BC7, cube mapy, mipy."
+category: "tools"
+---
+
+RitoTex to plugin do Photoshopa od **RitoSharka**, który otwiera i zapisuje
+tekstury `.tex` i `.dds` z League bezpośrednio. Powstał od nowa na bazie starego
+Photoshop TEX Plugin i zmienił nazwę, więc starsze poradniki mogą jeszcze
+używać starej.
+
+Jest oparty na Intel Texture Works Plugin z kompresją z Microsoft DirectXTex.
+Wersja 2 dodała natywną obsługę `.dds`, więcej formatów i szybszy koder BC7.
+
+Repo: [github.com/RitoShark/RitoTex-Photoshop](https://github.com/RitoShark/RitoTex-Photoshop)
+
+[Pobierz najnowszą wersję](https://github.com/RitoShark/RitoTex-Photoshop/releases)
+
+Najnowsza wersja: **v2.0.2**.
+
+## Czego potrzebujesz na start
+
+- Adobe Photoshop CS6 lub nowszy (64-bit). 32-bitowy Photoshop nie zadziała.
+- Windows.
+
+## Instalacja
+
+1. Zamknij Photoshopa. Jeśli Photoshop jest otwarty, plugin się nie załaduje.
+2. Pobierz `RitoTex.8bi` ze [strony z wydaniami](https://github.com/RitoShark/RitoTex-Photoshop/releases). To jeden samodzielny plik. Bez dodatkowych bibliotek DLL do kopiowania.
+3. Skopiuj `RitoTex.8bi` do folderu File Formats Photoshopa. Domyślna ścieżka to:
+
+   ```text
+   C:\Program Files\Adobe\Adobe Photoshop [version]\Required\Plug-ins\File Formats
+   ```
+
+   Przykład: `C:\Program Files\Adobe\Adobe Photoshop 2026\Required\Plug-ins\File Formats`.
+
+4. Uruchom Photoshopa.
+
+Żeby sprawdzić, czy działa: otwórz `File > Open` i wskaż plik `.tex`. Jeśli obraz
+się wczyta, plugin jest zainstalowany.
+
+## Otwórz pliki `.tex` i `.dds`
+
+Masz dwa sposoby na otwarcie pliku:
+
+- Kliknij `File > Open` i wskaż plik `.tex` lub `.dds`.
+- Przeciągnij plik do Photoshopa.
+
+Plugin odczytuje za ciebie kompresję i mipmapy.
+
+## Zapisz plik (szybki zapis)
+
+Użyj tego, gdy chcesz, żeby plugin ponownie użył wykrytych ustawień pliku.
+
+1. Kliknij `File > Save As`.
+2. Wybierz **League of Legends TEX** (albo opcję DDS) z listy rozwijanej typu pliku.
+3. Kliknij **Save**. Plik zapisuje się od razu z wykrytymi lub ostatnio używanymi ustawieniami.
+
+## Zapisz plik z opcjami
+
+Użyj tego, gdy chcesz wybrać kompresję lub zmienić ustawienia jakości.
+
+1. Kliknij `File > Save As`.
+2. Wybierz wersję **Options** typu pliku TEX lub DDS.
+3. Otwiera się okno ustawień. Ustaw opcje, które chcesz:
+   - **Compression format**: BC1, BC3, BC5, BC7 lub BGRA8 (nieskompresowane). Użyj BC3 dla tekstur z alpha. Użyj BC5 dla map normalnych. BC7 ma najwyższą jakość i jest domyślny.
+   - **Error diffusion dithering**: włącz dithering Floyd-Steinberg dla gładszych gradientów (BC1 i BC3).
+   - **Error metric**: `Perceptual` (zalecane) lub `Uniform`.
+   - **Mipmaps**: wygeneruj łańcuch automatycznie albo zbuduj go z warstw Photoshopa.
+   - **Cube maps**: zapisz układ typu cross lub warstwowy dla `.dds`.
+   - **Normal maps**: odwróć kanał X lub Y i renormalizuj.
+4. Kliknij **OK**. Plik zapisuje się z twoimi ustawieniami.
+
+Ustawienia zostają między zapisami (trzymane w rejestrze Windows), więc ustawiasz
+je tylko raz.
+
+## Funkcje w skrócie
+
+- Otwiera i zapisuje zarówno `.tex`, jak i `.dds`, więc możesz nie potrzebować osobnego pluginu DDS.
+- Formaty kompresji BC1, BC3, BC5, BC7 i BGRA8 (nieskompresowane).
+- BC7 przyspieszane GPU przez DirectCompute, z fallbackiem na WARP i CPU. Dzięki temu zapis BC7 jest szybki.
+- Szybka, wielowątkowa kompresja z koderem Intel ISPC.
+- Auto-wykrywanie kompresji i mipmap przy otwieraniu.
+- Buduje mipmapy za ciebie albo z twoich warstw Photoshopa.
+- Obsługa cube map (układ cross i warstwowy).
+- Odwracanie kanałów map normalnych i renormalizacja.
+- Opcjonalny dithering Floyd-Steinberg z metryką Perceptual lub Uniform.
+- Okno podglądu do porównania oryginału i skompresowanej tekstury przed zapisem.
+- Cichy wbudowany sprawdzacz aktualizacji, który zagląda do GitHub Releases mniej więcej raz dziennie.
+
+## Rozwiązywanie problemów
+
+### Plugin nie pojawia się w Photoshopie
+
+Sprawdź każdą z tych rzeczy:
+
+- Photoshop był w pełni zamknięty, zanim skopiowałeś plik.
+- Plik jest w folderze `Required\Plug-ins\File Formats`, a nie w zwykłym folderze `Plug-ins`.
+- Używasz 64-bitowego Photoshopa.
+- Plik nazywa się `RitoTex.8bi` (z rozszerzeniem `.8bi`).
+
+### "Image dimensions must be divisible by 4" przy zapisie
+
+Pliki `.tex` z kompresją blokową wymagają wymiarów obrazu podzielnych przez 4. Przeskaluj
+obraz do poprawnego rozmiaru, np. `1024x1024`, `2048x2048` lub `512x256`.
+
+### Tekstura wygląda źle w grze
+
+- Włącz error diffusion dithering dla czystszych gradientów.
+- Sprawdź, czy wybrałeś właściwą kompresję. Użyj BC3 dla tekstur z alpha i BC5 dla map normalnych.
+
+## Twórcy
+
+- **RitoTex**: [RitoShark](https://github.com/RitoShark).
+- **Plugin bazowy**: [Intel Texture Works Plugin](https://github.com/GameTechDev/Intel-Texture-Works-Plugin) (Apache 2.0).
+- **Kompresja**: [Microsoft DirectXTex](https://github.com/microsoft/DirectXTex) (licencja MIT) i Intel ISPC Texture Compressor.

@@ -1,0 +1,130 @@
+---
+title: "Intermediate - Własne banki"
+description: "Poradnik o tworzeniu własnych banków audio w Wwise."
+category: "sounds"
+---
+
+## Najpierw ogarnij Wwise
+
+Zanim wskoczysz na głęboką wodę, warto spędzić trochę czasu z oficjalnymi
+materiałami do nauki Wwise:
+
+- [Wwise 101](https://www.youtube.com/watch?v=1EhEhDyZ6o4&list=PLXMeprTk4ORPxeFVB6o5t1_IHyHkf4BgO)
+- [Wwise 201](https://www.youtube.com/watch?v=_bvus5FIjxk&list=PLXMeprTk4ORNT-u6190PcRDA7-UEUwBo-)
+
+---
+
+## Jak zbudowany jest bank
+
+Riot celowo dzieli audio na dwa osobne pliki:
+
+- `audio.bnk` / `audio.wpk`: zawiera tylko surowe dane dźwiękowe.
+- `events.bnk`: zawiera hierarchię logiki (eventy, sekwencje akcji, routing).
+
+`.wpk` to autorski format Riotu. Trzyma tylko pliki audio i nie ma nagłówka z
+metadanymi. Traktuj go jak lekki kontener wyłącznie na dane dźwiękowe.
+
+Hierarchia Wwise nie jest zagnieżdżona. Zamiast tego każdy element ma swoje
+`ID` i `ParentID`. Ta płaska struktura pozwala wstrzykiwać nowe elementy, które
+same podpinają się pod istniejących rodziców w hierarchii, bez podmieniania
+całego drzewa.
+
+Przykład: tworzysz w swoim projekcie magistralę o nazwie `MUS`, a pod nią dziecko
+o nazwie `bus_aurecueil`. Kiedy twój własny bank się wczyta, atrapa wpisu `MUS`
+zostaje zignorowana (prawdziwy jest już wczytany), a `bus_aurecueil` sam podpina
+się pod oryginalny `MUS`.
+
+---
+
+## Kolejność wczytywania i nadpisywanie
+
+W League **wygrywa ten wczytany pierwszy**. Jeśli dwa banki definiują ten sam
+element, drugi zostaje po cichu odrzucony.
+
+Ponieważ główne magistrale jak `MUS` wczytują się bardzo wcześnie przy starcie
+gry, nie podmienisz ich bezpośrednio. Możesz za to nadpisać pojedyncze eventy,
+dbając o to, żeby twój własny bank wczytał się przed oryginalnym.
+
+Sterujesz tym przez plik `.bin`:
+
+```text
+bankPath: list[string] = {
+    "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Custom_VO_audio.bnk"  ← Your bank, loaded first
+    "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_VO_audio.bnk"
+    "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_VO_audio.wpk"
+    "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_VO_events.bnk"
+}
+```
+
+Twój własny bank nadpisuje pasujące elementy w oryginalnym banku eventów, bo jest
+na liście pierwszy.
+
+**Uwaga o ID:**
+
+- Eventy pasują po **nazwie**, więc dopóki twój event ma tę samą nazwę,
+  nadpisuje poprawnie.
+- Wiele innych elementów hierarchii (random containery, sekwencje, switche itd.)
+  używa **losowych ID generowanych przez Wwise**. Żeby je nadpisać, musisz
+  ręcznie dopasować oryginalne ID w swoich plikach projektu `.wwu`.
+
+---
+
+### Ustawienia audio: attenuation
+
+Attenuation steruje tym, jak dźwięk zachowuje się na odległość. Jeśli dodajesz
+nowe dźwięki, zawsze ustaw to jawnie, bo inaczej mogą brzmieć źle w grze (za
+głośno z bliska, słyszalne z drugiego końca mapy itd.). Odległość podaje się w
+jednostkach gry (jako punkt odniesienia dla tych jednostek możesz wziąć zasięg
+bohatera).
+
+<img src="/wiki-images/wwise-pos.png" alt="Ustawienia pozycjonowania w Wwise" />
+
+<img src="/wiki-images/wwise-atten.png" alt="Ustawienia attenuation w Wwise" />
+
+**Zawsze wyłączaj Height Spread.** League gra się na płaskiej płaszczyźnie, a
+height spread może wywołać niechciane zachowanie.
+
+---
+
+### Routing audio: właściwa magistrala
+
+Każdy dźwięk w Wwise idzie przez magistralę wyjściową. Użyj właściwej magistrali
+dla swojego typu dźwięku, bo inaczej nie zmiksuje się poprawnie w grze (zły
+pogłos, zły fader głośności itd.).
+
+| Bus ID         | Do czego                                   |
+| -------------- | ------------------------------------------ |
+| `MUS`          | Muzyka (wet, z pogłosem/przetwarzaniem)    |
+| `SFX`          | SFX (wet)                                  |
+| `daad0rhm`     | SFX (dry), **tego używaj do SFX bohatera** |
+| `SFX_HUD`      | Powiadomienia i UI (wet)                   |
+| `janep6uv`     | Spiker (dry)                               |
+| `mus_lag_vp_0` | VO bohatera (dry)                          |
+| `sfx_npc`      | Ambient (wet)                              |
+| `sfx_eog`      | Koniec gry (wet)                           |
+
+W razie wątpliwości wybieraj **suchą** (dry) wersję magistrali dla swojej
+kategorii. Mokre (wet) magistrale mają nałożone efekty (na przykład Evelynn
+zniekształca SFX podczas swojej pasywki, więc puszczenie dźwięków przez
+magistralę `SFX` omija to zniekształcenie).
+
+---
+
+### Drobna wskazówka
+
+Możesz użyć **własnych ustawień konwersji** w swoim projekcie Wwise, żeby
+zmniejszyć końcowy rozmiar plików banków. Przydatne, jeśli twój mod zawiera dużo
+audio.
+
+---
+
+## Bonus
+
+<ToolCard
+  name="Custom Announcer Template by aurecueill and Jessibee"
+  href="https://github.com/Aurecueil/Custom-Announcer-Template"
+>
+  Pobierz z GitHuba i wrzuć obok swoich innych projektów Wwise.
+</ToolCard>
+
+poradnik autorstwa aurecueil

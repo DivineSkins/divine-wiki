@@ -1,0 +1,206 @@
+---
+title: "Podmiana modelu 3D"
+description: "Ten poradnik pokazuje, jak w pełni przerobić bohatera z League of Legends, podmieniając domyślną postać na własny model 3D, z zachowaniem oryginalnego r…"
+category: "maya"
+---
+
+## ➤ Pełny tutorial przerabiania bohatera
+
+### Podmiana bohatera na własny model
+
+Ten poradnik pokazuje, jak w pełni przerobić bohatera z League of Legends, podmieniając domyślną postać na **własny model 3D**, z zachowaniem **oryginalnego riga i animacji**.
+
+---
+
+## ➜ Wymagania
+
+| Narzędzie              | Do czego                                                   |
+| ---------------------- | --------------------------------------------------------- |
+| **LoL-Maya Plugin**    | Wymagany do importu/eksportu plików `.skn` i `.skl` w Mayi |
+| **Autodesk Maya 2023** | Główny program 3D do edycji modelu bohatera               |
+| **GIMP / Photoshop**   | Edycja i eksport tekstur (`.dds`)                         |
+| **LtMAO**              | Konwersja plików `.tex` z League na `.dds` i z powrotem   |
+| **Flint**              | Wypakowanie oryginalnych plików bohatera z League (`.wad.client`) |
+| **Jade**               | Edycja plików `.bin`, jeśli skin wymaga poprawek          |
+| **LtMAO cslmao**       | Wczytanie i przetestowanie własnego skina w grze          |
+
+---
+
+## ➜ Polecane
+
+- **Wideoporadnik Full Model Swap**
+
+https://youtu.be/xqB84ga55hI?si=VFRPSomps5BPeKqe
+
+- **Tutorial do Mayi od Yoru** (bardzo szczegółowy)
+
+https://www.youtube.com/watch?v=6MYNsT0q0R0&list=PLIlleiTfYK3mgr9imsnToABo3X0m9Txi-&ab_channel=Yor%C3%BBQueenofNight
+
+---
+
+## ➜ Krok 1: Zaimportuj pliki `.skn` i `.skl`
+
+https://youtu.be/xqB84ga55hI?si=dAZXFehz94KL7hre&t=149
+
+> ⚠️ **Ważne:**  
+> **Nie** usuwaj ścian, wierzchołków, krawędzi ani żadnej geometrii **po powiązaniu (bind)** mesha.
+>
+> ⚠️ Pierwszy import:  
+> Importuj przez **File → Import**, **nie** metodą drag & drop.  
+> Upewnij się, że włączone są **oddzielne materiały / meshe**.
+
+<img src="/wiki-images/1768001551000-3q6i4i.png" alt="Obraz" width={700} />
+
+### Instrukcja
+
+1. Zainstaluj [**LoL-Maya Plugin**](/docs/lol/maya/lol-maya-plugin)
+2. Zaimportuj oryginalne pliki bohatera:
+   - `.skn`: Mesh (geometria wizualna)
+   - `.skl`: Szkielet (kości i dane riga)
+3. Zaimportuj swój własny model (`.fbx`, `.obj`) do tej samej sceny w Mayi
+
+---
+
+## ➜ Krok 2: Dopasuj kości do własnego modelu
+
+https://youtu.be/xqB84ga55hI?si=QdQGjLrYZuHEHs3a&t=175
+
+Dopasuj istniejący szkielet z League do proporcji własnego modelu.
+
+### Zasady
+
+- ✅ **Tylko obracaj kości** (`E`)
+- ❌ **NIE przesuwaj (`W`) ani nie skaluj (`R`) kości**
+
+**Czemu tylko obracać?**  
+Przesuwanie albo skalowanie kości psuje zgodność z oryginalnymi animacjami League.
+
+Naciśnij ten symbol, żeby kości były widoczne przez mesh!
+
+<img src="/wiki-images/1768001486509-o4wnhm.png" alt="Obraz" width={700} />
+
+Włącz **X-Ray / widoczność kości**, żeby kości były widoczne przez mesh.
+
+> Trzymaj się wideoporadnika, żeby dopasować wszystko poprawnie.
+
+---
+
+## ➜ Krok 3: Powiąż mesh ze szkieletem
+
+https://youtu.be/xqB84ga55hI?si=jpgbLQXdCSce7Kjm&t=290
+
+Powiąż własny mesh ze szkieletem z League, żeby animacje działały na modelu.
+
+### Kości, które powinieneś powiązać
+
+- head
+- neck
+- spine
+- chest
+- clavicle
+- shoulder
+- elbow
+- hand
+- fingers
+- hips
+- pelvis
+- knee_lower
+- foot
+- root _(tylko w niektórych przypadkach)_
+
+> ⚠️ **Nie** wiąż kości pomocniczych, takich jak `buffbones`, `knee_upper` czy `toe`.
+
+### Jak powiązać w Mayi
+
+1. **CTRL + zaznacz** wszystkie potrzebne kości
+2. **CTRL + zaznacz** mesh (jako ostatnie zaznaczenie)
+3. Przejdź do **Rigging → Skin → Bind Skin → Options**
+4. Ustaw:
+   - ❌ Bind to: _Joint Hierarchy_
+   - ✅ Bind to: _Selected Joints_
+
+> Ten tutorial obejmuje tylko podstawowe wiązanie. Zaawansowane malowanie wag wymaga praktyki albo dodatkowych poradników.
+
+---
+
+## ➜ Krok 4: Dopasuj mapę UV pod tekstury w grze
+
+https://youtu.be/xqB84ga55hI?si=XbL4c6JUz9ZBnoqI&t=469
+
+Przed teksturowaniem trzeba poprawnie dopasować mapę UV.
+
+### Dopasowanie UV w Mayi
+
+1. Przełącz się na przestrzeń roboczą **UV Editing**
+2. Naciśnij **F11** (tryb zaznaczania ścian)
+3. Zaznacz wszystkie ściany mesha
+4. Przesuń wszystkie UV do **jednego rogu** przestrzeni UV, używając kontrolek narożnika
+
+> To zapobiega popsutym albo niewidocznym teksturom w grze.
+
+---
+
+### Dopasowanie tekstury w GIMP / Photoshop
+
+1. Otwórz oryginalną teksturę
+2. Dopasuj ją i przesuń, żeby pasowała do nowego układu UV
+3. Jeśli tekstura nie pasuje do UV, w grze będzie wyglądać jak popsuta
+
+---
+
+### Poprawne zapisanie tekstury
+
+- Format pliku: `.dds`
+- Kompresja: **BC3 / DXT5**
+- Mipmapy: Opcjonalne (zalecane)
+
+Wskazówki co do rozdzielczości:
+
+- 512×512
+- 1024×1024
+- 2048×2048
+
+Zawsze trzymaj kopie zapasowe i testuj w grze.
+
+---
+
+## ➜ Krok 5: Odwróć normalne i wyeksportuj model
+
+https://youtu.be/xqB84ga55hI?si=CMoyJ-gXCcsGNLF2&t=590
+
+Jeśli normalne są ustawione źle, model może być niewidoczny albo wywrócony na lewą stronę.
+
+### Odwracanie normalnych
+
+1. Zaznacz mesh
+2. Przejdź do przestrzeni roboczej **Modeling**
+3. **Mesh Display → Reverse**
+
+League wymaga, żeby normalne były skierowane na zewnątrz.
+
+---
+
+### Eksport modelu
+
+1. Zaznacz **mesh + szkielet**
+2. **File → Export Selection**
+3. Wyeksportuj jako:
+   - `.skn` (mesh)
+   - `.skl` (szkielet)
+
+> ⚠️ Nazwy plików **muszą dokładnie pasować** do oryginalnych plików bohatera.
+
+**Przykład (Ahri):**
+
+Ahri.skn
+Ahri.skl
+
+---
+
+### Podmiana oryginalnych plików
+
+1. Przejdź do folderu bohatera
+2. Podmień oryginalne `.skn` i `.skl`
+3. Nie zmieniaj struktury folderów
+
+> 💡 **Pro tip:** Zawsze rób kopię oryginalnych plików przed ich podmianą.

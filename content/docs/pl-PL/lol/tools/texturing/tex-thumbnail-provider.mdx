@@ -1,0 +1,98 @@
+---
+title: "Tex Thumbnail Provider"
+description: "Rozszerzenie powłoki Windows od RitoSharka pokazuje pliki .tex jako miniatury w Eksploratorze. Instalacja per-user, bez admina. Zobacz zawartość tekstury od razu."
+category: "tools"
+---
+
+Tex Thumbnail Provider od **RitoSharka** pozwala widzieć pliki `.tex` jako
+miniatury w Eksploratorze Windows. Koniec ze zgadywaniem, co jest w środku.
+
+[Pobierz najnowszą wersję](https://github.com/RitoShark/TexThumbnailProvider/releases/latest)
+
+Najnowsza wersja: **v1.1.0**.
+
+---
+
+## Co robi
+
+- Pokazuje pliki `.tex` jako podglądy obrazów w Eksploratorze Windows.
+- Działa w każdym folderze z teksturami `.tex` (pliki gry, eksporty, assety modów).
+- Działa jako zarejestrowana biblioteka COM DLL. Nie ma aplikacji do otwierania. Nie ma procesu w tle.
+
+{/* SCREENSHOT: Windows Explorer showing a folder of .tex files with image thumbnails instead of generic icons */}
+
+---
+
+## Zanim zaczniesz
+
+- Windows 10 lub 11.
+- PowerShell. Nie potrzeba praw administratora. Instalator rejestruje bibliotekę DLL tylko dla twojego użytkownika.
+
+---
+
+## Instalacja
+
+1. Zamknij wszystkie okna Eksploratora Windows, które pokazują pliki `.tex`.
+2. Otwórz PowerShell. Zwykłe okno wystarczy. Nie musisz uruchamiać go jako administrator.
+3. Wklej to polecenie i naciśnij Enter:
+
+   ```powershell
+   iwr -useb https://raw.githubusercontent.com/RitoShark/TexThumbnailProvider/master/scripts/install-thumbnail-handler.ps1 | iex
+   ```
+
+4. Poczekaj, aż instalator skończy. Pobiera `TexThumbnailProvider.dll`, kopiuje go do `%LOCALAPPDATA%\RitoShark\TexThumbnailProvider` i rejestruje dla twojego użytkownika.
+5. Otwórz dowolny folder z plikami `.tex`. Miniatury pojawiają się zamiast zwykłych ikon.
+
+{/* SCREENSHOT: PowerShell window showing the install script output with a success message */}
+
+<Callout type="info">
+  Instalator rejestruje bibliotekę DLL dla bieżącego użytkownika. Dlatego nie
+  potrzebuje praw administratora. Zostaw folder instalacji. Jeśli go usuniesz,
+  podglądy przestaną działać.
+</Callout>
+
+---
+
+## Jeśli używasz też RitoTex
+
+Plugin do Photoshopa [RitoTex](/docs/lol/tools/texturing/photoshop-tex-plugin)
+też rejestruje handler miniatur `.tex`. Dwa handlery dla jednego typu pliku
+normalnie by się gryzły.
+
+Ten instalator zapisuje swój handler pod twoim kontem użytkownika, który wygrywa
+z tym na poziomie całej maszyny. Więc twoje miniatury `.tex` pokazują się dalej,
+nawet z zainstalowanym RitoTex. Nie musisz wybierać między nimi.
+
+---
+
+## Rozwiązywanie problemów
+
+### Miniatury się nie pokazują
+
+1. Zrestartuj Eksplorator Windows:
+   - Otwórz Menedżer zadań.
+   - Znajdź **Eksplorator Windows**.
+   - Kliknij prawym. Wybierz **Uruchom ponownie**.
+2. Otwórz folder ponownie.
+
+### Stare miniatury nadal wyglądają jak zwykłe ikony
+
+Windows buforuje miniatury. Plik `.tex` odświeża się dopiero po zmianie czasu
+modyfikacji albo po wyczyszczeniu bufora.
+
+1. Otwórz **Oczyszczanie dysku**.
+2. Zaznacz **Miniatury**.
+3. Kliknij **OK**.
+4. Otwórz folder ponownie.
+
+### Nadal nic po restarcie
+
+Wykonaj polecenie instalacji jeszcze raz. Pobiera i rejestruje bibliotekę DLL od nowa.
+
+---
+
+## Alternatywy
+
+[LTK Tex Thumb Handler](/docs/lol/tools/texturing/ltk-tex-thumb-handler) od
+zespołu LeagueToolkit robi to samo. Wybierz jedno narzędzie, nie oba. Uruchomienie dwóch
+handlerów miniatur dla tego samego typu pliku może powodować konflikty.

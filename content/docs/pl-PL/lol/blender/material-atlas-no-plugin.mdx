@@ -1,0 +1,314 @@
+---
+title: "Material Atlas (bez pluginu)"
+description: "Ten tutorial wyjaśnia, jak robić atlasy materiałów ręcznie. Bez żadnych pluginów."
+category: "blender"
+---
+
+<LevelPill level="intermediate" />
+
+<Callout type="info">
+  Zanim zaczniesz, jest inny poradnik na ten temat, który robi to samo i szybciej
+  za pomocą pluginu [tutaj](material-atlas). Na wypadek gdybyś go przeoczył.
+</Callout>
+Ale jeśli:
+
+- Plugin się zepsuł albo ma problemy
+- Jesteś zbyt leniwy, żeby zaktualizować Blender do wersji 5.xxx (mój przypadek lol)
+- Nie znosisz pluginów.
+
+To jedziemy dalej.
+
+Zacznijmy od podstaw, czym jest atlas materiałów? W skrócie chcemy mieć tekstury modelu 3D spakowane w jeden obraz, żeby dało się je zaimportować do League. Czasem, gdy pobierasz model, jego widok materiałów wygląda tak:
+
+<figure>
+  <img
+    id="img-1"
+    src="/wiki-images/j3-img-1.png"
+    alt="Lista materiałów zaimportowanego modelu 3D"
+  />
+  <figcaption>Obraz 1. Lista materiałów zaimportowanego modelu 3D</figcaption>
+</figure>
+
+Jak widać, jest tu długa lista materiałów i każdy z nich jest powiązany z obrazem zawierającym fragment tekstur modelu. Zawęzimy to do zaledwie 1.
+
+Żeby to zrobić, musimy wykonać te kroki:
+
+1. Rozłóż UV modelu na nowy pusty obraz **używając nowej mapy UV**.
+2. Ustaw baking
+3. Wypal tekstury na naszym pustym obrazie.
+4. Ostatni szlif i porządki
+
+# Krok 1
+
+<Callout>
+To pewnie najtrudniejsza część całego procesu, więc gdy ją skończysz, będziesz w 80% gotowy.
+
+Na potrzeby tego tutoriala pominiemy część o "dobrych UV" i pozwolimy Blenderowi zrobić wszystko automatycznie za nas. Miej jednak na uwadze, że zawsze będzie lepiej, jeśli ręcznie utworzysz szwy (seams) dla modelu i rozłożysz je porządnie.
+
+</Callout>
+Na początek utwórz nową mapę UV, która przechowa nasze nowe zmiany. Żeby to zrobić, przejdź do panelu po prawej stronie w Blenderze i kliknij w zielony trójkąt, jak pokazano tutaj:
+<figure>
+  <img
+    id="img-2"
+    src="/wiki-images/j3-img-2.png"
+    alt="Tworzenie nowej mapy UV"
+  />
+  <figcaption>Obraz 2. Tworzenie nowej mapy UV</figcaption>
+</figure>
+
+Nową mapę UV możesz nazwać, jak chcesz. Powinieneś teraz mieć coś takiego
+
+<figure>
+  <img
+    id="img-3"
+    src="/wiki-images/j3-img-3.png"
+    alt="Efekt utworzenia nowej mapy UV"
+  />
+  <figcaption>Obraz 3. Utworzona nowa mapa UV</figcaption>
+</figure>
+
+<Callout type="warning">
+  Zwróć uwagę, że mamy ją podświetloną na niebiesko, ale ikona kamery jest
+  wyłączona, w przeciwieństwie do domyślnej mapy UV, która ma ją włączoną, **to
+  jest ważne**. To mówi Blenderowi: "Pokaż UV z UVMap w renderze, ale każda akcja
+  albo modyfikacja jest zapisywana na tej niebieskiej".
+</Callout>
+Następnie przechodzimy do zakładki <b>UV Editing</b>
+<figure>
+  <img id="img-4" src="/wiki-images/j3-img-4.png" alt="Widok UV Editing" />
+  <figcaption>Obraz 4. Widok UV Editing</figcaption>
+</figure>
+Lewy panel to miejsce, gdzie edytujesz UV. Domyślnie zaznaczony będzie losowy
+obraz z jednego z materiałów modelu, ale my chcemy utworzyć nowy obraz od zera.
+Zwykle ustawiam obrazy na 2K → 2048 x 2048.
+<figure>
+  <img
+    id="img-5"
+    src="/wiki-images/j3-img-5.png"
+    alt="Tworzenie nowego obrazu dla naszej tekstury"
+  />
+  <figcaption>Obraz 5. Nowy obraz tekstury</figcaption>
+</figure>
+Gdy obraz jest już utworzony, upewnij się, że faktycznie edytujesz właśnie ten
+obraz oraz że używasz swojej nowo utworzonej mapy UV:
+<figure>
+  <img id="img-6" src="/wiki-images/j3-img-6.png" alt="Efekt nowego obrazu" />
+  <figcaption>Obraz 6. Efekt utworzenia obrazu</figcaption>
+</figure>
+Teraz musimy poukładać UV, żeby były ładne i schludne. W tej chwili, jeśli
+zaznaczysz część modelu, zobaczysz bałagan:
+<figure>
+  <img id="img-7" src="/wiki-images/j3-img-7.png" alt="Bałagan w UV" />
+  <figcaption>Obraz 7. Bałagan w UV</figcaption>
+</figure>
+Spokojnie, proces jest w większości automatyczny.
+
+Zaznacz cały model 3D klawiszem "a", potem naciśnij "u" i wybierz "Smart UV Project", skopiuj moje ustawienia albo pobaw się nimi wedle uznania, jeśli trzeba.
+
+<figure>
+  <img
+    id="img-8"
+    src="/wiki-images/j3-img-8.png"
+    alt="Naprawa bałaganu w UV w toku"
+  />
+  <figcaption>Obraz 8. Naprawianie bałaganu w UV</figcaption>
+</figure>
+Powinieneś teraz mieć coś takiego
+<figure>
+  <img
+    id="img-9"
+    src="/wiki-images/j3-img-9.png"
+    alt="Wynik smart UV project"
+  />
+  <figcaption>Obraz 9. Wynik smart UV project</figcaption>
+</figure>
+<Callout type="warning">
+  To może wyglądać "dobrze", ale musisz być ostrożny, bo automatyczne rozkładanie
+  UV nie jest idealne i mogą pojawić się nakładki.
+</Callout>
+Na przykład, jeśli przybliżymy lewy dolny róg, zobaczymy, że nie został rozłożony
+zbyt ładnie
+<figure>
+  <img
+    id="img-10"
+    src="/wiki-images/j3-img-10.png"
+    alt="Możliwe problemy ze smart UV project"
+  />
+  <figcaption>Obraz 10. Możliwe problemy ze smart UV project</figcaption>
+</figure>
+Jak to naprawić? Prosto. Najpierw zaznacz problematyczną część. Żeby to zrobić,
+musisz włączyć małą ikonę w lewym górnym rogu obrazka poniżej. Upewnij się też,
+że jesteś na "face selection" (podkreślona ikona)
+<figure>
+  <img
+    id="img-11"
+    src="/wiki-images/j3-img-11.png"
+    alt="Możliwe problemy ze smart UV project"
+  />
+  <figcaption>Obraz 11. Włącz dwukierunkowe zaznaczanie UV</figcaption>
+</figure>
+Teraz wszystkie wyspy UV będą widoczne po lewej stronie. Możesz teraz przejść do
+problematycznego obszaru, najechać myszą na jedną ze ścian i nacisnąć L, aby
+zaznaczyć tylko tę wyspę. Zobaczysz, że podświetli się też na modelu 3D.
+Rozłóżmy tę jedną osobno. Po jej zaznaczeniu naciśnij U, ale tym razem wybierz
+"Unwrap minimum stretch".
+<figure>
+  <img
+    id="img-12"
+    src="/wiki-images/j3-img-12.png"
+    alt="Wynik unwrap minimum stretch zaznaczonego obszaru"
+  />
+  <figcaption>
+    Obraz 12. Wynik unwrap minimum stretch zaznaczonego obszaru
+  </figcaption>
+</figure>
+Możesz zmienić jej rozmiar ręcznie, aż zmieści się w pustych miejscach naszego
+obrazu, albo pozwolić Blenderowi zrobić to za ciebie! W tym drugim przypadku
+naciśnij "A" jeszcze raz, żeby ponownie zaznaczyć wszystko. Potem przejdź do menu
+UV i wybierz pack islands
+<figure>
+  <img
+    id="img-13"
+    src="/wiki-images/j3-img-13.png"
+    alt="Ponowne pakowanie wysp"
+  />
+  <figcaption>Obraz 13. Ponowne pakowanie wysp</figcaption>
+</figure>
+<Callout>
+  Spróbuj użyć tej samej wartości odstępu co na <a href="#img-8">obrazie 8</a>
+</Callout>
+<figure>
+  <img
+    id="img-14"
+    src="/wiki-images/j3-img-14.png"
+    alt="Ponowne pakowanie wysp (2)"
+  />
+  <figcaption>Obraz 14. Ponowne pakowanie wysp (2)</figcaption>
+</figure>
+Twoje UV są teraz gotowe. Zajmijmy się teraz bakingiem.
+
+# Krok 2
+
+Baking mówi Blenderowi, żeby przeniósł pewne aspekty tego, jak wygląda teraz model 3D, w inne miejsce, zwykle na obraz tekstury.
+
+Na potrzeby tego kroku użyjemy zakładki <b>shading</b> z menu zakładek na górze okna Blendera.
+
+Po lewej stronie otwórz nasz wcześniej utworzony obraz "one_texture", który powinien być jeszcze czarny.
+
+<figure>
+  <img id="img-15" src="/wiki-images/j3-img-15.png" alt="Zakładka Shading" />
+  <figcaption>Obraz 15. Zakładka Shading</figcaption>
+</figure>
+
+Teraz nudna część. Przejdź do panelu po prawej stronie, do widoku materiałów, i zaznacz pierwszy. Potem w panelu węzłów (te boksy tuż pod naszym modelem 3D) naciśnij F3 i wpisz "Image texture"
+
+<figure>
+  <img
+    id="img-16"
+    src="/wiki-images/j3-img-16.png"
+    alt="Tworzenie nowej tekstury obrazu"
+  />
+  <figcaption>Obraz 16. Tworzenie nowej tekstury obrazu</figcaption>
+</figure>
+Teraz wybierz nasz obraz "one_texture" z ikony "picture". Powinieneś mieć coś
+takiego
+<figure>
+  <img
+    id="img-17"
+    src="/wiki-images/j3-img-17.png"
+    alt="Wynik tworzenia nowej tekstury obrazu"
+  />
+  <figcaption>Obraz 17. Wynik tworzenia nowej tekstury obrazu</figcaption>
+</figure>
+Przy okazji, lubię zmieniać przestrzeń kolorów na sRGB, resztę zostaw bez zmian.
+
+Widzisz białe podświetlenie wokół krawędzi boksa? To znaczy, że jest zaznaczony, <b>to też jest ważne dla bakingu</b>.
+
+Gdy skończysz, naciśnij ctrl+c, żeby skopiować węzeł, i przejdź przez każdy z pozostałych materiałów na liście po prawej, naciskając ctrl+v, żeby go wkleić.
+
+Jeśli zrobiłeś to poprawnie, będziesz miał teraz jeden boks jak na <a href="#img-17">Obrazie 17</a> na każdy materiał, upewnij się, że wszystkie są zaznaczone.
+
+# Krok 3
+
+Przejdź do zakładki render w panelu po prawej stronie
+
+<figure>
+  <img id="img-18" src="/wiki-images/j3-img-18.png" alt="Zakładka Render" />
+  <figcaption>Obraz 18. Wynik tworzenia nowej tekstury obrazu</figcaption>
+</figure>
+<Callout type="warning">
+  Zmień silnik renderujący z EEVEE na Cycles, bo EEVEE nie obsługuje bakingu.
+</Callout>
+
+Wejdź tam w podmenu "Bake" i wybierz te ustawienia:
+
+<figure>
+  <img
+    id="img-19"
+    src="/wiki-images/j3-img-19.png"
+    alt="Ustawienia podmenu Bake"
+  />
+  <figcaption>Obraz 19. Ustawienia podmenu Bake</figcaption>
+</figure>
+Diffuse map wypala kolor tekstury, wyłączamy direct i indirect, bo nie chcemy,
+żeby jakiekolwiek światło się wtrącało.
+
+<b>Zanim naciśniesz przycisk "Bake", upewnij się co do tego</b>
+
+1. Zaznaczona mapa UV to ta, którą utworzyłeś od nowa.
+2. Jest nowy zaznaczony węzeł image texture dla każdego materiału.
+3. Twój model 3D jest też zaznaczony
+
+<figure>
+  <img id="img-20" src="/wiki-images/j3-img-20.png" alt="Sprawdź ustawienia bakingu" />
+  <figcaption>Obraz 20. Sprawdź ustawienia bakingu</figcaption>
+</figure>
+
+Gdy będziesz gotowy, naciśnij bake.
+
+Jeśli poszedłeś za tutorialem poprawnie, będziesz miał teraz coś takiego
+
+<figure>
+  <img id="img-21" src="/wiki-images/j3-img-21.png" alt="Wynik bakingu" />
+  <figcaption>Obraz 21. Wynik bakingu</figcaption>
+</figure>
+
+<Callout type="danger" title="Uwaga">
+  Zapisz obraz lokalnie, bo inaczej go stracisz.
+</Callout>
+
+<figure>
+  <img id="img-22" src="/wiki-images/j3-img-22.png" alt="Zapisz wynik" />
+  <figcaption>Obraz 22. Zapisz wynik</figcaption>
+</figure>
+
+# Krok 4
+
+Czas na porządki i przetestowanie wyniku.
+
+Wróć do widoku layout (na górnym pasku menu), twój model 3D powinien już wyglądać dobrze, więc namieszajmy trochę. Najpierw utwórzmy nowy materiał, który przechowa naszą nową teksturę.
+
+<figure>
+  <img id="img-23" src="/wiki-images/j3-img-23.png" alt="Utwórz nowy materiał" />
+  <figcaption>Obraz 23. Utwórz nowy materiał</figcaption>
+</figure>
+Nadaj mu nazwę, np. "one_texture", i przełącz się na layout shading, potem ustaw
+węzły jak na poniższym obrazie.
+<figure>
+  <img id="img-24" src="/wiki-images/j3-img-24.png" alt="Ustawianie węzłów" />
+  <figcaption>Obraz 24. Ustawianie węzłów</figcaption>
+</figure>
+Wróć do zakładki layout i usuń wszystkie materiały poza tym, który utworzyliśmy.
+Skończysz z bałaganem jak ten
+<figure>
+  <img id="img-25" src="/wiki-images/j3-img-25.png" alt="Materiałowa apokalipsa" />
+  <figcaption>Obraz 25. Materiałkalipsa</figcaption>
+</figure>
+Pamiętasz menu mapy UV z <a href="#img-2">obrazu 2</a>? Przełącz ikonę kamery
+tak, żeby twoja nowa mapa UV miała ją aktywną, i patrz, jak dzieje się magia.
+
+<Callout type="success">
+  Teraz ostatni szlif, usuń starą "UVMap" i zmień nazwę nowej na tę samą, czyli
+  "UVMap". Nie jestem pewien, ale gdzieś czytałem, że nazwa UVMap jest ważna, żeby
+  skiny działały w League.
+</Callout>

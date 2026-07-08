@@ -1,0 +1,131 @@
+---
+title: "Photoshop"
+description: "Adobe Photoshop to profesjonalne narzędzie do edycji obrazu dostępne w subskrypcji. Z darmowym pluginem otwiera i zapisuje tekstury DDS używane w moddingu."
+category: "tools"
+---
+
+Photoshop to standard branżowy w poważnej pracy z teksturami. Żeby otwierać
+typy plików, których używa League, potrzebujesz dwóch pluginów: jednego do
+`.dds` i jednego do `.tex`.
+
+<ToolCard name="RitoTex" href="/docs/lol/tools/texturing/photoshop-tex-plugin">
+  Dodaje natywną obsługę `.tex` i `.dds` do Photoshopa. Dawniej Photoshop TEX
+  Plugin.
+</ToolCard>
+
+[Wydania RitoTex](https://github.com/RitoShark/RitoTex-Photoshop/releases)
+
+[Zobacz plany Photoshopa](https://www.adobe.com/products/photoshop.html)
+
+---
+
+## Opcje pluginów DDS
+
+Są trzy popularne pluginy do pracy z plikami DDS w Photoshopie:
+
+| Plugin               | Najlepszy do                        | Wymaga GPU   |
+| -------------------- | ----------------------------------- | ------------ |
+| Intel Texture Works  | Ogólne użycie, działa na każdym systemie | Nie      |
+| NVIDIA Texture Tools | Posiadacze GPU NVIDIA, opcje zaawansowane | Tak (NVIDIA) |
+| Simple DDS Plugin    | Szybkie eksporty wsadowe, minimalne UI | Nie        |
+
+---
+
+## Intel Texture Works
+
+Uniwersalny plugin DDS, który działa niezależnie od producenta twojej karty graficznej.
+
+### Pobieranie
+
+1. Wejdź na stronę [Intel Texture Works](https://www.intel.com/content/www/us/en/developer/articles/tool/intel-texture-works-plugin.html)
+2. Kliknij link do pobrania na górze
+3. Na stronie przekierowania wybierz opcję **ZIP**
+
+### Instalacja
+
+1. Zamknij Photoshopa całkowicie
+2. Wypakuj pobrany plik ZIP
+3. Znajdź plik pluginu zależnie od systemu:
+   - **64-bit:** `IntelTextureWorks_1.0.4/Plugins/x64/IntelTextureWorks.8bi`
+   - **32-bit:** `IntelTextureWorks_1.0.4/Plugins/Win32/IntelTextureWorks.8bi`
+4. Skopiuj plik `.8bi` do folderu pluginów Photoshopa:
+
+   ```text
+   C:\Program Files\Adobe\Adobe Photoshop [VERSION]\Required\Plug-Ins\File Formats
+   ```
+
+5. (Opcjonalnie) Dla obsługi cube map skopiuj skrypty z `PhotoshopScripts/` do:
+
+   ```text
+   C:\Program Files\Adobe Photoshop [VERSION]\Presets\Scripts
+   ```
+
+### Eksport plików DDS
+
+1. Wejdź w **File > Save As**
+2. Wybierz **Intel Texture Works (\*.DDS)** jako typ pliku
+3. Wybierz lokalizację zapisu i nazwę pliku
+4. W oknie pluginu ustaw:
+   - **Texture Type:** Color + Alpha
+   - **Compression:** BC3 8bpp (Linear)
+   - **Mip Maps:** None
+5. Zapisz to jako preset, żeby mieć szybki dostęp
+6. Kliknij **OK**, żeby wyeksportować
+
+---
+
+## NVIDIA Texture Tools
+
+Zaawansowany plugin DDS zoptymalizowany pod karty graficzne NVIDIA.
+
+> **Uwaga:** Wymaga GPU NVIDIA i darmowego konta developerskiego.
+
+### Pobieranie
+
+1. Wejdź na stronę [NVIDIA Texture Tools](https://developer.nvidia.com/nvidia-texture-tools-exporter)
+2. Przewiń w dół i pobierz rozszerzenie do Photoshopa
+3. Załóż konto developerskie, jeśli poprosi (darmowe)
+
+### Instalacja
+
+1. Zamknij Photoshopa
+2. Uruchom instalator i postępuj według wskazówek
+3. Instalator sam wykrywa twoją instalację Photoshopa
+4. Otwórz Photoshopa ponownie po zakończeniu
+
+### Eksport plików DDS
+
+1. Wejdź w **File > Save As** (albo `Ctrl+Shift+S`)
+2. Wybierz **DDS - NVIDIA Texture Tools Exporter (\*.DDS)**
+3. Ustaw opcje eksportu:
+   - **Format:** BC3 RGBA 8bpp | DXT5 (interpolated alpha)
+   - **Compression Quality:** Highest
+   - Resztę ustawień zostaw domyślnie
+4. Kliknij **Save**
+
+> **Wskazówka:** Zawsze sprawdzaj w konkretnym poradniku zalecane ustawienia eksportu, bo niektóre tekstury mogą wymagać innych formatów kompresji.
+
+## Simple DDS Plugin
+
+### Eksport plików DDS przez Simple DDS
+
+1. Wejdź w **File > Save As**
+2. Wybierz **DDS (\*.DDS)** jako typ pliku
+3. Wybierz lokalizację zapisu i nazwę pliku
+4. W oknie ustaw **Format** na **DXT5**
+5. Kliknij **OK**
+
+> **Zaleta:** Ten plugin nie wymaga okien potwierdzenia, więc jest szybszy do eksportów wsadowych.
+
+---
+
+## Zalecane ustawienia eksportu
+
+Dla większości tekstur League of Legends użyj tych ustawień:
+
+| Ustawienie  | Wartość                 |
+| ----------- | ----------------------- |
+| Format      | BC3 / DXT5              |
+| Alpha       | Interpolated            |
+| Mip Maps    | None (chyba że podano inaczej) |
+| Compression | Highest quality         |

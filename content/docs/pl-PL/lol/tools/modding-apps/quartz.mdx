@@ -1,0 +1,269 @@
+---
+title: "Quartz"
+description: "Kombajn do moddingu skupiony na VFX. Zmieniaj kolory partikli, portuj efekty między bohaterami, wyciągaj assety i upscale'uj tekstury."
+category: "tools"
+---
+
+Quartz to aplikacja desktopowa od **RitoShark** zbudowana pod modding
+mocno oparty na VFX. Jeśli spędzasz większość czasu przy partiklach,
+teksturach i portowaniu assetów, to narzędzie, po które sięgasz. Łączy
+silnik BIN od Jade, LtMAO i AI upscaler Upscayl w jednym oknie.
+
+[Pobierz najnowszą wersję](https://github.com/RitoShark/Quartz/releases)
+
+{/* SCREENSHOT: Quartz main window with the sidebar showing all pages (Paint, Port, VfxHub, Asset Extractor, etc.) */}
+
+---
+
+## Co potrafi
+
+- **Zmienia kolory partikli** na stronie **Paint** przez hue shift, tryby
+  mieszania, własne palety i losowe gradienty.
+- **Portuje VFX** między bohaterami i skinami. Przeciągnij vfxsystem z
+  BIN-a dawcy na swój cel.
+- **Dzieli się VFX** przez **VfxHub**, bazę społeczności hostowaną na
+  GitHubie.
+- **Wyciąga pliki WAD** po ID bohatera i skina, z automatycznym repathem.
+- **Skaluje parametry partikli** (birthscale, scale) wsadowo na stronie
+  **Bineditor**.
+- **Zmienia kolory obrazów** (PNG, JPG, DDS, TEX) suwakami hue, saturacji
+  i jasności.
+- **Upscale'uje tekstury** wbudowanym AI upscalerem Upscayl.
+- **Wybiera kolory** narzędziem **RGBA** i daje kody RGB w formacie League
+  z kanałem alfa.
+- **Portuje animacje** między bohaterami i skinami przez **AniPort
+  Simple**.
+- **Uruchamia własne narzędzia .exe** przez przeciągnij i upuść (na
+  przykład `staticmatfix`).
+- **Losuje albo zmienia nazwy plików** wsadowo na stronie **File Handler**.
+- **Robi repath modów** przez **Bumpath**, używając wbudowanych plików
+  hashy.
+- **Personalizuje UI** przez **Theme Creator** (kolory, czcionki,
+  widoczność stron).
+
+---
+
+## Instalacja
+
+1. Wejdź na [stronę wydań](https://github.com/RitoShark/Quartz/releases).
+2. Pobierz najnowszy instalator dla Windowsa.
+3. Uruchom go. Instalator się otwiera.
+4. Idź za instrukcjami. Quartz otwiera się na ekranie głównym, gdy skończy.
+
+<Callout type="info" title="Konfiguracja przy pierwszym uruchomieniu">
+  Zanim zaczniesz wyciągać assety, otwórz **Settings** i wskaż Quartzowi swój
+  folder Champions z League of Legends oraz katalog wyjściowy WAD. Strona Asset
+  Extractor potrzebuje obu.
+</Callout>
+
+---
+
+## Jak tego używać
+
+### Paint (zmiana kolorów partikli)
+
+Strona Paint to to, po co większość ludzi otwiera Quartz. Zmienia kolory
+tekstur partikli, trzymając jasność i saturację spójne.
+
+1. Otwórz stronę **Paint** z paska bocznego.
+2. Wczytaj BIN swojego projektu. Lista emiterów się wypełni.
+3. Kliknij emiter albo vfxsystem, żeby zobaczyć jego tekstury.
+4. Wybierz kolor color pickerem.
+5. Wybierz tryb mieszania (użyj trybu 1, jeśli chcesz prawdziwej czerni).
+6. Kliknij apply. Tekstura aktualizuje się w podglądzie.
+7. Kliknij przycisk **Backup** w prawym dolnym rogu, zanim zapiszesz
+   nieodwracalne zmiany.
+
+<Callout type="info" title="Najedź, żeby zobaczyć podgląd">
+  Najedź na dowolny symbol tekstury na liście, żeby podejrzeć obraz bez otwierania
+  go. Oszczędza sporo klikania przy dużych projektach.
+</Callout>
+
+{/* SCREENSHOT: Paint page with an emitter selected, color picker open, and a texture preview visible */}
+
+### Port (przenoszenie VFX między projektami)
+
+Strona Port przenosi emitery i vfxsystemy z jednego BIN-a do drugiego.
+Tak bierzesz efekt ze skina dawcy i wrzucasz go na swój cel.
+
+1. Otwórz stronę **Port**.
+2. Wczytaj swój **docelowy** BIN (skin, który budujesz).
+3. Wczytaj BIN **dawcy** (skin, z którego kopiujesz).
+4. Znajdź emiter albo vfxsystem, którego chcesz, na liście dawcy. Użyj
+   paska filtra, żeby szukać po nazwie albo teksturze.
+5. Przeciągnij go na swój cel. Quartz kopiuje wpis i przenosi tekstury do
+   folderu projektu twojego celu.
+6. (Opcjonalnie) Ustaw vfxsystem jako **Idle particle**, jeśli tego
+   potrzebujesz.
+7. (Opcjonalnie) Kliknij przycisk persistent w prawym dolnym rogu, żeby
+   dodać efekt persistent.
+
+{/* SCREENSHOT: Port page showing target on one side, donor on the other, with a vfxsystem being dragged across */}
+
+### VfxHub (baza społeczności)
+
+VfxHub to wspólna biblioteka vfxsystemów hostowana na GitHubie. Możesz
+wrzucić własny albo zgarnąć cudzy.
+
+1. Otwórz stronę **VfxHub**.
+2. Kliknij menu pobierania u góry. Wczyta się lista wrzuconych
+   vfxsystemów.
+3. Kliknij dowolny wpis, żeby go pobrać.
+4. Sportuj go na swój cel tak samo, jak zrobiłbyś to z lokalnego dawcy.
+
+Żeby wrzucić własny:
+
+1. Otwórz VfxHub.
+2. Kliknij upload.
+3. Wybierz vfxsystem ze swojego projektu. Dodaj obraz, jeśli chcesz, żeby
+   pojawił się w podglądach.
+4. Wyślij. Twój wpis pojawia się w bazie dla wszystkich innych.
+
+### Asset Extractor (wyciąganie plików z gry)
+
+Ta strona wyciąga surowe assety z plików WAD League. Musisz najpierw
+wskazać Quartzowi swój folder Champions (zobacz callout o instalacji
+wyżej).
+
+1. Otwórz stronę **Asset Extractor**.
+2. Wybierz bohatera z listy rozwijanej.
+3. Wybierz ID skina.
+4. (Opcjonalnie) Włącz wyciąganie głosów, jeśli chcesz też plików audio.
+5. Kliknij extract. WAD rozpakowuje się do skonfigurowanego katalogu
+   wyjściowego.
+6. Quartz robi repath wyciągniętych plików automatycznie.
+
+### Bineditor (wsadowe skalowanie partikli)
+
+Użyj Bineditora, gdy musisz przeskalować dużo partikli naraz, na przykład
+naprawiając bugi z macierzą, gdzie transformacje nie nakładają się
+poprawnie.
+
+1. Otwórz stronę **Bineditor**.
+2. Wczytaj swój BIN.
+3. Wybierz tryb **emitters** albo **vfxsystems**.
+4. Zaznacz wpisy, które chcesz przeskalować.
+5. Wpisz wartość skali (na przykład `2` dla podwójnego birthscale).
+6. Kliknij apply. Każdy zaznaczony wpis aktualizuje się naraz.
+
+### Image Recolor (przesunięcia kolorów tekstur)
+
+Do jednorazowej roboty przy teksturach poza stroną Paint.
+
+1. Otwórz stronę **Image Recolor**.
+2. Przeciągnij plik PNG, JPG, DDS albo TEX.
+3. Ustaw hue, saturację i jasność suwakami. Podgląd aktualizuje się na
+   żywo.
+4. Kliknij export. Przekolorowany plik zapisuje się obok oryginału.
+
+### Upscale (AI upscaler tekstur)
+
+Quartz ubiera Upscayl, otwartoźródłowy AI upscaler. Przydatny do starych
+tekstur o niskiej rozdzielczości.
+
+1. Otwórz stronę **Upscale**.
+2. Przeciągnij jeden obraz albo folder obrazów.
+3. Wybierz model upscale'owania.
+4. Kliknij upscale. Każdy obraz zapisuje się do folderu wyjściowego, gdy
+   skończy.
+
+<Callout type="warning" title="Upscale jest wolny na słabych GPU">
+  Pierwszy przebieg pobiera model. Potem licz się z kilkoma sekundami na obraz
+  na przyzwoitym GPU. Starsze albo zintegrowane GPU mogą potrzebować minut.
+</Callout>
+
+### RGBA (kody kolorów do plików BIN)
+
+Małe narzędzie do zgarniania kodów RGB w formacie League z kanałem alfa.
+
+1. Otwórz stronę **RGBA**.
+2. Wybierz kolor pickerem albo wklej kod hex.
+3. Ustaw wartość alfa.
+4. Skopiuj sformatowany kod. Wklej go do swojego BIN-a.
+
+### AniPort Simple (portowanie animacji)
+
+Portuje animacje między bohaterami albo skinami, wliczając strukturę
+danych zasobów, której oczekuje Riot.
+
+1. Otwórz stronę **AniPort Simple**.
+2. Wczytaj swój cel i dawcę.
+3. Wybierz animacje, które chcesz sportować.
+4. Zatwierdź. Quartz tworzy za ciebie AtomicClipData i mapy eventów.
+
+### Tools (uruchamianie własnych plików .exe)
+
+Do jednorazowych narzędzi CLI, które nie mają własnego GUI (jak
+`staticmatfix`).
+
+1. Otwórz stronę **Tools**.
+2. Przeciągnij swój `.exe` do okna. Quartz go zapamiętuje.
+3. Przeciągnij folder na zapamiętany exe, żeby przetworzyć każdy plik w
+   nim.
+
+### File Handler (losowanie albo zmiana nazw wsadowo)
+
+Dwa tryby na jednej stronie.
+
+**Tryb Randomizer**, do własnych emotek:
+
+1. Otwórz **File Handler**. Wybierz **Randomizer**.
+2. Zaznacz swoje obrazy źródłowe.
+3. Wybierz folder docelowy.
+4. Uruchom. Każdy `.tex` albo `.dds` w folderze docelowym zostaje
+   zastąpiony losowym wyborem z twoich obrazów źródłowych.
+
+**Tryb Renamer**, do modów map:
+
+1. Otwórz **File Handler**. Wybierz **Renamer**.
+2. Ustaw prefiks albo sufiks, który chcesz dodać albo usunąć.
+3. Wybierz folder.
+4. Uruchom. Każdy plik dostaje zmianę nazwy naraz.
+
+### Bumpath (repath gotowego moda)
+
+Robi repath moda, żeby pasował do aktualnych ścieżek gry.
+
+1. Otwórz stronę **Bumpath**.
+2. Wczytaj swój mod.
+3. Zostaw **Ignore Missing Files** i **Combine Linked BINs** włączone
+   (domyślne wartości pasują do większości przypadków).
+4. Kliknij run. Quartz robi repath każdego pliku, używając wbudowanej
+   listy hashy.
+
+### Theme Creator (personalizacja UI)
+
+Jeśli nie podobają ci się domyślne kolory, zbuduj własny motyw.
+
+1. Otwórz **Settings**, potem **Theme Creator**.
+2. Wybierz kolory bazowe color pickerem.
+3. Dopracuj kolory pochodne suwakami.
+4. Zapisz. Cała aplikacja aktualizuje się na żywo, gdy zmieniasz wartości.
+
+---
+
+## Kiedy używać Quartz zamiast innych narzędzi
+
+- **Użyj Quartz**, jeśli twoja robota to głównie VFX: zmiana kolorów
+  partikli, portowanie efektów między skinami albo upscale tekstur.
+- **Użyj [Flint](/docs/lol/tools/modding-apps/flint)**, jeśli chcesz jednej
+  aplikacji na cały flow (wyciąganie, edycja BIN-ów, pakowanie moda). Flint
+  integruje się z Quartz, więc możesz odpalić oba obok siebie.
+- **Użyj [Jade](/docs/lol/tools/modding-apps/jade)**, jeśli edytujesz tylko
+  pliki BIN i chcesz skupionego edytora. Quartz używa silnika Jade pod
+  spodem.
+- **Użyj [LtMAO](/docs/lol/tools/modding-apps/ltmao)** do zadań wsadowych i
+  konwersji z menu prawym przyciskiem. LtMAO też jest wbudowane w Quartz.
+
+---
+
+## Wskazówki
+
+- Kontrolki **Theme Creator**, **Font Manager** i **Page Visibility** leżą
+  w **Settings**. Ukryj strony, których nigdy nie używasz, żeby pasek
+  boczny był krótszy.
+- Pliki hashy pobierają się automatycznie. Nie musisz sam ich ogarniać.
+- Flint wykrywa, gdy Quartz zmienia otwarty u ciebie plik, i proponuje
+  jego odświeżenie. Odpal oba razem, jeśli lubisz.
+- Przycisk Backup w Paint jest w prawym dolnym rogu. Użyj go przed każdą
+  nieodwracalną zmianą, którą możesz chcieć cofnąć.

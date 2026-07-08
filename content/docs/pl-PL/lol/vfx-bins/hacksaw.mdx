@@ -1,0 +1,141 @@
+---
+title: "Hacksaw"
+description: "Ten poradnik pokazuje, jak przekolorować VFX (partikle) w League of Legends za pomocą Hacksaw, narzędzia od Martynasa dla społeczności moderów."
+category: "vfx-bins"
+---
+
+Ten poradnik pokazuje, jak przekolorować VFX (partikle) w League of Legends za pomocą **Hacksaw**, narzędzia stworzonego dla społeczności moderów przez Martynasa. Nauczysz się otwierać pliki `.bin`, zmieniać kolory i bezpiecznie zapisywać zmiany w partiklach.
+
+<Callout type="info" title="Nowsza opcja: Quartz Paint">
+  [Quartz](/docs/lol/tools/modding-apps/quartz) ma zakładkę Paint, która
+  przekolorowuje partikle w samej aplikacji. Sam czyta i zapisuje `.bin`, więc
+  nie musisz konfigurować `ritobin_cli`. Ten poradnik do Hacksaw dalej działa i
+  jest dobrą alternatywą, ale większość twórców sięga teraz najpierw po Quartz.
+</Callout>
+
+---
+
+## Czego potrzebujesz
+
+<ToolCard name="Hacksaw" href="https://github.com/TheMartynasXS/Hacksaw">
+  Narzędzie od Martynasa do edycji binów.
+</ToolCard>
+
+<ToolCard name="RitoBin" href="/docs/lol/tools/modding-apps/ritobin">
+  Konwerter od Moonshadow, zamienia `.bin` na `.py`.
+</ToolCard>
+
+---
+
+## Krok 1: Skonfiguruj Hacksaw
+
+1. Pobierz i otwórz Hacksaw
+   <img src="/wiki-images/1767146058191-p47ap.png" alt="Obraz" width={500} />
+2. Wejdź w zakładkę **Settings**
+   <img src="/wiki-images/1767146063211-rh626f.png" alt="Obraz" width={400} />
+3. Kliknij **Select Ritobin_Cli**
+   <img src="/wiki-images/1767146098137-0kfjp.png" alt="Obraz" width={500} />
+4. Wybierz `ritobin_cli.exe`
+
+<img src="/wiki-images/1767146109516-brjqcp.png" alt="Obraz" width={500} />
+
+> 💡 Hacksaw potrzebuje `ritobin_cli`, żeby czytać i zapisywać pliki `.bin` używane do efektów wizualnych.
+
+---
+
+## Krok 2: Znajdź plik BIN
+
+Twój plik `.bin` z partiklami zwykle leży w jednym z tych folderów:
+
+/yourWadFolder/data/ /yourWadFolder/data/characters/YourChamp/skins/SkinXX/
+
+`SkinXX` odpowiada ID twojego skina.
+
+<img src="/wiki-images/1767146144586-3z25vn.png" alt="Obraz" width={600} />
+
+<img src="/wiki-images/1767146157874-buswuj.png" alt="Obraz" width={600} />
+
+Żeby znaleźć numer skina, zajrzyj do folderu HUD. Zwykle są tam obrazki podglądu.
+
+<img src="/wiki-images/1767146166101-ajvkvb.png" alt="Obraz" width={600} />
+
+---
+
+## Krok 3: Otwórz plik BIN
+
+1. Wejdź w zakładkę **Splash** w Hacksaw
+   <img src="/wiki-images/1767146179052-z4hk9c.png" alt="Obraz" width={300} />
+2. Kliknij **Open Bin**
+   <img src="/wiki-images/1767146185172-7lewvd.png" alt="Obraz" width={300} />
+
+<img src="/wiki-images/1767146198483-5k0ae.png" alt="Obraz" width={500} />
+
+Zobaczysz teraz listę wpisów partikli, na przykład:
+
+- `_Q_mis` → VFX pocisku umiejętności Q
+- `_W_tar` → efekt trafienia celu przez W
+- `_E_cas` → animacja rzucania E
+
+> 💡 **Typowe skróty w nazwach:** mis = missile • tar = target • cas = cast • trail = trail • exp = explosion
+
+---
+
+## Krok 4: Przekoloruj partikle
+
+1. Wybierz nowy kolor z palety
+   <img src="/wiki-images/1767146233766-gxzbj.png" alt="Obraz" width={500} />
+2. Zaznacz ParticleSystem, który chcesz przekolorować
+   <img src="/wiki-images/1767146238999-n11n14.png" alt="Obraz" width={500} />
+3. Kliknij **Recolor Selected** na dole Hacksaw
+   <img src="/wiki-images/1767146242759-dx73al.png" alt="Obraz" width={500} />
+4. Zapisz zmiany, klikając **Save Bin**
+   <img src="/wiki-images/1767146246511-68brzq.png" alt="Obraz" width={500} />
+
+---
+
+## Krok 5: Niektóre partikle biorą kolor z tekstur
+
+Nie wszystkie partikle przekolorujesz wbudowaną paletą Hacksaw. Niektóre efekty VFX biorą kolor z zewnętrznego pliku tekstury. Zwykle to `.dds` lub `.tex` w folderze Particles.
+
+### Co zrobić
+
+1. Znajdź folder Particles: `Assets/Characters/LeeSin/Skins/Skin31/Particles`
+2. Otwórz plik tekstury w Photoshopie, GIMP-ie lub innym programie obsługującym `.dds`
+3. Przekoloruj teksturę ręcznie
+4. Zapisz gotową teksturę jako `.dds` z kompresją **BC3 / DXT5**
+5. Podmień oryginalny plik w folderze Particles lub VFX
+
+> 💡 **Typowe ścieżki tekstur:**
+>
+> - `Assets/Characters/LeeSin/Skins/Skin31/Particles`
+> - `Assets/Shared/Particles`
+> - `Assets/Characters/LeeSin/Skins/Base/Particles`
+
+---
+
+## Ważne wskazówki
+
+### Nie przekolorowuj czerni ani bieli (domyślnie)
+
+Czerń i biel często służą do **przezroczystości** w VFX League. Przekolorowanie ich może zepsuć lub całkiem ukryć efekt.
+
+Jeśli świadomie chcesz przekolorować czerń/biel:
+
+1. Wejdź w **Settings**
+2. Wyłącz **"Ignore Black/White Values"**
+
+---
+
+### Jak działają BlendMody
+
+Każdy partikl ma swój BlendMode, pokazany po prawej w Hacksaw:
+
+| BlendMode | Zachowanie                                                                              |
+| --------- | --------------------------------------------------------------------------------------- |
+| 1         | Brak przezroczystości, śmiało koloruj czerń/biel                                         |
+| 3         | Przezroczystość SCB                                                                      |
+| 4         | Zwykła przezroczystość, nie koloruj zbyt ciemno, bo efekt zniknie w grze                 |
+
+<img src="/wiki-images/1767146259378-b1tf5.png" alt="Obraz" width={500} />
+
+> 💡 Zrozumienie, jak blend mody wpływają na rendering, pomaga uniknąć błędów wizualnych i niechcianych poświat.

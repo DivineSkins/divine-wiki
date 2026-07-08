@@ -24,6 +24,9 @@ const ORAMA_LANGUAGES: Record<string, string> = {
   "fr-FR": "french",
   "tr-TR": "turkish",
   "pt-BR": "portuguese",
+  // Orama ships no Polish stemmer; mirrors the english fallback the pl-PL
+  // index is built with.
+  "pl-PL": "english",
 };
 
 /**
