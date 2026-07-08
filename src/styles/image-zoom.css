@@ -37,14 +37,29 @@
   outline: none;
 }
 
+/* Zoom timing: react-medium-image-zoom reads the computed
+   transition-duration off the modal img, so the animation is tuned entirely
+   here. The curve is Apple's sheet/Quick Look ease
+   (cubic-bezier(0.32, 0.72, 0, 1)) — fast start, long soft landing. */
+
 [data-rmiz-modal-overlay] {
-  transition: background-color 0.3s;
+  transition:
+    background-color 0.45s cubic-bezier(0.32, 0.72, 0, 1),
+    backdrop-filter 0.45s cubic-bezier(0.32, 0.72, 0, 1);
   position: absolute;
   inset: 0;
 }
 
 [data-rmiz-modal-overlay="visible"] {
-  background-color: var(--color-fd-background);
+  /* Frosted backdrop instead of a solid wall: the page stays faintly
+     visible behind the zoomed image, like macOS Quick Look. */
+  background-color: color-mix(
+    in oklab,
+    var(--color-fd-background) 85%,
+    transparent
+  );
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
 }
 
 [data-rmiz-modal-overlay="hidden"] {
@@ -65,7 +80,7 @@
   cursor: zoom-out;
   image-rendering: high-quality;
   transform-origin: 0 0;
-  transition: transform 0.3s;
+  transition: transform 0.45s cubic-bezier(0.32, 0.72, 0, 1);
   position: absolute;
 }
 

@@ -45,6 +45,14 @@ export function ImageZoom({
   ...props
 }: ImageZoomProps) {
   const imageSrc = src instanceof Blob ? URL.createObjectURL(src) : src;
+  // Literal `<img>` tags from MDX (routed here by remarkImg) carry a plain
+  // string src and at most an author-set width — never the width/height
+  // pair next/image (behind fumadocs' Image) requires. Render those as a
+  // native img; static imports and fully-dimensioned images keep the
+  // optimized path.
+  const plainImg =
+    typeof imageSrc === "string" &&
+    (props.width == null || props.height == null);
   return (
     <Zoom
       zoomMargin={20}
@@ -56,16 +64,26 @@ export function ImageZoom({
         ...zoomInProps,
       }}
     >
-      {children ?? (
-        // declared in mdx files, should be in props
-        // eslint-disable-next-line jsx-a11y/alt-text
-        <Image
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 70vw, 900px"
-          className="rounded-lg border"
-          {...props}
-          src={imageSrc}
-        />
-      )}
+      {children ??
+        (plainImg ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            loading="lazy"
+            className="rounded-lg border"
+            {...(props as ComponentProps<"img">)}
+            src={imageSrc as string}
+            alt={props.alt ?? ""}
+          />
+        ) : (
+          // declared in mdx files, should be in props
+          // eslint-disable-next-line jsx-a11y/alt-text
+          <Image
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 70vw, 900px"
+            className="rounded-lg border"
+            {...props}
+            src={imageSrc}
+          />
+        ))}
     </Zoom>
   );
 }

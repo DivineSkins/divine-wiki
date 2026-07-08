@@ -1,6 +1,7 @@
 import { defineConfig, defineDocs, metaSchema } from "fumadocs-mdx/config";
 import { z } from "zod";
 import remarkYouTube from "./src/lib/remark-youtube";
+import remarkImg from "./src/lib/remark-img";
 
 // Declare the frontmatter schema fresh instead of extending Fumadocs'
 // re-exported `frontmatterSchema`. The re-export is bound to an internal
@@ -59,10 +60,13 @@ export default defineConfig({
       external: false,
       onError: "ignore",
     },
-    // Rewrite bare YouTube URLs on their own line into <YouTube /> embeds.
+    // remarkYouTube rewrites bare YouTube URLs on their own line into
+    // <YouTube /> embeds. remarkImg routes literal `<img>` tags through the
+    // components.img override (ImageZoom) — without it they compile to plain
+    // host elements and never get click-to-zoom.
     // NOTE: keep this list in sync with `previewRemarkPlugins` in
     // src/lib/draft/mdx-config.ts (the in-browser draft preview uses that copy).
-    remarkPlugins: [remarkYouTube],
+    remarkPlugins: [remarkYouTube, remarkImg],
     rehypeCodeOptions: {
       langs: ["bash", "json", "python", "javascript", "typescript"],
       themes: {

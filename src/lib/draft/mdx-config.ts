@@ -1,5 +1,5 @@
 import remarkYouTube from "@/lib/remark-youtube";
-import remarkImgJsx from "@/lib/draft/remark-img-jsx";
+import remarkImg from "@/lib/remark-img";
 
 /**
  * Remark plugins used by the in-browser draft preview (compile-preview.ts).
@@ -9,8 +9,8 @@ import remarkImgJsx from "@/lib/draft/remark-img-jsx";
  * Fumadocs' full internal remark/rehype stack, but matching the project's
  * own custom plugins keeps the preview close to production output.
  *
- * `remarkImgJsx` is preview-only: it rewrites `<img>` JSX to markdown image
- * nodes so the components.img override can swap staged blob URLs in. The
- * build pipeline doesn't need this — Fumadocs handles `<img>` JSX directly.
+ * `remarkImg` routes literal `<img>` JSX through the components.img
+ * override in both pipelines: the build wraps images in ImageZoom, the
+ * preview swaps staged blob URLs in (preview-components.tsx).
  */
-export const previewRemarkPlugins = [remarkYouTube, remarkImgJsx];
+export const previewRemarkPlugins = [remarkYouTube, remarkImg];
