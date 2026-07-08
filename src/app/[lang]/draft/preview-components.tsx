@@ -1,5 +1,7 @@
-import type { ComponentProps } from "react";
+import type { ComponentProps, ElementType } from "react";
+import { useParams } from "next/navigation";
 import { getMDXComponents } from "@/mdx-components";
+import { localizeHref } from "@/lib/localize-href";
 import { resolveStagedSrc, type StagedImages } from "@/lib/draft/staged-images";
 
 /**
@@ -14,8 +16,23 @@ import { resolveStagedSrc, type StagedImages } from "@/lib/draft/staged-images";
  */
 export function buildPreviewComponents(stagedImages?: StagedImages) {
   const base = getMDXComponents();
+  // Mirrors the published pipeline's locale prefixing of internal links
+  // (src/app/[lang]/docs/[[...slug]]/page.tsx) so preview hrefs match the
+  // published page. Relative-file-link resolution stays build-time only.
+  const BaseLink = (base.a ?? "a") as ElementType;
+  const PreviewLink = (props: ComponentProps<"a">) => {
+    const params = useParams<{ lang?: string }>();
+    const lang = typeof params?.lang === "string" ? params.lang : undefined;
+    return (
+      <BaseLink
+        {...props}
+        href={lang ? localizeHref(props.href, lang) : props.href}
+      />
+    );
+  };
   return {
     ...base,
+    a: PreviewLink,
     img: (props: ComponentProps<"img">) => {
       const src =
         typeof props.src === "string"

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { LocalizedLink } from "@/components/localized-link";
 import type { ReactNode } from "react";
 
 interface ToolCardProps {
@@ -16,7 +16,7 @@ interface ToolCardProps {
  */
 export function ToolCard({ name, href, children, badge, icon }: ToolCardProps) {
   const isExternal = /^https?:\/\//i.test(href);
-  const Tag = isExternal ? "a" : Link;
+  const Tag = isExternal ? "a" : LocalizedLink;
   const externalProps = isExternal
     ? { target: "_blank", rel: "noopener noreferrer" }
     : {};

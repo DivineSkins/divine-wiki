@@ -9,6 +9,7 @@ import { notFound } from "next/navigation";
 import { getMDXComponents } from "@/mdx-components";
 import type { Metadata } from "next";
 import { createRelativeLink } from "fumadocs-ui/mdx";
+import { localizeHref } from "@/lib/localize-href";
 import Link from "next/link";
 import { i18n, ogLanguageBlacklist } from "@/lib/i18n";
 import {
@@ -50,6 +51,14 @@ export default async function Page(
 
   const MDX = loadedPageData.body;
 
+  // Relative links resolve against the page (locale-aware via source);
+  // absolute internal links get the locale prefixed here, otherwise the
+  // edge redirect `/docs/* → /en/docs/*` dumps readers back to English.
+  const RelativeLink = createRelativeLink(source, page);
+  const MDXLink = (props: React.ComponentProps<"a">) => (
+    <RelativeLink {...props} href={localizeHref(props.href, params.lang)} />
+  );
+
   return (
     <DocsPage
       toc={loadedPageData.toc}
@@ -89,7 +98,7 @@ export default async function Page(
       <DocsBody>
         <MDX
           components={getMDXComponents({
-            a: createRelativeLink(source, page),
+            a: MDXLink,
           })}
         />
         <hr className="border-divine-border my-8" />

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { LocalizedLink } from "@/components/localized-link";
 import type { ReactNode } from "react";
 import { ArrowUpRight } from "lucide-react";
 
@@ -11,7 +11,7 @@ interface PremiumCardProps {
 
 export function PremiumCard({ title, href, icon, children }: PremiumCardProps) {
   const isExternal = /^https?:\/\//i.test(href);
-  const Tag = isExternal ? "a" : Link;
+  const Tag = isExternal ? "a" : LocalizedLink;
   const externalProps = isExternal
     ? { target: "_blank", rel: "noopener noreferrer" }
     : {};

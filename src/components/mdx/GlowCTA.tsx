@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { LocalizedLink } from "@/components/localized-link";
 import type { CSSProperties, ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
@@ -63,7 +63,7 @@ export function GlowCTA({
   size = "md",
 }: GlowCTAProps) {
   const isExternal = /^https?:\/\//i.test(href);
-  const Tag = isExternal ? "a" : Link;
+  const Tag = isExternal ? "a" : LocalizedLink;
   const externalProps = isExternal
     ? { target: "_blank", rel: "noopener noreferrer" }
     : {};
