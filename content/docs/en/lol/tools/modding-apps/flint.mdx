@@ -1,41 +1,48 @@
 ---
 title: "Flint"
-description: "An all-in-one modding app. Extract assets, preview them, edit BIN files, and pack the mod. All in one window."
+description: "An all-in-one League modding app. Extract assets, browse any patch from Riot's CDN, preview and edit files, validate, and pack your mod. All in one window."
 category: "tools"
 ---
 
-Flint is a desktop app by **RitoShark** that does most of the modding
-workflow in one place. If you don't want to juggle separate tools for
-extraction, BIN editing, VFX, and packing, this is the easiest start.
+Flint is a desktop modding app for League of Legends by **SirDexal** (RitoShark).
+It does the whole modding flow in one window: pull assets out of the game,
+preview them, edit them, validate, and ship a finished `.fantome` or `.modpkg`.
+No CLI chains, no folder juggling.
 
 [Download the latest release](https://github.com/RitoShark/Flint/releases)
 
-Latest version: **v2.1.0**.
+Latest version: **v2.3.4**.
 
 ---
 
 ## What it does
 
-- **Extract** champion skins and assets straight from the game files.
-- **Preview** 3D models, textures, BIN files, animations, particle
-  effects, and audio (BNK / WPK with waveform) without exporting
-  anything.
-- **Edit** BIN, LuaBin, and TroyBin files with syntax coloring.
-- **Edit WAD files in memory** straight from the explorer, then export.
-- **Convert** textures between `.tex` and `.dds`.
-- **Recolor** textures with hue shift, colorize, or grayscale + tint.
-- **Port to chromas**: pick a chroma, port a base skin mod onto it.
-- **Checkpoint** your project: snapshot, diff, and restore changes
-  like a lite version of git.
-- **Compare & restore** any file against the original WAD chunk if
-  you break something.
-- **Export** mods as `.fantome`, `.modpkg`, or sync them to LTK Manager.
-- **Validate & fix** mods with built-in Hematite rules (catches
-  missing shaders, broken references, etc).
+- **Extract** a skin into a clean project. Flint pulls the skin's assets,
+  auto-detects companions (Tibbers, Willump, and the rest), merges the linked
+  BIN files, and repaths everything onto a tidy layout for you.
+- **Browse any patch from Riot's CDN.** Load a live, old, or PBE build straight
+  from Riot's servers with no install, then extract just the files you want. See
+  [Browse and download from the CDN](#browse-and-download-from-the-cdn).
+- **Preview** 3D models, textures, animations, particles, audio (BNK / WPK with
+  waveform), and BIN files without exporting anything.
+- **Edit** BIN files with syntax coloring, a VFX emitter palette, and an Unhash
+  button. View LuaBin, TroyBin, string tables, and manifests.
+- **Edit WAD files in memory** from the explorer: change, delete, rename, or move
+  chunks, then save the repacked WAD.
+- **Convert and recolor** textures between `.tex` and `.dds`, with batch hue
+  shift, colorize, and tint.
+- **Port to chromas** and **hard-rename** a whole project in one action.
+- **Checkpoint** your project: snapshot, diff, and restore like a lite git.
+- **Compare and restore** any file against the original game version if you
+  break something.
+- **Validate and fix** with the built-in Hematite Project Fixer.
+- **Export** as `.fantome` or `.modpkg`, or sync straight into Celestial or LTK
+  Manager.
 
 <Callout type="info" title="Hashes are automatic">
-  Flint auto-fetches a prebuilt LMDB hash database (RitoShark's `lmdb-hashes`).
-  There is no hashes folder to download or manage, and it refreshes itself.
+  Flint auto-downloads a prebuilt LMDB hash database (RitoShark's `lmdb-hashes`)
+  on first run. There is no hashes folder to download or manage. Rebuild it any
+  time from Settings.
 </Callout>
 
 ---
@@ -46,42 +53,123 @@ Latest version: **v2.1.0**.
 2. Download the latest installer for Windows.
 3. Run it. Done.
 
+First run walks you through your League path, PBE path, and tool integrations.
+
+---
+
+## Browse and download from the CDN
+
+Flint can read League's files straight from Riot's servers. You do not need that
+patch installed. This is how you grab an older patch, a PBE build, or one missing
+asset.
+
+1. Open the **WAD Explorer**.
+2. Click **CDN** in the header (tooltip: "Load a patch manifest from Riot's CDN").
+3. In the **Load from CDN** window, pick your **Region** and **Platform**. For
+   PBE, pick the **PBE1** region.
+4. Choose a filter if you want: **Game** (the moddable champion data, the useful
+   set), **Client**, or **All**.
+5. Pick a version from the list. Newest is at the top. Older patches and PBE
+   builds are all here.
+6. Click **Load**. Flint downloads only the small manifest file and opens it as
+   its own tab.
+7. Expand a WAD in the tree. Flint fetches just that WAD's file list from the CDN,
+   not the whole thing.
+8. Click a file to preview it, or select files and folders and click **Extract**
+   to download them to a folder you pick.
+
+<Callout type="info" title="Downloads only what you need">
+  Flint range-fetches from the CDN, so browsing a 125 MB WAD costs a few
+  kilobytes. You only download the bytes for the files you extract.
+</Callout>
+
+The version list comes from the community `Morilli/riot-manifests` catalog. Hit
+**Refresh** in the window to re-check for new patches.
+
+---
+
+## Register files so double-click opens Flint
+
+You can make Windows open League files in Flint when you double-click them.
+
+1. Open **Settings** (`Ctrl + ,`).
+2. Find **Open With, Windows File Associations**.
+3. Click **Register**.
+
+Flint registers `.wad`, `.wad.client`, `.bin`, `.luabin64`, `.luabin`, `.troybin`,
+`.tex`, `.modpkg`, and `.fantome`. After that, double-clicking any of those in
+Windows Explorer opens it in Flint to preview or edit. An **Unregister** button
+removes them again.
+
+---
+
+## Preview, edit, and validate
+
+**Preview** (click any file):
+
+- **3D models**: SKN, SCB, and SCO meshes in an orbit viewer.
+- **Textures**: TEX and DDS, with zoom.
+- **Animations**: `.anm`.
+- **Audio**: BNK and WPK banks with a waveform.
+- **BIN** and legacy formats: string tables, inibin, luabin, troybin, and
+  manifests.
+
+**Edit**:
+
+- **BIN editor** with syntax coloring, an **Unhash** button that resolves leftover
+  hashes, and a **VFX emitter palette** you can drag from (it copies referenced
+  asset files across projects for you).
+- **In-memory WAD editing**: edit, delete, rename, or move chunks, then save.
+- **Texture tools**: recolor, convert to `.dds` or `.tex`, export as `.png`,
+  batch recolor a whole folder.
+- **Checkpoints**: snapshot the project and restore from a timeline.
+- **Compare and restore**: diff any file against the original WAD chunk or a
+  backup, and restore if you broke it.
+
+<Callout type="info" title="LuaBin and TroyBin are view-only for now">
+  You can open and read LuaBin and TroyBin files, but editing them in Flint is not
+  shipped yet.
+</Callout>
+
+**Validate**: open the **Project Fixer** (Hematite-powered). Scan a project, review
+the detected issues with severity badges, and apply the fixes you want. A Batch tab
+fixes several projects at once.
+
+---
+
+## Export and install
+
+- **Export** a project as `.fantome` or `.modpkg` from the project root menu.
+- **Sync to a launcher**: one click sends the mod to **Celestial** (the default,
+  no packaging needed) or **LTK Manager**.
+- **Edit existing mods**: open a `.fantome` or `.modpkg` to edit its metadata and
+  inner WADs, or import one into a fresh editable project.
+
 ---
 
 ## When to use Flint vs other tools
 
-- **Use Flint** if you want one app for the whole flow (extract, edit,
-  pack).
-- **Use [Jade](/docs/lol/tools/modding-apps/jade) instead** if you only edit BIN files
-  and want a tighter, focused editor.
-- **Use [LtMAO](/docs/lol/tools/modding-apps/ltmao)** as a fallback for batch jobs and
-  right-click conversions.
+- **Use Flint** for the whole flow: extract, browse the CDN, edit, validate, pack.
+- **Use [Jade](/docs/lol/tools/modding-apps/jade)** if you only edit BIN files and
+  want a tight, focused editor.
+- **Use [LtMAO](/docs/lol/tools/modding-apps/ltmao)** as a fallback for batch jobs
+  and right-click conversions.
 
 ---
 
 ## Cross-tool integrations
 
-Flint plays nice with two other tools the community uses:
-
-- **Jade**: Flint can use Jade's BIN engine instead of its own LTK
-  parser. Pick whichever in settings.
-- **Quartz**: hand a texture off to Quartz paint mode, then come back.
-  Flint detects when Quartz changes a file you have open and offers to
-  refresh.
+- **Jade**: open a BIN in Jade from Flint's preview bar.
+- **Quartz**: hand a texture to Quartz paint mode, then come back. Flint offers to
+  refresh when Quartz changes a file you have open.
 
 ---
 
 ## Tips
 
-- Open multiple project tabs at once. Each tab keeps its own state.
-- The animated loading screen creator turns an MP4 or WebM into a
-  spritesheet that the game accepts.
-- Background indexing is optional. Turn it on if you want full-text
-  search across the WAD archive.
-- Drag and drop files into the file tree to import them.
-- First time using Flint? The first-run wizard walks you through your
-  League path, PBE path, and tool integrations.
-- Stuck finding an asset? Open the WAD path cheat sheet from the WAD
-  explorer for a quick map of where things live.
-- Set Flint as the Windows "Open with" app for League files like `.wad`
-  and `.bin`, so a double-click opens them in Flint.
+- Open multiple project tabs at once. Each keeps its own state, and unsaved edits
+  survive tab switches.
+- Drag files between open projects to move or copy them.
+- The animated loading screen creator turns an MP4 or WebM into a loadscreen the
+  game accepts.
+- Stuck finding an asset? Open the WAD path cheat sheet from the WAD explorer.
