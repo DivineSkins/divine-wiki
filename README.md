@@ -12,7 +12,7 @@ Three ways, pick what fits you:
 
 - **In-browser editor** — go to [wiki.divineskins.gg/en/draft](https://wiki.divineskins.gg/en/draft). Write your guide with a live preview, hit submit, the editor forks the repo and opens a PR for you.
 - **Edit on GitHub** — on any guide, click "Edit on GitHub" at the bottom. GitHub's web editor opens. Make a change, open a PR. No clone, no install.
-- **Fork and PR** on GitHub. For devs. See [CONTRIBUTING.md](./CONTRIBUTING.md).
+- **Fork and PR** on GitHub. For devs. See [CONTRIBUTING.md](./docs/CONTRIBUTING.md).
 
 Full walkthrough: [wiki.divineskins.gg/en/docs/lol/contributing](https://wiki.divineskins.gg/en/docs/lol/contributing).
 
