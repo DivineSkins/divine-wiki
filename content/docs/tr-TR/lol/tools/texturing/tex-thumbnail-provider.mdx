@@ -1,67 +1,73 @@
 ---
 title: "Tex Thumbnail Provider"
-description: "RitoShark'ın Windows shell uzantısı, .tex dosyalarını Windows Gezgini'nde küçük resim olarak gösterir. Kullanıcı başı kurulum, yönetici gerekmez. Bir dokunun içinde ne olduğunu bir bakışta gör."
+description: "RitoShark'ın Windows kabuk uzantısı, .tex dosyalarını Dosya Gezgini'nde görsel küçük resim olarak gösterir. Tek satır PowerShell kurulumu, yönetici gerekmez. Bir dokunun içinde ne olduğunu bir bakışta gör."
 category: "tools"
 ---
 
-RitoShark'ın Tex Thumbnail Provider'ı, `.tex` dosyalarını Windows Gezgini'nde
-küçük resim olarak görmeni sağlar. İçinde ne olduğunu tahmin etmek yok artık.
-
-[En son sürümü indir](https://github.com/RitoShark/TexThumbnailProvider/releases/latest)
-
-En son sürüm: **v1.1.0**.
-
----
-
-## Ne yapar
-
-- `.tex` dosyalarını Windows Gezgini'nde görsel önizleme olarak gösterir.
-- `.tex` dokusu olan her klasörde çalışır (oyun dosyaları, export'lar, mod dosyaları).
-- Kayıtlı bir COM DLL olarak çalışır. Açılacak uygulama yok. Arka planda çalışan süreç yok.
-
-{/* SCREENSHOT: Windows Explorer showing a folder of .tex files with image thumbnails instead of generic icons */}
-
----
-
-## Başlamadan önce
-
-- Windows 10 veya 11.
-- PowerShell. Yönetici izni gerekmez. Kurulumcu DLL'i sadece senin kullanıcın için kaydeder.
+RitoShark'ın **Tex Thumbnail Provider**'ı, `.tex` dosyalarını Windows Gezgini'nde
+gerçek küçük resim olarak gösterir. Dosya listesinde, önizleme panelinde ve büyük
+simge görünümünde boş bir simge yerine dokuyu görürsün. Dosyayı kendisi decode
+eder, yani hiçbir uygulamanın açık olması gerekmez.
 
 ---
 
 ## Kurulum
 
-1. `.tex` dosyalarını gösteren tüm Windows Gezgini pencerelerini kapat.
-2. PowerShell'i aç. Normal bir pencere yeterli. Onu yönetici olarak çalıştırmana gerek yok.
-3. Bu komutu yapıştır ve Enter'a bas:
+Kurulum ve kaldırmayı tek bir PowerShell komutuyla yaparsın. İndirme yok, yönetici
+hakkı yok. Kayıt kullanıcı bazında yapılır.
+
+1. `.tex` dosyalarını gösteren açık Gezgin pencerelerini kapat.
+2. PowerShell'i aç. Normal bir pencere yeterli.
+3. Şunu yapıştır ve Enter'a bas:
 
    ```powershell
    iwr -useb https://raw.githubusercontent.com/RitoShark/TexThumbnailProvider/master/scripts/install-thumbnail-handler.ps1 | iex
    ```
 
-4. Kurulumcunun bitmesini bekle. `TexThumbnailProvider.dll` dosyasını indirir, `%LOCALAPPDATA%\RitoShark\TexThumbnailProvider` yoluna kopyalar ve senin kullanıcın için kaydeder.
-5. `.tex` dosyaları olan herhangi bir klasörü aç. Genel ikonların yerine küçük resimler belirir.
+Script en son `TexThumbnailProvider.dll`'i çeker,
+`%LOCALAPPDATA%\RitoShark\TexThumbnailProvider` içine koyar ve kullanıcın için
+kaydeder. `.tex` dosyaları olan bir klasör aç, küçük resimler görünür.
 
-{/* SCREENSHOT: PowerShell window showing the install script output with a success message */}
+<Callout type="info" title="Belirli bir sürümü sabitle">
+  En son yerine belirli bir sürüm mü istiyorsun? Şunu çalıştır:
 
-<Callout type="info">
-  Kurulumcu, DLL'i geçerli kullanıcı için kaydeder. Bu yüzden yönetici iznine
-  ihtiyaç duymaz. Kurulum klasörünü sakla. Onu silersen önizlemeler çalışmayı
-  bırakır.
+```powershell
+& ([scriptblock]::Create((iwr -useb https://raw.githubusercontent.com/RitoShark/TexThumbnailProvider/master/scripts/install-thumbnail-handler.ps1))) -Version v1.1.0
+```
+
 </Callout>
+
+## Kaldırma
+
+```powershell
+iwr -useb https://raw.githubusercontent.com/RitoShark/TexThumbnailProvider/master/scripts/uninstall-thumbnail-handler.ps1 | iex
+```
+
+Bu, handler'ı ve kayıt defteri girdilerini kaldırır.
 
 ---
 
-## Ayrıca RitoTex de kullanıyorsan
+## Neyi işler
 
-[RitoTex](/docs/lol/tools/texturing/photoshop-tex-plugin) Photoshop eklentisi de
-bir `.tex` küçük resim handler'ı kaydeder. Bir dosya türü için iki handler normalde
-çakışır.
+Riot'un kullandığı `.tex` sıkıştırma formatlarını decode eder:
 
-Bu kurulumcu, handler'ını senin kullanıcı hesabının altına yazar ve bu, makine
-genelindekine üstün gelir. Yani RitoTex kurulu olsa bile `.tex` küçük resimlerin
-görünmeye devam eder. İkisi arasında seçim yapmak zorunda değilsin.
+| Format               | `.tex` kodu |
+| -------------------- | ----------- |
+| DXT1 / BC1           | `0x0A`      |
+| DXT5 / BC3           | `0x0C`      |
+| BC7                  | `0x0D`      |
+| BC5                  | `0x0E`      |
+| BGRA8 (sıkıştırılmamış) | `0x14`   |
+
+Mipmap'li dokular da çalışır. Küçük resim için en büyük mip decode edilir.
+
+<Callout type="info" title="Photoshop'a bile üstün gelir">
+  Photoshop ya da RitoTex eklentisi kuruluysa, kendini `.tex` küçük resim handler'ı
+  olarak kaydeder ve normalde devralır. Bu kurulum kendi handler'ını kullanıcı
+  hesabının altına yazar, bu da makine geneli olanı geçersiz kılar. `.tex` küçük
+  resimlerin görünmeye devam eder. Sadece küçük resim girdisine dokunur, yani bir
+  `.tex`'e çift tıklamak yine de ayarladığın uygulamayı açar.
+</Callout>
 
 ---
 
@@ -69,30 +75,33 @@ görünmeye devam eder. İkisi arasında seçim yapmak zorunda değilsin.
 
 ### Küçük resimler görünmüyor
 
-1. Windows Gezgini'ni yeniden başlat:
-   - Görev Yöneticisi'ni aç.
-   - **Windows Explorer**'ı bul.
-   - Sağ tıkla. **Restart** seç.
-2. Klasörü tekrar aç.
+Windows Gezgini'ni yeniden başlat. Görev Yöneticisi'ni aç, **Windows Explorer**'ı
+bul, sağ tıkla ve **Restart**'ı seç. Klasörü tekrar aç.
 
-### Eski küçük resimler hâlâ genel ikon gibi görünüyor
+### Eski küçük resimler hâlâ genel simge gibi
 
-Windows küçük resimleri önbelleğe alır. Bir `.tex` dosyası, ancak değiştirilme zamanı
-değiştikten sonra veya önbelleği temizledikten sonra yeniden çizilir.
+Windows küçük resimleri dosya bazında önbelleğe alır. Bir `.tex`, ancak değiştirilme
+zamanı değişince ya da önbelleği temizleyince yeniden çizilir. **Disk Temizleme**'yi
+aç, **Küçük Resimler**'i işaretle, **OK**'e tıkla, sonra klasörü tekrar aç.
 
-1. **Disk Temizleme**'yi aç.
-2. **Küçük Resimler**'i işaretle.
-3. **OK**'e tıkla.
-4. Klasörü tekrar aç.
-
-### Yeniden başlatmadan sonra hâlâ hiçbir şey yok
+### Yeniden başlatınca hâlâ hiçbir şey yok
 
 Kurulum komutunu tekrar çalıştır. DLL'i yeniden indirir ve yeniden kaydeder.
 
 ---
 
-## Alternatifler
+## Alternatif: LTK Tex Thumb Handler
 
-LeagueToolkit ekibinden [LTK Tex Thumb Handler](/docs/lol/tools/texturing/ltk-tex-thumb-handler)
-aynı işi yapar. Bir aracı seç, ikisini değil. Aynı dosya türü için iki küçük resim
-handler'ı çalıştırmak çakışmalara yol açabilir.
+**LeagueToolkit** ekibinin kendi `.tex` küçük resim handler'ı var
+([ltk-tex-utils](https://github.com/LeagueToolkit/ltk-tex-utils)). Aynı temel işi
+yapar, ama iki şey onu geride tutuyor:
+
+- Riot'un kullandığı her sıkıştırma formatını decode etmez, yani bazı `.tex`
+  dosyaları boş kalır.
+- Başka bir program (Photoshop, RitoTex eklentisi vb.) `.tex` türünü zaten
+  sahiplenmişse, hiç önizleme üretemez. Bu araç gibi var olan handler'ı geçersiz
+  kılmaz.
+
+Çoğu kişi için RitoShark'ın Tex Thumbnail Provider'ı daha iyi seçim: daha fazla
+formatı kapsar ve diğer handler'lara üstün gelir. Aynı anda sadece bir küçük resim
+handler'ı çalıştır. LTK olanı kuruluysa, bunu kurmadan önce onu kaldır.

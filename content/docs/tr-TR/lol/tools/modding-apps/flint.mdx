@@ -1,48 +1,50 @@
 ---
 title: "Flint"
-description: "Hepsi bir arada bir modlama uygulaması. Asset çıkar, önizle, BIN dosyalarını düzenle ve modu paketle. Hepsi tek pencerede."
+description: "Hepsi bir arada bir League modlama uygulaması. Asset çıkar, Riot'un CDN'inden herhangi bir yamaya göz at, dosyaları önizle ve düzenle, doğrula ve modunu paketle. Hepsi tek pencerede."
 category: "tools"
 ---
 
-Flint, **RitoShark** tarafından yapılan bir masaüstü uygulaması. Modlama
-workflow'unun çoğunu tek yerde halleder. Çıkarma, BIN düzenleme, VFX ve
-paketleme için ayrı ayrı araçlarla uğraşmak istemiyorsan, en kolay
-başlangıç bu.
+Flint, **SirDexal** (RitoShark) tarafından yapılan bir League of Legends modlama
+masaüstü uygulaması. Tüm modlama akışını tek pencerede yapar: oyundan asset çıkar,
+önizle, düzenle, doğrula ve bitmiş bir `.fantome` ya da `.modpkg` olarak yayınla.
+CLI zincirleri yok, klasörlerle uğraşmak yok.
 
 [En son sürümü indir](https://github.com/RitoShark/Flint/releases)
 
-En son sürüm: **v2.1.0**.
+En son sürüm: **v2.3.4**.
 
 ---
 
 ## Ne işe yarar
 
-- Şampiyon skin'lerini ve asset'leri doğrudan oyun dosyalarından
-  **çıkarır**.
-- 3D modelleri, dokuları, BIN dosyalarını, animasyonları, partikül
-  efektlerini ve sesi (dalga formuyla BNK / WPK) hiçbir şey export
-  etmeden **önizler**.
-- BIN, LuaBin ve TroyBin dosyalarını sözdizimi renklendirmesiyle
-  **düzenler**.
-- **WAD dosyalarını bellekte** doğrudan gezginden düzenler, sonra export
-  eder.
-- Dokuları `.tex` ve `.dds` arasında **dönüştürür**.
-- Dokuları hue shift, colorize veya gri tonlama + tint ile
-  **yeniden renklendirir**.
-- **Chroma'ya taşır**: bir chroma seç, temel skin modunu onun üzerine
-  taşı.
-- Projeni **checkpoint'ler**: git'in hafif bir sürümü gibi anlık görüntü
-  al, farkları gör ve değişiklikleri geri al.
-- Bir şeyi bozarsan herhangi bir dosyayı orijinal WAD parçasıyla
-  **karşılaştır ve geri yükle**.
-- Modları `.fantome`, `.modpkg` olarak **export eder** veya LTK
-  Manager'a senkronlar.
-- Yerleşik Hematite kurallarıyla modları **doğrular ve düzeltir** (eksik
-  shader'ları, bozuk referansları vb. yakalar).
+- Bir skin'i temiz bir projeye **çıkarır (Extract)**. Flint skin'in asset'lerini
+  çeker, yol arkadaşlarını (Tibbers, Willump ve gerisi) otomatik algılar, bağlı
+  BIN dosyalarını birleştirir ve her şeyi senin için temiz bir düzene repath'ler.
+- **Riot'un CDN'inden herhangi bir yamaya göz at.** Canlı, eski ya da PBE bir
+  sürümü kurulum olmadan doğrudan Riot'un sunucularından yükle, sonra sadece
+  istediğin dosyaları çıkar. Aşağıdaki **CDN'den göz at ve indir** bölümüne bak.
+- 3D modelleri, dokuları, animasyonları, partikülleri, sesi (dalga formuyla BNK /
+  WPK) ve BIN dosyalarını hiçbir şey export etmeden **önizler**.
+- BIN dosyalarını sözdizimi renklendirmesi, bir VFX emitter paleti ve bir Unhash
+  butonuyla **düzenler**. LuaBin, TroyBin, string table ve manifest'leri
+  görüntüler.
+- **WAD dosyalarını bellekte** doğrudan gezginden düzenler: chunk'ları değiştir,
+  sil, yeniden adlandır ya da taşı, sonra kaydet.
+- Dokuları `.tex` ve `.dds` arasında **dönüştürür ve yeniden renklendirir**; toplu
+  hue shift, colorize ve tint ile.
+- **Chroma'ya taşır** ve bir projeyi tek işlemde **hard-rename** eder.
+- Projeni **checkpoint'ler**: hafif bir git gibi anlık görüntü al, farkları gör ve
+  geri yükle.
+- Bir şeyi bozarsan herhangi bir dosyayı orijinaliyle **karşılaştırır ve geri
+  yükler**.
+- Yerleşik Hematite Project Fixer ile **doğrular ve düzeltir**.
+- Modları `.fantome` ya da `.modpkg` olarak **export eder** ya da doğrudan
+  Celestial veya LTK Manager'a senkronlar.
 
 <Callout type="info" title="Hash'ler otomatik">
-  Flint önceden hazırlanmış bir LMDB hash veritabanını (RitoShark'ın `lmdb-hashes`) otomatik çeker.
-  İndirilecek veya yönetilecek bir hash klasörü yok, kendini otomatik yeniler.
+  Flint ilk çalıştırmada önceden hazırlanmış bir LMDB hash veritabanını
+  (RitoShark'ın `lmdb-hashes`'i) otomatik indirir. İndirilecek ya da yönetilecek
+  bir hash klasörü yok. İstediğin zaman Settings'ten yeniden oluştur.
 </Callout>
 
 ---
@@ -53,14 +55,108 @@ En son sürüm: **v2.1.0**.
 2. Windows için en son kurulum dosyasını indir.
 3. Çalıştır. Bitti.
 
+İlk çalıştırma seni League yolun, PBE yolun ve araç entegrasyonların boyunca
+yönlendirir.
+
+---
+
+## CDN'den göz at ve indir
+
+Flint, League'in dosyalarını doğrudan Riot'un sunucularından okuyabilir. O yamanın
+kurulu olmasına gerek yok. Eski bir yamayı, bir PBE sürümünü ya da eksik tek bir
+asset'i böyle alırsın.
+
+1. **WAD Explorer**'ı aç.
+2. Başlıktaki **CDN** butonuna tıkla (ipucu: "Load a patch manifest from Riot's
+   CDN").
+3. **Load from CDN** penceresinde **Region** ve **Platform**'unu seç. PBE için
+   **PBE1** bölgesini seç.
+4. İstersen bir filtre seç: **Game** (moddable şampiyon verisi, işine yarayan set),
+   **Client** ya da **All**.
+5. Listeden bir sürüm seç. En yenisi en üstte. Eski yamalar ve PBE sürümleri de
+   burada.
+6. **Load**'a tıkla. Flint sadece küçük manifest dosyasını indirir ve onu kendi
+   sekmesinde açar.
+7. Ağaçtan bir WAD'ı genişlet. Flint tüm WAD'ı değil, sadece o WAD'ın dosya
+   listesini CDN'den çeker.
+8. Önizlemek için bir dosyaya tıkla ya da dosya ve klasörleri seçip **Extract**'a
+   tıklayarak seçtiğin bir klasöre indir.
+
+<Callout type="info" title="Sadece ihtiyacın olanı indirir">
+  Flint CDN'den range-fetch yapar, yani 125 MB'lık bir WAD'a göz atmak birkaç
+  kilobayta mal olur. Sadece çıkardığın dosyaların baytlarını indirirsin.
+</Callout>
+
+Sürüm listesi topluluk `Morilli/riot-manifests` kataloğundan gelir. Yeni yamaları
+yeniden kontrol etmek için penceredeki **Refresh**'e bas.
+
+---
+
+## Dosyaları kaydet, çift tıklayınca Flint açsın
+
+League dosyalarına çift tıkladığında Windows'un onları Flint'te açmasını
+sağlayabilirsin.
+
+1. **Settings**'i aç (`Ctrl + ,`).
+2. **Open With, Windows File Associations** bölümünü bul.
+3. **Register**'a tıkla.
+
+Flint şunları kaydeder: `.wad`, `.wad.client`, `.bin`, `.luabin64`, `.luabin`,
+`.troybin`, `.tex`, `.modpkg` ve `.fantome`. Ondan sonra Windows Gezgini'nde
+bunlardan birine çift tıklamak onu önizleme ya da düzenleme için Flint'te açar.
+**Unregister** butonu onları geri kaldırır.
+
+---
+
+## Önizle, düzenle ve doğrula
+
+**Önizleme** (herhangi bir dosyaya tıkla):
+
+- **3D modeller**: SKN, SCB ve SCO mesh'leri bir orbit görüntüleyicide.
+- **Dokular**: TEX ve DDS, zoom'la.
+- **Animasyonlar**: `.anm`.
+- **Ses**: BNK ve WPK bank'ları dalga formuyla.
+- **BIN** ve eski formatlar: string table, inibin, luabin, troybin ve manifest'ler.
+
+**Düzenleme**:
+
+- Sözdizimi renklendirmeli **BIN editörü**, kalan hash'leri çözen bir **Unhash**
+  butonu ve sürükleyebileceğin bir **VFX emitter paleti** (referans verilen asset
+  dosyalarını projeler arası senin için kopyalar).
+- **Bellekte WAD düzenleme**: chunk'ları düzenle, sil, yeniden adlandır ya da taşı,
+  sonra kaydet.
+- **Doku araçları**: yeniden renklendir, `.dds` ya da `.tex`'e dönüştür, `.png`
+  olarak export et, bir klasörü toplu renklendir.
+- **Checkpoint'ler**: projeyi anlık görüntüle ve bir zaman çizelgesinden geri yükle.
+- **Karşılaştır ve geri yükle**: herhangi bir dosyayı orijinal WAD chunk'ı ya da
+  bir yedekle karşılaştır, bozduysan geri yükle.
+
+<Callout type="info" title="LuaBin ve TroyBin şimdilik sadece görüntülenir">
+  LuaBin ve TroyBin dosyalarını açıp okuyabilirsin, ama Flint'te düzenlemek henüz
+  gelmedi.
+</Callout>
+
+**Doğrulama**: **Project Fixer**'ı aç (Hematite destekli). Bir projeyi tara, tespit
+edilen sorunları önem etiketleriyle incele ve istediğin düzeltmeleri uygula. Bir
+Batch sekmesi birden fazla projeyi aynı anda düzeltir.
+
+---
+
+## Export ve kurulum
+
+- Proje kök menüsünden bir projeyi `.fantome` ya da `.modpkg` olarak **export et**.
+- **Bir launcher'a senkronla**: tek tıkla modu **Celestial** (varsayılan, paketleme
+  gerekmez) ya da **LTK Manager**'a gönder.
+- **Var olan modları düzenle**: bir `.fantome` ya da `.modpkg`'yi açıp metadata'sını
+  ve içindeki WAD'ları düzenle ya da onu yeni bir düzenlenebilir projeye import et.
+
 ---
 
 ## Flint'i mi yoksa başka araçları mı kullanmalı
 
-- Tüm akış için tek uygulama istiyorsan (çıkar, düzenle, paketle)
-  **Flint'i kullan**.
-- Sadece BIN dosyaları düzenliyorsan ve daha sıkı, odaklı bir editör
-  istiyorsan **[Jade](/docs/lol/tools/modding-apps/jade)'i kullan**.
+- Tüm akış için (çıkar, CDN'e göz at, düzenle, doğrula, paketle) **Flint'i kullan**.
+- Sadece BIN dosyaları düzenliyorsan ve dar, odaklı bir editör istiyorsan
+  **[Jade](/docs/lol/tools/modding-apps/jade)'i kullan**.
 - Toplu işler ve sağ tık dönüştürmeleri için yedek olarak
   **[LtMAO](/docs/lol/tools/modding-apps/ltmao)'yu kullan**.
 
@@ -68,27 +164,17 @@ En son sürüm: **v2.1.0**.
 
 ## Araçlar arası entegrasyonlar
 
-Flint, topluluğun kullandığı iki başka araçla iyi anlaşır:
-
-- **Jade**: Flint kendi LTK ayrıştırıcısı yerine Jade'in BIN motorunu
-  kullanabilir. Ayarlardan hangisini istersen seç.
-- **Quartz**: bir dokuyu Quartz paint moduna ver, sonra geri dön. Flint,
-  Quartz açık bir dosyanı değiştirdiğinde bunu algılar ve yenilemeyi
-  önerir.
+- **Jade**: Flint'in önizleme çubuğundan bir BIN'i Jade'de aç.
+- **Quartz**: bir dokuyu Quartz paint moduna ver, sonra geri dön. Açık bir dosyanı
+  Quartz değiştirdiğinde Flint yenilemeyi önerir.
 
 ---
 
 ## İpuçları
 
-- Aynı anda birden fazla proje sekmesi aç. Her sekme kendi durumunu tutar.
-- Animasyonlu yükleme ekranı oluşturucu, bir MP4 veya WebM'i oyunun kabul
-  ettiği bir spritesheet'e çevirir.
-- Arka planda indeksleme isteğe bağlı. WAD arşivinde tam metin arama
-  istiyorsan aç.
-- Dosyaları içe aktarmak için dosya ağacına sürükle bırak.
-- Flint'i ilk kez mi kullanıyorsun? İlk çalıştırma sihirbazı seni League
-  yolun, PBE yolun ve araç entegrasyonların boyunca yönlendirir.
-- Bir asset'i bulmakta zorlandın mı? WAD gezgininden WAD yol kopya
-  kağıdını aç, her şeyin nerede olduğunu hızlıca gör.
-- Flint'i `.wad` ve `.bin` gibi League dosyaları için Windows "Birlikte
-  aç" uygulaması olarak ayarla, böylece çift tık onları Flint'te açar.
+- Aynı anda birden fazla proje sekmesi aç. Her biri kendi durumunu tutar ve
+  kaydedilmemiş düzenlemeler sekme değişiminde korunur.
+- Dosyaları açık projeler arasında sürükleyerek taşı ya da kopyala.
+- Animasyonlu yükleme ekranı oluşturucu bir MP4 ya da WebM'i oyunun kabul ettiği bir
+  yükleme ekranına çevirir.
+- Bir asset'i bulmakta mı zorlanıyorsun? WAD explorer'dan WAD yol kopya kağıdını aç.
