@@ -1,0 +1,263 @@
+---
+title: "Quartz"
+description: "Bộ công cụ mod tất-cả-trong-một tập trung vào VFX. Đổi màu particle, port hiệu ứng giữa các tướng, trích asset, và upscale texture."
+category: "tools"
+---
+
+Quartz là app desktop do **RitoShark** làm, dựng cho việc mod nặng về VFX.
+Nếu bạn dành phần lớn thời gian với particle, texture, và port asset, đây là
+công cụ để tìm tới. Nó gộp engine BIN của Jade, LtMAO, và bộ upscale AI
+Upscayl vào chung một cửa sổ.
+
+[Tải bản mới nhất](https://github.com/RitoShark/Quartz/releases)
+
+{/* SCREENSHOT: Quartz main window with the sidebar showing all pages (Paint, Port, VfxHub, Asset Extractor, etc.) */}
+
+---
+
+## Nó làm được gì
+
+- **Đổi màu particle** ở trang **Paint** với hue shift, blend
+  mode, palette tùy chỉnh, và gradient ngẫu nhiên.
+- **Port VFX** giữa các tướng và skin. Kéo một vfxsystem từ BIN
+  donor thả vào target của bạn.
+- **Chia sẻ VFX** qua **VfxHub**, một cơ sở dữ liệu cộng đồng đặt
+  trên GitHub.
+- **Trích file WAD** theo tướng và skin ID, tự động
+  repath.
+- **Scale tham số particle** (birthscale, scale) hàng loạt qua
+  trang **Bineditor**.
+- **Đổi màu ảnh** (PNG, JPG, DDS, TEX) với các nút chỉnh hue, saturation,
+  và độ sáng.
+- **Upscale texture** với bộ upscale AI Upscayl tích hợp sẵn.
+- **Chọn màu** với công cụ **RGBA** và lấy mã RGB định dạng chuẩn
+  LMHT kèm alpha.
+- **Port animation** giữa các tướng và skin với **AniPort
+  Simple**.
+- **Chạy công cụ .exe tùy chỉnh** bằng kéo-thả (ví dụ,
+  `staticmatfix`).
+- **Đổi ngẫu nhiên hoặc đổi tên file** hàng loạt qua trang **File Handler**.
+- **Repath mod** với **Bumpath**, dùng file hash tích hợp sẵn.
+- **Tùy chỉnh giao diện** với **Theme Creator** (màu, font, ẩn hiện
+  trang).
+
+---
+
+## Cài đặt
+
+1. Vào [trang releases](https://github.com/RitoShark/Quartz/releases).
+2. Tải bộ cài Windows mới nhất.
+3. Chạy nó. Bộ cài mở ra.
+4. Làm theo hướng dẫn. Quartz mở ra màn hình chính khi xong.
+
+<Callout type="info" title="Thiết lập lần đầu">
+  Trước khi trích asset, mở **Settings** và trỏ Quartz tới thư mục Champions
+  của League of Legends và một thư mục xuất WAD. Trang Asset Extractor cần cả
+  hai.
+</Callout>
+
+---
+
+## Cách dùng
+
+### Paint (đổi màu particle)
+
+Trang Paint là thứ đa số người ta mở Quartz để dùng. Nó đổi màu texture
+particle mà vẫn giữ độ sáng và saturation đồng nhất.
+
+1. Mở trang **Paint** từ thanh sidebar.
+2. Nạp BIN dự án của bạn. Danh sách emitter tự điền vào.
+3. Nhấn một emitter hoặc vfxsystem để xem texture của nó.
+4. Chọn một màu bằng bảng chọn màu.
+5. Chọn một blend mode (dùng blend mode 1 nếu bạn muốn màu đen thật).
+6. Nhấn apply. Texture cập nhật trong bản xem trước.
+7. Nhấn nút **Backup** ở góc dưới bên phải trước khi lưu các
+   thay đổi phá hủy.
+
+<Callout type="info" title="Rê chuột để xem trước">
+  Rê chuột lên bất kỳ ký hiệu texture nào trong danh sách để xem trước ảnh mà
+  không cần mở. Tiết kiệm cả đống cú nhấn với dự án lớn.
+</Callout>
+
+{/* SCREENSHOT: Paint page with an emitter selected, color picker open, and a texture preview visible */}
+
+### Port (chuyển VFX giữa các dự án)
+
+Trang Port chuyển emitter và vfxsystem từ BIN này sang BIN khác.
+Đây là cách bạn lấy một hiệu ứng từ skin donor và thả nó vào
+target của bạn.
+
+1. Mở trang **Port**.
+2. Nạp BIN **target** (bộ skin bạn đang làm).
+3. Nạp một BIN **donor** (bộ skin bạn đang copy từ đó).
+4. Tìm emitter hoặc vfxsystem bạn muốn trong danh sách donor. Dùng
+   thanh lọc để tìm theo tên hoặc texture.
+5. Kéo nó thả vào target. Quartz copy mục đó và chuyển
+   texture vào thư mục dự án của target.
+6. (Tùy chọn) Đặt vfxsystem làm **Idle particle** nếu đó là thứ
+   bạn cần.
+7. (Tùy chọn) Nhấn nút persistent ở góc dưới bên phải để thêm một
+   hiệu ứng persistent.
+
+{/* SCREENSHOT: Port page showing target on one side, donor on the other, with a vfxsystem being dragged across */}
+
+### VfxHub (cơ sở dữ liệu cộng đồng)
+
+VfxHub là một thư viện vfxsystem dùng chung đặt trên GitHub. Bạn có
+thể tải lên của mình hoặc lấy của người khác.
+
+1. Mở trang **VfxHub**.
+2. Nhấn menu tải ở trên cùng. Danh sách vfxsystem đã tải lên
+   được nạp ra.
+3. Nhấn bất kỳ mục nào để tải nó.
+4. Port nó vào target giống hệt cách bạn làm với một donor local.
+
+Để tải lên của bạn:
+
+1. Mở VfxHub.
+2. Nhấn upload.
+3. Chọn một vfxsystem từ dự án của bạn. Thêm một ảnh nếu bạn muốn nó
+   hiện trong bản xem trước.
+4. Gửi đi. Mục của bạn xuất hiện trong cơ sở dữ liệu cho mọi người.
+
+### Asset Extractor (kéo file từ game)
+
+Trang này kéo asset thô ra khỏi file WAD của League. Bạn cần trỏ
+Quartz tới thư mục Champions trước (xem callout cài đặt ở trên).
+
+1. Mở trang **Asset Extractor**.
+2. Chọn một tướng từ dropdown.
+3. Chọn một skin ID.
+4. (Tùy chọn) Bật trích lồng tiếng nếu bạn muốn cả file âm thanh.
+5. Nhấn extract. File WAD giải nén ra thư mục xuất bạn đã cấu hình.
+6. Quartz tự động repath các file đã trích.
+
+### Bineditor (scale particle hàng loạt)
+
+Dùng Bineditor khi bạn cần scale nhiều particle cùng lúc,
+ví dụ sửa lỗi matrix khi transform áp không đúng.
+
+1. Mở trang **Bineditor**.
+2. Nạp BIN của bạn.
+3. Chọn chế độ **emitters** hoặc **vfxsystems**.
+4. Chọn các mục bạn muốn scale.
+5. Nhập giá trị scale (ví dụ, `2` cho birthscale 2x).
+6. Nhấn apply. Mọi mục đã chọn cập nhật cùng lúc.
+
+### Image Recolor (đổi màu texture)
+
+Cho việc texture lẻ ngoài trang Paint.
+
+1. Mở trang **Image Recolor**.
+2. Kéo vào một file PNG, JPG, DDS, hoặc TEX.
+3. Chỉnh hue, saturation, và độ sáng bằng các thanh trượt. Bản xem trước
+   cập nhật ngay.
+4. Nhấn export. File đã đổi màu lưu ngay cạnh bản gốc.
+
+### Upscale (bộ upscale texture AI)
+
+Quartz bọc Upscayl, một bộ upscale AI mã nguồn mở. Hữu ích cho
+texture cũ độ phân giải thấp.
+
+1. Mở trang **Upscale**.
+2. Kéo vào một ảnh hoặc một thư mục ảnh.
+3. Chọn model upscale.
+4. Nhấn upscale. Mỗi ảnh lưu vào thư mục xuất khi xong.
+
+<Callout type="warning" title="Upscale chậm trên GPU yếu">
+  Lần chạy đầu tải model về. Sau đó, tính vài giây mỗi ảnh trên một GPU khá.
+  GPU cũ hoặc tích hợp có thể mất vài phút.
+</Callout>
+
+### RGBA (mã màu cho file BIN)
+
+Một công cụ nhỏ để lấy mã RGB định dạng chuẩn LMHT kèm alpha.
+
+1. Mở trang **RGBA**.
+2. Chọn một màu bằng bảng chọn, hoặc dán một mã hex.
+3. Đặt giá trị alpha.
+4. Copy mã đã định dạng. Dán nó vào BIN của bạn.
+
+### AniPort Simple (port animation)
+
+Port animation giữa các tướng hoặc skin, kể cả cấu trúc dữ liệu
+resource mà Riot cần.
+
+1. Mở trang **AniPort Simple**.
+2. Nạp target và donor của bạn.
+3. Chọn các animation bạn muốn port.
+4. Apply. Quartz tạo AtomicClipData và event map giúp bạn.
+
+### Tools (chạy file .exe tùy chỉnh)
+
+Cho các công cụ CLI lẻ không có giao diện riêng (như
+`staticmatfix`).
+
+1. Mở trang **Tools**.
+2. Kéo file `.exe` của bạn vào cửa sổ. Quartz lưu nó lại.
+3. Kéo một thư mục thả lên exe đã lưu để xử lý mọi file trong đó.
+
+### File Handler (đổi ngẫu nhiên hoặc đổi tên hàng loạt)
+
+Hai chế độ trong một trang.
+
+**Chế độ Randomizer**, cho emote tùy chỉnh:
+
+1. Mở **File Handler**. Chọn **Randomizer**.
+2. Chọn ảnh nguồn của bạn.
+3. Chọn thư mục target.
+4. Chạy. Mỗi file `.tex` hoặc `.dds` trong thư mục target được thay
+   bằng một lựa chọn ngẫu nhiên từ ảnh nguồn của bạn.
+
+**Chế độ Renamer**, cho mod map:
+
+1. Mở **File Handler**. Chọn **Renamer**.
+2. Đặt tiền tố hoặc hậu tố bạn muốn thêm vào hoặc gỡ bỏ.
+3. Chọn thư mục.
+4. Chạy. Mọi file được áp việc đổi tên cùng lúc.
+
+### Bumpath (repath một mod đã xong)
+
+Repath một mod để nó khớp với đường dẫn game hiện tại.
+
+1. Mở trang **Bumpath**.
+2. Nạp mod của bạn.
+3. Để **Ignore Missing Files** và **Combine Linked BINs** bật
+   (mặc định đúng cho đa số trường hợp).
+4. Nhấn run. Quartz repath mọi file bằng danh sách hash tích hợp sẵn.
+
+### Theme Creator (tùy chỉnh giao diện)
+
+Nếu bạn không thích màu mặc định, dựng theme của riêng mình.
+
+1. Mở **Settings**, rồi **Theme Creator**.
+2. Chọn màu nền bằng bảng chọn màu.
+3. Tinh chỉnh các màu dẫn xuất bằng thanh trượt.
+4. Lưu. Cả app cập nhật ngay khi bạn đổi giá trị.
+
+---
+
+## Khi nào dùng Quartz thay vì công cụ khác
+
+- **Dùng Quartz** nếu việc của bạn chủ yếu là VFX: đổi màu particle,
+  port hiệu ứng giữa các skin, hoặc upscale texture.
+- **Dùng [Flint](/docs/lol/tools/modding-apps/flint)** nếu bạn muốn một app cho
+  toàn luồng (trích, sửa BIN, đóng gói mod). Flint tích hợp với
+  Quartz, nên bạn chạy cả hai song song được.
+- **Dùng [Jade](/docs/lol/tools/modding-apps/jade)** nếu bạn chỉ sửa file BIN và
+  muốn một trình sửa tập trung. Quartz dùng engine của Jade bên dưới.
+- **Dùng [LtMAO](/docs/lol/tools/modding-apps/ltmao)** cho việc hàng loạt và chuyển
+  đổi bằng chuột phải. LtMAO cũng gộp sẵn trong Quartz.
+
+---
+
+## Mẹo
+
+- Các nút **Theme Creator**, **Font Manager**, và **Page Visibility**
+  nằm trong **Settings**. Ẩn các trang bạn không bao giờ dùng để giữ
+  sidebar ngắn gọn.
+- File hash tải tự động. Bạn không cần tự quản lý chúng.
+- Flint phát hiện khi Quartz đổi một file bạn đang mở và mời bạn
+  làm mới. Chạy cả hai cùng nhau nếu bạn thích.
+- Nút Backup trong Paint nằm ở góc dưới bên phải. Dùng nó trước bất kỳ
+  thay đổi phá hủy nào bạn có thể muốn hoàn tác.

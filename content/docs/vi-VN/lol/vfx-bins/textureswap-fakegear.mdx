@@ -1,0 +1,130 @@
+---
+title: "TextureSwap Fakegear"
+description: "Đây là một bài hướng dẫn khá cơ bản về chỉnh sửa bin."
+category: "vfx-bins"
+---
+
+## 1. Chuẩn bị Static Material
+
+Bạn tưởng tụi mình chỉ đổi texture thôi à? Ước gì đơn giản vậy.
+
+Bạn cần copy `staticmaterial` có sẵn gắn với texture gốc của mesh đó. Với thân của Yuumi, nó là `Orb_Cat_inst`. Bạn tìm được bằng cách search tên texture trong file bin của skin.
+
+<img src="/wiki-images/1767149443636-vvzsnj.png" alt="Tìm static material trong bin của skin" width={800} />
+
+Sau đó, copy toàn bộ, dán ra chỗ khác, đổi tên các thứ, rồi thêm file texture của bạn vào. Trong ví dụ của mình, tên sẽ là `"mine"`, file texture cũng vậy.
+
+<img src="/wiki-images/1767149464084-1r81lr.png" alt="Static material đã đổi tên với texture mới" width={500} />
+
+---
+
+## 2. VFX
+
+Bạn sẽ cần đoạn code này. Mình khuyên bạn dán nó gần staticmaterial để mọi thứ nằm chung một chỗ.
+
+```py
+"Hide" = VfxSystemDefinitionData {
+    timeBeforeFirstEmission: f32 = 1
+    complexEmitterDefinitionData: list[pointer] = {
+        VfxEmitterDefinitionData {
+            rate: embed = ValueFloat {
+                constantValue: f32 = 1
+            }
+            particleLifetime: embed = ValueFloat {
+                constantValue: f32 = 1e+14
+            }
+            isSingleParticle: flag = true
+            emitterName: string = "Override"
+            meshRenderFlags: u8 = 0
+            materialOverrideDefinitions: list[embed] = {
+                VfxMaterialOverrideDefinitionData {
+                    priority: i32 = 1
+                    subMeshName: option[string] = {
+                        "Yourmaterialnamefrommaya"
+                    }
+                    material: link = "Characters/urchamp/Skins/urskin/Materials/urstaticmaterial"
+                    transitionSample: f32 = 1
+                }
+            }
+        }
+    }
+    particleName: string = "Hide"
+    particlePath: string = "Hide"
+}
+```
+
+```py
+"Show" = VfxSystemDefinitionData {
+    timeBeforeFirstEmission: f32 = 1
+    complexEmitterDefinitionData: list[pointer] = {
+        VfxEmitterDefinitionData {
+            rate: embed = ValueFloat {
+                constantValue: f32 = 1
+            }
+            particleLifetime: embed = ValueFloat {
+                constantValue: f32 = 1e+14
+            }
+            isSingleParticle: flag = true
+            emitterName: string = "Override"
+            meshRenderFlags: u8 = 0
+            materialOverrideDefinitions: list[embed] = {
+                VfxMaterialOverrideDefinitionData {
+                    priority: i32 = 1
+                    subMeshName: option[string] = {
+                        "Yourmaterialnamefrommaya"
+                    }
+                    material: link = "Characters/urchamp/Skins/urskin/Materials/defaultstaticmaterial"
+                    transitionSample: f32 = 1
+                }
+            }
+        }
+    }
+    particleName: string = "Show"
+    particlePath: string = "Show"
+}
+```
+
+---
+
+## 3. Resource Resolver
+
+Bạn cũng cần thêm cái này vào `ResourceResolver`:
+
+```py
+"Hide" = "Hide"
+"Show" = "Show"
+```
+
+---
+
+## 4. Animation Bin
+
+Sau đó, bạn cần file animation bin. Tìm animation bạn muốn dùng làm nút bật/tắt rồi dán các đoạn code như thế này:
+
+<img src="/wiki-images/1767149506632-k9q8d.png" alt="Dán code particle event vào animation bin" width={700} />
+
+```py
+"Hide" = ParticleEventData {
+    mEffectKey: hash = "Hide"
+    mParticleEventDataPairList: list[embed] = {
+        ParticleEventDataPair {}
+    }
+    mIsLoop: bool = false
+    mIsKillEvent: bool = false
+}
+```
+
+```py
+"Show" = ParticleEventData {
+    mEffectKey: hash = "Show"
+    mParticleEventDataPairList: list[embed] = {
+        ParticleEventDataPair {}
+    }
+    mIsLoop: bool = false
+    mIsKillEvent: bool = false
+}
+```
+
+---
+
+> ✅ Xong bước này là bạn ổn rồi, miễn là làm đúng hết và thay đúng mọi thứ!

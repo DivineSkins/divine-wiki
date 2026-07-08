@@ -1,0 +1,310 @@
+---
+title: "Material Atlas (Không dùng plugin)"
+description: "Hướng dẫn này giải thích cách gộp material atlas bằng tay. Không cần plugin nào."
+category: "blender"
+---
+
+<LevelPill level="intermediate" />
+
+<Callout type="info">
+  Trước khi bắt đầu, có một hướng dẫn khác về chủ đề này làm ra kết quả giống hệt
+  mà lại nhanh hơn nhờ plugin [ở đây](material-atlas). Đề phòng bạn bỏ lỡ.
+</Callout>
+Nhưng nếu:
+
+- Plugin bị hỏng hoặc gặp lỗi
+- Bạn lười cập nhật Blender lên bản 5.xxx (giống mình đây lol)
+- Bạn là kiểu người bài trừ plugin.
+
+Vậy thì đọc tiếp thôi.
+
+Đầu tiên, material atlas là gì? Lý tưởng nhất là ta muốn gộp toàn bộ texture của model 3D vào một ảnh duy nhất để nhập vào LMHT. Đôi khi lúc tải model về, phần material view của nó trông thế này:
+
+<figure>
+  <img
+    id="img-1"
+    src="/wiki-images/j3-img-1.png"
+    alt="Danh sách material của một model 3D vừa nhập vào"
+  />
+  <figcaption>Ảnh 1. Danh sách material của một model 3D vừa nhập vào</figcaption>
+</figure>
+
+Bạn thấy đấy, danh sách material dài dằng dặc và mỗi cái gắn với một ảnh chứa một phần texture của model. Ta sẽ rút gọn nó xuống còn đúng 1.
+
+Muốn vậy, ta làm theo các bước sau:
+
+1. UV unwrap model vào một ảnh trống mới **bằng một UV map mới**.
+2. Thiết lập baking
+3. Bake texture vào ảnh trống của ta.
+4. Chỉnh sửa cuối và dọn dẹp
+
+# Bước 1
+
+<Callout>
+Đây có lẽ là phần khó nhất, nên làm xong bước này coi như bạn đã hoàn thành 80%.
+
+Trong bài này ta sẽ bỏ qua phần “UV đẹp” và để Blender tự làm hết cho ta. Nhưng nhớ rằng luôn tốt hơn nếu bạn tự tạo seam cho model và unwrap chúng cẩn thận.
+
+</Callout>
+Trước tiên, tạo một UV map mới để chứa các thay đổi. Muốn vậy, qua panel bên phải trong Blender và nhấn vào hình tam giác xanh lá như hình:
+<figure>
+  <img
+    id="img-2"
+    src="/wiki-images/j3-img-2.png"
+    alt="Tạo UVMap mới"
+  />
+  <figcaption>Ảnh 2. Tạo UVMap mới</figcaption>
+</figure>
+
+Bạn đặt tên UV map mới tùy thích. Giờ bạn sẽ có thứ trông như thế này
+
+<figure>
+  <img
+    id="img-3"
+    src="/wiki-images/j3-img-3.png"
+    alt="Kết quả tạo UVMap mới"
+  />
+  <figcaption>Ảnh 3. UVMap mới đã tạo</figcaption>
+</figure>
+
+<Callout type="warning">
+  Để ý rằng nó được tô xanh nhưng biểu tượng camera lại đang tắt, khác với UVMap
+  mặc định vốn bật sẵn, **chỗ này quan trọng**. Nó bảo Blender “Hiện UV của UVMap
+  khi render, nhưng mọi thao tác hay chỉnh sửa được lưu vào cái đang tô xanh”.
+</Callout>
+Tiếp theo là qua tab <b>UV Editing</b>
+<figure>
+  <img id="img-4" src="/wiki-images/j3-img-4.png" alt="Giao diện UV Editing" />
+  <figcaption>Ảnh 4. Giao diện UV Editing</figcaption>
+</figure>
+Panel bên trái là nơi bạn chỉnh UV. Theo mặc định, một ảnh ngẫu nhiên trong số các
+material của model sẽ được chọn, nhưng cái ta muốn là tạo một ảnh mới từ đầu. Mình
+thường đặt ảnh cỡ 2K → 2048 x 2048.
+<figure>
+  <img
+    id="img-5"
+    src="/wiki-images/j3-img-5.png"
+    alt="Tạo ảnh mới cho texture của ta"
+  />
+  <figcaption>Ảnh 5. Ảnh texture mới</figcaption>
+</figure>
+Sau khi tạo ảnh, chắc chắn rằng bạn đang thực sự chỉnh sửa đúng ảnh đó và cũng đang
+dùng UV map mới vừa tạo:
+<figure>
+  <img id="img-6" src="/wiki-images/j3-img-6.png" alt="Kết quả tạo ảnh mới" />
+  <figcaption>Ảnh 6. Kết quả tạo ảnh</figcaption>
+</figure>
+Giờ ta phải sắp xếp lại UV cho gọn gàng. Ngay lúc này nếu bạn chọn một phần của
+model, bạn sẽ thấy một mớ hỗn độn:
+<figure>
+  <img id="img-7" src="/wiki-images/j3-img-7.png" alt="UV lộn xộn" />
+  <figcaption>Ảnh 7. UV lộn xộn</figcaption>
+</figure>
+Đừng lo, quá trình này gần như tự động.
+
+Chọn toàn bộ model 3D bằng phím “a”, rồi nhấn “u” và chọn “Smart UV Project”. Chép y hệt thiết lập của mình, hoặc chỉnh theo ý bạn nếu cần.
+
+<figure>
+  <img
+    id="img-8"
+    src="/wiki-images/j3-img-8.png"
+    alt="Đang sửa mớ UV lộn xộn"
+  />
+  <figcaption>Ảnh 8. Sửa mớ UV lộn xộn</figcaption>
+</figure>
+Giờ bạn sẽ có thứ trông như thế này
+<figure>
+  <img
+    id="img-9"
+    src="/wiki-images/j3-img-9.png"
+    alt="Kết quả UV smart project"
+  />
+  <figcaption>Ảnh 9. Kết quả UV smart project</figcaption>
+</figure>
+<Callout type="warning">
+  Nhìn thì có vẻ “ổn” nhưng bạn phải cẩn thận, vì UV unwrap tự động không hoàn hảo
+  và có thể có vài chỗ chồng lấn.
+</Callout>
+Ví dụ, nếu phóng to góc dưới bên trái, ta thấy nó chưa được unwrap đẹp cho lắm
+<figure>
+  <img
+    id="img-10"
+    src="/wiki-images/j3-img-10.png"
+    alt="Vấn đề có thể gặp với UV smart project"
+  />
+  <figcaption>Ảnh 10. Vấn đề có thể gặp với UV smart project</figcaption>
+</figure>
+Sửa thế nào? Dễ thôi. Trước tiên, chọn phần bị lỗi. Muốn vậy, bạn cần bật cái biểu
+tượng nhỏ ở góc trên bên trái của ảnh dưới. Cũng nhớ chuyển sang chế độ “face
+selection” (biểu tượng có gạch chân)
+<figure>
+  <img
+    id="img-11"
+    src="/wiki-images/j3-img-11.png"
+    alt="Vấn đề có thể gặp với UV smart project"
+  />
+  <figcaption>Ảnh 11. Bật chọn UV hai chiều đảo ngược</figcaption>
+</figure>
+Giờ mọi UV island sẽ hiện ở bên trái. Bạn qua vùng có vấn đề, di chuột lên một face
+ở đó rồi nhấn L để chỉ chọn island đó. Bạn sẽ thấy nó cũng sáng lên trên model 3D.
+Ta unwrap riêng cái này thôi: sau khi chọn nó, nhấn U nhưng lần này chọn
+“Unwrap minimum stretch”.
+<figure>
+  <img
+    id="img-12"
+    src="/wiki-images/j3-img-12.png"
+    alt="Kết quả unwrap minimum stretch của vùng đã chọn"
+  />
+  <figcaption>
+    Ảnh 12. Kết quả unwrap minimum stretch của vùng đã chọn
+  </figcaption>
+</figure>
+Bạn có thể chỉnh cỡ bằng tay cho vừa các khoảng trống trong ảnh, hoặc để Blender
+làm hộ! Với cách thứ hai, nhấn “A” lần nữa để chọn lại tất cả. Rồi vào menu UV và
+chọn pack islands
+<figure>
+  <img
+    id="img-13"
+    src="/wiki-images/j3-img-13.png"
+    alt="Pack islands lần nữa"
+  />
+  <figcaption>Ảnh 13. Pack islands lần nữa</figcaption>
+</figure>
+<Callout>
+  Cố dùng cùng giá trị spacing như trong <a href="#img-8">ảnh 8</a>
+</Callout>
+<figure>
+  <img
+    id="img-14"
+    src="/wiki-images/j3-img-14.png"
+    alt="Pack islands lần nữa (2)"
+  />
+  <figcaption>Ảnh 14. Pack islands lần nữa (2)</figcaption>
+</figure>
+UV của bạn giờ đã sẵn sàng. Qua phần baking thôi.
+
+# Bước 2
+
+Baking bảo Blender chuyển một số phần trong cách model 3D đang hiển thị sang một nơi khác, thường là một ảnh texture.
+
+Với bước này ta dùng tab <b>shading</b> từ menu tab ở đầu cửa sổ Blender.
+
+Ở bên trái, nhớ mở ảnh “one_texture” ta tạo lúc nãy, giờ nó vẫn còn màu đen.
+
+<figure>
+  <img id="img-15" src="/wiki-images/j3-img-15.png" alt="Tab shading" />
+  <figcaption>Ảnh 15. Tab shading</figcaption>
+</figure>
+
+Giờ đến phần nhàm chán. Qua panel bên phải, phần material view, chọn cái đầu tiên. Rồi trong node panel (các ô ngay dưới model 3D), nhấn F3 và gõ “Image texture”
+
+<figure>
+  <img
+    id="img-16"
+    src="/wiki-images/j3-img-16.png"
+    alt="Tạo image texture mới"
+  />
+  <figcaption>Ảnh 16. Tạo image texture mới</figcaption>
+</figure>
+Giờ chọn ảnh “one_texture” của ta từ biểu tượng “picture”. Bạn sẽ có thứ trông như
+thế này
+<figure>
+  <img
+    id="img-17"
+    src="/wiki-images/j3-img-17.png"
+    alt="Kết quả tạo image texture mới"
+  />
+  <figcaption>Ảnh 17. Kết quả tạo image texture mới</figcaption>
+</figure>
+Nhân tiện, mình thích đổi color space sang sRGB, phần còn lại cứ để nguyên.
+
+Để ý thấy có viền sáng trắng quanh ô không? Nghĩa là nó đang được chọn, <b>chỗ này cũng quan trọng cho việc bake</b>.
+
+Xong rồi thì nhấn ctrl+c để chép node, rồi lần lượt qua từng material còn lại trong danh sách bên phải và nhấn ctrl+v để dán vào.
+
+Nếu làm đúng, giờ bạn sẽ có một ô giống như <a href="#img-17">Ảnh 17</a> cho mỗi material. Nhớ chọn hết tất cả chúng.
+
+# Bước 3
+
+Qua tab render ở panel bên phải
+
+<figure>
+  <img id="img-18" src="/wiki-images/j3-img-18.png" alt="Tab render" />
+  <figcaption>Ảnh 18. Kết quả tạo image texture mới</figcaption>
+</figure>
+<Callout type="warning">
+  Đổi render engine từ EEVEE sang Cycles, vì EEVEE không hỗ trợ baking.
+</Callout>
+
+Vào submenu “Bake” ở đó và chọn các thiết lập sau:
+
+<figure>
+  <img
+    id="img-19"
+    src="/wiki-images/j3-img-19.png"
+    alt="Thiết lập submenu bake"
+  />
+  <figcaption>Ảnh 19. Thiết lập submenu bake</figcaption>
+</figure>
+Diffuse map bake màu của texture. Ta tắt direct và indirect vì không muốn ánh sáng
+xen vào.
+
+<b>Trước khi nhấn nút “Bake”, chắc chắn những điều này</b>
+
+1. UV map đang chọn là cái bạn mới tạo.
+2. Có một node image texture mới đang chọn cho mỗi material.
+3. Model 3D của bạn cũng đang được chọn
+
+<figure>
+  <img id="img-20" src="/wiki-images/j3-img-20.png" alt="Kiểm tra thiết lập bake" />
+  <figcaption>Ảnh 20. Kiểm tra thiết lập bake</figcaption>
+</figure>
+
+Sẵn sàng rồi thì nhấn bake.
+
+Nếu bạn làm đúng theo hướng dẫn, giờ bạn sẽ có thứ trông như thế này
+
+<figure>
+  <img id="img-21" src="/wiki-images/j3-img-21.png" alt="Kết quả bake" />
+  <figcaption>Ảnh 21. Kết quả bake</figcaption>
+</figure>
+
+<Callout type="danger" title="Cẩn thận">
+  Lưu ảnh về máy nếu không bạn sẽ mất nó.
+</Callout>
+
+<figure>
+  <img id="img-22" src="/wiki-images/j3-img-22.png" alt="Lưu kết quả" />
+  <figcaption>Ảnh 22. Lưu kết quả</figcaption>
+</figure>
+
+# Bước 4
+
+Đến lúc dọn dẹp và thử kết quả.
+
+Quay lại giao diện layout (ở thanh menu trên cùng). Model 3D của bạn giờ trông đã ổn, ta phá nó một chút nào. Trước tiên, tạo một material mới để chứa texture mới của ta.
+
+<figure>
+  <img id="img-23" src="/wiki-images/j3-img-23.png" alt="Tạo material mới" />
+  <figcaption>Ảnh 23. Tạo material mới</figcaption>
+</figure>
+Đặt tên cho nó, ví dụ “one_texture”, rồi chuyển sang layout shading và nối các node
+như trong ảnh dưới.
+<figure>
+  <img id="img-24" src="/wiki-images/j3-img-24.png" alt="Nối các node" />
+  <figcaption>Ảnh 24. Nối các node</figcaption>
+</figure>
+Quay lại tab layout và xóa hết material trừ cái ta vừa tạo. Bạn sẽ có một mớ hỗn độn
+như thế này
+<figure>
+  <img id="img-25" src="/wiki-images/j3-img-25.png" alt="Ngày tận thế của material" />
+  <figcaption>Ảnh 25. Ngày tận thế của material</figcaption>
+</figure>
+Còn nhớ menu UV map ở <a href="#img-2">ảnh 2</a> chứ? Đổi biểu tượng camera sao cho
+UV map mới của bạn là cái đang bật, rồi xem phép màu diễn ra.
+
+<Callout type="success">
+  Giờ đến bước cuối, xóa “UVMap” cũ và đổi tên cái mới thành đúng tên “UVMap”. Mình
+  không chắc lắm nhưng đọc đâu đó thấy nói tên UVMap quan trọng để skin chạy được
+  trong LMHT.
+</Callout>

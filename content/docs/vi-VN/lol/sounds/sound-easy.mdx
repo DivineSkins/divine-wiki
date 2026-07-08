@@ -1,0 +1,136 @@
+---
+title: "Dễ - Mod âm thanh cơ bản"
+description: "Hướng dẫn cho người mới bắt đầu làm mod âm thanh"
+category: "sounds"
+---
+
+**Công cụ cần có:**
+
+<ToolCard name="Quartz" href="https://github.com/RitoShark/Quartz">
+  Tải từ GitHub.
+</ToolCard>
+
+**Công cụ hữu ích:**
+
+<ToolCard name="Audacity" href="https://www.audacityteam.org/download/">
+  Phần mềm chỉnh sửa âm thanh.
+</ToolCard>
+
+<ToolCard name="yt-dlp" href="https://github.com/yt-dlp/yt-dlp">
+  Công cụ tiện lợi để tải media từ trên mạng.
+</ToolCard>
+
+---
+
+### Bạn đang làm việc với cái gì
+
+Liên Minh Huyền Thoại lưu âm thanh trong vài loại file mà bạn sẽ gặp đi gặp lại
+hoài:
+
+- `.bnk`: một "SoundBank" của Wwise, chứa dữ liệu âm thanh và/hoặc phần logic và
+  cây phân cấp event.
+- `.wpk`: định dạng riêng của Riot, chỉ chứa âm thanh thô (không có metadata).
+- `.wem`: định dạng âm thanh nén riêng lẻ mà Wwise dùng bên trong.
+
+<Callout type="info" title="File nào bạn sẽ chỉnh">
+  Với **SFX** (kỹ năng, va chạm, âm thanh giao diện), bạn thường sẽ chỉnh một
+  file `audio.bnk`.
+
+Với **VO** (lời thoại, người dẫn), bạn thường sẽ chỉnh một file `audio.wpk`.
+
+</Callout>
+
+---
+
+### Tìm đúng file cần chỉnh
+
+Bạn cần ba file để chỉnh âm thanh của một nhân vật:
+
+| File               | Ví dụ đường dẫn                                                                       |
+| ------------------ | ------------------------------------------------------------------------------------- |
+| Audio (wpk hoặc bnk) | `ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_vo_audio.wpk`  |
+| Bank event         | `ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_vo_events.bnk` |
+| File Bin           | `data/characters/Yone/skins/skin0.bin`                                                |
+
+Bạn có thể nạp thẳng mấy file này vào Quartz, hoặc dùng một trong các tùy chọn có sẵn:
+
+- **Từ game.** Chọn một vị tướng và skin của họ (tùy chọn ngoài cùng bên trái).
+- **Từ một mod có sẵn.** Nếu bạn đang chỉnh, lấy nguồn, hoặc phát triển thêm trên
+  một mod khác, hãy nạp thư mục của mod đó (tùy chọn thứ hai từ trái sang).
+
+<img src="/wiki-images/quartz-selection-2.png" alt="Chọn nguồn trong Quartz" />
+
+---
+
+### Từng bước: Thay một âm thanh
+
+**1. Mở tab Sound Bank trong Quartz.**
+
+<img src="/wiki-images/quartz-empty-2.png" alt="Tab Sound Bank trống trong Quartz" />
+
+**2. Nạp file của bạn ở phía BÊN TRÁI.**
+
+Nhấn vào panel bên trái và trỏ Quartz tới file `.bin`, file audio (`.bnk` hoặc `.wpk`),
+và file event (`.bnk`) của bạn. Rồi bấm **Parse**.
+
+Thao tác này sẽ đổ vào bên trái một danh sách tất cả âm thanh trong bank đó.
+
+<img src="/wiki-images/quartz-2-2.png" alt="Bank đã parse ở panel bên trái" />
+
+Bạn có thể parse và nạp nhiều bank cùng lúc ở bên trái.
+
+**3. Thêm âm thanh thay thế ở phía BÊN PHẢI.**
+
+Panel bên phải là nơi bạn nạp âm thanh mới muốn dùng. Quartz nhận:
+
+- `.wav`
+- `.wem`
+- `.ogg`
+- `.mp3`
+
+Nó tự chuyển đổi định dạng. Bạn không cần chuyển sang `.wem` trước khi import.
+
+Bạn cũng có thể nạp một bank audio khác của League đã parse vào bên phải và lấy
+âm thanh trực tiếp từ đó.
+
+<img
+  src="/wiki-images/quartz-3-2.png"
+  alt="Âm thanh thay thế ở panel bên phải"
+/>
+
+**4. Kéo để thay thế.**
+
+Kéo một âm thanh từ **panel bên phải** thả lên âm thanh bạn muốn thay ở **panel
+bên trái**. Mục bên trái sẽ cập nhật theo âm thanh thay thế.
+
+<img
+  src="/wiki-images/quartz4.png"
+  alt="Kéo một âm thanh để thay nó trong Quartz"
+/>
+
+**5. Lưu bank đã chỉnh.**
+
+Chọn bank của bạn ở panel bên trái, rồi nhấn **"Save as BNK/WPK"** và lưu vào
+đâu đó trong thư mục mod của bạn.
+
+<img
+  src="/wiki-images/quartz-save-2.png"
+  alt="Lưu bank đã chỉnh trong Quartz"
+/>
+
+---
+
+### Cần bỏ gì vào mod của bạn
+
+| Loại mod | File cần bỏ vào                  |
+| -------- | -------------------------------- |
+| Mod SFX  | Chỉ `audio.bnk`                  |
+| Mod VO   | `audio.wpk` **VÀ** `events.bnk`  |
+
+Với mod VO, bank event là bắt buộc vì nó xác định file âm thanh nào phát cho mỗi
+event trong game (đánh, chết, giỡn, v.v.). Thiếu nó, âm thanh mới của bạn sẽ
+không kích hoạt đúng.
+
+---
+
+hướng dẫn bởi aurecueil

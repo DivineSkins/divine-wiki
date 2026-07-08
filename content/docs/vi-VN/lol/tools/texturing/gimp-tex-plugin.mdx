@@ -1,0 +1,147 @@
+---
+title: "GIMP TEX Plugin"
+description: "Mở và xuất file texture .tex của Liên Minh Huyền Thoại ngay trong GIMP. Chạy trên GIMP 2.x và 3.x, Windows, Linux và macOS."
+category: "tools"
+---
+
+Mở và xuất file texture `.tex` của Liên Minh Huyền Thoại ngay trong GIMP. Do **Frog** làm.
+
+Chạy trên **GIMP 2.x** và **GIMP 3.x** trên Windows, Linux và macOS.
+
+Tải về: [github.com/RitoShark/Gimp-Tex-Plugin/releases](https://github.com/RitoShark/Gimp-Tex-Plugin/releases)
+
+## Chuẩn bị trước khi bắt đầu
+
+- GIMP 2.10 hoặc GIMP 3.x đã cài
+- Một file `.tex` để thử (texture nào của LMHT cũng được)
+
+## Cài bằng bộ cài (Windows)
+
+1. Tải `GIMP_TEX_Plugin_Setup.exe` từ bản phát hành mới nhất.
+2. Chạy bộ cài. Nó tự nhận diện phiên bản GIMP của bạn.
+3. Làm theo hướng dẫn rồi bấm **Install**.
+4. Khởi động lại GIMP nếu nó đang mở.
+
+Plugin sẵn sàng khi GIMP hiện `.tex` là định dạng hỗ trợ trong File > Open.
+
+## Cài thủ công (GIMP 3.x)
+
+Dùng cách này nếu bạn dùng Linux, macOS, hoặc không muốn chạy bộ cài.
+
+1. Tải file zip GIMP 3 cho hệ điều hành của bạn từ bản phát hành mới nhất.
+2. Giải nén vào một thư mục tên `gimp3_tex_plugin` bên trong thư mục plug-ins của GIMP:
+
+   | Nền tảng        | Thư mục plug-ins                                                            |
+   | --------------- | --------------------------------------------------------------------------- |
+   | Windows         | `%APPDATA%\GIMP\<version>\plug-ins\gimp3_tex_plugin\`                       |
+   | Linux           | `~/.config/GIMP/<version>/plug-ins/gimp3_tex_plugin/`                       |
+   | Linux (Flatpak) | `~/.var/app/org.gimp.GIMP/config/GIMP/<version>/plug-ins/gimp3_tex_plugin/` |
+   | macOS           | `~/Library/Application Support/GIMP/<version>/plug-ins/gimp3_tex_plugin/`   |
+
+3. Khởi động lại GIMP.
+
+Nếu plugin không hiện lên, chạy `chmod +x gimp3_tex_plugin.py` trong thư mục bạn vừa giải nén.
+
+## Cài thủ công (GIMP 2.x)
+
+1. Tải file zip GIMP 2 cho hệ điều hành của bạn từ bản phát hành mới nhất.
+2. Giải nén vào thư mục plug-ins của GIMP. Cách này đặt `gimp2_tex_plugin.py` thẳng vào `plug-ins/` và các file dùng chung vào `plug-ins/gimp2_tex_libs/`.
+
+   | Nền tảng        | Thư mục plug-ins                                           |
+   | --------------- | ---------------------------------------------------------- |
+   | Windows         | `%APPDATA%\GIMP\<version>\plug-ins\`                       |
+   | Linux           | `~/.config/GIMP/<version>/plug-ins/`                       |
+   | Linux (Flatpak) | `~/.var/app/org.gimp.GIMP/config/GIMP/<version>/plug-ins/` |
+   | macOS           | `~/Library/Application Support/GIMP/<version>/plug-ins/`   |
+
+3. Khởi động lại GIMP.
+
+Nếu plugin không hiện lên, chạy `chmod +x gimp2_tex_plugin.py`.
+
+<Callout type="info">
+Không rõ thư mục plug-ins nằm đâu? Trong GIMP, mở **Edit > Preferences > Folders > Plug-Ins**.
+</Callout>
+
+## Mở một file `.tex`
+
+- Mở từ **File > Open** rồi chọn file `.tex` của bạn.
+- Hoặc kéo thả một file `.tex` vào GIMP.
+
+## Xuất ra `.tex`
+
+Bạn có hai lựa chọn.
+
+**Xuất nhanh.** Vào **File > Export As**, đặt tên file kết thúc bằng `.tex`, bấm **Export**. Cách này dùng thiết lập bạn dùng gần nhất (mặc định là DXT5 kèm dithering).
+
+**Xuất kèm tùy chọn.** Vào **File > Export as .tex (options)...** Một hộp thoại mở ra để bạn chọn định dạng nén và các thiết lập khác.
+
+## Giải thích các tùy chọn xuất
+
+### Định dạng nén
+
+| Định dạng      | Công dụng                                                                             |
+| -------------- | ------------------------------------------------------------------------------------- |
+| **DXT1 (BC1)** | Nén 4:1. Không có kênh alpha. File nhỏ nhất cho texture đặc.                           |
+| **DXT5 (BC3)** | Nén 4:1. Kênh alpha 8-bit đầy đủ. Dùng cái này nếu texture của bạn có phần trong suốt. |
+| **BGRA8**      | BGRA 32-bit không nén. File to nhất, không mất chất lượng.                             |
+
+DXT1 và DXT5 cần chiều rộng và chiều cao chia hết cho 4. Nếu ảnh của bạn không đạt, plugin sẽ báo kích thước hợp lệ gần nhất.
+
+### Error diffusion dithering
+
+Rải sai số lượng tử hóa sang các pixel lân cận trong lúc nén DXT. Giảm hiện tượng dải màu trên vùng chuyển màu và vùng màu mượt.
+
+**Khuyến nghị: Bật.** Chất lượng lên hẳn mà gần như không tốn gì.
+
+Chỉ hoạt động với DXT1 và DXT5. BGRA8 không nén nên không cần dithering.
+
+### Error metric
+
+Quyết định cách plugin đo khác biệt màu trong lúc nén DXT.
+
+| Metric         | Công dụng                                                                                         |
+| -------------- | ------------------------------------------------------------------------------------------------ |
+| **Perceptual** | Cân màu theo cách mắt người nhìn (xanh lá > đỏ > xanh dương). Đẹp hơn với hầu hết mọi người.      |
+| **Uniform**    | Coi mọi kênh như nhau. Tốt hơn cho texture không phải ảnh chụp.                                   |
+
+**Khuyến nghị: Perceptual** cho hầu hết texture.
+
+Chỉ hiện ra khi dithering đang bật.
+
+### Tạo mipmap
+
+Dựng một chuỗi mipmap đầy đủ bằng cách lấy mẫu lại Lanczos3. Mỗi cấp có độ phân giải bằng nửa cấp trên nó, xuống tới 1x1.
+
+**Khuyến nghị: Tắt** trừ khi bạn biết texture đó cần mipmap. Hầu hết texture của LMHT được đổi kích thước lúc chạy, nên mipmap làm file to thêm khoảng 33% mà không đẹp thêm chút nào.
+
+## Định dạng hỗ trợ
+
+| Định dạng  | Nạp | Xuất |
+| ---------- | --- | ---- |
+| DXT1 (BC1) | Có  | Có   |
+| DXT5 (BC3) | Có  | Có   |
+| BGRA8      | Có  | Có   |
+| Mipmap     | Có  | Có   |
+
+## Gỡ cài đặt
+
+**Bộ cài (Windows).** Mở **Windows Settings > Apps > Installed Apps**, tìm **GIMP TEX Plugin**, bấm **Uninstall**.
+
+**Cài thủ công.** Xóa các file plugin khỏi thư mục plug-ins của bạn:
+
+- GIMP 3.x: xóa thư mục `gimp3_tex_plugin`.
+- GIMP 2.x: xóa `gimp2_tex_plugin.py` và thư mục `gimp2_tex_libs`.
+
+Khởi động lại GIMP.
+
+## Nếu có gì đó trục trặc
+
+- **Plugin không hiện sau khi cài thủ công.** Kiểm tra xem các file có quyền thực thi chưa. Chạy `chmod +x gimp3_tex_plugin.py` (hoặc bản GIMP 2) rồi khởi động lại GIMP.
+- **Không tìm thấy thư mục plug-ins.** Mở **Edit > Preferences > Folders > Plug-Ins** trong GIMP.
+- **Ảnh không xuất được sang DXT1 hoặc DXT5.** Đổi kích thước sao cho cả rộng và cao đều chia hết cho 4. Plugin sẽ báo kích thước hợp lệ gần nhất.
+
+## Ghi công
+
+- Xử lý định dạng TEX dựa trên [LtMAO](https://github.com/tarngaina/LtMAO) của tarngaina.
+- Nén DXT chuyển từ [Microsoft DirectXTex](https://github.com/microsoft/DirectXTex) (giấy phép MIT).
+- Kiểm thử trên Linux bởi MartynasXS.

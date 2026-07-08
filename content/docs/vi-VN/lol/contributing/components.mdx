@@ -1,0 +1,271 @@
+---
+title: Các component
+description: Mọi component bạn dùng được trong một hướng dẫn. Mỗi cái đều hiển thị trực tiếp, kèm code để sao chép.
+---
+
+Wiki có một bộ nhỏ các component mà bạn thả vào bất kỳ hướng dẫn nào.
+Thanh công cụ của trình chỉnh sửa nháp sẽ chèn chúng cho bạn. Trang này là
+bản tham khảo đầy đủ. Mỗi phần cho thấy component trước, rồi tới code
+tạo ra nó.
+
+## Callout
+
+Một hộp có màu cho cảnh báo, mẹo và ghi chú an toàn về Hàn Quốc/Trung Quốc. Dùng
+`type="danger"` cho rủi ro thật, `info` cho mẹo, `warning` cho "chỗ này có thể
+hỏng", và `success` cho xác nhận.
+
+<Callout type="info" title="Mẹo">
+  Bạn có thể bỏ qua bước này nếu đã cài công cụ rồi.
+</Callout>
+
+<Callout type="warning" title="Lưu ý">
+  Ghi đè lên file gốc thì không thể hoàn tác. Tạo một bản sao trước đã.
+</Callout>
+
+<Callout type="danger" title="Don't use custom skins in Korea or China">
+  The anti-cheat there blocks all mods. Accounts get banned.
+</Callout>
+
+<Callout type="success" title="Xong">
+  Một dấu tích màu xanh hiện ra khi bộ skin đã sẵn sàng.
+</Callout>
+
+```mdx
+<Callout type="danger" title="Don't use custom skins in Korea or China">
+  The anti-cheat there blocks all mods. Accounts get banned.
+</Callout>
+```
+
+Props:
+
+- `type` là `info`, `warning`, `danger` hoặc `success`. Mặc định là `info`.
+- `title` là tùy chọn. Mỗi loại có một tiêu đề mặc định.
+
+Cũng có ba loại level để đánh dấu độ khó bên trong một trang:
+`lvl_beginner`, `lvl_intermediate` và `lvl_advanced`. Nếu muốn một huy hiệu độ
+khó nhỏ ở đầu hướng dẫn, hãy dùng [LevelPill](#levelpill) thay vào đó.
+
+## Tabs
+
+Các lộ trình thay thế nhau. Dùng tab cho các bước theo hệ điều hành hoặc quy
+trình theo công cụ. Mỗi `<Tabs>` cần một `</Tabs>` đóng lại, và mỗi
+`<Tab>` cần một `</Tab>`.
+
+<Tabs items={["Windows", "macOS"]}>
+
+<Tab value="Windows">Windows steps here.</Tab>
+
+<Tab value="macOS">macOS steps here.</Tab>
+
+</Tabs>
+
+```mdx
+<Tabs items={["Windows", "macOS"]}>
+  <Tab value="Windows">Windows steps here.</Tab>
+  <Tab value="macOS">macOS steps here.</Tab>
+</Tabs>
+```
+
+## Accordion
+
+Các phần có thể thu gọn. Hợp cho FAQ và chi tiết tùy chọn.
+
+<Accordions>
+
+<Accordion title="Mình có cần Maya để làm skin không?">
+  Không. Blender lo được cả quy trình, và nhiều chỉnh sửa chẳng cần công cụ 3D
+  nào cả.
+</Accordion>
+
+<Accordion title="File mod của mình lớn cỡ nào được?">
+  Không có giới hạn cứng, nhưng giữ texture nhỏ để bản mod tải nhanh.
+</Accordion>
+
+</Accordions>
+
+```mdx
+<Accordions>
+  <Accordion title="Question here">Answer here.</Accordion>
+</Accordions>
+```
+
+## Hình ảnh
+
+Một ảnh chụp màn hình. `alt` text là bắt buộc. Người duyệt sẽ từ chối ảnh
+thiếu nó. Giữ file dưới 500 KB và đặt vào `public/wiki-images/`.
+Người đọc có thể nhấn vào bất kỳ ảnh nào để phóng to.
+
+<img
+  src="/wiki-images/1767019072359-dfx5or.png"
+  alt="LtMAO với tab maya đang mở, hiển thị các bước cài lemon3d"
+/>
+
+```mdx
+<img
+  src="/wiki-images/your-screenshot.png"
+  alt="Short description of the image"
+/>
+```
+
+## Khối code
+
+Một khối code được rào bằng dấu fence. Thêm một ngôn ngữ sau fence mở đầu để
+tô sáng cú pháp.
+
+```bash
+npm run dev
+```
+
+````mdx
+```bash
+npm run dev
+```
+````
+
+## Bảng
+
+Một bảng Markdown. Giữ vài cột thôi để nó đọc được trên điện thoại.
+
+| Column A | Column B |
+| -------- | -------- |
+| Value    | Value    |
+
+```mdx
+| Column A | Column B |
+| -------- | -------- |
+| Value    | Value    |
+```
+
+## ToolCard
+
+Một dòng công cụ với tên, một liên kết và một dòng mô tả. Dùng nó trên các
+trang danh sách công cụ.
+
+<ToolCard
+  name="Flint"
+  href="/docs/lol/tools/modding-apps/flint"
+  badge="Recommended"
+>
+  All-in-one skin creation tool.
+</ToolCard>
+
+```mdx
+<ToolCard
+  name="Flint"
+  href="/docs/lol/tools/modding-apps/flint"
+  badge="Recommended"
+>
+  All-in-one skin creation tool.
+</ToolCard>
+```
+
+Props:
+
+- `name` và `href` là bắt buộc. Liên kết ngoài mở trong tab mới.
+- `badge` là tùy chọn. Nó hiện dưới dạng một huy hiệu nhỏ ở bên phải.
+
+## LevelPill
+
+Một dấu đánh độ khó. Đặt nó ở đầu hướng dẫn, ngay dưới tiêu đề. `level` là
+`beginner`, `intermediate` hoặc `advanced`.
+
+<LevelPill level="beginner" /> <LevelPill level="intermediate" />
+<LevelPill level="advanced" />
+
+```mdx
+<LevelPill level="beginner" />
+```
+
+Dùng prop tùy chọn `label` để đổi chữ:
+`<LevelPill level="advanced" label="Expert" />`.
+
+## ParameterList
+
+Một bảng hai cột tên/mô tả cho các trang tham khảo.
+
+<ParameterList
+  parameters={[
+    { name: "champion", description: "The champion the skin belongs to." },
+    { name: "skin_id", description: "The numeric id of the base skin." },
+  ]}
+/>
+
+```mdx
+<ParameterList
+  parameters={[
+    { name: "champion", description: "The champion the skin belongs to." },
+    { name: "skin_id", description: "The numeric id of the base skin." },
+  ]}
+/>
+```
+
+## PremiumCard
+
+Một thẻ nổi bật với viền gradient cho một liên kết được làm nổi. Dùng nó để
+chỉ người đọc tới trang tiếp theo quan trọng nhất.
+
+<PremiumCard title="Guided walkthrough" href="/docs/lol/guided-walkthrough">
+  Start here if you are new. One path from empty folder to finished skin.
+</PremiumCard>
+
+```mdx
+<PremiumCard title="Guided walkthrough" href="/docs/lol/guided-walkthrough">
+  Start here if you are new.
+</PremiumCard>
+```
+
+## GlowCTA
+
+Một nút kêu gọi hành động phát sáng. Dùng nó cho một hành động duy nhất bạn
+muốn người đọc thực hiện. Nhiều nhất một cái mỗi trang.
+
+<GlowCTA href="/docs/lol">Browse the guides</GlowCTA>
+
+```mdx
+<GlowCTA href="/docs/lol">Browse the guides</GlowCTA>
+```
+
+Props:
+
+- `variant` là `primary` (phát sáng tím, mặc định), `solid`, `secondary`
+  hoặc `ghost`.
+- `size` là `md` (mặc định) hoặc `lg`.
+
+## YouTube
+
+Một video YouTube được nhúng. Truyền id của video, không phải cả URL. Id
+là phần sau `watch?v=` hoặc `youtu.be/`.
+
+<YouTube
+  id="xqB84ga55hI"
+  title="Hướng dẫn làm skin tùy chỉnh cho Liên Minh Huyền Thoại"
+/>
+
+```mdx
+<YouTube id="xqB84ga55hI" title="What the video shows" />
+```
+
+Props:
+
+- `id` là bắt buộc.
+- `title` mô tả video cho trình đọc màn hình.
+- `start` là tùy chọn. Nó bắt đầu phát ở giây đó.
+
+Lối tắt: dán một liên kết YouTube thường trên một dòng riêng và wiki sẽ biến
+nó thành một video nhúng cho bạn.
+
+## Icon
+
+Một biểu tượng nội dòng. Dùng bất kỳ [tên icon Lucide nào](https://lucide.dev/icons/),
+hoặc một trong các tên thương hiệu: `Maya`, `Blender`, `Discord`,
+`LeagueOfLegends`.
+
+<Icon name="Wrench" /> <Icon name="Sparkles" /> <Icon name="Blender" />
+<Icon name="Discord" />
+
+```mdx
+<Icon name="Wrench" />
+```
+
+Dùng prop tùy chọn `className` để đổi kích thước, ví dụ
+`className="size-4"`.

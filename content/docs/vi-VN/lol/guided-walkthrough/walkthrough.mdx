@@ -1,0 +1,229 @@
+---
+title: "Bài hướng dẫn đầy đủ"
+description: "Bài hướng dẫn video trọn gói để làm một bộ skin tùy chỉnh cho League. Từ lần cài công cụ đầu tiên tới bản mod đã đăng."
+category: "guided-walkthrough"
+---
+
+> Hướng dẫn này đưa bạn từ lần cài công cụ đầu tiên tới một bộ skin hoàn chỉnh, đã đăng. Làm theo các phần đúng thứ tự.
+
+<Callout type="warning" title="An toàn trước đã">
+  Skin tùy chỉnh an toàn ngoài Hàn Quốc và Trung Quốc. Không có ai bị khóa acc từ
+  năm 2014 tới nay nếu bạn dùng công cụ đáng tin cậy. Chúng chỉ chạy phía client:
+  chỉ mình bạn thấy, và không tạo lợi thế nào trong lối chơi. Đừng bao giờ dùng
+  skin tùy chỉnh ở Hàn Quốc hay Trung Quốc. Anti-cheat ở đó chặn mọi bản mod.
+</Callout>
+
+<Callout type="info" title="Video có thể đã cũ">
+  Một vài video bên dưới dùng công cụ đời cũ. Đã có công cụ mới ra mắt kể từ đó,
+  và mỗi cái đều có hướng dẫn riêng trong phần [Công cụ](/docs/lol/tools). Các
+  video vẫn là cách hay để nắm cả quy trình từ đầu tới cuối. Còn cho công việc
+  hằng ngày, về lâu dài bạn nên dùng các công cụ mới hơn.
+</Callout>
+
+## Cách quy trình vận hành
+
+Làm skin thời nay đi theo một con đường. [Flint](/docs/lol/tools/modding-apps/flint)
+lo phần lớn quy trình đó trong một cửa sổ.
+
+1. **Trích xuất** file của bộ skin ra khỏi game.
+2. **Xem trước** mô hình, texture và VFX.
+3. **Chỉnh** những gì bạn muốn thay đổi: mô hình, texture, particle hay âm thanh.
+4. **Kiểm tra** bản mod và sửa các bug thường gặp bằng [Hematite](/docs/lol/tools/modding-apps/hematite).
+5. **Đóng gói** bản mod thành file `.fantome` hoặc `.modpkg`. Đây là các định dạng gói mod mà trình quản lý skin sẽ cài.
+6. **Cài** nó bằng một trình quản lý skin để thử trong game.
+
+Mỗi phần bên dưới ứng với một trong các bước này.
+
+## Bắt đầu
+
+### Công cụ bạn cần
+
+Bắt đầu với ba cái này. Chúng lo phần lớn công việc:
+
+- **[Flint](/docs/lol/tools/modding-apps/flint)**: trích xuất, xem trước, chỉnh, kiểm tra và đóng gói. App tất cả trong một.
+- **[Jade](/docs/lol/tools/modding-apps/jade)**: trình chỉnh BIN chuyên biệt cho lúc bạn cần tới.
+- **[Quartz](/docs/lol/tools/modding-apps/quartz)**: đổi màu VFX, chuyển hiệu ứng và làm âm thanh nhẹ nhàng.
+
+Bạn cũng sẽ muốn có:
+
+- Bản tổng quan [Công cụ](/docs/lol/tools) cho mọi thứ còn lại.
+- **[LtMAO](/docs/lol/tools/modding-apps/ltmao)** là tùy chọn. Đây là bộ công cụ đời cũ, giữ lại làm phương án dự phòng cho việc xử lý hàng loạt và làm nguyên soundbank.
+
+---
+
+## Hướng dẫn từng bước
+
+---
+
+### Phần 1: Flint
+
+Khám phá file game của League bằng **Flint**. Học những điều cơ bản về mod và dựng các thư mục dự án.
+
+Gồm có:
+
+- Khám phá file
+- Kiến thức nền tảng về mod
+- Dựng dự án
+
+https://www.youtube.com/watch?v=lUq29txlCCE
+
+---
+
+### Phần 2: Hacksaw
+
+Đổi màu các hiệu ứng hình ảnh có sẵn bằng hệ thống bảng màu trực quan. Không cần code.
+
+<Callout type="info" title="Tùy chọn mới hơn: Quartz Paint">
+  [Quartz](/docs/lol/tools/modding-apps/quartz) có trang Paint đổi màu particle
+  ngay trong app, không cần dựng `ritobin_cli`. [Hướng dẫn
+  Hacksaw](/docs/lol/vfx-bins/hacksaw) vẫn dùng được, và video bên dưới sẽ dẫn
+  bạn đi qua nó.
+</Callout>
+
+https://www.youtube.com/watch?v=ZswaStGq7VU&t=1s
+
+---
+
+### Phần 3: Thay mô hình (Maya hoặc Blender)
+
+Thay mô hình của một vị tướng bằng **Autodesk Maya** và **LoL Maya Plugin**. Với Blender, xem [hướng dẫn thay mô hình bằng Blender](/docs/lol/blender/3d-model-swap).
+
+#### Lưu ý quan trọng
+
+- **Cài LoL Maya trước**
+- **Không** xóa face, vertex hay edge sau khi bind mesh
+- Lần đầu import file `.skn` / `.skl`, dùng **Import**, đừng kéo thả
+- Bảo đảm đã bật **separated materials and meshes**
+
+https://www.youtube.com/watch?v=xqB84ga55hI&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=3&ab_channel=Frog
+
+Xem [Danh sách lỗi Maya](/docs/lol/errors/maya-errors).
+
+---
+
+### Phần 4: Material, submesh và bin của Maya
+
+Hiểu cách material hoạt động trong Maya và cách tham chiếu tới chúng bên trong file `.bin` bằng `MaterialOverride`.
+
+https://www.youtube.com/watch?v=dS-lvovFmVw&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=4&ab_channel=Frog
+
+---
+
+### Phần 5: Matrix và particle idle
+
+Phóng to, xoay và di chuyển hiệu ứng hình ảnh bằng ma trận biến đổi. Thêm hào quang idle hoặc hiệu ứng hình ảnh bị động.
+
+Gồm có:
+
+- Cách đặt một hệ thống VFX (quan trọng)
+- Code dùng trong bài hướng dẫn này
+
+<Callout type="info" title="Bạn có thể chỉnh các BIN này trong Jade hoặc Quartz">
+  Video chỉnh file `.bin` bằng tay. Bạn có thể làm đúng những chỉnh sửa đó bằng
+  giao diện trực quan trong [Jade](/docs/lol/tools/modding-apps/jade), hoặc phóng to
+  particle hàng loạt trong trang Bineditor của Quartz.
+</Callout>
+
+https://www.youtube.com/watch?v=bUJSVlVHEZM&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=5&ab_channel=Frog
+
+---
+
+### Phần 6: Hệ thống particle và VFX được kích hoạt
+
+Kích hoạt hiệu ứng hình ảnh bằng:
+
+- Sự kiện animation
+- Logic game (`PersistentEffectConditions`)
+
+https://www.youtube.com/watch?v=T7ALG5M4twQ&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=6&ab_channel=Frog
+
+---
+
+### Phần 7: Lồng tiếng và hiệu ứng âm thanh
+
+Thay lồng tiếng và hiệu ứng âm thanh, ví dụ tiếng chiêu thức hay tiếng chọc ghẹo.
+
+<Callout type="info" title="Công cụ đã thay đổi kể từ video này">
+  [Quartz](/docs/lol/tools/modding-apps/quartz) giờ xử lý âm thanh `.bnk` và
+  `.wpk` cho việc nhẹ, như đổi một tiếng động. Chỉ dùng Wwise hoặc
+  [LtMAO](/docs/lol/tools/modding-apps/ltmao) khi bạn cần dựng lại nguyên một
+  soundbank. Video bên dưới cũ hơn, nhưng ý tưởng vẫn vậy.
+</Callout>
+
+https://youtu.be/QlJRc4hQNA0?si=w0E0iB6Grcl2n8Ga
+
+---
+
+### Phần 8: Retarget animation
+
+Chuyển animation từ game hay tướng khác (ví dụ Fortnite) sang rig của League.
+
+#### Công cụ
+
+| Công cụ               | Mô tả                                       |
+| --------------------- | ------------------------------------------- |
+| Fortnite Porting Tool | Chuyển animation của Fortnite để dùng trong League |
+
+https://www.youtube.com/watch?v=jnAXvFzYlb4&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=8&ab_channel=Frog
+
+---
+
+### Phần 9: Material của League (Glow và Toon Shader)
+
+Áp material kiểu League như **Glow** và **Toon Shader** lên skin tùy chỉnh của bạn.
+
+https://www.youtube.com/watch?v=mJDehGDIL00&ab_channel=Frog
+
+---
+
+### Phần 10: Repath và đăng bài
+
+Repath bản mod để nó khớp với file game hiện tại, rồi đăng nó lên.
+
+**Đóng gói và xuất file.** Trong Flint, xuất bản mod của bạn thành file `.fantome` hoặc `.modpkg`.
+
+**Tùy chọn repath.** Nếu một đường dẫn sai, hoặc một bản vá làm hỏng bản mod, hãy repath nó bằng
+[League Mod Repather](/docs/lol/tools/modding-apps/league-mod-repather) hoặc
+trang Bumpath của Quartz.
+
+**Cài và thử.** Nạp bản mod vào một trình quản lý skin như LTK Manager hoặc
+Celestial, rồi thử nó trong một trận đấu tùy chỉnh.
+
+https://youtu.be/WxdHs9oauP4
+
+---
+
+## Thêm nữa
+
+### Thêm xương và vật lý (tóc, đuôi, áo choàng)
+
+Thêm xương và chuyển động dựa trên vật lý cho bộ skin của bạn.
+
+#### Công cụ cần có
+
+| Công cụ       | Mô tả                                                                 |
+| ------------- | --------------------------------------------------------------------- |
+| Autodesk Maya | Phần mềm 3D chuẩn ngành cho việc rig và UV mapping                     |
+| Jade          | Chỉnh trực tiếp file vật lý `.bin`. Không phải chuyển tới chuyển lui.  |
+| RitoBin       | Phương án dự phòng tùy chọn. Chuyển `.bin` sang `.py` và ngược lại (`ritobin_cli`). |
+
+https://www.youtube.com/watch?v=ejg5IAkEDTY&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=9&ab_channel=Frog
+
+---
+
+### Cấu hình ví dụ
+
+```cpp
+rigPoseModifierData: list[pointer] = {
+    ConformToPathRigPoseModifierData {
+        mStartingJointName: hash = 0x41f70632
+        mEndingJointName: hash = 0x3cf6fe53
+        mDefaultMaskName: hash = 0x7136e1bc
+        mMaxBoneAngle: f32 = 45
+        mDampingValue: f32 = 5
+        mFrequency: f32 = 3
+    }
+}
+
+
+```

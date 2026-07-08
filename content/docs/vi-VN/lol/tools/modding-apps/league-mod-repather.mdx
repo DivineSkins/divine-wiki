@@ -1,0 +1,167 @@
+---
+title: "League Mod Repather"
+description: "Công cụ độc lập sửa mod Liên Minh Huyền Thoại bị hỏng sau một bản patch."
+category: "tools"
+---
+
+Khi Riot patch League, mod cũ hỏng. League Mod Repather dựng lại mod của
+bạn để nó chạy được trên bản patch hiện tại.
+
+Tải phiên bản mới nhất từ
+[trang releases trên GitHub](https://github.com/RitoShark/League-Mod-Repather/releases).
+Hướng dẫn bên dưới được kiểm tra với bản **v2.0.4**.
+
+---
+
+## Cách dùng
+
+### Thiết lập lần đầu
+
+1. Tải `LeagueModRepather.exe` và mở nó.
+2. Nhấn **Download** để lấy file hash từ CommunityDragon.
+3. Chờ tải xong (~1 phút, ~220 MB).
+
+File hash chỉ tải một lần. Khi có bản patch mới, nhấn **Update** để làm mới
+chúng.
+
+---
+
+### Bước 1: Chọn file
+
+**Thư mục Champions:**
+
+- Nhấn **Browse** cạnh "Champions folder".
+- Vào: `C:\Riot Games\League of Legends\Game\DATA\FINAL\Champions`
+- Nhấn **Select Folder**.
+
+**Mod của bạn:**
+
+- **Lựa chọn A:** Chọn một file `.fantome`. Bạn có thể chọn nhiều hơn một
+  để repath hàng loạt.
+- **Lựa chọn B:** Chọn một thư mục mod. Lựa chọn này dành cho người làm mod
+  đang làm việc trên một mod đã trích xuất. Người dùng thường nên chọn Lựa
+  chọn A.
+
+**Tiền tố riêng** (Không bắt buộc):
+
+- Để trống để có tiền tố ngẫu nhiên như `shadow` hoặc `dragon`.
+- Hoặc gõ tiền tố của riêng bạn như `mymod` để tên file nhất quán.
+
+---
+
+### Bước 2: Các nút bật/tắt sửa crash
+
+Các nút này nằm dưới phần chọn mod. Chúng sửa những kiểu crash cụ thể. Để
+tắt trừ khi bạn cần đến.
+
+<Callout type="info">
+  **Merge Linked BINs** bật sẵn theo mặc định. Cứ để bật. Nó kéo các đường dẫn
+  BIN liên kết mới hơn từ file game tươi và thêm chúng vào mod của bạn. Cái này
+  sửa các mod cũ thiếu mục từ những bản patch gần đây (ví dụ như crash Yone E).
+</Callout>
+
+- **No Skin Lite**. Chép Base/Skin0 sang mọi slot skin khác (1 đến 99).
+  Chỉ chạy được trên mod Base/Skin0.
+- **Nuke Materials (crash fix)**. Gỡ các mục `StaticMaterialDef` và đổi
+  liên kết material thành đường dẫn texture trực tiếp. Thử cái này nếu một
+  mod làm crash game trên các tướng như Yasuo hoặc Zed.
+- **Fix TEX Dimensions (Crash Fix)**. Đổi kích thước file `.tex` có kích
+  thước không chia hết cho 4 (ví dụ 257x257 thành 256x256). Bật lên nếu
+  mod của bạn crash lúc tải.
+
+Nhấn **Next**.
+
+---
+
+### Bước 3: Xử lý
+
+Công cụ chạy qua các bước sau:
+
+- Phát hiện tướng trong mod của bạn.
+- Trích xuất mod của bạn và file game tươi.
+- Chuyển đổi file `.tex` sang `.dds`.
+
+Xử lý mất 2-5 phút. Trạng thái hiện `Overlay complete` khi xong.
+
+Nhấn **Next**.
+
+---
+
+### Bước 4: Chọn BIN chính
+
+Chọn skin từ danh sách xổ xuống. Dùng **Skin0** cho skin gốc. Với một
+chroma hoặc một skin khác, chọn slot khớp (Skin1, Skin5, và cứ thế).
+
+Nhấn **Next**.
+
+---
+
+### Bước 5: Repath
+
+Công cụ sửa mọi đường dẫn file, gộp các BIN liên kết (nếu bạn để bật nút
+đó), và đóng gói tất cả vào một `.fantome` mới. VFX được đưa vào một bin
+riêng để bin chính giữ sạch (thêm vào từ v2.0.3).
+
+Khi xong bạn thấy: `DONE! Created {name}_repathed.fantome`
+
+---
+
+### Nơi lưu file output
+
+Mod mới của bạn được lưu ở hai chỗ:
+
+```text
+C:\Users\<YourName>\Documents\FantomeRepathTool\
+```
+
+Nó cũng được lưu cạnh file `.fantome` gốc bạn đã chọn.
+
+Tìm file có đuôi `_repathed.fantome`.
+
+---
+
+## Cài đặt
+
+1. Mở trình quản lý mod của bạn (Fantome, LCS Manager, hoặc tương tự).
+2. Nhập file `_repathed.fantome`.
+3. Bật mod lên và khởi động game.
+
+---
+
+## Xử lý sự cố
+
+**Mod vẫn không chạy sau khi repath:**
+
+- Kiểm tra xem bạn đã chọn đúng slot skin chưa (Skin0 cho skin gốc).
+- Nhấn **Update** để làm mới file hash, rồi thử lại.
+- Bật **Merge Linked BINs** nếu bạn đã tắt nó.
+
+**Game crash lúc tải tướng (Yasuo, Zed, và các tướng khác):**
+
+- Bật **Nuke Materials (crash fix)** và repath lại.
+
+**Crash Yone E hoặc mất hiệu ứng:**
+
+- Chắc chắn **Merge Linked BINs** đang bật. Nó bật sẵn theo mặc định.
+
+**Crash lúc khởi động game với mod này:**
+
+- Bật **Fix TEX Dimensions (Crash Fix)** và repath lại.
+
+**Công cụ kẹt ở "Converting TEX to DDS":**
+
+- Chuyện này bình thường với mod lớn. Cho nó 2-5 phút.
+
+**Vị trí file hash:**
+
+```text
+C:\Users\<YourName>\AppData\Roaming\FrogTools\hashes\
+```
+
+---
+
+## Ghi công
+
+- **GuiSaiUwU** - [pyRitoFile](https://github.com/GuiSaiUwU/pyritofile-package), code sửa thanh máu và sửa static mat
+- **tarngaina** - [pyRitoFile](https://github.com/tarngaina/pyRitoFile), [LtMAO](https://github.com/tarngaina/LtMAO)
+- **CommunityDragon** - [Bảng hash](https://github.com/CommunityDragon/Data)

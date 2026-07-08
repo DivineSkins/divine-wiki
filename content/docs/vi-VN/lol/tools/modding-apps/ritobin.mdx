@@ -1,0 +1,135 @@
+---
+title: "Ritobin"
+description: "Chuyển file .bin của League sang text đọc được rồi chuyển ngược lại với Ritobin của Moonshadow. Hướng dẫn kéo-thả cho người làm skin."
+category: "tools"
+---
+
+Ritobin là công cụ do **Moonshadow** làm, chuyển file `.bin` của League thành text đọc được để bạn sửa, rồi chuyển ngược lại. Cũ hơn Jade, vẫn ngon cho việc hàng loạt và script.
+
+Bản Windows mới nhất nằm trên GitHub: [ritobin releases](https://github.com/moonshadow565/ritobin/releases/latest).
+
+<Callout type="info" title="Dùng Jade cho đa số việc sửa">
+  [Jade](/docs/lol/tools/modding-apps/jade) là luồng làm mới hơn. Nó sửa file
+  `.bin` trực quan với tô màu cú pháp, xem trước khi rê chuột, và tra hash trực
+  tiếp. Không phải chuyển tới chuyển lui. Chỉ chọn Ritobin nếu bạn cần script
+  hàng loạt hoặc bạn đã quen với luồng text.
+</Callout>
+
+---
+
+## Bạn cần gì trước khi bắt đầu
+
+- Một máy Windows.
+- File `ritobin.zip` mới nhất từ [trang releases](https://github.com/moonshadow565/ritobin/releases/latest).
+- Một file `.bin` từ bộ skin bạn muốn sửa.
+
+---
+
+## Cài đặt
+
+1. Tải `ritobin.zip` từ [bản mới nhất](https://github.com/moonshadow565/ritobin/releases/latest).
+2. Tạo một thư mục cho Ritobin và các file `.bin` của bạn.
+3. Giải nén file zip vào thư mục đó.
+
+<Callout type="warning">
+  Giữ thư mục **hashes** cùng chỗ với `ritobin_cli.exe` và
+  `ritobin_gui.exe`. Nếu hashes biến mất hoặc bị dời đi, việc chuyển đổi thất bại.
+</Callout>
+
+<Callout type="info" title="Thư mục hashes này chỉ dành cho Ritobin">
+  Ritobin cần thư mục `hashes` local của riêng nó. Không phải công cụ nào cũng
+  làm kiểu này. [Flint](/docs/lol/tools/modding-apps/flint) và
+  [Quartz](/docs/lol/tools/modding-apps/quartz) tự tải một cơ sở dữ liệu hash
+  dựng sẵn và không cần thư mục. Chỉ các công cụ cũ như Ritobin và
+  [Jade](/docs/lol/tools/modding-apps/jade) bản độc lập mới dùng mô hình thư mục
+  CommunityDragon thủ công này.
+</Callout>
+
+---
+
+## Chuyển file
+
+<Tabs items={[".bin sang .py", ".py sang .bin"]}>
+<Tab value=".bin sang .py">
+
+### Chuyển `.bin` sang `.py`
+
+1. Tạo shortcut trên desktop cho `ritobin_cli.exe`.
+2. Kéo file `.bin` thả lên shortcut.
+
+Một file `.py` xuất hiện ngay cạnh bản gốc. Đây là phiên bản đọc được của `.bin` mà bạn sửa được.
+
+### Mở file `.py`
+
+Bạn cần một trình sửa text hoặc IDE để sửa nó. File là text thuần, không phải Python thật, nên trình sửa nào cũng được:
+
+- **[Visual Studio Code](https://code.visualstudio.com/)** miễn phí và có sẵn tô màu cú pháp Python. Lựa chọn tốt nhất nếu bạn chưa có trình sửa.
+- **[Notepad++](https://notepad-plus-plus.org/)** nhẹ hơn. Ngon cho sửa nhanh.
+- Trình sửa code hay IDE nào khác cũng dùng được.
+
+Lưu thay đổi của bạn, rồi qua tab kế để chuyển nó ngược lại.
+
+</Tab>
+<Tab value=".py sang .bin">
+
+### Chuyển `.py` ngược lại `.bin`
+
+Khi bạn đã sửa file `.py` và muốn thử nó trong game:
+
+1. Kéo file `.py` đã sửa thả lên `ritobin_cli.exe`.
+
+Một file `.bin` chạy được xuất hiện ngay cạnh, sẵn sàng để nạp.
+
+</Tab>
+</Tabs>
+
+---
+
+## Mẹo: chuyển nhanh với chương trình mặc định
+
+Đặt `ritobin_cli.exe` làm chương trình mặc định cho file `.py`. Rồi một cú nhấn đúp chuyển file. Không cần kéo-thả nữa.
+
+| Bước | Hành động                                        |
+| ---- | ------------------------------------------------ |
+| 1    | Nhấn chuột phải file `.py`                        |
+| 2    | Chọn **Open with** rồi **Choose another app**    |
+| 3    | Chọn `ritobin_cli.exe`                            |
+| 4    | Tích **Always use this app**                     |
+
+---
+
+## Định dạng khác
+
+Ritobin còn đọc và ghi `json` và `info`, không chỉ `text` (`.py`). Hữu ích nếu bạn muốn script việc sửa bằng ngôn ngữ khác.
+
+Mở terminal trong thư mục Ritobin và chạy:
+
+```bash
+ritobin_cli.exe -o json input.bin output.json
+ritobin_cli.exe -o text input.json output.py
+```
+
+Cờ `-o` đặt định dạng xuất. Cờ `-i` đặt định dạng nhập nếu Ritobin không đoán được từ phần mở rộng.
+
+---
+
+## Xử lý sự cố
+
+### Chuyển đổi không làm gì hoặc kết quả trống
+
+Kiểm tra thư mục `hashes` có nằm cạnh `ritobin_cli.exe` không. Thiếu nó, Ritobin không phân giải được tên.
+
+### File xuất ra có tên dạng hash thay vì chữ
+
+Cập nhật thư mục `hashes` của bạn. Hash cũ không bao gồm nội dung patch mới. Kéo hash mới từ [CDTB của CommunityDragon](https://github.com/CommunityDragon/CDTB).
+
+### Lỗi "This app can't run on your PC"
+
+Bạn tải nhầm bản. Lấy `ritobin.zip` bản Windows từ [bản mới nhất](https://github.com/moonshadow565/ritobin/releases/latest), không phải file zip mã nguồn.
+
+---
+
+## Nguồn
+
+**Công cụ do:** [Moonshadow](https://github.com/moonshadow565)
+**Repo:** [moonshadow565/ritobin](https://github.com/moonshadow565/ritobin)

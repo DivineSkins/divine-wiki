@@ -1,0 +1,259 @@
+---
+title: "Thư viện Emitter"
+description: "bindWeight điều khiển mức độ particle bám theo chuyển động của xương mà nó gắn vào."
+category: "assets-library"
+---
+
+## Bind Weight
+
+**`bindWeight`** điều khiển mức độ particle bám theo chuyển động của xương mà nó gắn vào.
+
+- `1` → bám hoàn toàn theo xương
+- `0` → đứng yên tại chỗ
+  <img src="/wiki-images/1769132679719-x7qanf.png" alt="Ảnh" width={500} />
+
+```rust
+bindWeight: embed = ValueFloat {
+    constantValue: f32 = 1
+}
+```
+
+---
+
+## Rate
+
+**`rate`** điều khiển số particle mà emitter sinh ra mỗi giây.
+
+<img src="/wiki-images/1769132701264-5grdr.png" alt="Ảnh" width={500} />
+
+### Ví dụ: 1 Particle
+
+```rust
+rate: embed = ValueFloat {
+    constantValue: f32 = 1 // 1 particle in emitter
+}
+```
+
+### Ví dụ: 20 Particle
+
+```rust
+rate: embed = ValueFloat {
+    constantValue: f32 = 20 // 20 particles spawning in 1 emitter
+}
+```
+
+---
+
+## Particle Lifetime
+
+- **`particleLifetime`** xác định mỗi particle sống bao lâu sau khi được phát ra.
+- **`lifetime`** xác định bản thân emitter tồn tại bao lâu trước khi biến mất.
+
+<img src="/wiki-images/1769132720262-0d010j.png" alt="Ảnh" width={500} />
+
+### Lifetime hữu hạn
+
+```rust
+particleLifetime: embed = ValueFloat {
+    constantValue: f32 = 1
+}
+```
+
+### Lifetime vô hạn
+
+```rust
+particleLifetime: embed = ValueFloat {
+    constantValue: f32 = -1 // infinity
+}
+```
+
+### Emitter Lifetime
+
+```rust
+lifetime: option[f32] = {
+    1
+}
+```
+
+---
+
+## Particle Linger
+
+**`particleLinger`** trì hoãn việc particle biến mất sau khi emitter kết thúc, giữ chúng hiện thêm một khoảng thời gian định sẵn (tính bằng giây).
+
+<img src="/wiki-images/1769132745363-l0cm4s.png" alt="Ảnh" width={500} />
+
+```rust
+particleLinger: option[f32] = {1}
+```
+
+---
+
+## Misc Render Flags
+
+**`miscRenderFlags`** điều khiển các hành vi render đặc biệt của particle.
+
+<img src="/wiki-images/1769132778060-ufd3d4.png" alt="Ảnh" width={500} />
+
+```rust
+miscRenderFlags: u8 = 1
+```
+
+<img src="/wiki-images/1769132799839-vw26fb.png" alt="Ảnh" width={500} />
+
+```rust
+miscRenderFlags: u8 = 0
+```
+
+---
+
+## Emitter Position
+
+**`EmitterPosition`** đặt nơi particle sinh ra tương đối với emitter.
+
+- **Y** cao hơn → dịch lên
+- **Y** thấp hơn → dịch xuống
+
+<img src="/wiki-images/1769132826453-dvots5.png" alt="Ảnh" width={500} />
+
+### Ví dụ vị trí
+
+```rust
+EmitterPosition: embed = ValueVector3 {
+    constantValue: vec3 = { 0, 100, 0 } // higher
+}
+```
+
+```rust
+EmitterPosition: embed = ValueVector3 {
+    constantValue: vec3 = { 0, -100, 0 } // lower
+}
+```
+
+```rust
+EmitterPosition: embed = ValueVector3 {
+    constantValue: vec3 = { 100, 0, 0 } // right
+}
+```
+
+```rust
+EmitterPosition: embed = ValueVector3 {
+    constantValue: vec3 = { -100, 0, 0 } // left
+}
+```
+
+```rust
+EmitterPosition: embed = ValueVector3 {
+    constantValue: vec3 = { 0, 0, 100 } // forward
+}
+```
+
+```rust
+EmitterPosition: embed = ValueVector3 {
+    constantValue: vec3 = { 0, 0, -100 } // backward
+}
+```
+
+---
+
+## Translation Override
+
+**`translationOverride`** dịch chuyển hệ particle độc lập với cài đặt emitter và offset toàn bộ hệ cùng lúc.
+
+<img src="/wiki-images/1769132846178-bcemql.png" alt="Ảnh" width={500} />
+
+```rust
+translationOverride: vec3 = { 0, 100, 0 } // higher
+translationOverride: vec3 = { 0, -100, 0 } // lower
+translationOverride: vec3 = { 100, 0, 0 } // right
+translationOverride: vec3 = { -100, 0, 0 } // left
+translationOverride: vec3 = { 0, 0, 100 } // forward
+translationOverride: vec3 = { 0, 0, -100 } // backward
+```
+
+---
+
+## Time Before First Emission
+
+**`timeBeforeFirstEmission`** xác định emitter chờ bao lâu trước khi sinh particle.
+
+<img src="/wiki-images/1769132867613-zffs1n.png" alt="Ảnh" width={500} />
+
+```rust
+timeBeforeFirstEmission: f32 = 1
+```
+
+---
+
+## Eye Candy
+
+**`mEyeCandy`** bật hoặc tắt tùy chọn **Hide Eye Candy** trong cài đặt video.
+
+> Phải đặt ở dưới cùng của một hệ particle.
+
+<img src="/wiki-images/1769132889330-6y5jzd.png" alt="Ảnh" width={500} />
+
+```rust
+mEyeCandy: bool = true // or false
+```
+
+---
+
+## Pass (Thứ tự vẽ)
+
+**`Pass`** điều khiển thứ tự vẽ, giống như layer trong Photoshop.
+
+<img src="/wiki-images/1769132912369-jb8tlr.png" alt="Ảnh" width={500} />
+
+- `Pass = 0` → layer dưới cùng (vẽ trước)
+- `Pass = 16` → layer trên cùng (vẽ sau chót, render đè lên các cái khác)
+
+```rust
+Pass: i16 = 0
+```
+
+---
+
+## Blend Mode
+
+**`blendMode`** xác định cách particle hòa trộn về mặt hình ảnh.
+
+```rust
+blendMode: u8 = 1
+```
+
+### Các giá trị Blend Mode
+
+- **1**: Không trong suốt
+  - An toàn để tô lại đen hoặc trắng
+
+- **3 / 4 (SCB)**: Trong suốt tiêu chuẩn
+  ⚠️ Đừng tô lại quá tối, không thì particle có thể thành vô hình trong game
+
+---
+
+## Navmesh Mask
+
+**`useNavmeshMask`** điều khiển việc hệ particle có dùng địa hình làm mask hay không.
+
+### Bật (Dùng địa hình làm mask)
+
+<img src="/wiki-images/1769133429180-hdk1d.gif" alt="Ảnh" width={500} />
+
+```rust
+useNavmeshMask: flag = true
+```
+
+> Particle sẽ bị địa hình che mask.
+
+---
+
+### Tắt (Không có mask địa hình)
+
+<img src="/wiki-images/1769133650731-8zdz6u.gif" alt="Ảnh" width={500} />
+
+```rust
+useNavmeshMask: flag = false
+```
+
+> Particle sẽ bỏ qua việc che mask theo địa hình.

@@ -1,0 +1,310 @@
+---
+title: "Đổi model 3D"
+description: "Bạn sẽ cần plugin nhập skn/skl Aventurine cho Blender để làm việc này."
+category: "blender"
+---
+
+**Phiên bản Blender:** 4.5.1  
+Nếu bạn dùng bản mới hơn, một vài bước có thể trông hơi khác.
+
+Hướng dẫn này chỉ bạn cách chuẩn bị một model 3D tùy chỉnh trong Blender và thay model nhân vật của Liên Minh Huyền Thoại, đồng thời giữ nguyên rig và animation gốc.
+
+---
+
+Nếu có thắc mắc hay góp ý, Discord: @hatstore
+Đọc FAQ và phần còn lại của hướng dẫn bên dưới trước khi nhắn tin cho mình.
+
+Bạn cũng có thể ủng hộ mình trên [Ko-fi](https://ko-fi.com/701900181914174).
+
+Cảm ơn @Frog rất nhiều vì đã giúp hướng dẫn này đọc dễ hiểu hơn hẳn.
+
+---
+
+## Yêu cầu
+
+| Công cụ                     | Mục đích                                                                         |
+| --------------------------- | -------------------------------------------------------------------------------- |
+| **Lol Aventurine Plugin**   | Bắt buộc để nhập/xuất file `.skn` và `.skl` trong Blender                        |
+| **Blender**                 | Phần mềm 3D chính để chỉnh model tướng                                           |
+| **CATS Blender plugin**     | Không bắt buộc, nhưng hữu ích để chuyển trọng số giữa các xương và vài thứ khác  |
+| **Paint.net / Photoshop**   | Chỉnh và xuất texture (`.dds`)                                                   |
+| **Paint.net `.tex` plugin** | Cần để mở và chỉnh file `.tex`                                                   |
+| **LtMAO**                   | Chuyển file `.tex` của LMHT sang `.dds` và ngược lại, thay thế cho plugin trên   |
+| **Flint**                   | Trích file tướng gốc của LMHT (`.wad.client`)                                    |
+| **Jade**                    | Chỉnh file `.bin` nếu cần tinh chỉnh skin                                        |
+| **Celestial**               | Nạp và thử skin tùy chỉnh trong game                                             |
+
+---
+
+**FAQ:**
+
+Mình đang cố làm X mà nó không chạy, cứu mình với?
+
+- 90% là câu trả lời đã có sẵn trong hướng dẫn rồi. Đọc lại thật kỹ, nếu vẫn chưa rõ thì nhắn tin hỏi.
+
+Sao mình không làm được X trong edit mode?
+
+- Nhiều khả năng bạn chọn nhầm object. Nếu bạn đang chỉnh mesh, nhớ chọn mesh chứ đừng chọn armature trước khi vào edit mode.
+
+Mình chọn biểu tượng armature màu xanh lá hay màu cam trong danh sách object góc trên bên phải?
+
+- Màu cam; biểu tượng xanh lá thì bỏ qua.
+
+## 0. Chuẩn bị model
+
+### Gộp mesh
+
+Đầu tiên nhập model bạn muốn đổi sang. Nếu model gồm nhiều object:
+
+- Chọn hết object:
+  <img src="/wiki-images/1768738897687-iknswq.png" alt="Ảnh" width={200} />
+- Nhấn **Ctrl + J** để gộp chúng thành một mesh duy nhất
+
+---
+
+### Hiển thị texture & material
+
+- Bật material preview (viewport shading)
+  <img src="/wiki-images/1768738971018-am18ih.png" alt="Ảnh" width={200} />
+- Chọn model và mở tab **Materials**:
+  <img src="/wiki-images/1774321805697-zoe5nl.png" alt="Ảnh" width={100} />
+- Với model có nhiều material (nếu material chưa được gán texture, ví dụ model chỉ có màu trơn):
+  - Gán đúng texture cho từng ô material:
+    <img src="/wiki-images/1768739020944-23h6dv.png" alt="Ảnh" width={200} />
+- Nếu bạn định bake ánh sáng hay bóng vào texture, làm ngay ở bước này; mình rất khuyên nếu bạn muốn kiểu nhìn "chân thực".
+  (Divine chưa có hướng dẫn riêng, nhưng ngoài kia có nhiều tutorial)
+
+---
+
+### Hướng của mặt (Face Orientation)
+
+- Bật **Face Orientation** trong viewport overlays:
+  <img src="/wiki-images/1768739336655-6mggq.png" alt="Ảnh" width={200} />
+  Nếu cả model chuyển đỏ = normal đúng hướng, bạn bỏ qua được bước này.
+
+Nếu vài phần không đổi màu:
+
+1. Vào edit mode
+   <img src="/wiki-images/1768739510869-uxmh9.png" alt="Ảnh" width={200} />
+2. Bật **X-Ray**
+   <img src="/wiki-images/1768739569367-b9oiaw.png" alt="Ảnh" width={200} />
+3. Chọn toàn bộ mesh (kéo chuột chọn)
+   <img src="/wiki-images/1768739558165-jpsxo.png" alt="Ảnh" width={200} />
+4. Nhấn **Alt + N → Flip**
+
+Nếu chỉ vài vùng không đỏ, chọn riêng các face đó rồi flip.
+
+Tắt Face Orientation khi xong.
+
+---
+
+### Gộp vertex (QUAN TRỌNG)
+
+- Vào **Edit Mode**
+- Chọn toàn bộ mesh
+- Nhấn **M → By Distance**
+- Trong cửa sổ hiện ra ở góc dưới bên trái, đặt distance thành **0.001 tới 0.005**
+  <img src="/wiki-images/1768739708348-3wx76a.png" alt="Ảnh" width={200} />
+
+Bước này xóa các vertex trùng lặp và ngăn nhiều lỗi lớn về sau.
+
+---
+
+### Decimate (giới hạn vertex)
+
+Model của LMHT phải dưới khoảng 65.000 vertex mới nhập được.
+
+1. Bật **Statistics** trong viewport
+   <img src="/wiki-images/1768739771507-yn3w3j.png" alt="Ảnh" width={200} />
+2. Ẩn mọi mesh không phải của bạn (`H`)
+3. Kiểm tra số vertex (nhắm mức \<60k)
+   <img src="/wiki-images/1768739904291-lle6hg.png" alt="Ảnh" width={200} />
+
+Nếu quá cao:
+
+- Vào tab modifier:
+  <img src="/wiki-images/1768739963121-r7xh8.png" alt="Ảnh" width={300} />
+- Thêm một **Modifier "Decimate"**
+- Dùng **Collapse Mode**
+- Bật **Triangulate**
+- Giảm dần ratio cho tới khi số vertex chấp nhận được
+
+Nếu chất lượng giảm quá nhiều:
+
+- Thử **Planar Mode** kèm bật **UV Delimiting**
+- Bạn thậm chí có thể chồng cả collapse và planar decimate nếu cần
+
+---
+
+## 1. Chỉnh model cho khớp rig của LMHT
+
+### 1. Nhập model LMHT
+
+Nhập model tướng LMHT để làm tham chiếu
+
+---
+
+### 2. Nếu model tùy chỉnh đã có armature
+
+- Chọn armature (biểu tượng cam, không phải xanh lá)
+- <img src="/wiki-images/1774322132344-7oqnj.png" alt="Ảnh" width={300} />
+- Vào **Pose Mode**
+- Di chuyển/xoay xương cho khớp tỷ lệ của LMHT
+
+- Xong rồi thì nhân đôi **Armature Modifier**, apply cái ở trên
+  <img src="/wiki-images/1774323618655-wzqsmk.png" alt="Ảnh" width={60} />
+
+<img src="/wiki-images/1768740740602-3ws0r86.png" alt="Ảnh" width={200} />
+
+- Trong Pose Mode, nhấn **Ctrl + A → Apply Pose as Rest Pose**
+- Tiếp tục chỉnh sửa
+
+---
+
+### 3. Chỉnh mà không dùng armature
+
+- Chọn model
+- Vào **Edit Mode**
+- Nhấn **O** để bật **Proportional Editing**
+- Di chuyển vertex để tạo lại hình dạng mesh
+- Dùng con lăn chuột để chỉnh mức ảnh hưởng
+
+Nếu các vùng không mong muốn cũng bị di chuyển:
+
+- Bật **Connected Only** trong proportional editing:
+  <img src="/wiki-images/1768740885313-m3oqya.png" alt="Ảnh" width={200} />
+
+---
+
+## 2. Gộp UV & texture
+
+(Phần này có thể hơi phiền. Nếu có quá nhiều material và bạn đã cài plugin CATS, qua trang hướng dẫn **Material Atlas** và làm theo đó.)
+
+Nếu model dùng nhiều texture:
+
+- Gộp chúng thành một texture duy nhất, đại loại như thế này:
+  <img src="/wiki-images/1768741016350-5ad5t.png" alt="Ảnh" width={300} />
+
+### Chỉnh UV
+
+1. Qua tab **UV Editing**:
+   <img src="/wiki-images/1768741066298-t6pn.png" alt="Ảnh" width={200} />
+2. Vào **Edit Mode** với chỉ mesh được chọn
+3. Chọn một material trong tab material (nhớ đừng chọn sẵn vertex nào khác trước đó)
+4. Thay ảnh của nó bằng texture đã gộp ở đây:
+   <img src="/wiki-images/1768741108530-wihx3n.png" alt="Ảnh" width={200} />
+5. Nhấn "Select":
+   <img src="/wiki-images/1768741185080-h69aki.png" alt="Ảnh" width={200} />
+6. Các vertex mang material đó sẽ sáng lên như thế này:
+   <img src="/wiki-images/1768741227212-2agmm.png" alt="Ảnh" width={300} />
+7. Chỉnh cỡ và di chuyển các phần đã chọn trong cửa sổ UV bên trái cho vừa texture mới (đổi ảnh nền sang ảnh mới của bạn trong ô nói ở trên để dễ làm hơn).
+
+Lặp lại cho mọi material tới khi tất cả đều dùng texture đã gộp và model trông đúng trong viewport.
+
+Giờ bạn xóa được hết material trừ một cái.
+
+---
+
+## 3. Trọng số & gắn xương
+
+### 1. Parenting
+
+Nếu model đã có sẵn armature:
+
+- Chọn mesh
+- Nhấn **Alt + P → Clear Parent (Keep Transformation)**
+
+Sau đó:
+
+1. Chọn mesh
+2. Shift-chọn armature của LMHT
+3. Nhấn **Ctrl + P → Armature Deform**
+
+---
+
+### 2. Chuyển trọng số
+
+Theo hướng dẫn này để chuyển trọng số từ model LMHT:  
+https://www.youtube.com/watch?v=IPQ2QVVIxLU
+
+Sau khi chuyển:
+
+- Ẩn mesh của LMHT
+- Chọn armature
+- Vào **Pose Mode**
+- Xoay xương để thử xem trọng số đã chuyển đúng chưa. Chú ý kỹ mấy ngón tay và các phần rời.
+
+Quy tắc của mình là bạn nên xoay được một xương khoảng 90° mà mesh chưa bắt đầu trông kỳ. Nhiều khả năng vài chỗ sẽ lệch khá nặng. Muốn sửa, thoát pose mode và qua bước 3:
+
+---
+
+### 3. Weight paint bằng tay
+
+- Chọn xương, rồi chọn mesh
+- Vào **Weight Paint Mode**
+- **Alt + Click** một xương để xem mức ảnh hưởng của nó
+
+Ý nghĩa màu sắc:
+
+- Đỏ: trọng số đầy (phần đó bám theo chính xác chuyển động của xương)
+- Vàng/Xanh lá: một phần
+- Xanh dương: không có trọng số (phần đó không bị ảnh hưởng)
+
+Điều khiển:
+
+- **Left Click**: thêm trọng số
+- **Shift + Left Click**: làm mượt trọng số
+- **Ctrl + Left Click**: bớt trọng số
+
+Để ý chỗ nào có trọng số mà đáng ra không nên có. Ví dụ, nếu bạn thấy thế này:
+
+## <img src="/wiki-images/1768743573280-9m5v1.png" alt="Ảnh" width={300} />
+
+### 4. Chỉnh trọng số qua Edit Mode
+
+Để xóa hết trọng số khỏi một phần của model:
+
+1. Chọn mesh
+2. Vào **Edit Mode**
+3. Chọn các vertex bạn không muốn dính trọng số
+4. Mở **Vertex Groups**:
+   <img src="/wiki-images/1768743909642-ady2ej.png" alt="Ảnh" width={300} />
+5. Chọn group trùng tên với xương mà bạn không muốn dính trọng số
+6. Nhấn **Remove**
+
+Để gán trọng số đầy:
+
+- Chọn vertex
+- Chọn vertex group
+- Nhấn **Assign**
+
+(Hữu ích cho vũ khí)
+
+---
+
+### 5. Kiểm tra lại trọng số
+
+- Vào **Pose Mode**
+- Di chuyển **root bone**
+
+Nếu vài phần bị kéo giãn hoặc nằm lại phía sau như thế này:
+
+<img src="/wiki-images/1768744036388-2d5f2.png" alt="Ảnh" width={300} />
+
+- Chúng không có trọng số
+- Quay lại Weight Paint Mode và sửa
+
+---
+
+## Các bước cuối
+
+1. Chuyển texture đã gộp sang `.tex` bằng **Quartz** hoặc **LtMAO**
+2. Thay texture tướng mặc định
+3. Xóa model mặc định trong Blender
+4. Xuất skn/skl
+5. Thay các file gốc trong thư mục WAD
+6. Nạp bản mod bằng trình quản lý skin bạn chọn
+
+Nếu có gì trông sai trong game, kiểm tra lại kỹ từng bước ở trên.
+
+---

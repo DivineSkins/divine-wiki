@@ -1,0 +1,131 @@
+---
+title: "Photoshop"
+description: "Adobe Photoshop là công cụ chỉnh sửa ảnh chuyên nghiệp, dùng theo hình thức đăng ký. Kèm một plugin miễn phí, nó mở và lưu được texture DDS dùng trong mod game."
+category: "tools"
+---
+
+Photoshop là chuẩn mực của ngành cho công việc texture nghiêm túc. Để mở
+các loại file mà LMHT dùng, bạn sẽ cần hai plugin: một cho `.dds`
+và một cho `.tex`.
+
+<ToolCard name="RitoTex" href="/docs/lol/tools/texturing/photoshop-tex-plugin">
+  Thêm hỗ trợ `.tex` và `.dds` gốc cho Photoshop. Trước đây là Photoshop TEX
+  Plugin.
+</ToolCard>
+
+[Bản phát hành RitoTex](https://github.com/RitoShark/RitoTex-Photoshop/releases)
+
+[Xem các gói Photoshop](https://www.adobe.com/products/photoshop.html)
+
+---
+
+## Các lựa chọn plugin DDS
+
+Có ba plugin phổ biến để làm việc với file DDS trong Photoshop:
+
+| Plugin               | Hợp nhất cho                         | Cần GPU      |
+| -------------------- | ------------------------------------ | ------------ |
+| Intel Texture Works  | Dùng chung, chạy trên mọi máy        | Không        |
+| NVIDIA Texture Tools | Người dùng GPU NVIDIA, tùy chọn nâng cao | Có (NVIDIA)  |
+| Simple DDS Plugin    | Xuất hàng loạt nhanh, giao diện tối giản | Không        |
+
+---
+
+## Intel Texture Works
+
+Một plugin DDS linh hoạt, chạy bất kể card đồ họa của bạn là hãng nào.
+
+### Tải về
+
+1. Vào trang [Intel Texture Works](https://www.intel.com/content/www/us/en/developer/articles/tool/intel-texture-works-plugin.html)
+2. Bấm liên kết tải ở phía trên cùng
+3. Ở trang chuyển hướng, chọn tùy chọn **ZIP**
+
+### Cài đặt
+
+1. Đóng Photoshop hoàn toàn
+2. Giải nén file ZIP vừa tải
+3. Tìm file plugin theo hệ thống của bạn:
+   - **64-bit:** `IntelTextureWorks_1.0.4/Plugins/x64/IntelTextureWorks.8bi`
+   - **32-bit:** `IntelTextureWorks_1.0.4/Plugins/Win32/IntelTextureWorks.8bi`
+4. Chép file `.8bi` vào thư mục plugin của Photoshop:
+
+   ```text
+   C:\Program Files\Adobe\Adobe Photoshop [VERSION]\Required\Plug-Ins\File Formats
+   ```
+
+5. (Tùy chọn) Để hỗ trợ cubemap, chép các script từ `PhotoshopScripts/` vào:
+
+   ```text
+   C:\Program Files\Adobe Photoshop [VERSION]\Presets\Scripts
+   ```
+
+### Xuất file DDS
+
+1. Vào **File > Save As**
+2. Chọn **Intel Texture Works (\*.DDS)** làm loại file
+3. Chọn nơi lưu và tên file
+4. Trong hộp thoại plugin, thiết lập:
+   - **Texture Type:** Color + Alpha
+   - **Compression:** BC3 8bpp (Linear)
+   - **Mip Maps:** None
+5. Lưu các thiết lập này thành một preset để truy cập nhanh
+6. Bấm **OK** để xuất
+
+---
+
+## NVIDIA Texture Tools
+
+Một plugin DDS nâng cao, tối ưu cho card đồ họa NVIDIA.
+
+> **Lưu ý:** Cần một GPU NVIDIA và một tài khoản nhà phát triển miễn phí.
+
+### Tải về
+
+1. Vào trang [NVIDIA Texture Tools](https://developer.nvidia.com/nvidia-texture-tools-exporter)
+2. Kéo xuống và tải phần mở rộng cho Photoshop
+3. Tạo một tài khoản nhà phát triển nếu được hỏi (miễn phí)
+
+### Cài đặt
+
+1. Đóng Photoshop
+2. Chạy bộ cài và làm theo hướng dẫn
+3. Bộ cài tự nhận diện bản Photoshop của bạn
+4. Mở lại Photoshop khi xong
+
+### Xuất file DDS
+
+1. Vào **File > Save As** (hoặc `Ctrl+Shift+S`)
+2. Chọn **DDS - NVIDIA Texture Tools Exporter (\*.DDS)**
+3. Thiết lập các tùy chọn xuất:
+   - **Format:** BC3 RGBA 8bpp | DXT5 (interpolated alpha)
+   - **Compression Quality:** Highest
+   - Để nguyên các thiết lập còn lại theo mặc định
+4. Bấm **Save**
+
+> **Mẹo:** Luôn xem hướng dẫn cụ thể của bạn để biết thiết lập xuất khuyến nghị, vì một số texture có thể cần định dạng nén khác.
+
+## Simple DDS Plugin
+
+### Xuất file DDS với Simple DDS
+
+1. Vào **File > Save As**
+2. Chọn **DDS (\*.DDS)** làm loại file
+3. Chọn nơi lưu và tên file
+4. Trong hộp thoại, đặt **Format** thành **DXT5**
+5. Bấm **OK**
+
+> **Ưu điểm:** Plugin này không cần hộp thoại xác nhận, nên xuất hàng loạt nhanh hơn.
+
+---
+
+## Thiết lập xuất khuyến nghị
+
+Với hầu hết texture của Liên Minh Huyền Thoại, dùng các thiết lập sau:
+
+| Thiết lập   | Giá trị                 |
+| ----------- | ----------------------- |
+| Format      | BC3 / DXT5              |
+| Alpha       | Interpolated            |
+| Mip Maps    | None (trừ khi có yêu cầu khác) |
+| Compression | Highest quality         |

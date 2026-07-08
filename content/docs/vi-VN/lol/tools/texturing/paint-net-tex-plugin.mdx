@@ -1,0 +1,139 @@
+---
+title: "Paint.NET Tex Plugin"
+description: "Plugin Paint.NET của RitoShark, mở và lưu file texture .tex của Liên Minh Huyền Thoại."
+category: "tools"
+---
+
+Một plugin Paint.NET của **RitoShark**, mở và lưu file texture `.tex` của Liên Minh Huyền Thoại. Nó tự nhận diện định dạng nén và mipmap khi mở, đồng thời cho bạn một tùy chọn lưu bình thường hoặc một tùy chọn lưu kèm đầy đủ thiết lập.
+
+[Tải bản phát hành mới nhất](https://github.com/RitoShark/Paint.NET-Tex-Plugin/releases)
+
+{/* SCREENSHOT: Paint.NET with a champion .tex file open in the canvas */}
+
+---
+
+## Nó làm gì
+
+- Mở file `.tex` trong Paint.NET (DXT1, DXT5, BC5, BC7 và BGRA8).
+- Lưu file `.tex`. Tự nhận diện định dạng nén và mipmap khi bạn lưu.
+- Thêm một tùy chọn lưu thứ hai với menu để chọn định dạng nén, dithering, error metric và thiết lập mipmap.
+- Nén BC7 nhanh nhờ một DLL trợ giúp gốc. Nếu thiếu nó thì lùi về nén BC7 bằng phần mềm, chậm hơn.
+- Giữ nguyên toàn bộ kênh alpha.
+- Dùng error diffusion dithering Floyd-Steinberg cho kết quả sạch.
+
+---
+
+## Trước khi bắt đầu
+
+Bạn cần:
+
+- **Paint.NET 5.1 trở lên** (dùng .NET 9). Nên dùng bản 5.1.x mới nhất.
+- **Windows 10 trở lên**.
+- Bản phát hành mới nhất từ [trang releases](https://github.com/RitoShark/Paint.NET-Tex-Plugin/releases): hoặc bộ cài `TexFileTypeSetup.exe`, hoặc hai file `TexFileType.dll` và `Bc7Native.dll` để cài thủ công.
+
+---
+
+## Cài bằng bộ cài
+
+1. Đóng Paint.NET nếu nó đang mở.
+2. Tải `TexFileTypeSetup.exe` từ [bản phát hành mới nhất](https://github.com/RitoShark/Paint.NET-Tex-Plugin/releases).
+3. Chạy nó. Bộ cài tìm thư mục `FileTypes` của Paint.NET rồi chép cả hai DLL vào giúp bạn.
+4. Mở Paint.NET. Plugin nạp lúc khởi động.
+
+## Cài thủ công
+
+Dùng cách này nếu bạn không muốn chạy bộ cài, hoặc bạn dùng Paint.NET bản portable.
+
+1. Đóng Paint.NET nếu nó đang mở.
+2. Mở thư mục `FileTypes` của Paint.NET. Với hầu hết bản cài, đó là `C:\Program Files\Paint.NET\FileTypes`. Với Paint.NET portable, dùng `[thư mục Paint.NET]\FileTypes`.
+3. Chép cả `TexFileType.dll` và `Bc7Native.dll` từ bản phát hành vào thư mục `FileTypes`. Để chúng cạnh nhau.
+4. Mở Paint.NET. Plugin nạp lúc khởi động.
+
+{/* SCREENSHOT: The FileTypes folder with TexFileType.dll and Bc7Native.dll dropped inside */}
+
+<Callout type="warning">
+  `Bc7Native.dll` là thứ giúp lưu BC7 nhanh. Thiếu nó, BC7 vẫn chạy nhưng
+  lưu rất chậm. Luôn chép cả hai DLL.
+</Callout>
+
+---
+
+## Mở một file `.tex`
+
+Bạn có hai cách mở file `.tex`:
+
+1. Trong Paint.NET, bấm **File → Open** rồi chọn file `.tex` của bạn.
+2. Hoặc kéo file `.tex` thẳng vào cửa sổ Paint.NET.
+
+Texture hiện lên trên khung vẽ. Mipmap và định dạng nén được đọc tự động.
+
+{/* SCREENSHOT: File → Open dialog showing a .tex file selected */}
+
+---
+
+## Lưu một file `.tex`
+
+Bạn có hai chế độ lưu. Dùng cái đầu cho công việc thường ngày. Dùng cái thứ hai khi bạn cần kiểm soát định dạng nén hoặc mipmap.
+
+### Lưu với thiết lập tự động
+
+1. Bấm **File → Save As**.
+2. Trong danh sách loại file, chọn **League of Legends TEX**.
+3. Bấm **Save**.
+
+Plugin giữ nguyên định dạng nén và cấu hình mipmap mà nó nhận diện được khi bạn mở file.
+
+### Lưu với thiết lập tùy chỉnh
+
+1. Bấm **File → Save As**.
+2. Trong danh sách loại file, chọn **League of Legends TEX (with options)**.
+3. Chọn các thiết lập trong menu:
+   - **Compression**: DXT1, DXT5, BC5, BC7 hoặc BGRA8 (không nén). Dùng DXT5 hoặc BC7 cho texture có alpha. Dùng BC5 cho normal map.
+   - **Dithering**: Floyd-Steinberg, cho vùng chuyển màu mượt hơn.
+   - **Error metric**: Perceptual (khuyến nghị) hoặc Uniform. Cái này chỉ áp dụng cho DXT1 và DXT5.
+   - **Mipmaps**: dựng một chuỗi mipmap đầy đủ.
+4. Bấm **Save**.
+
+{/* SCREENSHOT: Save As dialog with the "League of Legends TEX (with options)" menu open */}
+
+---
+
+## Cách kiểm tra đã chạy chưa
+
+- Mở lại file bạn vừa lưu. Nó nạp không lỗi và trông y như cũ.
+- Hoặc nạp nó trong công cụ làm skin của bạn (Flint hoặc LtMAO) và nó hiện lên đúng.
+
+---
+
+## Xử lý sự cố
+
+### Paint.NET treo hoặc file không nạp được
+
+Cập nhật Paint.NET lên bản 5.1.x mới nhất. Plugin cần 5.1 trở lên.
+
+### Plugin không xuất hiện trong Paint.NET
+
+Đóng Paint.NET hoàn toàn, rồi kiểm tra những thứ sau:
+
+- Thư mục `C:\Program Files\Paint.NET\FileTypes` tồn tại.
+- Cả `TexFileType.dll` và `Bc7Native.dll` nằm trong thư mục đó.
+- Bạn không chạy Paint.NET bản cũ (dưới 5.1).
+
+Mở lại Paint.NET. Plugin giờ sẽ hiện trong danh sách loại file.
+
+### Lưu BC7 rất chậm
+
+`Bc7Native.dll` bị thiếu khỏi thư mục `FileTypes` của bạn. Chép nó vào cạnh
+`TexFileType.dll`, rồi khởi động lại Paint.NET. Bộ cài thêm nó cho bạn.
+
+### "There was an error while saving the file."
+
+Kiểm tra kích thước khung vẽ. Cả rộng và cao đều phải chia hết cho 4. LMHT yêu cầu điều này cho file `.tex`. Đổi kích thước ảnh rồi lưu lại.
+
+---
+
+## Ghi công
+
+- Plugin do **RitoShark** làm.
+- Logic đọc `.tex` lấy từ [LtMAO](https://github.com/tarngaina/LtMAO) của Tarngaina.
+- Nén BC1 và BC3 kèm dithering Floyd-Steinberg dựa trên [Microsoft DirectXTex](https://github.com/microsoft/DirectXTex) (giấy phép MIT).

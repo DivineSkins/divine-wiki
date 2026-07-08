@@ -67,6 +67,9 @@ const server = createFromSource(source, {
     // Orama ships no Polish stemmer; english tokenization is the fallback
     // (exact-ish matching, no stemming of Polish inflections).
     "pl-PL": "english",
+    // No Vietnamese stemmer either; Vietnamese is analytic (no inflection),
+    // so english tokenization loses little.
+    "vi-VN": "english",
   },
   // Mirrors fumadocs' default buildIndex, plus localized breadcrumbs (the
   // default derives them from the raw page tree, placeholders unresolved).

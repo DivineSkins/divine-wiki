@@ -1,0 +1,125 @@
+---
+title: "Trung bình - Bank tùy chỉnh"
+description: "Hướng dẫn tạo bank âm thanh tùy chỉnh với Wwise."
+category: "sounds"
+---
+
+## Học Wwise trước đã
+
+Trước khi lao vào, bạn nên dành chút thời gian với nội dung học Wwise chính thức:
+
+- [Wwise 101](https://www.youtube.com/watch?v=1EhEhDyZ6o4&list=PLXMeprTk4ORPxeFVB6o5t1_IHyHkf4BgO)
+- [Wwise 201](https://www.youtube.com/watch?v=_bvus5FIjxk&list=PLXMeprTk4ORNT-u6190PcRDA7-UEUwBo-)
+
+---
+
+## Hiểu cấu trúc bank
+
+Riot cố ý tách âm thanh thành hai file riêng:
+
+- `audio.bnk` / `audio.wpk`: chỉ chứa dữ liệu âm thanh thô.
+- `events.bnk`: chứa cây logic (event, chuỗi hành động, định tuyến).
+
+`.wpk` là định dạng riêng của Riot. Nó chỉ chứa được file âm thanh và không có
+phần header metadata. Cứ coi nó như một hộp chứa nhẹ chỉ để đựng dữ liệu âm thanh.
+
+Cây phân cấp của Wwise không lồng nhau. Thay vào đó, mỗi phần tử mang một `ID` và
+một `ParentID`. Cấu trúc phẳng này cho phép chèn phần tử mới tự gắn vào các phần
+tử cha có sẵn trong cây, mà không cần thay cả cây.
+
+Ví dụ: bạn tạo một bus tên `MUS` trong project, và dưới nó một phần tử con tên
+`bus_aurecueil`. Khi bank tùy chỉnh của bạn nạp, mục `MUS` giả sẽ bị bỏ qua (cái
+thật đã nạp rồi), và `bus_aurecueil` tự động gắn vào `MUS` gốc.
+
+---
+
+## Thứ tự nạp và ghi đè
+
+Trong League, **cái nạp trước thắng**. Nếu hai bank cùng định nghĩa một phần tử,
+cái thứ hai bị lặng lẽ bỏ đi.
+
+Vì các bus lõi như `MUS` được nạp rất sớm trong quá trình khởi động game, bạn
+không thay chúng trực tiếp được. Tuy nhiên, bạn _có thể_ ghi đè từng event riêng
+lẻ bằng cách bảo đảm bank tùy chỉnh của mình nạp trước bank gốc.
+
+Bạn điều khiển việc này qua file `.bin`:
+
+```text
+bankPath: list[string] = {
+    "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Custom_VO_audio.bnk"  ← Your bank, loaded first
+    "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_VO_audio.bnk"
+    "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_VO_audio.wpk"
+    "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_VO_events.bnk"
+}
+```
+
+Bank tùy chỉnh của bạn ghi đè các phần tử trùng khớp trong bank event gốc vì nó
+được liệt kê trước.
+
+**Lưu ý về ID:**
+
+- Event khớp theo **tên**, nên chỉ cần event của bạn có cùng tên, nó sẽ ghi đè
+  đúng.
+- Nhiều phần tử phân cấp khác (random container, sequence, switch, v.v.) dùng
+  **ID ngẫu nhiên do Wwise sinh ra**. Để ghi đè chúng, bạn phải tự khớp lại ID
+  gốc trong file project `.wwu` của mình.
+
+---
+
+### Cài đặt âm thanh: Attenuation
+
+Attenuation điều khiển cách âm thanh biến đổi theo khoảng cách. Nếu bạn thêm âm
+thanh mới, luôn thiết lập cái này rõ ràng, không thì nó có thể nghe sai trong
+game (quá to khi gần, nghe được từ tận bên kia bản đồ, v.v.). Khoảng cách được
+xác định bằng đơn vị trong game (bạn có thể lấy tầm đánh của tướng làm mốc cho
+mấy đơn vị này).
+
+<img src="/wiki-images/wwise-pos.png" alt="Cài đặt định vị trong Wwise" />
+
+<img src="/wiki-images/wwise-atten.png" alt="Cài đặt attenuation trong Wwise" />
+
+**Luôn tắt Height Spread.** League chơi trên một mặt phẳng, và height spread có
+thể gây ra hành vi ngoài ý muốn.
+
+---
+
+### Định tuyến âm thanh: Dùng đúng bus
+
+Mọi âm thanh trong Wwise đều đi qua một output bus. Dùng đúng bus cho loại âm
+thanh của bạn, không thì nó sẽ không được mix đúng trong game (sai reverb, sai
+fader âm lượng, v.v.).
+
+| Bus ID         | Mục đích                                 |
+| -------------- | ---------------------------------------- |
+| `MUS`          | Nhạc (wet, có reverb/xử lý)              |
+| `SFX`          | SFX (wet)                                |
+| `daad0rhm`     | SFX (dry), **dùng cái này cho SFX tướng**|
+| `SFX_HUD`      | Thông báo & giao diện (wet)              |
+| `janep6uv`     | Người dẫn (dry)                          |
+| `mus_lag_vp_0` | VO tướng (dry)                           |
+| `sfx_npc`      | Âm nền (wet)                             |
+| `sfx_eog`      | Kết thúc trận (wet)                      |
+
+Khi phân vân, hãy chọn bản **dry** của bus cho nhóm của bạn. Các bus wet đã áp
+sẵn hiệu ứng (ví dụ, Evelynn làm méo SFX khi cô ấy vào nội tại, nên định tuyến âm
+thanh qua bus `SFX` sẽ né được cái méo đó).
+
+---
+
+### Mẹo linh tinh
+
+Bạn có thể dùng **cài đặt conversion tùy chỉnh** trong project Wwise để giảm dung
+lượng file cuối cùng của bank. Hữu ích nếu mod của bạn có nhiều âm thanh.
+
+---
+
+## Phần thưởng thêm
+
+<ToolCard
+  name="Custom Announcer Template by aurecueill and Jessibee"
+  href="https://github.com/Aurecueil/Custom-Announcer-Template"
+>
+  Tải từ GitHub và đặt nó cạnh các project Wwise khác của bạn.
+</ToolCard>
+
+hướng dẫn bởi aurecueil

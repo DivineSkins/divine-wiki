@@ -1,0 +1,117 @@
+---
+title: "RitoTex"
+description: "Mở và lưu texture .tex và .dds của Liên Minh Huyền Thoại trong Adobe Photoshop. RitoTex do RitoShark làm, trước đây là Photoshop TEX Plugin. BC1 tới BC7, cube map, mip."
+category: "tools"
+---
+
+RitoTex là một plugin Photoshop của **RitoShark**, mở và lưu texture `.tex`
+và `.dds` của LMHT trực tiếp. Nó được dựng lại từ Photoshop TEX Plugin cũ và
+đổi tên, nên các hướng dẫn cũ có thể vẫn gọi nó bằng tên cũ.
+
+Nó dựng trên Texture Works Plugin của Intel cùng DirectXTex của Microsoft cho
+phần nén. Phiên bản 2 thêm hỗ trợ `.dds` gốc, nhiều định dạng hơn, và một bộ
+mã hóa BC7 nhanh hơn.
+
+Repo: [github.com/RitoShark/RitoTex-Photoshop](https://github.com/RitoShark/RitoTex-Photoshop)
+
+[Tải bản phát hành mới nhất](https://github.com/RitoShark/RitoTex-Photoshop/releases)
+
+Phiên bản mới nhất: **v2.0.2**.
+
+## Chuẩn bị trước khi bắt đầu
+
+- Adobe Photoshop CS6 trở lên (64-bit). Photoshop 32-bit sẽ không chạy.
+- Windows.
+
+## Cài đặt
+
+1. Đóng Photoshop. Nếu Photoshop đang mở, plugin sẽ không nạp.
+2. Tải `RitoTex.8bi` từ [trang Releases](https://github.com/RitoShark/RitoTex-Photoshop/releases). Nó là một file độc lập. Không có DLL nào phải chép thêm.
+3. Chép `RitoTex.8bi` vào thư mục File Formats của Photoshop. Đường dẫn mặc định là:
+
+   ```text
+   C:\Program Files\Adobe\Adobe Photoshop [version]\Required\Plug-ins\File Formats
+   ```
+
+   Ví dụ: `C:\Program Files\Adobe\Adobe Photoshop 2026\Required\Plug-ins\File Formats`.
+
+4. Mở Photoshop.
+
+Để kiểm tra đã chạy chưa: mở `File > Open` rồi chọn một file `.tex`. Nếu ảnh
+nạp lên, plugin đã được cài.
+
+## Mở file `.tex` và `.dds`
+
+Bạn có hai cách mở một file:
+
+- Bấm `File > Open` rồi chọn file `.tex` hoặc `.dds`.
+- Kéo file vào Photoshop.
+
+Plugin đọc định dạng nén và mipmap giúp bạn.
+
+## Lưu một file (lưu nhanh)
+
+Dùng cách này khi bạn muốn plugin dùng lại thiết lập mà nó nhận diện từ file.
+
+1. Bấm `File > Save As`.
+2. Chọn **League of Legends TEX** (hoặc tùy chọn DDS) trong danh sách loại file.
+3. Bấm **Save**. File lưu ngay với thiết lập đã nhận diện hoặc dùng gần nhất.
+
+## Lưu một file kèm tùy chọn
+
+Dùng cách này khi bạn muốn chọn định dạng nén hoặc đổi thiết lập chất lượng.
+
+1. Bấm `File > Save As`.
+2. Chọn bản **Options** của loại file TEX hoặc DDS.
+3. Một hộp thoại thiết lập mở ra. Đặt các tùy chọn bạn muốn:
+   - **Compression format**: BC1, BC3, BC5, BC7 hoặc BGRA8 (không nén). Dùng BC3 cho texture có alpha. Dùng BC5 cho normal map. BC7 chất lượng cao nhất và là mặc định.
+   - **Error diffusion dithering**: bật dithering Floyd-Steinberg cho vùng chuyển màu mượt hơn (BC1 và BC3).
+   - **Error metric**: `Perceptual` (khuyến nghị) hoặc `Uniform`.
+   - **Mipmaps**: tự dựng chuỗi, hoặc dựng từ các layer Photoshop của bạn.
+   - **Cube maps**: lưu bố cục kiểu cross hoặc layer cho `.dds`.
+   - **Normal maps**: lật kênh X hoặc Y rồi chuẩn hóa lại.
+4. Bấm **OK**. File lưu với thiết lập của bạn.
+
+Thiết lập được giữ giữa các lần lưu (lưu trong Windows Registry), nên bạn chỉ
+cần đặt một lần.
+
+## Tính năng nhìn qua
+
+- Mở và lưu cả `.tex` và `.dds`, nên bạn có thể không cần một plugin DDS riêng.
+- Định dạng nén BC1, BC3, BC5, BC7 và BGRA8 (không nén).
+- Nén BC7 tăng tốc bằng GPU qua DirectCompute, có phương án dự phòng WARP và CPU. Điều này giúp lưu BC7 nhanh.
+- Nén đa luồng nhanh với bộ mã hóa Intel ISPC.
+- Tự nhận diện định dạng nén và mipmap khi mở.
+- Dựng mipmap giúp bạn, hoặc dựng từ các layer Photoshop.
+- Hỗ trợ cube map (bố cục cross và layer).
+- Lật kênh và chuẩn hóa lại normal map.
+- Dithering Floyd-Steinberg tùy chọn với error metric Perceptual hoặc Uniform.
+- Cửa sổ xem trước để so sánh texture gốc và texture đã nén trước khi bạn lưu.
+- Bộ kiểm tra cập nhật âm thầm, xem GitHub Releases khoảng một lần mỗi ngày.
+
+## Xử lý sự cố
+
+### Plugin không hiện lên trong Photoshop
+
+Kiểm tra từng điểm sau:
+
+- Photoshop đã đóng hoàn toàn trước khi bạn chép file.
+- File nằm trong thư mục `Required\Plug-ins\File Formats`, không phải thư mục `Plug-ins` thường.
+- Bạn đang chạy Photoshop 64-bit.
+- File tên đúng là `RitoTex.8bi` (kèm phần mở rộng `.8bi`).
+
+### "Image dimensions must be divisible by 4" khi lưu
+
+File `.tex` nén theo khối cần kích thước ảnh chia hết cho 4. Đổi kích thước ảnh
+sang một cỡ hợp lệ, như `1024x1024`, `2048x2048` hoặc `512x256`.
+
+### Texture trông sai trong game
+
+- Bật error diffusion dithering cho vùng chuyển màu sạch hơn.
+- Kiểm tra xem bạn đã chọn đúng định dạng nén chưa. Dùng BC3 cho texture có alpha và BC5 cho normal map.
+
+## Ghi công
+
+- **RitoTex**: [RitoShark](https://github.com/RitoShark).
+- **Plugin nền**: [Intel Texture Works Plugin](https://github.com/GameTechDev/Intel-Texture-Works-Plugin) (Apache 2.0).
+- **Nén**: [Microsoft DirectXTex](https://github.com/microsoft/DirectXTex) (giấy phép MIT) và Intel ISPC Texture Compressor.

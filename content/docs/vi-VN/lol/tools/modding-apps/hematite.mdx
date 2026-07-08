@@ -1,0 +1,215 @@
+---
+title: "Hematite"
+description: "Công cụ kéo-thả tự phát hiện và sửa những lỗi phổ biến nhất trong skin tùy chỉnh của Liên Minh Huyền Thoại."
+category: "tools"
+---
+
+Hematite là công cụ dòng lệnh của **RitoShark**, chuyên sửa skin tùy chỉnh
+bị hỏng. Thả một file `.fantome` lên nó. Nó kiểm tra file, sửa những gì
+có thể, rồi ghi bản mod đã sửa ngay cạnh file gốc.
+
+Cùng bộ luật sửa lỗi đó cũng chạy bên trong [Flint](/docs/lol/tools/modding-apps/flint),
+nên có khi bạn đã dùng Hematite mà không hề hay biết.
+
+[Tải bản phát hành mới nhất](https://github.com/RitoShark/Hematite/releases)
+
+{/* SCREENSHOT: Hematite running in a terminal, showing the fix log for a sample skin */}
+
+---
+
+## Hematite làm được gì
+
+Hematite quét một bản mod tìm những lỗi đã biết rồi sửa tại chỗ. Danh sách
+sửa được điều khiển bằng cấu hình, nên luật mới ra mắt mà không cần bản
+build mới.
+
+Những thứ nó bắt được:
+
+- **Thanh máu vô hình** phía trên tướng trong game.
+- **Mô hình trắng hoặc bóng như crôm** (texture material bị hỏng).
+- **Icon thiếu hoặc đen** trong giao diện trang bị / cửa hàng.
+- **Texture particle bị hỏng** trong VFX.
+- **Particle hiện thành ô vuông** do mipmap lỗi (lỗi texture tái phát năm 2026). Hematite gỡ mipmap để sửa.
+- **Texture TEX có kích thước không chia hết cho 4.** Hematite làm tròn về kích thước hợp lệ.
+- **Dữ liệu tướng lỗi thời** còn sót lại từ các bản patch cũ.
+- **Âm thanh rè hoặc mất tiếng** từ file Wwise BNK cũ.
+- **Animation khóa cứng rig** ở tư thế chữ T hoặc làm hỏng nó.
+- **VFX sai hình dạng** sau thay đổi engine từ bản 14.1 trở đi.
+- **Mô hình vô hình do tham chiếu shader lỗi.**
+- **Mục BIN mồ côi** làm phình file.
+
+Khi bạn chạy nó không kèm cờ nào, nó thử mọi cách sửa. Thêm `--check` để
+chỉ phát hiện lỗi mà không đổi file.
+
+---
+
+## Hematite chạy độc lập hay là một phần của Flint?
+
+Cả hai.
+
+- **CLI độc lập.** `hematite-cli.exe` là một file binary Windows duy nhất.
+  Kéo file lên nó, hoặc chạy nó từ terminal. Không cần cài đặt.
+- **Bên trong [Flint](/docs/lol/tools/modding-apps/flint).** Flint tích hợp cùng bộ
+  luật sửa dưới tính năng **Validate and Fix**. Bạn không cần cài Hematite
+  riêng.
+
+Dùng CLI độc lập khi bạn muốn sửa hàng loạt cả thư mục mod, đưa bước sửa
+vào một pipeline build bằng script, hoặc soi lỗi một file thật nhanh.
+Dùng Flint khi bạn đang ở sẵn trong đó chỉnh mod.
+
+---
+
+## Cần gì trước khi bắt đầu
+
+- Máy tính Windows.
+- Một file `.fantome`, `.wad.client`, hoặc `.bin` bạn muốn kiểm tra hoặc sửa.
+- Khoảng 1 phút. CLI tải một từ điển hash 1.8 triệu mục trong lần chạy đầu.
+
+---
+
+## Cài đặt
+
+1. Mở [trang releases](https://github.com/RitoShark/Hematite/releases).
+2. Tải bản `hematite-cli` zip mới nhất cho Windows.
+3. Giải nén ở đâu cũng được. Một thư mục có `hematite-cli.exe` hiện ra.
+
+Vậy là xong. Không có bộ cài, không cần quyền admin.
+
+{/* SCREENSHOT: Unzipped Hematite folder showing hematite-cli.exe */}
+
+---
+
+## Cách dùng
+
+### Sửa nhanh (kéo và thả)
+
+1. Mở thư mục bạn vừa giải nén Hematite.
+2. Kéo một file `.fantome` lên `hematite-cli.exe`.
+3. Một cửa sổ terminal mở ra và in ra nhật ký sửa lỗi.
+4. Khi xong, một file mới hiện ra cạnh file gốc:
+   `YourSkin.fixed.fantome`.
+
+Cài `YourSkin.fixed.fantome` vào trình quản lý skin của bạn. File gốc vẫn
+nguyên vẹn.
+
+### Chỉ kiểm tra (không đổi gì)
+
+Nếu bạn muốn biết cái gì hỏng mà không sửa:
+
+1. Mở terminal trong thư mục Hematite.
+2. Chạy: `hematite-cli.exe "C:\path\to\skin.fantome" --check`
+3. Hematite in ra tướng, slot skin, và danh sách lỗi.
+
+Cái này an toàn. Nó không bao giờ ghi vào file.
+
+### Sửa cả một thư mục
+
+Để xử lý mọi mod trong một thư mục cùng lúc:
+
+1. Mở terminal trong thư mục Hematite.
+2. Chạy: `hematite-cli.exe "C:\path\to\mods\"`
+3. Hematite duyệt qua thư mục và ghi một bản `.fixed` cho mỗi mod.
+
+### Các cờ hữu ích
+
+| Cờ                  | Tác dụng                                                                |
+| ------------------- | ----------------------------------------------------------------------- |
+| `--check`           | Chỉ phát hiện. In lỗi. Không đổi file.                                   |
+| `--dry-run`         | Cho xem sẽ sửa gì. Không ghi file output.                               |
+| `--json`            | In output máy đọc được. Hữu ích cho script.                             |
+| `--repath`          | Đổi tên asset của mod bằng tiền tố riêng để chúng không đụng nhau.       |
+| `--game-wad <path>` | Kéo file thiếu từ WAD game gốc để mod tự chứa đầy đủ.                    |
+| `--invis-texture`   | Thêm placeholder vô hình cho tham chiếu texture thiếu sau khi repath.    |
+| `-v verbose`        | Cho xem từng cách sửa khi nó được áp dụng.                              |
+
+Chạy `hematite-cli.exe --help` để xem danh sách đầy đủ.
+
+---
+
+## Cách kiểm tra xem đã ăn chưa
+
+Sau một lần chạy thành công, bạn sẽ thấy một dòng như:
+
+```text
+Done. 1 mod processed, 18 fixes applied in 1.9s.
+Wrote YourSkin.fixed.fantome (4.2 MB)
+```
+
+Rồi:
+
+1. Cài file `.fixed.fantome` vào trình quản lý skin của bạn.
+2. Mở một trận tùy chỉnh với tướng đó.
+3. Mô hình, texture, thanh máu và VFX phải hiện ra đúng hết.
+
+Nếu vẫn có gì đó trông sai, xem phần Xử lý sự cố bên dưới.
+
+---
+
+## An toàn
+
+Skin tùy chỉnh an toàn ở ngoài Hàn Quốc và Trung Quốc. Không có ai bị khóa
+từ năm 2014 khi bạn dùng tool đáng tin. Hematite chỉ chỉnh file mod trên ổ
+đĩa của bạn. Nó không đụng vào file game hay liên lạc với máy chủ Riot.
+
+Đừng bao giờ dùng skin tùy chỉnh trên máy chủ Hàn Quốc hay Trung Quốc.
+Riot Vanguard ở đó chặn mọi mod.
+
+---
+
+## Xử lý sự cố
+
+### "CLI is older than the published minimum"
+
+Hematite từ chối chạy khi một bản sửa lỗi quan trọng ra mắt. Tải bản mới
+nhất từ
+[trang releases](https://github.com/RitoShark/Hematite/releases)
+rồi thử lại.
+
+### Mod đã sửa vẫn trông hỏng trong game
+
+1. Chắc chắn bạn đã cài file `.fixed.fantome`, không phải file gốc.
+2. Chạy với `-v verbose` để xem những cách sửa nào đã áp dụng.
+3. Nếu một cách sửa cụ thể không kích hoạt, có thể lỗi đó chưa nằm trong bộ
+   luật của Hematite. Mở một issue trên
+   [kho GitHub](https://github.com/RitoShark/Hematite/issues).
+
+### Tải từ điển hash thất bại
+
+Hematite cần internet trong lần chạy đầu để kéo từ điển hash (khoảng 1.8
+triệu mục). Nếu mạng của bạn chặn nó, bản dự phòng nhúng sẵn sẽ chạy nhưng
+bao phủ ít file hơn. Chạy lại trên một kết nối bình thường để làm mới.
+
+### Kéo thả mở terminal rồi tắt luôn
+
+Terminal đóng lại sau khi chạy xong, kể cả khi có lỗi. Để đọc nhật ký, mở
+terminal trước, rồi chạy:
+
+```text
+hematite-cli.exe "C:\path\to\skin.fantome"
+```
+
+Cửa sổ ở yên để bạn đọc output.
+
+---
+
+## Khi nào dùng Hematite so với chạy nó trong Flint
+
+- **Dùng Hematite (độc lập)** nếu bạn muốn sửa hàng loạt cả thư mục mod,
+  đưa một bước sửa vào build bằng script, hoặc kiểm tra một file trước khi
+  phát hành.
+- **Dùng Validate and Fix của Flint** nếu bạn đang ở sẵn trong Flint chỉnh
+  mod. Cùng bộ luật, không cần tải thêm.
+- **Dùng [League Mod Repather](/docs/lol/tools/modding-apps/league-mod-repather)**
+  cho trường hợp cụ thể là mod cũ bị hỏng do bản patch mới. Nó repath lại
+  mod theo file game hiện tại, đây là cách sửa khác với những gì Hematite
+  làm.
+
+Bạn có thể chạy cả hai trên cùng một mod. Hematite trước, rồi Repather, là
+thứ tự hay dùng khi một mod cũ hỏng theo nhiều kiểu cùng lúc.
+
+---
+
+## Ghi công
+
+- **RitoShark**: Hematite (công cụ và bộ luật sửa lỗi).
+- **CommunityDragon**: bảng hash làm nền cho việc phát hiện lỗi.

@@ -1,0 +1,175 @@
+---
+title: "Khó - Đọc và chỉnh sửa events.bnk"
+description: "Hướng dẫn nâng cao cách đọc hiểu bank của wwise"
+category: "sounds"
+---
+
+## Công cụ cần có
+
+<ToolCard name="wwiser" href="https://github.com/bnnm/wwiser">
+  Chìa khóa để đọc events.bnk.
+</ToolCard>
+
+---
+
+### Nhìn nhanh hai hướng làm
+
+|                           | Tái tạo trong Wwise                                           | Vá nhị phân                                             |
+| ------------------------- | ------------------------------------------------------------- | ------------------------------------------------------- |
+| **Cách hoạt động**        | Dựng lại cây đích trong Wwise, xuất một bank mới              | Chỉnh thẳng giá trị byte thô trong file `.bnk`          |
+| **Tốc độ**                | Thiết lập chậm hơn                                            | Nhanh khi bạn đã biết offset                            |
+| **Mức kiểm soát**         | Cao: có đủ bộ công cụ Wwise                                   | Giới hạn ở các giá trị bạn đang vá                      |
+| **Bền khi game cập nhật** | Bền: project của bạn thích ứng được                          | Dễ vỡ: offset xê dịch khi Riot dựng lại bank            |
+| **Hợp nhất cho**          | Mod phức tạp, dài hạn; bất cứ thứ gì cần bảo trì             | Chỉnh nhanh; sửa một lần; làm nháp                      |
+
+Dùng cái nào hợp mục tiêu của bạn. Chúng không loại trừ nhau. Bạn có thể dùng một
+events.bnk đã chỉnh cho vài event trong khi tái tạo các event khác trong Wwise.
+
+---
+
+### Bước 1: Sinh một bản dump cây phân cấp
+
+Đầu tiên, dump cây phân cấp của bank event mà bạn muốn làm việc:
+
+```cmd
+wwiser.py -d txt {input_events_bnk_file} -dn output.txt
+```
+
+Lệnh này tạo một file văn bản dễ đọc cho người, hiển thị toàn bộ cây đối tượng
+Wwise bên trong bank đó: event, container, switch, sequence, bus, mọi thứ.
+
+<img src="/wiki-images/dump.png" alt="Kết quả dump cây phân cấp của wwiser" />
+
+Bản dump này là bản đồ của bạn. `Ctrl+F` là bạn thân của bạn.
+
+---
+
+### Kỹ thuật 1: Tái tạo trong Wwise
+
+Khi đã có bản dump, bạn có thể đọc cây phân cấp và dựng lại những phần liên quan
+trong project Wwise của mình.
+
+**Làm việc với ID:**
+
+Nhiều phần tử trong cây dùng name hash dựa trên FNV của Wwise làm ID. Bạn có thể
+đổi bất kỳ tên event nào sang ID dạng số bằng hàm này:
+
+```python
+def wwise_hash(name: str) -> int:
+    FNV32_OFFSET = 0x811C9DC5
+    FNV32_PRIME  = 0x01000193
+    h = FNV32_OFFSET
+    for b in name.lower().encode("utf-8"):
+        h = (h * FNV32_PRIME) & 0xFFFFFFFF
+        h ^= b
+    return h
+```
+
+**Ví dụ:**
+
+```text
+Play_vo_Yone_Attack2DGeneral  →  681920763
+```
+
+Với các phần tử trong cây không dùng ID dựa trên tên (random container, sequence
+container, v.v.), bạn cần lấy giá trị ID thô từ bản dump wwiser và tự đặt chúng
+vào file project `.wwu` của mình. Đây là phần lằng nhằng, nhưng đó là thứ giúp
+bank của bạn ghi đè đúng các phần tử từ bản gốc.
+
+Khi project đã thiết lập xong, xuất bank tùy chỉnh từ Wwise và ghép nó vào mod
+bằng kỹ thuật thứ tự nạp ở phần Trung bình.
+
+**Lưu ý về độ bền:** Vì bạn sở hữu project Wwise, khi Riot cập nhật bank game,
+bạn có thể dump lại bản mới, so sánh cây phân cấp, chỉnh project, và xuất lại. Mỗi
+bản cập nhật tốn thêm công, nhưng không có gì phải làm lại từ đầu.
+
+---
+
+### Kỹ thuật 2: Vá nhị phân
+
+Thay vì dựng lại bất cứ thứ gì, vá nhị phân cho phép bạn với thẳng vào file `.bnk`
+và đổi các giá trị cụ thể tại những offset byte đã biết.
+
+Bản dump wwiser bao gồm offset byte cho mọi giá trị trong file. Tìm giá trị bạn
+muốn đổi, ghi lại offset và kiểu dữ liệu của nó, rồi viết một bản vá.
+
+Đây là một script vá dùng được ngay:
+
+```python
+import struct
+
+FILE_PATH = "mus_map11_seasonal_25s2_bloom_events.bnk"
+
+patches = [
+    {"offset": 0x000028ee, "type": "d64", "value": 1}
+]
+
+def patch_file(path):
+    with open(path, "rb") as f:
+        data = bytearray(f.read())
+
+    for patch in patches:
+        offset = patch["offset"]
+        if patch["type"] == "u8":
+            data[offset] = patch["value"]
+        elif patch["type"] == "u16":
+            data[offset:offset+2] = struct.pack("<H", patch["value"])
+        elif patch["type"] == "float":
+            data[offset:offset+4] = struct.pack("<f", patch["value"])
+        elif patch["type"] == "u32":
+            data[offset:offset+4] = struct.pack("<I", patch["value"])
+        elif patch["type"] == "d64":
+            data[offset:offset+8] = struct.pack("<d", patch["value"])
+        elif patch["type"] == "set_bit":
+            current = data[offset]
+            current |= (1 << patch["bit"])
+            data[offset] = current
+
+    output_path = path.replace(".bnk", "_patched.bnk")
+    with open(output_path, "wb") as f:
+        f.write(data)
+
+    print(f"Patched file saved as: {output_path}")
+
+if __name__ == "__main__":
+    patch_file(FILE_PATH)
+```
+
+**Các kiểu vá được hỗ trợ:**
+
+| Kiểu      | Kích thước | Dùng cho                   |
+| --------- | ---------- | -------------------------- |
+| `u8`      | 1 byte     | Cờ, số nguyên nhỏ          |
+| `u16`     | 2 byte     | Số nguyên ngắn             |
+| `u32`     | 4 byte     | Hầu hết giá trị số nguyên  |
+| `float`   | 4 byte     | Âm lượng, cao độ, xác suất |
+| `d64`     | 8 byte     | Số thực chính xác kép      |
+| `set_bit` | 1 byte     | Bật/tắt một cờ bit đơn     |
+
+Để thêm bản vá, cứ thêm mục vào danh sách `patches`:
+
+```python
+patches = [
+    {"offset": 0x000028ee, "type": "d64",   "value": 1},
+    {"offset": 0x00001a30, "type": "float",  "value": 0.75},
+    {"offset": 0x00000c12, "type": "set_bit", "bit": 3},
+]
+```
+
+**Lưu ý về độ mong manh:** Khi Riot dựng lại bank event (bản vá, mùa mới, cập
+nhật nội dung), mọi offset byte đều xê dịch. Danh sách vá của bạn thành vô hiệu
+và cần dựng lại từ một bản dump wwiser mới của bank đã cập nhật. Viết ban đầu thì
+nhanh, nhưng cần bảo trì sau mỗi lần game cập nhật.
+
+---
+
+### Chọn giữa hai hướng
+
+- Đang làm một **mod nhạc hoặc VO muốn bảo trì dài hạn**? Hãy thiết lập project
+  Wwise. Công sức bỏ ra ban đầu sẽ đáng.
+- Đang làm một **chỉnh sửa thử nghiệm nhanh**, hoặc kiểm tra xem một thay đổi giá
+  trị có ra đúng hiệu quả bạn mong đợi không? Vá nhị phân trước, xác nhận nó chạy,
+  rồi quyết định có đáng làm bài bản không.
+- Đang làm thứ gì đó **hướng event và phức tạp** (random container, switch
+  container, state machine)? Bạn chắc sẽ cần project Wwise. Vá nhị phân nhanh
+  chóng trở nên khó nhằn.

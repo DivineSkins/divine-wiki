@@ -27,6 +27,9 @@ const ORAMA_LANGUAGES: Record<string, string> = {
   // Orama ships no Polish stemmer; mirrors the english fallback the pl-PL
   // index is built with.
   "pl-PL": "english",
+  // No Vietnamese stemmer; mirrors the english fallback the vi-VN index is
+  // built with.
+  "vi-VN": "english",
 };
 
 /**

@@ -1,0 +1,206 @@
+---
+title: "Đổi model 3D"
+description: "Hướng dẫn này giải thích cách remodel toàn bộ một vị tướng Liên Minh Huyền Thoại bằng cách thay nhân vật gốc bằng một model 3D tùy chỉnh, trong khi vẫn giữ nguyên r…"
+category: "maya"
+---
+
+## ➤ Hướng dẫn remodel tướng đầy đủ
+
+### Thay một tướng bằng model tùy chỉnh
+
+Hướng dẫn này giải thích cách remodel toàn bộ một vị tướng Liên Minh Huyền Thoại bằng cách thay nhân vật mặc định bằng một **model 3D tùy chỉnh**, trong khi vẫn giữ nguyên **rig và animation gốc**.
+
+---
+
+## ➜ Yêu cầu
+
+| Công cụ                | Công dụng                                                 |
+| ---------------------- | --------------------------------------------------------- |
+| **Plugin LoL-Maya**    | Cần để nhập/xuất file `.skn` và `.skl` trong Maya         |
+| **Autodesk Maya 2023** | Phần mềm 3D chính để sửa model tướng                      |
+| **GIMP / Photoshop**   | Sửa và xuất texture (`.dds`)                              |
+| **LtMAO**              | Chuyển file `.tex` của LMHT sang `.dds` và ngược lại      |
+| **Flint**              | Trích xuất file tướng gốc của LMHT (`.wad.client`)        |
+| **Jade**               | Sửa file `.bin` nếu cần chỉnh skin                        |
+| **LtMAO cslmao**       | Nạp và thử skin tùy chỉnh trong game                      |
+
+---
+
+## ➜ Khuyên dùng
+
+- **Video hướng dẫn đổi model đầy đủ**
+
+https://youtu.be/xqB84ga55hI?si=VFRPSomps5BPeKqe
+
+- **Tutorial Maya của Yoru** (rất chi tiết)
+
+https://www.youtube.com/watch?v=6MYNsT0q0R0&list=PLIlleiTfYK3mgr9imsnToABo3X0m9Txi-&ab_channel=Yor%C3%BBQueenofNight
+
+---
+
+## ➜ Bước 1: Nhập file `.skn` và `.skl`
+
+https://youtu.be/xqB84ga55hI?si=dAZXFehz94KL7hre&t=149
+
+> ⚠️ **Quan trọng:**  
+> **Đừng** xóa mặt, vertex, cạnh, hay bất kỳ geometry nào **sau khi bind** mesh.
+>
+> ⚠️ Lần nhập đầu tiên:  
+> Nhập bằng **File → Import**, **không phải kéo-thả**.  
+> Đảm bảo đã bật **material / mesh tách riêng**.
+
+<img src="/wiki-images/1768001551000-3q6i4i.png" alt="Ảnh" width={700} />
+
+### Hướng dẫn
+
+1. Cài [**Plugin LoL-Maya**](/docs/lol/maya/lol-maya-plugin)
+2. Nhập file tướng gốc:
+   - `.skn`: Mesh (geometry hiển thị)
+   - `.skl`: Khung xương (dữ liệu xương và rig)
+3. Nhập model tùy chỉnh của bạn (`.fbx`, `.obj`) vào cùng scene Maya
+
+---
+
+## ➜ Bước 2: Căn xương theo model tùy chỉnh
+
+https://youtu.be/xqB84ga55hI?si=QdQGjLrYZuHEHs3a&t=175
+
+Căn khung xương LMHT có sẵn khớp với tỷ lệ của model tùy chỉnh.
+
+### Quy tắc
+
+- ✅ **Chỉ xoay xương** (`E`)
+- ❌ **KHÔNG di chuyển (`W`) hay scale (`R`) xương**
+
+**Tại sao chỉ xoay?**  
+Di chuyển hoặc scale xương sẽ phá vỡ tính tương thích với animation gốc của LMHT.
+
+Bấm biểu tượng này để nhìn xuyên mesh thấy xương!
+
+<img src="/wiki-images/1768001486509-o4wnhm.png" alt="Ảnh" width={700} />
+
+Bật **X-Ray / hiển thị xương** để nhìn thấy xương xuyên qua mesh.
+
+> Bám sát video hướng dẫn để căn cho đúng.
+
+---
+
+## ➜ Bước 3: Bind mesh vào khung xương
+
+https://youtu.be/xqB84ga55hI?si=jpgbLQXdCSce7Kjm&t=290
+
+Bind mesh tùy chỉnh vào khung xương LMHT để animation tác động lên model.
+
+### Xương bạn nên bind
+
+- head
+- neck
+- spine
+- chest
+- clavicle
+- shoulder
+- elbow
+- hand
+- fingers
+- hips
+- pelvis
+- knee_lower
+- foot
+- root _(chỉ trong vài trường hợp)_
+
+> ⚠️ **Đừng** bind các xương phụ như `buffbones`, `knee_upper`, hay `toe`.
+
+### Cách bind trong Maya
+
+1. **CTRL + Chọn** tất cả xương cần thiết
+2. **CTRL + Chọn** mesh (chọn cuối cùng)
+3. Vào **Rigging → Skin → Bind Skin → Options**
+4. Đặt:
+   - ❌ Bind to: _Joint Hierarchy_
+   - ✅ Bind to: _Selected Joints_
+
+> Hướng dẫn này chỉ nói về bind cơ bản. Weight nâng cao cần luyện tập hoặc hướng dẫn thêm.
+
+---
+
+## ➜ Bước 4: Căn UV map cho texture trong game
+
+https://youtu.be/xqB84ga55hI?si=XbL4c6JUz9ZBnoqI&t=469
+
+Trước khi làm texture, UV map phải được căn cho đúng.
+
+### Căn UV trong Maya
+
+1. Chuyển sang workspace **UV Editing**
+2. Nhấn **F11** (chế độ chọn Face)
+3. Chọn tất cả mặt của mesh
+4. Dồn toàn bộ UV vào **một góc** của không gian UV bằng các nút điều khiển góc
+
+> Điều này tránh texture bị hỏng hoặc vô hình trong game.
+
+---
+
+### Khớp texture trong GIMP / Photoshop
+
+1. Mở texture gốc
+2. Chỉnh và dời nó khớp với bố cục UV mới
+3. Nếu texture không khớp UV, nó sẽ hiển thị hỏng trong game
+
+---
+
+### Lưu texture cho đúng
+
+- Định dạng file: `.dds`
+- Nén: **BC3 / DXT5**
+- Mipmap: Tùy chọn (nên bật)
+
+Gợi ý độ phân giải:
+
+- 512×512
+- 1024×1024
+- 2048×2048
+
+Luôn giữ bản sao lưu và thử trong game.
+
+---
+
+## ➜ Bước 5: Đảo normal và xuất model
+
+https://youtu.be/xqB84ga55hI?si=CMoyJ-gXCcsGNLF2&t=590
+
+Nếu normal bị sai, model có thể hiển thị vô hình hoặc lộn trong ra ngoài.
+
+### Đảo normal
+
+1. Chọn mesh
+2. Vào workspace **Modeling**
+3. **Mesh Display → Reverse**
+
+LMHT yêu cầu normal hướng ra ngoài.
+
+---
+
+### Xuất model
+
+1. Chọn **mesh + khung xương**
+2. **File → Export Selection**
+3. Xuất thành:
+   - `.skn` (mesh)
+   - `.skl` (khung xương)
+
+> ⚠️ Tên file **phải trùng khớp chính xác** với file tướng gốc.
+
+**Ví dụ (Ahri):**
+
+Ahri.skn
+Ahri.skl
+
+---
+
+### Thay file gốc
+
+1. Vào thư mục của tướng
+2. Thay file `.skn` và `.skl` gốc
+3. Giữ nguyên cấu trúc thư mục
+
+> 💡 **Mẹo hay:** Luôn sao lưu file gốc trước khi thay.

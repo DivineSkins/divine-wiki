@@ -1,0 +1,161 @@
+---
+title: "Idle Particles"
+description: "Hướng dẫn này chỉ cách tạo idle particle (thường gọi là aura) bằng các pack aura dựng sẵn."
+category: "vfx-bins"
+---
+
+Hướng dẫn này chỉ cách tạo idle particle (thường gọi là aura) bằng các pack aura dựng sẵn. Nó không dạy bạn làm idle particle từ đầu. Mục tiêu là copy-paste một pack particle có sẵn vào file `.wad.client` của tướng bạn.
+
+---
+
+## Công cụ cần dùng
+
+| Công cụ          | Để làm gì                             |
+| :--------------- | :------------------------------------ |
+| **Flint**        | Trích xuất file `.wad.client`         |
+| **LtMAO cslmao** | Cài và test bản mod của bạn           |
+| **Jade**         | Chỉnh file `.bin` bằng giao diện trực quan  |
+| **Ritobin**      | Cách khác: chuyển `.bin` sang văn bản |
+
+---
+
+## ❓ Idle Particle là gì?
+
+Idle particle là hiệu ứng hình ảnh nền gắn vào tướng, ví dụ như lửa, ánh sáng hay vòng phép. Chúng được định nghĩa trong phần `IdleParticlesEffects` của file `main.bin` của tướng.
+
+<img src="/wiki-images/1767147062141-8qgzh.gif" alt="Ví dụ idle particle trên tướng" width={500} />
+
+---
+
+## Hướng dẫn qua video
+
+https://www.youtube.com/watch?v=S4YCct-Kv78
+https://youtu.be/bUJSVlVHEZM?si=t5x9KsKktPGM6ejD&t=133 Nên xem
+
+---
+
+## Có khó không?
+
+Không khó lắm nếu bạn dùng các pack dựng sẵn như ở đây. Phần khó nhất là tìm đúng chỗ và đặt đoạn code cho đúng, nhất là khi bạn còn mới. Cứ làm theo từng bước cẩn thận và từ từ thôi!
+
+> ⚠️ Nếu có gì đó không chạy, kiểm tra lại dấu ngoặc `{}` và phần thụt lề.
+
+---
+
+## Hướng dẫn chi tiết
+
+### Bước 1: Tải một pack aura
+
+Bạn tìm được các pack trong [Discord của tụi mình](https://discord.gg/PbMwcWHqA3). Tải cái bạn muốn dùng về.
+
+---
+
+### Bước 2: Trích xuất file tướng
+
+Mở Flint, tìm file `.wad.client` của tướng bạn, rồi trích xuất nội dung ra một thư mục.
+
+[Hướng dẫn Flint của tụi mình](/docs/lol/tools/modding-apps/flint)
+
+---
+
+### Bước 3: Thêm particle tùy chỉnh
+
+Mở thư mục tướng bạn vừa tạo và thư mục pack aura bạn vừa tải.
+
+Copy thư mục `customparticles` (nằm trong `assets`) từ pack aura vào thư mục `assets` của bản mod.
+
+<img src="/wiki-images/1767147539214-dhjbp7.png" alt="Copy thư mục customparticles vào thư mục assets" width={1000} />
+
+---
+
+### Bước 4: Chuyển skin0.bin sang .py
+
+Đi tới:
+
+yourchamp\data\characters\yourchamp\skins\
+
+Kéo `skin0.bin` thả lên `ritobin_cli.exe`. Làm đúng thì nó sẽ tạo ra file `skin0.py`.
+
+[Hướng dẫn Ritobin của tụi mình](/docs/lol/tools/modding-apps/ritobin)
+
+---
+
+### Bước 4.1: Copy code idle particle
+
+Mở file `.py` từ pack aura và file `skin0.py` bạn vừa chuyển trong một trình soạn code (ví dụ Visual Studio Code).
+
+Copy phần idle particle liên quan rồi dán vào đúng chỗ trong file `.py` của bạn.
+
+<img src="/wiki-images/1767147886867-x4kafe.png" alt="Đoạn code idle particle trong trình soạn thảo" width={700} />
+
+- `effectKey:` = liên kết tới particle
+- `boneName:` = nơi aura xuất hiện trên model
+
+**Các xương bạn có thể dùng:**
+
+| Tên xương                     | Vị trí hiệu ứng     |
+| :---------------------------- | :------------------ |
+| `"Spine1"`                    | Giữa thân           |
+| `"Head"`                      | Đỉnh đầu            |
+| `"L_Hand"` / `"R_Hand"`       | Tay trái / tay phải |
+| `"Pelvis"`                    | Phần bụng dưới      |
+| `"L_Foot"` / `"R_Foot"`       | Bàn chân            |
+| `"C_Buffbone_Glb_Layout_Loc"` | Xương cố định dưới đất |
+| `"Weapon"`                    | Thường dùng cho vũ khí |
+
+> Xương vũ khí khác nhau tùy tướng. Kiểm tra file `.skl` để xác nhận.
+
+---
+
+### Bước 4.5: Nếu đã có sẵn idle particle
+
+Nếu file `skin0.py` của bạn đã có sẵn phần `IdleParticlesEffects`:
+
+<img src="/wiki-images/1767147902024-j5s8m.png" alt="Phần IdleParticlesEffects có sẵn" width={700} />
+
+<img src="/wiki-images/1767147916490-msprgc.png" alt="Dán khối particle giữa hai container" width={700} />
+
+Chỉ copy khối particle từ file `.py` của pack aura. Dán nó vào giữa hai container bất kỳ.
+
+---
+
+### Bước 5: Thêm Particle Container
+
+Copy đoạn code `particlecontainer`, luôn bắt đầu bằng một tên đã hash (`0x3432432`) và kết thúc bằng `particlePath: string`, vào file `skin0.bin/.py` của bạn. Đặt giữa hai particle container bất kỳ, giữa cái nào cũng được.
+
+<img src="/wiki-images/1767147931233-ste8fj.png" alt="Đoạn code particlecontainer" width={500} />
+<img src="/wiki-images/1767147939520-owvpfu.png" alt="Dán particlecontainer giữa các container" width={500} />
+
+---
+
+### Bước 6: Thêm vào Resource Resolver
+
+Chèn đoạn code bạn vừa copy vào giữa hai dòng này:
+
+mResourceResolver: link = "Characters/YourChamp/Skins/Skin0/Resources"
+
+và chỗ đặt các container khác của bạn. Bạn có thể dán ở bất cứ đâu trong khối này.
+
+<img src="/wiki-images/1767147949870-57eit9.png" alt="Chèn code vào Resource Resolver" width={500} />
+
+![Khối resource resolver hoàn chỉnh](/wiki-images/1767147956921-v0mbfx.png)
+
+---
+
+### Bước 7: Lưu file
+
+1. Nhấn **File > Save** trong trình soạn thảo
+2. Rồi kéo `skin0.py` thả lại lên `ritobin_cli.exe`
+3. Nó sẽ biên dịch lại thành một file `skin0.bin` mới
+
+> Nếu thời gian sửa đổi của file cập nhật, tức là thay đổi của bạn đã thành công. Nếu không, kiểm tra lại định dạng.
+
+---
+
+## ➜ Pack aura
+
+Tải pack aura trên Discord của tụi mình nhé!
+
+---
+
+Hướng dẫn & pack do Frog thực hiện.

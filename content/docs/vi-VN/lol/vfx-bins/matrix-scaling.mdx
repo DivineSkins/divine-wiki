@@ -1,0 +1,139 @@
+---
+title: "Matrix Scaling"
+description: "Hướng dẫn này chỉ cách dùng ma trận biến đổi để phóng to, di chuyển và xoay particle tùy chỉnh khi mod League of Legends."
+category: "vfx-bins"
+---
+
+Hướng dẫn này chỉ cách dùng ma trận biến đổi để phóng to, di chuyển và xoay particle tùy chỉnh khi mod League of Legends. Nó dựa trên một hệ thống hay dùng trong render 3D, được điều chỉnh lại ở đây để chỉnh particle.
+
+---
+
+## Công cụ cần dùng
+
+| Công cụ                  | Để làm gì                                        |
+| :----------------------- | :----------------------------------------------- |
+| **Jade**                 | Chỉnh file `.bin` trực quan (khuyên dùng)        |
+| **Ritobin**              | Cách khác: chuyển `.bin` sang `.py` để chỉnh     |
+| **VS Code hoặc Notepad++** | Chỉ cần khi dùng cách chỉnh văn bản với Ritobin |
+
+---
+
+## Hướng dẫn chi tiết
+
+### Ma trận hoạt động ra sao
+
+Ma trận biến đổi là cách dùng toán học để xử lý:
+
+- **Translation** (di chuyển)
+- **Rotation** (xoay)
+- **Scaling** (phóng to thu nhỏ)
+
+https://youtu.be/bUJSVlVHEZM?si=Uj_CYOs-wsNyIrCm&t=23
+
+https://www.youtube.com/watch?v=VZ1L7Y_78-8
+
+---
+
+### Bước 1: Thêm ma trận mặc định
+
+Trước tiên, bạn thêm một ma trận mặc định vào cuối khối `VfxSystemDefinitionData`. Ma trận mặc định này không thay đổi gì cả, nó chỉ đóng vai trò chỗ giữ chỗ.
+
+**Ví dụ:**
+
+```py
+Transform: mtx44 = {
+    1, 0, 0, 0
+    0, 1, 0, 0
+    0, 0, 1, 0
+    0, 0, 0, 1
+}
+```
+
+> Cái này giữ cho phép biến đổi ở trạng thái "trung tính": mặc định không phóng to, di chuyển hay xoay gì hết.
+
+---
+
+### Bước 2: Chỉnh kích thước (Scaling particle)
+
+#### Thu nhỏ
+
+Để particle nhỏ lại, dùng giá trị dưới 1.
+
+**Ví dụ (nhỏ hơn 2 lần):**
+
+```py
+Transform: mtx44 = {
+    0.5, 0, 0, 0
+    0, 0.5, 0, 0
+    0, 0, 0.5, 0
+    0, 0, 0, 1
+}
+```
+
+#### Phóng to
+
+Để particle to hơn, dùng giá trị lớn hơn 1.
+
+**Ví dụ (to hơn 2 lần hoặc 4 lần):**
+
+```py
+Transform: mtx44 = {
+    2, 0, 0, 0
+    0, 2, 0, 0
+    0, 0, 2, 0
+    0, 0, 0, 1
+}
+```
+
+---
+
+### Bước 3: Di chuyển particle (chỉnh vị trí XYZ)
+
+Bạn có thể di chuyển particle theo từng trục bằng cách đổi giá trị ở **hàng cuối** của ma trận.
+
+#### Di chuyển lên (trục Y)
+
+Đưa VFX lên trên:
+
+```py
+Transform: mtx44 = {
+    1, 0, 0, 0
+    0, 1, 0, 0
+    0, 0, 1, 0
+    0, 250, 0, 1
+}
+```
+
+(Di chuyển lên 250 đơn vị.)
+
+#### Di chuyển ngang (trục Z)
+
+Đưa VFX sang trái hoặc phải:
+
+```py
+Transform: mtx44 = {
+    1, 0, 0, 0
+    0, 1, 0, 0
+    0, 0, 1, 0
+    0, 0, 250, 1
+}
+```
+
+(Di chuyển 250 đơn vị theo trục Z.)
+
+> 💡 **Mẹo:** Bạn có thể phải test và chỉnh giá trị nhiều lần mới ra được vị trí ưng ý!
+
+---
+
+### Lật gương particle system
+
+Để lật gương hoàn toàn một particle system:
+
+```py
+Transform: mtx44 = {
+    -1, 0, 0, 0
+    0, 1, 0, 0
+    0, 0, -1, 0
+    0, 0, 0, 1
+}
+```

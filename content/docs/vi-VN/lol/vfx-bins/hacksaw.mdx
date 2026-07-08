@@ -1,0 +1,141 @@
+---
+title: "Hacksaw"
+description: "Bài này hướng dẫn đổi màu VFX (particle) trong League of Legends bằng Hacksaw, công cụ do Martynas làm ra cho cộng đồng làm skin tùy chỉnh."
+category: "vfx-bins"
+---
+
+Bài này hướng dẫn đổi màu VFX (particle) trong League of Legends bằng **Hacksaw**, công cụ do Martynas làm ra cho cộng đồng làm skin tùy chỉnh. Bạn sẽ học cách mở file `.bin`, chỉnh màu và lưu thay đổi particle an toàn.
+
+<Callout type="info" title="Lựa chọn mới hơn: Quartz Paint">
+  [Quartz](/docs/lol/tools/modding-apps/quartz) có trang Paint để đổi màu
+  particle ngay trong app. Nó tự đọc và ghi file `.bin` giúp bạn, nên bạn
+  không cần cài `ritobin_cli`. Hướng dẫn Hacksaw này vẫn dùng tốt và là một
+  lựa chọn ổn, nhưng giờ đa số creator chọn Quartz trước.
+</Callout>
+
+---
+
+## Yêu cầu
+
+<ToolCard name="Hacksaw" href="https://github.com/TheMartynasXS/Hacksaw">
+  Công cụ do Martynas làm để chỉnh bin.
+</ToolCard>
+
+<ToolCard name="RitoBin" href="/docs/lol/tools/modding-apps/ritobin">
+  Bộ chuyển đổi do Moonshadow làm để chuyển `.bin` sang `.py`.
+</ToolCard>
+
+---
+
+## Bước 1: Cài đặt Hacksaw
+
+1. Tải và mở Hacksaw
+   <img src="/wiki-images/1767146058191-p47ap.png" alt="Cửa sổ Hacksaw" width={500} />
+2. Vào tab **Settings**
+   <img src="/wiki-images/1767146063211-rh626f.png" alt="Tab Settings trong Hacksaw" width={400} />
+3. Nhấn **Select Ritobin_Cli**
+   <img src="/wiki-images/1767146098137-0kfjp.png" alt="Nút Select Ritobin_Cli" width={500} />
+4. Chọn `ritobin_cli.exe`
+
+<img src="/wiki-images/1767146109516-brjqcp.png" alt="Chọn file ritobin_cli.exe" width={500} />
+
+> 💡 Hacksaw cần `ritobin_cli` để đọc và ghi file `.bin` dùng cho hiệu ứng hình ảnh.
+
+---
+
+## Bước 2: Tìm file BIN
+
+File `.bin` particle của bạn thường nằm ở một trong các thư mục sau:
+
+/yourWadFolder/data/ /yourWadFolder/data/characters/YourChamp/skins/SkinXX/
+
+`SkinXX` tương ứng với ID skin của bạn.
+
+<img src="/wiki-images/1767146144586-3z25vn.png" alt="Thư mục data chứa file bin" width={600} />
+
+<img src="/wiki-images/1767146157874-buswuj.png" alt="Thư mục skin của tướng" width={600} />
+
+Để tìm số skin, xem thư mục HUD. Thư mục này thường có ảnh preview.
+
+<img src="/wiki-images/1767146166101-ajvkvb.png" alt="Thư mục HUD với ảnh preview" width={600} />
+
+---
+
+## Bước 3: Mở file BIN
+
+1. Vào tab **Splash** trong Hacksaw
+   <img src="/wiki-images/1767146179052-z4hk9c.png" alt="Tab Splash trong Hacksaw" width={300} />
+2. Nhấn **Open Bin**
+   <img src="/wiki-images/1767146185172-7lewvd.png" alt="Nút Open Bin" width={300} />
+
+<img src="/wiki-images/1767146198483-5k0ae.png" alt="Danh sách entry particle" width={500} />
+
+Giờ bạn sẽ thấy danh sách các entry particle như:
+
+- `_Q_mis` → VFX đạn của chiêu Q
+- `_W_tar` → Hiệu ứng trúng mục tiêu của W
+- `_E_cas` → Animation ra chiêu của E
+
+> 💡 **Các từ đặt tên thường gặp:** mis = missile (đạn) • tar = target (mục tiêu) • cas = cast (ra chiêu) • trail = vệt • exp = explosion (nổ)
+
+---
+
+## Bước 4: Đổi màu particle
+
+1. Chọn màu mới bằng bảng màu
+   <img src="/wiki-images/1767146233766-gxzbj.png" alt="Bảng màu trong Hacksaw" width={500} />
+2. Chọn ParticleSystem bạn muốn đổi màu
+   <img src="/wiki-images/1767146238999-n11n14.png" alt="Chọn ParticleSystem" width={500} />
+3. Nhấn **Recolor Selected** ở phía dưới Hacksaw
+   <img src="/wiki-images/1767146242759-dx73al.png" alt="Nút Recolor Selected" width={500} />
+4. Lưu thay đổi bằng cách nhấn **Save Bin**
+   <img src="/wiki-images/1767146246511-68brzq.png" alt="Nút Save Bin" width={500} />
+
+---
+
+## Bước 5: Một số particle lấy màu từ texture
+
+Không phải particle nào cũng đổi màu được qua bảng màu tích hợp của Hacksaw. Một số VFX lấy màu từ một file texture bên ngoài. File này thường là `.dds` hoặc `.tex` trong thư mục Particles.
+
+### Cần làm gì
+
+1. Tìm thư mục Particles: `Assets/Characters/LeeSin/Skins/Skin31/Particles`
+2. Mở file texture trong Photoshop, GIMP, hoặc phần mềm chỉnh ảnh nào hỗ trợ `.dds`
+3. Đổi màu texture thủ công
+4. Lưu texture đã chỉnh dưới dạng `.dds` với nén **BC3 / DXT5**
+5. Thay file gốc trong thư mục Particles hoặc VFX của bạn
+
+> 💡 **Các đường dẫn texture thường gặp:**
+>
+> - `Assets/Characters/LeeSin/Skins/Skin31/Particles`
+> - `Assets/Shared/Particles`
+> - `Assets/Characters/LeeSin/Skins/Base/Particles`
+
+---
+
+## Mẹo quan trọng
+
+### Đừng đổi màu đen hoặc trắng (theo mặc định)
+
+Giá trị đen và trắng thường được dùng cho **độ trong suốt** trong VFX của League. Đổi màu chúng có thể làm hỏng hoặc ẩn hẳn hiệu ứng.
+
+Nếu bạn cố ý muốn đổi màu đen/trắng:
+
+1. Vào **Settings**
+2. Tắt **"Ignore Black/White Values"**
+
+---
+
+### Hiểu về BlendMode
+
+Mỗi particle dùng một BlendMode, hiển thị bên phải trong Hacksaw:
+
+| BlendMode | Cách hoạt động                                                                        |
+| --------- | ------------------------------------------------------------------------------------- |
+| 1         | Không trong suốt, cứ thoải mái đổi màu đen/trắng                                       |
+| 3         | Độ trong suốt SCB                                                                      |
+| 4         | Trong suốt tiêu chuẩn, đừng chỉnh quá đen kẻo nó tàng hình trong game                  |
+
+<img src="/wiki-images/1767146259378-b1tf5.png" alt="Cột BlendMode trong Hacksaw" width={500} />
+
+> 💡 Hiểu cách blend mode ảnh hưởng tới việc render giúp bạn tránh lỗi hình ảnh hoặc phát sáng ngoài ý muốn.

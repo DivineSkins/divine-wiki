@@ -1,0 +1,97 @@
+---
+title: "Tex Thumbnail Provider"
+description: "Shell extension cho Windows của RitoShark hiện file .tex thành ảnh thumbnail trong File Explorer. Cài theo từng user, không cần admin. Nhìn qua là biết bên trong texture có gì."
+category: "tools"
+---
+
+Tex Thumbnail Provider của **RitoShark** cho bạn thấy file `.tex` dưới dạng
+thumbnail trong Windows Explorer. Không còn phải đoán bên trong có gì nữa.
+
+[Tải bản phát hành mới nhất](https://github.com/RitoShark/TexThumbnailProvider/releases/latest)
+
+Phiên bản mới nhất: **v1.1.0**.
+
+---
+
+## Nó làm gì
+
+- Hiện file `.tex` thành ảnh xem trước trong Windows Explorer.
+- Chạy trong mọi thư mục có texture `.tex` (file game, file xuất, asset của bản mod).
+- Chạy dưới dạng một COM DLL đã đăng ký. Không có app nào để mở. Không có tiến trình chạy nền.
+
+{/* SCREENSHOT: Windows Explorer showing a folder of .tex files with image thumbnails instead of generic icons */}
+
+---
+
+## Trước khi bắt đầu
+
+- Windows 10 hoặc 11.
+- PowerShell. Không cần quyền quản trị viên. Bộ cài chỉ đăng ký DLL cho tài khoản của bạn.
+
+---
+
+## Cài đặt
+
+1. Đóng mọi cửa sổ Windows Explorer đang hiện file `.tex`.
+2. Mở PowerShell. Cửa sổ thường là được. Bạn không cần chạy nó dưới quyền quản trị viên.
+3. Dán lệnh này vào rồi nhấn Enter:
+
+   ```powershell
+   iwr -useb https://raw.githubusercontent.com/RitoShark/TexThumbnailProvider/master/scripts/install-thumbnail-handler.ps1 | iex
+   ```
+
+4. Chờ bộ cài chạy xong. Nó tải `TexThumbnailProvider.dll`, chép vào `%LOCALAPPDATA%\RitoShark\TexThumbnailProvider`, rồi đăng ký cho tài khoản của bạn.
+5. Mở bất kỳ thư mục nào có file `.tex`. Thumbnail hiện lên thay cho icon trắng.
+
+{/* SCREENSHOT: PowerShell window showing the install script output with a success message */}
+
+<Callout type="info">
+  Bộ cài đăng ký DLL cho tài khoản hiện tại. Vì thế nó không cần quyền admin.
+  Giữ lại thư mục cài. Nếu bạn xóa nó, các ảnh xem trước sẽ ngừng hoạt động.
+</Callout>
+
+---
+
+## Nếu bạn cũng dùng RitoTex
+
+Plugin Photoshop [RitoTex](/docs/lol/tools/texturing/photoshop-tex-plugin)
+cũng đăng ký một thumbnail handler cho `.tex`. Bình thường hai handler cho cùng
+một loại file sẽ xung đột.
+
+Bộ cài này ghi handler của nó dưới tài khoản của bạn, thứ được ưu tiên hơn bản
+theo máy. Nên thumbnail `.tex` của bạn vẫn hiện dù đã cài RitoTex. Bạn không
+phải chọn giữa hai cái.
+
+---
+
+## Xử lý sự cố
+
+### Thumbnail không hiện
+
+1. Khởi động lại Windows Explorer:
+   - Mở Task Manager.
+   - Tìm **Windows Explorer**.
+   - Chuột phải. Chọn **Restart**.
+2. Mở lại thư mục.
+
+### Thumbnail cũ vẫn trông như icon trắng
+
+Windows lưu cache thumbnail. Một file `.tex` chỉ vẽ lại sau khi thời gian sửa
+đổi của nó thay đổi hoặc sau khi bạn xóa cache.
+
+1. Mở **Disk Cleanup**.
+2. Tích **Thumbnails**.
+3. Bấm **OK**.
+4. Mở lại thư mục.
+
+### Vẫn không có gì sau khi khởi động lại
+
+Chạy lại lệnh cài đặt. Nó tải lại và đăng ký lại DLL.
+
+---
+
+## Lựa chọn thay thế
+
+[LTK Tex Thumb Handler](/docs/lol/tools/texturing/ltk-tex-thumb-handler) của
+nhóm LeagueToolkit làm cùng một việc. Chọn một công cụ thôi, đừng dùng cả hai.
+Chạy hai thumbnail handler cho cùng một loại file có thể gây xung đột.

@@ -4,6 +4,7 @@ import frFR from "../../messages/fr-FR.json";
 import trTR from "../../messages/tr-TR.json";
 import ptBR from "../../messages/pt-BR.json";
 import plPL from "../../messages/pl-PL.json";
+import viVN from "../../messages/vi-VN.json";
 
 export type Messages = typeof en;
 
@@ -40,6 +41,7 @@ const messages: Record<string, Messages> = {
   "tr-TR": deepMerge(en, trTR),
   "pt-BR": deepMerge(en, ptBR),
   "pl-PL": deepMerge(en, plPL),
+  "vi-VN": deepMerge(en, viVN),
 };
 
 export function getLocale(routeLang?: string) {

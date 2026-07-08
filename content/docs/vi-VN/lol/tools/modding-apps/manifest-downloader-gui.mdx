@@ -1,0 +1,135 @@
+---
+title: "Manifest Downloader GUI"
+description: "Giao diện để tải file manifest của Riot. Lấy các bản patch LMHT cũ, bản PBE hay asset bị thiếu mà không cần dòng lệnh."
+category: "tools"
+---
+
+Manifest Downloader GUI là app desktop do **dazashu** làm, bọc công cụ dòng
+lệnh `ManifestDownloader` của **Morilli** vào một cửa sổ có hai tab. Bạn dùng
+nó để tải file manifest của Riot rồi kéo về các asset game mà manifest đó mô
+tả.
+
+Manifest là file Riot dùng để mô tả một bản build game: file nào có, nằm ở
+đâu, phiên bản bao nhiêu. Có đúng manifest, bạn tải được một bản patch LMHT
+cũ, một bản PBE, hay một asset cụ thể mà không cần đợi client live làm giúp.
+
+[Tải bản mới nhất](https://github.com/dazashu/ManifestDownloaderGUI/releases)
+
+{/* SCREENSHOT: ManifestDownloaderGUI main window with the Downloader and Library tabs visible */}
+
+---
+
+## Nó làm được gì
+
+- **Tải manifest** từ kho public của Riot chỉ với một cú nhấn.
+- **Duyệt thư viện local** gồm các manifest bạn đã tải về.
+- **Kéo nội dung game thật** mà manifest mô tả (các file bên trong bản build).
+- **Đặt tùy chọn tải** qua bảng cài đặt (đường dẫn, bộ lọc, số luồng).
+- **Giữ mọi thứ gọn gàng.** Dữ liệu app nằm trong `LocalAppData`, nên thư mục cài đặt của bạn luôn sạch.
+
+Nó hỗ trợ đúng những game mà CLI của Morilli hỗ trợ. Bao gồm League of Legends, Legends of Runeterra, Valorant, và các tựa Riot khác dùng file manifest.
+
+---
+
+## Bạn cần gì
+
+- Windows 10 hoặc 11 (64-bit). Không có bản cho Mac hay Linux.
+- [.NET 8.0 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0). Thiếu nó app không chạy.
+- Khoảng 1 GB trống cho việc nhỏ. Bản build LMHT đầy đủ cần 20 đến 30 GB.
+- Mạng internet ổn. Bạn đang kéo từ CDN của Riot.
+
+---
+
+## Cài đặt
+
+1. Mở [trang releases](https://github.com/dazashu/ManifestDownloaderGUI/releases).
+2. Tải `ManifestDownloaderGUI.exe` từ bản mới nhất.
+3. Chuyển file `.exe` vào một thư mục bạn nhớ được. (Ví dụ, `C:\Tools\ManifestDownloader\`.)
+4. Nhấn đúp `ManifestDownloaderGUI.exe`. App mở ra ở tab Downloader.
+
+Nếu Windows hiện cảnh báo SmartScreen, nhấn **More info**, rồi **Run anyway**. App là mã nguồn mở và chưa ký, chuyện bình thường với công cụ cộng đồng.
+
+{/* SCREENSHOT: Windows SmartScreen warning with the "More info" link circled */}
+
+---
+
+## Cách dùng
+
+### Tải một manifest
+
+1. Mở app. Tab **Downloader** mở sẵn mặc định.
+2. Chọn game và channel bạn muốn (ví dụ, League of Legends live hoặc PBE).
+3. Nhấn vào manifest bạn muốn trong danh sách. Quá trình tải bắt đầu.
+4. Đợi thanh tiến trình chạy xong. Manifest chuyển vào thư viện local của bạn.
+
+{/* SCREENSHOT: Downloader tab with a manifest mid-download */}
+
+### Tải nội dung game
+
+1. Chuyển sang tab **Library**.
+2. Nhấn vào manifest bạn vừa tải.
+3. Kiểm tra cài đặt tải (thư mục xuất, bộ lọc, số luồng).
+4. Nhấn **Start**. App kéo file từ CDN của Riot.
+5. Đợi. Một bản build LMHT đầy đủ có thể mất 30 phút hoặc hơn, tùy đường mạng.
+
+Xong xuôi, thư mục xuất của bạn chứa file game thô: `.wad`, `.bin`, texture, và phần còn lại.
+
+{/* SCREENSHOT: Library tab with a manifest selected and the Start button visible */}
+
+### Lọc thứ bạn tải
+
+Thường bạn không muốn cả bản build. Bảng cài đặt giúp bạn thu hẹp lại:
+
+- **Lọc theo đường dẫn.** Chỉ kéo file có đường dẫn khớp một mẫu (ví dụ, `*champion*`).
+- **Lọc theo ngôn ngữ.** Bỏ qua các gói lồng tiếng bạn không cần.
+- **Đặt số luồng.** Nhiều luồng thì nhanh hơn, nhưng ngốn đường mạng.
+
+---
+
+## Khi nào bạn thật sự cần cái này
+
+Đa số modder chẳng bao giờ đụng tới manifest. Client LMHT live đã tự cập nhật cho bạn, và các công cụ như [Flint](/docs/lol/tools/modding-apps/flint) trích ra thứ bạn cần từ bản cài hiện tại. Hãy tìm tới Manifest Downloader GUI khi:
+
+- **Bạn muốn một bản patch cũ.** Một bộ skin làm trên patch 14.3 có thể hỏng ở 14.10. Kéo file 14.3 về cho bạn kiểm tra mesh hay texture gốc.
+- **Bạn muốn file PBE.** Bản Public Beta Environment tung tướng và skin mới trước live. Manifest là cách bạn lấy chúng mà không cần cài client PBE.
+- **Một asset cụ thể bị thiếu ở máy.** Đôi khi client live không tung đủ mọi file (nội dung bị cắt, asset theo khu vực). Manifest cho bạn kéo đúng file đó.
+- **Bạn đang làm cho một game Riot khác.** Legends of Runeterra và Valorant dùng chung định dạng manifest.
+
+Với việc làm skin hằng ngày, cứ dùng Flint hoặc LtMAO. Dùng cái này khi rơi vào một trong các trường hợp trên.
+
+---
+
+## Khác gì với luồng tự động patch
+
+Client LMHT tự patch chính nó. Celestial cũng vậy khi một bộ skin cần cập nhật. Cả hai đều tự động và bạn không chọn thứ chúng kéo về.
+
+Manifest Downloader GUI thì ngược lại: **bạn chọn bản build, bạn chọn file, bạn kích hoạt việc tải**. Nó không patch bản LMHT đã cài của bạn. Nó không đổi game live của bạn. Nó ghi file vào một thư mục bạn chọn, chỉ vậy thôi.
+
+---
+
+## Xử lý sự cố
+
+### App không chạy
+
+Cài [.NET 8.0 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0) rồi thử lại. App cần nó mới chạy.
+
+### Tải rất chậm
+
+Giảm số luồng trong cài đặt, hoặc kiểm tra xem mạng hay VPN có bóp băng thông không. CDN của Riot nhanh ở đa số khu vực.
+
+### Tải xong nhưng thư mục trống
+
+Kiểm tra bộ lọc đường dẫn. Nếu bạn đặt một mẫu không khớp file nào, lượt chạy hoàn tất với không file nào. Xóa bộ lọc rồi thử lại.
+
+### Một manifest tải bị lỗi
+
+Vài manifest cũ bị gỡ khỏi nguồn public của Riot. Nếu một manifest trong danh sách báo lỗi, chọn phiên bản khác hoặc xem [kho saved-manifests của Morilli](https://github.com/Morilli/riot-manifests) để tìm bản lưu trữ.
+
+---
+
+## Ghi công
+
+- **Giao diện do [dazashu](https://github.com/dazashu) làm.**
+- **Lõi CLI do [Morilli](https://github.com/Morilli/ManifestDownloader) làm.** Giao diện bọc công cụ của Morilli, nên toàn bộ logic tải thật sự đến từ đó.
+
+Cả hai dự án đều là mã nguồn mở và cấp phép MIT.
