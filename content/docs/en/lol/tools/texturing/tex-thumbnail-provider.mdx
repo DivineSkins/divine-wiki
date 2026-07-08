@@ -1,67 +1,73 @@
 ---
 title: "Tex Thumbnail Provider"
-description: "RitoShark's Windows shell extension shows .tex files as image thumbnails in File Explorer. Per-user install, no admin. See what is inside a texture at a glance."
+description: "RitoShark's Windows shell extension shows .tex files as image thumbnails in File Explorer. One-line PowerShell install, no admin. See what is inside a texture at a glance."
 category: "tools"
 ---
 
-Tex Thumbnail Provider by **RitoShark** lets you see `.tex` files as
-thumbnails in Windows Explorer. No more guessing what is inside.
-
-[Download the latest release](https://github.com/RitoShark/TexThumbnailProvider/releases/latest)
-
-Latest version: **v1.1.0**.
+Tex Thumbnail Provider by **RitoShark** shows `.tex` files as real thumbnails in
+Windows Explorer. In the file list, the preview pane, and large-icon view, you
+see the texture instead of a blank icon. It decodes the file itself, so no app
+has to be open.
 
 ---
 
-## What it does
+## Install
 
-- Shows `.tex` files as image previews in Windows Explorer.
-- Works in any folder with `.tex` textures (game files, exports, mod assets).
-- Runs as a registered COM DLL. No app to open. No background process.
+You install and uninstall with a single PowerShell command. No download, no admin
+rights. Registration is per user.
 
-{/* SCREENSHOT: Windows Explorer showing a folder of .tex files with image thumbnails instead of generic icons */}
-
----
-
-## Before you start
-
-- Windows 10 or 11.
-- PowerShell. No administrator rights needed. The installer registers the DLL for your user only.
-
----
-
-## Installation
-
-1. Close any Windows Explorer windows that show `.tex` files.
-2. Open PowerShell. A normal window is fine. You do not need to run it as administrator.
-3. Paste this command and press Enter:
+1. Close any Explorer windows that are showing `.tex` files.
+2. Open PowerShell. A normal window is fine.
+3. Paste this and press Enter:
 
    ```powershell
    iwr -useb https://raw.githubusercontent.com/RitoShark/TexThumbnailProvider/master/scripts/install-thumbnail-handler.ps1 | iex
    ```
 
-4. Wait for the installer to finish. It downloads `TexThumbnailProvider.dll`, copies it to `%LOCALAPPDATA%\RitoShark\TexThumbnailProvider`, and registers it for your user.
-5. Open any folder with `.tex` files. Thumbnails appear in place of generic icons.
+The script grabs the latest `TexThumbnailProvider.dll`, drops it in
+`%LOCALAPPDATA%\RitoShark\TexThumbnailProvider`, and registers it for your user.
+Open any folder with `.tex` files and the thumbnails appear.
 
-{/* SCREENSHOT: PowerShell window showing the install script output with a success message */}
+<Callout type="info" title="Pin a specific version">
+  Want a set version instead of the latest? Run:
 
-<Callout type="info">
-  The installer registers the DLL for the current user. That is why it does not
-  need admin rights. Keep the install folder. If you delete it, the previews
-  stop working.
+```powershell
+& ([scriptblock]::Create((iwr -useb https://raw.githubusercontent.com/RitoShark/TexThumbnailProvider/master/scripts/install-thumbnail-handler.ps1))) -Version v1.1.0
+```
+
 </Callout>
+
+## Uninstall
+
+```powershell
+iwr -useb https://raw.githubusercontent.com/RitoShark/TexThumbnailProvider/master/scripts/uninstall-thumbnail-handler.ps1 | iex
+```
+
+This removes the handler and its registry entries.
 
 ---
 
-## If you also use RitoTex
+## What it handles
 
-The [RitoTex](/docs/lol/tools/texturing/photoshop-tex-plugin) Photoshop plugin
-also registers a `.tex` thumbnail handler. Two handlers for one file type would
-normally fight.
+It decodes the `.tex` compression formats Riot ships:
 
-This installer writes its handler under your user account, which wins over the
-machine-wide one. So your `.tex` thumbnails keep showing even with RitoTex
-installed. You do not have to choose between them.
+| Format               | `.tex` code |
+| -------------------- | ----------- |
+| DXT1 / BC1           | `0x0A`      |
+| DXT5 / BC3           | `0x0C`      |
+| BC7                  | `0x0D`      |
+| BC5                  | `0x0E`      |
+| BGRA8 (uncompressed) | `0x14`      |
+
+Mipmapped textures work too. The largest mip is decoded for the thumbnail.
+
+<Callout type="info" title="Wins even over Photoshop">
+  If Photoshop or the RitoTex plugin is installed, it registers itself as the
+  `.tex` thumbnail handler and would normally take over. This installer writes
+  its handler under your user account, which overrides the machine-wide one.
+  Your `.tex` thumbnails keep showing. It only touches the thumbnail entry, so
+  double-clicking a `.tex` still opens whatever app you set.
+</Callout>
 
 ---
 
@@ -69,21 +75,14 @@ installed. You do not have to choose between them.
 
 ### Thumbnails don't show
 
-1. Restart Windows Explorer:
-   - Open Task Manager.
-   - Find **Windows Explorer**.
-   - Right-click. Pick **Restart**.
-2. Open the folder again.
+Restart Windows Explorer. Open Task Manager, find **Windows Explorer**,
+right-click, and pick **Restart**. Open the folder again.
 
 ### Old thumbnails still look like generic icons
 
-Windows caches thumbnails. A `.tex` file repaints only after its modified time
-changes or after you clear the cache.
-
-1. Open **Disk Cleanup**.
-2. Tick **Thumbnails**.
-3. Click **OK**.
-4. Open the folder again.
+Windows caches thumbnails per file. A `.tex` repaints only after its modified
+time changes or after you clear the cache. Open **Disk Cleanup**, tick
+**Thumbnails**, click **OK**, then reopen the folder.
 
 ### Still nothing after a restart
 
@@ -91,8 +90,18 @@ Run the install command again. It re-downloads and re-registers the DLL.
 
 ---
 
-## Alternatives
+## Alternative: LTK Tex Thumb Handler
 
-[LTK Tex Thumb Handler](/docs/lol/tools/texturing/ltk-tex-thumb-handler) by the
-LeagueToolkit team does the same job. Pick one tool, not both. Running two
-thumbnail handlers for the same file type can cause conflicts.
+The **LeagueToolkit** team has its own `.tex` thumbnail handler
+([ltk-tex-utils](https://github.com/LeagueToolkit/ltk-tex-utils)). It does the
+same basic job, but two things hold it back:
+
+- It does not decode every compression format Riot uses, so some `.tex` files
+  stay blank.
+- If another program (Photoshop, the RitoTex plugin, and so on) has already
+  claimed the `.tex` type, it cannot produce a preview at all. It does not
+  override the existing handler the way this tool does.
+
+For most people, Tex Thumbnail Provider from RitoShark is the better choice: it
+covers more formats and wins over other handlers. Run only one thumbnail handler
+at a time. If you had the LTK one installed, remove it before you install this.
