@@ -20,6 +20,7 @@ import {
   ContributePickerModal,
 } from "@/components/contribute-picker";
 import StaticSearchDialog from "@/components/search-dialog";
+import { ApplyAppearance } from "@/components/apply-appearance";
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -147,14 +148,19 @@ export default async function RootLayout({
       <body>
         {/* Apply persisted appearance preferences (reading width, Minimal
             style, font) before first paint — same no-flash trick next-themes
-            uses for the theme class. Keys stay in sync with
-            src/components/appearance-settings.tsx. Centered reading is the
-            default: add the class unless the visitor explicitly chose "wide". */}
+            uses for the theme class. Serialized copy of applyStoredAppearance
+            in src/lib/appearance.ts; keep them in sync. Centered reading is
+            the default: add the class unless the visitor explicitly chose
+            "wide". */}
         <script
           dangerouslySetInnerHTML={{
             __html: `try{var c=document.documentElement.classList;if(localStorage.getItem("divine-reading-width")!=="wide")c.add("centered-reading");if(localStorage.getItem("divine-style")==="minimal")c.add("minimal");var f=localStorage.getItem("divine-font");if(f==="geist"||f==="lora"||f==="atkinson"||f==="system")document.documentElement.setAttribute("data-font",f)}catch(e){}`,
           }}
         />
+        {/* Re-applies the same preferences after a language switch: the
+            locale remount resets <html>'s attributes (see the component's
+            doc comment). */}
+        <ApplyAppearance />
         <RootProvider
           i18n={provider(lang)}
           search={{ SearchDialog: StaticSearchDialog }}

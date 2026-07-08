@@ -10,20 +10,22 @@ import {
 import { SettingsIcon, ChevronDownIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import {
+  STYLE_STORAGE_KEY,
+  FONT_STORAGE_KEY,
+  READING_WIDTH_STORAGE_KEY,
+  MINIMAL_CLASS,
+  CENTERED_CLASS,
+  type FontId,
+} from "@/lib/appearance";
+
 /**
  * Appearance settings popover: Mode (light/dark/system via next-themes),
  * Style (Divine/Minimal), Font, and reading Width. Style, font, and width
  * live as a class / data attribute on <html>, set before paint by the
  * inline script in src/app/[lang]/layout.tsx and persisted in
- * localStorage — keep the keys in sync with that script.
+ * localStorage — shared keys and apply logic live in src/lib/appearance.ts.
  */
-
-export const STYLE_STORAGE_KEY = "divine-style";
-export const FONT_STORAGE_KEY = "divine-font";
-export const READING_WIDTH_STORAGE_KEY = "divine-reading-width";
-
-const MINIMAL_CLASS = "minimal";
-const CENTERED_CLASS = "centered-reading";
 
 export interface SettingsLabels {
   trigger: string;
@@ -40,8 +42,6 @@ export interface SettingsLabels {
   widthWide: string;
   widthCentered: string;
 }
-
-type FontId = "inter" | "geist" | "lora" | "atkinson" | "system";
 
 // Each label renders in its own typeface so the row previews the font.
 // fontFamily uses the next/font variables (defined on <html>), which
