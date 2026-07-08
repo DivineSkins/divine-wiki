@@ -1,0 +1,168 @@
+---
+title: "League Mod Repather"
+description: "Bir yamadan sonra bozulan League of Legends modlarını düzelten bağımsız bir araç."
+category: "tools"
+---
+
+Riot League'i yamaladığında eski modlar bozulur. League Mod Repather,
+modunu güncel yamada çalışacak şekilde yeniden inşa eder.
+
+En son sürümü
+[GitHub sürümler sayfasından](https://github.com/RitoShark/League-Mod-Repather/releases) indir.
+Aşağıdaki rehber **v2.0.4** üzerinde kontrol edildi.
+
+---
+
+## Nasıl Kullanılır
+
+### İlk Kurulum
+
+1. `LeagueModRepather.exe` dosyasını indir ve aç.
+2. Hash dosyalarını CommunityDragon'dan çekmek için **Download**'a tıkla.
+3. İndirmenin bitmesini bekle (~1 dakika, ~220 MB).
+
+Hash dosyaları yalnızca bir kez iner. Yeni bir yama çıktığında yenilemek
+için **Update**'e tıkla.
+
+---
+
+### Adım 1: Dosyaları Seç
+
+**Champions Klasörü:**
+
+- "Champions folder" yanındaki **Browse**'a tıkla.
+- Şuraya git: `C:\Riot Games\League of Legends\Game\DATA\FINAL\Champions`
+- **Select Folder**'a tıkla.
+
+**Modun:**
+
+- **Seçenek A:** Bir `.fantome` dosyası seç. Toplu repath için birden
+  fazla seçebilirsin.
+- **Seçenek B:** Bir mod klasörü seç. Bu seçenek, çıkarılmış bir mod
+  üzerinde çalışan mod yapımcıları içindir. Normal kullanıcılar Seçenek
+  A'yı seçmeli.
+
+**Custom Prefix** (İsteğe bağlı):
+
+- `shadow` veya `dragon` gibi rastgele bir önek için boş bırak.
+- Ya da tutarlı dosya adları için `mymod` gibi kendi önekini yaz.
+
+---
+
+### Adım 2: Çökme Düzeltme Anahtarları
+
+Bu anahtarlar mod seçiminin altında durur. Belirli çökmeleri düzeltirler.
+İhtiyacın olmadıkça kapalı bırak.
+
+<Callout type="info">
+  **Merge Linked BINs** varsayılan olarak açık. Açık tut. Taze oyun
+  dosyalarından daha yeni bağlı BIN yollarını çeker ve moduna ekler. Bu, son
+  yamaların girdilerini kaybetmiş eski modları onarır (örneğin Yone E çökmesi).
+</Callout>
+
+- **No Skin Lite**. Base/Skin0'ı diğer her skin slotuna (1'den 99'a)
+  kopyalar. Yalnızca Base/Skin0 modlarında çalışır.
+- **Nuke Materials (crash fix)**. `StaticMaterialDef` girdilerini kaldırır
+  ve materyal bağlantılarını doğrudan doku yollarıyla değiştirir. Bir mod
+  Yasuo veya Zed gibi şampiyonlarda oyunu çökertiyorsa bunu dene.
+- **Fix TEX Dimensions (Crash Fix)**. Boyutları 4'e bölünemeyen `.tex`
+  dosyalarını yeniden boyutlandırır (örneğin 257x257 olur 256x256). Modun
+  yüklenirken çöküyorsa aç.
+
+**Next**'e tıkla.
+
+---
+
+### Adım 3: İşleme
+
+Araç şu adımlardan geçer:
+
+- Modundaki şampiyonu tespit eder.
+- Modunu ve taze oyun dosyalarını çıkarır.
+- `.tex` dosyalarını `.dds`'ye dönüştürür.
+
+İşleme 2-5 dakika sürer. Bittiğinde durum `Overlay complete` yazar.
+
+**Next**'e tıkla.
+
+---
+
+### Adım 4: Ana BIN'i Seç
+
+Açılır menüden skin'i seç. Temel skin için **Skin0** kullan. Bir chroma
+ya da başka bir skin için eşleşen slotu seç (Skin1, Skin5 vb.).
+
+**Next**'e tıkla.
+
+---
+
+### Adım 5: Repath
+
+Araç tüm dosya yollarını düzeltir, bağlı BIN'leri birleştirir (o anahtarı
+açık bıraktıysan) ve her şeyi yeni bir `.fantome`'a paketler. Ana bin
+temiz kalsın diye VFX ayrı bir bin'e gider (v2.0.3'te eklendi).
+
+Bittiğinde şunu görürsün: `DONE! Created {name}_repathed.fantome`
+
+---
+
+### Çıktı Konumu
+
+Yeni modun iki yere kaydedilir:
+
+```text
+C:\Users\<YourName>\Documents\FantomeRepathTool\
+```
+
+Ayrıca seçtiğin orijinal `.fantome`'ın yanına da kaydedilir.
+
+`_repathed.fantome` ile biten dosyayı ara.
+
+---
+
+## Kurulum
+
+1. Mod yöneticini aç (Fantome, LCS Manager veya benzeri).
+2. `_repathed.fantome` dosyasını içe aktar.
+3. Modu etkinleştir ve oyunu başlat.
+
+---
+
+## Sorun Giderme
+
+**Mod repath sonrası hâlâ çalışmıyor:**
+
+- Doğru skin slotunu seçtiğini kontrol et (temel için Skin0).
+- Hash dosyalarını yenilemek için **Update**'e tıkla, sonra tekrar dene.
+- Kapattıysan **Merge Linked BINs**'i aç.
+
+**Şampiyon yüklenirken oyun çöküyor (Yasuo, Zed, diğerleri):**
+
+- **Nuke Materials (crash fix)**'i aç ve tekrar repath'le.
+
+**Yone E çökmesi veya eksik efektler:**
+
+- **Merge Linked BINs**'in açık olduğundan emin ol. Varsayılan olarak
+  açık.
+
+**Bu modla oyun başlarken çökme:**
+
+- **Fix TEX Dimensions (Crash Fix)**'i aç ve tekrar repath'le.
+
+**Araç "Converting TEX to DDS"de takıldı:**
+
+- Büyük modlarda bu normal. Ona 2-5 dakika ver.
+
+**Hash dosyası konumu:**
+
+```text
+C:\Users\<YourName>\AppData\Roaming\FrogTools\hashes\
+```
+
+---
+
+## Emeği geçenler
+
+- **GuiSaiUwU** - [pyRitoFile](https://github.com/GuiSaiUwU/pyritofile-package), can barı düzeltmesi ve statik mat düzeltme kodu
+- **tarngaina** - [pyRitoFile](https://github.com/tarngaina/pyRitoFile), [LtMAO](https://github.com/tarngaina/LtMAO)
+- **CommunityDragon** - [Hash tabloları](https://github.com/CommunityDragon/Data)

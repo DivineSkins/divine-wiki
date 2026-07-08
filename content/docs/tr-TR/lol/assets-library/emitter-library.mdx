@@ -1,0 +1,268 @@
+---
+title: "Emitter Kütüphanesi"
+description: "bindWeight, partikülün bağlı olduğu kemiğin hareketini ne kadar takip ettiğini kontrol eder."
+category: "assets-library"
+---
+
+## Bind Weight
+
+**`bindWeight`** partikülün bağlı olduğu kemiğin hareketini ne kadar takip
+ettiğini kontrol eder.
+
+- `1` → kemiği tam takip eder
+- `0` → yerinde kalır
+  <img src="/wiki-images/1769132679719-x7qanf.png" alt="Görsel" width={500} />
+
+```rust
+bindWeight: embed = ValueFloat {
+    constantValue: f32 = 1
+}
+```
+
+---
+
+## Rate
+
+**`rate`** emitter'ın saniyede kaç partikül oluşturduğunu kontrol eder.
+
+<img src="/wiki-images/1769132701264-5grdr.png" alt="Görsel" width={500} />
+
+### Örnek: 1 Partikül
+
+```rust
+rate: embed = ValueFloat {
+    constantValue: f32 = 1 // 1 particle in emitter
+}
+```
+
+### Örnek: 20 Partikül
+
+```rust
+rate: embed = ValueFloat {
+    constantValue: f32 = 20 // 20 particles spawning in 1 emitter
+}
+```
+
+---
+
+## Particle Lifetime
+
+- **`particleLifetime`** her partikülün oluşturulduktan sonra ne kadar
+  yaşadığını tanımlar.
+- **`lifetime`** emitter'ın kendisinin kaybolmadan önce ne kadar sürdüğünü
+  tanımlar.
+
+<img src="/wiki-images/1769132720262-0d010j.png" alt="Görsel" width={500} />
+
+### Sonlu Ömür
+
+```rust
+particleLifetime: embed = ValueFloat {
+    constantValue: f32 = 1
+}
+```
+
+### Sonsuz Ömür
+
+```rust
+particleLifetime: embed = ValueFloat {
+    constantValue: f32 = -1 // infinity
+}
+```
+
+### Emitter Ömrü
+
+```rust
+lifetime: option[f32] = {
+    1
+}
+```
+
+---
+
+## Particle Linger
+
+**`particleLinger`** emitter bittikten sonra partiküllerin kaybolmasını
+geciktirir ve onların belirli bir süre (saniye cinsinden) görünür kalmasını
+sağlar.
+
+<img src="/wiki-images/1769132745363-l0cm4s.png" alt="Görsel" width={500} />
+
+```rust
+particleLinger: option[f32] = {1}
+```
+
+---
+
+## Misc Render Flags
+
+**`miscRenderFlags`** partikül için özel render davranışlarını kontrol eder.
+
+<img src="/wiki-images/1769132778060-ufd3d4.png" alt="Görsel" width={500} />
+
+```rust
+miscRenderFlags: u8 = 1
+```
+
+<img src="/wiki-images/1769132799839-vw26fb.png" alt="Görsel" width={500} />
+
+```rust
+miscRenderFlags: u8 = 0
+```
+
+---
+
+## Emitter Position
+
+**`EmitterPosition`** partiküllerin emitter'a göre nerede oluşacağını belirler.
+
+- Daha yüksek **Y** → yukarı taşır
+- Daha düşük **Y** → aşağı taşır
+
+<img src="/wiki-images/1769132826453-dvots5.png" alt="Görsel" width={500} />
+
+### Konum Örnekleri
+
+```rust
+EmitterPosition: embed = ValueVector3 {
+    constantValue: vec3 = { 0, 100, 0 } // higher
+}
+```
+
+```rust
+EmitterPosition: embed = ValueVector3 {
+    constantValue: vec3 = { 0, -100, 0 } // lower
+}
+```
+
+```rust
+EmitterPosition: embed = ValueVector3 {
+    constantValue: vec3 = { 100, 0, 0 } // right
+}
+```
+
+```rust
+EmitterPosition: embed = ValueVector3 {
+    constantValue: vec3 = { -100, 0, 0 } // left
+}
+```
+
+```rust
+EmitterPosition: embed = ValueVector3 {
+    constantValue: vec3 = { 0, 0, 100 } // forward
+}
+```
+
+```rust
+EmitterPosition: embed = ValueVector3 {
+    constantValue: vec3 = { 0, 0, -100 } // backward
+}
+```
+
+---
+
+## Translation Override
+
+**`translationOverride`** partikül sistemini emitter ayarlarından bağımsız
+hareket ettirir ve tüm sistemi global olarak kaydırır.
+
+<img src="/wiki-images/1769132846178-bcemql.png" alt="Görsel" width={500} />
+
+```rust
+translationOverride: vec3 = { 0, 100, 0 } // higher
+translationOverride: vec3 = { 0, -100, 0 } // lower
+translationOverride: vec3 = { 100, 0, 0 } // right
+translationOverride: vec3 = { -100, 0, 0 } // left
+translationOverride: vec3 = { 0, 0, 100 } // forward
+translationOverride: vec3 = { 0, 0, -100 } // backward
+```
+
+---
+
+## Time Before First Emission
+
+**`timeBeforeFirstEmission`** emitter'ın partikül oluşturmadan önce ne kadar
+beklediğini tanımlar.
+
+<img src="/wiki-images/1769132867613-zffs1n.png" alt="Görsel" width={500} />
+
+```rust
+timeBeforeFirstEmission: f32 = 1
+```
+
+---
+
+## Eye Candy
+
+**`mEyeCandy`** video ayarlarındaki **Hide Eye Candy** seçeneğini açar ya da
+kapatır.
+
+> Bir partikül sisteminin en altına yerleştirilmeli.
+
+<img src="/wiki-images/1769132889330-6y5jzd.png" alt="Görsel" width={500} />
+
+```rust
+mEyeCandy: bool = true // or false
+```
+
+---
+
+## Pass (Çizim Sırası)
+
+**`Pass`** çizim sırasını kontrol eder, Photoshop'taki katmanlara benzer.
+
+<img src="/wiki-images/1769132912369-jb8tlr.png" alt="Görsel" width={500} />
+
+- `Pass = 0` → alt katman (ilk çizilir)
+- `Pass = 16` → üst katman (son çizilir, diğerlerinin üstünde render olur)
+
+```rust
+Pass: i16 = 0
+```
+
+---
+
+## Blend Mode
+
+**`blendMode`** partikülün görsel olarak nasıl karıştığını tanımlar.
+
+```rust
+blendMode: u8 = 1
+```
+
+### Blend Mode Değerleri
+
+- **1**: Şeffaflık yok
+  - Siyah ya da beyaza yeniden renklendirmek güvenli
+
+- **3 / 4 (SCB)**: Standart şeffaflık
+  ⚠️ Çok koyu renklendirme yapma, yoksa partikül oyunda görünmez olabilir
+
+---
+
+## Navmesh Mask
+
+**`useNavmeshMask`** partikül sisteminin araziyi maske olarak kullanıp
+kullanmadığını kontrol eder.
+
+### Açık (Araziyi Maske Olarak Kullanır)
+
+<img src="/wiki-images/1769133429180-hdk1d.gif" alt="Görsel" width={500} />
+
+```rust
+useNavmeshMask: flag = true
+```
+
+> Partikül arazi tarafından maskelenir.
+
+---
+
+### Kapalı (Arazi Maskesi Yok)
+
+<img src="/wiki-images/1769133650731-8zdz6u.gif" alt="Görsel" width={500} />
+
+```rust
+useNavmeshMask: flag = false
+```
+
+> Partikül arazi maskelemesini yok sayar.

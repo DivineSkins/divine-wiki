@@ -1,0 +1,94 @@
+---
+title: "Flint"
+description: "Hepsi bir arada bir modlama uygulaması. Asset çıkar, önizle, BIN dosyalarını düzenle ve modu paketle. Hepsi tek pencerede."
+category: "tools"
+---
+
+Flint, **RitoShark** tarafından yapılan bir masaüstü uygulaması. Modlama
+workflow'unun çoğunu tek yerde halleder. Çıkarma, BIN düzenleme, VFX ve
+paketleme için ayrı ayrı araçlarla uğraşmak istemiyorsan, en kolay
+başlangıç bu.
+
+[En son sürümü indir](https://github.com/RitoShark/Flint/releases)
+
+En son sürüm: **v2.1.0**.
+
+---
+
+## Ne işe yarar
+
+- Şampiyon skin'lerini ve asset'leri doğrudan oyun dosyalarından
+  **çıkarır**.
+- 3D modelleri, dokuları, BIN dosyalarını, animasyonları, partikül
+  efektlerini ve sesi (dalga formuyla BNK / WPK) hiçbir şey export
+  etmeden **önizler**.
+- BIN, LuaBin ve TroyBin dosyalarını sözdizimi renklendirmesiyle
+  **düzenler**.
+- **WAD dosyalarını bellekte** doğrudan gezginden düzenler, sonra export
+  eder.
+- Dokuları `.tex` ve `.dds` arasında **dönüştürür**.
+- Dokuları hue shift, colorize veya gri tonlama + tint ile
+  **yeniden renklendirir**.
+- **Chroma'ya taşır**: bir chroma seç, temel skin modunu onun üzerine
+  taşı.
+- Projeni **checkpoint'ler**: git'in hafif bir sürümü gibi anlık görüntü
+  al, farkları gör ve değişiklikleri geri al.
+- Bir şeyi bozarsan herhangi bir dosyayı orijinal WAD parçasıyla
+  **karşılaştır ve geri yükle**.
+- Modları `.fantome`, `.modpkg` olarak **export eder** veya LTK
+  Manager'a senkronlar.
+- Yerleşik Hematite kurallarıyla modları **doğrular ve düzeltir** (eksik
+  shader'ları, bozuk referansları vb. yakalar).
+
+<Callout type="info" title="Hash'ler otomatik">
+  Flint önceden hazırlanmış bir LMDB hash veritabanını (RitoShark'ın `lmdb-hashes`) otomatik çeker.
+  İndirilecek veya yönetilecek bir hash klasörü yok, kendini otomatik yeniler.
+</Callout>
+
+---
+
+## Kurulum
+
+1. [Sürümler sayfasına](https://github.com/RitoShark/Flint/releases) git.
+2. Windows için en son kurulum dosyasını indir.
+3. Çalıştır. Bitti.
+
+---
+
+## Flint'i mi yoksa başka araçları mı kullanmalı
+
+- Tüm akış için tek uygulama istiyorsan (çıkar, düzenle, paketle)
+  **Flint'i kullan**.
+- Sadece BIN dosyaları düzenliyorsan ve daha sıkı, odaklı bir editör
+  istiyorsan **[Jade](/docs/lol/tools/modding-apps/jade)'i kullan**.
+- Toplu işler ve sağ tık dönüştürmeleri için yedek olarak
+  **[LtMAO](/docs/lol/tools/modding-apps/ltmao)'yu kullan**.
+
+---
+
+## Araçlar arası entegrasyonlar
+
+Flint, topluluğun kullandığı iki başka araçla iyi anlaşır:
+
+- **Jade**: Flint kendi LTK ayrıştırıcısı yerine Jade'in BIN motorunu
+  kullanabilir. Ayarlardan hangisini istersen seç.
+- **Quartz**: bir dokuyu Quartz paint moduna ver, sonra geri dön. Flint,
+  Quartz açık bir dosyanı değiştirdiğinde bunu algılar ve yenilemeyi
+  önerir.
+
+---
+
+## İpuçları
+
+- Aynı anda birden fazla proje sekmesi aç. Her sekme kendi durumunu tutar.
+- Animasyonlu yükleme ekranı oluşturucu, bir MP4 veya WebM'i oyunun kabul
+  ettiği bir spritesheet'e çevirir.
+- Arka planda indeksleme isteğe bağlı. WAD arşivinde tam metin arama
+  istiyorsan aç.
+- Dosyaları içe aktarmak için dosya ağacına sürükle bırak.
+- Flint'i ilk kez mi kullanıyorsun? İlk çalıştırma sihirbazı seni League
+  yolun, PBE yolun ve araç entegrasyonların boyunca yönlendirir.
+- Bir asset'i bulmakta zorlandın mı? WAD gezgininden WAD yol kopya
+  kağıdını aç, her şeyin nerede olduğunu hızlıca gör.
+- Flint'i `.wad` ve `.bin` gibi League dosyaları için Windows "Birlikte
+  aç" uygulaması olarak ayarla, böylece çift tık onları Flint'te açar.

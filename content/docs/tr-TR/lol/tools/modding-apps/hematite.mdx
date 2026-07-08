@@ -1,0 +1,223 @@
+---
+title: "Hematite"
+description: "League of Legends özel skin'lerindeki en yaygın hataları otomatik bulup düzelten bir sürükle bırak aracı."
+category: "tools"
+---
+
+Hematite, **RitoShark** tarafından yapılan, bozuk özel skin'leri düzelten
+bir komut satırı aracı. Üzerine bir `.fantome` dosyası bırak. Dosyayı
+kontrol eder, düzeltebildiğini düzeltir ve onarılmış modu orijinalin
+yanına yazar.
+
+Aynı düzeltme kuralları [Flint](/docs/lol/tools/modding-apps/flint)
+içinde de çalışır, yani farkında olmadan Hematite'i çoktan kullanıyor
+olabilirsin.
+
+[En son sürümü indir](https://github.com/RitoShark/Hematite/releases)
+
+{/* SCREENSHOT: Hematite running in a terminal, showing the fix log for a sample skin */}
+
+---
+
+## Ne işe yarar
+
+Hematite bir modu bilinen sorunlara karşı tarar ve yerinde düzeltir.
+Düzeltme listesi config tabanlı, yani yeni kurallar yeni bir sürüm
+olmadan gelir.
+
+Yakaladığı şeyler:
+
+- Oyun içinde şampiyonun üstündeki **görünmez can barı**.
+- **Beyaz veya krom görünümlü model** (bozuk materyal dokuları).
+- Kuşam / mağaza arayüzündeki **eksik veya siyah ikonlar**.
+- VFX içindeki **bozuk partikül dokuları**.
+- Bozuk mipmap'lerden **kare olarak görünen partiküller** (2026 doku
+  regresyonu). Hematite bunu düzeltmek için mipmap'leri siler.
+- **Boyutları 4'e bölünemeyen TEX dokuları.** Hematite bunları geçerli
+  bir boyuta yuvarlar.
+- Eski yamalardan kalan **güncel olmayan şampiyon verisi**.
+- Eski Wwise BNK dosyalarından gelen **cızırtılı veya sessiz ses**.
+- Rig'i T-poz'da **kilitleyen veya bozan animasyonlar**.
+- 14.1+ motor değişikliğinden sonra **yanlış şekle sahip VFX**.
+- **Bozuk bir shader referansından gelen görünmez model.**
+- Dosyayı şişiren **öksüz BIN girdileri**.
+
+Bayrak olmadan çalıştırdığında her düzeltmeyi dener. Dosyayı
+değiştirmeden yalnızca sorunları tespit etmek için `--check` ver.
+
+---
+
+## Hematite bağımsız mı yoksa Flint'in parçası mı?
+
+İkisi de.
+
+- **Bağımsız CLI.** `hematite-cli.exe` tek bir Windows ikili dosyası. Bir
+  dosyayı üzerine sürükle ya da terminalden çalıştır. Kurulum gerekmez.
+- **[Flint](/docs/lol/tools/modding-apps/flint) içinde.** Flint aynı
+  düzeltme kurallarını **Validate and Fix** özelliği altında taşır.
+  Hematite'i ayrıca kurmana gerek yok.
+
+Bir klasör dolusu modu toplu düzeltmek, düzeltmeleri bir build hattına
+script'lemek veya tek bir dosyayı hızlıca çözmek istediğinde bağımsız
+CLI'yi kullan. Zaten modu düzenlerken Flint'in içindeysen Flint'i kullan.
+
+---
+
+## Başlamadan önce sana gereken
+
+- Windows PC.
+- Kontrol etmek veya düzeltmek istediğin bir `.fantome`, `.wad.client`
+  ya da `.bin` dosyası.
+- Yaklaşık 1 dakika. CLI ilk çalıştırmada 1.8M girdilik bir hash sözlüğü
+  indirir.
+
+---
+
+## Kurulum
+
+1. [Sürümler sayfasını](https://github.com/RitoShark/Hematite/releases) aç.
+2. Windows için en son `hematite-cli` zip'ini indir.
+3. Herhangi bir yere çıkar. `hematite-cli.exe` içeren bir klasör belirir.
+
+Bu kadar. Kurulum yok, yönetici hakkı yok.
+
+{/* SCREENSHOT: Unzipped Hematite folder showing hematite-cli.exe */}
+
+---
+
+## Nasıl kullanılır
+
+### Hızlı düzeltme (sürükle bırak)
+
+1. Hematite'i çıkardığın klasörü aç.
+2. Bir `.fantome` dosyasını `hematite-cli.exe` üzerine sürükle.
+3. Bir terminal penceresi açılır ve düzeltme günlüğünü yazdırır.
+4. Bittiğinde orijinalin yanında yeni bir dosya belirir:
+   `YourSkin.fixed.fantome`.
+
+`YourSkin.fixed.fantome` dosyasını skin yöneticine kur. Orijinal dosyaya
+dokunulmaz.
+
+### Sadece kontrol (değişiklik yok)
+
+Düzeltmeden neyin bozuk olduğunu bilmek istersen:
+
+1. Hematite klasöründe bir terminal aç.
+2. Çalıştır: `hematite-cli.exe "C:\path\to\skin.fantome" --check`
+3. Hematite şampiyonu, skin slotunu ve bir sorun listesini yazdırır.
+
+Bu güvenli. Dosyaya asla yazmaz.
+
+### Tüm bir klasörü düzelt
+
+Bir klasördeki her modu tek seferde işlemek için:
+
+1. Hematite klasöründe bir terminal aç.
+2. Çalıştır: `hematite-cli.exe "C:\path\to\mods\"`
+3. Hematite klasörü tarar ve her modun bir `.fixed` kopyasını yazar.
+
+### Kullanışlı bayraklar
+
+| Bayrak              | Ne yapar                                                                |
+| ------------------- | ----------------------------------------------------------------------- |
+| `--check`           | Sadece tespit. Sorunları yazdır. Dosyayı değiştirme.                    |
+| `--dry-run`         | Neyin düzeltileceğini göster. Çıktıyı yazma.                            |
+| `--json`            | Makine okunur çıktı yazdır. Script'ler için kullanışlı.                 |
+| `--repath`          | Mod asset'lerini çakışamayacakları benzersiz bir önekle yeniden adlandır.|
+| `--game-wad <path>` | Mod bağımsız olsun diye eksik dosyaları temel oyun WAD'ından çek.       |
+| `--invis-texture`   | Bir repath sonrası eksik doku referansları için görünmez yer tutucu ekle.|
+| `-v verbose`        | Uygulanan her düzeltmeyi göster.                                        |
+
+Tam liste için `hematite-cli.exe --help` çalıştır.
+
+---
+
+## İşe yaradığını nasıl kontrol edersin
+
+Başarılı bir çalıştırmadan sonra şuna benzer bir satır görmelisin:
+
+```text
+Done. 1 mod processed, 18 fixes applied in 1.9s.
+Wrote YourSkin.fixed.fantome (4.2 MB)
+```
+
+Sonra:
+
+1. `.fixed.fantome` dosyasını skin yöneticine kur.
+2. Şampiyonla bir özel oyun başlat.
+3. Model, dokular, can barı ve VFX hepsi doğru şekilde görünmeli.
+
+Bir şey hâlâ yanlış görünüyorsa aşağıdaki Sorun Giderme'ye bak.
+
+---
+
+## Güvenlik
+
+Özel skin'ler Kore ve Çin dışında güvenli. Güvenilir araçlar
+kullandığında 2014'ten beri hiç ban yok. Hematite yalnızca diskindeki
+mod dosyasını düzenler. Oyun dosyalarına dokunmaz, Riot sunucularıyla
+konuşmaz.
+
+Özel skin'leri asla Kore veya Çin sunucularında kullanma. Oradaki
+anti-cheat tüm modları engeller.
+
+---
+
+## Sorun Giderme
+
+### "CLI is older than the published minimum"
+
+Kritik bir hata düzeltmesi çıktığında Hematite çalışmayı reddeder.
+[Sürümler sayfasından](https://github.com/RitoShark/Hematite/releases)
+en son sürümü indir ve tekrar dene.
+
+### Düzeltilmiş mod oyunda hâlâ bozuk görünüyor
+
+1. Orijinali değil, `.fixed.fantome` dosyasını kurduğundan emin ol.
+2. Hangi düzeltmelerin uygulandığını görmek için `-v verbose` ile
+   çalıştır.
+3. Belirli bir düzeltme tetiklenmediyse, hata henüz Hematite'in kural
+   setinde olmayabilir. [GitHub deposunda](https://github.com/RitoShark/Hematite/issues)
+   bir issue aç.
+
+### Hash sözlüğü indirmesi başarısız oluyor
+
+Hematite hash sözlüğünü çekmek için ilk çalıştırmada internete ihtiyaç
+duyar (yaklaşık 1.8M girdi). Ağın bunu engelliyorsa gömülü yedek çalışır
+ama daha az dosyayı kapsar. Yenilemek için normal bir bağlantıda tekrar
+çalıştır.
+
+### Sürükle bırak terminali açıp kapatıyor
+
+Terminal, çalıştırma bittikten sonra, hatalar olsa bile kapanır. Günlüğü
+okumak için önce bir terminal aç, sonra çalıştır:
+
+```text
+hematite-cli.exe "C:\path\to\skin.fantome"
+```
+
+Pencere açık kalır, böylece çıktıyı okuyabilirsin.
+
+---
+
+## Hematite'i mi yoksa Flint içinde çalıştırmayı mı seçmeli
+
+- Bir klasör dolusu modu toplu düzeltmek, bir build'e düzeltme adımı
+  script'lemek ya da yayınlamadan önce bir dosyayı kontrol etmek
+  istiyorsan **Hematite'i (bağımsız) kullan**.
+- Zaten Flint içinde modu düzenliyorsan **Flint'in Validate and Fix'ini
+  kullan**. Aynı kurallar, ekstra indirme yok.
+- Yeni bir yama tarafından bozulmuş eski bir mod özel durumu için
+  **[League Mod Repather](/docs/lol/tools/modding-apps/league-mod-repather)'ı
+  kullan**. Modu güncel oyun dosyalarına göre yeniden yollar, bu da
+  Hematite'in yaptığından farklı bir düzeltmedir.
+
+İkisini de aynı modda çalıştırabilirsin. Eski bir mod aynı anda birçok
+yönden bozukken önce Hematite, sonra Repather yaygın bir sıradır.
+
+---
+
+## Emeği geçenler
+
+- **RitoShark**: Hematite (araç ve düzeltme kural seti).
+- **CommunityDragon**: tespiti besleyen hash tabloları.

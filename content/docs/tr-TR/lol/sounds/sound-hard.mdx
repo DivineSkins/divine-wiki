@@ -1,0 +1,180 @@
+---
+title: "İleri - events.bnk okuma ve düzenleme"
+description: "Wwise bank'larını yorumlamaya dair ileri seviye rehber"
+category: "sounds"
+---
+
+## Gerekli Araç
+
+<ToolCard name="wwiser" href="https://github.com/bnnm/wwiser">
+  events.bnk okumanın anahtarı.
+</ToolCard>
+
+---
+
+### İki Yaklaşıma Kısa Bakış
+
+|                            | Wwise Replikasyonu                                            | Binary Patching                                         |
+| -------------------------- | ------------------------------------------------------------- | ------------------------------------------------------- |
+| **Nasıl çalışır**          | Hedef hiyerarşiyi Wwise'da yeniden kur, yeni bir bank export et | `.bnk` dosyasındaki ham byte değerlerini doğrudan düzenle |
+| **Hız**                    | Kurması daha yavaş                                            | Offset'leri bildiğinde hızlı                            |
+| **Kontrol**                | Yüksek: tüm Wwise araç seti elinde                            | Patch'lediğin değerlerle sınırlı                        |
+| **Oyun güncellemesinde kararlılık** | Kararlı: projen kendini uyarlar                     | Kırılgan: Riot bank'ı yeniden kurunca offset'ler kayar  |
+| **Ne için ideal**          | Karmaşık, uzun vadeli modlar; bakımı gereken her şey          | Hızlı ince ayarlar; tek seferlik düzenlemeler; prototip |
+
+Amacına hangisi uyuyorsa onu kullan. Birbirlerini dışlamazlar. Bazı event'ler
+için düzenlenmiş bir events.bnk kullanıp diğer event'leri Wwise'da
+replike edebilirsin.
+
+---
+
+### Adım 1: Hiyerarşi Dökümü Oluştur
+
+Önce üstünde çalışmak istediğin event bank'ının hiyerarşisini dök:
+
+```cmd
+wwiser.py -d txt {input_events_bnk_file} -dn output.txt
+```
+
+Bu, o bank'ın içindeki tüm Wwise nesne hiyerarşisini gösteren, insanın
+okuyabileceği bir metin dosyası üretir: event'ler, container'lar, switch'ler,
+sequence'ler, bus'lar, her şey.
+
+<img src="/wiki-images/dump.png" alt="wwiser hiyerarşi dökümü çıktısı" />
+
+Bu döküm senin haritan. `Ctrl+F` en iyi dostun.
+
+---
+
+### Teknik 1: Wwise'da Replike Etmek
+
+Dökümü aldıktan sonra hiyerarşiyi okuyup ilgili kısımlarını kendi Wwise projende
+yeniden kurabilirsin.
+
+**ID'lerle çalışmak:**
+
+Hiyerarşideki birçok eleman ID olarak Wwise'ın FNV tabanlı isim hash'ini
+kullanır. Herhangi bir event ismini şu fonksiyonla sayısal ID'sine
+çevirebilirsin:
+
+```python
+def wwise_hash(name: str) -> int:
+    FNV32_OFFSET = 0x811C9DC5
+    FNV32_PRIME  = 0x01000193
+    h = FNV32_OFFSET
+    for b in name.lower().encode("utf-8"):
+        h = (h * FNV32_PRIME) & 0xFFFFFFFF
+        h ^= b
+    return h
+```
+
+**Örnek:**
+
+```text
+Play_vo_Yone_Attack2DGeneral  →  681920763
+```
+
+İsim tabanlı ID kullanmayan hiyerarşi elemanları için (random container'lar,
+sequence container'lar vb.) ham ID değerlerini wwiser dökümünden çekip `.wwu`
+proje dosyalarında elle ayarlaman gerekir. Bu, uğraştıran kısım, ama bank'ının
+orijinaldeki elemanları düzgünce geçersiz kılmasını sağlayan şey de bu.
+
+Projen kurulunca özel bank'ını Wwise'dan export et ve Orta seviye bölümündeki
+yükleme sırası tekniğiyle moduna yerleştir.
+
+**Kararlılık notu:** Wwise projesi senin elinde olduğu için, Riot oyun bank'ını
+güncellediğinde yeni versiyonu tekrar dökebilir, hiyerarşiyi karşılaştırıp
+projeni ayarlayabilir ve yeniden export edebilirsin. Her güncellemede fazladan
+iş var, ama hiçbir şey sıfırdan başlamaz.
+
+---
+
+### Teknik 2: Binary Patching
+
+Binary patching hiçbir şeyi yeniden kurmadan doğrudan `.bnk` dosyasının içine
+uzanıp bilinen byte offset'lerindeki belirli değerleri değiştirmene izin verir.
+
+wwiser dökümü dosyadaki her değer için byte offset'lerini içerir. Değiştirmek
+istediğin değeri bul, offset'ini ve veri tipini not al ve bir patch yaz.
+
+İşte kullanıma hazır bir patch script'i:
+
+```python
+import struct
+
+FILE_PATH = "mus_map11_seasonal_25s2_bloom_events.bnk"
+
+patches = [
+    {"offset": 0x000028ee, "type": "d64", "value": 1}
+]
+
+def patch_file(path):
+    with open(path, "rb") as f:
+        data = bytearray(f.read())
+
+    for patch in patches:
+        offset = patch["offset"]
+        if patch["type"] == "u8":
+            data[offset] = patch["value"]
+        elif patch["type"] == "u16":
+            data[offset:offset+2] = struct.pack("<H", patch["value"])
+        elif patch["type"] == "float":
+            data[offset:offset+4] = struct.pack("<f", patch["value"])
+        elif patch["type"] == "u32":
+            data[offset:offset+4] = struct.pack("<I", patch["value"])
+        elif patch["type"] == "d64":
+            data[offset:offset+8] = struct.pack("<d", patch["value"])
+        elif patch["type"] == "set_bit":
+            current = data[offset]
+            current |= (1 << patch["bit"])
+            data[offset] = current
+
+    output_path = path.replace(".bnk", "_patched.bnk")
+    with open(output_path, "wb") as f:
+        f.write(data)
+
+    print(f"Patched file saved as: {output_path}")
+
+if __name__ == "__main__":
+    patch_file(FILE_PATH)
+```
+
+**Desteklenen patch tipleri:**
+
+| Tip       | Boyut   | Kullanım alanı              |
+| --------- | ------- | --------------------------- |
+| `u8`      | 1 byte  | Bayraklar, küçük tam sayılar |
+| `u16`     | 2 byte  | Kısa tam sayılar            |
+| `u32`     | 4 byte  | Çoğu tam sayı değeri        |
+| `float`   | 4 byte  | Ses, perde, olasılık        |
+| `d64`     | 8 byte  | Çift hassasiyetli float'lar |
+| `set_bit` | 1 byte  | Tek bir bit bayrağını değiştir |
+
+Daha fazla patch eklemek için `patches` listesine kayıt ekle:
+
+```python
+patches = [
+    {"offset": 0x000028ee, "type": "d64",   "value": 1},
+    {"offset": 0x00001a30, "type": "float",  "value": 0.75},
+    {"offset": 0x00000c12, "type": "set_bit", "bit": 3},
+]
+```
+
+**Kırılganlık notu:** Riot event bank'ını yeniden kurduğunda (yamalar, yeni
+sezonlar, içerik güncellemeleri), her byte offset kayar. Patch listen
+geçersizleşir ve güncellenmiş bank'ın taze bir wwiser dökümünden yeniden
+kurulması gerekir. İlk yazması hızlı, ama oyun güncellemelerinden sonra bakım
+ister.
+
+---
+
+### İkisi Arasında Seçim Yapmak
+
+- **Uzun vadeli sürdürmek istediğin bir müzik ya da VO modu** mu yapıyorsun?
+  Wwise projesini kur. Baştaki maliyet kendini amorti eder.
+- **Hızlı, deneysel bir ince ayar** mı yapıyorsun ya da bir değer değişikliğinin
+  beklediğin etkiyi yapıp yapmadığını mı test ediyorsun? Önce binary patch'le,
+  çalıştığını doğrula, sonra resmileştirmeye değip değmediğine karar ver.
+- **Event odaklı ve karmaşık** bir şeyle mi uğraşıyorsun (rastgele
+  container'lar, switch container'lar, durum makineleri)? Muhtemelen Wwise
+  projesine ihtiyacın olacak. Binary patching hızla içinden çıkılmaz hale gelir.

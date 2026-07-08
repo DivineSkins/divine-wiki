@@ -1,0 +1,206 @@
+---
+title: "3D Model Swap"
+description: "Bu rehber, bir League of Legends şampiyonunu özel bir 3D modelle değiştirip orijinal r… koruyarak baştan sona nasıl yeniden modelleyeceğini anlatıyor."
+category: "maya"
+---
+
+## ➤ Tam Şampiyon Yeniden Modelleme Tutorial'ı
+
+### Bir Şampiyonu Özel Bir Modelle Değiştirme
+
+Bu rehber, bir League of Legends şampiyonunu varsayılan karakterin yerine **özel bir 3D model** koyarak, **orijinal rig ve animasyonları** koruyarak baştan sona nasıl yeniden modelleyeceğini anlatıyor.
+
+---
+
+## ➜ Gerekenler
+
+| Araç                   | Ne işe yarar                                              |
+| ---------------------- | --------------------------------------------------------- |
+| **LoL-Maya Plugin**    | Maya'da `.skn` ve `.skl` dosyalarını import/export etmek için gerekli |
+| **Autodesk Maya 2023** | Şampiyon modelini düzenlediğin ana 3D yazılımı           |
+| **GIMP / Photoshop**   | Dokuları düzenle ve export et (`.dds`)                    |
+| **LtMAO**              | League `.tex` dosyalarını `.dds`'e ve geri çevir          |
+| **Flint**              | Orijinal League şampiyon dosyalarını çıkar (`.wad.client`) |
+| **Jade**               | Skin'de ayar gerekiyorsa `.bin` dosyalarını düzenle       |
+| **LtMAO cslmao**       | Özel skin'i oyunda yükle ve test et                     |
+
+---
+
+## ➜ Önerilenler
+
+- **Tam Model Swap Video Rehberi**
+
+https://youtu.be/xqB84ga55hI?si=VFRPSomps5BPeKqe
+
+- **Yoru'nun Maya Tutorial'ı** (çok detaylı)
+
+https://www.youtube.com/watch?v=6MYNsT0q0R0&list=PLIlleiTfYK3mgr9imsnToABo3X0m9Txi-&ab_channel=Yor%C3%BBQueenofNight
+
+---
+
+## ➜ Adım 1: `.skn` ve `.skl` Dosyalarını Import Et
+
+https://youtu.be/xqB84ga55hI?si=dAZXFehz94KL7hre&t=149
+
+> ⚠️ **Önemli:**  
+> Mesh'i **bind ettikten sonra** face, vertex, edge ya da herhangi bir geometriyi **silme**.
+>
+> ⚠️ İlk import:  
+> **Drag & drop** ile değil, **File → Import** ile import et.  
+> **Ayrı materyaller / mesh'ler** seçeneğinin açık olduğundan emin ol.
+
+<img src="/wiki-images/1768001551000-3q6i4i.png" alt="Görsel" width={700} />
+
+### Adımlar
+
+1. [**LoL-Maya Plugin**](/docs/lol/maya/lol-maya-plugin) eklentisini kur
+2. Orijinal şampiyon dosyalarını import et:
+   - `.skn`: Mesh (görsel geometri)
+   - `.skl`: İskelet (kemik ve rig verisi)
+3. Özel modelini (`.fbx`, `.obj`) aynı Maya sahnesine import et
+
+---
+
+## ➜ Adım 2: Kemikleri Özel Modeline Hizala
+
+https://youtu.be/xqB84ga55hI?si=QdQGjLrYZuHEHs3a&t=175
+
+Var olan League iskeletini, özel modelinin oranlarına uyacak şekilde hizala.
+
+### Kurallar
+
+- ✅ **Sadece kemikleri döndür** (`E`)
+- ❌ **Kemikleri taşıma (`W`) ya da ölçekleme (`R`)**
+
+**Neden sadece döndürme?**  
+Kemikleri taşımak ya da ölçeklemek League'in orijinal animasyonlarıyla uyumu bozar.
+
+Kemikleri mesh'in içinden görünür yapmak için bu simgeye bas!
+
+<img src="/wiki-images/1768001486509-o4wnhm.png" alt="Görsel" width={700} />
+
+Kemikler mesh'in içinden görünsün diye **X-Ray / kemik görünürlüğünü** aç.
+
+> Doğru hizalama için video rehberini yakından takip et.
+
+---
+
+## ➜ Adım 3: Mesh'i İskelete Bind Et
+
+https://youtu.be/xqB84ga55hI?si=jpgbLQXdCSce7Kjm&t=290
+
+Animasyonların modeli etkilemesi için özel mesh'i League iskeletine bind et.
+
+### Bind Etmen Gereken Kemikler
+
+- head
+- neck
+- spine
+- chest
+- clavicle
+- shoulder
+- elbow
+- hand
+- fingers
+- hips
+- pelvis
+- knee_lower
+- foot
+- root _(sadece bazı durumlarda)_
+
+> ⚠️ `buffbones`, `knee_upper` ya da `toe` gibi yardımcı kemikleri bind **etme**.
+
+### Maya'da Nasıl Bind Edilir
+
+1. Gereken tüm kemikleri **CTRL + Seç**
+2. Mesh'i **CTRL + Seç** (son seçim)
+3. **Rigging → Skin → Bind Skin → Options** yolunu izle
+4. Ayarla:
+   - ❌ Bind to: _Joint Hierarchy_
+   - ✅ Bind to: _Selected Joints_
+
+> Bu tutorial sadece temel binding'i anlatır. İleri seviye weight işi pratik ya da ek rehberler gerektirir.
+
+---
+
+## ➜ Adım 4: Oyun İçi Dokular İçin UV Haritasını Hizala
+
+https://youtu.be/xqB84ga55hI?si=XbL4c6JUz9ZBnoqI&t=469
+
+Doku uygulamadan önce UV haritası doğru hizalanmalı.
+
+### Maya'da UV'leri Hizalama
+
+1. **UV Editing** workspace'ine geç
+2. **F11**'e bas (Face Selection Mode)
+3. Tüm mesh face'lerini seç
+4. Köşe kontrollerini kullanarak tüm UV'leri UV alanının **tek bir köşesine** taşı
+
+> Bu, oyunda bozuk ya da görünmez dokuları önler.
+
+---
+
+### GIMP / Photoshop'ta Dokuyu Eşleştirme
+
+1. Orijinal dokuyu aç
+2. Yeni UV düzenine uyacak şekilde ayarla ve yeniden konumlandır
+3. Doku UV'lere uymuyorsa oyunda bozuk görünür
+
+---
+
+### Dokuyu Doğru Kaydetme
+
+- Dosya formatı: `.dds`
+- Sıkıştırma: **BC3 / DXT5**
+- Mipmap: İsteğe bağlı (önerilir)
+
+Çözünürlük ipuçları:
+
+- 512×512
+- 1024×1024
+- 2048×2048
+
+Her zaman yedek tut ve oyunda test et.
+
+---
+
+## ➜ Adım 5: Normal'leri Ters Çevir ve Modeli Export Et
+
+https://youtu.be/xqB84ga55hI?si=CMoyJ-gXCcsGNLF2&t=590
+
+Normal'ler yanlışsa model görünmez ya da içi dışına dönmüş görünebilir.
+
+### Normal'leri Ters Çevirme
+
+1. Mesh'i seç
+2. **Modeling** workspace'ine git
+3. **Mesh Display → Reverse**
+
+League, normal'lerin dışa bakmasını ister.
+
+---
+
+### Modeli Export Etme
+
+1. **mesh + iskeleti** seç
+2. **File → Export Selection**
+3. Şu formatlarda export et:
+   - `.skn` (mesh)
+   - `.skl` (iskelet)
+
+> ⚠️ Dosya adları orijinal şampiyon dosyalarıyla **birebir aynı olmalı**.
+
+**Örnek (Ahri):**
+
+Ahri.skn
+Ahri.skl
+
+---
+
+### Orijinal Dosyaları Değiştirme
+
+1. Şampiyonun klasörüne git
+2. Orijinal `.skn` ve `.skl`'yi değiştir
+3. Klasör yapısını değiştirme
+
+> 💡 **Pro İpucu:** Değiştirmeden önce orijinal dosyaları her zaman yedekle.

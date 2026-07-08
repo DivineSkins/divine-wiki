@@ -1,0 +1,161 @@
+---
+title: "Idle Particles"
+description: "Bu rehber, hazır aura paketleri kullanarak idle partiküllerini (genelde aura denir) nasıl oluşturacağını anlatır."
+category: "vfx-bins"
+---
+
+Bu rehber, hazır aura paketleri kullanarak idle partiküllerini (genelde aura denir) nasıl oluşturacağını anlatır. Idle partikülleri sıfırdan yapmayı öğretmez. Amaç, hazır partikül paketlerini şampiyonunun `.wad.client` dosyasına kopyala-yapıştır ile eklemek.
+
+---
+
+## Gerekli Araçlar
+
+| Araç             | Amaç                                |
+| :--------------- | :---------------------------------- |
+| **Flint**        | `.wad.client` dosyalarını çıkarmak için |
+| **LtMAO cslmao** | Modunu kurmak ve test etmek için    |
+| **Jade**         | `.bin` dosyalarını görsel olarak düzenlemek için |
+| **Ritobin**      | Alternatif: `.bin` dosyasını metne dönüştür |
+
+---
+
+## ❓ Idle Partikülleri Nedir?
+
+Idle partikülleri, bir şampiyona bağlı ortam efektleridir: alevler, parıltılar veya sihirli halkalar gibi. Şampiyonunun `main.bin` dosyasındaki `IdleParticlesEffects` bölümünde tanımlanır.
+
+<img src="/wiki-images/1767147062141-8qgzh.gif" alt="Görsel" width={500} />
+
+---
+
+## Video Rehberi
+
+https://www.youtube.com/watch?v=S4YCct-Kv78
+https://youtu.be/bUJSVlVHEZM?si=t5x9KsKktPGM6ejD&t=133 Önerilen
+
+---
+
+## Zor mu?
+
+Buradaki gibi hazır paketler kullanıyorsan çok zor değil. En zor kısım doğru bölümü bulup kodu doğru yere yerleştirmek, özellikle yeniysen. Adımları dikkatlice takip et ve acele etme!
+
+> ⚠️ Bir şey çalışmıyorsa parantezleri `{}` ve girintileri tekrar kontrol et.
+
+---
+
+## Yazılı Rehber
+
+### Adım 1: Bir Aura Paketi İndir
+
+Paketleri [Discord'umuzda](https://discord.gg/PbMwcWHqA3) bulacaksın. Kullanmak istediğini indir.
+
+---
+
+### Adım 2: Şampiyon Dosyalarını Çıkar
+
+Flint'i aç, şampiyonunun `.wad.client` dosyasını bul ve içeriğini bir klasöre çıkar.
+
+[Flint rehberimiz](/docs/lol/tools/modding-apps/flint)
+
+---
+
+### Adım 3: Özel Partikülleri Ekle
+
+Az önce oluşturduğun şampiyon klasörünü ve indirdiğin aura paketi klasörünü aç.
+
+Aura paketindeki `customparticles` klasörünü (`assets` içindeki) modunun `assets` klasörüne kopyala.
+
+<img src="/wiki-images/1767147539214-dhjbp7.png" alt="Görsel" width={1000} />
+
+---
+
+### Adım 4: skin0.bin'i .py'ye Dönüştür
+
+Şuraya git:
+
+yourchamp\data\characters\yourchamp\skins\
+
+`skin0.bin`'i `ritobin_cli.exe`'nin üzerine sürükle. Doğru yaptıysan bir `skin0.py` dosyası oluşur.
+
+[Ritobin rehberimiz](/docs/lol/tools/modding-apps/ritobin)
+
+---
+
+### Adım 4.1: Idle Partikül Kodunu Kopyala
+
+Aura paketindeki `.py` dosyasını ve dönüştürdüğün `skin0.py` dosyasını bir kod editöründe (örneğin Visual Studio Code) aç.
+
+İlgili idle partikül bölümünü kopyala ve kendi `.py`'nde doğru noktaya yapıştır.
+
+<img src="/wiki-images/1767147886867-x4kafe.png" alt="Görsel" width={700} />
+
+- `effectKey:` = partiküle giden link
+- `boneName:` = auranın modelde nerede belireceği
+
+**Kullanabileceğin Kemikler:**
+
+| Kemik Adı                     | Efekt Konumu        |
+| :---------------------------- | :------------------ |
+| `"Spine1"`                    | Vücudun ortası      |
+| `"Head"`                      | Vücudun üstü        |
+| `"L_Hand"` / `"R_Hand"`       | Sol / sağ el        |
+| `"Pelvis"`                    | Alt gövde           |
+| `"L_Foot"` / `"R_Foot"`       | Ayaklar             |
+| `"C_Buffbone_Glb_Layout_Loc"` | Statik zemin kemiği |
+| `"Weapon"`                    | Genelde silahlar için |
+
+> Silah kemikleri şampiyona göre değişir, emin olmak için `.skl` dosyasını kontrol et.
+
+---
+
+### Adım 4.5: Idle Partikülleri Zaten Varsa
+
+`skin0.py`'nde zaten bir `IdleParticlesEffects` bölümü varsa:
+
+<img src="/wiki-images/1767147902024-j5s8m.png" alt="Görsel" width={700} />
+
+<img src="/wiki-images/1767147916490-msprgc.png" alt="Görsel" width={700} />
+
+Sadece aura `.py`'sinden partikül bloğunu kopyala. Herhangi iki container arasına yapıştır.
+
+---
+
+### Adım 5: Partikül Container'ını Ekle
+
+Her zaman hash'li (`0x3432432`) bir adla başlayıp `particlePath: string` ile biten `particlecontainer` kodunu `skin0.bin/.py` dosyana kopyala. Herhangi bir partikül container'ının arasına, hangisi olduğu fark etmez.
+
+<img src="/wiki-images/1767147931233-ste8fj.png" alt="Görsel" width={500} />
+<img src="/wiki-images/1767147939520-owvpfu.png" alt="Görsel" width={500} />
+
+---
+
+### Adım 6: Resource Resolver'a Ekle
+
+Kopyaladığın kodu şu iki satırın arasına yerleştir:
+
+mResourceResolver: link = "Characters/YourChamp/Skins/Skin0/Resources"
+
+ve diğer container'larının olduğu yer. Bu bloğun herhangi bir yerine yapıştırabilirsin.
+
+<img src="/wiki-images/1767147949870-57eit9.png" alt="Görsel" width={500} />
+
+![Görsel 700](/wiki-images/1767147956921-v0mbfx.png)
+
+---
+
+### Adım 7: Dosyayı Kaydet
+
+1. Editöründe **File > Save**'e tıkla
+2. Sonra `skin0.py`'yi tekrar `ritobin_cli.exe`'nin üzerine sürükle
+3. Bu, dosyayı yeni bir `skin0.bin` olarak yeniden derler
+
+> Dosyanın zaman damgası güncellenirse değişikliklerin başarılı olmuştur. Olmazsa formatlamanı tekrar kontrol et.
+
+---
+
+## ➜ Aura Paketleri
+
+Aura Paketlerini Discord'umuzda indir!
+
+---
+
+Rehber ve paketler: Frog

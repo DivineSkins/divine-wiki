@@ -1,0 +1,131 @@
+---
+title: "Photoshop"
+description: "Adobe Photoshop, abonelikle sunulan profesyonel bir görsel düzenleme aracıdır. Ücretsiz bir eklentiyle oyun modlamada kullanılan DDS dokularını açar ve kaydeder."
+category: "tools"
+---
+
+Photoshop, ciddi doku işleri için sektör standardıdır. League'in kullandığı
+dosya türlerini açmak için iki eklentiye ihtiyacın olacak: biri `.dds` için,
+biri `.tex` için.
+
+<ToolCard name="RitoTex" href="/docs/lol/tools/texturing/photoshop-tex-plugin">
+  Photoshop'a native `.tex` ve `.dds` desteği ekler. Eski adıyla Photoshop TEX
+  Plugin.
+</ToolCard>
+
+[RitoTex sürümleri](https://github.com/RitoShark/RitoTex-Photoshop/releases)
+
+[Photoshop Planlarına Bak](https://www.adobe.com/products/photoshop.html)
+
+---
+
+## DDS Eklenti Seçenekleri
+
+Photoshop'ta DDS dosyalarıyla çalışmak için üç popüler eklenti var:
+
+| Eklenti              | En İyi Olduğu                      | GPU Gerekli  |
+| -------------------- | ---------------------------------- | ------------ |
+| Intel Texture Works  | Genel kullanım, tüm sistemlerde çalışır | Hayır   |
+| NVIDIA Texture Tools | NVIDIA GPU kullanıcıları, gelişmiş seçenekler | Evet (NVIDIA) |
+| Simple DDS Plugin    | Hızlı toplu export, sade arayüz    | Hayır        |
+
+---
+
+## Intel Texture Works
+
+Ekran kartı üreticinden bağımsız çalışan, çok yönlü bir DDS eklentisi.
+
+### İndir
+
+1. [Intel Texture Works](https://www.intel.com/content/www/us/en/developer/articles/tool/intel-texture-works-plugin.html) sayfasına git
+2. En üstteki indirme bağlantısına tıkla
+3. Yönlendirme sayfasında **ZIP** seçeneğini seç
+
+### Kurulum
+
+1. Photoshop'u tamamen kapat
+2. İndirilen ZIP dosyasını çıkar
+3. Sistemine göre eklenti dosyasını bul:
+   - **64-bit:** `IntelTextureWorks_1.0.4/Plugins/x64/IntelTextureWorks.8bi`
+   - **32-bit:** `IntelTextureWorks_1.0.4/Plugins/Win32/IntelTextureWorks.8bi`
+4. `.8bi` dosyasını Photoshop eklenti klasörüne kopyala:
+
+   ```text
+   C:\Program Files\Adobe\Adobe Photoshop [VERSION]\Required\Plug-Ins\File Formats
+   ```
+
+5. (İsteğe bağlı) Cubemap desteği için `PhotoshopScripts/` içindeki scriptleri şuraya kopyala:
+
+   ```text
+   C:\Program Files\Adobe Photoshop [VERSION]\Presets\Scripts
+   ```
+
+### DDS Dosyalarını Export Etme
+
+1. **File > Save As** yoluna git
+2. Dosya türü olarak **Intel Texture Works (\*.DDS)** seç
+3. Kayıt konumunu ve dosya adını seç
+4. Eklenti penceresinde şunları ayarla:
+   - **Texture Type:** Color + Alpha
+   - **Compression:** BC3 8bpp (Linear)
+   - **Mip Maps:** None
+5. Hızlı erişim için bunları bir preset olarak kaydet
+6. Export etmek için **OK**'e tıkla
+
+---
+
+## NVIDIA Texture Tools
+
+NVIDIA ekran kartları için optimize edilmiş, gelişmiş bir DDS eklentisi.
+
+> **Not:** Bir NVIDIA GPU ve ücretsiz bir geliştirici hesabı gerektirir.
+
+### İndir
+
+1. [NVIDIA Texture Tools](https://developer.nvidia.com/nvidia-texture-tools-exporter) sayfasına git
+2. Aşağı kaydır ve Photoshop uzantısını indir
+3. İstenirse bir geliştirici hesabı oluştur (ücretsiz)
+
+### Kurulum
+
+1. Photoshop'u kapat
+2. Kurulumcuyu çalıştır ve yönergeleri izle
+3. Kurulumcu Photoshop kurulumunu otomatik algılar
+4. Bitince Photoshop'u tekrar aç
+
+### DDS Dosyalarını Export Etme
+
+1. **File > Save As** yoluna git (veya `Ctrl+Shift+S`)
+2. **DDS - NVIDIA Texture Tools Exporter (\*.DDS)** seç
+3. Export ayarlarını yap:
+   - **Format:** BC3 RGBA 8bpp | DXT5 (interpolated alpha)
+   - **Compression Quality:** Highest
+   - Diğer ayarları varsayılan bırak
+4. **Save**'e tıkla
+
+> **İpucu:** Bazı dokular farklı sıkıştırma formatları gerektirebileceğinden, önerilen export ayarları için her zaman kendi rehberini kontrol et.
+
+## Simple DDS Plugin
+
+### Simple DDS ile DDS Dosyalarını Export Etme
+
+1. **File > Save As** yoluna git
+2. Dosya türü olarak **DDS (\*.DDS)** seç
+3. Kayıt konumunu ve dosya adını seç
+4. Pencerede **Format**'ı **DXT5** olarak ayarla
+5. **OK**'e tıkla
+
+> **Avantaj:** Bu eklenti onay pencereleri gerektirmez, bu da onu toplu export'lar için daha hızlı yapar.
+
+---
+
+## Önerilen Export Ayarları
+
+Çoğu League of Legends dokusu için şu ayarları kullan:
+
+| Ayar        | Değer                   |
+| ----------- | ----------------------- |
+| Format      | BC3 / DXT5              |
+| Alfa        | Interpolated            |
+| Mip Maps    | None (belirtilmedikçe)  |
+| Sıkıştırma  | En yüksek kalite        |

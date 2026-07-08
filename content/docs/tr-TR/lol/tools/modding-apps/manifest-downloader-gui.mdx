@@ -1,0 +1,136 @@
+---
+title: "Manifest Downloader GUI"
+description: "Riot manifest dosyalarını indirmek için bir arayüz. Eski League yamalarını, PBE build'lerini veya eksik asset'leri komut satırı olmadan çek."
+category: "tools"
+---
+
+Manifest Downloader GUI, **dazashu** tarafından yapılan bir masaüstü
+uygulaması. **Morilli'nin** komut satırı `ManifestDownloader` aracını iki
+sekmeli bir pencereye sarar. Bununla Riot manifest dosyalarını indirir,
+sonra onların tarif ettiği oyun asset'lerini çekersin.
+
+Manifest, Riot'un bir oyun build'ini tarif etmek için kullandığı bir
+dosya: hangi dosyalar var, nerede yaşıyorlar ve hangi sürümdeler. Doğru
+manifest'le, canlı istemcinin bunu yapmasını beklemeden eski bir League
+yamasını, bir PBE build'ini ya da tek bir asset'i indirebilirsin.
+
+[En son sürümü indir](https://github.com/dazashu/ManifestDownloaderGUI/releases)
+
+{/* SCREENSHOT: ManifestDownloaderGUI main window with the Downloader and Library tabs visible */}
+
+---
+
+## Ne işe yarar
+
+- Riot'un genel depolarından tek tıkla **manifest indir**.
+- Zaten indirdiğin manifest'lerin **yerel bir kütüphanesine göz at**.
+- Bir manifest'in tarif ettiği **gerçek oyun içeriğini çek** (build'in içindeki dosyalar).
+- Bir ayarlar panelinden **indirme seçeneklerini ayarla** (yollar, filtreler, thread'ler).
+- **Her şeyi taşınabilir tut.** Uygulama verisi `LocalAppData`'da yaşar, böylece kurulum klasörün temiz kalır.
+
+Morilli'nin CLI'sinin desteklediği aynı oyunları destekler. Bu League of Legends, Legends of Runeterra, Valorant ve manifest dosyaları kullanan diğer Riot oyunlarını kapsar.
+
+---
+
+## Sana gereken
+
+- Windows 10 veya 11 (64-bit). Mac veya Linux build'i yok.
+- [.NET 8.0 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0). Uygulama bu olmadan başlamaz.
+- Küçük işler için yaklaşık 1 GB boş disk alanı. Tam League build'leri 20 ila 30 GB ister.
+- İyi bir internet bağlantısı. Riot'un CDN'inden çekiyorsun.
+
+---
+
+## Kurulum
+
+1. [Sürümler sayfasını](https://github.com/dazashu/ManifestDownloaderGUI/releases) aç.
+2. En son sürümden `ManifestDownloaderGUI.exe` dosyasını indir.
+3. `.exe`'yi tekrar bulabileceğin bir klasöre taşı. (Örneğin, `C:\Tools\ManifestDownloader\`.)
+4. `ManifestDownloaderGUI.exe`'ye çift tıkla. Uygulama Downloader sekmesinde açılır.
+
+Windows bir SmartScreen uyarısı gösterirse, **More info**'ya, sonra **Run anyway**'e tıkla. Uygulama açık kaynak ve imzasız, bu topluluk araçları için normal.
+
+{/* SCREENSHOT: Windows SmartScreen warning with the "More info" link circled */}
+
+---
+
+## Nasıl kullanılır
+
+### Bir manifest indir
+
+1. Uygulamayı aç. Varsayılan olarak **Downloader** sekmesi yüklenir.
+2. İstediğin oyunu ve kanalı seç (örneğin, League of Legends canlı veya PBE).
+3. Listeden istediğin manifest'e tıkla. İndirme başlar.
+4. İlerleme çubuğunun bitmesini bekle. Manifest yerel kütüphanene taşınır.
+
+{/* SCREENSHOT: Downloader tab with a manifest mid-download */}
+
+### Oyun içeriğini indir
+
+1. **Library** sekmesine geç.
+2. Az önce indirdiğin manifest'e tıkla.
+3. İndirme ayarlarını kontrol et (çıktı klasörü, filtreler, thread'ler).
+4. **Start**'a tıkla. Uygulama dosyaları Riot'un CDN'inden çeker.
+5. Bekle. Tam bir League build'i, bağlantına bağlı olarak 30 dakika veya daha fazla sürebilir.
+
+Bittiğinde, çıktı klasörün ham oyun dosyalarını tutar: `.wad`, `.bin`, dokular ve gerisi.
+
+{/* SCREENSHOT: Library tab with a manifest selected and the Start button visible */}
+
+### Neyi indireceğini filtrele
+
+Genelde tüm build'i istemezsin. Ayarlar paneli bunu daraltmana izin verir:
+
+- **Yola göre filtrele.** Yalnızca yolu bir desene uyan dosyaları çek (örneğin, `*champion*`).
+- **Dile göre filtrele.** İhtiyacın olmayan seslendirme paketlerini atla.
+- **Thread sayısı ayarla.** Daha çok thread daha hızlı ama bağlantına yüklenir.
+
+---
+
+## Buna gerçekten ne zaman ihtiyacın olur
+
+Çoğu modder manifest'lere hiç dokunmaz. Canlı League istemcisi seni zaten güncel tutar ve [Flint](/docs/lol/tools/modding-apps/flint) gibi araçlar güncel kurulumdan ihtiyacın olanı çıkarır. Manifest Downloader GUI'ye şu durumlarda başvur:
+
+- **Eski bir yama istiyorsun.** 14.3 yamasında yapılan bir skin 14.10'da bozulabilir. 14.3 dosyalarını çekmek kaynak mesh'i ya da dokuyu kontrol etmeni sağlar.
+- **PBE dosyaları istiyorsun.** Public Beta Environment build'leri yeni şampiyon ve skin'leri canlıdan önce getirir. PBE istemcisini kurmadan onları çekmenin yolu manifest'tir.
+- **Yerelde belirli bir asset eksik.** Bazen canlı istemci her dosyayı getirmez (kesilen içerik, bölgeye özel asset'ler). Bir manifest yalnızca o dosyayı çekmeni sağlar.
+- **Farklı bir Riot oyunu üzerinde çalışıyorsun.** Legends of Runeterra ve Valorant aynı manifest formatını kullanır.
+
+Günlük skin işi için Flint veya LtMAO'da kal. Yukarıdaki durumlardan biri denk geldiğinde bunu kullan.
+
+---
+
+## Otomatik yama akışından farkı
+
+League istemcisi kendini yamalar. Bir skin güncelleme istediğinde Celestial de öyle. İkisi de otomatiktir ve neyi çekeceklerini sen seçmezsin.
+
+Manifest Downloader GUI tam tersi: **build'i sen seçersin, dosyaları sen seçersin, indirmeyi sen tetiklersin**. Kurulu League'ini yamalamaz. Canlı oyununu değiştirmez. Seçtiğin bir klasöre dosya yazar, o kadar.
+
+---
+
+## Sorun Giderme
+
+### Uygulama başlamıyor
+
+[.NET 8.0 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0) kur ve tekrar dene. Uygulamanın çalışmak için buna ihtiyacı var.
+
+### İndirmeler çok yavaş
+
+Ayarlardan thread sayısını düşür ya da ağının veya VPN'inin bağlantıyı kısıp kısmadığını kontrol et. Riot'un CDN'i çoğu bölgede hızlıdır.
+
+### İndirme bitiyor ama klasör boş
+
+Yol filtreni kontrol et. Hiçbir dosyaya uymayan bir desen ayarladıysan, çalıştırma sıfır dosyayla tamamlanır. Filtreyi temizle ve tekrar dene.
+
+### Bir manifest indirilemiyor
+
+Bazı eski manifest'ler Riot'un genel kaynaklarından kaldırılır. Listedeki bir manifest hata verirse, farklı bir sürüm seç ya da bir arşiv için [Morilli'nin kaydedilmiş manifest deposuna](https://github.com/Morilli/riot-manifests) bak.
+
+---
+
+## Emeği geçenler
+
+- **Arayüz: [dazashu](https://github.com/dazashu).**
+- **CLI çekirdeği: [Morilli](https://github.com/Morilli/ManifestDownloader).** Arayüz Morilli'nin aracını sarar, yani asıl indirme mantığının hepsi oradan gelir.
+
+İki proje de MIT lisanslı ve açık kaynak.

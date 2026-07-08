@@ -1,0 +1,135 @@
+---
+title: "Ritobin"
+description: "Moonshadow'un Ritobin'iyle League .bin dosyalarını okunabilir metne ve geri dönüştür. Skin yapımcıları için sürükle bırak rehberi."
+category: "tools"
+---
+
+Ritobin, **Moonshadow** tarafından yapılan bir araç. League'in `.bin` dosyalarını düzenleyebileceğin okunabilir metne, sonra geri dönüştürür. Jade'den eski ama toplu işler ve script'ler için hâlâ sağlam.
+
+En son Windows build'i GitHub'da: [ritobin sürümleri](https://github.com/moonshadow565/ritobin/releases/latest).
+
+<Callout type="info" title="Çoğu düzenleme için Jade'i kullan">
+  [Jade](/docs/lol/tools/modding-apps/jade) daha yeni workflow. `.bin`
+  dosyalarını sözdizimi renklendirmesi, üzerine gelince önizleme ve canlı hash
+  aramalarıyla görsel olarak düzenler. İleri geri dönüştürme yok. Ritobin'i yalnızca
+  toplu script'lere ihtiyacın varsa ya da metin workflow'unda zaten rahatsan seç.
+</Callout>
+
+---
+
+## Başlamadan önce sana gereken
+
+- Bir Windows PC.
+- [Sürümler sayfasından](https://github.com/moonshadow565/ritobin/releases/latest) en son `ritobin.zip`.
+- Düzenlemek istediğin bir skin'den bir `.bin` dosyası.
+
+---
+
+## Kurulum
+
+1. [En son sürümden](https://github.com/moonshadow565/ritobin/releases/latest) `ritobin.zip` indir.
+2. Ritobin ve `.bin` dosyaların için bir klasör yap.
+3. Zip'i o klasöre çıkar.
+
+<Callout type="warning">
+  **hashes** klasörünü `ritobin_cli.exe` ve `ritobin_gui.exe` ile aynı dizinde
+  tut. Hash'ler kaybolur ya da taşınırsa, dönüştürmeler başarısız olur.
+</Callout>
+
+<Callout type="info" title="Bu hashes klasörü sadece Ritobin için">
+  Ritobin kendi yerel `hashes` klasörüne ihtiyaç duyar. Her araç böyle çalışmaz.
+  [Flint](/docs/lol/tools/modding-apps/flint) ve
+  [Quartz](/docs/lol/tools/modding-apps/quartz) önceden hazırlanmış bir hash
+  veritabanını otomatik çeker ve klasöre ihtiyaç duymaz. Yalnızca Ritobin ve
+  bağımsız [Jade](/docs/lol/tools/modding-apps/jade) gibi eski araçlar bu manuel
+  CommunityDragon klasör modelini kullanır.
+</Callout>
+
+---
+
+## Dosya dönüştür
+
+<Tabs items={[".bin'den .py'ye", ".py'den .bin'e"]}>
+<Tab value=".bin'den .py'ye">
+
+### `.bin`'i `.py`'ye dönüştür
+
+1. `ritobin_cli.exe` için bir masaüstü kısayolu yap.
+2. `.bin` dosyasını kısayolun üzerine sürükle.
+
+Orijinalin yanında bir `.py` dosyası belirir. Bu, `.bin`'in düzenleyebileceğin okunabilir bir sürümü.
+
+### `.py` dosyasını aç
+
+Düzenlemek için bir metin editörü ya da IDE gerekir. Dosya düz metin, gerçek Python değil, yani her editör çalışır:
+
+- **[Visual Studio Code](https://code.visualstudio.com/)** ücretsiz ve kutudan çıktığı gibi Python sözdizimi renklendirmesine sahip. Elinde henüz bir editör yoksa en iyi seçim.
+- **[Notepad++](https://notepad-plus-plus.org/)** daha hafif. Hızlı düzenlemeler için iyi.
+- Başka herhangi bir kod editörü ya da IDE de çalışır.
+
+Değişikliklerini kaydet, sonra geri dönüştürmek için sonraki sekmeye geç.
+
+</Tab>
+<Tab value=".py'den .bin'e">
+
+### `.py`'yi tekrar `.bin`'e dönüştür
+
+`.py` dosyasını düzenleyip oyunda test etmek istediğinde:
+
+1. Düzenlenmiş `.py` dosyasını `ritobin_cli.exe` üzerine sürükle.
+
+Yanında yüklemeye hazır, çalışan bir `.bin` dosyası belirir.
+
+</Tab>
+</Tabs>
+
+---
+
+## İpucu: varsayılan programla hızlı dönüştürme
+
+`ritobin_cli.exe`'yi `.py` dosyaları için varsayılan program olarak ayarla. O zaman çift tık dosyayı dönüştürür. Sürükle bırak yok.
+
+| Adım | Eylem                                            |
+| ---- | ------------------------------------------------ |
+| 1    | `.py` dosyasına sağ tıkla                         |
+| 2    | **Open with** sonra **Choose another app** seç   |
+| 3    | `ritobin_cli.exe`'yi seç                          |
+| 4    | **Always use this app**'i işaretle               |
+
+---
+
+## Diğer formatlar
+
+Ritobin yalnızca `text` (`.py`) değil, `json` ve `info` de okur ve yazar. Düzenlemeleri başka bir dilde script'lemek istersen kullanışlı.
+
+Ritobin klasöründe bir terminal aç ve çalıştır:
+
+```bash
+ritobin_cli.exe -o json input.bin output.json
+ritobin_cli.exe -o text input.json output.py
+```
+
+`-o` bayrağı çıktı formatını ayarlar. `-i` bayrağı, Ritobin uzantıdan tahmin edemezse giriş formatını ayarlar.
+
+---
+
+## Sorun Giderme
+
+### Dönüştürme hiçbir şey yapmıyor ya da çıktı boş
+
+`hashes` klasörünün `ritobin_cli.exe`'nin yanında olduğunu kontrol et. O olmadan Ritobin adları çözemez.
+
+### Çıktı dosyasında kelimeler yerine hash'lenmiş adlar var
+
+`hashes` klasörünü güncelle. Eski hash'ler yeni yama içeriğini kapsamaz. [CommunityDragon'ın CDTB'sinden](https://github.com/CommunityDragon/CDTB) taze hash'ler çek.
+
+### "This app can't run on your PC" hatası
+
+Yanlış build'i indirdin. Kaynak kod zip'ini değil, [en son sürümden](https://github.com/moonshadow565/ritobin/releases/latest) Windows `ritobin.zip`'ini al.
+
+---
+
+## Kaynak
+
+**Araç:** [Moonshadow](https://github.com/moonshadow565)
+**Repo:** [moonshadow565/ritobin](https://github.com/moonshadow565/ritobin)

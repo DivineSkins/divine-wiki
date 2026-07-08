@@ -1,0 +1,130 @@
+---
+title: "TextureSwap Fakegear"
+description: "Bu, bin düzenlemeyi içeren oldukça temel bir eğitim."
+category: "vfx-bins"
+---
+
+## 1. Static Material'larını Hazırlamak
+
+Doku mu değiştiriyoruz sandın? Keşke o kadar basit olsaydı.
+
+O mesh'in temel dokusuna bağlı mevcut `staticmaterial`'ı kopyalaman gerekiyor. Yuumi'nin vücudu için bu `Orb_Cat_inst`. Skin bin'inde doku adını arayarak bulabilirsin.
+
+<img src="/wiki-images/1767149443636-vvzsnj.png" alt="Görsel" width={800} />
+
+Ardından her şeyi kopyalarsın, bir yere yapıştırırsın, isimleri değiştirirsin ve doku dosyanı eklersin. Benim durumumda ad `"mine"` olacak, doku dosyası da öyle.
+
+<img src="/wiki-images/1767149464084-1r81lr.png" alt="Görsel" width={500} />
+
+---
+
+## 2. VFX
+
+Bu kod parçasına ihtiyacın olacak. Her şeyi tek yerde tutmak için staticmaterial'ının yakınına yapıştırmanı öneririm.
+
+```py
+"Hide" = VfxSystemDefinitionData {
+    timeBeforeFirstEmission: f32 = 1
+    complexEmitterDefinitionData: list[pointer] = {
+        VfxEmitterDefinitionData {
+            rate: embed = ValueFloat {
+                constantValue: f32 = 1
+            }
+            particleLifetime: embed = ValueFloat {
+                constantValue: f32 = 1e+14
+            }
+            isSingleParticle: flag = true
+            emitterName: string = "Override"
+            meshRenderFlags: u8 = 0
+            materialOverrideDefinitions: list[embed] = {
+                VfxMaterialOverrideDefinitionData {
+                    priority: i32 = 1
+                    subMeshName: option[string] = {
+                        "Yourmaterialnamefrommaya"
+                    }
+                    material: link = "Characters/urchamp/Skins/urskin/Materials/urstaticmaterial"
+                    transitionSample: f32 = 1
+                }
+            }
+        }
+    }
+    particleName: string = "Hide"
+    particlePath: string = "Hide"
+}
+```
+
+```py
+"Show" = VfxSystemDefinitionData {
+    timeBeforeFirstEmission: f32 = 1
+    complexEmitterDefinitionData: list[pointer] = {
+        VfxEmitterDefinitionData {
+            rate: embed = ValueFloat {
+                constantValue: f32 = 1
+            }
+            particleLifetime: embed = ValueFloat {
+                constantValue: f32 = 1e+14
+            }
+            isSingleParticle: flag = true
+            emitterName: string = "Override"
+            meshRenderFlags: u8 = 0
+            materialOverrideDefinitions: list[embed] = {
+                VfxMaterialOverrideDefinitionData {
+                    priority: i32 = 1
+                    subMeshName: option[string] = {
+                        "Yourmaterialnamefrommaya"
+                    }
+                    material: link = "Characters/urchamp/Skins/urskin/Materials/defaultstaticmaterial"
+                    transitionSample: f32 = 1
+                }
+            }
+        }
+    }
+    particleName: string = "Show"
+    particlePath: string = "Show"
+}
+```
+
+---
+
+## 3. Resource Resolver
+
+`ResourceResolver` içinde de şuna ihtiyacın olacak:
+
+```py
+"Hide" = "Hide"
+"Show" = "Show"
+```
+
+---
+
+## 4. Animasyon Bin
+
+Bundan sonra animasyon bin'ine ihtiyacın var. Toggle olarak kullanmak istediğin animasyonu bul ve bu kod parçalarını şöyle yapıştır:
+
+<img src="/wiki-images/1767149506632-k9q8d.png" alt="Görsel" width={700} />
+
+```py
+"Hide" = ParticleEventData {
+    mEffectKey: hash = "Hide"
+    mParticleEventDataPairList: list[embed] = {
+        ParticleEventDataPair {}
+    }
+    mIsLoop: bool = false
+    mIsKillEvent: bool = false
+}
+```
+
+```py
+"Show" = ParticleEventData {
+    mEffectKey: hash = "Show"
+    mParticleEventDataPairList: list[embed] = {
+        ParticleEventDataPair {}
+    }
+    mIsLoop: bool = false
+    mIsKillEvent: bool = false
+}
+```
+
+---
+
+> ✅ Bundan sonra, her şeyi doğru yapıp doğru şekilde değiştirdiysen sorun yaşamazsın!

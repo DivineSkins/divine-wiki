@@ -1,0 +1,139 @@
+---
+title: "Paint.NET Tex Plugin"
+description: "RitoShark'ın League of Legends .tex doku dosyalarını açan ve kaydeden Paint.NET eklentisi."
+category: "tools"
+---
+
+**RitoShark** tarafından yapılan, League of Legends `.tex` doku dosyalarını açan ve kaydeden bir Paint.NET eklentisi. Açarken sıkıştırmayı ve mipmap'leri otomatik algılar, sana normal bir kaydetme seçeneği ile tüm ayarların olduğu bir kaydetme seçeneği sunar.
+
+[En son sürümü indir](https://github.com/RitoShark/Paint.NET-Tex-Plugin/releases)
+
+{/* SCREENSHOT: Paint.NET with a champion .tex file open in the canvas */}
+
+---
+
+## Ne yapar
+
+- `.tex` dosyalarını Paint.NET'te açar (DXT1, DXT5, BC5, BC7 ve BGRA8).
+- `.tex` dosyalarını kaydeder. Kaydederken sıkıştırmayı ve mipmap'leri otomatik algılar.
+- Sıkıştırma, dithering, error metric ve mipmap ayarlarını seçmen için menülü ikinci bir kaydetme seçeneği ekler.
+- BC7'yi native bir yardımcı DLL ile hızlı sıkıştırır. Onsuz yavaş yazılımsal BC7'ye düşer.
+- Tüm alfa kanalını korur.
+- Temiz sonuçlar için Floyd-Steinberg error diffusion dithering kullanır.
+
+---
+
+## Başlamadan önce
+
+Sana gerekenler:
+
+- **Paint.NET 5.1 veya sonrası** (.NET 9 kullanır). En son 5.1.x sürümü önerilir.
+- **Windows 10 veya sonrası**.
+- [Releases sayfasından](https://github.com/RitoShark/Paint.NET-Tex-Plugin/releases) en son sürüm: ya `TexFileTypeSetup.exe` kurulumcusu ya da elle kurulum için `TexFileType.dll` ve `Bc7Native.dll` dosyaları.
+
+---
+
+## Kurulumcuyla kur
+
+1. Açıksa Paint.NET'i kapat.
+2. [En son sürümden](https://github.com/RitoShark/Paint.NET-Tex-Plugin/releases) `TexFileTypeSetup.exe` dosyasını indir.
+3. Onu çalıştır. Kurulumcu Paint.NET `FileTypes` klasörünü bulur ve iki DLL'i senin için kopyalar.
+4. Paint.NET'i aç. Eklenti açılışta yüklenir.
+
+## Elle kur
+
+Kurulumcuyu çalıştırmak istemiyorsan veya taşınabilir Paint.NET kullanıyorsan bunu kullan.
+
+1. Açıksa Paint.NET'i kapat.
+2. Paint.NET `FileTypes` klasörünü aç. Çoğu kurulumda bu `C:\Program Files\Paint.NET\FileTypes`. Taşınabilir Paint.NET için `[Paint.NET klasörü]\FileTypes` kullan.
+3. Sürümden hem `TexFileType.dll` hem `Bc7Native.dll` dosyasını `FileTypes` klasörüne kopyala. İkisini bir arada tut.
+4. Paint.NET'i aç. Eklenti açılışta yüklenir.
+
+{/* SCREENSHOT: The FileTypes folder with TexFileType.dll and Bc7Native.dll dropped inside */}
+
+<Callout type="warning">
+  BC7 kaydetmeyi hızlı yapan şey `Bc7Native.dll`'dir. Onsuz BC7 yine çalışır ama
+  çok yavaş kaydeder. Her zaman iki DLL'i birden kopyala.
+</Callout>
+
+---
+
+## Bir `.tex` dosyası aç
+
+Bir `.tex` dosyasını açmanın iki yolu var:
+
+1. Paint.NET'te **File → Open**'a tıkla ve `.tex` dosyanı seç.
+2. Ya da `.tex` dosyasını doğrudan Paint.NET penceresine sürükle.
+
+Doku tuvalde belirir. Mipmap'ler ve sıkıştırma otomatik okunur.
+
+{/* SCREENSHOT: File → Open dialog showing a .tex file selected */}
+
+---
+
+## Bir `.tex` dosyası kaydet
+
+İki kaydetme modun var. Normal işler için ilkini kullan. Sıkıştırma veya mipmap üzerinde denetim gerektiğinde ikincisini kullan.
+
+### Otomatik ayarlarla kaydet
+
+1. **File → Save As**'e tıkla.
+2. Dosya türü açılır menüsünden **League of Legends TEX** seç.
+3. **Save**'e tıkla.
+
+Eklenti, dosyayı açtığında algıladığı sıkıştırma ve mipmap kurulumunu korur.
+
+### Özel ayarlarla kaydet
+
+1. **File → Save As**'e tıkla.
+2. Dosya türü açılır menüsünden **League of Legends TEX (with options)** seç.
+3. Menüde ayarlarını seç:
+   - **Compression**: DXT1, DXT5, BC5, BC7 veya BGRA8 (sıkıştırılmamış). Alfası olan dokular için DXT5 veya BC7 kullan. Normal map'ler için BC5 kullan.
+   - **Dithering**: Floyd-Steinberg, daha yumuşak gradyanlar için.
+   - **Error metric**: Perceptual (önerilen) veya Uniform. Bu sadece DXT1 ve DXT5 için geçerli.
+   - **Mipmaps**: tam bir mipmap zinciri oluştur.
+4. **Save**'e tıkla.
+
+{/* SCREENSHOT: Save As dialog with the "League of Legends TEX (with options)" menu open */}
+
+---
+
+## İşe yaradığını nasıl kontrol edersin
+
+- Kaydettiğin dosyayı tekrar aç. Hatasız yüklenir ve aynı görünür.
+- Ya da skin aracında (Flint veya LtMAO) yükle, doğru görünür.
+
+---
+
+## Sorun giderme
+
+### Paint.NET çöküyor veya dosya yüklenmiyor
+
+Paint.NET'i en son 5.1.x sürümüne güncelle. Eklenti 5.1 veya sonrasını ister.
+
+### Eklenti Paint.NET'te görünmüyor
+
+Paint.NET'i tamamen kapat, sonra şunları kontrol et:
+
+- `C:\Program Files\Paint.NET\FileTypes` klasörü var.
+- Hem `TexFileType.dll` hem `Bc7Native.dll` o klasörün içinde.
+- Daha eski bir Paint.NET (5.1'in altında) çalıştırmıyorsun.
+
+Paint.NET'i tekrar aç. Eklenti artık dosya türü listesinde görünmeli.
+
+### BC7 kaydetmeleri çok yavaş
+
+`Bc7Native.dll`, `FileTypes` klasöründen eksik. Onu `TexFileType.dll`'in yanına
+kopyala, sonra Paint.NET'i yeniden başlat. Kurulumcu onu senin için ekler.
+
+### "There was an error while saving the file."
+
+Tuval boyutunu kontrol et. Genişlik ve yükseklik ikisi de 4'e bölünebilmeli. League bunu `.tex` dosyaları için ister. Görseli yeniden boyutlandır ve tekrar kaydet.
+
+---
+
+## Emeği geçenler
+
+- Eklenti **RitoShark** tarafından.
+- `.tex` okuma mantığı, Tarngaina tarafından yapılan [LtMAO](https://github.com/tarngaina/LtMAO)'dan.
+- Floyd-Steinberg dithering'li BC1 ve BC3 sıkıştırması [Microsoft DirectXTex](https://github.com/microsoft/DirectXTex)'e dayanıyor (MIT Lisansı).

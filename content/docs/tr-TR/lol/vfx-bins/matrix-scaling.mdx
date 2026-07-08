@@ -1,0 +1,139 @@
+---
+title: "Matrix Scaling"
+description: "Bu rehber, League of Legends modlamada özel partikülleri ölçeklemek, hareket ettirmek ve döndürmek için dönüşüm matrislerini nasıl kullanacağını anlatır."
+category: "vfx-bins"
+---
+
+Bu rehber, League of Legends modlamada özel partikülleri ölçeklemek, hareket ettirmek ve döndürmek için dönüşüm matrislerini nasıl kullanacağını anlatır. 3D render'da yaygın kullanılan bir sisteme dayanır ve burada partikül düzenlemeye uyarlanmıştır.
+
+---
+
+## Gerekli Araçlar
+
+| Araç                     | Amaç                                             |
+| :----------------------- | :----------------------------------------------- |
+| **Jade**                 | `.bin` dosyalarını görsel düzenle (önerilen)     |
+| **Ritobin**              | Alternatif: düzenlemek için `.bin`'i `.py`'ye dönüştür |
+| **VS Code veya Notepad++** | Sadece Ritobin metin workflow'unda gerekir     |
+
+---
+
+## Yazılı Rehber
+
+### Matrisler Nasıl Çalışır
+
+Dönüşüm matrisleri, şunları ele almanın matematiksel bir yoludur:
+
+- **Öteleme** (hareket)
+- **Dönüş**
+- **Ölçekleme**
+
+https://youtu.be/bUJSVlVHEZM?si=Uj_CYOs-wsNyIrCm&t=23
+
+https://www.youtube.com/watch?v=VZ1L7Y_78-8
+
+---
+
+### Adım 1: Varsayılan Matris Ekleme
+
+Önce `VfxSystemDefinitionData` bloğunun sonuna varsayılan bir matris ekleyeceksin. Bu varsayılan matris hiçbir şeyi değiştirmez, sadece bir yer tutucu görevi görür.
+
+**Örnek:**
+
+```py
+Transform: mtx44 = {
+    1, 0, 0, 0
+    0, 1, 0, 0
+    0, 0, 1, 0
+    0, 0, 0, 1
+}
+```
+
+> Bu, dönüşümünü "nötr" tutar: varsayılan olarak ölçekleme, hareket veya dönüş yok.
+
+---
+
+### Adım 2: Boyutu Düzenleme (Partikülleri Ölçekleme)
+
+#### Boyutu Küçültme (Küçült)
+
+Bir partikülü küçültmek için 1'in altındaki değerleri kullan.
+
+**Örnek (2× daha küçük):**
+
+```py
+Transform: mtx44 = {
+    0.5, 0, 0, 0
+    0, 0.5, 0, 0
+    0, 0, 0.5, 0
+    0, 0, 0, 1
+}
+```
+
+#### Boyutu Büyütme (Büyüt)
+
+Bir partikülü büyütmek için 1'den büyük değerleri kullan.
+
+**Örnek (2× veya 4× daha büyük):**
+
+```py
+Transform: mtx44 = {
+    2, 0, 0, 0
+    0, 2, 0, 0
+    0, 0, 2, 0
+    0, 0, 0, 1
+}
+```
+
+---
+
+### Adım 3: Partikülü Hareket Ettirme (XYZ Konumlarını Düzenleme)
+
+Matrisin **son satırındaki** değerleri değiştirerek bir partikülü belirli eksenlerde hareket ettirebilirsin.
+
+#### Yukarı Hareket (Y Ekseni)
+
+VFX'i yukarı taşı:
+
+```py
+Transform: mtx44 = {
+    1, 0, 0, 0
+    0, 1, 0, 0
+    0, 0, 1, 0
+    0, 250, 0, 1
+}
+```
+
+(250 birim yukarı taşır.)
+
+#### Yana Hareket (Z Ekseni)
+
+VFX'i sola veya sağa taşı:
+
+```py
+Transform: mtx44 = {
+    1, 0, 0, 0
+    0, 1, 0, 0
+    0, 0, 1, 0
+    0, 0, 250, 1
+}
+```
+
+(Z boyunca 250 birim taşır.)
+
+> 💡 **İpucu:** İstediğin tam yerleşimi bulmak için değerleri test edip ince ayar yapman gerekebilir!
+
+---
+
+### Partikül Sistemini Aynala
+
+Bir partikül sistemini tamamen aynalamak için:
+
+```py
+Transform: mtx44 = {
+    -1, 0, 0, 0
+    0, 1, 0, 0
+    0, 0, -1, 0
+    0, 0, 0, 1
+}
+```

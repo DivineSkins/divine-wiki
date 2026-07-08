@@ -1,0 +1,115 @@
+---
+title: "LTK Tex Thumb Handler"
+description: "LeagueToolkit'in küçük resim handler'ı, .tex dosyalarını Windows Gezgini'nde görsel önizleme olarak gösterir. Guisai'nin Tex Thumbnail Provider'ının kardeş aracı."
+category: "tools"
+---
+
+LTK Tex Thumb Handler, **LeagueToolkit** ekibinin Windows shell
+uzantısıdır. `.tex` dosyalarını Windows Gezgini'nde görsel önizleme olarak gösterir.
+
+RitoShark tarafından yapılan [Tex Thumbnail Provider](/docs/lol/tools/texturing/tex-thumbnail-provider)
+ile aynı işi yapar. Birini seç, ikisini değil.
+
+[En son sürümü indir](https://github.com/LeagueToolkit/ltk-tex-utils/releases)
+
+---
+
+## Ne yapar
+
+- `.tex` dosyalarını Windows Gezgini'nde küçük resim önizlemesi olarak gösterir.
+- `.tex` dokusu olan her klasörde çalışır (oyun dosyaları, export'lar, mod dosyaları).
+- Kayıtlı bir COM DLL olarak çalışır. Açılacak uygulama yok. Arka planda çalışan süreç yok.
+
+{/* SCREENSHOT: Windows Explorer showing a folder of .tex files with image thumbnails instead of generic icons */}
+
+---
+
+## Başlamadan önce
+
+- Windows 10 veya 11.
+- Yönetici erişimi (kurulumcu bir sistem DLL'i kaydeder).
+- PowerShell.
+
+---
+
+## Kur
+
+1. `.tex` dosyalarını gösteren tüm Windows Gezgini pencerelerini kapat.
+2. PowerShell'e sağ tıkla ve **Run as administrator** seç.
+3. Bu komutu yapıştır ve Enter'a bas:
+
+   ```powershell
+   iwr -useb https://raw.githubusercontent.com/LeagueToolkit/ltk-tex-utils/main/scripts/install-thumbnail-handler.ps1 | iex
+   ```
+
+4. Kurulumcunun bitmesini bekle. `ltk-tex-thumb-handler.dll` dosyasını indirir,
+   `%ProgramFiles%\LeagueToolkit\ltk-tex-thumb-handler` yoluna kopyalar ve
+   Windows'a kaydeder.
+5. Windows Gezgini'ni yeniden başlat (veya bilgisayarını yeniden başlat).
+
+{/* SCREENSHOT: PowerShell window showing the install script output with success message */}
+
+---
+
+## İşe yaradığını nasıl kontrol edersin
+
+`.tex` dosyaları olan herhangi bir klasörü aç. İkonlar görsel önizlemeye dönüşür. Hâlâ
+boş ikon gibi görünüyorlarsa, Gezgin'i yeniden başlat veya bilgisayarı yeniden başlat.
+
+---
+
+## Kaldır
+
+1. PowerShell'e sağ tıkla ve **Run as administrator** seç.
+2. Şunu çalıştır:
+
+   ```powershell
+   regsvr32.exe /u "%ProgramFiles%\LeagueToolkit\ltk-tex-thumb-handler\ltk_tex_thumb_handler.dll"
+   ```
+
+3. `%ProgramFiles%\LeagueToolkit\ltk-tex-thumb-handler` yolundaki klasörü sil.
+
+---
+
+## Ne zaman bunu, ne zaman Tex Thumbnail Provider'ı kullanmalısın
+
+Her iki araç da aynı işi yapar: Gezgin'de `.tex` önizlemeleri gösterir. Aynı anda sadece
+birini çalıştır.
+
+| Araç                       | Yapan         | Kurulum yöntemi                 |
+| -------------------------- | ------------- | ------------------------------- |
+| **LTK Tex Thumb Handler**  | LeagueToolkit | PowerShell tek satır (yönetici) |
+| **Tex Thumbnail Provider** | RitoShark     | PowerShell tek satır (kullanıcı başı) |
+
+Zaten başka LeagueToolkit araçları kullanıyorsan LTK Tex Thumb Handler'ı seç.
+Yönetici izni gerektirmeyen, kullanıcı başına bir kurulum istiyorsan RitoShark sürümünü seç.
+
+> **Uyarı.** İkisini birden kurma. Aynı dosya türü için iki küçük resim handler'ı
+> birbirleriyle çakışabilir ve seni hiç önizleme olmadan bırakabilir.
+> Birini kurmadan önce diğerini kaldır.
+
+---
+
+## Sorun giderme
+
+### Küçük resimler görünmüyor
+
+Windows Gezgini'ni yeniden başlat. Görev Yöneticisi'ni aç, **Windows Explorer**'ı bul,
+sağ tıkla ve **Restart** seç. Klasörü tekrar aç.
+
+### Yeniden başlatmadan sonra hâlâ küçük resim yok
+
+DLL'in şurada olduğunu kontrol et:
+`%ProgramFiles%\LeagueToolkit\ltk-tex-thumb-handler\ltk_tex_thumb_handler.dll`.
+Eksikse, kurulum komutunu tekrar çalıştır.
+
+### Eski Tex Thumbnail Provider DLL'i hâlâ kayıtlı
+
+Önce diğer küçük resim sağlayıcısını kaldır.
+[Tex Thumbnail Provider sayfasına](/docs/lol/tools/texturing/tex-thumbnail-provider)
+kurulum ve kaldırma adımları için bak.
+
+### Kurulum scripti başarısız oluyor
+
+PowerShell'in yönetici olarak çalıştığından emin ol. Script'in DLL'i Windows'a
+kaydetmek için yönetici izinlerine ihtiyacı var.

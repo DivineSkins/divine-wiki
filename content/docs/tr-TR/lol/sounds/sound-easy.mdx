@@ -1,0 +1,139 @@
+---
+title: "Kolay - Temel Ses Modlama"
+description: "Ses modu yapmaya yeni başlayanlar için rehber"
+category: "sounds"
+---
+
+**Gerekli araçlar:**
+
+<ToolCard name="Quartz" href="https://github.com/RitoShark/Quartz">
+  GitHub'dan indir.
+</ToolCard>
+
+**İşe yarayan araçlar:**
+
+<ToolCard name="Audacity" href="https://www.audacityteam.org/download/">
+  Ses düzenleme programı.
+</ToolCard>
+
+<ToolCard name="yt-dlp" href="https://github.com/yt-dlp/yt-dlp">
+  İnternetten medya indirmeye yarayan araç.
+</ToolCard>
+
+---
+
+### Neyle Uğraşıyorsun
+
+League of Legends sesini birkaç dosya türünde saklar. Bunlarla sürekli
+karşılaşacaksın:
+
+- `.bnk`: ses verisini ve/veya mantık ve event hiyerarşisini tutan bir Wwise
+  "SoundBank"i.
+- `.wpk`: sadece ham ses tutan, Riot'a özgü bir format (metadata yok).
+- `.wem`: Wwise'ın içeride kullandığı, tek tek sıkıştırılmış ses formatı.
+
+<Callout type="info" title="Hangi dosyayı düzenlersin">
+  **SFX** için (yetenekler, vuruşlar, arayüz sesleri) genelde bir `audio.bnk`
+  dosyası düzenlersin.
+
+**VO** için (replikler, spiker) genelde bir `audio.wpk` dosyası düzenlersin.
+
+</Callout>
+
+---
+
+### Doğru Dosyaları Bulmak
+
+Bir karakterin seslerini düzenlemek için üç dosyaya ihtiyacın var:
+
+| Dosya              | Örnek yol                                                                             |
+| ------------------ | ------------------------------------------------------------------------------------- |
+| Ses (wpk veya bnk) | `ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_vo_audio.wpk`  |
+| Event bank'ı       | `ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_vo_events.bnk` |
+| Bin dosyası        | `data/characters/Yone/skins/skin0.bin`                                                |
+
+Bu dosyaları doğrudan Quartz'a yükleyebilir ya da hazır seçeneklerden birini
+kullanabilirsin:
+
+- **Oyundan.** Bir şampiyon ve onun skin'ini seç (en soldaki seçenek).
+- **Var olan bir moddan.** Başka bir modu düzenliyor, ondan malzeme alıyor ya da
+  üstüne bir şey inşa ediyorsan, o modun klasörünü yükle (soldan ikinci seçenek).
+
+<img src="/wiki-images/quartz-selection-2.png" alt="Quartz kaynak seçimi" />
+
+---
+
+### Adım Adım: Bir Sesi Değiştirmek
+
+**1. Quartz'ta Sound Bank sekmesini aç.**
+
+<img src="/wiki-images/quartz-empty-2.png" alt="Boş Quartz Sound Bank sekmesi" />
+
+**2. Dosyalarını SOL tarafa yükle.**
+
+Sol panele tıkla ve Quartz'a `.bin`, ses (`.bnk` veya `.wpk`) ve event (`.bnk`)
+dosyalarını göster. Sonra **Parse**'a bas.
+
+Bu, sol tarafı o bank'taki tüm seslerin listesiyle doldurur.
+
+<img src="/wiki-images/quartz-2-2.png" alt="Sol panelde parse edilmiş bank" />
+
+Solda aynı anda birden çok bank parse edip yükleyebilirsin.
+
+**3. Yeni seslerini SAĞ tarafa ekle.**
+
+Sağ panel, kullanmak istediğin yeni sesi yüklediğin yerdir. Quartz şunları
+kabul eder:
+
+- `.wav`
+- `.wem`
+- `.ogg`
+- `.mp3`
+
+Format dönüşümünü kendi halleder. Import etmeden önce `.wem`'e çevirmene gerek
+yok.
+
+Sağ tarafa League'den başka bir parse edilmiş ses bank'ı da yükleyip oradan
+sesleri doğrudan çekebilirsin.
+
+<img
+  src="/wiki-images/quartz-3-2.png"
+  alt="Sağ panelde yeni sesler"
+/>
+
+**4. Sürükleyip değiştir.**
+
+**Sağ panelden** bir sesi al, **sol paneldeki** değiştirmek istediğin sesin
+üstüne sürükle. Soldaki kayıt güncellenir ve değişikliği gösterir.
+
+<img
+  src="/wiki-images/quartz4.png"
+  alt="Quartz'ta bir sesi sürükleyip değiştirme"
+/>
+
+**5. Düzenlediğin bank'ı kaydet.**
+
+Sol panelde bank'ını seç, sonra **"Save as BNK/WPK"**'ye tıkla ve mod klasörünün
+içinde bir yere kaydet.
+
+<img
+  src="/wiki-images/quartz-save-2.png"
+  alt="Quartz'ta düzenlenmiş bank'ı kaydetme"
+/>
+
+---
+
+### Modunun İçine Ne Koymalısın
+
+| Mod türü | Eklenecek dosyalar               |
+| -------- | -------------------------------- |
+| SFX modu | sadece `audio.bnk`               |
+| VO modu  | `audio.wpk` **VE** `events.bnk`  |
+
+VO modlarında event bank'ı gereklidir, çünkü oyundaki her event için (saldırı,
+ölüm, şaka vb.) hangi ses dosyasının çalacağını o belirler. O olmadan yeni
+sesin doğru tetiklenmez.
+
+---
+
+rehber: aurecueil

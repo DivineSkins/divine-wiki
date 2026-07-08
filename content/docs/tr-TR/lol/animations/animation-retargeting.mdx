@@ -1,0 +1,169 @@
+---
+title: "Animasyon Retargeting"
+description: "Var olan bir animasyonu tekrar kullan ve League skin modlaması için başka bir iskelete taşı."
+category: "animations"
+---
+
+Benim durumumda **Star Guardian Ahri'nin** dansını **Ornn'a** koyacağım.
+
+**Tanımlar:**
+
+- **Main SKL:** Ahri (Kaynak)
+- **Targeted SKL:** Ornn (Hedef)
+
+---
+
+## Video Rehberi
+
+https://www.youtube.com/watch?v=jnAXvFzYlb4&source_ve_path=MTc4NDI0
+
+---
+
+## Main SKL'yi Maya'ya Almak
+
+Önce istediğin animasyona sahip **Main SKL**'yi sahneye import etmen gerekir
+(benim durumumda dans).
+
+1. `.skn`'yi import et: **File > Import**'a git, "Files of type"ı "League of
+   Legends : SKN" olarak değiştir ve skn'ini import et.
+
+<img src="/wiki-images/1767144407963-tirda.png" alt="Görsel" width={800} />
+
+1. Sonra istediğin animasyonu import et. Bunun için **File > Import**'a git,
+   "Files of type"ı "League of Legends : ANM" olarak değiştir ve istediğin
+   animasyonu ara.
+
+   Import ayarlarında şunları seçtiğinden emin ol:
+   - **Framerate Import:** Override to Match Source
+   - **Animation Range:** Override to Match Source
+
+   <img src="/wiki-images/1767144425989-xwnqx.png" alt="Görsel" width={500} />
+
+2. Sonra "Root" kemiğini seç ve bir önek ekle. **Modify > Prefix Hierarchy
+   Names**'e git.
+
+<img src="/wiki-images/1767144434365-intqh.png" alt="Görsel" width={500} />
+
+1. Ve oraya ne istersen yaz (ben `Ahri_` yazacağım çünkü temiz görünüyor).
+
+<img src="/wiki-images/1767144441978-tah6ci.png" alt="Görsel" width={500} />
+
+---
+
+## Targeted SKL'yi Maya'ya Almak
+
+Main SKL artık güzelce hazır olduğuna göre, hadi Targeted SKL'yi de Maya'ya
+alalım. Bunun için önceki gibi yap: **File > Import** ve import etmek istediğin
+skn'yi bul.
+
+<img src="/wiki-images/1767144551218-v6av.png" alt="Görsel" width={700} />
+
+Artık iki iskelet de sahnede olduğuna göre, hadi Retargeting'e başlayalım!
+
+### Hazırlık
+
+Önce kolların birbirine paralel olduğundan emin ol, bu Retargeting'in
+çalışması için gerekli. Targeted SKL, Main SKL ile aynı kol açısına sahip
+olmalı, yani Main SKL'nin kolları A-Pose'daysa Targeted SKL'yi de A-Pose'a al.
+T-Pose için de aynısını yaparsın.
+
+<img src="/wiki-images/1767144562410-rrnb9j.png" alt="Görsel" width={700} />
+
+Önce Main SKL'nin mesh ve iskeletini gizleyelim: outliner'a gir, mesh ve
+iskeleti seç, sonra **H**'ye bas. Artık grileşmiş olmalılar.
+
+<img src="/wiki-images/1767144573354-a6v29.png" alt="Görsel" width={300} />
+
+### Character Definition
+
+1. Maya'nın sağ üst köşesindeki küçük t-poz adama tıkla, sonra "**Create
+   Character Definition**"a bas.
+
+<img src="/wiki-images/1767144600881-bv30ng.png" alt="Görsel" width={300} />
+
+1. Şimdi büyük korkunç bir adam belirecek! Viewport'un hemen üstündeki o küçük
+   kemik ikonuna tıkla, bu sana kemikleri mesh'in içinden görme imkanı verir.
+
+<img src="/wiki-images/1767144612727-ph426e.png" alt="Görsel" width={700} />
+
+1. Bundan sonrası oldukça basit, korkunç adamın koluna çift tıkla, sonra
+   Targeted SKL iskeletindeki karşılık gelen kemiğe tıkla.
+
+   _Örnek: sol omuz ile sol omuz, vb._
+
+   Korkunç adamın omzuna çift tıkladığında, kalan kemiklerin grileştiğini fark
+   edeceksin. Şöyle:
+
+<img src="/wiki-images/1767144626049-x7hzvi.png" alt="Görsel" width={300} />
+
+Bu, kemiği başarıyla seçtiğin anlamına gelir.
+
+1. Şimdi Targeted SKL'nin sol omzuna tıklardım, çünkü korkunç adamda seçtiğim
+   kemik o.
+
+<img src="/wiki-images/1767144644078-45dlz.png" alt="Görsel" width={600} />
+
+Hem sol kol hem sağ kol artık korkunç adamda yeşile dönmeli, bu, kemiğin
+başarıyla atandığı anlamına gelir.
+
+<img src="/wiki-images/1767144656841-5as1an.png" alt="Görsel" width={300} />
+
+1. Korkunç adamda aşağı bakan bazı oklar da fark edeceksin. Onlar köprücük
+   kemikleri, el parmakları, ayak parmakları, omurga ve boynu seçmek için orada.
+   Animasyon retargeting'in daha iyi olmasını istiyorsan onları doldurman
+   önemli!
+
+   Sonunda şuna benzer bir şey görünmeli:
+
+<img src="/wiki-images/1767144695651-85ub3m.png" alt="Görsel" width={500} />
+
+1. Bunu yaptıktan sonra, aynısını **Main SKL** için yapalım. Targeted SKL'nin
+   kemik ve mesh'ini gizleyip Main SKL'yi göstererek başla, onları seç ve önceki
+   gibi **H**'ye bas.
+
+<img src="/wiki-images/1767144720591-55e5he.png" alt="Görsel" width={300} />
+
+1. Şimdi korkunç adamın üstünde küçük bir "+" ikonu bulacaksın, ona tıkla. Bu,
+   yeni bir character definition oluşturur.
+
+<img src="/wiki-images/1767144735003-2rkaij.png" alt="Görsel" width={300} />
+
+1. Ve şimdi aynı şeyi tekrar yap, korkunç adamın kemiğine çift tıkla, sonra Main
+   SKL kemiğine. **Targeted SKL'de yaptığınla TAM OLARAK AYNI ŞEYLERİ doldurman
+   önemli**, yani aynı sayıda omurga kemiği, aynı sayıda parmak vb.
+
+   Bu mümkün değilse (örneğin Ornn, Ahri'den bir omurga kemiği fazlasına
+   sahipse), korkunç adamdaki ana omurga kemiğini (kalçaların hemen üstündekini)
+   ilk omurgaya ata, sonra omurga menüsünden geri kalanını seç.
+
+<img src="/wiki-images/1767144759348-fv3b58.png" alt="Görsel" width={400} />
+
+### Sihir
+
+Bunu yaptıktan sonra korkunç adamın menüsüne geri dön ve "**Character 1**"i
+"**Characters**"a, "**Character 2**"yi de "**Source**"a koy.
+
+<img src="/wiki-images/1767144795547-p3osns.png" alt="Görsel" width={400} />
+Ve şimdi sihrin gerçekleşmesini izle!
+
+<img src="/wiki-images/1767144847600-zz1npe.gif" alt="Görsel" width={500} />
+
+## Bake ve Export
+
+Şimdi geriye tek kalan, animasyonu bake'leyip oyuna export etmek!
+
+1. Animasyonu bake'lemek için **mavi kare > Bake > Bake to Skeleton**'a tıkla.
+
+<img src="/wiki-images/1767144861083-0bbgh.png" alt="Görsel" width={500} />
+
+1. Animasyonu export etmek için şu rehberi izle:
+
+   [Animasyon Import/Export rehberi](/docs/lol/animations/animation-import-export)
+
+Ve bitti!
+
+<img src="/wiki-images/1767144866892-5ov3wq.gif" alt="Görsel" width={500} />
+
+---
+
+**Rehber: Goat \<3**

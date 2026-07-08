@@ -1,0 +1,142 @@
+---
+title: "Hacksaw"
+description: "Bu rehber, League of Legends VFX'lerini (partikülleri) Martynas'ın özel skin modlama topluluğu için yaptığı Hacksaw ile nasıl yeniden renklendireceğini anlatır."
+category: "vfx-bins"
+---
+
+Bu rehber, League of Legends VFX'lerini (partikülleri) **Hacksaw** ile nasıl yeniden renklendireceğini anlatır. Hacksaw, Martynas'ın özel skin modlama topluluğu için yaptığı bir araçtır. `.bin` dosyalarını açmayı, renkleri ayarlamayı ve partikül değişikliklerini güvenle kaydetmeyi öğreneceksin.
+
+<Callout type="info" title="Daha yeni seçenek: Quartz Paint">
+  [Quartz](/docs/lol/tools/modding-apps/quartz), partikülleri uygulama içinde
+  yeniden renklendiren bir Paint sayfasına sahip. `.bin` dosyasını senin yerine
+  okur ve yazar, yani `ritobin_cli`'yi kurmana gerek kalmaz. Bu Hacksaw rehberi
+  hâlâ çalışıyor ve iyi bir alternatif, ama çoğu creator artık önce Quartz'a
+  uzanıyor.
+</Callout>
+
+---
+
+## Gereksinimler
+
+<ToolCard name="Hacksaw" href="https://github.com/TheMartynasXS/Hacksaw">
+  Martynas'ın bin'leri düzenlemek için yaptığı bir araç.
+</ToolCard>
+
+<ToolCard name="RitoBin" href="/docs/lol/tools/modding-apps/ritobin">
+  Moonshadow'un `.bin` dosyasını `.py` formatına dönüştürmek için yaptığı bir dönüştürücü.
+</ToolCard>
+
+---
+
+## Adım 1: Hacksaw'ı Kur
+
+1. Hacksaw'ı indir ve aç
+   <img src="/wiki-images/1767146058191-p47ap.png" alt="Görsel" width={500} />
+2. **Settings** sekmesine git
+   <img src="/wiki-images/1767146063211-rh626f.png" alt="Görsel" width={400} />
+3. **Select Ritobin_Cli**'ye tıkla
+   <img src="/wiki-images/1767146098137-0kfjp.png" alt="Görsel" width={500} />
+4. `ritobin_cli.exe`'yi seç
+
+<img src="/wiki-images/1767146109516-brjqcp.png" alt="Görsel" width={500} />
+
+> 💡 Hacksaw, görsel efektler için kullanılan `.bin` dosyalarını okumak ve yazmak için `ritobin_cli`'ye ihtiyaç duyar.
+
+---
+
+## Adım 2: BIN Dosyasını Bul
+
+Partikül `.bin` dosyan genelde şu klasörlerden birinde bulunur:
+
+/yourWadFolder/data/ /yourWadFolder/data/characters/YourChamp/skins/SkinXX/
+
+`SkinXX`, skin'inin ID'sine karşılık gelir.
+
+<img src="/wiki-images/1767146144586-3z25vn.png" alt="Görsel" width={600} />
+
+<img src="/wiki-images/1767146157874-buswuj.png" alt="Görsel" width={600} />
+
+Skin numaranı bulmak için HUD klasörüne bak. Genelde önizleme görselleri orada olur.
+
+<img src="/wiki-images/1767146166101-ajvkvb.png" alt="Görsel" width={600} />
+
+---
+
+## Adım 3: BIN Dosyasını Aç
+
+1. Hacksaw'da **Splash** sekmesine git
+   <img src="/wiki-images/1767146179052-z4hk9c.png" alt="Görsel" width={300} />
+2. **Open Bin**'e tıkla
+   <img src="/wiki-images/1767146185172-7lewvd.png" alt="Görsel" width={300} />
+
+<img src="/wiki-images/1767146198483-5k0ae.png" alt="Görsel" width={500} />
+
+Artık şöyle bir partikül girdisi listesi göreceksin:
+
+- `_Q_mis` → Q yeteneğinin missile VFX'i
+- `_W_tar` → W'nin hedefe isabet efekti
+- `_E_cas` → E'nin cast animasyonu
+
+> 💡 **Yaygın Adlandırma Terimleri:** mis = missile • tar = target • cas = cast • trail = trail • exp = explosion
+
+---
+
+## Adım 4: Partikülleri Yeniden Renklendir
+
+1. Renk paletini kullanarak yeni rengini seç
+   <img src="/wiki-images/1767146233766-gxzbj.png" alt="Görsel" width={500} />
+2. Yeniden renklendirmek istediğin ParticleSystem'i seç
+   <img src="/wiki-images/1767146238999-n11n14.png" alt="Görsel" width={500} />
+3. Hacksaw'ın altındaki **Recolor Selected**'a bas
+   <img src="/wiki-images/1767146242759-dx73al.png" alt="Görsel" width={500} />
+4. **Save Bin**'e tıklayarak değişikliklerini kaydet
+   <img src="/wiki-images/1767146246511-68brzq.png" alt="Görsel" width={500} />
+
+---
+
+## Adım 5: Bazı Partiküller Renk İçin Doku Kullanır
+
+Tüm partiküller Hacksaw'ın yerleşik renk paletiyle renklendirilmez. Bazı VFX efektleri rengini harici bir doku dosyasından alır. Bu genelde Particles klasöründeki bir `.dds` veya `.tex` dosyasıdır.
+
+### Ne Yapmalı
+
+1. Particles klasörünü bul: `Assets/Characters/LeeSin/Skins/Skin31/Particles`
+2. Doku dosyasını Photoshop, GIMP veya `.dds` destekleyen herhangi bir resim editörüyle aç
+3. Dokuyu elle yeniden renklendir
+4. Düzenlenmiş dokuyu **BC3 / DXT5** sıkıştırmasıyla `.dds` olarak kaydet
+5. Orijinal dosyayı Particles veya VFX klasöründe değiştir
+
+> 💡 **Yaygın doku yolları:**
+>
+> - `Assets/Characters/LeeSin/Skins/Skin31/Particles`
+> - `Assets/Shared/Particles`
+> - `Assets/Characters/LeeSin/Skins/Base/Particles`
+
+---
+
+## Önemli İpuçları
+
+### Siyah veya Beyazı Yeniden Renklendirme (Varsayılan Olarak)
+
+Siyah ve beyaz değerler League VFX'lerinde genelde **saydamlık** için kullanılır. Bunları yeniden renklendirmek efektleri bozabilir veya tamamen gizleyebilir.
+
+Siyah/beyazı bilerek yeniden renklendirmek istiyorsan:
+
+1. **Settings**'e git
+2. **"Ignore Black/White Values"**'ı kapat
+
+---
+
+### BlendMode'ları Anlamak
+
+Her partikül bir BlendMode kullanır, Hacksaw'da sağda gösterilir:
+
+| BlendMode | Davranış                                                                                |
+| --------- | --------------------------------------------------------------------------------------- |
+| 1         | Saydamlık yok, siyah/beyazı gönül rahatlığıyla renklendir                                |
+| 3         | SCB saydamlığı                                                                           |
+| 4         | Standart saydamlık, çok siyah renklendirme yoksa oyunda görünmez olur                    |
+
+<img src="/wiki-images/1767146259378-b1tf5.png" alt="Görsel" width={500} />
+
+> 💡 Blend mode'ların render'ı nasıl etkilediğini bilmek, görsel hatalardan ya da istenmeyen parıltılardan kaçınmana yardımcı olur.

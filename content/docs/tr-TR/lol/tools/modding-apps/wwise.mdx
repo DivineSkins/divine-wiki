@@ -1,0 +1,155 @@
+---
+title: "Wwise"
+description: "Audiokinetic'ten profesyonel ses ara katmanı. Yalnızca sıfırdan tam League soundbank'leri yeniden inşa ediyorsan gerekir."
+category: "tools"
+---
+
+**Wwise**, Audiokinetic tarafından yapılan profesyonel bir ses ara katmanı. League of Legends bunu, her şampiyonun replikleri ve ses efektlerini tutan `.bnk` soundbank dosyalarını inşa etmek için kullanır.
+
+Wwise'a yalnızca tam bir soundbank'i yeniden inşa ediyorsan ihtiyacın var. Çoğu ses modu için gerekmez. Sadece bir iki sesi değiştirmek istiyorsan [Alternatifler](#alternatifler-çoğu-modder-bunu-ister)'e atla.
+
+[Wwise Launcher'ı al](https://www.audiokinetic.com/en/download/)
+
+---
+
+## Wwise'a gerçekten ne zaman ihtiyacın olur
+
+Wwise'a şunları yapmak istiyorsan ihtiyacın var:
+
+- Temel skin'de olmayan yepyeni ses olayları ekle.
+- Sıfırdan tam bir `.bnk` yeniden inşa et (yeni tetikleyicili özel replikler, yeni olaylara bağlı yeni yetenek sesleri, tam ses revizyonları).
+- Riot'un kullandığı tam yazım hattını eşle.
+
+Wwise'a şunları yapmak istiyorsan ihtiyacın yok:
+
+- Bir şampiyonun repliklerini başka biriyle değiştir. [LtMAO](/docs/lol/tools/modding-apps/ltmao) `bnk_tool` ya da `wiwawe` kullan.
+- Yetenek ya da saldırı seslerini farklı bir `.wav` ile değiştir. Yukarıdakiyle aynı.
+- Dinlemek için `.wem`'i `.wav`'a dönüştür. LtMAO bunu tek sağ tıkla yapar.
+
+Çoğu ses modu ses değişimidir. Wwise'a ihtiyaç duymazlar.
+
+---
+
+## League modlaması için ne işe yarar
+
+- `.wav` dosyalarını içe aktarır ve onları `.wem`'e (League'in kullandığı format) dönüştürür.
+- `.wem` dosyalarını **olaylara** (oyunun çağırdığı adlar, örneğin `Play_vo_CharacterName_Joke`) bağlamanı sağlar.
+- Modunun içinde gönderilecek son `.bnk` soundbank'i oluşturur.
+- Riot'un dahili olarak kullandığı yazım aracını eşler, böylece çıktı oyunda aynı şekilde çalışır.
+
+---
+
+## Ücretsiz vs ücretli
+
+Wwise, hobi kullanıcıları ve küçük projeler için ücretsiz. Yalnızca oyunun ticari olarak bir gelir eşiğinin üzerinde satarsa ödersin. Özel skin modları ticari değildir, yani ücretsiz katman yeterlidir.
+
+Ücretsiz katman ücretsiz bir Audiokinetic hesabı gerektirir. Kurmadan önce kaydol.
+
+Güncel gelir eşiği ve koşulları için [resmi Audiokinetic fiyatlandırma sayfasına](https://www.audiokinetic.com/en/products/pricing/) bak. Ara sıra değişirler.
+
+<Callout type="warning">
+  Wwise'ı korsan indirme. Ücretsiz katman League modlaması için ihtiyacın olan
+  her şeyi kapsar.
+</Callout>
+
+---
+
+## Gereken sürüm: Wwise 2019
+
+<Callout type="warning">
+  **Wwise 2019** kullan (herhangi bir 2019.x build'i). Yeni sürümler (2021,
+  2022, 2023+) League istemcisinin okuyamadığı farklı bir soundbank formatı
+  kullanır. Modun yüklenmez.
+</Callout>
+
+Audiokinetic Launcher, eski sürümleri en yeninin yanında yan yana kurmanı sağlar. Kurulum sırasında 2019 sürümünü seçeceksin.
+
+---
+
+## Kurulum
+
+Bunu iki adımda yapacaksın: önce Launcher'ı kur, sonra Launcher'ı kullanarak Wwise 2019'u kur.
+
+### Adım 1. Bir Audiokinetic hesabı yap
+
+1. [audiokinetic.com](https://www.audiokinetic.com/en/download/) adresine git.
+2. Sağ üst köşedeki **Sign up**'a tıkla.
+3. E-postanı ve bir parola gir. Audiokinetic'in sana gönderdiği e-postayı onayla.
+
+İndirmek için bu hesaba ihtiyacın var.
+
+### Adım 2. Audiokinetic Launcher'ı kur
+
+1. [İndirme sayfasını](https://www.audiokinetic.com/en/download/) aç.
+2. İşletim sistemin (Windows ya da macOS) için **Audiokinetic Launcher** altındaki **Download**'a tıkla.
+3. Kurulum dosyasını çalıştır. Varsayılanları kabul et.
+4. Launcher'ı aç ve Audiokinetic hesabınla giriş yap.
+
+{/* SCREENSHOT: Audiokinetic Launcher home tab after sign-in */}
+
+### Adım 3. Wwise 2019'u kur
+
+1. Launcher'da soldaki **Wwise** sekmesine tıkla.
+2. Listede bir **2019.x** sürümü bul. En son 2019 build'i (2019.2.x) uygun.
+3. O sürümün yanındaki **Install**'a tıkla.
+4. Kurulum seçenekleri ekranında varsayılan eklentileri seçili bırak. Bir oyun motoru inşa etmediğin için platform SDK'larını (Windows, Linux vb.) atlayabilirsin.
+5. **Install**'a tıkla ve bekle. Birkaç dakika sürer.
+
+{/* SCREENSHOT: Wwise tab in the Launcher with 2019 version highlighted */}
+
+Bittiğinde, **Installed** altında Wwise 2019'u listelenmiş görürsün.
+
+### Adım 4. Wwise'ı aç
+
+1. Launcher'da Wwise 2019'un yanındaki **Launch**'a tıkla.
+2. İlk açılışta Project Launcher penceresini görürsün. Var olanı yüklemek için **New Project** ya da **Open Other**'ı seç.
+
+Yazıma hazırsın.
+
+---
+
+## Workflow temelleri
+
+Bu kısa sürüm. Audiokinetic'in dokümanları tamamını kapsar.
+
+1. **Bir proje oluştur.** File > New Project. Hatırlayacağın bir klasör seç.
+2. **Ses içe aktar.** `.wav` dosyalarını **Project Explorer** içinde **Actor-Mixer Hierarchy** altına sürükle. Wwise onları anında `.wem`'e dönüştürür.
+3. **Olayları kur.** Bir ses nesnesine sağ tıkla ve **New Event > Play**'i seç. Olayı, oyunun beklediği olay adıyla (League'in çağırdığı dize, örneğin `Play_vo_Yasuo_Joke`) eşleşecek şekilde adlandır. Bu adı doğru yapmak işin tamamı.
+4. **Kaynak bank'ı ata.** **SoundBank Manager**'da bir SoundBank oluştur ve olaylarını içine sürükle.
+5. **Bank'ı oluştur.** SoundBank Manager'da **Generate Selected**'a tıkla. Wwise, projenin `GeneratedSoundBanks` klasörüne bir `.bnk` dosyası yazar.
+6. **`.bnk`'yi moduna bırak.** Mod klasörünün içindeki orijinal `.bnk` yolunu değiştir.
+
+Tam resim için [resmi Wwise eğitimlerini oku](https://www.audiokinetic.com/en/learn/). Ücretsiz video kursları var.
+
+<Callout type="info">
+  League'in aradığı olay adları orijinal `.bnk`'den gelir. Hangi olay adlarını
+  eşleştireceğini bilmek için önce orijinali **LtMAO** `bnk_tool` ile çıkar.
+</Callout>
+
+---
+
+## Alternatifler (çoğu modder bunu ister)
+
+Sadece ses değiştirmek istiyorsan Wwise'ı tamamen atla.
+
+- **[LtMAO](/docs/lol/tools/modding-apps/ltmao) `bnk_tool`** `.bnk` içeriğini `.wav`'a çıkarır ve geri paketler. Ses değişimleri için en iyi varsayılan.
+- **[LtMAO](/docs/lol/tools/modding-apps/ltmao) `wiwawe`** ses formatlarını (`.wem`, `.wav`, `.ogg`) dönüştürür.
+
+Wwise'ı yalnızca soundbank'in kendisini yeniden inşa etmen gerektiğinde kullan, içindeki sesi değiştirirken değil.
+
+---
+
+## Bölge uyarısı
+
+Özel skin'ler yalnızca kozmetik ve istemci tarafı. Yine de **Kore (KR)** veya **Çin (CN)** sunucularında izin verilmez. Oradaki anti-cheat tüm modları engeller ve hesabın banlanabilir. Bu, ses modları için de geçerli.
+
+Güvenli bölgeler: NA, EUW, EUNE, LAN, LAS, BR, OCE, TR, RU, JP, SEA, VN, PH, TW. KR değil. CN değil.
+
+---
+
+## Yardımcı bağlantılar
+
+- [Audiokinetic Launcher indirme](https://www.audiokinetic.com/en/download/)
+- [Wwise fiyatlandırma ve ücretsiz katman koşulları](https://www.audiokinetic.com/en/products/pricing/)
+- [Resmi Wwise öğrenme kaynakları](https://www.audiokinetic.com/en/learn/)
+- [LtMAO](/docs/lol/tools/modding-apps/ltmao) (ses değişimleri için, Wwise gerekmez)

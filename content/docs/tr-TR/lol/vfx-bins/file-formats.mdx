@@ -1,0 +1,163 @@
+---
+title: "Dosya Formatları"
+description: "League of Legends modlama, birkaç temel dosya tipiyle çalışmayı gerektirir. Bu üç formatı öğren, oyundaki her şeyi düzenleyebilirsin."
+category: "vfx-bins"
+---
+
+## Hızlı Bakış
+
+| Dosya  | Nedir                   | Düzenle / Dönüştür                                                                                                  |
+| ------ | ----------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `.bin` | Mantık ve config verisi | [Jade](/docs/lol/tools/modding-apps/jade) veya [Ritobin](/docs/lol/tools/modding-apps/ritobin)                      |
+| `.dds` | Standart doku formatı   | Doğrudan düzenle                                                                                                     |
+| `.tex` | Riot'un doku formatı    | [TEX plugin](/docs/lol/tools/texturing/photoshop-tex-plugin), [Flint](/docs/lol/tools/modding-apps/flint) veya LtMAO |
+
+---
+
+### Dosya Tipleri
+
+<Tabs items={[".bin Dosyaları", ".dds Dosyaları", ".tex Dosyaları"]}>
+<Tab value=".bin Dosyaları">
+
+## .bin Dosyaları: Veri ve Mantık
+
+`.bin` dosyaları League'deki **tüm mantığı** tutar: partikül sistemleri, skin tanımları, animasyonlar, sesler ve daha fazlası.
+
+| İçerir              | Örnekler                     |
+| ------------------- | ---------------------------- |
+| Partikül verisi     | VFX renkleri, boyutlar, zamanlama |
+| Skin tanımları      | Model yolları, doku yolları  |
+| Animasyon config'leri | Animasyon adları, blending |
+| Ses config'leri     | Ses tetikleyicileri, sesler  |
+
+### Workflow
+
+1. `.bin` dosyasını [Flint](/docs/lol/tools/modding-apps/flint) ile çıkar
+2. [Ritobin](/docs/lol/tools/modding-apps/ritobin) ile `.py` formatına dönüştür (ya da doğrudan [Jade](/docs/lol/tools/modding-apps/jade) içinde düzenle)
+3. VS Code veya Notepad++ gibi bir metin editöründe düzenle
+4. Tekrar `.bin` formatına dönüştür
+5. Mod klasörüne ekle
+
+> 💡 `.py` dosyaları insan tarafından okunabilir. Arama yapıp düzenleyebilirsin.
+
+</Tab>
+<Tab value=".dds Dosyaları">
+
+## .dds Dosyaları: Dokular
+
+`.dds` (DirectDraw Surface), şunlar için kullanılan **standart doku formatıdır**:
+
+| Kullanım        | Örnekler              |
+| --------------- | --------------------- |
+| Şampiyon modelleri | Skin dokuları, yüzler |
+| Partiküller     | VFX sprite'ları, parıltılar |
+| UI/HUD          | İkonlar, yetenek panelleri |
+
+### Düzenleme Araçları
+
+<ToolCard name="Photoshop" href="https://www.adobe.com/products/photoshop.html">
+  NVIDIA DDS eklentisiyle en iyi seçenek.
+</ToolCard>
+
+<ToolCard name="GIMP" href="https://www.gimp.org/">
+  DDS destekli ücretsiz alternatif.
+</ToolCard>
+
+<ToolCard name="Paint.NET" href="https://www.getpaint.net/">
+  DDS eklentili hafif seçenek.
+</ToolCard>
+
+### Export Ayarları
+
+| Ayar        | Değer          |
+| ----------- | -------------- |
+| Format      | `.dds`         |
+| Sıkıştırma  | **BC3 / DXT5** |
+| Mipmaps     | ✅ Açık        |
+
+> ⚠️ Yanlış sıkıştırma = oyunda bozuk dokular!
+
+</Tab>
+<Tab value=".tex Dosyaları">
+
+## .tex Dosyaları: Riot'un Formatı
+
+`.tex`, `.wad.client` dosyalarında bulunan Riot'un **özel doku formatıdır**.
+
+| Durum                     | Bilgi                  |
+| ------------------------- | ---------------------- |
+| ❌ Doğrudan düzenlenemez  | Derlenmiş bir format   |
+| ✅ Önce dönüştürmelisin   | tex2dds kullan         |
+| ✅ Sonra geri dönüştür    | Yeniden import etmeden önce |
+
+`.tex` ile çalışmanın iki yolu var:
+
+1. Resim editörün için bir TEX plugin ile **doğrudan aç**. Dönüştürme adımı yok.
+2. `.tex` dosyasını Flint veya LtMAO ile `.dds` formatına ve geri **dönüştür**.
+
+<ToolCard
+  name="RitoTex (Photoshop)"
+  href="/docs/lol/tools/texturing/photoshop-tex-plugin"
+>
+  Photoshop'ta `.tex` ve `.dds` aç ve kaydet. Dönüştürme adımı yok.
+</ToolCard>
+
+<ToolCard
+  name="Paint.NET Tex Plugin"
+  href="/docs/lol/tools/texturing/paint-net-tex-plugin"
+>
+  Paint.NET'te `.tex` aç ve kaydet.
+</ToolCard>
+
+<ToolCard
+  name="GIMP Tex Plugin"
+  href="/docs/lol/tools/texturing/gimp-tex-plugin"
+>
+  GIMP'te `.tex` aç ve kaydet.
+</ToolCard>
+
+<ToolCard name="Flint" href="/docs/lol/tools/modding-apps/flint">
+  `.tex` ↔ `.dds` dönüştürür, ayrıca tam çıkarma ve paketleme yapar.
+</ToolCard>
+
+<ToolCard name="tex2dds (LtMAO)" href="/docs/lol/tools/modding-apps/ltmao">
+  Sağ tıkla `.tex` ↔ `.dds` dönüşümü. Eski yöntem yedeği.
+</ToolCard>
+
+> 💡 Dönüştürmeden önce orijinal `.tex` dosyasını her zaman yedek olarak sakla.
+
+</Tab>
+</Tabs>
+
+---
+
+## Tam Workflow Tablosu
+
+| Görev                    | Dosya  | Araç                               | Çıktı           |
+| ------------------------ | ------ | ---------------------------------- | --------------- |
+| VFX/partikül düzenle     | `.bin` | Jade (veya Ritobin)                | `.bin`          |
+| Şampiyon skin'i düzenle  | `.dds` | Photoshop/GIMP                     | `.dds`          |
+| Bir dokuyu doğrudan düzenle | `.tex` | RitoTex, Paint.NET veya GIMP plugin | `.tex`         |
+| Bir dokuyu dönüştür      | `.tex` | Flint veya LtMAO                   | `.dds`          |
+| Bir dokuyu yeniden import et | `.dds` | Flint veya LtMAO               | `.tex`          |
+| Oyun dosyalarına göz at  | `.wad` | Flint                              | Çıkarılmış dosyalar |
+
+---
+
+## Temel Araçlar
+
+<ToolCard name="Jade" href="/docs/lol/tools/modding-apps/jade">
+  Görsel BIN editörü. Dönüştürme gerekmez.
+</ToolCard>
+
+<ToolCard name="Ritobin" href="/docs/lol/tools/modding-apps/ritobin">
+  Düzenlemek için `.bin` dosyasını `.py` formatına dönüştür.
+</ToolCard>
+
+<ToolCard name="LtMAO" href="/docs/lol/tools/modding-apps/ltmao">
+  Dokular için `.tex` dosyasını `.dds` formatına dönüştür.
+</ToolCard>
+
+<ToolCard name="Flint" href="/docs/lol/tools/modding-apps/flint">
+  `.wad.client` dosyalarından dosya çıkar.
+</ToolCard>

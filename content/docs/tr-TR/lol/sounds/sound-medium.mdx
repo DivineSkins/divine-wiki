@@ -1,0 +1,127 @@
+---
+title: "Orta - Özel Bank'lar"
+description: "Wwise ile özel ses bank'ları yapma rehberi."
+category: "sounds"
+---
+
+## Önce Wwise'ı Öğren
+
+Başlamadan önce, resmi Wwise öğrenme içeriğine biraz zaman ayırmaya değer:
+
+- [Wwise 101](https://www.youtube.com/watch?v=1EhEhDyZ6o4&list=PLXMeprTk4ORPxeFVB6o5t1_IHyHkf4BgO)
+- [Wwise 201](https://www.youtube.com/watch?v=_bvus5FIjxk&list=PLXMeprTk4ORNT-u6190PcRDA7-UEUwBo-)
+
+---
+
+## Bank Yapısını Anlamak
+
+Riot sesi bilinçli olarak iki ayrı dosyaya böler:
+
+- `audio.bnk` / `audio.wpk`: sadece ham ses verisini içerir.
+- `events.bnk`: mantık hiyerarşisini içerir (event'ler, aksiyon dizileri,
+  yönlendirme).
+
+`.wpk` Riot'a özgü bir formattır. Sadece ses dosyası tutabilir ve metadata
+başlığı yoktur. Onu tamamen ses verisi için hafif bir konteyner olarak düşün.
+
+Wwise'ın hiyerarşisi iç içe değildir. Bunun yerine her eleman bir `ID` ve bir
+`ParentID` taşır. Bu düz yapı, tüm ağacı değiştirmene gerek kalmadan
+hiyerarşideki var olan üst elemanlara kendini bağlayan yeni elemanlar enjekte
+etmeni mümkün kılar.
+
+Örneğin: projende `MUS` adında bir bus, onun altında da `bus_aurecueil` adında
+bir alt eleman oluşturursun. Özel bank'ın yüklendiğinde sahte `MUS` kaydı yok
+sayılır (gerçeği zaten yüklüdür) ve `bus_aurecueil` otomatik olarak orijinal
+`MUS`'a bağlanır.
+
+---
+
+## Yükleme Sırası ve Geçersiz Kılma
+
+League'de **ilk yüklenen kazanır**. İki bank aynı elemanı tanımlıyorsa, ikincisi
+sessizce atılır.
+
+`MUS` gibi çekirdek bus'lar oyunun açılış sürecinde çok erken yüklendiği için
+onları doğrudan değiştiremezsin. Ancak özel bank'ının orijinalden önce
+yüklendiğinden emin olarak tek tek event'leri geçersiz kılabilirsin.
+
+Bunu `.bin` dosyasından kontrol edersin:
+
+```text
+bankPath: list[string] = {
+    "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Custom_VO_audio.bnk"  ← Your bank, loaded first
+    "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_VO_audio.bnk"
+    "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_VO_audio.wpk"
+    "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_VO_events.bnk"
+}
+```
+
+Özel bank'ın orijinal event bank'ındaki eşleşen elemanları geçersiz kılar,
+çünkü listede önce o var.
+
+**ID'ler hakkında not:**
+
+- Event'ler **isme göre** eşleşir. Yani event'in aynı isme sahip olduğu sürece
+  doğru şekilde geçersiz kılar.
+- Diğer birçok hiyerarşi elemanı (random container'lar, sequence'ler, switch'ler
+  vb.) **Wwise'ın ürettiği rastgele ID'ler** kullanır. Bunları geçersiz kılmak
+  için orijinal ID'leri `.wwu` proje dosyalarında elle eşleştirmen gerekir.
+
+---
+
+### Ses Ayarları: Attenuation
+
+Attenuation, sesin mesafeye göre nasıl davrandığını kontrol eder. Yeni sesler
+ekliyorsan bunu her zaman açıkça ayarla, yoksa oyunda kulağa yanlış gelebilir
+(yakında çok yüksek, haritanın öbür ucundan duyulur vb.). Mesafe oyun içi
+birimlerle tanımlanır (bu birimler için şampiyon menzilini referans
+alabilirsin).
+
+<img src="/wiki-images/wwise-pos.png" alt="Wwise konumlandırma ayarları" />
+
+<img src="/wiki-images/wwise-atten.png" alt="Wwise attenuation ayarları" />
+
+**Height Spread'i her zaman kapat.** League düz bir düzlemde oynanır ve height
+spread istenmeyen davranışlara yol açabilir.
+
+---
+
+### Ses Yönlendirme: Doğru Bus'ı Kullan
+
+Wwise'daki her ses bir çıkış bus'ından geçer. Ses türün için doğru bus'ı kullan,
+yoksa oyunda düzgün mikslenmez (yanlış yankı, yanlış ses seviyesi vb.).
+
+| Bus ID         | Amaç                                      |
+| -------------- | ----------------------------------------- |
+| `MUS`          | Müzik (wet, yankı/işleme içerir)          |
+| `SFX`          | SFX (wet)                                 |
+| `daad0rhm`     | SFX (dry), **şampiyon SFX için bunu kullan** |
+| `SFX_HUD`      | Bildirimler ve arayüz (wet)               |
+| `janep6uv`     | Spiker (dry)                              |
+| `mus_lag_vp_0` | Şampiyon VO (dry)                         |
+| `sfx_npc`      | Ortam sesi (wet)                          |
+| `sfx_eog`      | Oyun sonu (wet)                           |
+
+Emin değilsen, kategorin için bus'ın **dry** versiyonunu tercih et. Wet bus'lara
+efektleri uygulanmıştır (örneğin Evelynn pasifi sırasında SFX'i bozar, yani
+sesleri `SFX` bus'ından geçirmek bu bozulmayı atlar).
+
+---
+
+### Ufak İpucu
+
+Wwise projende **özel dönüşüm ayarları** kullanarak bank'larının son dosya
+boyutunu küçültebilirsin. Modun çok ses içeriyorsa işine yarar.
+
+---
+
+## Bonus
+
+<ToolCard
+  name="aurecueill ve Jessibee'den Özel Spiker Şablonu"
+  href="https://github.com/Aurecueil/Custom-Announcer-Template"
+>
+  GitHub'dan indir ve diğer Wwise projelerinin yanına koy.
+</ToolCard>
+
+rehber: aurecueil

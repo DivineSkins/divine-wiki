@@ -1,0 +1,147 @@
+---
+title: "GIMP TEX Plugin"
+description: "League of Legends .tex doku dosyalarını GIMP'te aç ve export et. GIMP 2.x ve 3.x'te, Windows, Linux ve macOS'ta çalışır."
+category: "tools"
+---
+
+League of Legends `.tex` doku dosyalarını GIMP'te aç ve export et. **Frog** yaptı.
+
+**GIMP 2.x** ve **GIMP 3.x** ile Windows, Linux ve macOS'ta çalışır.
+
+İndir: [github.com/RitoShark/Gimp-Tex-Plugin/releases](https://github.com/RitoShark/Gimp-Tex-Plugin/releases)
+
+## Başlamadan önce sana gerekenler
+
+- Kurulu GIMP 2.10 veya GIMP 3.x
+- Test için bir `.tex` dosyası (herhangi bir League dokusu olur)
+
+## Kurulumcuyla kur (Windows)
+
+1. En son sürümden `GIMP_TEX_Plugin_Setup.exe` dosyasını indir.
+2. Kurulumcuyu çalıştır. GIMP sürümünü otomatik algılar.
+3. Yönergeleri izle ve **Install**'a tıkla.
+4. Açıksa GIMP'i yeniden başlat.
+
+GIMP, File > Open altında `.tex`'i desteklenen bir format olarak gösterdiğinde eklenti hazırdır.
+
+## Elle kur (GIMP 3.x)
+
+Linux'taysan, macOS'taysan veya kurulumcuyu çalıştırmak istemiyorsan bunu kullan.
+
+1. En son sürümden işletim sistemine uygun GIMP 3 zip'ini indir.
+2. Onu GIMP eklenti dizininin içinde `gimp3_tex_plugin` adlı bir klasöre çıkar:
+
+   | Platform        | Eklenti dizini                                                              |
+   | --------------- | --------------------------------------------------------------------------- |
+   | Windows         | `%APPDATA%\GIMP\<version>\plug-ins\gimp3_tex_plugin\`                       |
+   | Linux           | `~/.config/GIMP/<version>/plug-ins/gimp3_tex_plugin/`                       |
+   | Linux (Flatpak) | `~/.var/app/org.gimp.GIMP/config/GIMP/<version>/plug-ins/gimp3_tex_plugin/` |
+   | macOS           | `~/Library/Application Support/GIMP/<version>/plug-ins/gimp3_tex_plugin/`   |
+
+3. GIMP'i yeniden başlat.
+
+Eklenti görünmüyorsa, çıkardığın klasörde `chmod +x gimp3_tex_plugin.py` komutunu çalıştır.
+
+## Elle kur (GIMP 2.x)
+
+1. En son sürümden işletim sistemine uygun GIMP 2 zip'ini indir.
+2. Onu GIMP eklenti dizinine çıkar. Bu, `gimp2_tex_plugin.py` dosyasını doğrudan `plug-ins/` içine, ortak dosyaları da `plug-ins/gimp2_tex_libs/` içine koyar.
+
+   | Platform        | Eklenti dizini                                             |
+   | --------------- | ---------------------------------------------------------- |
+   | Windows         | `%APPDATA%\GIMP\<version>\plug-ins\`                       |
+   | Linux           | `~/.config/GIMP/<version>/plug-ins/`                       |
+   | Linux (Flatpak) | `~/.var/app/org.gimp.GIMP/config/GIMP/<version>/plug-ins/` |
+   | macOS           | `~/Library/Application Support/GIMP/<version>/plug-ins/`   |
+
+3. GIMP'i yeniden başlat.
+
+Eklenti görünmüyorsa, `chmod +x gimp2_tex_plugin.py` komutunu çalıştır.
+
+<Callout type="info">
+Eklenti dizininin nerede olduğundan emin değil misin? GIMP'te **Edit > Preferences > Folders > Plug-Ins** yolunu aç.
+</Callout>
+
+## Bir `.tex` dosyası aç
+
+- **File > Open** üzerinden aç ve `.tex` dosyanı seç.
+- Ya da bir `.tex` dosyasını GIMP'e sürükle bırak.
+
+## `.tex` olarak export et
+
+İki seçeneğin var.
+
+**Hızlı export.** **File > Export As** yolunu aç, dosya adını `.tex` ile bitir, **Export**'a tıkla. Bu, son kullandığın ayarları kullanır (varsayılan olarak dithering'li DXT5).
+
+**Ayarlarla export.** **File > Export as .tex (options)...** yolunu aç. Sıkıştırma formatını ve diğer ayarları seçtiğin bir pencere açılır.
+
+## Export ayarları açıklaması
+
+### Sıkıştırma formatı
+
+| Format         | Ne yapar                                                                              |
+| -------------- | ------------------------------------------------------------------------------------- |
+| **DXT1 (BC1)** | 4:1 sıkıştırma. Alfa kanalı yok. Düz dokular için en küçük dosya boyutu.               |
+| **DXT5 (BC3)** | 4:1 sıkıştırma. Tam 8-bit alfa kanalı. Dokunda saydamlık varsa bunu kullan.           |
+| **BGRA8**      | Sıkıştırılmamış 32-bit BGRA. En büyük dosya, kalite kaybı yok.                        |
+
+DXT1 ve DXT5, boyutları 4'e bölünebilen görseller ister. Seninkiler değilse, eklenti sana en yakın geçerli boyutu söyler.
+
+### Error diffusion dithering
+
+DXT sıkıştırması sırasında niceleme hatasını komşu piksellere yayar. Gradyanlarda ve yumuşak renk geçişlerinde bantlaşmayı azaltır.
+
+**Önerilen: Açık.** Neredeyse maliyetsiz büyük bir kalite artışı.
+
+Sadece DXT1 ve DXT5 ile çalışır. BGRA8 sıkıştırılmamış olduğundan dithering'e ihtiyaç duymaz.
+
+### Error metric
+
+Eklentinin DXT sıkıştırması sırasında renk farklarını nasıl ölçtüğünü kontrol eder.
+
+| Metrik         | Ne yapar                                                                                         |
+| -------------- | ------------------------------------------------------------------------------------------------ |
+| **Perceptual** | Renkleri insan gözünün gördüğü şekle göre ağırlıklandırır (yeşil > kırmızı > mavi). Çoğu kişiye daha iyi görünür. |
+| **Uniform**    | Tüm kanallara eşit davranır. Fotoğraf olmayan dokular için daha iyi.                            |
+
+**Önerilen: Çoğu doku için Perceptual.**
+
+Sadece dithering açıkken görünür.
+
+### Generate mipmaps
+
+Lanczos3 yeniden örneklemeyle tam bir mipmap zinciri kurar. Her seviye, bir üstündekinin yarısı çözünürlüktedir, ta 1x1'e kadar.
+
+**Önerilen: Kapalı**, dokunun mipmap'e ihtiyacı olduğunu bilmiyorsan. Çoğu League dokusu çalışma anında yeniden boyutlandırılır, yani mipmap'ler görsel bir kazanç sağlamadan dosya boyutuna ~%33 ekler.
+
+## Desteklenen formatlar
+
+| Format     | Yükle | Export |
+| ---------- | ----- | ------ |
+| DXT1 (BC1) | Evet  | Evet   |
+| DXT5 (BC3) | Evet  | Evet   |
+| BGRA8      | Evet  | Evet   |
+| Mipmap     | Evet  | Evet   |
+
+## Kaldır
+
+**Kurulumcu (Windows).** **Windows Settings > Apps > Installed Apps** yolunu aç, **GIMP TEX Plugin**'i bul, **Uninstall**'a tıkla.
+
+**Elle kurulum.** Eklenti dosyalarını eklenti dizininden sil:
+
+- GIMP 3.x: `gimp3_tex_plugin` klasörünü sil.
+- GIMP 2.x: `gimp2_tex_plugin.py` dosyasını ve `gimp2_tex_libs` klasörünü sil.
+
+GIMP'i yeniden başlat.
+
+## Bir şeyler ters giderse
+
+- **Elle kurulumdan sonra eklenti görünmüyor.** Dosyaların çalıştırma izni olduğunu kontrol et. `chmod +x gimp3_tex_plugin.py` (veya GIMP 2 sürümünü) çalıştır ve GIMP'i yeniden başlat.
+- **Eklenti klasörünü bulamıyorum.** GIMP'te **Edit > Preferences > Folders > Plug-Ins** yolunu aç.
+- **Görsel DXT1 veya DXT5 olarak export olmuyor.** Genişlik ve yükseklik ikisi de 4'e bölünebilecek şekilde yeniden boyutlandır. Eklenti sana en yakın geçerli boyutu söyler.
+
+## Emeği geçenler
+
+- TEX format işleme, tarngaina tarafından yapılan [LtMAO](https://github.com/tarngaina/LtMAO)'ya dayanıyor.
+- DXT sıkıştırması [Microsoft DirectXTex](https://github.com/microsoft/DirectXTex)'ten aktarıldı (MIT Lisansı).
+- Linux testleri MartynasXS tarafından.

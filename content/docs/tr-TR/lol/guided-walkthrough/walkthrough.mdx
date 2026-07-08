@@ -1,0 +1,229 @@
+---
+title: "Tam walkthrough"
+description: "Özel bir League skin'i yapmanın uçtan uca video walkthrough'u. İlk araç kurulumundan yayınlanmış moda kadar."
+category: "guided-walkthrough"
+---
+
+> Bu rehber seni ilk araç kurulumundan bitmiş, yayınlanmış bir skin'e kadar götürür. Parçaları sırayla takip et.
+
+<Callout type="warning" title="Önce güvenlik">
+  Özel skin'ler Kore ve Çin dışında güvenli. Güvenilir araçlar kullandığında
+  2014'ten beri hiç ban yok. Tamamen istemci tarafı: onları yalnızca sen
+  görürsün ve oyunda hiçbir avantaj sağlamazlar. Kore veya Çin'de özel skin'leri
+  asla kullanma. Oradaki anti-cheat tüm modları engeller.
+</Callout>
+
+<Callout type="info" title="Videolar güncel olmayabilir">
+  Aşağıdaki bazı videolar eski araçlar kullanıyor. O zamandan beri yeni araçlar
+  çıktı ve her birinin [Araçlar](/docs/lol/tools) bölümünde kendi rehberi var.
+  Videolar yine de tüm akışı baştan sona öğrenmenin harika bir yolu. Günlük iş
+  için uzun vadede yeni araçlara başvur.
+</Callout>
+
+## Pipeline nasıl çalışır
+
+Modern skin yapımı tek bir yolu izler.
+[Flint](/docs/lol/tools/modding-apps/flint) bunun çoğunu tek pencerede halleder.
+
+1. Skin'in dosyalarını oyundan **çıkar** (Extract).
+2. Modeli, dokuları ve VFX'i **önizle** (Preview).
+3. Değiştirmek istediğini **düzenle** (Edit): model, dokular, partiküller ya da ses.
+4. Modu **doğrula** (Validate) ve [Hematite](/docs/lol/tools/modding-apps/hematite) ile yaygın hataları düzelt.
+5. Modu bir `.fantome` ya da `.modpkg` dosyasına **paketle** (Pack). Bunlar, bir skin yöneticisinin kurduğu mod paketi formatları.
+6. Oyunda test etmek için bir skin yöneticisiyle **kur** (Install).
+
+Aşağıdaki her parça bu adımlardan birine denk gelir.
+
+## Başlangıç
+
+### İhtiyacın olan araçlar
+
+Şu üçüyle başla. İşin çoğunu kapsarlar:
+
+- **[Flint](/docs/lol/tools/modding-apps/flint)**: çıkar, önizle, düzenle, doğrula ve paketle. Hepsi bir arada uygulama.
+- **[Jade](/docs/lol/tools/modding-apps/jade)**: istediğinde başvuracağın, odaklı bir BIN editörü.
+- **[Quartz](/docs/lol/tools/modding-apps/quartz)**: VFX yeniden renklendirme, port etme ve hafif ses işleri.
+
+Ayrıca şunları da isteyeceksin:
+
+- Geri kalan her şey için [Araçlar](/docs/lol/tools) genel bakışı.
+- **[LtMAO](/docs/lol/tools/modding-apps/ltmao)** opsiyonel. Daha eski bir araç paketi; toplu işler ve tam soundbank işleri için yedek olarak tutuluyor.
+
+---
+
+## Adım adım walkthrough
+
+---
+
+### Bölüm 1: Flint
+
+League'in oyun dosyalarını **Flint** ile keşfet. Modlamanın temellerini öğren ve proje klasörlerini kur.
+
+Kapsar:
+
+- Dosya keşfi
+- Modlama temelleri
+- Proje kurulumu
+
+https://www.youtube.com/watch?v=lUq29txlCCE
+
+---
+
+### Bölüm 2: Hacksaw
+
+Var olan görsel efektleri görsel bir palet sistemiyle yeniden renklendir. Kod gerekmez.
+
+<Callout type="info" title="Daha yeni seçenek: Quartz Paint">
+  [Quartz](/docs/lol/tools/modding-apps/quartz)'ın bir Paint sayfası var; `ritobin_cli`
+  kurulumu olmadan partikülleri uygulama içinde yeniden renklendirir. [Hacksaw
+  rehberi](/docs/lol/vfx-bins/hacksaw) hâlâ çalışıyor ve aşağıdaki video onu
+  adım adım anlatıyor.
+</Callout>
+
+https://www.youtube.com/watch?v=ZswaStGq7VU&t=1s
+
+---
+
+### Bölüm 3: Bir modeli değiştirme (Maya veya Blender)
+
+Bir şampiyon modelini **Autodesk Maya** ve **LoL Maya Plugin** ile değiştir. Blender için [Blender model değiştirme rehberine](/docs/lol/blender/3d-model-swap) bak.
+
+#### Önemli notlar
+
+- **Önce LoL Maya'yı kur**
+- Mesh'i bind ettikten sonra yüzey, vertex veya kenar **silme**
+- `.skn` / `.skl` dosyalarını ilk import ederken sürükle bırak değil, **Import** kullan
+- **Ayrılmış materyaller ve mesh'lerin** açık olduğundan emin ol
+
+https://www.youtube.com/watch?v=xqB84ga55hI&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=3&ab_channel=Frog
+
+[Maya Hata Listesine](/docs/lol/errors/maya-errors) bak.
+
+---
+
+### Bölüm 4: Maya'da materyaller, submesh'ler ve bin
+
+Maya'da materyallerin nasıl çalıştığını ve `.bin` dosyaları içinde `MaterialOverride` ile onlara nasıl referans vereceğini öğren.
+
+https://www.youtube.com/watch?v=dS-lvovFmVw&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=4&ab_channel=Frog
+
+---
+
+### Bölüm 5: Matrix ve idle partikülleri
+
+Görsel efektleri dönüşüm matrisleriyle ölçekle, döndür ve taşı. Idle auralar ya da pasif görsel efektler ekle.
+
+Kapsar:
+
+- Bir VFX sistemini nasıl yerleştireceğin (önemli)
+- Bu eğitimde kullanılan kod
+
+<Callout type="info" title="Bu BIN'leri Jade veya Quartz'ta düzenleyebilirsin">
+  Video `.bin` dosyasını elle düzenliyor. Aynı düzenlemeleri
+  [Jade](/docs/lol/tools/modding-apps/jade)'de görsel olarak yapabilir ya da
+  Quartz'ın Bineditor sayfasında partikülleri toplu ölçekleyebilirsin.
+</Callout>
+
+https://www.youtube.com/watch?v=bUJSVlVHEZM&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=5&ab_channel=Frog
+
+---
+
+### Bölüm 6: Partikül sistemleri ve tetiklenen VFX
+
+Görsel efektleri şunlarla tetikle:
+
+- Animasyon olayları
+- Oyun mantığı (`PersistentEffectConditions`)
+
+https://www.youtube.com/watch?v=T7ALG5M4twQ&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=6&ab_channel=Frog
+
+---
+
+### Bölüm 7: Seslendirme ve ses efektleri
+
+Seslendirmeleri ve yetenek sesleri ya da tauntlar gibi ses efektlerini değiştir.
+
+<Callout type="info" title="Bu videodan beri araçlar değişti">
+  [Quartz](/docs/lol/tools/modding-apps/quartz) artık bir sesi değiştirmek gibi
+  hafif işler için `.bnk` ve `.wpk` sesini yönetiyor. Wwise ya da
+  [LtMAO](/docs/lol/tools/modding-apps/ltmao)'yu yalnızca tam bir soundbank'i
+  yeniden kurman gerektiğinde kullan. Aşağıdaki video daha eski, ama fikir aynı.
+</Callout>
+
+https://youtu.be/QlJRc4hQNA0?si=w0E0iB6Grcl2n8Ga
+
+---
+
+### Bölüm 8: Animasyonları retarget etme
+
+Animasyonları diğer oyunlardan veya şampiyonlardan (örneğin Fortnite) League rig'lerine aktar.
+
+#### Araç
+
+| Araç                  | Açıklama                                        |
+| --------------------- | ----------------------------------------------- |
+| Fortnite Porting Tool | Fortnite animasyonlarını League'de kullanmak için port eder |
+
+https://www.youtube.com/watch?v=jnAXvFzYlb4&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=8&ab_channel=Frog
+
+---
+
+### Bölüm 9: League materyalleri (Glow ve Toon Shader)
+
+Özel skin'lerine **Glow** ve **Toon Shader** gibi League tarzı materyaller uygula.
+
+https://www.youtube.com/watch?v=mJDehGDIL00&ab_channel=Frog
+
+---
+
+### Bölüm 10: Repathing ve yayınlama
+
+Modunu güncel oyun dosyalarıyla hizalanacak şekilde repath et, sonra yayınla.
+
+**Paketle ve export et.** Flint'te modunu bir `.fantome` ya da `.modpkg` dosyası olarak export et.
+
+**Repath seçenekleri.** Bir yol yanlışsa ya da bir yama modu bozduysa,
+[League Mod Repather](/docs/lol/tools/modding-apps/league-mod-repather) ya da
+Quartz'ın Bumpath sayfasıyla repath et.
+
+**Kur ve test et.** Modu LTK Manager veya Celestial gibi bir skin yöneticisine
+yükle, sonra bir özel oyunda test et.
+
+https://youtu.be/WxdHs9oauP4
+
+---
+
+## Ekstralar
+
+### Kemik ve fizik ekleme (saç, kuyruk, pelerin)
+
+Skin'ine kemikler ve fizik tabanlı hareket ekle.
+
+#### Gerekli araçlar
+
+| Araç          | Açıklama                                                              |
+| ------------- | --------------------------------------------------------------------- |
+| Autodesk Maya | Rigging ve UV haritalama için sektör standardı 3D yazılımı            |
+| Jade          | Fizik `.bin` dosyasını doğrudan düzenler. İleri geri dönüştürme yok.  |
+| RitoBin       | Opsiyonel yedek. `.bin`'i `.py`'ye ve geri dönüştürür (`ritobin_cli`). |
+
+https://www.youtube.com/watch?v=ejg5IAkEDTY&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=9&ab_channel=Frog
+
+---
+
+### Örnek yapılandırma
+
+```cpp
+rigPoseModifierData: list[pointer] = {
+    ConformToPathRigPoseModifierData {
+        mStartingJointName: hash = 0x41f70632
+        mEndingJointName: hash = 0x3cf6fe53
+        mDefaultMaskName: hash = 0x7136e1bc
+        mMaxBoneAngle: f32 = 45
+        mDampingValue: f32 = 5
+        mFrequency: f32 = 3
+    }
+}
+
+
+```

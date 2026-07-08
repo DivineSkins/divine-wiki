@@ -1,0 +1,312 @@
+---
+title: "Material Atlas (Eklentisiz)"
+description: "Bu tutorial materyal atlaslarını elle nasıl yapacağını anlatıyor. Hiçbir eklenti gerekmiyor."
+category: "blender"
+---
+
+<LevelPill level="intermediate" />
+
+<Callout type="info">
+  Başlamadan önce, aynı işi eklentiyle daha hızlı yapan başka bir rehber daha var
+  [burada](material-atlas). Belki gözünden kaçmıştır diye.
+</Callout>
+Ama eğer:
+
+- Eklenti bozulduysa ya da sorun çıkarıyorsa
+- Blender'ı 5.xxx sürümüne güncellemeye üşeniyorsan (benim durumum lol)
+- Eklenti düşmanıysan.
+
+O zaman devam edelim.
+
+En baştan başlayalım, materyal atlası nedir? İdeal olarak 3D model dokularını tek bir görselde paketlemek istiyoruz ki League'e import edebilelim. Bazen bir model indirdiğinde materyal görünümü şöyle oluyor:
+
+<figure>
+  <img
+    id="img-1"
+    src="/wiki-images/j3-img-1.png"
+    alt="Import edilen bir 3D modelin materyal listesi"
+  />
+  <figcaption>Görsel 1. Import edilen bir 3D modelin materyal listesi</figcaption>
+</figure>
+
+Gördüğün gibi uzun bir materyal listesi var ve her biri modelinin dokularının bir kısmını içeren bir görsele bağlı. Bunu sadece 1'e indireceğiz.
+
+Bunu yapmak için şu adımları izlememiz gerek:
+
+1. Modelinin UV'sini **yeni bir uv haritası kullanarak** yeni boş bir görsele unwrap et.
+2. Baking'i ayarla
+3. Dokuları boş görselimize bake et.
+4. Son rötuş ve temizlik
+
+# Adım 1
+
+<Callout>
+Bu muhtemelen işin en zor kısmı, o yüzden bunu bitirdiğinde %80'i tamamlamış olacaksın.
+
+Bu tutorial için "iyi UV'ler" kısmını atlayıp her şeyi Blender'ın otomatik yapmasına bırakacağız. Ama unutma, modelin için seam'leri elle oluşturup düzgünce unwrap etmek her zaman daha iyi olur.
+
+</Callout>
+İlk olarak, yeni değişikliklerimizi tutacak yeni bir uv haritası oluştur. Bunu yapmak için Blender'da sağ taraftaki panele git ve burada gösterildiği gibi yeşil üçgene tıkla:
+<figure>
+  <img
+    id="img-2"
+    src="/wiki-images/j3-img-2.png"
+    alt="Yeni UVMap oluşturma"
+  />
+  <figcaption>Görsel 2. Yeni UVMap oluşturma</figcaption>
+</figure>
+
+Yeni uv haritasına istediğin adı verebilirsin, artık şuna benzer bir şeyin olmalı
+
+<figure>
+  <img
+    id="img-3"
+    src="/wiki-images/j3-img-3.png"
+    alt="Yeni UVMap oluşturmanın sonucu"
+  />
+  <figcaption>Görsel 3. Oluşturulan yeni UVMap</figcaption>
+</figure>
+
+<Callout type="warning">
+  Dikkat et, mavi renkle vurgulanmış durumda ama kamera ikonu kapalı, kamera
+  ikonu açık olan varsayılan UVMap'in aksine, **bu önemli**. Bu Blender'a şunu
+  söyler: "UVMap'in UV'lerini render'da göster, ama her işlem ya da değişiklik
+  mavi olanın üzerine kaydedilir".
+</Callout>
+Sıradaki adım <b>UV Editing</b> sekmesine gitmek
+<figure>
+  <img id="img-4" src="/wiki-images/j3-img-4.png" alt="UV Editing görünümü" />
+  <figcaption>Görsel 4. UV Editing görünümü</figcaption>
+</figure>
+Sol panel UV'lerini düzenlediğin yer. Varsayılan olarak modelin materyallerinden
+birinden rastgele bir görsel seçili olacak ama biz sıfırdan yeni bir görsel
+oluşturmak istiyoruz. Ben genelde görselleri 2K → 2048 x 2048 yaparım.
+<figure>
+  <img
+    id="img-5"
+    src="/wiki-images/j3-img-5.png"
+    alt="Dokumuz için yeni bir görsel oluşturma"
+  />
+  <figcaption>Görsel 5. Yeni doku görseli</figcaption>
+</figure>
+Görsel oluşturulduktan sonra gerçekten o görseli düzenlediğinden ve ayrıca yeni
+oluşturduğun UV haritasını kullandığından emin ol:
+<figure>
+  <img id="img-6" src="/wiki-images/j3-img-6.png" alt="Yeni görselin sonucu" />
+  <figcaption>Görsel 6. Görsel oluşturmanın sonucu</figcaption>
+</figure>
+Şimdi UV'leri güzel ve düzenli olacak şekilde yeniden düzenlememiz gerek, şu an
+modelin bir parçasını seçersen bir karmaşa göreceksin:
+<figure>
+  <img id="img-7" src="/wiki-images/j3-img-7.png" alt="UV karmaşası" />
+  <figcaption>Görsel 7. UV karmaşası</figcaption>
+</figure>
+Korkma, işlem çoğunlukla otomatik.
+
+"a"ya basarak tüm 3D modeli seç, sonra "u"ya bas ve "Smart UV Project"i seç, ayarlarımı kopyala ya da gerekiyorsa istediğin gibi oynayarak dene.
+
+<figure>
+  <img
+    id="img-8"
+    src="/wiki-images/j3-img-8.png"
+    alt="UV karmaşasının düzeltilmesi"
+  />
+  <figcaption>Görsel 8. UV karmaşasını düzeltme</figcaption>
+</figure>
+Artık şuna benzer bir şeyin olmalı
+<figure>
+  <img
+    id="img-9"
+    src="/wiki-images/j3-img-9.png"
+    alt="UV smart project çıktısı"
+  />
+  <figcaption>Görsel 9. UV smart project çıktısı</figcaption>
+</figure>
+<Callout type="warning">
+  Bu "iyi" gibi görünebilir ama dikkatli olman gerek çünkü otomatik UV unwrap
+  kusursuz değildir ve bazı üst üste binmeler olabilir.
+</Callout>
+Örneğin sol alt köşeye yakınlaşırsak o kısmın pek de güzel unwrap edilmediğini
+görebiliriz
+<figure>
+  <img
+    id="img-10"
+    src="/wiki-images/j3-img-10.png"
+    alt="UV smart project olası sorunları"
+  />
+  <figcaption>Görsel 10. UV smart project olası sorunları</figcaption>
+</figure>
+Nasıl düzeltiriz? Kolay. Önce sorunlu parçayı seç, bunu yapmak için aşağıdaki
+görselin sol üst köşesindeki küçük ikonu aktifleştirmen gerek. Ayrıca "face
+selection" (altı çizili ikon) modunda olduğundan emin ol
+<figure>
+  <img
+    id="img-11"
+    src="/wiki-images/j3-img-11.png"
+    alt="UV smart project olası sorunları"
+  />
+  <figcaption>Görsel 11. UV ters çift yönlü seçimi aktifleştir</figcaption>
+</figure>
+Artık tüm UV adaları sol tarafta görünecek, şimdi sorunlu alana gidip fareyle
+oradaki bir face'in üzerine gel ve sadece o adayı seçmek için L'ye bas, aynı
+adanın 3D modelde de vurgulandığını göreceksin. Bunu tek başına unwrap edelim,
+seçtikten sonra U'ya bas ama bu sefer "Unwrap minimum stretch"i seç.
+<figure>
+  <img
+    id="img-12"
+    src="/wiki-images/j3-img-12.png"
+    alt="Seçili alanın unwrap minimum stretch çıktısı"
+  />
+  <figcaption>
+    Görsel 12. Seçili alanın unwrap minimum stretch çıktısı
+  </figcaption>
+</figure>
+Görselimizin boş alanlarına sığana kadar elle yeniden boyutlandırabilir ya da
+Blender'ın senin için yapmasına izin verebilirsin! İkincisi için, her şeyi tekrar
+seçmek üzere yeniden "A"ya bas. Sonra UV menüsüne git ve pack islands'ı seç
+<figure>
+  <img
+    id="img-13"
+    src="/wiki-images/j3-img-13.png"
+    alt="Adaları tekrar paketleme"
+  />
+  <figcaption>Görsel 13. Adaları tekrar paketleme</figcaption>
+</figure>
+<Callout>
+  <a href="#img-8">görsel 8</a>'deki spacing değerinin aynısını kullanmaya çalış
+</Callout>
+<figure>
+  <img
+    id="img-14"
+    src="/wiki-images/j3-img-14.png"
+    alt="Adaları tekrar paketleme (2)"
+  />
+  <figcaption>Görsel 14. Adaları tekrar paketleme (2)</figcaption>
+</figure>
+UV'lerin artık hazır. Şimdi baking'i halledelim.
+
+# Adım 2
+
+Baking, Blender'a 3D modelin şu anki görünümünün belli kısımlarını başka bir yere, genelde bir doku görseline aktarmasını söyler.
+
+Bu adım için Blender penceresinin üstündeki sekme menüsünden <b>shading</b> sekmesini kullanacağız.
+
+Sol tarafta, daha önce oluşturduğumuz ve hâlâ siyah olması gereken "one_texture" görselini açtığından emin ol.
+
+<figure>
+  <img id="img-15" src="/wiki-images/j3-img-15.png" alt="Shading sekmesi" />
+  <figcaption>Görsel 15. Shading sekmesi</figcaption>
+</figure>
+
+Şimdi sıkıcı kısım geliyor. Sağ taraftaki panele, materyal görünümüne git ve ilkini seç. Sonra node panelinde (3D modelimizin hemen altındaki kutular) F3'e bas ve "Image texture" yaz
+
+<figure>
+  <img
+    id="img-16"
+    src="/wiki-images/j3-img-16.png"
+    alt="Yeni bir image texture oluşturma"
+  />
+  <figcaption>Görsel 16. Yeni bir image texture oluşturma</figcaption>
+</figure>
+Şimdi "picture" ikonundan "one_texture" görselimizi seç. Şuna benzer bir şeyin
+olmalı
+<figure>
+  <img
+    id="img-17"
+    src="/wiki-images/j3-img-17.png"
+    alt="Yeni image texture oluşturmanın çıktısı"
+  />
+  <figcaption>Görsel 17. Yeni image texture oluşturmanın çıktısı</figcaption>
+</figure>
+Bu arada ben color space'i sRGB yapmayı seviyorum, gerisini olduğu gibi bırak.
+
+Kutunun kenarının etrafında beyaz bir vurgu olduğunu fark ettin mi? Bu, seçili olduğu anlamına gelir, <b>bu da baking için önemli</b>.
+
+Bitince node'u kopyalamak için ctrl+c'ye bas, sağ taraftaki listede kalan materyallerin her birine tek tek gidip yapıştırmak için ctrl+v'ye bas.
+
+Doğru yaptıysan, artık her materyal için <a href="#img-17">Görsel 17</a>'deki gibi birer kutun olacak, hepsinin seçili olduğundan emin ol.
+
+# Adım 3
+
+Sağ taraftaki paneldeki render sekmesine git
+
+<figure>
+  <img id="img-18" src="/wiki-images/j3-img-18.png" alt="Render sekmesi" />
+  <figcaption>Görsel 18. Yeni image texture oluşturmanın çıktısı</figcaption>
+</figure>
+<Callout type="warning">
+  Render engine'i EEVEE'den Cycles'a değiştir çünkü EEVEE baking'i desteklemez.
+</Callout>
+
+Oradaki "Bake" alt menüsüne gir ve şu ayarları seç:
+
+<figure>
+  <img
+    id="img-19"
+    src="/wiki-images/j3-img-19.png"
+    alt="Bake alt menü ayarları"
+  />
+  <figcaption>Görsel 19. Bake alt menü ayarları</figcaption>
+</figure>
+Diffuse map dokunun rengini bake eder, hiçbir ışığın karışmasını istemediğimiz
+için direct ve indirect'i kapatıyoruz.
+
+<b>"Bake" butonuna basmadan önce şundan emin ol</b>
+
+1. Seçili UV haritası yeni oluşturduğun olsun.
+2. Her materyal için yeni ve seçili bir image texture node'u olsun.
+3. 3D modelin de seçili olsun
+
+<figure>
+  <img id="img-20" src="/wiki-images/j3-img-20.png" alt="Bake ayarlarını kontrol et" />
+  <figcaption>Görsel 20. Bake ayarlarını kontrol et</figcaption>
+</figure>
+
+Hazır olunca bake'e bas.
+
+Tutorial'ı doğru takip ettiysen artık şuna benzer bir şeyin olacak
+
+<figure>
+  <img id="img-21" src="/wiki-images/j3-img-21.png" alt="Bake sonucu" />
+  <figcaption>Görsel 21. Bake sonucu</figcaption>
+</figure>
+
+<Callout type="danger" title="Dikkat">
+  Görseli bilgisayarına kaydet yoksa onu kaybedersin.
+</Callout>
+
+<figure>
+  <img id="img-22" src="/wiki-images/j3-img-22.png" alt="Sonucu kaydet" />
+  <figcaption>Görsel 22. Sonucu kaydet</figcaption>
+</figure>
+
+# Adım 4
+
+Temizlik ve sonucu test etme zamanı.
+
+Layout görünümüne geri dön (üst menü çubuğundan), 3D modelin artık iyi görünüyor olmalı, hadi biraz karıştıralım. Önce yeni dokumuzu tutacak yeni bir materyal oluşturalım.
+
+<figure>
+  <img id="img-23" src="/wiki-images/j3-img-23.png" alt="Yeni materyal oluştur" />
+  <figcaption>Görsel 23. Yeni materyal oluştur</figcaption>
+</figure>
+Ona "one_texture" gibi bir ad ver ve shading layout'una geç, sonra node'ları
+aşağıdaki görseldeki gibi yerleştir.
+<figure>
+  <img id="img-24" src="/wiki-images/j3-img-24.png" alt="Node'ları ayarlama" />
+  <figcaption>Görsel 24. Node'ları ayarlama</figcaption>
+</figure>
+Layout sekmesine geri dön ve bizim oluşturduğumuz hariç tüm materyalleri sil.
+Şöyle bir karmaşayla karşılaşacaksın
+<figure>
+  <img id="img-25" src="/wiki-images/j3-img-25.png" alt="Materyal kıyameti" />
+  <figcaption>Görsel 25. Materyalgeddon</figcaption>
+</figure>
+<a href="#img-2">görsel 2</a>'deki UV haritası menüsünü hatırlıyor musun? Kamera
+ikonunu yeni uv haritan aktif olacak şekilde değiştir ve sihre bak.
+
+<Callout type="success">
+  Şimdi son rötuş, eski "UVMap"i kaldır ve yenisini aynı "UVMap" adıyla yeniden
+  adlandır. Emin değilim ama bir yerde UVMap adının skinlerin League'de çalışması
+  için önemli olduğunu okumuştum.
+</Callout>

@@ -1,0 +1,118 @@
+---
+title: "RitoTex"
+description: "League of Legends .tex ve .dds dokularını Adobe Photoshop'ta aç ve kaydet. RitoShark'ın RitoTex'i, eski adıyla Photoshop TEX Plugin. BC1'den BC7'ye, cube map'ler, mip'ler."
+category: "tools"
+---
+
+RitoTex, **RitoShark** tarafından yapılan, League'in `.tex` ve `.dds` dokularını
+doğrudan açan ve kaydeden bir Photoshop eklentisidir. Eski Photoshop TEX
+Plugin'den yeniden kuruldu ve yeniden adlandırıldı, o yüzden eski rehberler onu hâlâ
+eski adıyla anıyor olabilir.
+
+Intel'in Texture Works Plugin'i üzerine, sıkıştırma için Microsoft'un DirectXTex'iyle
+kuruldu. Sürüm 2, native `.dds` desteği, daha fazla format ve daha hızlı bir
+BC7 kodlayıcı ekledi.
+
+Depo: [github.com/RitoShark/RitoTex-Photoshop](https://github.com/RitoShark/RitoTex-Photoshop)
+
+[En son sürümü indir](https://github.com/RitoShark/RitoTex-Photoshop/releases)
+
+En son sürüm: **v2.0.2**.
+
+## Başlamadan önce sana gerekenler
+
+- Adobe Photoshop CS6 veya sonrası (64-bit). 32-bit Photoshop çalışmaz.
+- Windows.
+
+## Kur
+
+1. Photoshop'u kapat. Photoshop açıksa eklenti yüklenmez.
+2. [Releases sayfasından](https://github.com/RitoShark/RitoTex-Photoshop/releases) `RitoTex.8bi` dosyasını indir. Tek, kendi kendine yeten bir dosya. Kopyalanacak ek DLL yok.
+3. `RitoTex.8bi` dosyasını Photoshop File Formats klasörüne kopyala. Varsayılan yol:
+
+   ```text
+   C:\Program Files\Adobe\Adobe Photoshop [version]\Required\Plug-ins\File Formats
+   ```
+
+   Örnek: `C:\Program Files\Adobe\Adobe Photoshop 2026\Required\Plug-ins\File Formats`.
+
+4. Photoshop'u başlat.
+
+İşe yaradığını kontrol etmek için: `File > Open`'ı aç ve bir `.tex` dosyası seç. Görsel
+yükleniyorsa eklenti kuruludur.
+
+## `.tex` ve `.dds` dosyalarını aç
+
+Bir dosyayı açmanın iki yolu var:
+
+- `File > Open`'a tıkla ve `.tex` veya `.dds` dosyasını seç.
+- Dosyayı Photoshop'a sürükle.
+
+Eklenti, sıkıştırmayı ve mipmap'leri senin için okur.
+
+## Bir dosya kaydet (hızlı kaydetme)
+
+Eklentinin dosyanın algılanan ayarlarını yeniden kullanmasını istediğinde bunu kullan.
+
+1. `File > Save As`'e tıkla.
+2. Dosya türü açılır menüsünden **League of Legends TEX** (veya DDS seçeneği) seç.
+3. **Save**'e tıkla. Dosya, algılanan veya son kullanılan ayarlarla hemen kaydedilir.
+
+## Bir dosyayı ayarlarla kaydet
+
+Sıkıştırmayı seçmek veya kalite ayarlarını değiştirmek istediğinde bunu kullan.
+
+1. `File > Save As`'e tıkla.
+2. TEX veya DDS dosya türünün **Options** sürümünü seç.
+3. Bir ayarlar penceresi açılır. İstediğin seçenekleri ayarla:
+   - **Compression format**: BC1, BC3, BC5, BC7 veya BGRA8 (sıkıştırılmamış). Alfası olan dokular için BC3 kullan. Normal map'ler için BC5 kullan. BC7 en yüksek kalitedir ve varsayılandır.
+   - **Error diffusion dithering**: daha yumuşak gradyanlar için Floyd-Steinberg dithering'i aç (BC1 ve BC3).
+   - **Error metric**: `Perceptual` (önerilen) veya `Uniform`.
+   - **Mipmaps**: zinciri otomatik oluştur veya Photoshop katmanlarından kur.
+   - **Cube maps**: `.dds` için bir cross veya katman düzeni kaydet.
+   - **Normal maps**: X veya Y kanalını çevir ve yeniden normalleştir.
+4. **OK**'e tıkla. Dosya senin ayarlarınla kaydedilir.
+
+Ayarlar kaydetmeler arasında kalıcıdır (Windows Kayıt Defteri'nde saklanır), o yüzden
+onları sadece bir kez ayarlaman yeterli.
+
+## Bir bakışta özellikler
+
+- Hem `.tex` hem `.dds` açar ve kaydeder, yani ayrı bir DDS eklentisine ihtiyacın olmayabilir.
+- BC1, BC3, BC5, BC7 ve BGRA8 (sıkıştırılmamış) sıkıştırma formatları.
+- DirectCompute üzerinden GPU hızlandırmalı BC7, WARP ve CPU yedeğiyle. Bu, BC7 kaydetmelerini hızlı yapar.
+- Intel ISPC kodlayıcıyla hızlı çok iş parçacıklı sıkıştırma.
+- Açarken sıkıştırmayı ve mipmap'leri otomatik algılar.
+- Mipmap'leri senin için ya da Photoshop katmanlarından kurar.
+- Cube map desteği (cross ve katman düzenleri).
+- Normal map kanal çevirme ve yeniden normalleştirme.
+- Perceptual veya Uniform error metric ile isteğe bağlı Floyd-Steinberg dithering.
+- Kaydetmeden önce orijinali ve sıkıştırılmış dokuyu karşılaştıran önizleme penceresi.
+- GitHub Releases'e günde bir kez bakan sessiz, yerleşik güncelleme denetleyicisi.
+
+## Sorun giderme
+
+### Eklenti Photoshop'ta görünmüyor
+
+Şunların her birini kontrol et:
+
+- Dosyayı kopyalamadan önce Photoshop tamamen kapalıydı.
+- Dosya, sade `Plug-ins` klasöründe değil, `Required\Plug-ins\File Formats` klasöründe.
+- 64-bit Photoshop çalıştırıyorsun.
+- Dosyanın adı `RitoTex.8bi` (`.8bi` uzantısıyla).
+
+### Kaydederken "Image dimensions must be divisible by 4"
+
+Blok sıkıştırmalı `.tex` dosyaları boyutları 4'e bölünebilen görseller ister. Görselini
+`1024x1024`, `2048x2048` veya `512x256` gibi geçerli bir boyuta getir.
+
+### Doku oyunda yanlış görünüyor
+
+- Daha temiz gradyanlar için error diffusion dithering'i aç.
+- Doğru sıkıştırmayı seçtiğini kontrol et. Alfası olan dokular için BC3, normal map'ler için BC5 kullan.
+
+## Emeği geçenler
+
+- **RitoTex**: [RitoShark](https://github.com/RitoShark).
+- **Temel eklenti**: [Intel Texture Works Plugin](https://github.com/GameTechDev/Intel-Texture-Works-Plugin) (Apache 2.0).
+- **Sıkıştırma**: [Microsoft DirectXTex](https://github.com/microsoft/DirectXTex) (MIT Lisansı) ve Intel ISPC Texture Compressor.
