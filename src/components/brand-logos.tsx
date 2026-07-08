@@ -86,3 +86,25 @@ export function LeagueOfLegendsLogo({ className }: LogoProps) {
     </svg>
   );
 }
+
+// Flint's own flame mark (from the app's installer-assets/flint-logo.svg),
+// flattened to a single monochrome currentColor path. The evenodd rule keeps
+// the flame's hollow band between the outer shell and the inner core. The
+// viewBox is cropped to the flame's bounds (x 8-16, y 2-20) so the tall, narrow
+// mark scales up to the same visual weight as the full-bleed brand logos.
+export function FlintLogo({ className }: LogoProps) {
+  return (
+    <svg
+      viewBox="3 2 18 18"
+      fill="currentColor"
+      className={className}
+      aria-hidden
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M12 2C8.5 6 8 10 8 12c0 3.5 1.5 6 4 8 2.5-2 4-4.5 4-8 0-2-.5-6-4-10zM12 5c-2 3-2.5 5.5-2.5 7 0 2 .8 3.5 2.5 5 1.7-1.5 2.5-3 2.5-5 0-1.5-.5-4-2.5-7zM12 8c-1 1.5-1.5 3-1.5 4 0 1.2.5 2.2 1.5 3 1-.8 1.5-1.8 1.5-3 0-1-.5-2.5-1.5-4z"
+      />
+    </svg>
+  );
+}

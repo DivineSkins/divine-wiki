@@ -7,6 +7,7 @@ import {
   GitHubLogo,
   YouTubeLogo,
   LeagueOfLegendsLogo,
+  FlintLogo,
 } from "@/components/brand-logos";
 
 // Brand logos (Simple Icons) keyed by the names used in meta.json `icon`
@@ -23,6 +24,7 @@ const brandIcons = {
   YouTube: YouTubeLogo,
   Youtube: YouTubeLogo,
   LeagueOfLegends: LeagueOfLegendsLogo,
+  Flint: FlintLogo,
 };
 
 /**
