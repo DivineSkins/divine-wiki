@@ -1,66 +1,68 @@
 ---
 title: "Tex Thumbnail Provider"
-description: "Extensão de shell do Windows da RitoShark que mostra arquivos .tex como miniaturas no Explorador de Arquivos. Instalação por usuário, sem admin. Veja o conteúdo de uma textura rapidamente."
+description: "A extensão de shell do Windows da RitoShark mostra arquivos .tex como miniaturas de imagem no Explorador de Arquivos. Instalação por uma linha de PowerShell, sem admin. Veja o que há dentro de uma textura num relance."
 category: "tools"
 ---
 
-O Tex Thumbnail Provider, feito por **RitoShark**, permite visualizar arquivos `.tex` como miniaturas no Windows Explorer. Chega de tentar adivinhar o que tem dentro de cada textura.
-
-Download da última versão: https://github.com/RitoShark/TexThumbnailProvider/releases/latest
-
-Versão mais recente: **v1.1.0**.
-
----
-
-## O que ele faz
-
-- Mostra arquivos `.tex` como prévias de imagem no Windows Explorer.
-- Funciona em qualquer pasta com texturas `.tex` (arquivos do jogo, exports, assets de mod).
-- Roda como uma DLL COM registrada. Não há aplicativo para abrir. Não fica rodando em segundo plano.
-
-{/* SCREENSHOT: Windows Explorer mostrando uma pasta com arquivos .tex exibidos como miniaturas de imagem em vez de ícones genéricos */}
-
----
-
-## Antes de começar
-
-- Windows 10 ou 11.
-- PowerShell. Não precisa de permissões de administrador — a instalação é feita apenas para o usuário atual.
+O Tex Thumbnail Provider, feito por **RitoShark**, mostra arquivos `.tex` como miniaturas reais no Windows Explorer. Na lista de arquivos, no painel de preview e na visualização de ícones grandes, você vê a textura em vez de um ícone em branco. Ele mesmo decodifica o arquivo, então nenhum aplicativo precisa estar aberto.
 
 ---
 
 ## Instalação
 
-1. Feche qualquer janela do Windows Explorer que esteja mostrando arquivos `.tex`.
-2. Abra o PowerShell (pode ser normal, não precisa admin).
-3. Cole o comando abaixo e pressione Enter:
+Você instala e desinstala com um único comando do PowerShell. Sem download, sem direitos de administrador. O registro é por usuário.
+
+1. Feche qualquer janela do Explorer que esteja mostrando arquivos `.tex`.
+2. Abra o PowerShell. Uma janela normal serve.
+3. Cole isto e pressione Enter:
 
    ```powershell
    iwr -useb https://raw.githubusercontent.com/RitoShark/TexThumbnailProvider/master/scripts/install-thumbnail-handler.ps1 | iex
    ```
 
-4. Espere o instalador terminar. Ele baixa o `TexThumbnailProvider.dll`, copia para `%LOCALAPPDATA%\RitoShark\TexThumbnailProvider` e registra para o seu usuário.
-5. Abra qualquer pasta com arquivos `.tex`. As miniaturas aparecem no lugar dos ícones genéricos.
+O script pega o `TexThumbnailProvider.dll` mais recente, coloca em `%LOCALAPPDATA%\RitoShark\TexThumbnailProvider` e o registra para o seu usuário. Abra qualquer pasta com arquivos `.tex` e as miniaturas aparecem.
 
-{/* SCREENSHOT: PowerShell window showing the install script output with a success message */}
+<Callout type="info" title="Fixe uma versão específica">
+  Quer uma versão fixa em vez da mais recente? Rode:
 
-<Callout type="info">
-  O instalador registra a DLL para o usuário atual. É por isso que ele não
-  precisa de permissões de administrador. Mantenha a pasta de instalação. Se
-  você apagá-la, as prévias param de funcionar.
+```powershell
+& ([scriptblock]::Create((iwr -useb https://raw.githubusercontent.com/RitoShark/TexThumbnailProvider/master/scripts/install-thumbnail-handler.ps1))) -Version v1.1.0
+```
+
 </Callout>
+
+## Desinstalação
+
+```powershell
+iwr -useb https://raw.githubusercontent.com/RitoShark/TexThumbnailProvider/master/scripts/uninstall-thumbnail-handler.ps1 | iex
+```
+
+Isso remove o handler e suas entradas de registro.
 
 ---
 
-## Se você também usa o RitoTex
+## O que ele processa
 
-O plugin do Photoshop [RitoTex](/docs/lol/tools/texturing/photoshop-tex-plugin)
-também registra um handler de miniaturas de `.tex`. Dois handlers para um mesmo
-tipo de arquivo normalmente entrariam em conflito.
+Ele decodifica os formatos de compressão de `.tex` que a Riot usa:
 
-Este instalador grava o handler dele na sua conta de usuário, que tem prioridade
-sobre o handler de todo o computador. Então suas miniaturas de `.tex` continuam
-aparecendo mesmo com o RitoTex instalado. Você não precisa escolher entre eles.
+| Formato               | Código `.tex` |
+| --------------------- | ------------- |
+| DXT1 / BC1            | `0x0A`        |
+| DXT5 / BC3            | `0x0C`        |
+| BC7                   | `0x0D`        |
+| BC5                   | `0x0E`        |
+| BGRA8 (sem compressão) | `0x14`       |
+
+Texturas com mipmap também funcionam. O maior mip é decodificado para a miniatura.
+
+<Callout type="info" title="Ganha até do Photoshop">
+  Se o Photoshop ou o plugin RitoTex estiver instalado, ele se registra como o
+  handler de miniaturas de `.tex` e normalmente assumiria o controle. Este
+  instalador grava o handler dele na sua conta de usuário, o que tem prioridade
+  sobre o handler de todo o computador. Suas miniaturas de `.tex` continuam
+  aparecendo. Ele só mexe na entrada de miniatura, então dar duplo clique em um
+  `.tex` ainda abre o aplicativo que você definiu.
+</Callout>
 
 ---
 
@@ -68,21 +70,11 @@ aparecendo mesmo com o RitoTex instalado. Você não precisa escolher entre eles
 
 ### As miniaturas não aparecem
 
-1. Reinicie o Windows Explorer:
-   - Abra o Gerenciador de Tarefas.
-   - Encontre o **Windows Explorer**.
-   - Clique com o botão direito. Escolha **Reiniciar**.
-2. Abra a pasta de novo.
+Reinicie o Windows Explorer. Abra o Gerenciador de Tarefas, encontre o **Windows Explorer**, clique com o botão direito e escolha **Reiniciar**. Abra a pasta de novo.
 
 ### As miniaturas antigas ainda parecem ícones genéricos
 
-O Windows guarda as miniaturas em cache. Um arquivo `.tex` só é redesenhado
-depois que a data de modificação dele muda ou depois que você limpa o cache.
-
-1. Abra a **Limpeza de Disco**.
-2. Marque **Miniaturas**.
-3. Clique em **OK**.
-4. Abra a pasta de novo.
+O Windows guarda as miniaturas em cache por arquivo. Um `.tex` só é redesenhado depois que a data de modificação dele muda ou depois que você limpa o cache. Abra a **Limpeza de Disco**, marque **Miniaturas**, clique em **OK** e depois reabra a pasta.
 
 ### Ainda nada depois de reiniciar
 
@@ -90,9 +82,11 @@ Rode o comando de instalação de novo. Ele baixa e registra a DLL novamente.
 
 ---
 
-## Alternativas
+## Alternativa: LTK Tex Thumb Handler
 
-O [LTK Tex Thumb Handler](/docs/lol/tools/texturing/ltk-tex-thumb-handler),
-feito pela equipe do LeagueToolkit, faz o mesmo trabalho. Escolha uma
-ferramenta, não as duas. Rodar dois handlers de miniaturas para o mesmo tipo de
-arquivo pode causar conflitos.
+A equipe do **LeagueToolkit** tem o próprio handler de miniaturas de `.tex` ([ltk-tex-utils](https://github.com/LeagueToolkit/ltk-tex-utils)). Ele faz o mesmo trabalho básico, mas duas coisas o seguram:
+
+- Ele não decodifica todos os formatos de compressão que a Riot usa, então alguns arquivos `.tex` ficam em branco.
+- Se outro programa (Photoshop, o plugin RitoTex e por aí vai) já tiver reivindicado o tipo `.tex`, ele não consegue gerar preview nenhum. Ele não sobrepõe o handler existente do jeito que esta ferramenta faz.
+
+Para a maioria das pessoas, o Tex Thumbnail Provider da RitoShark é a melhor escolha: cobre mais formatos e ganha dos outros handlers. Rode só um handler de miniaturas por vez. Se você tinha o da LTK instalado, remova-o antes de instalar este.

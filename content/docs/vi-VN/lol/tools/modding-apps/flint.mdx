@@ -1,41 +1,49 @@
 ---
 title: "Flint"
-description: "Ứng dụng mod tất cả trong một. Trích xuất asset, xem trước, chỉnh file BIN và đóng gói mod. Tất cả trong một cửa sổ."
+description: "App mod League tất cả trong một. Trích xuất asset, duyệt bất kỳ bản patch nào từ CDN của Riot, xem trước và chỉnh file, kiểm tra và đóng gói mod. Tất cả trong một cửa sổ."
 category: "tools"
 ---
 
-Flint là ứng dụng desktop của **RitoShark**, gói gần như cả quy trình mod
-vào một chỗ. Nếu bạn không muốn nhảy qua nhảy lại giữa nhiều tool riêng lẻ
-để trích xuất, chỉnh BIN, làm VFX và đóng gói, thì đây là cách bắt đầu dễ
-nhất.
+Flint là app mod desktop cho Liên Minh Huyền Thoại của **SirDexal** (RitoShark).
+Nó làm cả quy trình mod trong một cửa sổ: kéo asset ra khỏi game, xem trước,
+chỉnh sửa, kiểm tra và xuất ra một file `.fantome` hoặc `.modpkg` hoàn chỉnh.
+Không cần chuỗi lệnh CLI, không phải nhảy qua nhảy lại giữa các thư mục.
 
 [Tải bản phát hành mới nhất](https://github.com/RitoShark/Flint/releases)
 
-Phiên bản mới nhất: **v2.1.0**.
+Phiên bản mới nhất: **v2.3.4**.
 
 ---
 
 ## Flint làm được gì
 
-- **Trích xuất** skin tướng và asset thẳng từ file game.
-- **Xem trước** mô hình 3D, texture, file BIN, animation, particle
-  và âm thanh (BNK / WPK kèm dạng sóng) mà không cần export gì cả.
-- **Chỉnh** file BIN, LuaBin và TroyBin có tô màu cú pháp.
-- **Chỉnh file WAD ngay trong bộ nhớ** thẳng từ explorer, rồi export.
-- **Chuyển đổi** texture giữa `.tex` và `.dds`.
-- **Đổi màu** texture bằng hue shift, colorize, hoặc grayscale + tint.
-- **Port sang chroma**: chọn một chroma, port bản mod skin gốc lên nó.
-- **Checkpoint** dự án của bạn: chụp lại, so sánh và khôi phục thay đổi
-  như một phiên bản git gọn nhẹ.
-- **So sánh và khôi phục** bất kỳ file nào với chunk WAD gốc nếu bạn
+- **Trích xuất** một skin thành một dự án sạch. Flint kéo asset của skin, tự
+  phát hiện các companion (Tibbers, Willump và số còn lại), gộp các file BIN
+  liên kết và repath tất cả về một bố cục gọn gàng cho bạn.
+- **Duyệt bất kỳ bản patch nào từ CDN của Riot.** Tải một bản live, cũ hoặc PBE
+  thẳng từ máy chủ Riot mà không cần cài đặt, rồi chỉ trích xuất những file bạn
+  muốn. Xem phần **Duyệt và tải từ CDN** bên dưới.
+- **Xem trước** mô hình 3D, texture, animation, particle, âm thanh (BNK / WPK
+  kèm dạng sóng) và file BIN mà không cần export gì cả.
+- **Chỉnh** file BIN với tô màu cú pháp, một bảng emitter VFX và một nút Unhash.
+  Xem LuaBin, TroyBin, string table và manifest.
+- **Chỉnh file WAD ngay trong bộ nhớ** thẳng từ explorer: đổi, xóa, đổi tên hoặc
+  di chuyển chunk, rồi lưu lại file WAD đã đóng gói lại.
+- **Chuyển đổi và đổi màu** texture giữa `.tex` và `.dds`, kèm hue shift,
+  colorize và tint hàng loạt.
+- **Port sang chroma** và **hard-rename** cả một dự án chỉ trong một thao tác.
+- **Checkpoint** dự án của bạn: chụp lại, so sánh và khôi phục như một phiên bản
+  git gọn nhẹ.
+- **So sánh và khôi phục** bất kỳ file nào với phiên bản gốc trong game nếu bạn
   làm hỏng thứ gì đó.
-- **Export** mod dạng `.fantome`, `.modpkg`, hoặc đồng bộ chúng sang LTK Manager.
-- **Kiểm tra và sửa** mod bằng bộ luật Hematite tích hợp sẵn (bắt được
-  shader thiếu, tham chiếu hỏng, và nhiều lỗi khác).
+- **Kiểm tra và sửa** bằng Hematite Project Fixer tích hợp sẵn.
+- **Export** dạng `.fantome` hoặc `.modpkg`, hoặc đồng bộ thẳng sang Celestial
+  hoặc LTK Manager.
 
 <Callout type="info" title="Hash tự động">
-  Flint tự tải sẵn cơ sở dữ liệu hash LMDB (bộ `lmdb-hashes` của RitoShark).
-  Không có thư mục hashes nào để tải hay quản lý, và nó tự làm mới.
+  Flint tự tải sẵn cơ sở dữ liệu hash LMDB (bộ `lmdb-hashes` của RitoShark) ngay
+  lần chạy đầu. Không có thư mục hashes nào để tải hay quản lý. Dựng lại nó bất
+  cứ lúc nào từ Settings.
 </Callout>
 
 ---
@@ -46,12 +54,104 @@ Phiên bản mới nhất: **v2.1.0**.
 2. Tải bộ cài mới nhất cho Windows.
 3. Chạy nó. Xong.
 
+Lần chạy đầu sẽ dẫn bạn qua đường dẫn League, đường dẫn PBE và các kết nối với
+tool.
+
+---
+
+## Duyệt và tải từ CDN
+
+Flint có thể đọc file của League thẳng từ máy chủ Riot. Bạn không cần cài bản
+patch đó. Đây là cách bạn lấy một bản patch cũ, một bản PBE hoặc một asset bị
+thiếu.
+
+1. Mở **WAD Explorer**.
+2. Bấm **CDN** ở thanh tiêu đề (chú thích: "Load a patch manifest from Riot's
+   CDN").
+3. Trong cửa sổ **Load from CDN**, chọn **Region** và **Platform** của bạn. Với
+   PBE, chọn region **PBE1**.
+4. Chọn một bộ lọc nếu muốn: **Game** (dữ liệu tướng mod được, bộ hữu ích),
+   **Client** hoặc **All**.
+5. Chọn một phiên bản từ danh sách. Mới nhất nằm trên cùng. Các bản patch cũ và
+   bản PBE đều có ở đây.
+6. Bấm **Load**. Flint chỉ tải file manifest nhỏ và mở nó thành một tab riêng.
+7. Mở rộng một WAD trong cây thư mục. Flint chỉ lấy danh sách file của WAD đó từ
+   CDN, không phải toàn bộ.
+8. Bấm vào một file để xem trước, hoặc chọn file và thư mục rồi bấm **Extract**
+   để tải chúng về một thư mục bạn chọn.
+
+<Callout type="info" title="Chỉ tải thứ bạn cần">
+  Flint dùng range-fetch từ CDN, nên duyệt một file WAD 125 MB chỉ tốn vài
+  kilobyte. Bạn chỉ tải số byte của những file bạn trích xuất.
+</Callout>
+
+Danh sách phiên bản đến từ catalog cộng đồng `Morilli/riot-manifests`. Bấm
+**Refresh** trong cửa sổ để kiểm tra lại các bản patch mới.
+
+---
+
+## Đăng ký file để nhấp đúp mở Flint
+
+Bạn có thể làm cho Windows mở file League trong Flint khi bạn nhấp đúp vào chúng.
+
+1. Mở **Settings** (`Ctrl + ,`).
+2. Tìm **Open With, Windows File Associations**.
+3. Bấm **Register**.
+
+Flint đăng ký `.wad`, `.wad.client`, `.bin`, `.luabin64`, `.luabin`, `.troybin`,
+`.tex`, `.modpkg` và `.fantome`. Sau đó, nhấp đúp vào bất kỳ file nào trong số đó
+ở Windows Explorer sẽ mở nó trong Flint để xem trước hoặc chỉnh sửa. Nút
+**Unregister** gỡ chúng ra lại.
+
+---
+
+## Xem trước, chỉnh sửa và kiểm tra
+
+**Xem trước** (bấm vào file bất kỳ):
+
+- **Mô hình 3D**: mesh SKN, SCB và SCO trong một trình xem orbit.
+- **Texture**: TEX và DDS, có zoom.
+- **Animation**: `.anm`.
+- **Âm thanh**: bank BNK và WPK kèm dạng sóng.
+- **BIN** và các định dạng cũ: string table, inibin, luabin, troybin và manifest.
+
+**Chỉnh sửa**:
+
+- **Trình sửa BIN** với tô màu cú pháp, một nút **Unhash** giúp giải các hash còn
+  sót, và một **bảng emitter VFX** bạn có thể kéo từ đó (nó tự chép các file
+  asset được tham chiếu qua lại giữa các dự án cho bạn).
+- **Chỉnh WAD trong bộ nhớ**: chỉnh, xóa, đổi tên hoặc di chuyển chunk, rồi lưu.
+- **Công cụ texture**: đổi màu, chuyển sang `.dds` hoặc `.tex`, export dạng
+  `.png`, đổi màu cả một thư mục hàng loạt.
+- **Checkpoint**: chụp lại dự án và khôi phục từ một dòng thời gian.
+- **So sánh và khôi phục**: so bất kỳ file nào với chunk WAD gốc hoặc một bản
+  backup, và khôi phục nếu bạn làm hỏng.
+
+<Callout type="info" title="LuaBin và TroyBin hiện chỉ xem được">
+  Bạn có thể mở và đọc file LuaBin và TroyBin, nhưng chỉnh sửa chúng trong Flint
+  thì chưa có.
+</Callout>
+
+**Kiểm tra**: mở **Project Fixer** (chạy bằng Hematite). Quét một dự án, xem các
+lỗi phát hiện được kèm nhãn mức độ, và áp dụng các bản sửa bạn muốn. Một tab
+Batch sửa nhiều dự án cùng lúc.
+
+---
+
+## Export và cài đặt
+
+- **Export** một dự án dạng `.fantome` hoặc `.modpkg` từ menu gốc của dự án.
+- **Đồng bộ sang launcher**: một cú bấm gửi bản mod sang **Celestial** (mặc
+  định, không cần đóng gói) hoặc **LTK Manager**.
+- **Chỉnh mod có sẵn**: mở một file `.fantome` hoặc `.modpkg` để chỉnh metadata
+  và các WAD bên trong, hoặc import nó vào một dự án mới chỉnh sửa được.
+
 ---
 
 ## Khi nào dùng Flint so với các tool khác
 
-- **Dùng Flint** nếu bạn muốn một ứng dụng cho cả quy trình (trích xuất,
-  chỉnh, đóng gói).
+- **Dùng Flint** cho cả quy trình: trích xuất, duyệt CDN, chỉnh, kiểm tra, đóng
+  gói.
 - **Dùng [Jade](/docs/lol/tools/modding-apps/jade)** nếu bạn chỉ chỉnh file BIN
   và muốn một trình chỉnh gọn, tập trung.
 - **Dùng [LtMAO](/docs/lol/tools/modding-apps/ltmao)** như phương án dự phòng cho
@@ -61,26 +161,17 @@ Phiên bản mới nhất: **v2.1.0**.
 
 ## Kết nối với các tool khác
 
-Flint phối hợp tốt với hai tool khác mà cộng đồng hay dùng:
-
-- **Jade**: Flint có thể dùng engine BIN của Jade thay cho trình phân tích
-  LTK của chính nó. Chọn cái nào tùy bạn trong phần cài đặt.
-- **Quartz**: đưa một texture sang chế độ paint của Quartz, rồi quay lại.
-  Flint phát hiện khi Quartz đổi một file bạn đang mở và mời bạn làm mới.
+- **Jade**: mở một file BIN trong Jade từ thanh xem trước của Flint.
+- **Quartz**: đưa một texture sang chế độ paint của Quartz, rồi quay lại. Flint
+  sẽ mời bạn làm mới khi Quartz đổi một file bạn đang mở.
 
 ---
 
 ## Mẹo
 
-- Mở nhiều tab dự án cùng lúc. Mỗi tab giữ trạng thái riêng.
-- Trình tạo màn hình tải trận động biến một file MP4 hoặc WebM thành
-  spritesheet mà game chấp nhận.
-- Đánh chỉ mục nền là tùy chọn. Bật nó lên nếu bạn muốn tìm kiếm toàn văn
-  trong kho lưu trữ WAD.
-- Kéo thả file vào cây thư mục để nhập chúng.
-- Lần đầu dùng Flint? Trình hướng dẫn chạy lần đầu dẫn bạn qua đường dẫn
-  League, đường dẫn PBE và kết nối với các tool.
-- Bí không tìm ra asset? Mở bảng tra đường dẫn WAD từ trình explorer WAD
-  để có bản đồ nhanh về nơi mọi thứ nằm ở đâu.
-- Đặt Flint làm ứng dụng "Open with" của Windows cho file League như `.wad`
-  và `.bin`, để nhấp đúp là mở chúng trong Flint.
+- Mở nhiều tab dự án cùng lúc. Mỗi tab giữ trạng thái riêng, và các thay đổi chưa
+  lưu vẫn còn khi bạn chuyển tab.
+- Kéo file giữa các dự án đang mở để di chuyển hoặc sao chép chúng.
+- Trình tạo màn hình tải trận động biến một file MP4 hoặc WebM thành màn hình tải
+  mà game chấp nhận.
+- Bí không tìm ra asset? Mở bảng tra đường dẫn WAD từ trình explorer WAD.

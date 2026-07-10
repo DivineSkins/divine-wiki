@@ -1,46 +1,49 @@
 ---
 title: "Flint"
-description: "Aplikacja do moddingu w jednym oknie. Wyciągnij assety, podejrzyj je, edytuj pliki BIN i spakuj mod. Wszystko w jednym miejscu."
+description: "Aplikacja do moddingu League typu wszystko w jednym. Wyciągaj assety, przeglądaj dowolny patch z CDN Riot, podglądaj i edytuj pliki, sprawdzaj i pakuj mod. Wszystko w jednym oknie."
 category: "tools"
 ---
 
-Flint to aplikacja desktopowa od **RitoShark**, która ogarnia
-większość workflow moddingu w jednym miejscu. Jeśli nie chcesz żonglować
-osobnymi narzędziami do wyciągania plików, edycji BIN, VFX i pakowania,
-to najprostszy start.
+Flint to desktopowa aplikacja do moddingu League of Legends od **SirDexala**
+(RitoShark). Robi cały flow moddingu w jednym oknie: wyciąga assety z gry,
+podgląda je, edytuje, sprawdza i wypuszcza gotowy plik `.fantome` albo `.modpkg`.
+Żadnych łańcuchów CLI, żadnego żonglowania folderami.
 
 [Pobierz najnowszą wersję](https://github.com/RitoShark/Flint/releases)
 
-Najnowsza wersja: **v2.1.0**.
+Najnowsza wersja: **v2.3.4**.
 
 ---
 
 ## Co potrafi
 
-- **Wyciąga** skiny bohaterów i assety prosto z plików gry.
-- **Podgląd** modeli 3D, tekstur, plików BIN, animacji, efektów
-  partikli i audio (BNK / WPK z falą dźwiękową) bez eksportowania
-  czegokolwiek.
-- **Edytuje** pliki BIN, LuaBin i TroyBin z kolorowaniem składni.
-- **Edytuje pliki WAD w pamięci** prosto z explorera, a potem
-  eksportuje.
-- **Konwertuje** tekstury między `.tex` a `.dds`.
-- **Zmienia kolory** tekstur przez hue shift, colorize albo skalę
-  szarości z tintem.
-- **Portuje na chromy**: wybierz chromę i przenieś na nią mod bazowego
-  skina.
-- **Robi checkpointy** projektu: snapshot, diff i przywracanie zmian
-  jak lekka wersja gita.
-- **Porównuje i przywraca** dowolny plik do oryginalnego kawałka WAD,
-  gdy coś zepsujesz.
-- **Eksportuje** mody jako `.fantome`, `.modpkg` albo synchronizuje je
-  z LTK Manager.
-- **Sprawdza i naprawia** mody wbudowanymi regułami Hematite (wyłapuje
-  brakujące shadery, zepsute referencje itd.).
+- **Wyciąga (Extract)** skina do czystego projektu. Flint pobiera assety skina,
+  sam wykrywa towarzyszy (Tibbers, Willump i reszta), scala połączone pliki BIN
+  i robi repath wszystkiego na porządny układ.
+- **Przeglądaj dowolny patch z CDN Riot.** Załaduj aktualny, stary albo PBE
+  build prosto z serwerów Riot bez instalacji, potem wyciągnij tylko te pliki,
+  które chcesz. Zobacz sekcję **Przeglądanie i pobieranie z CDN** poniżej.
+- **Podgląd** modeli 3D, tekstur, animacji, partikli, audio (BNK / WPK z falą
+  dźwiękową) i plików BIN bez eksportowania czegokolwiek.
+- **Edytuje** pliki BIN z kolorowaniem składni, paletą emitterów VFX i
+  przyciskiem Unhash. Wyświetla LuaBin, TroyBin, tablice stringów i manifesty.
+- **Edytuje pliki WAD w pamięci** prosto z explorera: zmieniaj, usuwaj, zmieniaj
+  nazwy albo przenoś chunki, potem zapisz przepakowany WAD.
+- **Konwertuje i przekolorowuje** tekstury między `.tex` a `.dds`, z wsadowym hue
+  shift, colorize i tint.
+- **Portuje na chromy** i robi **hard-rename** całego projektu w jednym ruchu.
+- **Robi checkpointy** projektu: snapshot, diff i przywracanie jak lekka wersja
+  gita.
+- **Porównuje i przywraca** dowolny plik do oryginalnej wersji z gry, gdy coś
+  zepsujesz.
+- **Sprawdza i naprawia** wbudowanym Hematite Project Fixer.
+- **Eksportuje** jako `.fantome` albo `.modpkg`, albo synchronizuje prosto z
+  Celestial czy LTK Manager.
 
 <Callout type="info" title="Hashe działają automatycznie">
-  Flint sam pobiera gotową bazę hashy LMDB (`lmdb-hashes` od RitoShark).
-  Nie ma żadnego folderu z hashami do pobierania ani ogarniania, a baza sama się odświeża.
+  Flint przy pierwszym uruchomieniu sam pobiera gotową bazę hashy LMDB
+  (`lmdb-hashes` od RitoShark). Nie ma żadnego folderu z hashami do pobierania
+  ani ogarniania. Odbuduj ją kiedy chcesz w Settings.
 </Callout>
 
 ---
@@ -51,14 +54,109 @@ Najnowsza wersja: **v2.1.0**.
 2. Pobierz najnowszy instalator dla Windowsa.
 3. Uruchom go. Gotowe.
 
+Pierwsze uruchomienie przeprowadza cię przez ścieżkę do League, ścieżkę do PBE i
+integracje narzędzi.
+
 ---
 
-## Kiedy używać Flint zamiast innych narzędzi
+## Przeglądanie i pobieranie z CDN
 
-- **Użyj Flint**, jeśli chcesz jednej aplikacji na cały flow (wyciąganie,
-  edycja, pakowanie).
-- **Użyj [Jade](/docs/lol/tools/modding-apps/jade)**, jeśli edytujesz tylko
-  pliki BIN i chcesz węższego, skupionego edytora.
+Flint może czytać pliki League prosto z serwerów Riot. Nie musisz mieć
+zainstalowanego tego patcha. Tak zdobywasz starszy patch, build PBE albo jeden
+brakujący asset.
+
+1. Otwórz **WAD Explorer**.
+2. Kliknij **CDN** w nagłówku (podpowiedź: "Load a patch manifest from Riot's
+   CDN").
+3. W oknie **Load from CDN** wybierz **Region** i **Platform**. Dla PBE wybierz
+   region **PBE1**.
+4. Wybierz filtr, jeśli chcesz: **Game** (moddowalne dane bohaterów, przydatny
+   zestaw), **Client** albo **All**.
+5. Wybierz wersję z listy. Najnowsza jest na górze. Starsze patche i buildy PBE
+   też tu są.
+6. Kliknij **Load**. Flint pobiera tylko mały plik manifestu i otwiera go w
+   osobnej zakładce.
+7. Rozwiń WAD w drzewku. Flint pobiera z CDN tylko listę plików tego WAD-a, nie
+   całość.
+8. Kliknij plik, żeby go podejrzeć, albo zaznacz pliki i foldery i kliknij
+   **Extract**, żeby pobrać je do wybranego folderu.
+
+<Callout type="info" title="Pobiera tylko to, czego potrzebujesz">
+  Flint robi range-fetch z CDN, więc przeglądanie WAD-a o rozmiarze 125 MB
+  kosztuje kilka kilobajtów. Pobierasz tylko bajty plików, które wyciągasz.
+</Callout>
+
+Lista wersji pochodzi ze społecznościowego katalogu `Morilli/riot-manifests`.
+Naciśnij **Refresh** w oknie, żeby ponownie sprawdzić nowe patche.
+
+---
+
+## Zarejestruj pliki, żeby dwuklik otwierał Flint
+
+Możesz sprawić, żeby Windows otwierał pliki League w Flincie po dwukliku.
+
+1. Otwórz **Settings** (`Ctrl + ,`).
+2. Znajdź **Open With, Windows File Associations**.
+3. Kliknij **Register**.
+
+Flint rejestruje `.wad`, `.wad.client`, `.bin`, `.luabin64`, `.luabin`,
+`.troybin`, `.tex`, `.modpkg` i `.fantome`. Potem dwuklik na dowolnym z nich w
+Eksploratorze Windows otwiera go w Flincie do podglądu albo edycji. Przycisk
+**Unregister** cofa to.
+
+---
+
+## Podgląd, edycja i sprawdzanie
+
+**Podgląd** (kliknij dowolny plik):
+
+- **Modele 3D**: meshe SKN, SCB i SCO w widoku orbitalnym.
+- **Tekstury**: TEX i DDS, z zoomem.
+- **Animacje**: `.anm`.
+- **Audio**: banki BNK i WPK z falą dźwiękową.
+- **BIN** i stare formaty: tablice stringów, inibin, luabin, troybin i manifesty.
+
+**Edycja**:
+
+- **Edytor BIN** z kolorowaniem składni, przyciskiem **Unhash**, który rozwiązuje
+  pozostałe hashe, i **paletą emitterów VFX**, z której możesz przeciągać
+  (kopiuje za ciebie referencjonowane pliki assetów między projektami).
+- **Edycja WAD w pamięci**: edytuj, usuwaj, zmieniaj nazwy albo przenoś chunki,
+  potem zapisz.
+- **Narzędzia do tekstur**: przekolorowanie, konwersja do `.dds` albo `.tex`,
+  eksport jako `.png`, wsadowe przekolorowanie całego folderu.
+- **Checkpointy**: snapshot projektu i przywracanie z osi czasu.
+- **Porównanie i przywracanie**: diff dowolnego pliku względem oryginalnego
+  chunka WAD albo kopii zapasowej, i przywrócenie, jeśli coś zepsułeś.
+
+<Callout type="info" title="LuaBin i TroyBin są na razie tylko do odczytu">
+  Możesz otwierać i czytać pliki LuaBin i TroyBin, ale edycja w Flincie jeszcze
+  nie jest gotowa.
+</Callout>
+
+**Sprawdzanie**: otwórz **Project Fixer** (oparty na Hematite). Przeskanuj
+projekt, przejrzyj wykryte problemy z etykietami ważności i zastosuj wybrane
+poprawki. Zakładka Batch naprawia kilka projektów naraz.
+
+---
+
+## Eksport i instalacja
+
+- **Eksportuj** projekt jako `.fantome` albo `.modpkg` z menu głównego projektu.
+- **Synchronizacja z launcherem**: jedno kliknięcie wysyła mod do **Celestial**
+  (domyślny, bez pakowania) albo **LTK Manager**.
+- **Edycja istniejących modów**: otwórz `.fantome` albo `.modpkg`, żeby edytować
+  jego metadane i wewnętrzne WAD-y, albo zaimportuj go do nowego edytowalnego
+  projektu.
+
+---
+
+## Kiedy używać Flinta zamiast innych narzędzi
+
+- **Użyj Flinta** do całego flow: wyciąganie, przeglądanie CDN, edycja,
+  sprawdzanie, pakowanie.
+- **Użyj [Jade](/docs/lol/tools/modding-apps/jade)**, jeśli edytujesz tylko pliki
+  BIN i chcesz węższego, skupionego edytora.
 - **Użyj [LtMAO](/docs/lol/tools/modding-apps/ltmao)** jako zapasu do zadań
   wsadowych i konwersji z menu prawym przyciskiem.
 
@@ -66,27 +164,17 @@ Najnowsza wersja: **v2.1.0**.
 
 ## Integracje z innymi narzędziami
 
-Flint dobrze współpracuje z dwoma innymi narzędziami społeczności:
-
-- **Jade**: Flint może korzystać z silnika BIN od Jade zamiast własnego
-  parsera LTK. Wybierz, który wolisz, w ustawieniach.
-- **Quartz**: przekaż teksturę do trybu malowania w Quartz, a potem wróć.
-  Flint wykrywa, gdy Quartz zmienia otwarty u ciebie plik, i proponuje
-  jego odświeżenie.
+- **Jade**: otwórz BIN w Jade z paska podglądu Flinta.
+- **Quartz**: przekaż teksturę do trybu malowania w Quartz, a potem wróć. Flint
+  proponuje odświeżenie, gdy Quartz zmieni otwarty u ciebie plik.
 
 ---
 
 ## Wskazówki
 
-- Otwieraj kilka zakładek projektu naraz. Każda trzyma własny stan.
-- Kreator animowanego ekranu ładowania zamienia MP4 albo WebM w
-  spritesheet, który gra akceptuje.
-- Indeksowanie w tle jest opcjonalne. Włącz je, jeśli chcesz
-  pełnotekstowego wyszukiwania w archiwum WAD.
-- Przeciągaj i upuszczaj pliki do drzewka plików, żeby je zaimportować.
-- Pierwszy raz z Flintem? Kreator pierwszego uruchomienia przeprowadzi
-  cię przez ścieżkę do League, ścieżkę do PBE i integracje narzędzi.
-- Nie możesz znaleźć assetu? Otwórz ściągę ze ścieżkami WAD z explorera
-  WAD, żeby szybko zobaczyć, gdzie co leży.
-- Ustaw Flint jako aplikację "Otwórz za pomocą" w Windowsie dla plików
-  League jak `.wad` i `.bin`, żeby dwuklik otwierał je w Flint.
+- Otwieraj kilka zakładek projektu naraz. Każda trzyma własny stan, a niezapisane
+  zmiany przetrwają przełączanie zakładek.
+- Przeciągaj pliki między otwartymi projektami, żeby je przenosić albo kopiować.
+- Kreator animowanego ekranu ładowania zamienia MP4 albo WebM w ekran ładowania,
+  który gra akceptuje.
+- Nie możesz znaleźć assetu? Otwórz ściągę ze ścieżkami WAD z explorera WAD.
