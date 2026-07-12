@@ -16,6 +16,13 @@ updates:
       # eslint-config-next depends on typescript-eslint >= 9. See PR #13.
       - dependency-name: "eslint"
         update-types: ["version-update:semver-major"]
+      # typescript 7 is the native (Go) compiler rewrite. Next.js 16.2's
+      # build-time type check can't consume it and typescript-eslint 8.x
+      # pins peer typescript <6.1.0, so the 6->7 bump broke the Cloudflare
+      # deploy. Re-test once Next + typescript-eslint support typescript 7.
+      # See the #51 revert.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "github-actions"
     directory: "/"
