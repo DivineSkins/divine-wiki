@@ -1,0 +1,82 @@
+---
+title: "Animation Masks"
+description: "What animation masks are, why adding joints silently breaks them, and how to fix them with LtMAO or by hand."
+category: "animations"
+---
+
+An animation mask restricts a clip to part of the skeleton, so a cast animation can move the upper body while the legs keep walking. They are also the single most common reason a mod that worked yesterday looks broken today after you added a joint.
+
+---
+
+## Required Tools
+
+| Tool        | Purpose                                                     |
+| :---------- | :---------------------------------------------------------- |
+| **LtMAO**   | Its mask viewer lets you read and set mask values per joint  |
+| **Jade**    | Edit the animation `.bin` visually (recommended)            |
+| **Ritobin** | Alternative: convert `.bin` to `.py` for editing            |
+
+---
+
+## What a mask actually is
+
+A mask is a **chain of ones and zeros, one per joint, in skeleton order**. A one means the clip drives that joint, a zero means it does not.
+
+The important part is that it is **positional**. The mask does not know joint names. It knows that the seventeenth entry is a one and the eighteenth is a zero.
+
+Everything below follows from that.
+
+---
+
+## Why adding joints breaks masks
+
+If you add joints to a skeleton, the mask chain no longer lines up with it.
+
+- **Insert or reorder a joint** and every mask entry after that point now refers to the wrong joint. A legs mask can end up freezing the arms.
+- **Append joints at the end** and the mask is simply too short to cover the new ones, which can also produce wrong behaviour.
+
+The symptom is not an error. The animation plays, but the wrong parts of the body move or refuse to move.
+
+> **Note:** Always append new joints to the end of the skeleton. Never insert a joint into the middle of an existing hierarchy if you care about keeping Riot's masks working.
+
+---
+
+## Repairing masks with LtMAO
+
+You can fix the problem using LtMAO, but it requires some back and forth.
+
+1. Open LtMAO and go to the mask viewer.
+2. Load **the skeleton**, meaning the model's `.skl` file. You do not need the `.skn`.
+3. Load **the animation bin**.
+4. Go through the joints and check their values, deciding for each whether you want that joint influenced during the animations that use the listed masks. Change the values that are wrong. If you want to maintain Riot's original hierarchy, open a second LtMAO window with the unmodded files and compare against it.
+5. Use **Save As** and overwrite the animation bin.
+
+It needs the skeleton because that is how it puts a name to each position in the chain, which is what makes step 4 readable at all.
+
+> **Note:** This is not a one-click fix. LtMAO shows you the chain against your joint names and lets you set the values, but you are the one deciding what they should be. That is especially true if you are working with your own rig and your own joints, where there is no Riot original to fall back on.
+
+---
+
+## Alternatively, edit the chain by hand
+
+Open the animation bin, find the mask, and edit the chain so that:
+
+- every joint the clip should drive is a one
+- every joint it should leave alone is a zero
+- the chain length matches the skeleton's joint count
+
+This is tedious but it is not difficult, and on a champion with a small number of masks it is often faster than going through the LtMAO dance.
+
+---
+
+## The escape hatch
+
+If a mask is fighting you and the champion already ships full-body variants of the affected clip, you do not have to win the argument. **Delete the mask and author the complete animation instead.**
+
+Copying the masked entry so that it becomes its own ordinary `AtomicClipData` also works. It stops being treated as a mask and starts being treated as a normal full-body clip.
+
+Mordekaiser is a clean case for this, because he already has `spell2_consume_shield` and `spell2_run_consume_shield` as separate clips, so there is somewhere for the full-body versions to go.
+
+> 💡 **Tip:** Before you delete a mask, work out what it was doing. On some champions it is handling a stance change or a form switch, and removing it will cost you that behaviour.
+
+Guide by Kaizen

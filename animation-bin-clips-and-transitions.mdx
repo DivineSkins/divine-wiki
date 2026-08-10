@@ -1,0 +1,206 @@
+---
+title: "Animation Bin: Clips, Conditions and Transitions"
+description: "How the animation bin decides which clip plays: clip types, conditional clips driven by movement speed or game state, and transition clips between them."
+category: "animations"
+---
+
+Exporting a `.anm` is only a part of animation modding. The other half is the animation bin, which decides **which** clip plays and **when**. This guide covers the clip types you will meet, how to switch between clips based on game state, and how to add transitions so animations stop snapping.
+
+---
+
+## Required Tools
+
+| Tool                     | Purpose                                                        |
+| :----------------------- | :------------------------------------------------------------- |
+| **Jade**                 | Edit the animation `.bin` visually (recommended)               |
+| **Ritobin**              | Alternative: convert `.bin` to `.py` for editing               |
+| **Flint**                | Extract the champion so you have the bin in the first place    |
+| **ReadWriteBlendData**   | Converts transition blend data into readable clip names        |
+
+---
+
+## Clip types
+
+The animation graph maps a slot name to a clip. Most entries are a single file, but the composite types do more work than people expect.
+
+| Type                       | What it does                                                     |
+| :------------------------- | :---------------------------------------------------------------- |
+| `AtomicClipData`           | One `.anm` file                                                   |
+| `SequencerClipData`        | Plays clips in order.               |
+| `SelectorClipData`         | Picks one clip at random, with weights                            |
+| `ParametricClipData`       | Blends across a numeric value, such as facing angle               |
+| `ConditionBoolClipData`    | Switches on a true or false game state                            |
+| `ConditionFloatClipData`   | Switches on a numeric game value, such as movement speed          |
+| `ParallelClipData`         | Plays two clips at once on different masks                        |
+| `TransitionClipBlendData`  | A clip inserted between two other named clips                     |
+
+An atomic clip looks like this:
+
+```py
+AtomicClipData {
+    mAnimationResourceData: AnimationResourceData {
+        mAnimationFilePath: string = "ASSETS/Characters/YourChamp/Skins/Base/Animations/YourChamp_Attack1.anm"
+    }
+}
+```
+
+> **Note:** The `.anm` filename on disk does not matter. Only the path recorded in the bin has to match.
+
+---
+
+## Switching clips by movement speed
+
+`ConditionFloatClipData` lets you choose which animation plays based on how fast the champion is moving. That is the right tool for a walk, a run and a haste run, and for any animation that plays while moving, including abilities that allow movement during the cast.
+
+It can also be used to add a homeguard animation to a champion that does not have one, but that is **not the recommended approach**. Checking for the homeguard buff is better, because it does not care what the champion's movement speed happens to be. See the buff section below.
+
+```py
+"Run" = ConditionFloatClipData {
+    mFlags: u32 = 2
+    mConditionFloatPairDataList: list[embed] = {
+        ConditionFloatPairData { mClipName: hash = "RunWalk" }
+        ConditionFloatPairData { mClipName: hash = "RunFast"
+                                 mValue: f32 = 400 }
+    }
+    Updater: pointer = MoveSpeedParametricUpdater {}
+    mChangeAnimationMidPlay: bool = true
+}
+```
+
+Read it as: play `RunWalk` normally, and play `RunFast` once movement speed reaches 400.
+
+You can chain as many tiers as you like. A three-tier version might use 424 for a fast run, 520 for a very fast run, and a fourth clip at 1000, which in practice is only reachable under homeguard.
+
+Things to know:
+
+- **The pair with no `mValue` is the default**, the slow one.
+- **`mValue` is raw in-game movement speed**, not a scaled or normalised number. 400 is around base movement speed. Useful reference points are roughly 400 for a fast run, 440 for a haste run and 530 for homeguard, and these are general figures rather than per-champion ones.
+- **`mFlags: u32 = 2` makes the clip loop.** It is most often wanted on emotes such as dances.
+- **The clips you name must exist as entries in the bin.** They are usually `AtomicClipData`, but they do not have to be. Any clip type works, so a conditional branch can point at a selector or another composite.
+- **Only one clip may be named `Run`.** Rename the existing one before you add the conditional. Note this does not mean `Run` has to be a simple animation, only that there is one entry with that name. That entry can itself be a selector choosing between several clips.
+
+> 💡 **Tip:** Pick your thresholds against the speeds the champion will actually reach in a game, not against base movement speed alone. A threshold a player never crosses is an animation nobody ever sees.
+
+---
+
+## Switching clips by game state
+
+`ConditionBoolClipData` does the same job for true or false conditions:
+
+```py
+"Run" = ConditionBoolClipData {
+    Updater: pointer = IsHomeguardParametricUpdater {}
+    mChangeAnimationMidPlay: bool = true
+    DontStompTransitionClip: bool = true
+    mTrueConditionClipName: hash = "Run_Homeguard"
+    mFalseConditionClipName: hash = "Run_Base"
+}
+```
+
+`DontStompTransitionClip` is what lets transition clips survive when the state flips mid-play. If you have transitions around a state that can change while a clip is running, you want this.
+
+The drivers are shared with the persistent effect system, so anything you can gate a VFX on you can gate a clip on:
+
+| Driver                                  | Switches on                                              |
+| :-------------------------------------- | :-------------------------------------------------------- |
+| `IsHomeguardParametricUpdater`          | Being in the homeguard state                              |
+| `IsMovingParametricUpdater`             | Moving or standing still                                  |
+| `IsCastingBoolDriver { SpellSlot }`     | Casting a given ability                                   |
+| `SubmeshVisibilityBoolDriver`           | Whether a submesh is currently shown                      |
+| `HasBuffDynamicMaterialBoolDriver`      | Having a named buff                                       |
+| `HasGearDynamicMaterialBoolDriver`      | Gear upgrade state                                        |
+| `LearnedSpellDynamicMaterialBoolDriver` | Whether an ability has been ranked                        |
+| `SpellRankIntDriver { SpellSlot }`      | The rank of an ability, used with `ConditionFloatClipData` |
+
+Spell slots are `0` for Q, `1` for W, `2` for E and `3` for R.
+
+> **Note:** A common symptom is that a change you meant to gate on R fires on Q instead. That means the driver is falling back to spell slot `0`. There are two likely causes: `LearnedSpellDynamicMaterialBoolDriver` expects `mSlot: u8` rather than the `Spell: hash` the buff driver takes, so passing it a hash leaves the slot at its default; or the spell path itself is wrong, so nothing resolves and it defaults. Check both before assuming which one bit you.
+
+Wrap a driver in `NotMaterialDriver` to invert it, or `AllTrueMaterialDriver` to require several at once. Do not wrap a single driver in `AllTrueMaterialDriver`, it does nothing.
+
+---
+
+## Ask the state directly, not through movement speed
+
+A speed threshold infers a state from a side effect. Where the engine exposes the state itself, ask it directly, because then nothing else that happens to move the number can defeat you.
+
+Homeguard is the clearest case, and it has a dedicated updater:
+
+```py
+"Run" = ConditionBoolClipData {
+    Updater: pointer = IsHomeguardParametricUpdater {}
+    mChangeAnimationMidPlay: bool = true
+    DontStompTransitionClip: bool = true
+    mTrueConditionClipName: hash = "Run_Homeguard"
+    mFalseConditionClipName: hash = "Run_Base"
+}
+```
+
+Do the same for `Idle1`, pointing at an `Idle_Homeguard` clip, and author the transition clips between the two states. This **overrides any movement speed effects**, where a threshold does not.
+
+> 💡 **Tip:** For homeguard specifically, some champions will accept a `Homeguard` atomic clip added directly and it simply works. Only some, so try it first, and fall back to the condition if it does nothing.
+
+### A note on where conditions live
+
+There are two condition systems in a skin and they are easy to confuse, because they share much of the same driver vocabulary.
+
+**Animation clips** are switched here, in the animation bin, by `ConditionBoolClipData` and `ConditionFloatClipData`, driven by a `*ParametricUpdater`.
+
+**Submeshes and VFX** are switched in the skin bin, by `PersistentEffectConditions`, driven by a `*MaterialBoolDriver`. That mechanism cannot switch an animation, so do not go looking for a clip field on it. It is covered on its own page.
+
+To drive a clip from a bool driver rather than a dedicated updater, wrap the driver in `LogicDriverBoolParametricUpdater` and use it as the `Updater` of a `ConditionBoolClipData`.
+
+A complete form change therefore usually means writing both: a persistent effect condition for the model and effects, and a condition clip for the animation set, each with its own copy of the same condition.
+
+---
+
+## Transitions
+
+A transition is a clip that plays between two other clips. It is what stops an ability animation from snapping back to idle.
+
+```py
+"Spell3_Run_Cast" To "Idle1" = TransitionClipBlendData {
+    mClipName: hash = "Spell3_Run_Cast_Transition"
+}
+```
+
+`mClipName` points at a normal `AtomicClipData` holding the actual in-between animation.
+
+Transitions are especially useful on **older champions**, where attack and ability recoveries visibly cut off and force back to idle. Rather than lengthening the animation, add the transition.
+
+### Four things that make a transition silently do nothing
+
+1. **Match the clip name exactly as it is written in the bin, including capitalisation.** There is at least one reported case of a transition failing with `spell3_cast` and working with `Spell3_Cast`, so treat names as case-sensitive until someone establishes otherwise. Copying the name out of the bin rather than retyping it costs nothing and removes the question.
+2. **Target the parent, not the leaf.** If `Spell3_Cast` is a `ParametricClipData` containing both the standing and running casts, the transition attaches to `Spell3_Cast`. Attaching it to `Spell3_Run_Cast` does nothing.
+3. **Do not transition into a conditional clip.** If `Run` is a condition wrapper, transition to the atomic clips underneath it instead.
+4. **Transition to the state the champion is actually in.** A cast that finishes while the player is moving needs a transition to run, not to idle.
+
+A transition that points at a name which does not exist on the champion is the classic silent failure. Decoded, it reads as something like `"RunFast" To "Hashed:0xba9fda17"`, and that unresolved hash is your signal that the target name is wrong.
+
+### Chaining a transition through a transition
+
+Sometimes the state you are transitioning out of is not the state you think. On Tryndamere, issuing a move command and then casting E makes him stop, so a single frame of idle sits between the cast and the run. A direct cast-to-run transition never fires.
+
+The fix is to author a transition for the transition, chaining through that idle. It looks redundant but it works.
+
+### Reading blend data
+
+Ritobin does not decode the blend data integers into readable clip names, it just prints the numbers. Use either **ReadWriteBlendData** or **Jade** to convert them into names and back again. If you are using ReadWriteBlendData, run it before you edit and again after, or your changes will not survive the round trip.
+
+---
+
+## Adding clips a champion does not have
+
+Not every gap is permanent, and this is worth checking before you rule a champion out.
+
+**Older champions in particular carry clips that are inactive rather than absent.** Recall is the most commonly noticed one, since some champions genuinely have none, but it is far from the only case. Creating the `AtomicClipData` entry is often all that is needed to bring one back. There is no published list of which clips are dormant on which champions, so this is a matter of looking.
+
+Also addable:
+
+- **The generic toggle emote (Ctrl+5)**, which applies to anyone.
+- **Attack variations Riot dropped**, by re-adding them to the animation bin.
+- **Homeguard and haste runs**, using `ConditionFloatClipData` as above.
+
+Not everything can be revived. Some clips appear to be gated by something outside the animation bin, and no amount of bin editing brings them back. If a clip refuses to play after you have pointed every reference at it correctly, stop digging in the animation bin, the answer is not there.
+
+Guide by Kaizen
