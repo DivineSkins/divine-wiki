@@ -1,0 +1,118 @@
+---
+title: "Simple Control Rigs in Maya"
+description: "When a simple control rig is worth building, the rules that keep it working, and the limitations you should know before you rely on one."
+category: "maya"
+---
+
+You can animate a League champion on the bare skeleton, but only just. Moving and keying joints directly is awkward and inefficient, and for a full animation it is unfeasible. It is fine for a small change to an existing clip, nudging an elbow the other way during an attack, for instance, and it should not be used for anything more serious than that. 3D models are meant to be moved with control rigs. This page covers why, and gives you enough to build a simple one.
+
+---
+
+## Required Tools
+
+| Tool                 | Purpose                                                     |
+| :------------------- | :----------------------------------------------------------- |
+| **Autodesk Maya**    | Maya 2023 recommended                                        |
+| **LoL-Maya plugin**  | Import and export `.skn`, `.skl` and `.anm`                  |
+
+---
+
+## When to build one
+
+**Build one for anything you would call an animation.** It takes time to set up and saves that time back on every clip afterwards, and the alternative is not really viable at any scale.
+
+The only case for working on the bare skeleton is a **small edit to a clip that already exists**, where you are touching one or two joints for a few frames. Anything beyond that, build the rig first.
+
+There is a middle option worth knowing: a **reduced rig**. If a group of clips only move the upper body, a rig variant with the legs removed keeps the leg channels clean on export, so the animation graph can mask over them without fighting stray keys.
+
+---
+
+## The steps
+
+A simple control rig basically allows you to use IK legs and, if you want it, also arms. The rest of the joints **can** be keyed directly, but of course, if you want to do better animations I recommend following a proper course on rigging.
+
+For our simple needs, however, you need to:
+
+1. Navigate to the Animation workspace.
+2. Find and click **Create IK Handle**.
+3. Select first either the hip joint (for legs) or the shoulder joint (for arms).
+4. Select the end joint, either the foot or the hand. Be mindful that Riot likes to put buffbones overlaying the position of these joints, so make sure you select the right one.
+5. The handles themselves are now created, but you still need something to drive them. Create simple NURBS curves, circles will do, and move them over the foot and hand joints. Then **parent each IK handle under its circle**, by selecting the handle first, then the circle, and pressing **P**. Moving the circle now moves the handle, and the limb follows.
+6. Create another set of NURBS circles, rotate them 90 degrees so they sit perpendicular to the first set, and place them at the knees and elbows. Pull the knee ones forward and push the elbow ones backwards.
+7. Select one of these, then the matching IK handle, and make it a pole vector. Moving it now changes the direction the knee or elbow points, while the rest of the limb stays where it is.
+
+> **Note:** The order of selection matters and is not the same in both steps. For parenting, the child comes first and the parent second. For the pole vector constraint, the controller comes first and the IK handle second.
+
+---
+
+## The rules
+
+These are the ones that cost the most time when broken.
+
+**Never key the IK handles.** Everything else in the scene is fair game. Keying an IK handle is the fastest way to make a rig behave unpredictably later.
+
+**Rotate the foot bones, not the control circles.** Circles are for moving. Rotating a circle is the classic cause of a rig where the feet are wrong and then the arms go wrong too.
+
+**Check the colour of your foot bones.** If they show as orange rather than the normal colour, the handle was built wrong. Rebuild it rather than working around it.
+
+**Pole vectors go behind the limb, pointing at it.** They do not need to be precisely placed, and moving them is fine. Rotating them is not.
+
+**Reset the preferred angle after pre-bending.** When a knee or elbow bends the wrong way, the reliable fix is to delete the IK handle and the pole vector, bend the joint slightly so Maya knows which direction it should go, reset the preferred angle, and then recreate them.
+
+**Hide the joints once the rig is finished.** Group them and hide the group. The counterargument is real though: a bone with no controller cannot be tested, so make sure everything you care about has one before you hide anything.
+
+---
+
+## Two limitations to plan around
+
+**A control rig cannot drive scale.** There is no reliable way to pass a scale transform from a controller through to a joint. This matters if your character needs squash, stretch or smear frames, or if you are working on a blocky or stylised model that needs resizing often. The workaround is to do those passes in a separate scene without the rig.
+
+**A control rig does not survive FBX.** The NURBS shapes export, but they arrive disconnected from anything. If you are handing a rig to a collaborator, send the Maya scene file, not an FBX.
+
+---
+
+## Set driven keys
+
+Set driven keys are how you automate secondary mechanics. You tell Maya that when one attribute changes, another follows: when the root moves up, the feet rotate down; when a limb extends, a hydraulic piston slides.
+
+Riot's own rigs use them heavily, and they are worth the setup on anything mechanical. A rig with driven keys on its pistons and covers is a rig where those channels never need hand-keying across an entire animation set.
+
+The trade-off is that, unlike an IK handle, you cannot simply switch them off when you do not want them. Set them up deliberately.
+
+---
+
+## Cape and skirt chains
+
+Two approaches both work.
+
+**Aim constraint.** Put an aim constraint in the middle of the chain with two stacked circles: the lower one carries the constraint, the upper one controls it. Set the aim circle to be invisible so it cannot be selected by accident. If you want rotation without stretch, put the constraint directly on the joint.
+
+**IK spline.** Straightforward and predictable for long chains.
+
+If a chain tilts sideways when you move it forward and back, the aim vector settings are wrong. If it refuses to behave at all, zero the joint rotations, reorient the root of the chain, reset the preferred angle, and rebuild.
+
+> **Note:** Some of Riot's own capes and tails are not hand animated and are not a control rig. They are a bone group driven by engine code, declared in the bin. If you are trying to reproduce that trailing motion by rigging alone, you are solving the wrong problem.
+
+---
+
+## Build a shape library
+
+Controller shapes are the same on every project. Save a set of NURBS shapes once and reuse them, so setting up a new rig takes a minute rather than an afternoon of drawing circles.
+
+---
+
+## A note on organisation
+
+Keep template scenes separate from clip scenes. A workable set is:
+
+| Scene                     | Contains                                                        |
+| :------------------------ | :--------------------------------------------------------------- |
+| **no rig**                | Mesh and bind skeleton only. This is your export template        |
+| **control rigged**        | The same plus controls. Clone this for every clip                |
+| **retargeting**           | Source and target skeletons together                             |
+
+Version the rig template itself, not just the clips. A rig fix made three weeks into a project needs to be recoverable.
+
+> 💡 **Tip:** Save each clip as its own Maya scene and author them in order, so the last frame of one becomes frame 0 of the next. Transitions that actually meet are much easier to build that way than by matching poses after the fact.
+
+Guide by Kaizen
