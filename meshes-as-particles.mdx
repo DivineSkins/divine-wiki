@@ -1,0 +1,107 @@
+---
+title: "Meshes as Particles"
+description: "How to add props, vehicles and whole extra characters to a skin without a spawn system, by putting a mesh inside a particle."
+category: "vfx-bins"
+---
+
+A particle does not have to be a sprite. It can be a mesh, and that mesh can have its own skeleton and its own animation. This is how a champion gets a dropship on recall, a hologram during a joke, a dancer standing next to them, or an entirely different character on screen at once.
+
+There is no spawn system involved and no second champion entity. It is all one particle system.
+
+---
+
+## Required Tools
+
+| Tool                | Purpose                                                     |
+| :------------------ | :----------------------------------------------------------- |
+| **Flint**           | Extract the champion, pack the mod                          |
+| **Jade**            | Edit the `.bin` visually (recommended)                      |
+| **Maya or Blender** | Model the prop and export `.skn`, `.skl`, `.anm` or `.scb`  |
+
+---
+
+## Two forms
+
+**Rigid props** use a static mesh, with no skeleton and no animation of its own:
+
+```py
+Primitive: pointer = VfxPrimitiveMesh {
+    mMesh: embed = VfxMeshDefinitionData {
+        mSimpleMeshName: string = "ASSETS/.../poppy_base_p_shield.scb"
+    }
+}
+DisableBackfaceCull: bool = true
+BirthScale0: 1.7424
+BirthRotation0: { 90, 0, 0 }
+BirthRotationalVelocity0: { 0, 180, 0 }
+```
+
+All of the motion comes from the emitter. That example is a thrown shield, and the spin is 180 degrees per second on the Y axis, driven entirely by particle data because a `.scb` has no animation to give.
+
+**Animated props** use the full trio:
+
+```py
+Primitive: pointer = VfxPrimitiveMesh {
+    mMesh: embed = VfxMeshDefinitionData {
+        mMeshName:         "ASSETS/.../Particles/laat.skn"
+        mMeshSkeletonName: "ASSETS/.../Particles/laat.skl"
+        mAnimationName:    "ASSETS/.../Particles/laat.anm"
+    }
+}
+IsSingleParticle: flag = true
+EmitterName: string = "LAAT"
+```
+
+`IsSingleParticle` means emit exactly one, which is what you want for a dropship.
+
+Put the prop's files in the skin's **`particles/` folder**, alongside the sprite textures, not in the animations folder. Animations consumed by particles are not part of the animation graph and do not belong there.
+
+---
+
+## Placing it
+
+`Transform: mtx44` on the system offsets the whole thing in world space. The final row is position, and values above or below 1 on the diagonal scale it.
+
+A dancer standing beside the champion rather than inside them is a translation of a couple of hundred units on one axis, plus a scale, and nothing more.
+
+---
+
+## Spawning it
+
+Fire it from an animation event like any other effect. The effect key resolves through `mResourceResolver` exactly as usual, and the prop appears wherever the event says.
+
+A recall that lands a dropship is one `ParticleEventData` on the recall clip, keyed to a layout bone.
+
+---
+
+## Reusing the champion's own animation on a second mesh
+
+This is the trick worth remembering. A mesh particle can be driven by **the champion's own `.anm` file**, as long as the prop's skeleton shares joint names with it.
+
+Two things fall out of that.
+
+**A second model performing the same animation.** Point a mesh particle at your alternate model, drive it with the champion's emote clip, and hide the real champion with a submesh visibility event on the same frame. The result is one character replaced by another mid-emote, with no new animation authored. Add a puff of smoke on the swap frame to cover the transition.
+
+**A prop that exists both inside and outside the champion.** If a vehicle is built into the champion's skeleton as a few extra joints, you can export the same clip twice: once as the champion's animation, once as the prop's. Because tracks bind by joint name, only the matching joints apply to the prop, and the two can never drift out of sync because they are literally the same file.
+
+---
+
+## Choosing between a prop and a real entity
+
+Three options, in increasing cost:
+
+**Merge it into the champion's skeleton.** Extra joints on the existing rig, skinned into the same mesh, keyed in the same clips. You get synchronisation for free and it costs one clip. A mounted horse can be a third of the joints on a rig and still be animated inside the rider's animation.
+
+**Make it a mesh particle.** Its own small skeleton and clips, spawned by an event. Right for anything that appears and disappears, and for anything that needs to exist away from the champion's body.
+
+**Make it a real companion entity.** Only when it has its own lifecycle in game, like a pet that is summoned and dies independently. This means a full parallel workflow: its own bin under `data/characters/<name>/skins/`, its own skeleton and mesh, its own animation graph. Budget roughly triple the bin work.
+
+The mistake is reaching for the third when the first would do.
+
+---
+
+## What this is not
+
+**Props do not need a spawn or minion definition.** A champion with a dropship, a hologram, a dancer and a drill still has exactly one character record. If you find yourself looking for how to spawn a unit, you are on the wrong track.
+
+Guide by Kaizen

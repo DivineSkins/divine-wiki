@@ -1,0 +1,149 @@
+---
+title: "Animated Loading Screens"
+description: "How to make a loading screen glow, shine and wave, and how to mask the distortion so it follows your character's silhouette instead of the whole rectangle."
+category: "vfx-bins"
+---
+
+Most loading screens are a flat image. They do not have to be. With one extra property in the skin bin and a hand-painted mask, a loading screen can pulse, shine and ripple, with the ripple confined to the character rather than sweeping across the background.
+
+That last part is the bit people miss. The animation itself is easy to copy and turns up in mods fairly often. The mask is what makes it look deliberate rather than like the whole picture is underwater.
+
+---
+
+## Required Tools
+
+| Tool                                    | Purpose                                                        |
+| :-------------------------------------- | :-------------------------------------------------------------- |
+| **Flint**                               | Extract the champion and convert between `.tex` and `.dds`      |
+| **Jade**                                | Edit the skin `.bin` visually (recommended)                     |
+| **Ritobin**                             | Alternative: convert `.bin` to `.py` for editing                |
+| **Photoshop, GIMP or Paint.NET**        | Paint the mask. Use the matching `.tex` plugin for your editor  |
+
+---
+
+## How it works
+
+Two pieces have to line up.
+
+**The bin side** binds a material to the loading screen image. Normally the loading screen is just a picture, declared like this:
+
+```py
+"Loadscreen": {
+    "__class": "CensoredImage",
+    "Image": "ASSETS/Characters/YourChamp/Skins/Base/YourChampLoadScreen.dds"
+}
+```
+
+**The mask side** is a texture whose colour channels drive the animation: two of them supply moving noise, and one of them decides where that noise is allowed to apply.
+
+Without the mask, the distortion covers the entire image. With it, the distortion is confined to whatever you painted white.
+
+---
+
+## Part 1: the bin
+
+Alongside `Loadscreen`, add one more property on `SkinCharacterDataProperties`:
+
+```py
+0xeda7817e: link = "YourMaterialEntryName"
+```
+
+This is an unnamed property, so it shows as a hash. It is what binds a material to the loading screen. A stock champion bin does not have it, which is easy to confirm for yourself: open any vanilla skin bin, and you will find `Loadscreen` present and `0xeda7817e` absent.
+
+Then you need the material it points at. Rather than writing one, copy Riot's Hall of Legends Ahri UI material wholesale:
+
+```py
+"Characters/Ahri/Skins/Skin86/Materials/UI_Base_HoL_Ahri_Skin86_inst" = StaticMaterialDef {
+    ...
+    samplerValues: list[embed] = {
+        StaticMaterialShaderSamplerDef {
+            samplerName: string = "UI_Secondary_Texture"
+            texturePath: string = "ASSETS/Characters/YourChamp/Skins/Base/yourLoadMask.tex"
+            addressW: u32 = 1
+        }
+    }
+    ...
+}
+```
+
+> **Note:** Do not ship the shader. The material links to a shader that is already in the game, and copying that link is enough. This does mean the technique depends on Riot continuing to ship the Hall of Legends Ahri material, so it is worth noting in your own project notes as an external dependency.
+
+### Parameters worth knowing
+
+These are the values that control the look. Everything is a float4.
+
+| Parameter                          | Example value  | What it does                               |
+| :--------------------------------- | :------------- | :------------------------------------------ |
+| `UI_Secondary_DistortionControl`   | `0.05, 0.005`  | Distortion strength, X and Y                |
+| `UI_Secondary_R_ScrollSpeed`       | `0.5, -0.25`   | Speed and direction of the wave             |
+| `UI_Secondary_G_ScrollSpeed`       | `0`            | Leave at zero so the mask stays put         |
+| `GlowPulseFrequency`               | `2.0`          | Pulses per second                           |
+| `RGBGlowMinMaxValue`               | `0.85, 1.15`   | How far the glow dips and peaks             |
+| `Shine_FrequencySpeed`             | `10, 8`        | Speed of the sweeping shine                 |
+| `Shine_Direction`                  | `0.5, -0.7`    | Direction of the shine                      |
+| `Shine_Strength`                   | `0.02`         | How strong the shine is                     |
+
+Start by tuning `UI_Secondary_DistortionControl` and `UI_Secondary_R_ScrollSpeed`. Those two account for most of what the effect looks like.
+
+### The switches are inverted, and this will confuse you
+
+Booleans in this bin are written **only when they are false**, and omitted when they are true.
+
+So if you go looking for the switch that turns your effect on, you will not find it. The switches that are ON are the ones that are absent from the file. For this effect the ones you want enabled, meaning absent, are:
+
+- `GLOW_PULSE_ON`
+- `SHINE_ON`
+- `UI_SECONDARY_RGB_SCROLL_ON`
+- `DISTORTION_ON_PRIMARY`
+
+And one you want explicitly set to false: `UI_SECONDARY_ON`. That switch draws the mask texture as visible colour. You do not want to see the mask, you only want it read as a driver.
+
+> 💡 **Tip:** If you are reading a working example and cannot find a property you expect, check whether its absence is the point.
+
+---
+
+## Part 2: the mask
+
+Copy Riot's `ahriLoadMaskPacked.SKINS_Ahri_HoL.tex` into your own asset folder and repaint it. It is **256 by 512, BC3 / DXT5, with no mipmaps.** Keep those settings.
+
+The channels do different jobs:
+
+| Channel | Contents                        | Role                                                        |
+| :------ | :------------------------------ | :----------------------------------------------------------- |
+| **R**   | Smooth, low-frequency noise     | Scrolls, and is what you see as the wave                     |
+| **G**   | Coarser noise, does not scroll  | A static warp bias that stops the motion looking uniform     |
+| **B**   | Hard black and white matte      | **Where the distortion is allowed to apply**                 |
+| **A**   | Unused                          |                                                              |
+
+**B is the channel that matters and the one people skip.** Paint it as a hard matte, pure black or pure white with no soft edges, tracing the part of the character you want to ripple. White distorts, black does not.
+
+You do not need to trace the whole character, and it usually looks better if you do not. A good result comes from picking the parts that read as fabric or motion, a cape, a coat, hanging cloth, hair, and leaving armour, faces and the background at black. Around a third of the frame being white is a reasonable amount.
+
+### The gotcha that will get you
+
+**The mask and the loading screen are different sizes and different aspect ratios.** The mask is 256 by 512. A loading screen is 308 by 560.
+
+The shader samples both across the same 0 to 1 UV space, so the mask is stretched over the loading screen regardless of its own proportions. That means you must **paint the matte over the loading screen at 308 by 560, then squash it to 256 by 512 on export.**
+
+If you paint it at 256 by 512 to begin with, your silhouette will be subtly the wrong shape and the ripple will not sit where your character is. This is the most likely reason a first attempt looks almost right.
+
+---
+
+## Putting it together
+
+1. Author your loading screen as usual, 308 by 560, DXT5, no mipmaps, and put it in your own asset folder.
+2. Copy Riot's `ahriLoadMaskPacked.SKINS_Ahri_HoL.tex` into the same folder. Decode it so you can edit the channels.
+3. Leave R and G alone. Repaint **B** as a black and white matte of the parts you want to ripple, painted over the loading screen at 308 by 560, then squashed to 256 by 512.
+4. Re-encode the mask as BC3 with no mipmaps.
+5. Copy the `StaticMaterialDef` named `Characters/Ahri/Skins/Skin86/Materials/UI_Base_HoL_Ahri_Skin86_inst` into your skin bin, keeping its shader link, and repoint `UI_Secondary_Texture` at your mask.
+6. Add `0xeda7817e` on `SkinCharacterDataProperties` as a link to that material, alongside the normal `Loadscreen`.
+7. Leave `UI_SECONDARY_ON` false. Leave the four switches listed above absent.
+8. Test, then tune `UI_Secondary_DistortionControl` and `UI_Secondary_R_ScrollSpeed`.
+
+---
+
+## What this does not cover
+
+**Icons.** The material hook exists for `Loadscreen` only. `IconCircle` and `IconSquare` are plain path lists with no material property available, so the same technique does not extend to them.
+
+Guide by Kaizen

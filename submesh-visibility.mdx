@@ -1,0 +1,146 @@
+---
+title: "Submesh Visibility and Weapon Swaps"
+description: "Hiding and showing parts of a mesh: the spawn state, per-clip visibility events, and how to give a champion several weapons that swap per ability."
+category: "vfx-bins"
+---
+
+There is no attachment system for swapping a champion's weapon. If you want a champion to hold a hammer for one ability and a shotgun for another, you model both into the same mesh and turn one on at a time.
+
+This surprises people, and once you know it a lot of otherwise impossible-looking mods become straightforward.
+
+---
+
+## Required Tools
+
+| Tool        | Purpose                                                     |
+| :---------- | :---------------------------------------------------------- |
+| **Flint**   | Extract the champion                                        |
+| **Jade**    | Edit the skin and animation `.bin` visually (recommended)   |
+| **Ritobin** | Alternative: convert `.bin` to `.py` for editing            |
+| **Maya or Blender** | Model the extra parts into the mesh as named submeshes |
+
+---
+
+## Submeshes are the unit of everything
+
+A `.skn` holds named submeshes, and those names are the handles used by everything below. Name them for what they are, because you will be typing them into bins for as long as the project lasts.
+
+A weapon-swap mesh might carry body parts named `Arms_MAT`, `Face_MAT`, `Cape_MAT` alongside weapons named `Hammer_MAT`, `BFG_MAT`, `Gun_MAT`, `Guitar_MAT1` and `Flail_MAT`, all in one file.
+
+---
+
+## The spawn state
+
+Declare what is hidden when the champion appears, in the skin bin:
+
+```py
+InitialSubmeshToHide: string = "BFG_MAT, Gun_MAT, Guitar_MAT, Guitar_MAT1, Hammer_MAT"
+SubmeshRenderOrder:   string = "Cape_MAT, Fur_MAT, Face_MAT, Glass_MAT"
+```
+
+Everything not listed is visible, so whichever weapon you leave out is the default.
+
+`SubmeshRenderOrder` controls draw order and is the fix for transparency sorting errors, where a transparent region on one piece punches a hole through whatever is behind it. Put the piece that should be behind first.
+
+> **Note:** Both space-separated and comma-separated lists appear in shipped mods and both work. Match whatever the surrounding file already uses.
+
+There is also an equivalent property for mouse-hover.
+
+---
+
+## Stopping a submesh casting a shadow
+
+`InitialSubmeshShadowsToHide` takes the same kind of list and removes those submeshes from shadow casting, while leaving them fully visible.
+
+```py
+InitialSubmeshToHide:        string = "Bottle, Lasers, Lasers_Outer"
+InitialSubmeshShadowsToHide: string = "Lasers, Lasers_Outer"
+```
+
+**This is what you want for anything that emits light rather than blocking it.** A lightsaber blade, laser eyes, a glowing rune, an energy shield: physically these are light sources, so a hard shadow on the ground underneath them reads as wrong immediately, even if most players could not tell you why.
+
+The same applies to flat sprite planes used as fake effects, which otherwise drop a rectangular shadow that gives the trick away.
+
+Note that the two properties are independent. In the example above the laser submeshes appear in both lists, because they start hidden and are revealed by an ability, but they never cast a shadow at any point. A submesh can equally be visible from the start and still be in the shadow list.
+
+> **Note:** Depending on your hash table, this property may show as the unresolved hash `0xf4ba5c9e` rather than by name. If you are hunting for it in a bin and cannot find the string, search for that.
+
+---
+
+## Swapping per clip
+
+From the animation bin, an event on the clip:
+
+```py
+SubmeshVisibilityEventData {
+    mStartFrame: f32 = 12
+    mEndFrame:   f32 = 31
+    SubmeshesToShow: list[hash] = { "BFG_MAT" }
+}
+SubmeshVisibilityEventData {
+    mEndFrame: f32 = 40
+    SubmeshesToHide: list[hash] = { "Flail_MAT" }
+}
+```
+
+`mEndFrame` means the override **reverts** at that frame.
+
+The pattern in practice: the ability's clip shows its weapon and hides the default, and the exit clips revert both.
+
+### The default weapon has to be suppressed everywhere
+
+This is the part that catches people. If the flail is your default, every clip that shows a different weapon has to explicitly hide the flail. On a mod with five weapons that means the hide event appears in dozens of clips.
+
+### Every transition needs its own frame numbers
+
+League will not blend a custom pose back to locomotion for you, so each action has its own exits, and each exit needs its own copy of the visibility reverts with frames matched to that clip's length.
+
+A crit that reverts the shotgun at frame 44 in the to-run exit might revert it at 16 in the to-run-fast exit and 31 in the to-idle exit. Get one wrong and the weapon stays welded to the champion's hand for the rest of the game.
+
+> 💡 **Tip:** Build the visibility events at the same time as the transition clips, not afterwards. Going back through twenty exit clips looking for the one with the wrong frame is miserable.
+
+---
+
+## Making a character vanish
+
+Hide every body submesh in one event. This is how a recall ends with the champion disappearing, and how you swap the champion for a completely different model mid-emote: hide all of the body, and spawn the replacement as a mesh particle.
+
+---
+
+## Retexturing one part
+
+`materialOverride` changes the texture on a single submesh without touching the rest:
+
+```py
+SkinMeshDataProperties_MaterialOverride {
+    texture: string = "ASSETS/Characters/YourChamp/Skins/Base/Body.tex"
+    submesh: string = "Base_Tank"
+}
+```
+
+Note it wants a `.tex`, not a `.dds`.
+
+You can also override with a **material** rather than a plain texture, which is how you get shader effects on one piece:
+
+```py
+SkinMeshDataProperties_MaterialOverride {
+    material: link = "Characters/YourChamp/Skins/Base/Materials/YourGlowMaterial"
+    submesh: string = "Hammer_MAT"
+}
+```
+
+> **Note:** `material: link` and `texture: string` are not interchangeable. Pointing a submesh at another skin's material with `texture: string` renders it pure white, and that one has cost people days.
+
+A common combination is to hide a submesh at spawn and give it a material override at the same time, so it looks correct whenever an effect later reveals it.
+
+One trap: if every submesh has a `materialOverride`, the top-level `texture` on the mesh properties is never read. Mods ship with that field pointing at a file that is not even in the package, with no ill effect.
+
+---
+
+## When to use something else
+
+**For a state that lasts**, a form change tied to an ultimate or a buff, use persistent effect conditions instead. Those take the same submesh show and hide lists but are driven by game state rather than by a clip, so you write the condition once instead of touching every animation.
+
+**For a change that must outlive the clip**, note that submesh toggles only last for the duration of the animation, whereas texture swaps persist after it ends. If you need a part gone permanently after an emote, swap to a texture with that region fully transparent, or use a persistent condition.
+
+Guide by Kaizen

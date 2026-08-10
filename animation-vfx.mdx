@@ -1,0 +1,179 @@
+---
+title: "Attaching VFX to Animations"
+description: "Firing particles, sounds and submesh changes from animation events: effect keys, bones, loops, frames, and how to pair an effect with the thing that turns it off."
+category: "vfx-bins"
+---
+
+Persistent effect conditions handle states that last. Animation events handle moments: a footfall, a muzzle flash, a weapon appearing on frame 20. This page covers how to fire things from a clip.
+
+---
+
+## Required Tools
+
+| Tool        | Purpose                                                     |
+| :---------- | :---------------------------------------------------------- |
+| **Flint**   | Extract the champion so you have the animation bin          |
+| **Jade**    | Edit the `.bin` visually (recommended)                      |
+| **Ritobin** | Alternative: convert `.bin` to `.py` for editing            |
+
+---
+
+## Where events live
+
+Inside the animation bin, each clip is an `AtomicClipData`, and each clip carries an `mEventDataMap`. Everything on this page goes in there.
+
+```py
+AtomicClipData {
+    mAnimationResourceData: AnimationResourceData {
+        mAnimationFilePath: string = "ASSETS/.../YourChamp_Attack1.anm"
+    }
+    mEventDataMap: map[hash,pointer] = {
+        "MyEvent" = ParticleEventData { ... }
+    }
+}
+```
+
+Four event types do nearly all the work: particles, submesh visibility, sounds, and joint snapping.
+
+---
+
+## Firing a particle
+
+```py
+"Jetpack_Blast" = ParticleEventData {
+    mEffectKey: hash = "Jetpack_Blast"
+    mParticleEventDataPairList: list[embed] = {
+        ParticleEventDataPair { mBoneName: hash = "L_Vent_Buffbone" }
+    }
+    mStartFrame: f32 = 16
+    mIsLoop: bool = true
+    mIsKillEvent: bool = true
+}
+```
+
+The fields that matter:
+
+| Field | Does |
+| :---- | :----- |
+| `mEffectKey` | Which effect to play. **A resolver key, not a path**, see below |
+| `mParticleEventDataPairList` | One entry per spawn. Several entries means the same effect on several bones |
+| `mBoneName` | Where it attaches |
+| `mTargetBoneName` | A second anchor, for two-point effects like tethers |
+| `mStartFrame` / `mEndFrame` | Timing within the clip. Omit the start and it fires from frame 0 |
+| `mIsLoop` | Keeps it alive for the clip rather than firing once |
+| `mIsKillEvent` | Cleans it up when the clip is displaced |
+| `mIsDetachable` | Lets the effect leave the bone |
+
+`mName` on the event is a free identifier and can be anything.
+
+> **Note:** `mBoneName` is typed as a hash, but you can write the bone name in plaintext and Ritobin will hash it for you.
+
+### The effect key has to be registered
+
+`mEffectKey` does nothing on its own. It has to appear on the **left-hand side** of an entry in the skin bin's `mResourceResolver`:
+
+```py
+"Rocks_Wheel1" = "Characters/Fiora/Skins/Skin0/Particles/Fiora_Ground_1"
+```
+
+The left side is the key you invented, the right side is the real system. Using the same string on both sides is a mistake people make constantly. If the key is not in the resolver, nothing plays and nothing errors.
+
+The resolver entry can sit anywhere in the bin, so search for it rather than assuming it is at the end. A bin can also contain more than one resolver, and updating only the first is a good way to end up with a skin that has no effects at all.
+
+---
+
+## Two-point effects
+
+Adding `mTargetBoneName` alongside `mBoneName` gives the effect two anchors:
+
+```py
+ParticleEventDataPair {
+    mBoneName:       hash = "L_Buffbone_Glb_Hand_Loc"
+    mTargetBoneName: hash = "C_Buffbone_Glb_Chest_Loc"
+}
+```
+
+Any Riot effect containing a tether emitter can be rebound this way, between an arbitrary caster bone and an arbitrary point on the target. From the caster's hand to the victim's chest, a soul-steal tether reads as pulling something out of them.
+
+This is a cheap way to fake a mechanic, because nothing about the champion's behaviour changes.
+
+> **Note:** It does not turn a stationary effect into a travelling one. If the effect is not a projectile, `mTargetBoneName` and `mIsDetachable` will not make it fly, and you will end up with something shrunk and stuck to the hand. Making a projectile is a champion bin edit, not an animation event.
+
+---
+
+## Pair an effect with the thing that turns it off
+
+The most useful habit on this page. When an effect needs to be turned on by one clip and off by another, **pair them by key rather than by frame**.
+
+Give both events the same event key, and two different effect keys:
+
+- The "on" effect on every clip that should start it, with `mIsKillEvent: true`
+- The "off" effect on every clip that should end it, on the same bone
+
+Because both write the same key slot, whichever fires last owns it. A lightsaber that ignites on every entry into an ability and retracts on every recovery clip needs no frame numbers at all, and cannot desync when the player interrupts the ability halfway through.
+
+Use explicit frames only where the timing is genuinely local to one clip. A death animation that blows a machine apart limb by limb is the right place for hand-picked frames on eleven different bones.
+
+### Killing a loop cleanly
+
+For a looping effect on an interruptible ability, re-declare the same key on every recovery clip with an `mEndFrame`. That cuts the loop a fixed distance into the recovery, whichever recovery variant happens to play.
+
+---
+
+## Sounds
+
+```py
+SoundEventData {
+    mSoundName: string = "Play_sfx_Poppy_Taunt3D_buffactivate"
+    mStartFrame: f32 = 20
+    mIsLoop: bool = false
+}
+```
+
+`mSoundName` is a literal Wwise event name. You are firing an event that already exists, not creating one.
+
+### A particle system with no particles, used as a sound carrier
+
+The cleanest trick in this area. A `VfxSystemDefinitionData` with no emitters at all, carrying only a sound field:
+
+```py
+"R_Channel_Sound" = VfxSystemDefinitionData {
+    ParticleName: string = "R_Channel_Sound"
+    ParticlePath: string = "R_Channel_Sound"
+    SoundOnCreateDefault: string = "Play_sfx_Poppy_PoppyR_fullcharge"
+}
+```
+
+Spawn it anywhere a particle can be spawned and you get a sound, without touching any ability script. The same field takes a `Stop_` event to end a loop, and `SoundPersistentDefault` handles looping sounds.
+
+---
+
+## Other event types
+
+**`SubmeshVisibilityEventData`** shows and hides parts of the mesh. It has its own page, since weapon swapping is built entirely on it.
+
+**`JointSnapEventData`** re-parents a joint for a window of frames. This is how a weapon changes hands mid-swing.
+
+**`FaceCamera`** turns the model to face the camera for the clip:
+
+```py
+"FaceCamera" = 0xd7a6b107 {}
+```
+
+It optionally takes `BlendInTime` and `BlendOutTime` to control the turn. You only need that one event; do not copy a surrounding block to get it.
+
+---
+
+## Give effects their own bones
+
+Do not parent a footfall effect to a foot. Add dedicated joints to the skeleton for the purpose, named for what they do, and attach effects to those instead. A rig with `VFX_Step1`, `VFX_Step2` and `VFX_Dance` on it gives you stable anchors that do not inherit whatever the animation is doing to the limb.
+
+Append new joints to the **end** of the skeleton, never into the middle, or you will break every animation mask on the champion.
+
+---
+
+## Leftovers are usually harmless
+
+If you replace a champion's mesh, its stock clips will still contain events referring to submeshes and effects that no longer exist. These are silent no-ops. Cleaning them up is tidy, but shipped mods routinely leave them in place with no ill effect.
+
+Guide by Kaizen
