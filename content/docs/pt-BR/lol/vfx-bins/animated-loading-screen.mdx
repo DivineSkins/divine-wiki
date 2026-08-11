@@ -1,0 +1,149 @@
+---
+title: "Telas de Carregamento Animadas"
+description: "Como fazer uma tela de carregamento brilhar, reluzir e ondular, e como mascarar a distorção para ela seguir a silhueta do seu personagem em vez do retângulo inteiro."
+category: "vfx-bins"
+---
+
+A maioria das telas de carregamento é uma imagem parada. Não precisa ser assim. Com uma propriedade a mais no bin da skin e uma máscara pintada na mão, uma tela de carregamento pode pulsar, reluzir e ondular, com a ondulação presa ao personagem em vez de varrer o fundo inteiro.
+
+Essa última parte é a que quase todo mundo esquece. A animação em si é fácil de copiar e aparece bastante em mods. A máscara é o que faz o resultado parecer intencional, e não uma imagem inteira embaixo d'água.
+
+---
+
+## Ferramentas Necessárias
+
+| Ferramenta                       | Função                                                         |
+| :------------------------------- | :------------------------------------------------------------- |
+| **Flint**                        | Extrair o campeão e converter entre `.tex` e `.dds`            |
+| **Jade**                         | Editar o `.bin` da skin visualmente (recomendado)              |
+| **Ritobin**                      | Alternativa: converter `.bin` para `.py` para editar           |
+| **Photoshop, GIMP ou Paint.NET** | Pintar a máscara. Use o plugin `.tex` do editor que você usar  |
+
+---
+
+## Como funciona
+
+Duas peças precisam se encaixar.
+
+**O lado do bin** liga um material à imagem da tela de carregamento. Normalmente a tela de carregamento é só uma imagem, declarada assim:
+
+```py
+"Loadscreen": {
+    "__class": "CensoredImage",
+    "Image": "ASSETS/Characters/YourChamp/Skins/Base/YourChampLoadScreen.dds"
+}
+```
+
+**O lado da máscara** é uma textura cujos canais de cor controlam a animação: dois deles fornecem ruído em movimento, e um decide onde esse ruído pode ser aplicado.
+
+Sem a máscara, a distorção cobre a imagem inteira. Com ela, a distorção fica limitada ao que você pintou de branco.
+
+---
+
+## Parte 1: o bin
+
+Ao lado de `Loadscreen`, adicione mais uma propriedade em `SkinCharacterDataProperties`:
+
+```py
+0xeda7817e: link = "YourMaterialEntryName"
+```
+
+Essa propriedade não tem nome, então ela aparece como hash. É ela que liga um material à tela de carregamento. Um bin de campeão padrão não tem essa propriedade, e é fácil confirmar por conta própria: abra qualquer bin de skin original e você vai achar `Loadscreen` presente e `0xeda7817e` ausente.
+
+Depois você precisa do material para onde ela aponta. Em vez de escrever um do zero, copie inteiro o material de UI da Ahri Hall of Legends da Riot:
+
+```py
+"Characters/Ahri/Skins/Skin86/Materials/UI_Base_HoL_Ahri_Skin86_inst" = StaticMaterialDef {
+    ...
+    samplerValues: list[embed] = {
+        StaticMaterialShaderSamplerDef {
+            samplerName: string = "UI_Secondary_Texture"
+            texturePath: string = "ASSETS/Characters/YourChamp/Skins/Base/yourLoadMask.tex"
+            addressW: u32 = 1
+        }
+    }
+    ...
+}
+```
+
+> **Nota:** Não inclua o shader no seu mod. O material aponta para um shader que já está no jogo, e copiar esse link basta. Isso quer dizer que a técnica depende de a Riot continuar distribuindo o material da Ahri Hall of Legends, então vale anotar isso nas notas do seu projeto como uma dependência externa.
+
+### Parâmetros que vale conhecer
+
+Estes são os valores que controlam o visual. Tudo aqui é float4.
+
+| Parâmetro                        | Valor de exemplo | O que faz                             |
+| :------------------------------- | :--------------- | :------------------------------------ |
+| `UI_Secondary_DistortionControl` | `0.05, 0.005`    | Força da distorção, em X e Y          |
+| `UI_Secondary_R_ScrollSpeed`     | `0.5, -0.25`     | Velocidade e direção da onda          |
+| `UI_Secondary_G_ScrollSpeed`     | `0`              | Deixe em zero para a máscara ficar parada |
+| `GlowPulseFrequency`             | `2.0`            | Pulsos por segundo                    |
+| `RGBGlowMinMaxValue`             | `0.85, 1.15`     | Quanto o brilho cai e sobe            |
+| `Shine_FrequencySpeed`           | `10, 8`          | Velocidade do lampejo que varre a arte |
+| `Shine_Direction`                | `0.5, -0.7`      | Direção do lampejo                    |
+| `Shine_Strength`                 | `0.02`           | Intensidade do lampejo                |
+
+Comece ajustando `UI_Secondary_DistortionControl` e `UI_Secondary_R_ScrollSpeed`. Esses dois respondem pela maior parte do visual do efeito.
+
+### Os switches são invertidos, e isso vai te confundir
+
+Os booleanos deste bin são escritos **só quando são false**, e omitidos quando são true.
+
+Então, se você for procurar o switch que liga o seu efeito, não vai achar. Os switches ligados são justamente os que estão ausentes do arquivo. Para este efeito, os que você quer ativados, ou seja, ausentes, são:
+
+- `GLOW_PULSE_ON`
+- `SHINE_ON`
+- `UI_SECONDARY_RGB_SCROLL_ON`
+- `DISTORTION_ON_PRIMARY`
+
+E um que você quer explicitamente em false: `UI_SECONDARY_ON`. Esse switch desenha a textura da máscara como cor visível. Você não quer ver a máscara, quer só que ela seja lida como controle.
+
+> 💡 **Dica:** Se você está lendo um exemplo que funciona e não acha uma propriedade que esperava encontrar, considere que a ausência dela pode ser o ponto.
+
+---
+
+## Parte 2: a máscara
+
+Copie o `ahriLoadMaskPacked.SKINS_Ahri_HoL.tex` da Riot para a sua própria pasta de assets e repinte ele. Ele é **256 por 512, BC3 / DXT5, sem mipmaps.** Mantenha essas configurações.
+
+Cada canal tem uma função diferente:
+
+| Canal   | Conteúdo                       | Papel                                                    |
+| :------ | :----------------------------- | :------------------------------------------------------- |
+| **R**   | Ruído suave, de baixa frequência | Rola na tela, e é o que você vê como onda              |
+| **G**   | Ruído mais grosso, não rola    | Uma distorção fixa que evita o movimento ficar uniforme  |
+| **B**   | Máscara dura, preto e branco   | **Onde a distorção pode ser aplicada**                   |
+| **A**   | Não usado                      |                                                          |
+
+**B é o canal que importa e o que todo mundo pula.** Pinte ele como uma máscara dura, preto puro ou branco puro, sem bordas suaves, contornando a parte do personagem que você quer ondulando. Branco distorce, preto não.
+
+Você não precisa contornar o personagem inteiro, e no geral fica melhor se não contornar. O bom resultado vem de escolher as partes que passam ideia de tecido ou movimento: capa, casaco, pano solto, cabelo. Deixe armadura, rosto e fundo em preto. Cerca de um terço da imagem em branco é uma quantidade razoável.
+
+### A pegadinha que vai te pegar
+
+**A máscara e a tela de carregamento têm tamanhos e proporções diferentes.** A máscara é 256 por 512. Uma tela de carregamento é 308 por 560.
+
+O shader lê as duas no mesmo espaço UV de 0 a 1, então a máscara é esticada em cima da tela de carregamento sem respeitar a proporção original dela. Ou seja, você precisa **pintar a máscara sobre a tela de carregamento em 308 por 560 e depois achatar para 256 por 512 na exportação.**
+
+Se você pintar direto em 256 por 512, a silhueta vai sair com a forma levemente errada e a ondulação não vai cair onde o seu personagem está. Esse é o motivo mais provável de a primeira tentativa ficar quase certa.
+
+---
+
+## Juntando tudo
+
+1. Crie a sua tela de carregamento normalmente, 308 por 560, DXT5, sem mipmaps, e coloque na sua própria pasta de assets.
+2. Copie o `ahriLoadMaskPacked.SKINS_Ahri_HoL.tex` da Riot para a mesma pasta. Decodifique ele para conseguir editar os canais.
+3. Não mexa em R e G. Repinte o **B** como uma máscara preto e branco das partes que você quer ondulando, pintada sobre a tela de carregamento em 308 por 560 e depois achatada para 256 por 512.
+4. Codifique a máscara de novo em BC3, sem mipmaps.
+5. Copie o `StaticMaterialDef` chamado `Characters/Ahri/Skins/Skin86/Materials/UI_Base_HoL_Ahri_Skin86_inst` para o bin da sua skin, mantendo o link do shader, e aponte `UI_Secondary_Texture` para a sua máscara.
+6. Adicione `0xeda7817e` em `SkinCharacterDataProperties` como link para esse material, ao lado do `Loadscreen` normal.
+7. Deixe `UI_SECONDARY_ON` em false. Deixe os quatro switches listados acima ausentes.
+8. Teste e depois ajuste `UI_Secondary_DistortionControl` e `UI_Secondary_R_ScrollSpeed`.
+
+---
+
+## O que este guia não cobre
+
+**Ícones.** O gancho de material existe só para `Loadscreen`. `IconCircle` e `IconSquare` são listas de caminho simples, sem propriedade de material disponível, então a mesma técnica não se estende para eles.
+
+Guia por Kaizen

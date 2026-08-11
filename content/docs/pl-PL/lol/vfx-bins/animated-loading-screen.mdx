@@ -1,0 +1,149 @@
+---
+title: "Animowane ekrany ładowania"
+description: "Jak sprawić, żeby ekran ładowania świecił, błyszczał i falował, i jak zamaskować zniekształcenie, żeby szło za sylwetką postaci, a nie za całym prostokątem."
+category: "vfx-bins"
+---
+
+Większość ekranów ładowania to płaski obrazek. Nie musi tak być. Wystarczy jedna dodatkowa właściwość w binie skina i ręcznie namalowana maska, żeby ekran ładowania pulsował, błyszczał i falował. Falowanie zostaje przy postaci, zamiast przelewać się po całym tle.
+
+Właśnie ta ostatnia część najczęściej umyka. Samą animację łatwo skopiować i pojawia się w modach dość często. To maska sprawia, że efekt wygląda na zamierzony, a nie jakby cały obrazek był pod wodą.
+
+---
+
+## Potrzebne narzędzia
+
+| Narzędzie                         | Do czego                                                    |
+| :-------------------------------- | :---------------------------------------------------------- |
+| **Flint**                         | Wypakowanie bohatera i konwersja między `.tex` a `.dds`     |
+| **Jade**                          | Wizualna edycja binu skina (polecane)                       |
+| **Ritobin**                       | Alternatywa: konwersja `.bin` na `.py` do edycji            |
+| **Photoshop, GIMP lub Paint.NET** | Malowanie maski. Użyj pluginu `.tex` pasującego do edytora  |
+
+---
+
+## Jak to działa
+
+Muszą zagrać dwa elementy.
+
+**Strona binu** przypina materiał do obrazka ekranu ładowania. Normalnie ekran ładowania to zwykły obrazek, zadeklarowany tak:
+
+```py
+"Loadscreen": {
+    "__class": "CensoredImage",
+    "Image": "ASSETS/Characters/YourChamp/Skins/Base/YourChampLoadScreen.dds"
+}
+```
+
+**Strona maski** to tekstura, której kanały koloru napędzają animację: dwa dostarczają ruchomy szum, a jeden decyduje, gdzie ten szum ma prawo zadziałać.
+
+Bez maski zniekształcenie pokrywa cały obrazek. Z maską trzyma się tego, co zamalowałeś na biało.
+
+---
+
+## Część 1: bin
+
+Obok `Loadscreen` dodaj jeszcze jedną właściwość w `SkinCharacterDataProperties`:
+
+```py
+0xeda7817e: link = "YourMaterialEntryName"
+```
+
+To właściwość bez nazwy, więc pokazuje się jako hash. To ona przypina materiał do ekranu ładowania. Domyślny bin bohatera jej nie ma, co łatwo sprawdzisz sam: otwórz dowolny vanilla bin skina, a znajdziesz w nim `Loadscreen`, ale `0xeda7817e` już nie.
+
+Potem potrzebujesz materiału, na który ta właściwość wskazuje. Zamiast pisać własny, skopiuj w całości materiał UI Riotu z Hall of Legends Ahri:
+
+```py
+"Characters/Ahri/Skins/Skin86/Materials/UI_Base_HoL_Ahri_Skin86_inst" = StaticMaterialDef {
+    ...
+    samplerValues: list[embed] = {
+        StaticMaterialShaderSamplerDef {
+            samplerName: string = "UI_Secondary_Texture"
+            texturePath: string = "ASSETS/Characters/YourChamp/Skins/Base/yourLoadMask.tex"
+            addressW: u32 = 1
+        }
+    }
+    ...
+}
+```
+
+> **Uwaga:** Nie dołączaj shadera. Materiał linkuje do shadera, który jest już w grze, i skopiowanie samego linku wystarczy. Oznacza to jednak, że technika zależy od tego, czy Riot dalej dostarcza materiał Hall of Legends Ahri. Warto zapisać to sobie w notatkach projektu jako zewnętrzną zależność.
+
+### Parametry, które warto znać
+
+To wartości sterujące wyglądem. Wszystko jest typu float4.
+
+| Parametr                         | Przykładowa wartość | Co robi                                     |
+| :------------------------------- | :------------------ | :------------------------------------------ |
+| `UI_Secondary_DistortionControl` | `0.05, 0.005`       | Siła zniekształcenia, X i Y                 |
+| `UI_Secondary_R_ScrollSpeed`     | `0.5, -0.25`        | Prędkość i kierunek fali                    |
+| `UI_Secondary_G_ScrollSpeed`     | `0`                 | Zostaw na zerze, żeby maska stała w miejscu |
+| `GlowPulseFrequency`             | `2.0`               | Pulsy na sekundę                            |
+| `RGBGlowMinMaxValue`             | `0.85, 1.15`        | Jak nisko i jak wysoko skacze poświata      |
+| `Shine_FrequencySpeed`           | `10, 8`             | Prędkość przesuwającego się błysku          |
+| `Shine_Direction`                | `0.5, -0.7`         | Kierunek błysku                             |
+| `Shine_Strength`                 | `0.02`              | Siła błysku                                 |
+
+Zacznij od dopasowania `UI_Secondary_DistortionControl` i `UI_Secondary_R_ScrollSpeed`. Te dwa odpowiadają za większość tego, jak efekt wygląda.
+
+### Switche są odwrócone i to cię zmyli
+
+Wartości logiczne w tym binie zapisuje się **tylko wtedy, gdy są fałszywe**, a pomija, gdy są prawdziwe.
+
+Więc jeśli poszukasz switcha, który włącza twój efekt, nie znajdziesz go. Switche WŁĄCZONE to te, których w pliku nie ma. Dla tego efektu włączone, czyli nieobecne, mają być:
+
+- `GLOW_PULSE_ON`
+- `SHINE_ON`
+- `UI_SECONDARY_RGB_SCROLL_ON`
+- `DISTORTION_ON_PRIMARY`
+
+Jeden ustawiasz wprost na false: `UI_SECONDARY_ON`. Ten switch rysuje teksturę maski jako widoczny kolor. Nie chcesz widzieć maski, ma ona tylko napędzać efekt.
+
+> 💡 **Wskazówka:** Jeśli czytasz działający przykład i nie możesz znaleźć spodziewanej właściwości, sprawdź, czy to nie jej brak jest sednem.
+
+---
+
+## Część 2: maska
+
+Skopiuj plik Riotu `ahriLoadMaskPacked.SKINS_Ahri_HoL.tex` do swojego folderu z assetami i przemaluj go. Ma **256 na 512, BC3 / DXT5, bez mipmap.** Zostaw te ustawienia.
+
+Każdy kanał robi coś innego:
+
+| Kanał | Zawartość                          | Rola                                                         |
+| :---- | :--------------------------------- | :----------------------------------------------------------- |
+| **R** | Gładki szum o niskiej częstotliwości | Przewija się i to jego widzisz jako falę                    |
+| **G** | Grubszy szum, nie przewija się     | Statyczne odkształcenie, żeby ruch nie wyglądał jednostajnie |
+| **B** | Twardy czarno-biały matte          | **Gdzie zniekształcenie ma prawo zadziałać**                 |
+| **A** | Nieużywany                         |                                                              |
+
+**B to kanał, który ma znaczenie, i ten, który ludzie pomijają.** Maluj go jako twardy matte: czysta czerń albo czysta biel, bez miękkich krawędzi, obrysowując tę część postaci, która ma falować. Biel zniekształca, czerń nie.
+
+Nie musisz obrysowywać całej postaci i zwykle lepiej wygląda, gdy tego nie robisz. Dobry efekt daje wybranie fragmentów, które kojarzą się z tkaniną albo ruchem: peleryna, płaszcz, zwisający materiał, włosy. Zbroję, twarze i tło zostaw czarne. Około jednej trzeciej kadru na biało to rozsądna ilość.
+
+### Pułapka, która cię dopadnie
+
+**Maska i ekran ładowania mają inne rozmiary i inne proporcje.** Maska ma 256 na 512. Ekran ładowania ma 308 na 560.
+
+Shader próbkuje oba w tej samej przestrzeni UV od 0 do 1, więc maska rozciąga się na ekran ładowania niezależnie od własnych proporcji. Znaczy to, że musisz **namalować matte na ekranie ładowania w 308 na 560, a przy eksporcie ścisnąć go do 256 na 512.**
+
+Jeśli od razu namalujesz go w 256 na 512, sylwetka będzie miała lekko zły kształt, a falowanie nie trafi tam, gdzie stoi twoja postać. To najczęstszy powód, dla którego pierwsze podejście wygląda prawie dobrze.
+
+---
+
+## Wszystko razem
+
+1. Zrób ekran ładowania jak zwykle: 308 na 560, DXT5, bez mipmap, i wrzuć go do swojego folderu z assetami.
+2. Skopiuj plik Riotu `ahriLoadMaskPacked.SKINS_Ahri_HoL.tex` do tego samego folderu. Rozkoduj go, żeby dało się edytować kanały.
+3. Zostaw R i G w spokoju. Przemaluj **B** na czarno-biały matte tych części, które mają falować, malowany na ekranie ładowania w 308 na 560, a potem ściśnięty do 256 na 512.
+4. Zakoduj maskę z powrotem jako BC3, bez mipmap.
+5. Skopiuj `StaticMaterialDef` o nazwie `Characters/Ahri/Skins/Skin86/Materials/UI_Base_HoL_Ahri_Skin86_inst` do binu swojego skina, zachowaj jego link do shadera i przekieruj `UI_Secondary_Texture` na swoją maskę.
+6. Dodaj `0xeda7817e` w `SkinCharacterDataProperties` jako link do tego materiału, obok zwykłego `Loadscreen`.
+7. Zostaw `UI_SECONDARY_ON` na false. Cztery switche wypisane wyżej zostaw nieobecne.
+8. Przetestuj, potem dopasuj `UI_Secondary_DistortionControl` i `UI_Secondary_R_ScrollSpeed`.
+
+---
+
+## Czego to nie obejmuje
+
+**Ikony.** Zaczep na materiał istnieje tylko dla `Loadscreen`. `IconCircle` i `IconSquare` to zwykłe listy ścieżek, bez dostępnej właściwości materiału, więc ta sama technika ich nie obejmuje.
+
+Poradnik autorstwa Kaizen

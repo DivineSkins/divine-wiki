@@ -1,0 +1,149 @@
+---
+title: "Animasyonlu Yükleme Ekranları"
+description: "Bir yükleme ekranını nasıl parlatır, ışıldatır ve dalgalandırırsın, ve distortion'u tüm dikdörtgen yerine karakterinin siluetini takip edecek şekilde nasıl maskelersin."
+category: "vfx-bins"
+---
+
+Çoğu yükleme ekranı düz bir görsel. Öyle olmak zorunda değil. Skin bin'ine eklenen tek bir property ve elle boyanmış bir maskeyle yükleme ekranı nabız gibi atabilir, ışıldayabilir ve dalgalanabilir. Üstelik dalgalanma arka planı süpürmek yerine karakterle sınırlı kalır.
+
+İnsanların kaçırdığı kısım tam da bu son bölüm. Animasyonun kendisini kopyalamak kolay ve modlarda sık sık karşına çıkıyor. Görüntünün tamamı su altındaymış gibi değil de bilerek yapılmış gibi görünmesini sağlayan şey maske.
+
+---
+
+## Gerekli Araçlar
+
+| Araç                                | Amaç                                                        |
+| :---------------------------------- | :----------------------------------------------------------- |
+| **Flint**                           | Şampiyonu çıkarmak ve `.tex` ile `.dds` arasında dönüştürmek |
+| **Jade**                            | Skin `.bin`'ini görsel olarak düzenlemek (önerilir)          |
+| **Ritobin**                         | Alternatif: düzenlemek için `.bin`'i `.py`'ye dönüştür       |
+| **Photoshop, GIMP ya da Paint.NET** | Maskeyi boyamak. Editörüne uygun `.tex` eklentisini kullan   |
+
+---
+
+## Nasıl çalışır
+
+İki parçanın birbirine oturması gerekiyor.
+
+**Bin tarafı** yükleme ekranı görseline bir materyal bağlar. Normalde yükleme ekranı sadece bir resimdir ve şöyle tanımlanır:
+
+```py
+"Loadscreen": {
+    "__class": "CensoredImage",
+    "Image": "ASSETS/Characters/YourChamp/Skins/Base/YourChampLoadScreen.dds"
+}
+```
+
+**Maske tarafı** ise renk kanalları animasyonu süren bir doku. Kanallardan ikisi hareketli noise sağlar, biri de o noise'un nereye uygulanabileceğine karar verir.
+
+Maske olmadan distortion tüm görseli kaplar. Maskeyle birlikte distortion, beyaza boyadığın yerle sınırlı kalır.
+
+---
+
+## Bölüm 1: bin
+
+`Loadscreen`'in yanına, `SkinCharacterDataProperties` üzerine bir property daha ekle:
+
+```py
+0xeda7817e: link = "YourMaterialEntryName"
+```
+
+Bu adsız bir property, o yüzden hash olarak görünür. Yükleme ekranına materyali bağlayan şey bu. Standart bir şampiyon bin'inde yoktur ve bunu kendin de kolayca doğrulayabilirsin: herhangi bir orijinal skin bin'ini aç, `Loadscreen` orada olacak, `0xeda7817e` olmayacak.
+
+Sonra bu property'nin işaret ettiği materyale ihtiyacın var. Sıfırdan yazmak yerine Riot'un Hall of Legends Ahri UI materyalini olduğu gibi kopyala:
+
+```py
+"Characters/Ahri/Skins/Skin86/Materials/UI_Base_HoL_Ahri_Skin86_inst" = StaticMaterialDef {
+    ...
+    samplerValues: list[embed] = {
+        StaticMaterialShaderSamplerDef {
+            samplerName: string = "UI_Secondary_Texture"
+            texturePath: string = "ASSETS/Characters/YourChamp/Skins/Base/yourLoadMask.tex"
+            addressW: u32 = 1
+        }
+    }
+    ...
+}
+```
+
+> **Not:** Shader'ı yanında dağıtma. Materyal, oyunda zaten var olan bir shader'a link veriyor ve o linki kopyalaman yeterli. Yani bu teknik, Riot'un Hall of Legends Ahri materyalini oyunda tutmaya devam etmesine bağlı. Bunu kendi proje notlarında dış bağımlılık olarak yazmaya değer.
+
+### Bilmeye değer parametreler
+
+Görünümü kontrol eden değerler bunlar. Hepsi float4.
+
+| Parametre                        | Örnek değer   | Ne işe yarar                          |
+| :------------------------------- | :------------ | :------------------------------------ |
+| `UI_Secondary_DistortionControl` | `0.05, 0.005` | Distortion gücü, X ve Y               |
+| `UI_Secondary_R_ScrollSpeed`     | `0.5, -0.25`  | Dalganın hızı ve yönü                 |
+| `UI_Secondary_G_ScrollSpeed`     | `0`           | Maske yerinde kalsın diye sıfırda bırak |
+| `GlowPulseFrequency`             | `2.0`         | Saniyedeki nabız sayısı               |
+| `RGBGlowMinMaxValue`             | `0.85, 1.15`  | Glow'un ne kadar kısılıp yükseldiği   |
+| `Shine_FrequencySpeed`           | `10, 8`       | Süpüren shine'ın hızı                 |
+| `Shine_Direction`                | `0.5, -0.7`   | Shine'ın yönü                         |
+| `Shine_Strength`                 | `0.02`        | Shine'ın gücü                         |
+
+Önce `UI_Secondary_DistortionControl` ve `UI_Secondary_R_ScrollSpeed` değerlerini ayarla. Efektin görünümünün büyük kısmı bu ikisinden geliyor.
+
+### Switch'ler ters çalışıyor, bu kafanı karıştıracak
+
+Bu bin'deki boolean'lar **sadece false olduklarında** yazılır, true olduklarında dosyadan çıkarılır.
+
+Yani efektini açan switch'i aramaya kalkarsan bulamazsın. AÇIK olan switch'ler, dosyada bulunmayanlardır. Bu efekt için açık olmasını, yani dosyada bulunmamasını istediklerin şunlar:
+
+- `GLOW_PULSE_ON`
+- `SHINE_ON`
+- `UI_SECONDARY_RGB_SCROLL_ON`
+- `DISTORTION_ON_PRIMARY`
+
+Bir tanesini de açıkça false yapmak istiyorsun: `UI_SECONDARY_ON`. O switch, maske dokusunu görünür renk olarak çizer. Maskeyi görmek istemezsin, sadece sürücü olarak okunmasını istersin.
+
+> 💡 **İpucu:** Çalışan bir örneği incelerken beklediğin bir property'yi bulamıyorsan, onun yokluğunun amaç olup olmadığına bak.
+
+---
+
+## Bölüm 2: maske
+
+Riot'un `ahriLoadMaskPacked.SKINS_Ahri_HoL.tex` dosyasını kendi asset klasörüne kopyala ve yeniden boya. Dosya **256'ya 512, BC3 / DXT5 ve mipmap'siz.** Bu ayarları koru.
+
+Kanallar farklı işler yapar:
+
+| Kanal | İçerik                          | Görevi                                              |
+| :---- | :------------------------------ | :-------------------------------------------------- |
+| **R** | Yumuşak, düşük frekanslı noise  | Kayar ve dalga olarak gördüğün şey budur            |
+| **G** | Daha kaba noise, kaymaz         | Hareketin tekdüze görünmesini engelleyen sabit warp payı |
+| **B** | Sert siyah beyaz matte          | **Distortion'un uygulanmasına izin verilen yer**    |
+| **A** | Kullanılmıyor                   |                                                     |
+
+**Asıl önemli olan ve insanların atladığı kanal B.** Onu sert bir matte olarak boya: saf siyah ya da saf beyaz, yumuşak kenar olmadan, karakterin dalgalanmasını istediğin kısmını çizerek. Beyaz distortion uygular, siyah uygulamaz.
+
+Karakterin tamamını çizmen gerekmez ve genelde çizmediğinde daha iyi görünür. İyi sonuç, kumaş ya da hareket olarak okunan parçaları seçmekten gelir: pelerin, palto, sarkan kumaş, saç. Zırhı, yüzleri ve arka planı siyah bırak. Karenin üçte biri kadarının beyaz olması makul bir oran.
+
+### Seni yakalayacak tuzak
+
+**Maske ile yükleme ekranı farklı boyutta ve farklı en boy oranında.** Maske 256'ya 512. Yükleme ekranı ise 308'e 560.
+
+Shader ikisini de aynı 0 ile 1 arası UV alanında örnekler, yani maske kendi oranı ne olursa olsun yükleme ekranının üzerine gerilir. Bu şu demek: **matte'i 308'e 560 boyutunda yükleme ekranının üzerinde boya, sonra export'ta 256'ya 512'ye sıkıştır.**
+
+Baştan 256'ya 512 boyutunda boyarsan siluetin hafifçe yanlış şekilde olur ve dalgalanma karakterinin olduğu yere oturmaz. İlk denemenin neredeyse doğru görünmesinin en olası sebebi bu.
+
+---
+
+## Hepsini birleştirmek
+
+1. Yükleme ekranını her zamanki gibi hazırla: 308'e 560, DXT5, mipmap yok. Sonra kendi asset klasörüne koy.
+2. Riot'un `ahriLoadMaskPacked.SKINS_Ahri_HoL.tex` dosyasını aynı klasöre kopyala. Kanallarını düzenleyebilmek için decode et.
+3. R ve G'ye dokunma. **B**'yi, dalgalanmasını istediğin parçaların siyah beyaz matte'i olarak yeniden boya. 308'e 560 boyutunda yükleme ekranının üzerinde boya, sonra 256'ya 512'ye sıkıştır.
+4. Maskeyi mipmap olmadan BC3 olarak yeniden encode et.
+5. `Characters/Ahri/Skins/Skin86/Materials/UI_Base_HoL_Ahri_Skin86_inst` adlı `StaticMaterialDef`'i skin bin'ine kopyala, shader link'ini koru ve `UI_Secondary_Texture`'ı kendi maskene yönlendir.
+6. `SkinCharacterDataProperties` üzerine, normal `Loadscreen`'in yanına, o materyale link veren `0xeda7817e`'yi ekle.
+7. `UI_SECONDARY_ON`'ı false bırak. Yukarıda listelenen dört switch'i dosyada olmayacak şekilde bırak.
+8. Test et, sonra `UI_Secondary_DistortionControl` ve `UI_Secondary_R_ScrollSpeed` değerlerini ayarla.
+
+---
+
+## Bunun kapsamadıkları
+
+**İkonlar.** Materyal bağlantısı sadece `Loadscreen` için var. `IconCircle` ve `IconSquare` düz yol listeleri ve kullanılabilir bir materyal property'leri yok, o yüzden aynı teknik onlara uzanmıyor.
+
+Rehber: Kaizen

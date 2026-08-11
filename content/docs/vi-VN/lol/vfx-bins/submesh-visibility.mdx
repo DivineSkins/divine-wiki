@@ -1,0 +1,146 @@
+---
+title: "Submesh Visibility và Đổi Vũ Khí"
+description: "Ẩn và hiện từng phần của mesh: trạng thái lúc xuất hiện, event visibility theo từng clip, và cách cho một tướng nhiều vũ khí đổi qua lại theo chiêu."
+category: "vfx-bins"
+---
+
+Không có hệ thống gắn kèm nào để đổi vũ khí của tướng. Nếu bạn muốn một tướng cầm búa cho chiêu này và cầm súng cho chiêu kia, bạn dựng cả hai vào chung một mesh rồi bật từng cái một.
+
+Chuyện này làm nhiều người bất ngờ, và khi đã biết rồi thì cả đống bản mod tưởng như bất khả bỗng thành đơn giản.
+
+---
+
+## Công cụ cần dùng
+
+| Công cụ               | Để làm gì                                                |
+| :-------------------- | :------------------------------------------------------- |
+| **Flint**             | Trích xuất tướng                                         |
+| **Jade**              | Chỉnh file `.bin` của skin và animation trực quan (khuyên dùng) |
+| **Ritobin**           | Cách khác: chuyển `.bin` sang `.py` để chỉnh             |
+| **Maya hoặc Blender** | Dựng các bộ phận phụ vào mesh dưới dạng submesh có tên   |
+
+---
+
+## Submesh là đơn vị của mọi thứ
+
+Một file `.skn` chứa các submesh có tên, và những cái tên đó là tay cầm mà mọi thứ bên dưới đều dùng tới. Đặt tên đúng theo bản chất của chúng, vì bạn sẽ còn gõ chúng vào bin suốt thời gian làm dự án.
+
+Một mesh đổi vũ khí có thể mang các bộ phận cơ thể tên `Arms_MAT`, `Face_MAT`, `Cape_MAT` cùng với các vũ khí tên `Hammer_MAT`, `BFG_MAT`, `Gun_MAT`, `Guitar_MAT1` và `Flail_MAT`, tất cả trong một file.
+
+---
+
+## Trạng thái lúc xuất hiện
+
+Khai báo cái gì bị ẩn khi tướng hiện ra, trong skin bin:
+
+```py
+InitialSubmeshToHide: string = "BFG_MAT, Gun_MAT, Guitar_MAT, Guitar_MAT1, Hammer_MAT"
+SubmeshRenderOrder:   string = "Cape_MAT, Fur_MAT, Face_MAT, Glass_MAT"
+```
+
+Mọi thứ không nằm trong danh sách đều hiện, nên vũ khí nào bạn bỏ ra ngoài thì đó là vũ khí mặc định.
+
+`SubmeshRenderOrder` điều khiển thứ tự vẽ và là cách sửa lỗi sắp xếp độ trong suốt, khi một vùng trong suốt trên mảnh này đục thủng luôn thứ nằm phía sau. Đặt mảnh cần nằm sau lên trước.
+
+> **Lưu ý:** Cả danh sách cách nhau bằng dấu cách lẫn danh sách cách nhau bằng dấu phẩy đều xuất hiện trong các bản mod đã phát hành, và cả hai đều chạy. Cứ theo cách mà file xung quanh đang dùng.
+
+Còn có một thuộc tính tương đương cho lúc rê chuột lên tướng.
+
+---
+
+## Chặn một submesh đổ bóng
+
+`InitialSubmeshShadowsToHide` nhận cùng kiểu danh sách và gỡ các submesh đó khỏi việc đổ bóng, trong khi vẫn để chúng hiện đầy đủ.
+
+```py
+InitialSubmeshToHide:        string = "Bottle, Lasers, Lasers_Outer"
+InitialSubmeshShadowsToHide: string = "Lasers, Lasers_Outer"
+```
+
+**Đây là thứ bạn cần cho mọi thứ phát ra ánh sáng thay vì chặn ánh sáng.** Lưỡi kiếm ánh sáng, mắt laser, một ký tự phép phát sáng, một lá chắn năng lượng: về mặt vật lý chúng là nguồn sáng, nên một cái bóng cứng dưới đất trông sai ngay lập tức, kể cả khi đa số người chơi không nói được vì sao.
+
+Điều tương tự cũng đúng với các mặt phẳng sprite dẹt dùng làm hiệu ứng giả, nếu không chúng sẽ đổ một cái bóng hình chữ nhật làm lộ mánh.
+
+Để ý là hai thuộc tính này độc lập với nhau. Trong ví dụ trên, các submesh laser có mặt ở cả hai danh sách, vì chúng bắt đầu ở trạng thái ẩn rồi được một chiêu hiện ra, nhưng chúng không bao giờ đổ bóng ở bất kỳ thời điểm nào. Một submesh cũng có thể hiện ngay từ đầu mà vẫn nằm trong danh sách bóng.
+
+> **Lưu ý:** Tùy bảng hash của bạn, thuộc tính này có thể hiện ra dưới dạng hash chưa phân giải `0xf4ba5c9e` thay vì hiện tên. Nếu bạn đang lùng nó trong một bin mà không thấy chuỗi tên, hãy search cái hash đó.
+
+---
+
+## Đổi theo từng clip
+
+Từ animation bin, một event đặt trên clip:
+
+```py
+SubmeshVisibilityEventData {
+    mStartFrame: f32 = 12
+    mEndFrame:   f32 = 31
+    SubmeshesToShow: list[hash] = { "BFG_MAT" }
+}
+SubmeshVisibilityEventData {
+    mEndFrame: f32 = 40
+    SubmeshesToHide: list[hash] = { "Flail_MAT" }
+}
+```
+
+`mEndFrame` nghĩa là phần ghi đè **trở lại như cũ** ở frame đó.
+
+Cách làm trong thực tế: clip của chiêu hiện vũ khí của nó và ẩn vũ khí mặc định, còn các clip thoát trả cả hai về như cũ.
+
+### Vũ khí mặc định phải bị chặn ở mọi nơi
+
+Đây là chỗ hay bẫy người ta. Nếu cái flail là vũ khí mặc định, mọi clip hiện một vũ khí khác đều phải ẩn cái flail một cách rõ ràng. Với một bản mod có năm vũ khí, nghĩa là event ẩn xuất hiện trong hàng chục clip.
+
+### Mỗi cú chuyển cần bộ số frame riêng
+
+LMHT sẽ không blend một pose tùy chỉnh về lại trạng thái di chuyển giúp bạn, nên mỗi hành động có các clip thoát riêng, và mỗi clip thoát cần bản sao riêng của phần trả visibility về, với frame khớp đúng độ dài clip đó.
+
+Một đòn chí mạng trả khẩu súng về ở frame 44 trong clip thoát sang chạy có thể phải trả ở frame 16 trong clip thoát sang chạy nhanh và frame 31 trong clip thoát sang đứng yên. Sai một cái là vũ khí dính chặt vào tay tướng tới hết ván.
+
+> 💡 **Mẹo:** Dựng các event visibility cùng lúc với các clip chuyển, đừng để làm sau. Lục lại hai mươi clip thoát để tìm đúng cái sai frame là một cực hình.
+
+---
+
+## Cho nhân vật biến mất
+
+Ẩn mọi submesh cơ thể trong một event. Đây là cách một cú hồi thành kết thúc với việc tướng biến mất, và cũng là cách bạn tráo tướng sang một model hoàn toàn khác giữa emote: ẩn toàn bộ cơ thể, rồi sinh model thay thế dưới dạng [mesh particle](/docs/lol/vfx-bins/meshes-as-particles).
+
+---
+
+## Đổi texture cho một bộ phận
+
+`materialOverride` đổi texture trên đúng một submesh mà không đụng tới phần còn lại:
+
+```py
+SkinMeshDataProperties_MaterialOverride {
+    texture: string = "ASSETS/Characters/YourChamp/Skins/Base/Body.tex"
+    submesh: string = "Base_Tank"
+}
+```
+
+Để ý là nó cần file `.tex`, không phải `.dds`.
+
+Bạn cũng có thể ghi đè bằng một **material** thay vì một texture trơn, đây là cách bạn có hiệu ứng shader trên một mảnh:
+
+```py
+SkinMeshDataProperties_MaterialOverride {
+    material: link = "Characters/YourChamp/Skins/Base/Materials/YourGlowMaterial"
+    submesh: string = "Hammer_MAT"
+}
+```
+
+> **Lưu ý:** `material: link` và `texture: string` không thay nhau được. Trỏ một submesh tới material của skin khác bằng `texture: string` sẽ làm nó trắng tinh, và cái đó đã lấy đi mấy ngày của không ít người.
+
+Một cách kết hợp hay gặp là ẩn một submesh lúc xuất hiện rồi cho nó material override luôn cùng lúc, để khi một hiệu ứng hiện nó ra sau này thì nó trông đúng ngay.
+
+Một cái bẫy: nếu mọi submesh đều có `materialOverride`, thì trường `texture` ở cấp cao nhất trong mesh properties không bao giờ được đọc tới. Có những bản mod phát hành với trường đó trỏ tới một file thậm chí không nằm trong gói, mà chẳng ảnh hưởng gì.
+
+---
+
+## Khi nào nên dùng thứ khác
+
+**Với một trạng thái kéo dài**, kiểu đổi dạng gắn với chiêu cuối hoặc một buff, hãy dùng [persistent effect conditions](/docs/lol/vfx-bins/persistent-effect-conditions) thay cho cách này. Chúng nhận cùng loại danh sách hiện và ẩn submesh nhưng chạy theo trạng thái trong game chứ không theo clip, nên bạn viết điều kiện một lần thay vì đụng vào từng animation.
+
+**Với một thay đổi cần sống lâu hơn clip**, nhớ rằng bật tắt submesh chỉ kéo dài trong lúc animation chạy, còn tráo texture thì vẫn giữ sau khi animation kết thúc. Nếu bạn cần một bộ phận biến mất vĩnh viễn sau một emote, hãy đổi sang một texture có vùng đó trong suốt hoàn toàn, hoặc dùng persistent condition.
+
+Hướng dẫn bởi Kaizen

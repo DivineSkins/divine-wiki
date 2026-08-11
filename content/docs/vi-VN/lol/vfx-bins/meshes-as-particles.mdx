@@ -1,0 +1,107 @@
+---
+title: "Dùng Mesh làm Particle"
+description: "Cách thêm prop, phương tiện và cả nhân vật phụ vào một bộ skin mà không cần hệ thống spawn, bằng cách nhét một mesh vào bên trong particle."
+category: "vfx-bins"
+---
+
+Particle không nhất thiết phải là sprite. Nó có thể là một mesh, và mesh đó có thể có khung xương và animation riêng. Đây là cách một tướng có tàu đổ bộ khi hồi thành, có hologram lúc giỡn, có một vũ công đứng bên cạnh, hoặc có hẳn một nhân vật khác cùng lúc trên màn hình.
+
+Không có hệ thống spawn nào ở đây và cũng không có thực thể tướng thứ hai. Tất cả chỉ là một particle system.
+
+---
+
+## Công cụ cần dùng
+
+| Công cụ               | Để làm gì                                                 |
+| :-------------------- | :-------------------------------------------------------- |
+| **Flint**             | Trích xuất tướng, đóng gói bản mod                        |
+| **Jade**              | Chỉnh file `.bin` trực quan (khuyên dùng)                 |
+| **Maya hoặc Blender** | Dựng prop và xuất `.skn`, `.skl`, `.anm` hoặc `.scb`      |
+
+---
+
+## Hai dạng
+
+**Prop cứng** dùng mesh tĩnh, không khung xương và không animation riêng:
+
+```py
+Primitive: pointer = VfxPrimitiveMesh {
+    mMesh: embed = VfxMeshDefinitionData {
+        mSimpleMeshName: string = "ASSETS/.../poppy_base_p_shield.scb"
+    }
+}
+DisableBackfaceCull: bool = true
+BirthScale0: 1.7424
+BirthRotation0: { 90, 0, 0 }
+BirthRotationalVelocity0: { 0, 180, 0 }
+```
+
+Toàn bộ chuyển động đến từ emitter. Ví dụ trên là một cái khiên ném ra, và nó xoay 180 độ mỗi giây quanh trục Y, hoàn toàn do dữ liệu particle điều khiển vì file `.scb` không mang theo animation nào.
+
+**Prop có animation** dùng đủ bộ ba:
+
+```py
+Primitive: pointer = VfxPrimitiveMesh {
+    mMesh: embed = VfxMeshDefinitionData {
+        mMeshName:         "ASSETS/.../Particles/laat.skn"
+        mMeshSkeletonName: "ASSETS/.../Particles/laat.skl"
+        mAnimationName:    "ASSETS/.../Particles/laat.anm"
+    }
+}
+IsSingleParticle: flag = true
+EmitterName: string = "LAAT"
+```
+
+`IsSingleParticle` nghĩa là chỉ phát ra đúng một cái, đúng thứ bạn cần cho một con tàu đổ bộ.
+
+Đặt file của prop vào **thư mục `particles/`** của skin, nằm chung với texture sprite, không phải thư mục animation. Animation do particle dùng không thuộc animation graph nên không nằm ở đó.
+
+---
+
+## Đặt nó vào chỗ
+
+`Transform: mtx44` trên system dời cả cụm trong không gian thế giới. Hàng cuối là vị trí, còn giá trị lớn hơn hoặc nhỏ hơn 1 trên đường chéo sẽ scale nó.
+
+Một vũ công đứng cạnh tướng thay vì lồng vào trong tướng chỉ là một phép dịch vài trăm đơn vị trên một trục, cộng thêm một phép scale, hết.
+
+---
+
+## Sinh nó ra
+
+Bắn nó từ một event animation như mọi hiệu ứng khác. Effect key vẫn phân giải qua `mResourceResolver` y như thường, và prop hiện ra đúng chỗ event chỉ định.
+
+Một cú hồi thành có tàu đổ bộ hạ xuống chỉ là một `ParticleEventData` trên clip hồi thành, gắn vào một xương layout.
+
+---
+
+## Dùng lại animation của chính tướng trên một mesh thứ hai
+
+Đây là mẹo đáng nhớ. Một mesh particle có thể chạy bằng **chính file `.anm` của tướng**, miễn là khung xương của prop dùng chung tên joint với nó.
+
+Từ đó ra hai thứ.
+
+**Một model thứ hai diễn cùng một animation.** Trỏ mesh particle vào model thay thế của bạn, cho nó chạy clip emote của tướng, rồi ẩn tướng thật bằng một [event submesh visibility](/docs/lol/vfx-bins/submesh-visibility) ở đúng frame đó. Kết quả là một nhân vật bị thay bằng nhân vật khác ngay giữa emote, mà không phải làm animation mới. Thêm một làn khói ở frame chuyển để che chỗ nối.
+
+**Một prop tồn tại cả bên trong lẫn bên ngoài tướng.** Nếu một chiếc xe được dựng thẳng vào khung xương của tướng dưới dạng vài joint phụ, bạn xuất cùng một clip hai lần được: một lần làm animation của tướng, một lần làm animation của prop. Vì track gắn theo tên joint, chỉ những joint trùng tên mới tác động lên prop, và hai bên không bao giờ lệch nhau vì đúng nghĩa đen chúng là cùng một file.
+
+---
+
+## Chọn giữa prop và một thực thể thật
+
+Ba lựa chọn, chi phí tăng dần:
+
+**Gộp thẳng vào khung xương của tướng.** Thêm joint vào rig có sẵn, skin chung một mesh, key trong cùng những clip. Bạn được đồng bộ miễn phí và chỉ tốn một clip. Một con ngựa cưỡi có thể chiếm một phần ba số joint của rig mà vẫn được làm animation ngay trong animation của người cưỡi.
+
+**Làm nó thành mesh particle.** Có khung xương và clip nhỏ riêng, do một event sinh ra. Hợp với mọi thứ xuất hiện rồi biến mất, và mọi thứ cần tồn tại tách khỏi cơ thể tướng.
+
+**Làm nó thành một thực thể đồng hành thật.** Chỉ khi nó có vòng đời riêng trong game, như một con thú được triệu hồi rồi chết độc lập. Nghĩa là cả một quy trình song song: bin riêng nằm dưới `data/characters/<name>/skins/`, khung xương và mesh riêng, animation graph riêng. Tính sơ là gấp ba lượng việc trong bin.
+
+Sai lầm là với tay tới lựa chọn thứ ba khi lựa chọn thứ nhất đã đủ.
+
+---
+
+## Cái này không phải là gì
+
+**Prop không cần định nghĩa spawn hay minion.** Một tướng có tàu đổ bộ, hologram, vũ công và máy khoan vẫn chỉ có đúng một character record. Nếu bạn thấy mình đang đi tìm cách spawn một đơn vị, bạn đang đi sai đường.
+
+Hướng dẫn bởi Kaizen

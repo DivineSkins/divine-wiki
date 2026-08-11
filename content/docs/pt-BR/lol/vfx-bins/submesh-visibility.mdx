@@ -1,0 +1,146 @@
+---
+title: "Visibilidade de Submesh e Troca de Armas"
+description: "Escondendo e mostrando partes de uma mesh: o estado no spawn, eventos de visibilidade por clip e como dar várias armas a um campeão, trocando a cada habilidade."
+category: "vfx-bins"
+---
+
+Não existe sistema de attachment para trocar a arma de um campeão. Se você quer um campeão segurando um martelo em uma habilidade e uma escopeta em outra, modele os dois na mesma mesh e ligue um de cada vez.
+
+Isso surpreende muita gente. Depois que você sabe disso, vários mods que pareciam impossíveis ficam simples.
+
+---
+
+## Ferramentas Necessárias
+
+| Ferramenta          | Para quê                                                       |
+| :------------------ | :-------------------------------------------------------------- |
+| **Flint**           | Extrair o campeão                                              |
+| **Jade**            | Editar os `.bin` da skin e de animação visualmente (recomendado) |
+| **Ritobin**         | Alternativa: converter o `.bin` para `.py` e editar            |
+| **Maya ou Blender** | Modelar as partes extras dentro da mesh como submeshes nomeadas |
+
+---
+
+## Submeshes são a unidade de tudo
+
+Um `.skn` guarda submeshes com nome, e esses nomes são as referências usadas por tudo que vem a seguir. Dê nomes que digam o que cada parte é, porque você vai digitar esses nomes em bins enquanto o projeto durar.
+
+Uma mesh de troca de armas pode ter partes do corpo chamadas `Arms_MAT`, `Face_MAT`, `Cape_MAT` junto de armas chamadas `Hammer_MAT`, `BFG_MAT`, `Gun_MAT`, `Guitar_MAT1` e `Flail_MAT`, tudo em um arquivo só.
+
+---
+
+## O estado no spawn
+
+Declare no bin da skin o que fica escondido quando o campeão aparece:
+
+```py
+InitialSubmeshToHide: string = "BFG_MAT, Gun_MAT, Guitar_MAT, Guitar_MAT1, Hammer_MAT"
+SubmeshRenderOrder:   string = "Cape_MAT, Fur_MAT, Face_MAT, Glass_MAT"
+```
+
+Tudo que não está na lista fica visível, então a arma que você deixar de fora é a padrão.
+
+O `SubmeshRenderOrder` controla a ordem de desenho e resolve os erros de ordenação de transparência, quando uma área transparente de uma peça abre um buraco no que está atrás dela. Coloque primeiro a peça que deve ficar atrás.
+
+> **Nota:** Listas separadas por espaço e por vírgula aparecem em mods publicados, e as duas funcionam. Siga o que o arquivo em volta já usa.
+
+Existe também uma propriedade equivalente para o hover do mouse.
+
+---
+
+## Impedindo que uma submesh gere sombra
+
+O `InitialSubmeshShadowsToHide` recebe o mesmo tipo de lista e tira essas submeshes da projeção de sombra, deixando elas totalmente visíveis.
+
+```py
+InitialSubmeshToHide:        string = "Bottle, Lasers, Lasers_Outer"
+InitialSubmeshShadowsToHide: string = "Lasers, Lasers_Outer"
+```
+
+**É isso que você quer para qualquer coisa que emite luz em vez de bloquear.** A lâmina de um sabre de luz, olhos de laser, uma runa brilhante, um escudo de energia: fisicamente essas coisas são fontes de luz, então uma sombra dura no chão embaixo delas parece errada na hora, mesmo que a maioria dos jogadores não saiba explicar o porquê.
+
+O mesmo vale para planos de sprite chapados usados como efeitos falsos, que sem isso jogam uma sombra retangular e entregam o truque.
+
+Repare que as duas propriedades são independentes. No exemplo acima, as submeshes de laser aparecem nas duas listas, porque começam escondidas e são reveladas por uma habilidade, mas nunca projetam sombra em momento nenhum. Do mesmo jeito, uma submesh pode estar visível desde o começo e ainda assim estar na lista de sombra.
+
+> **Nota:** Dependendo da sua hash table, essa propriedade pode aparecer como o hash não resolvido `0xf4ba5c9e` em vez do nome. Se você estiver caçando ela em um bin e não achar a string, pesquise por esse hash.
+
+---
+
+## Trocando por clip
+
+A partir do bin de animação, um evento no clip:
+
+```py
+SubmeshVisibilityEventData {
+    mStartFrame: f32 = 12
+    mEndFrame:   f32 = 31
+    SubmeshesToShow: list[hash] = { "BFG_MAT" }
+}
+SubmeshVisibilityEventData {
+    mEndFrame: f32 = 40
+    SubmeshesToHide: list[hash] = { "Flail_MAT" }
+}
+```
+
+O `mEndFrame` significa que o override **volta ao normal** nesse frame.
+
+O padrão na prática: o clip da habilidade mostra a arma dela e esconde a padrão, e os clips de saída revertem os dois.
+
+### A arma padrão precisa ser suprimida em todo lugar
+
+Essa é a parte que pega as pessoas. Se o mangual for a sua arma padrão, todo clip que mostra outra arma precisa esconder o mangual de forma explícita. Em um mod com cinco armas, isso significa o evento de esconder aparecendo em dezenas de clips.
+
+### Cada transição precisa dos próprios números de frame
+
+O League não faz o blend de uma pose personalizada de volta para a locomoção. Por isso cada ação tem as próprias saídas, e cada saída precisa da própria cópia dos reverts de visibilidade, com frames ajustados à duração daquele clip.
+
+Um crítico que reverte a escopeta no frame 44 na saída para corrida pode revertê-la no 16 na saída para corrida rápida e no 31 na saída para idle. Erre um e a arma fica soldada na mão do campeão pelo resto da partida.
+
+> 💡 **Dica:** Monte os eventos de visibilidade junto com os clips de transição, não depois. Voltar em vinte clips de saída atrás daquele com o frame errado é sofrimento.
+
+---
+
+## Fazendo um personagem sumir
+
+Esconda todas as submeshes do corpo em um evento só. É assim que um recall termina com o campeão sumindo, e é assim que você troca o campeão por um modelo completamente diferente no meio de um emote: esconda o corpo inteiro e crie o substituto como uma [partícula de mesh](/docs/lol/vfx-bins/meshes-as-particles).
+
+---
+
+## Retexturizando uma parte só
+
+O `materialOverride` troca a textura de uma única submesh sem mexer no resto:
+
+```py
+SkinMeshDataProperties_MaterialOverride {
+    texture: string = "ASSETS/Characters/YourChamp/Skins/Base/Body.tex"
+    submesh: string = "Base_Tank"
+}
+```
+
+Repare que ele quer um `.tex`, não um `.dds`.
+
+Você também pode fazer o override com um **material** em vez de uma textura simples, que é como se coloca efeito de shader em uma peça só:
+
+```py
+SkinMeshDataProperties_MaterialOverride {
+    material: link = "Characters/YourChamp/Skins/Base/Materials/YourGlowMaterial"
+    submesh: string = "Hammer_MAT"
+}
+```
+
+> **Nota:** `material: link` e `texture: string` não são intercambiáveis. Apontar uma submesh para o material de outra skin usando `texture: string` deixa ela toda branca, e esse erro já custou dias para muita gente.
+
+Uma combinação comum é esconder uma submesh no spawn e dar um material override a ela ao mesmo tempo, assim ela já aparece certa quando um efeito revelar ela depois.
+
+Uma pegadinha: se toda submesh tiver um `materialOverride`, o campo `texture` do topo das propriedades da mesh nunca é lido. Existem mods publicados com esse campo apontando para um arquivo que nem está no pacote, sem nenhum problema.
+
+---
+
+## Quando usar outra coisa
+
+**Para um estado que dura**, como uma mudança de forma ligada a uma ultimate ou a um buff, use [condições de efeito persistente](/docs/lol/vfx-bins/persistent-effect-conditions). Elas aceitam as mesmas listas de mostrar e esconder submesh, mas são controladas pelo estado do jogo em vez do clip, então você escreve a condição uma vez em vez de mexer em cada animação.
+
+**Para uma mudança que precisa durar mais que o clip**, lembre que os toggles de submesh só valem enquanto a animação toca, já as trocas de textura continuam valendo depois que ela acaba. Se você precisa que uma parte suma de vez depois de um emote, troque para uma textura com aquela região totalmente transparente, ou use uma condição persistente.
+
+Guia por Kaizen

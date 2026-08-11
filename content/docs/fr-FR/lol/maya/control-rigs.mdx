@@ -1,0 +1,120 @@
+---
+title: "Control Rigs simples dans Maya"
+description: "Quand un control rig simple vaut le coup, les règles qui le gardent fonctionnel, et les limites à connaître avant de compter dessus."
+category: "maya"
+---
+
+Tu peux animer un champion de League directement sur le squelette nu, mais tout juste. Déplacer et keyer les bones à la main, c'est lent et pénible, et une animation complète faite comme ça n'est pas réaliste.
+
+Ça passe pour une petite retouche sur un clip qui existe déjà, par exemple plier un coude dans l'autre sens pendant une attaque. Dès que tu vises plus gros, il te faut un control rig. Cette page explique pourquoi, et te donne de quoi en construire un simple.
+
+---
+
+## Outils requis
+
+| Outil                                                | Rôle                                              |
+| :--------------------------------------------------- | :------------------------------------------------ |
+| **Autodesk Maya**                                    | Maya 2023 recommandé                              |
+| **[Plugin LoL-Maya](/docs/lol/maya/lol-maya-plugin)** | Importer et exporter les `.skn`, `.skl` et `.anm` |
+
+---
+
+## Quand en construire un
+
+**Construis-en un pour tout ce que tu appellerais une animation.** La mise en place prend du temps, mais tu le récupères sur chaque clip suivant, et l'alternative ne tient pas la route dès que le volume monte.
+
+Le seul cas où travailler sur le squelette nu se défend, c'est une **petite retouche sur un clip qui existe déjà**, quand tu touches un ou deux bones sur quelques frames. Au-delà, construis le rig d'abord.
+
+Il y a une option intermédiaire à connaître : le **rig réduit**. Si un groupe de clips ne bouge que le haut du corps, une variante du rig sans les jambes garde les channels des jambes propres à l'export. Le graphe d'animation peut alors les masquer sans se battre avec des keys parasites.
+
+---
+
+## Les étapes
+
+Un control rig simple te donne des jambes en IK et, si tu veux, des bras en IK. Le reste des bones **peut** être keyé directement. Pour de meilleures animations, suis un vrai cours de rigging.
+
+Pour nos besoins simples, voici ce que tu as à faire :
+
+1. Ouvre le workspace Animation.
+2. Trouve et clique sur **Create IK Handle**.
+3. Sélectionne d'abord le bone de la hanche (pour les jambes) ou celui de l'épaule (pour les bras).
+4. Sélectionne ensuite le bone de fin, le pied ou la main. Attention : Riot aime placer des buffbones par-dessus la position de ces bones, alors vérifie bien que tu prends le bon.
+5. Les handles existent maintenant, mais il leur faut quelque chose pour les piloter. Crée des courbes NURBS simples, des cercles suffisent, et place-les sur les bones du pied et de la main. Ensuite, **parente chaque IK handle sous son cercle** : sélectionne le handle d'abord, puis le cercle, et appuie sur **P**. Bouger le cercle bouge le handle, et le membre suit.
+6. Crée une deuxième série de cercles NURBS, fais-les tourner de 90 degrés pour qu'ils soient perpendiculaires aux premiers, et place-les aux genoux et aux coudes. Tire ceux des genoux vers l'avant et pousse ceux des coudes vers l'arrière.
+7. Sélectionne l'un d'eux, puis l'IK handle correspondant, et fais-en un pole vector. Le déplacer change maintenant la direction vers laquelle pointe le genou ou le coude, pendant que le reste du membre ne bouge pas.
+
+> **Note :** L'ordre de sélection compte, et il n'est pas le même dans les deux étapes. Pour le parentage, l'enfant vient en premier et le parent en second. Pour la contrainte de pole vector, le contrôleur vient en premier et l'IK handle en second.
+
+---
+
+## Les règles
+
+Ce sont celles qui coûtent le plus de temps quand elles sont cassées.
+
+**Ne keye jamais les IK handles.** Tout le reste de la scène est permis. Keyer un IK handle, c'est le moyen le plus rapide d'obtenir un rig imprévisible plus tard.
+
+**Fais tourner les bones du pied, pas les cercles de contrôle.** Les cercles servent à déplacer. Faire tourner un cercle, c'est la cause classique d'un rig où les pieds partent de travers, puis les bras avec.
+
+**Vérifie la couleur de tes bones de pied.** S'ils s'affichent en orange au lieu de la couleur normale, le handle a été mal construit. Reconstruis-le plutôt que de bricoler autour.
+
+**Les pole vectors se placent derrière le membre, pointés vers lui.** Leur position n'a pas besoin d'être précise, et les déplacer ne pose pas de problème. Les faire tourner, si.
+
+**Réinitialise le preferred angle après un pré-pliage.** Quand un genou ou un coude plie dans le mauvais sens, la solution fiable est de supprimer l'IK handle et le pole vector, de plier légèrement le bone pour que Maya sache dans quelle direction aller, de réinitialiser le preferred angle, puis de les recréer.
+
+**Cache les bones une fois le rig terminé.** Groupe-les et cache le groupe. L'argument inverse est réel : un bone sans contrôleur ne peut pas être testé. Vérifie donc que tout ce qui compte a le sien avant de cacher quoi que ce soit.
+
+---
+
+## Deux limites à anticiper
+
+**Un control rig ne peut pas piloter le scale.** Il n'existe pas de façon fiable de transmettre une transformation de scale d'un contrôleur jusqu'à un bone. Ça compte si ton personnage a besoin de squash, de stretch ou de frames de smear, ou si tu travailles sur un modèle cubique ou stylisé qu'il faut redimensionner souvent. La parade est de faire ces passes dans une scène à part, sans le rig.
+
+**Un control rig ne survit pas au FBX.** Les formes NURBS s'exportent, mais elles arrivent déconnectées de tout. Si tu passes un rig à un collaborateur, envoie le fichier de scène Maya, pas un FBX.
+
+---
+
+## Set driven keys
+
+Les set driven keys, c'est comme ça qu'on automatise la mécanique secondaire. Tu dis à Maya que quand un attribut change, un autre suit : quand le bone root monte, les pieds pivotent vers le bas ; quand un membre s'étend, un piston hydraulique coulisse.
+
+Les rigs de Riot en utilisent beaucoup, et ça vaut le temps de setup sur tout ce qui est mécanique. Un rig avec des driven keys sur ses pistons et ses caches, c'est un rig où ces channels n'ont jamais besoin d'être keyés à la main sur toute une série d'animations.
+
+Le revers, c'est que, contrairement à un IK handle, tu ne peux pas les couper quand tu n'en veux pas. Mets-les en place de façon réfléchie.
+
+---
+
+## Chaînes de cape et de jupe
+
+Deux approches marchent.
+
+**Aim constraint.** Place une aim constraint au milieu de la chaîne avec deux cercles superposés : celui du bas porte la contrainte, celui du haut la contrôle. Rends le cercle d'aim invisible pour ne pas le sélectionner par accident. Si tu veux de la rotation sans étirement, mets la contrainte directement sur le bone.
+
+**IK spline.** Simple et prévisible sur les longues chaînes.
+
+Si une chaîne part sur le côté quand tu la bouges d'avant en arrière, les réglages du vecteur d'aim sont faux. Si elle refuse carrément de se tenir, remets les rotations des bones à zéro, réoriente la racine de la chaîne, réinitialise le preferred angle, et reconstruis.
+
+> **Note :** Certaines capes et queues de Riot ne sont pas animées à la main et ne sont pas un control rig. C'est un groupe de bones piloté par le code du moteur, déclaré dans le bin. Si tu essaies de reproduire ce mouvement traînant uniquement avec du rigging, tu t'attaques au mauvais problème.
+
+---
+
+## Construis une bibliothèque de formes
+
+Les formes de contrôleurs sont les mêmes sur tous les projets. Sauvegarde une série de formes NURBS une bonne fois et réutilise-la : monter un nouveau rig prend alors une minute au lieu d'un après-midi à dessiner des cercles.
+
+---
+
+## Un mot sur l'organisation
+
+Garde les scènes template séparées des scènes de clip. Un découpage qui marche :
+
+| Scène              | Contenu                                                        |
+| :----------------- | :------------------------------------------------------------- |
+| **no rig**         | Mesh et squelette de bind uniquement. C'est ton template d'export |
+| **control rigged** | La même chose plus les contrôles. Clone-la pour chaque clip     |
+| **retargeting**    | Squelette source et squelette cible ensemble                    |
+
+Versionne le template de rig lui-même, pas seulement les clips. Un correctif de rig fait trois semaines après le début d'un projet doit pouvoir être récupéré.
+
+> 💡 **Astuce :** Enregistre chaque clip comme sa propre scène Maya et crée-les dans l'ordre, pour que la dernière frame de l'un devienne la frame 0 du suivant. Les transitions qui se raccordent vraiment sont bien plus faciles à construire comme ça qu'en essayant de faire correspondre les poses après coup.
+
+Guide par Kaizen

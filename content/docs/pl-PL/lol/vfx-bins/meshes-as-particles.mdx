@@ -1,0 +1,107 @@
+---
+title: "Meshe jako partikle"
+description: "Jak dodać do skina rekwizyty, pojazdy i całe dodatkowe postacie bez systemu spawnowania, wkładając mesh do partikla."
+category: "vfx-bins"
+---
+
+Partikl nie musi być sprite'em. Może być meshem, a ten mesh może mieć własny szkielet i własną animację. Tak właśnie bohater dostaje dropship przy recallu, hologram w trakcie żartu, tancerkę stojącą obok siebie albo zupełnie inną postać na ekranie w tym samym czasie.
+
+Nie ma tu żadnego systemu spawnowania ani drugiej jednostki bohatera. To wszystko jeden system partikli.
+
+---
+
+## Potrzebne narzędzia
+
+| Narzędzie             | Do czego                                                          |
+| :-------------------- | :---------------------------------------------------------------- |
+| **Flint**             | Wypakowanie bohatera, spakowanie moda                              |
+| **Jade**              | Wizualna edycja `.bin` (zalecane)                                  |
+| **Maya albo Blender** | Wymodelowanie rekwizytu i eksport `.skn`, `.skl`, `.anm` albo `.scb` |
+
+---
+
+## Dwie odmiany
+
+**Sztywne rekwizyty (props)** korzystają ze statycznego mesha, bez szkieletu i bez własnej animacji:
+
+```py
+Primitive: pointer = VfxPrimitiveMesh {
+    mMesh: embed = VfxMeshDefinitionData {
+        mSimpleMeshName: string = "ASSETS/.../poppy_base_p_shield.scb"
+    }
+}
+DisableBackfaceCull: bool = true
+BirthScale0: 1.7424
+BirthRotation0: { 90, 0, 0 }
+BirthRotationalVelocity0: { 0, 180, 0 }
+```
+
+Cały ruch pochodzi z emittera. W przykładzie masz rzucaną tarczę, a obrót to 180 stopni na sekundę wokół osi Y. Napędzają go wyłącznie dane partikla, bo `.scb` nie ma żadnej animacji do zaoferowania.
+
+**Animowane rekwizyty** korzystają z pełnej trójki plików:
+
+```py
+Primitive: pointer = VfxPrimitiveMesh {
+    mMesh: embed = VfxMeshDefinitionData {
+        mMeshName:         "ASSETS/.../Particles/laat.skn"
+        mMeshSkeletonName: "ASSETS/.../Particles/laat.skl"
+        mAnimationName:    "ASSETS/.../Particles/laat.anm"
+    }
+}
+IsSingleParticle: flag = true
+EmitterName: string = "LAAT"
+```
+
+`IsSingleParticle` znaczy: wyemituj dokładnie jeden. Przy dropshipie dokładnie o to chodzi.
+
+Wrzuć pliki rekwizytu do folderu **`particles/`** w skinie, obok tekstur sprite'ów, a nie do folderu z animacjami. Animacje używane przez partikle nie należą do grafu animacji i nie mają tam czego szukać.
+
+---
+
+## Umieszczanie
+
+`Transform: mtx44` w systemie przesuwa całość w przestrzeni świata. Ostatni wiersz to pozycja, a wartości większe lub mniejsze od 1 na przekątnej skalują całość.
+
+Tancerka stojąca obok bohatera, a nie w środku niego, to przesunięcie o kilkaset jednostek na jednej osi plus skala. Nic więcej.
+
+---
+
+## Spawnowanie
+
+Odpalasz go eventem animacji, jak każdy inny efekt. Klucz efektu rozwiązuje się przez `mResourceResolver` dokładnie tak samo jak zwykle, a rekwizyt pojawia się tam, gdzie każe event.
+
+Recall, przy którym ląduje dropship, to jeden `ParticleEventData` na klipie recalla, podpięty pod kość layoutową.
+
+---
+
+## Użycie animacji samego bohatera na drugim meshu
+
+To trik wart zapamiętania. Partikl z meshem może być napędzany **plikiem `.anm` samego bohatera**, o ile szkielet rekwizytu ma te same nazwy kości.
+
+Wynikają z tego dwie rzeczy.
+
+**Drugi model odgrywający tę samą animację.** Wskaż partiklem z meshem na swój alternatywny model, napędź go klipem emotki bohatera i ukryj prawdziwego bohatera [eventem widoczności submeshy](/docs/lol/vfx-bins/submesh-visibility) w tej samej klatce. Wynik: jedna postać zmienia się w drugą w środku emotki, bez tworzenia nowej animacji. Dorzuć obłok dymu w klatce zamiany, żeby zasłonić przejście.
+
+**Rekwizyt, który istnieje jednocześnie w bohaterze i poza nim.** Jeśli pojazd jest wbudowany w szkielet bohatera jako kilka dodatkowych kości, możesz wyeksportować ten sam klip dwa razy: raz jako animację bohatera, raz jako animację rekwizytu. Ścieżki wiążą się po nazwach kości, więc do rekwizytu trafiają tylko pasujące kości. Te dwa pliki nigdy się nie rozjadą, bo to dosłownie ten sam plik.
+
+---
+
+## Rekwizyt czy prawdziwa jednostka
+
+Trzy opcje, od najtańszej do najdroższej:
+
+**Wtop go w szkielet bohatera.** Dodatkowe kości na istniejącym rigu, zbindowane do tego samego mesha, klatkowane w tych samych klipach. Synchronizację dostajesz za darmo, a kosztuje cię to jeden klip. Koń pod jeźdźcem może zajmować jedną trzecią kości w rigu i wciąż być animowany wewnątrz animacji jeźdźca.
+
+**Zrób z niego partikla z meshem.** Własny mały szkielet i własne klipy, spawnowane eventem. Dobre do wszystkiego, co się pojawia i znika, oraz do wszystkiego, co musi istnieć z dala od ciała bohatera.
+
+**Zrób z niego prawdziwą jednostkę towarzyszącą.** Tylko wtedy, gdy ma własny cykl życia w grze, jak pet, którego się przywołuje i który ginie osobno. To znaczy pełny równoległy workflow: własny bin w `data/characters/<name>/skins/`, własny szkielet i mesh, własny graf animacji. Licz mniej więcej trzy razy więcej pracy w binach.
+
+Błąd polega na sięganiu po trzecią opcję wtedy, gdy wystarczy pierwsza.
+
+---
+
+## Czym to nie jest
+
+**Rekwizyty nie potrzebują definicji spawnu ani miniona.** Bohater z dropshipem, hologramem, tancerką i wiertłem wciąż ma dokładnie jeden rekord postaci. Jeśli łapiesz się na szukaniu, jak zespawnować jednostkę, jesteś na złym tropie.
+
+Poradnik autorstwa Kaizen

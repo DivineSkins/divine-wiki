@@ -1,0 +1,107 @@
+---
+title: "Partikül Olarak Mesh'ler"
+description: "Bir spawn sistemi olmadan, mesh'i partikülün içine koyarak skin'e prop, araç ve komple ekstra karakter ekleme."
+category: "vfx-bins"
+---
+
+Bir partikül sprite olmak zorunda değil. Mesh olabilir ve o mesh'in kendi iskeleti ve kendi animasyonu olabilir. Bir şampiyonun recall'ında inen bir dropship'i, şaka sırasında bir holograması, yanında duran bir dansçısı ya da aynı anda ekranda bambaşka bir karakteri böyle olur.
+
+Ortada spawn sistemi yok, ikinci bir şampiyon varlığı da yok. Hepsi tek bir partikül sistemi.
+
+---
+
+## Gerekli Araçlar
+
+| Araç                  | Amaç                                                             |
+| :-------------------- | :---------------------------------------------------------------- |
+| **Flint**             | Şampiyonu çıkar, modu paketle                                     |
+| **Jade**              | `.bin` dosyasını görsel olarak düzenle (önerilen)                 |
+| **Maya veya Blender** | Prop'u modelle ve `.skn`, `.skl`, `.anm` ya da `.scb` olarak export et |
+
+---
+
+## İki biçim
+
+**Sabit prop'lar** statik bir mesh kullanır. Kendi iskeletleri ve kendi animasyonları yoktur:
+
+```py
+Primitive: pointer = VfxPrimitiveMesh {
+    mMesh: embed = VfxMeshDefinitionData {
+        mSimpleMeshName: string = "ASSETS/.../poppy_base_p_shield.scb"
+    }
+}
+DisableBackfaceCull: bool = true
+BirthScale0: 1.7424
+BirthRotation0: { 90, 0, 0 }
+BirthRotationalVelocity0: { 0, 180, 0 }
+```
+
+Bütün hareket emitter'dan gelir. Bu örnek fırlatılan bir kalkan ve dönüş, Y ekseninde saniyede 180 derece. Tamamen partikül verisiyle sürülüyor, çünkü bir `.scb` dosyasının verecek animasyonu yok.
+
+**Animasyonlu prop'lar** üçlünün tamamını kullanır:
+
+```py
+Primitive: pointer = VfxPrimitiveMesh {
+    mMesh: embed = VfxMeshDefinitionData {
+        mMeshName:         "ASSETS/.../Particles/laat.skn"
+        mMeshSkeletonName: "ASSETS/.../Particles/laat.skl"
+        mAnimationName:    "ASSETS/.../Particles/laat.anm"
+    }
+}
+IsSingleParticle: flag = true
+EmitterName: string = "LAAT"
+```
+
+`IsSingleParticle` tam olarak bir tane üret demektir. Bir dropship için istediğin de budur.
+
+Prop'un dosyalarını skin'in **`particles/` klasörüne**, sprite dokularının yanına koy. Animasyon klasörüne değil. Partiküllerin kullandığı animasyonlar animasyon grafiğinin parçası değildir ve oraya ait değildir.
+
+---
+
+## Yerleştirme
+
+Sistemdeki `Transform: mtx44` her şeyi dünya uzayında kaydırır. Son satır konumdur ve köşegendeki 1'in üstündeki ya da altındaki değerler onu ölçekler.
+
+Şampiyonun içinde değil de yanında duran bir dansçı, tek eksende birkaç yüz birimlik bir öteleme ve bir ölçek demektir. Fazlası değil.
+
+---
+
+## Spawn etme
+
+Diğer efektler gibi bir animasyon event'inden tetikle. Effect key her zamanki gibi `mResourceResolver` üzerinden çözülür ve prop, event neresini söylüyorsa orada belirir.
+
+İnen bir dropship'le biten bir recall, recall klibindeki tek bir `ParticleEventData`'dır ve bir layout kemiğine bağlanır.
+
+---
+
+## Şampiyonun kendi animasyonunu ikinci bir mesh'te kullanmak
+
+Aklında tutmaya değer numara bu. Bir mesh partikülü **şampiyonun kendi `.anm` dosyasıyla** sürülebilir, yeter ki prop'un iskeleti onunla aynı kemik adlarını paylaşsın.
+
+Bundan iki şey çıkıyor.
+
+**Aynı animasyonu oynayan ikinci bir model.** Bir mesh partikülünü alternatif modeline yönlendir, şampiyonun emote klibiyle sür ve aynı frame'de gerçek şampiyonu bir [submesh görünürlük event'iyle](/docs/lol/vfx-bins/submesh-visibility) gizle. Sonuç, emote'un ortasında bir karakterin başka bir karakterle değişmesi olur ve yeni bir animasyon yazmana gerek kalmaz. Geçişi örtmek için değişim frame'ine bir duman bulutu ekle.
+
+**Hem şampiyonun içinde hem dışında var olan bir prop.** Bir araç, şampiyonun iskeletine birkaç ekstra kemik olarak eklendiyse aynı klibi iki kez export edebilirsin: bir kez şampiyonun animasyonu, bir kez prop'un animasyonu olarak. Track'ler kemik adına göre bağlandığı için prop'a sadece eşleşen kemikler uygulanır. İkisi asla birbirinden kaymaz, çünkü aslında aynı dosya.
+
+---
+
+## Prop ile gerçek bir varlık arasında seçim
+
+Üç seçenek, maliyeti artan sırayla:
+
+**Şampiyonun iskeletine kat.** Mevcut rig'e ekstra kemikler, aynı mesh'e bind, aynı kliplerde key'ler. Senkronizasyon bedava gelir ve sana tek bir klibe mal olur. Binilen bir at, bir rig'deki kemiklerin üçte biri olabilir ve yine de binicinin animasyonunun içinde animasyonlanabilir.
+
+**Mesh partikülü yap.** Kendi küçük iskeleti ve klipleri olur, bir event ile spawn edilir. Görünüp kaybolan her şey ve şampiyonun gövdesinden uzakta var olması gereken her şey için doğru seçim.
+
+**Gerçek bir yoldaş varlık yap.** Sadece oyunda kendi yaşam döngüsü varsa, mesela çağrılan ve bağımsız ölen bir evcil hayvan gibi. Bu, komple paralel bir workflow demek: `data/characters/<name>/skins/` altında kendi bin'i, kendi iskeleti ve mesh'i, kendi animasyon grafiği. Bin işi için kabaca üç katı bütçe ayır.
+
+Hata, birincisi yeterken üçüncüsüne uzanmaktır.
+
+---
+
+## Bu ne değildir
+
+**Prop'lar spawn ya da minion tanımı istemez.** Bir dropship'i, holograması, dansçısı ve matkabı olan bir şampiyonun hâlâ tam olarak tek bir karakter kaydı vardır. Bir birimi nasıl spawn edeceğini arıyorsan yanlış yoldasın.
+
+Rehber: Kaizen

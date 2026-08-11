@@ -1,0 +1,146 @@
+---
+title: "Widoczność submeshy i zmiana broni"
+description: "Ukrywanie i pokazywanie części mesha: stan startowy, eventy widoczności w klipach i jak dać bohaterowi kilka broni, które zmieniają się przy umiejętnościach."
+category: "vfx-bins"
+---
+
+W grze nie ma żadnego systemu doczepiania broni do bohatera. Jeśli chcesz, żeby przy jednej umiejętności trzymał młot, a przy drugiej shotguna, modelujesz obie bronie w tym samym meshu i włączasz je po kolei.
+
+To zaskakuje wiele osób, ale gdy już o tym wiesz, sporo modów wyglądających na niemożliwe staje się proste.
+
+---
+
+## Potrzebne narzędzia
+
+| Narzędzie             | Do czego                                              |
+| :-------------------- | :---------------------------------------------------- |
+| **Flint**             | Wypakowanie bohatera                                   |
+| **Jade**              | Wizualna edycja `.bin` skina i animacji (zalecane)     |
+| **Ritobin**           | Alternatywa: konwersja `.bin` na `.py` do edycji       |
+| **Maya albo Blender** | Wmodelowanie dodatkowych części jako nazwanych submeshy |
+
+---
+
+## Submeshe to podstawowa jednostka wszystkiego
+
+`.skn` trzyma nazwane submeshe, a te nazwy to uchwyty, których używa wszystko poniżej. Nazywaj je po tym, czym są, bo będziesz je wklepywał do binów przez cały czas trwania projektu.
+
+Mesh ze zmianą broni może mieć części ciała nazwane `Arms_MAT`, `Face_MAT`, `Cape_MAT` obok broni nazwanych `Hammer_MAT`, `BFG_MAT`, `Gun_MAT`, `Guitar_MAT1` i `Flail_MAT`, wszystko w jednym pliku.
+
+---
+
+## Stan startowy
+
+Zadeklaruj w binie skina, co ma być ukryte, gdy bohater się pojawia:
+
+```py
+InitialSubmeshToHide: string = "BFG_MAT, Gun_MAT, Guitar_MAT, Guitar_MAT1, Hammer_MAT"
+SubmeshRenderOrder:   string = "Cape_MAT, Fur_MAT, Face_MAT, Glass_MAT"
+```
+
+Wszystko, czego nie ma na liście, jest widoczne, więc broń, której nie wypiszesz, jest tą domyślną.
+
+`SubmeshRenderOrder` steruje kolejnością rysowania i naprawia błędy sortowania przezroczystości, przez które przezroczysty fragment jednej części wycina dziurę w tym, co jest za nią. Wpisz najpierw tę część, która ma być z tyłu.
+
+> **Uwaga:** W wydanych modach spotkasz listy rozdzielane spacjami i listy rozdzielane przecinkami. Obie wersje działają. Trzymaj się tego, czego już używa reszta pliku.
+
+Istnieje też odpowiednik tej właściwości dla najechania myszą.
+
+---
+
+## Jak odebrać submeshowi cień
+
+`InitialSubmeshShadowsToHide` przyjmuje taką samą listę i wyłącza rzucanie cienia przez wypisane submeshe, zostawiając je w pełni widoczne.
+
+```py
+InitialSubmeshToHide:        string = "Bottle, Lasers, Lasers_Outer"
+InitialSubmeshShadowsToHide: string = "Lasers, Lasers_Outer"
+```
+
+**Tego chcesz dla wszystkiego, co świeci, a nie zasłania światło.** Ostrze miecza świetlnego, laserowe oczy, świecąca runa, energetyczna tarcza: fizycznie to źródła światła, więc twardy cień na ziemi pod nimi od razu wygląda źle, nawet jeśli większość graczy nie umiałaby powiedzieć dlaczego.
+
+To samo dotyczy płaskich plansz ze sprite'ami, które udają efekty. Bez tego rzucają prostokątny cień i zdradzają cały trik.
+
+Pamiętaj, że te dwie właściwości są od siebie niezależne. W przykładzie wyżej submeshe laserów są na obu listach, bo startują ukryte i odsłania je umiejętność, a przy tym nigdy nie rzucają cienia. Równie dobrze submesh może być widoczny od startu i wciąż siedzieć na liście cieni.
+
+> **Uwaga:** Zależnie od twojej tablicy hashy ta właściwość może pokazywać się jako nierozwiązany hash `0xf4ba5c9e`, a nie jako nazwa. Jeśli szukasz jej w binie i nie znajdujesz tekstu, szukaj właśnie tego hasha.
+
+---
+
+## Przełączanie w pojedynczym klipie
+
+Z binu animacji, event na klipie:
+
+```py
+SubmeshVisibilityEventData {
+    mStartFrame: f32 = 12
+    mEndFrame:   f32 = 31
+    SubmeshesToShow: list[hash] = { "BFG_MAT" }
+}
+SubmeshVisibilityEventData {
+    mEndFrame: f32 = 40
+    SubmeshesToHide: list[hash] = { "Flail_MAT" }
+}
+```
+
+`mEndFrame` znaczy, że nadpisanie **cofa się** w tej klatce.
+
+W praktyce wygląda to tak: klip umiejętności pokazuje swoją broń i chowa domyślną, a klipy wyjścia cofają obie zmiany.
+
+### Domyślną broń trzeba chować wszędzie
+
+Na tym ludzie się wykładają. Jeśli domyślną bronią jest cep (`Flail_MAT`), każdy klip pokazujący inną broń musi wprost ukryć cep. W modzie z pięcioma broniami event ukrywania pojawi się w dziesiątkach klipów.
+
+### Każde przejście ma własne numery klatek
+
+League nie wmiksuje za ciebie własnej pozy z powrotem w chodzenie i bieganie, więc każda akcja ma własne wyjścia. Każde wyjście potrzebuje własnej kopii cofnięć widoczności, z klatkami dopasowanymi do długości tego klipu.
+
+Crit, który chowa shotguna w klatce 44 przy wyjściu do biegu, może chować go w klatce 16 przy wyjściu do szybkiego biegu i w klatce 31 przy wyjściu do idle. Pomyl jedną wartość, a broń zostanie przyspawana do dłoni bohatera do końca gry.
+
+> 💡 **Wskazówka:** Rób eventy widoczności równocześnie z klipami przejść, a nie po fakcie. Przekopywanie się przez dwadzieścia klipów wyjścia w poszukiwaniu tego z błędną klatką to męczarnia.
+
+---
+
+## Jak sprawić, żeby postać zniknęła
+
+Ukryj wszystkie submeshe ciała w jednym evencie. Tak recall kończy się zniknięciem bohatera i tak podmieniasz bohatera na zupełnie inny model w środku emotki: chowasz całe ciało i spawnujesz zamiennik jako [partikla z meshem](/docs/lol/vfx-bins/meshes-as-particles).
+
+---
+
+## Zmiana tekstury na jednej części
+
+`materialOverride` zmienia teksturę na jednym submeshu, nie ruszając reszty:
+
+```py
+SkinMeshDataProperties_MaterialOverride {
+    texture: string = "ASSETS/Characters/YourChamp/Skins/Base/Body.tex"
+    submesh: string = "Base_Tank"
+}
+```
+
+Zwróć uwagę, że chce `.tex`, a nie `.dds`.
+
+Możesz też nadpisać **materiałem** zamiast zwykłą teksturą. Tak dodajesz efekty shaderowe do jednej części:
+
+```py
+SkinMeshDataProperties_MaterialOverride {
+    material: link = "Characters/YourChamp/Skins/Base/Materials/YourGlowMaterial"
+    submesh: string = "Hammer_MAT"
+}
+```
+
+> **Uwaga:** `material: link` i `texture: string` nie są wymienne. Wskazanie submeshem na materiał innego skina przez `texture: string` wyrenderuje go na czysto biało, a ten błąd kosztował ludzi całe dni.
+
+Częsta kombinacja: ukryj submesh na starcie i od razu daj mu nadpisanie materiału, żeby wyglądał poprawnie, gdy jakiś efekt później go odsłoni.
+
+Jedna pułapka: jeśli każdy submesh ma `materialOverride`, główne pole `texture` we właściwościach mesha nigdy nie jest czytane. Wychodzą mody, w których to pole wskazuje na plik, którego nawet nie ma w paczce, i nic złego się nie dzieje.
+
+---
+
+## Kiedy sięgnąć po coś innego
+
+**Do stanu, który trwa**, czyli zmiany formy podpiętej pod ultimate albo buff, użyj zamiast tego [trwałych warunków efektów](/docs/lol/vfx-bins/persistent-effect-conditions). Biorą te same listy pokazywanych i ukrywanych submeshy, ale napędza je stan gry, a nie klip. Warunek piszesz raz, zamiast ruszać każdą animację.
+
+**Do zmiany, która ma przetrwać dłużej niż klip**, pamiętaj, że przełączenia submeshy trwają tylko przez czas animacji, a podmiany tekstur zostają po jej zakończeniu. Jeśli jakaś część ma zniknąć na stałe po emotce, podmień teksturę na taką, gdzie ten fragment jest w pełni przezroczysty, albo użyj trwałego warunku.
+
+Poradnik autorstwa Kaizen

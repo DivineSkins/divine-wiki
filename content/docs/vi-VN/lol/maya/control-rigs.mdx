@@ -1,0 +1,120 @@
+---
+title: "Control Rig đơn giản trong Maya"
+description: "Khi nào một control rig đơn giản là đáng dựng, những quy tắc giữ cho nó chạy ổn, và các giới hạn bạn nên biết trước khi dựa vào nó."
+category: "maya"
+---
+
+Bạn có thể làm animation cho tướng LMHT ngay trên khung xương trần, nhưng chỉ vừa đủ thôi. Di chuyển và đặt key trực tiếp lên từng xương thì chậm và khó chịu. Làm nguyên một animation theo kiểu đó là không thực tế.
+
+Cách đó ổn khi bạn chỉ sửa nhẹ một clip có sẵn, ví dụ đẩy khuỷu tay lệch hướng khác trong một đòn đánh. Lớn hơn thế là cần control rig. Trang này giải thích vì sao, và cho bạn đủ thứ để dựng một cái đơn giản.
+
+---
+
+## Công cụ cần dùng
+
+| Công cụ                                              | Để làm gì                                   |
+| :--------------------------------------------------- | :------------------------------------------ |
+| **Autodesk Maya**                                    | Khuyên dùng Maya 2023                       |
+| **[Plugin LoL-Maya](/docs/lol/maya/lol-maya-plugin)** | Import và export `.skn`, `.skl` và `.anm`   |
+
+---
+
+## Khi nào nên dựng rig
+
+**Cứ dựng rig cho bất cứ thứ gì bạn gọi là animation.** Nó tốn thời gian thiết lập, nhưng trả lại chỗ thời gian đó trên mọi clip về sau. Cách còn lại thì không thực sự dùng được ở quy mô nào cả.
+
+Trường hợp duy nhất nên làm trên khung xương trần là **sửa nhẹ một clip có sẵn**, khi bạn chỉ đụng vào một hai xương trong vài frame. Ngoài chuyện đó ra, dựng rig trước đã.
+
+Có một lựa chọn ở giữa đáng biết: **rig rút gọn**. Nếu một nhóm clip chỉ cử động phần thân trên, một bản rig bỏ hẳn phần chân sẽ giữ các channel của chân sạch sẽ khi export. Nhờ vậy animation graph mask được lên chúng mà không phải đánh nhau với mấy cái key thừa.
+
+---
+
+## Các bước
+
+Một control rig đơn giản cho bạn chân IK, và nếu muốn thì cả tay IK. Các xương còn lại **có thể** đặt key trực tiếp. Muốn animation đẹp hơn, hãy học một khóa rigging tử tế.
+
+Còn với nhu cầu đơn giản ở đây, bạn cần:
+
+1. Mở workspace Animation.
+2. Tìm và bấm **Create IK Handle**.
+3. Chọn trước xương hông (cho chân) hoặc xương vai (cho tay).
+4. Chọn xương cuối, là bàn chân hoặc bàn tay. Nhớ rằng Riot hay đặt buffbone đè lên đúng vị trí mấy xương này, nên hãy chắc là bạn chọn đúng cái.
+5. Handle đã được tạo, nhưng bạn vẫn cần thứ gì đó điều khiển chúng. Tạo vài đường NURBS đơn giản, hình tròn là đủ, rồi đưa chúng ra chỗ xương bàn chân và bàn tay. Sau đó **parent từng IK handle vào vòng tròn của nó**, bằng cách chọn handle trước, rồi tới vòng tròn, rồi nhấn **P**. Giờ kéo vòng tròn thì handle chạy theo, và cả tay hoặc chân đó chạy theo.
+6. Tạo thêm một bộ vòng tròn NURBS nữa, xoay 90 độ để chúng vuông góc với bộ đầu tiên, rồi đặt ở đầu gối và khuỷu tay. Kéo mấy cái ở gối ra phía trước, đẩy mấy cái ở khuỷu ra phía sau.
+7. Chọn một cái trong số đó, rồi chọn IK handle tương ứng, và biến nó thành pole vector. Giờ di chuyển nó sẽ đổi hướng mà gối hoặc khuỷu chỉ về, còn phần còn lại của tay chân vẫn đứng yên.
+
+> **Lưu ý:** Thứ tự chọn rất quan trọng, và không giống nhau ở hai bước đó. Khi parent, con chọn trước, cha chọn sau. Với pole vector constraint, controller chọn trước, IK handle chọn sau.
+
+---
+
+## Các quy tắc
+
+Đây là những quy tắc mà phá vỡ chúng sẽ tốn thời gian nhất.
+
+**Đừng bao giờ đặt key lên IK handle.** Mọi thứ khác trong scene thì thoải mái. Đặt key lên IK handle là cách nhanh nhất để rig giở chứng về sau.
+
+**Xoay xương bàn chân, đừng xoay vòng tròn điều khiển.** Vòng tròn là để di chuyển. Xoay vòng tròn là nguyên nhân kinh điển khiến chân bị sai, rồi tay cũng sai theo.
+
+**Kiểm tra màu xương bàn chân.** Nếu chúng hiện màu cam thay vì màu bình thường, tức là handle bị dựng sai. Hãy dựng lại chứ đừng tìm cách né.
+
+**Pole vector đặt phía sau tay chân và chỉ về phía nó.** Không cần đặt thật chính xác, và di chuyển chúng thì ổn. Xoay chúng thì không.
+
+**Reset preferred angle sau khi bẻ cong trước.** Khi gối hoặc khuỷu gập ngược hướng, cách sửa chắc ăn là xóa IK handle và pole vector, bẻ cong xương một chút để Maya biết nó nên đi hướng nào, reset preferred angle, rồi tạo lại chúng.
+
+**Ẩn xương đi khi rig đã xong.** Gom chúng vào một group rồi ẩn group đó. Nhưng ý kiến ngược lại cũng có lý: xương không có controller thì không test được, nên hãy chắc mọi thứ bạn quan tâm đều đã có controller trước khi ẩn bất cứ cái gì.
+
+---
+
+## Hai giới hạn cần tính trước
+
+**Control rig không điều khiển được scale.** Không có cách nào đáng tin để truyền một phép scale từ controller xuống xương. Chuyện này quan trọng nếu nhân vật của bạn cần squash, stretch hay smear frame, hoặc nếu bạn làm một model khối vuông hay cách điệu mà phải chỉnh kích thước liên tục. Cách đi vòng là làm mấy pass đó trong một scene riêng, không có rig.
+
+**Control rig không sống sót qua FBX.** Các hình NURBS vẫn export ra được, nhưng sang tới nơi thì chúng không còn nối với thứ gì. Nếu bạn gửi rig cho người làm chung, hãy gửi file scene của Maya, đừng gửi FBX.
+
+---
+
+## Set driven key
+
+Set driven key là cách bạn tự động hóa các cơ cấu phụ. Bạn nói cho Maya biết rằng khi một attribute thay đổi thì một cái khác đi theo: khi root đi lên, bàn chân xoay xuống; khi một cánh tay duỗi ra, piston thủy lực trượt theo.
+
+Rig của chính Riot dùng chúng rất nhiều, và chúng đáng công thiết lập với bất cứ thứ gì mang tính máy móc. Một rig có driven key trên piston và nắp che là một rig mà bạn không bao giờ phải đặt key tay cho mấy channel đó, trong suốt cả bộ animation.
+
+Đánh đổi là, khác với IK handle, bạn không tắt chúng đi được khi không cần. Nên hãy thiết lập chúng một cách có chủ đích.
+
+---
+
+## Chuỗi xương áo choàng và váy
+
+Có hai cách, cả hai đều chạy được.
+
+**Aim constraint.** Đặt một aim constraint ở giữa chuỗi với hai vòng tròn chồng lên nhau: cái dưới mang constraint, cái trên điều khiển nó. Đặt vòng tròn aim thành vô hình để không bị chọn nhầm. Nếu bạn muốn xoay mà không kéo giãn, hãy đặt constraint thẳng lên xương.
+
+**IK spline.** Dễ làm và đoán được kết quả với các chuỗi dài.
+
+Nếu chuỗi bị nghiêng sang bên khi bạn kéo tới kéo lui, tức là cài đặt aim vector sai. Nếu nó không chịu nghe lời gì cả, hãy đưa rotation của xương về 0, orient lại xương gốc của chuỗi, reset preferred angle, rồi dựng lại.
+
+> **Lưu ý:** Một số áo choàng và đuôi của chính Riot không hề được làm animation bằng tay, và cũng không phải control rig. Chúng là một nhóm xương do code của engine điều khiển, khai báo trong file bin. Nếu bạn đang cố tái tạo chuyển động bay phất phơ đó chỉ bằng rigging, thì bạn đang giải sai bài toán.
+
+---
+
+## Dựng thư viện hình controller
+
+Hình dạng controller giống nhau ở mọi dự án. Hãy lưu một bộ hình NURBS một lần rồi dùng lại, để dựng rig mới chỉ mất một phút thay vì cả buổi chiều ngồi vẽ vòng tròn.
+
+---
+
+## Vài lời về cách sắp xếp
+
+Hãy tách scene template khỏi scene clip. Một bộ dùng được là:
+
+| Scene              | Chứa gì                                                        |
+| :----------------- | :------------------------------------------------------------- |
+| **no rig**         | Chỉ mesh và khung xương bind. Đây là template để export         |
+| **control rigged** | Y hệt vậy nhưng thêm controller. Nhân bản cái này cho mỗi clip  |
+| **retargeting**    | Khung xương nguồn và khung xương đích nằm chung một scene       |
+
+Hãy đánh version cho chính file rig template, không chỉ cho các clip. Một bản sửa rig làm ở tuần thứ ba của dự án phải lấy lại được.
+
+> 💡 **Mẹo:** Lưu mỗi clip thành một scene Maya riêng và làm chúng theo thứ tự, để frame cuối của clip này thành frame 0 của clip kế tiếp. Làm vậy dễ dựng những đoạn chuyển tiếp khớp nhau hơn nhiều so với việc chỉnh pose cho khớp sau khi đã làm xong.
+
+Hướng dẫn bởi Kaizen

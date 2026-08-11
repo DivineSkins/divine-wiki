@@ -1,0 +1,189 @@
+---
+title: "Kalıcı Efekt Koşulları"
+description: "Submesh'leri ve VFX'i oyun durumuna göre değiştir: buff'lar, oynayan animasyonlar, yetenek seviyeleri. Form değişimlerinin, pasif hazır göstergelerinin ve dönüşüm skin'lerinin arkasındaki mekanizma."
+category: "vfx-bins"
+---
+
+Bir skin'deki VFX'lerin çoğu bir animasyon event'iyle tetiklenir: klip 20. frame'e gelir ve bir efekt doğar. Kalıcı efekt koşulları tam tersi çalışır. Bir oyun durumunu izler ve o durum sürdüğü sürece bir şeyi açık tutar.
+
+Bir şampiyonun ultisi aktifken farklı bir model kazanması, pasif hazır parıltısının kendi kendine gelip gitmesi ve bir buff düştüğü anda yüzün öfke ifadesine geçmesi böyle olur.
+
+---
+
+## Gerekli Araçlar
+
+| Araç        | Amaç                                                   |
+| :---------- | :----------------------------------------------------- |
+| **Flint**   | Şampiyonu çıkar, skin bin'ine böyle ulaşırsın          |
+| **Jade**    | Skin `.bin` dosyasını görsel olarak düzenle (önerilen) |
+| **Ritobin** | Alternatif: düzenlemek için `.bin`'i `.py`'ye dönüştür |
+
+---
+
+## Nerede durur
+
+`PersistentEffectConditions`, **skin bin'indeki** `SkinCharacterDataProperties` üzerinde bir listedir ve hemen `mResourceResolver`'dan sonra yazılır. Listedeki her kayıt bir koşul ve o koşulun değiştirdiği şeylerdir.
+
+Aynı alan şampiyon bin'indeki `CharacterRecord` üzerinde de vardır. Riot bazen her skin'e uygulansın diye oraya bir tane koyar. Şampiyon bin'ini yayınlamak zorunda kalmamak için oradakini değil, skin bin'indeki kopyayı düzenle.
+
+---
+
+## Neyi değiştirebilir, neyi değiştiremez
+
+Her `PersistentEffectConditionData` bir koşul ve en fazla üç yük taşır:
+
+| Alan              | Neyi değiştirir                                    |
+| :---------------- | :-------------------------------------------------- |
+| `SubmeshesToShow` | Koşul sürerken görünür olan submesh'ler            |
+| `SubmeshesToHide` | Koşul sürerken gizlenen submesh'ler                |
+| `PersistentVfxs`  | Koşul sürerken doğan ve canlı tutulan efektler     |
+
+**Animasyon değiştiremez.** Bu yapıda klip alanı yok ve onu aramak bir öğleden sonranı yakmanın yaygın yolu. Animasyon klipleri ayrı olarak, animasyon bin'inde, `ConditionBoolClipData` ve `ConditionFloatClipData` ile değiştirilir.
+
+İki sistem aynı driver kelimelerinin çoğunu paylaşır, o yüzden tek bir şeymiş gibi hissettirir. Değiller. **Tam bir form değişimi ikisini de yazmak demek**: model ve efektler için bir kalıcı efekt koşulu, animasyon seti için bir koşul klibi. Her biri koşulun kendi kopyasını taşır.
+
+---
+
+## Mümkün olan en basit örnek
+
+Varsayılan olarak açık olan ve pasif cooldown'dayken kaybolan bir parıltı:
+
+```py
+PersistentEffectConditions: list2[pointer] = {
+    PersistentEffectConditionData {
+        OwnerCondition: pointer = NotMaterialDriver {
+            mDriver: pointer = HasBuffDynamicMaterialBoolDriver {
+                Spell: hash = "Characters/Poppy/Spells/PoppyPassiveAbility/PoppyPassiveCooldown" } }
+        PersistentVfxs: list2[embed] = {
+            PersistentVfxData {
+                EffectKey: hash = "Slayer_Passive_Ready"
+                BoneName: string = "Buffbone_Shield" } } } }
+```
+
+Tersine çevirmeye dikkat et. Buff'ın gelip gitmesine bağlanmak yerine **cooldown** buff'ını kontrol edip onu tersine çeviriyorsun. Cooldown yokken efekt açık.
+
+---
+
+## Driver'lar
+
+`OwnerCondition` bunlardan herhangi birini alır. Tek bir driver'ı doğrudan kabul ettiği için, elinde tek koşul varsa `AllTrue` sarmalayıcısı isteğe bağlıdır.
+
+**`HasBuffDynamicMaterialBoolDriver`** şampiyonda bir buff olup olmadığını sorar. İki biçimi var ve ikisi de çalışır:
+
+```py
+HasBuffDynamicMaterialBoolDriver { Spell: hash = "Characters/Nasus/Spells/NasusRAbility/NasusR" }
+HasBuffDynamicMaterialBoolDriver { mScriptName: string = "UndyingRage" }
+```
+
+Birincisi bir spell yoluna işaret eder, ikincisi doğrudan bir buff script'inin adını verir.
+
+**`IsAnimationPlayingDynamicMaterialBoolDriver`** klip adlarından bir liste tutar ve içlerinden herhangi biri oynarken doğrudur:
+
+```py
+IsAnimationPlayingDynamicMaterialBoolDriver {
+    mAnimationNames: list[hash] = { "Spell2" "Spell2_0" "Spell2_90" "Spell2_-90"
+                                    "Spell2_180" "Spell2_-180" "Taunt" } }
+```
+
+> **Not:** Liste bir OR'dur ve genelde her varyanta ihtiyacın olur. Animasyon grafiği yöne özel bir klip seçiyorsa, sadece temel adı yazman efektinin bir açı dışında her açıda sönüp yanmasına yol açar.
+
+**`DelayedBoolMaterialDriver`** başka bir driver'ı sarar ve zamanlama ekler:
+
+```py
+DelayedBoolMaterialDriver {
+    mBoolDriver: pointer = IsAnimationPlayingDynamicMaterialBoolDriver {
+        mAnimationNames: list[hash] = { "spell1" } }
+    mDelayOn: f32 = 0
+    mDelayOff: f32 = 5 }
+```
+
+`mDelayOff`, koşul artık doğru olmadıktan sonra durumun ne kadar süreceğidir. Buradaki beş saniye, silahı çağıran yetenek bittikten sonra da silahı görünür tutar.
+
+**`NotMaterialDriver`** tersine çevirir. **`AllTrueMaterialDriver`** bir liste alır ve hepsinin doğru olmasını ister.
+
+OR driver'ı yok. OR'u iki koşul bloğu yazarak ya da tek bir animasyon listesine birkaç ad koyarak ifade et.
+
+---
+
+## Küçük bir durum makinesi kurmak
+
+AND ve NOT, birbirini dışlayan durumlar için yeter. İki buff'tan üç göz durumu:
+
+```py
+// normal: neither ability active
+OwnerCondition = AllTrueMaterialDriver { mDrivers = {
+    NotMaterialDriver { mDriver = HasBuff... NasusR }
+    NotMaterialDriver { mDriver = HasBuff... NasusQ } } }
+
+// ultimate: R active, Q not
+OwnerCondition = AllTrueMaterialDriver { mDrivers = {
+    HasBuff... NasusR
+    NotMaterialDriver { mDriver = HasBuff... NasusQ } } }
+```
+
+Her blok farklı bir efekte işaret eder ve koşullar aynı anda doğru olamayacağı için, birbiriyle kavga eden iki efekt yerine temiz bir geçiş elde edersin.
+
+---
+
+## Form değişimleri
+
+Bir koşul ve aynı blokta birkaç yük: bir dönüşümün yapı taşı budur.
+
+```py
+PersistentEffectConditionData {
+    OwnerCondition: pointer = AllTrueMaterialDriver { mDrivers: list[pointer] = {
+        HasBuffDynamicMaterialBoolDriver { mScriptName: string = "UndyingRage" } } }
+    SubmeshesToShow: list2[hash] = { "Face_Rage"  "Sword"  "Metal" }
+    SubmeshesToHide: list2[hash] = { "Face_Neutral"  "Face_Happy"  "Face_Laugh"
+                                     "Face_Shout"  "Face_Smirk" } }
+```
+
+Bu, bir buff düştüğünde tek seferde değişen komple bir yüz ifadesi seti. Aynı koşula `PersistentVfxs` taşıyan ikinci bir blok ekle, efektler de tamam.
+
+İki yük ailesi de tek blokta yasal. Aynı koşulla iki bloğa bölmek de çalışır ve çoğu kişinin yaptığı da bu gibi görünüyor.
+
+---
+
+## Kemik yerine kameraya bağlama
+
+`BoneName`'i yazmazsan efekt kameraya bağlanabilir. Dönüşüm sırasındaki tam ekran renk yıkamaları böyle yapılır:
+
+```py
+PersistentEffectConditionData {
+    OwnerCondition: pointer = AllTrueMaterialDriver { mDrivers = { HasBuff... } }
+    ForceRenderVfx: bool = true
+    PersistentVfxs: list2[embed] = {
+        PersistentVfxData {
+            effectKey: hash = "Yone_Skin58_E_CameraBoundVFX"
+            ShowToOwnerOnly: bool = true
+            AttachToCamera: bool = true } } }
+```
+
+`ShowToOwnerOnly` onu herkesin ekranından uzak tutar. Bir ekran kaplaması için neredeyse her zaman istediğin şey budur.
+
+---
+
+## Effect key çözülmek zorunda
+
+`effectKey` **bir partikül yolu değildir**. `mResourceResolver` içine bir anahtardır ve resolver o anahtarı bir `VfxSystemDefinitionData` kaydına eşler. **Anahtar resolver'da yoksa hiçbir şey oynamaz ve hiçbir hata da çıkmaz.** Doğru görünen bir koşul bloğunun hiçbir şey yapmamasının en yaygın sebebi budur.
+
+İnsanlar bunu iki şekilde bağlıyor:
+
+- **Efekte kendi adını ver.** Resolver kaydı, senin uydurduğun bir adı kendi sistemine eşler. Efekt senin ise en temizi budur.
+- **Var olan bir anahtarı yeniden yönlendir**, ödünç aldığın bir sisteme. Böylece orijinal bir anahtar artık başka bir şampiyonun partikülüne çözülür. Efekti başka yerden alıyorsan pratiktir.
+
+---
+
+## Akla gelmeyen iki kullanım
+
+**Animasyon başına submesh maskeleme.** `IsAnimationPlayingDynamicMaterialBoolDriver` klip adı kabul ettiği için, recall sırasında prop'ları gizleyebilir, dans sırasında bir taht gösterebilir ve yeniden doğuş sırasında gövdeyi değiştirebilirsin. Hepsi skin bin'inden. Bu, normalde her klibe tek tek yazılması gereken [submesh görünürlük event'lerini](/docs/lol/vfx-bins/submesh-visibility) koşullarla yapmak demek ve bakımı çok daha az iş.
+
+**Gecikmelerden kademeli bir iz.** Aynı koşulda birkaç blok, her biri `mDelayOn` değeri biraz daha uzatılmış bir `DelayedBoolMaterialDriver` olur ve aynı efekti aralıklarla doğurur. Emitter'a hiç dokunmadan tek bir buff'tan birbirini takip eden bir dizi elde edersin.
+
+---
+
+## Ne zaman kullanmamalı
+
+İstediğin şey belirli bir klibin belirli bir frame'indeki bir efektse, onun yerine bir [animasyon event'i](/docs/lol/vfx-bins/animation-vfx) kullan. Kalıcı koşullar süren durumlar içindir, anlar için değil.
+
+Rehber: Kaizen

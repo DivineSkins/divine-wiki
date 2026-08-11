@@ -1,0 +1,149 @@
+---
+title: "Màn hình tải trận động"
+description: "Cách làm cho màn hình tải trận phát sáng, lóe sáng và gợn sóng, và cách mask phần biến dạng để nó bám theo bóng dáng nhân vật thay vì cả khung hình."
+category: "vfx-bins"
+---
+
+Phần lớn màn hình tải trận chỉ là một tấm ảnh tĩnh. Nhưng không nhất thiết phải vậy. Chỉ cần thêm một property vào file bin của skin và một tấm mask vẽ tay, màn hình tải trận có thể nhấp nháy, lóe sáng và gợn sóng, với phần gợn sóng gói gọn trong nhân vật thay vì quét ngang cả nền.
+
+Phần cuối đó mới là chỗ nhiều người bỏ sót. Bản thân phần animation dễ copy và xuất hiện trong mod khá thường xuyên. Chính tấm mask mới làm nó trông có chủ đích, thay vì như cả bức ảnh đang chìm dưới nước.
+
+---
+
+## Công cụ cần dùng
+
+| Công cụ                            | Để làm gì                                                       |
+| :--------------------------------- | :-------------------------------------------------------------- |
+| **Flint**                          | Trích xuất tướng và chuyển đổi giữa `.tex` và `.dds`            |
+| **Jade**                           | Chỉnh file `.bin` của skin trực quan (khuyên dùng)              |
+| **Ritobin**                        | Cách khác: chuyển `.bin` sang `.py` để chỉnh                    |
+| **Photoshop, GIMP hoặc Paint.NET** | Vẽ tấm mask. Dùng plugin `.tex` hợp với trình chỉnh ảnh của bạn |
+
+---
+
+## Cách hoạt động
+
+Có hai mảnh phải khớp với nhau.
+
+**Phía bin** gắn một material vào ảnh màn hình tải trận. Bình thường màn hình tải trận chỉ là một tấm ảnh, khai báo như thế này:
+
+```py
+"Loadscreen": {
+    "__class": "CensoredImage",
+    "Image": "ASSETS/Characters/YourChamp/Skins/Base/YourChampLoadScreen.dds"
+}
+```
+
+**Phía mask** là một texture mà các kênh màu của nó điều khiển animation: hai kênh cấp noise chuyển động, một kênh quyết định noise đó được phép áp vào đâu.
+
+Không có mask, phần biến dạng phủ khắp bức ảnh. Có mask, phần biến dạng chỉ nằm trong vùng bạn tô trắng.
+
+---
+
+## Phần 1: file bin
+
+Bên cạnh `Loadscreen`, thêm một property nữa vào `SkinCharacterDataProperties`:
+
+```py
+0xeda7817e: link = "YourMaterialEntryName"
+```
+
+Đây là property không có tên, nên nó hiện ra dưới dạng hash. Nó chính là thứ gắn material vào màn hình tải trận. File bin gốc của tướng không có nó, và bạn tự kiểm chứng được dễ dàng: mở bất kỳ file bin skin gốc nào, bạn sẽ thấy có `Loadscreen` nhưng không có `0xeda7817e`.
+
+Tiếp theo bạn cần chính cái material mà nó trỏ tới. Thay vì tự viết, hãy copy nguyên xi material UI của Ahri Hall of Legends do Riot làm:
+
+```py
+"Characters/Ahri/Skins/Skin86/Materials/UI_Base_HoL_Ahri_Skin86_inst" = StaticMaterialDef {
+    ...
+    samplerValues: list[embed] = {
+        StaticMaterialShaderSamplerDef {
+            samplerName: string = "UI_Secondary_Texture"
+            texturePath: string = "ASSETS/Characters/YourChamp/Skins/Base/yourLoadMask.tex"
+            addressW: u32 = 1
+        }
+    }
+    ...
+}
+```
+
+> **Lưu ý:** Đừng đóng gói shader kèm theo. Material này liên kết tới một shader đã có sẵn trong game, và copy cái liên kết đó là đủ. Nhưng vậy nghĩa là cách làm này phụ thuộc vào việc Riot còn giữ material Ahri Hall of Legends trong game. Bạn nên ghi lại điều đó trong ghi chú dự án của mình như một phụ thuộc bên ngoài.
+
+### Các tham số đáng biết
+
+Đây là những giá trị quyết định vẻ ngoài của hiệu ứng. Tất cả đều là float4.
+
+| Tham số                          | Giá trị ví dụ | Nó làm gì                          |
+| :------------------------------- | :------------ | :--------------------------------- |
+| `UI_Secondary_DistortionControl` | `0.05, 0.005` | Độ mạnh của biến dạng, theo X và Y |
+| `UI_Secondary_R_ScrollSpeed`     | `0.5, -0.25`  | Tốc độ và hướng của sóng           |
+| `UI_Secondary_G_ScrollSpeed`     | `0`           | Để bằng 0 cho mask đứng yên        |
+| `GlowPulseFrequency`             | `2.0`         | Số nhịp sáng mỗi giây              |
+| `RGBGlowMinMaxValue`             | `0.85, 1.15`  | Mức sáng thấp nhất và cao nhất     |
+| `Shine_FrequencySpeed`           | `10, 8`       | Tốc độ của vệt sáng quét qua       |
+| `Shine_Direction`                | `0.5, -0.7`   | Hướng của vệt sáng                 |
+| `Shine_Strength`                 | `0.02`        | Vệt sáng mạnh cỡ nào               |
+
+Hãy bắt đầu bằng việc chỉnh `UI_Secondary_DistortionControl` và `UI_Secondary_R_ScrollSpeed`. Hai cái đó quyết định phần lớn vẻ ngoài của hiệu ứng.
+
+### Các switch bị đảo ngược, và chỗ này sẽ làm bạn rối
+
+Giá trị boolean trong file bin này **chỉ được ghi ra khi chúng là false**, và bị bỏ đi khi chúng là true.
+
+Nên nếu bạn đi tìm cái switch bật hiệu ứng lên, bạn sẽ không thấy nó đâu. Những switch đang BẬT chính là những cái vắng mặt trong file. Với hiệu ứng này, những cái bạn muốn bật, tức là muốn vắng mặt, gồm:
+
+- `GLOW_PULSE_ON`
+- `SHINE_ON`
+- `UI_SECONDARY_RGB_SCROLL_ON`
+- `DISTORTION_ON_PRIMARY`
+
+Và một cái bạn muốn đặt rõ là false: `UI_SECONDARY_ON`. Switch đó vẽ texture mask ra thành màu nhìn thấy được. Bạn không muốn nhìn thấy tấm mask, bạn chỉ muốn nó được đọc để điều khiển hiệu ứng.
+
+> 💡 **Mẹo:** Nếu bạn đang đọc một ví dụ chạy được mà không tìm ra property mình mong đợi, hãy nghĩ xem có phải chính sự vắng mặt của nó mới là điều quan trọng.
+
+---
+
+## Phần 2: tấm mask
+
+Copy file `ahriLoadMaskPacked.SKINS_Ahri_HoL.tex` của Riot vào thư mục asset của bạn rồi vẽ lại nó. File này là **256 x 512, BC3 / DXT5, không có mipmap.** Giữ nguyên mấy thiết lập đó.
+
+Mỗi kênh màu làm một việc khác nhau:
+
+| Kênh    | Chứa gì                     | Vai trò                                                     |
+| :------ | :-------------------------- | :---------------------------------------------------------- |
+| **R**   | Noise mượt, tần số thấp     | Cuộn chạy, và là thứ bạn thấy dưới dạng sóng                |
+| **G**   | Noise thô hơn, không cuộn   | Một độ lệch warp tĩnh, giúp chuyển động không bị đều đều    |
+| **B**   | Matte đen trắng dứt khoát   | **Nơi phần biến dạng được phép áp vào**                     |
+| **A**   | Không dùng                  |                                                              |
+
+**B là kênh quan trọng nhất, và cũng là kênh nhiều người bỏ qua.** Hãy vẽ nó thành một matte dứt khoát, đen tuyền hoặc trắng tuyền, không có viền mờ, đồ theo phần nhân vật bạn muốn gợn sóng. Trắng thì biến dạng, đen thì không.
+
+Bạn không cần đồ hết cả nhân vật, và thường thì không đồ hết lại đẹp hơn. Kết quả tốt đến từ việc chọn những phần trông giống vải vóc hoặc đang chuyển động: áo choàng, áo khoác, mảnh vải rủ, tóc. Còn giáp, khuôn mặt và nền thì để đen. Khoảng một phần ba khung hình là màu trắng thì hợp lý.
+
+### Cái bẫy chắc chắn sẽ dính
+
+**Tấm mask và màn hình tải trận khác kích thước và khác tỉ lệ khung hình.** Mask là 256 x 512. Màn hình tải trận là 308 x 560.
+
+Shader lấy mẫu cả hai trên cùng một không gian UV từ 0 tới 1, nên tấm mask bị kéo giãn phủ lên màn hình tải trận, bất kể tỉ lệ riêng của nó. Nghĩa là bạn phải **vẽ matte đè lên màn hình tải trận ở kích thước 308 x 560, rồi ép nó xuống 256 x 512 khi export.**
+
+Nếu bạn vẽ thẳng ở 256 x 512 ngay từ đầu, bóng dáng nhân vật sẽ lệch hình một chút và phần gợn sóng sẽ không nằm đúng chỗ nhân vật. Đây là lý do hay gặp nhất khiến lần thử đầu tiên trông gần đúng mà chưa đúng.
+
+---
+
+## Ghép tất cả lại
+
+1. Làm màn hình tải trận như bình thường, 308 x 560, DXT5, không mipmap, rồi đặt nó vào thư mục asset của bạn.
+2. Copy file `ahriLoadMaskPacked.SKINS_Ahri_HoL.tex` của Riot vào cùng thư mục đó. Giải mã nó ra để bạn chỉnh được các kênh màu.
+3. Để yên R và G. Vẽ lại **B** thành một matte đen trắng của những phần bạn muốn gợn sóng, vẽ đè lên màn hình tải trận ở 308 x 560, rồi ép xuống 256 x 512.
+4. Mã hóa lại tấm mask thành BC3, không mipmap.
+5. Copy khối `StaticMaterialDef` tên `Characters/Ahri/Skins/Skin86/Materials/UI_Base_HoL_Ahri_Skin86_inst` vào file bin skin của bạn, giữ nguyên liên kết shader của nó, rồi trỏ `UI_Secondary_Texture` sang tấm mask của bạn.
+6. Thêm `0xeda7817e` vào `SkinCharacterDataProperties` dưới dạng link trỏ tới material đó, nằm cạnh `Loadscreen` bình thường.
+7. Để `UI_SECONDARY_ON` là false. Để bốn switch liệt kê ở trên vắng mặt.
+8. Test, rồi chỉnh `UI_Secondary_DistortionControl` và `UI_Secondary_R_ScrollSpeed`.
+
+---
+
+## Những gì hướng dẫn này không nói tới
+
+**Icon.** Cái móc nối material chỉ có cho `Loadscreen`. `IconCircle` và `IconSquare` chỉ là danh sách đường dẫn thuần, không có property material nào, nên cách làm này không áp dụng được cho chúng.
+
+Hướng dẫn bởi Kaizen

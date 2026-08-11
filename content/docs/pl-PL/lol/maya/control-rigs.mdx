@@ -1,0 +1,120 @@
+---
+title: "Proste control rigi w Mayi"
+description: "Kiedy warto zbudować prosty control rig, jakie zasady trzymają go w ryzach i jakie ograniczenia musisz znać, zanim na nim polegniesz."
+category: "maya"
+---
+
+Bohatera z League da się animować na samym szkielecie, ale ledwo. Przesuwanie i keyowanie kości bezpośrednio jest wolne i niewygodne. Zrobienie w ten sposób całej animacji jest po prostu nierealne.
+
+Do małej poprawki w gotowym klipie to wystarczy, na przykład gdy chcesz przesunąć łokieć w drugą stronę podczas ataku. Cokolwiek większego woła o control rig. Ta strona tłumaczy dlaczego i daje ci tyle wiedzy, żeby zbudować prosty.
+
+---
+
+## Potrzebne narzędzia
+
+| Narzędzie                                            | Do czego                                 |
+| :--------------------------------------------------- | :--------------------------------------- |
+| **Autodesk Maya**                                    | Polecana Maya 2023                       |
+| **[Plugin LoL-Maya](/docs/lol/maya/lol-maya-plugin)** | Import i eksport `.skn`, `.skl` i `.anm` |
+
+---
+
+## Kiedy go budować
+
+**Buduj rig do wszystkiego, co nazwałbyś animacją.** Ustawienie zajmuje trochę czasu, ale ten czas wraca do ciebie przy każdym kolejnym klipie. Alternatywa nie sprawdza się przy żadnej większej robocie.
+
+Jedyny sensowny powód, żeby pracować na samym szkielecie, to **mała poprawka gotowego klipu**, gdzie ruszasz jedną czy dwie kości przez kilka klatek. Wszystko poza tym: najpierw zbuduj rig.
+
+Jest jeszcze opcja pośrednia, warta zapamiętania: **okrojony rig**. Jeśli grupa klipów rusza tylko górną połową ciała, wariant riga bez nóg zostawia kanały nóg czyste przy eksporcie. Dzięki temu graf animacji może je zamaskować i nie walczy z zabłąkanymi klatkami kluczowymi.
+
+---
+
+## Kroki
+
+Prosty control rig daje ci nogi na IK i, jeśli chcesz, ręce na IK. Resztę kości **można** keyować bezpośrednio. Po lepsze animacje sięgnij po porządny kurs riggingu.
+
+Na nasze proste potrzeby wystarczy tyle:
+
+1. Otwórz workspace **Animation**.
+2. Znajdź i kliknij **Create IK Handle**.
+3. Zaznacz najpierw kość biodra (dla nóg) albo kość barku (dla rąk).
+4. Zaznacz kość końcową, czyli stopę albo dłoń. Uważaj, Riot lubi kłaść buffbones dokładnie na pozycji tych kości, więc upewnij się, że trafiłeś w tę właściwą.
+5. Utwórz kontrolery dla handle'i. Same handle już istnieją, ale coś musi nimi sterować. Zrób proste krzywe NURBS, wystarczą okręgi, i przesuń je na kości stóp i dłoni. Potem **podepnij każdy IK handle pod jego okrąg**: zaznacz najpierw handle, potem okrąg, i naciśnij **P**. Od teraz ruch okręgu rusza handle, a kończyna idzie za nim.
+6. Utwórz drugi zestaw okręgów NURBS, obróć je o 90 stopni, żeby stały prostopadle do pierwszego zestawu, i ustaw je przy kolanach i łokciach. Te przy kolanach wysuń do przodu, a te przy łokciach cofnij do tyłu.
+7. Zaznacz jeden z nich, potem pasujący IK handle, i zrób z niego pole vector. Przesuwanie go zmienia teraz kierunek, w którym wskazuje kolano albo łokieć, a reszta kończyny zostaje na miejscu.
+
+> **Uwaga:** Kolejność zaznaczania ma znaczenie i nie jest taka sama w obu krokach. Przy parentowaniu pierwsze idzie dziecko, drugi rodzic. Przy constraincie pole vector pierwszy idzie kontroler, drugi IK handle.
+
+---
+
+## Zasady
+
+Te kosztują najwięcej czasu, kiedy je złamiesz.
+
+**Nigdy nie keyuj IK handle'i.** Wszystko inne w scenie jest do wzięcia. Keyowanie IK handle to najszybszy sposób, żeby rig zaczął później zachowywać się nieprzewidywalnie.
+
+**Obracaj kości stóp, nie okręgi kontrolerów.** Okręgi służą do przesuwania. Obracanie okręgu to klasyczna przyczyna riga, w którym najpierw psują się stopy, a potem także ręce.
+
+**Sprawdź kolor kości stóp.** Jeśli świecą na pomarańczowo zamiast na normalny kolor, handle powstał źle. Zbuduj go od nowa, zamiast kombinować obejścia.
+
+**Pole vectory stoją za kończyną i celują w nią.** Nie muszą być ustawione co do milimetra, a przesuwanie ich jest w porządku. Obracanie już nie.
+
+**Zresetuj preferred angle po wstępnym wygięciu.** Kiedy kolano albo łokieć gnie się w złą stronę, pewna naprawa wygląda tak: usuń IK handle i pole vector, wygnij kość lekko, żeby Maya wiedziała, w którą stronę ma iść, zresetuj preferred angle i utwórz je od nowa.
+
+**Schowaj kości, gdy rig jest gotowy.** Zgrupuj je i ukryj całą grupę. Kontrargument jest jednak sensowny: kości bez kontrolera nie przetestujesz, więc zanim cokolwiek ukryjesz, upewnij się, że wszystko, na czym ci zależy, ma swój kontroler.
+
+---
+
+## Dwa ograniczenia, pod które trzeba się ustawić
+
+**Control rig nie steruje skalą.** Nie ma pewnego sposobu, żeby przepchnąć transformację skali z kontrolera do kości. Ma to znaczenie, jeśli twoja postać potrzebuje squash, stretch albo klatek smear, albo jeśli pracujesz nad kanciastym czy stylizowanym modelem, który często wymaga zmiany rozmiaru. Obejście jest takie: rób te przebiegi w osobnej scenie, bez riga.
+
+**Control rig nie przeżywa FBX.** Kształty NURBS wyeksportują się, ale dotrą odłączone od wszystkiego. Jeśli przekazujesz rig komuś, z kim współpracujesz, wyślij plik sceny Mayi, nie FBX.
+
+---
+
+## Set driven keys
+
+Set driven keys to sposób na automatyzację drugorzędnej mechaniki. Mówisz Mayi, że gdy zmienia się jeden atrybut, drugi idzie za nim: gdy root jedzie w górę, stopy obracają się w dół; gdy kończyna się prostuje, hydrauliczny tłok się wysuwa.
+
+Rigi Riotu korzystają z nich mocno i przy czymkolwiek mechanicznym warto poświęcić czas na konfigurację. W rigu z driven keys na tłokach i osłonach nigdy nie musisz keyować tych kanałów ręcznie, w całym zestawie animacji.
+
+Haczyk jest taki, że w przeciwieństwie do IK handle nie wyłączysz ich, gdy akurat przeszkadzają. Ustawiaj je z rozmysłem.
+
+---
+
+## Łańcuchy peleryn i spódnic
+
+Działają dwa podejścia.
+
+**Aim constraint.** Wstaw aim constraint w środek łańcucha, z dwoma okręgami jeden na drugim: dolny nosi constraint, górny nim steruje. Ustaw okrąg aim jako niewidoczny, żeby nie dało się go zaznaczyć przez przypadek. Jeśli chcesz obrót bez rozciągania, wstaw constraint prosto na kość.
+
+**IK spline.** Prosty i przewidywalny przy długich łańcuchach.
+
+Jeśli łańcuch przechyla się na bok, gdy ruszasz nim w przód i w tył, ustawienia aim vector są złe. Jeśli w ogóle nie chce współpracować, wyzeruj rotacje kości, zorientuj na nowo root łańcucha, zresetuj preferred angle i zbuduj go od nowa.
+
+> **Uwaga:** Część peleryn i ogonów od Riotu nie jest animowana ręcznie i nie jest control rigiem. To grupa kości sterowana kodem silnika, zadeklarowana w binie. Jeśli próbujesz odtworzyć ten ciągnący się ruch samym riggingiem, rozwiązujesz zły problem.
+
+---
+
+## Zbuduj bibliotekę kształtów
+
+Kształty kontrolerów są takie same w każdym projekcie. Zapisz zestaw kształtów NURBS raz i używaj go ponownie. Wtedy postawienie nowego riga zajmuje minutę, a nie całe popołudnie rysowania okręgów.
+
+---
+
+## Słowo o organizacji
+
+Trzymaj sceny szablonowe osobno od scen z klipami. Sprawdzony zestaw wygląda tak:
+
+| Scena                  | Co zawiera                                            |
+| :--------------------- | :---------------------------------------------------- |
+| **bez riga**           | Tylko mesh i szkielet bind. To twój szablon do eksportu |
+| **z control rigiem**   | To samo plus kontrolery. Klonuj ją pod każdy klip     |
+| **retargeting**        | Szkielet źródłowy i docelowy razem                    |
+
+Wersjonuj sam szablon riga, nie tylko klipy. Poprawka riga zrobiona trzy tygodnie po starcie projektu musi dać się odzyskać.
+
+> 💡 **Wskazówka:** Zapisuj każdy klip jako osobną scenę Mayi i twórz je po kolei, tak żeby ostatnia klatka jednego była klatką 0 następnego. Przejścia, które faktycznie się schodzą, buduje się tak dużo łatwiej niż przez dopasowywanie póz po fakcie.
+
+Poradnik autorstwa Kaizen

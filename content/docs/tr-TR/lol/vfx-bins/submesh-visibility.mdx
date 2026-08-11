@@ -1,0 +1,146 @@
+---
+title: "Submesh Görünürlüğü ve Silah Değişimi"
+description: "Mesh'in parçalarını gizleme ve gösterme: spawn durumu, klip başına görünürlük event'leri ve bir şampiyona yetenek başına değişen birkaç silah verme."
+category: "vfx-bins"
+---
+
+Bir şampiyonun silahını değiştirmek için bir bağlama sistemi yok. Bir şampiyonun bir yetenekte çekiç, başka bir yetenekte pompalı tüfek tutmasını istiyorsan, ikisini de aynı mesh'e modellersin ve tek seferde birini açarsın.
+
+Bu insanları şaşırtıyor. Bunu bir kez öğrendiğinde, imkânsız görünen birçok mod basit hale geliyor.
+
+---
+
+## Gerekli Araçlar
+
+| Araç                  | Amaç                                                            |
+| :-------------------- | :--------------------------------------------------------------- |
+| **Flint**             | Şampiyonu çıkar                                                  |
+| **Jade**              | Skin ve animasyon `.bin` dosyalarını görsel olarak düzenle (önerilen) |
+| **Ritobin**           | Alternatif: düzenlemek için `.bin`'i `.py`'ye dönüştür           |
+| **Maya veya Blender** | Ekstra parçaları adlandırılmış submesh'ler olarak mesh'e modelle |
+
+---
+
+## Her şeyin birimi submesh'lerdir
+
+Bir `.skn` dosyası adlandırılmış submesh'ler tutar ve aşağıdaki her şey o adları kullanır. Ne olduklarına göre adlandır, çünkü proje sürdüğü sürece onları bin'lere yazacaksın.
+
+Silah değişimli bir mesh, tek dosyada `Arms_MAT`, `Face_MAT`, `Cape_MAT` gibi gövde parçalarının yanında `Hammer_MAT`, `BFG_MAT`, `Gun_MAT`, `Guitar_MAT1` ve `Flail_MAT` gibi silahlar taşıyabilir.
+
+---
+
+## Spawn durumu
+
+Şampiyon belirdiğinde neyin gizli olacağını skin bin'inde tanımla:
+
+```py
+InitialSubmeshToHide: string = "BFG_MAT, Gun_MAT, Guitar_MAT, Guitar_MAT1, Hammer_MAT"
+SubmeshRenderOrder:   string = "Cape_MAT, Fur_MAT, Face_MAT, Glass_MAT"
+```
+
+Listede olmayan her şey görünür, yani dışarıda bıraktığın silah varsayılan olur.
+
+`SubmeshRenderOrder` çizim sırasını kontrol eder ve saydamlık sıralama hatalarının çözümüdür. Bu hatada, bir parçadaki saydam bölge arkasındaki her şeyi deler. Arkada durması gereken parçayı başa koy.
+
+> **Not:** Yayınlanan modlarda hem boşlukla hem virgülle ayrılmış listeler görülüyor ve ikisi de çalışıyor. Dosyanın geri kalanı hangisini kullanıyorsa ona uy.
+
+Fareyle üzerine gelme için de aynı işi yapan bir özellik var.
+
+---
+
+## Bir submesh'in gölge düşürmesini durdurmak
+
+`InitialSubmeshShadowsToHide` aynı türde bir liste alır. O submesh'leri gölge düşürmekten çıkarır ama tamamen görünür bırakır.
+
+```py
+InitialSubmeshToHide:        string = "Bottle, Lasers, Lasers_Outer"
+InitialSubmeshShadowsToHide: string = "Lasers, Lasers_Outer"
+```
+
+**Işığı engellemek yerine ışık yayan her şey için istediğin budur.** Bir ışın kılıcının bıçağı, lazer gözler, parlayan bir rün, bir enerji kalkanı: fiziksel olarak bunlar ışık kaynağıdır. Altlarındaki zeminde sert bir gölge anında yanlış görünür, oyuncuların çoğu sebebini söyleyemese bile.
+
+Aynı şey, sahte efekt olarak kullanılan düz sprite düzlemleri için de geçerli. Yoksa numarayı ele veren dikdörtgen bir gölge düşürürler.
+
+İki özelliğin birbirinden bağımsız olduğunu unutma. Yukarıdaki örnekte lazer submesh'leri iki listede de var, çünkü gizli başlıyorlar ve bir yetenekle ortaya çıkıyorlar ama hiçbir anda gölge düşürmüyorlar. Bir submesh baştan görünür olup yine de gölge listesinde yer alabilir.
+
+> **Not:** Hash tablona bağlı olarak bu özellik adıyla değil, çözülmemiş `0xf4ba5c9e` hash'i olarak görünebilir. Bir bin'de arıyorsan ve metni bulamıyorsan bunu ara.
+
+---
+
+## Klip başına değiştirme
+
+Animasyon bin'inden, klibin üzerinde bir event:
+
+```py
+SubmeshVisibilityEventData {
+    mStartFrame: f32 = 12
+    mEndFrame:   f32 = 31
+    SubmeshesToShow: list[hash] = { "BFG_MAT" }
+}
+SubmeshVisibilityEventData {
+    mEndFrame: f32 = 40
+    SubmeshesToHide: list[hash] = { "Flail_MAT" }
+}
+```
+
+`mEndFrame`, geçersiz kılmanın o frame'de **geri alınacağı** anlamına gelir.
+
+Pratikteki kalıp şu: yeteneğin klibi kendi silahını gösterir ve varsayılanı gizler, çıkış klipleri de ikisini geri alır.
+
+### Varsayılan silah her yerde bastırılmalı
+
+İnsanların takıldığı kısım burası. Varsayılanın gürz ise, farklı bir silah gösteren her klibin gürzü açıkça gizlemesi gerekir. Beş silahlı bir modda bu, gizleme event'inin düzinelerce klipte yer alması demek.
+
+### Her geçişin kendi frame numaraları olmalı
+
+League, özel bir pozdan hareket animasyonuna geçişi senin için harmanlamaz. Her aksiyonun kendi çıkışları vardır ve her çıkış, görünürlük geri almalarının kendi kopyasına ihtiyaç duyar. Frame'leri o klibin uzunluğuna göre ayarla.
+
+Koşuya geçiş çıkışında pompalıyı 44. frame'de geri alan bir kritik vuruş, hızlı koşuya geçişte 16'da, boşta durmaya geçişte 31'de geri alabilir. Birini yanlış yaparsan silah oyunun geri kalanında şampiyonun eline kaynamış kalır.
+
+> 💡 **İpucu:** Görünürlük event'lerini geçiş klipleriyle aynı anda kur, sonradan değil. Yanlış frame'i bulmak için yirmi çıkış klibini tek tek gezmek işkence.
+
+---
+
+## Bir karakteri yok etmek
+
+Tek bir event'te bütün gövde submesh'lerini gizle. Bir recall'ın şampiyonun kaybolmasıyla bitmesi ve emote'un ortasında şampiyonu bambaşka bir modelle değiştirmen böyle olur: gövdenin tamamını gizle ve yerine geçecek modeli bir [mesh partikülü](/docs/lol/vfx-bins/meshes-as-particles) olarak spawn et.
+
+---
+
+## Tek bir parçayı yeniden dokulamak
+
+`materialOverride`, geri kalanına dokunmadan tek bir submesh'in dokusunu değiştirir:
+
+```py
+SkinMeshDataProperties_MaterialOverride {
+    texture: string = "ASSETS/Characters/YourChamp/Skins/Base/Body.tex"
+    submesh: string = "Base_Tank"
+}
+```
+
+Dikkat et: `.dds` değil, `.tex` istiyor.
+
+Düz bir doku yerine bir **materyal** ile de geçersiz kılabilirsin. Tek bir parçada shader efektlerini böyle alırsın:
+
+```py
+SkinMeshDataProperties_MaterialOverride {
+    material: link = "Characters/YourChamp/Skins/Base/Materials/YourGlowMaterial"
+    submesh: string = "Hammer_MAT"
+}
+```
+
+> **Not:** `material: link` ve `texture: string` birbirinin yerine geçmez. Bir submesh'i `texture: string` ile başka bir skin'in materyaline yönlendirirsen bembeyaz görünür ve bu, insanlara günler kaybettirdi.
+
+Yaygın bir kombinasyon: bir submesh'i spawn'da gizle ve aynı anda ona bir `materialOverride` ver. Böylece sonradan bir efekt onu ortaya çıkardığında doğru görünür.
+
+Bir tuzak: her submesh'in bir `materialOverride`'ı varsa, mesh özelliklerindeki üst seviye `texture` hiç okunmaz. Modlar, bu alan pakette bile olmayan bir dosyayı gösterirken yayınlanıyor ve hiçbir sorun çıkmıyor.
+
+---
+
+## Ne zaman başka bir şey kullanmalı
+
+**Süren bir durum için**, mesela ultiye ya da bir buff'a bağlı bir form değişimi için, onun yerine [kalıcı efekt koşullarını](/docs/lol/vfx-bins/persistent-effect-conditions) kullan. Onlar da aynı submesh gösterme ve gizleme listelerini alır ama klip yerine oyun durumuyla sürülür. Yani her animasyona dokunmak yerine koşulu bir kez yazarsın.
+
+**Klipten sonra da sürmesi gereken bir değişiklik için** şunu bil: submesh açıp kapamaları sadece animasyon süresince geçerlidir, doku değişimleri ise animasyon bittikten sonra da kalır. Bir emote'tan sonra bir parçanın kalıcı olarak yok olmasını istiyorsan, o bölgesi tamamen saydam olan bir dokuya geç ya da kalıcı bir koşul kullan.
+
+Rehber: Kaizen

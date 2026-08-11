@@ -1,0 +1,179 @@
+---
+title: "Doczepianie VFX do animacji"
+description: "Odpalanie partikli, dźwięków i zmian submeshy z eventów animacji: klucze efektów, kości, pętle, klatki i jak sparować efekt z tym, co go wyłącza."
+category: "vfx-bins"
+---
+
+[Trwałe warunki efektów](/docs/lol/vfx-bins/persistent-effect-conditions) obsługują stany, które trwają. Eventy animacji obsługują momenty: postawienie stopy, błysk wystrzału, broń pojawiającą się w klatce 20. Ta strona pokazuje, jak odpalać takie rzeczy z klipu animacji.
+
+---
+
+## Potrzebne narzędzia
+
+| Narzędzie   | Do czego                                          |
+| :---------- | :------------------------------------------------ |
+| **Flint**   | Wypakowanie bohatera, żeby mieć bin animacji       |
+| **Jade**    | Wizualna edycja `.bin` (zalecane)                  |
+| **Ritobin** | Alternatywa: konwersja `.bin` na `.py` do edycji   |
+
+---
+
+## Gdzie znajdują się eventy
+
+W binie animacji każdy klip to `AtomicClipData`, a każdy klip niesie `mEventDataMap`. Wszystko z tej strony ląduje właśnie tam.
+
+```py
+AtomicClipData {
+    mAnimationResourceData: AnimationResourceData {
+        mAnimationFilePath: string = "ASSETS/.../YourChamp_Attack1.anm"
+    }
+    mEventDataMap: map[hash,pointer] = {
+        "MyEvent" = ParticleEventData { ... }
+    }
+}
+```
+
+Prawie całą robotę robią cztery typy eventów: partikle, widoczność submeshy, dźwięki i przypinanie kości.
+
+---
+
+## Odpalanie partikla
+
+```py
+"Jetpack_Blast" = ParticleEventData {
+    mEffectKey: hash = "Jetpack_Blast"
+    mParticleEventDataPairList: list[embed] = {
+        ParticleEventDataPair { mBoneName: hash = "L_Vent_Buffbone" }
+    }
+    mStartFrame: f32 = 16
+    mIsLoop: bool = true
+    mIsKillEvent: bool = true
+}
+```
+
+Pola, które mają znaczenie:
+
+| Pole                         | Co robi                                                                       |
+| :--------------------------- | :---------------------------------------------------------------------------- |
+| `mEffectKey`                 | Który efekt odtworzyć. **Klucz z resolvera, nie ścieżka**, patrz niżej         |
+| `mParticleEventDataPairList` | Jeden wpis na jeden spawn. Kilka wpisów to ten sam efekt na kilku kościach     |
+| `mBoneName`                  | Gdzie efekt się doczepia                                                       |
+| `mTargetBoneName`            | Druga kotwica, do efektów dwupunktowych, na przykład tetherów                  |
+| `mStartFrame` / `mEndFrame`  | Czas w obrębie klipu. Pomiń start, a efekt odpali od klatki 0                  |
+| `mIsLoop`                    | Trzyma efekt przez cały klip, zamiast odpalić go raz                           |
+| `mIsKillEvent`               | Sprząta efekt, gdy klip zostanie zastąpiony innym                              |
+| `mIsDetachable`              | Pozwala efektowi odczepić się od kości                                         |
+
+`mName` w evencie to dowolny identyfikator, może być czymkolwiek.
+
+> **Uwaga:** `mBoneName` ma typ hash, ale nazwę kości możesz wpisać zwykłym tekstem, a Ritobin sam ją zhashuje.
+
+### Klucz efektu musi być zarejestrowany
+
+`mEffectKey` sam z siebie nic nie robi. Musi pojawić się po **lewej stronie** wpisu w `mResourceResolver` w binie skina:
+
+```py
+"Rocks_Wheel1" = "Characters/Fiora/Skins/Skin0/Particles/Fiora_Ground_1"
+```
+
+Po lewej jest klucz, który wymyśliłeś, po prawej prawdziwy system. Wpisanie tego samego tekstu po obu stronach to błąd, który ludzie popełniają bez przerwy. Jeśli klucza nie ma w resolverze, nic się nie odtworzy i nie zobaczysz żadnego błędu.
+
+Wpis w resolverze może leżeć w dowolnym miejscu binu, więc go wyszukaj, zamiast zakładać, że jest na końcu. Bin może też mieć więcej niż jeden resolver. Jeśli zaktualizujesz tylko pierwszy, skin skończy zupełnie bez efektów.
+
+---
+
+## Efekty dwupunktowe
+
+Dodanie `mTargetBoneName` obok `mBoneName` daje efektowi dwie kotwice:
+
+```py
+ParticleEventDataPair {
+    mBoneName:       hash = "L_Buffbone_Glb_Hand_Loc"
+    mTargetBoneName: hash = "C_Buffbone_Glb_Chest_Loc"
+}
+```
+
+Każdy efekt Riotu z emitterem typu tether można w ten sposób przepiąć: między dowolną kość rzucającego a dowolny punkt na celu. Poprowadź tether kradnący duszę od dłoni rzucającego do klatki piersiowej ofiary, a wygląda to, jakbyś coś z niej wyciągał.
+
+To tani sposób na udawanie mechaniki, bo zachowanie bohatera w ogóle się nie zmienia.
+
+> **Uwaga:** To nie zamieni efektu stojącego w miejscu w lecący. Jeśli efekt nie jest pociskiem, ani `mTargetBoneName`, ani `mIsDetachable` go nie rozpędzą. Zostaniesz z czymś skurczonym i przyklejonym do dłoni. Zrobienie pocisku to edycja binu bohatera, a nie eventu animacji.
+
+---
+
+## Paruj efekt z tym, co go wyłącza
+
+Najbardziej przydatny nawyk na tej stronie. Kiedy jeden klip ma włączać efekt, a inny go wyłączać, **paruj je kluczem, a nie klatką**.
+
+Nadaj obu eventom ten sam klucz eventu i dwa różne klucze efektu:
+
+- Efekt „włączający” na każdym klipie, który ma go uruchomić, z `mIsKillEvent: true`
+- Efekt „wyłączający” na każdym klipie, który ma go zakończyć, na tej samej kości
+
+Oba zapisują ten sam slot klucza, więc wygrywa ten, który odpali później. Miecz świetlny, który zapala się przy każdym wejściu w umiejętność i chowa na każdym klipie wyjścia, nie potrzebuje żadnych numerów klatek. Nie rozjedzie się też, gdy gracz przerwie umiejętność w połowie.
+
+Wpisuj konkretne klatki tylko tam, gdzie czas naprawdę dotyczy jednego klipu. Animacja śmierci, która rozwala maszynę część po części, to właśnie miejsce na ręcznie dobrane klatki na jedenastu różnych kościach.
+
+### Jak czysto zabić pętlę
+
+Przy zapętlonym efekcie na umiejętności, którą da się przerwać, zadeklaruj ten sam klucz jeszcze raz na każdym klipie wyjścia, razem z `mEndFrame`. Pętla urwie się zawsze w tym samym momencie wyjścia, niezależnie od tego, który wariant akurat się odtworzy.
+
+---
+
+## Dźwięki
+
+```py
+SoundEventData {
+    mSoundName: string = "Play_sfx_Poppy_Taunt3D_buffactivate"
+    mStartFrame: f32 = 20
+    mIsLoop: bool = false
+}
+```
+
+`mSoundName` to dosłowna nazwa eventu Wwise. Odpalasz event, który już istnieje, nie tworzysz nowego.
+
+### System partikli bez partikli jako nośnik dźwięku
+
+Najczystszy trik w tym temacie. `VfxSystemDefinitionData` bez żadnych emitterów, niosący tylko pole z dźwiękiem:
+
+```py
+"R_Channel_Sound" = VfxSystemDefinitionData {
+    ParticleName: string = "R_Channel_Sound"
+    ParticlePath: string = "R_Channel_Sound"
+    SoundOnCreateDefault: string = "Play_sfx_Poppy_PoppyR_fullcharge"
+}
+```
+
+Zespawnuj go wszędzie tam, gdzie da się zespawnować partikla, a dostaniesz dźwięk bez ruszania skryptów umiejętności. To samo pole przyjmuje event `Stop_`, żeby zakończyć pętlę, a `SoundPersistentDefault` obsługuje dźwięki zapętlone.
+
+---
+
+## Inne typy eventów
+
+**`SubmeshVisibilityEventData`** pokazuje i ukrywa części mesha. Ma [własną stronę](/docs/lol/vfx-bins/submesh-visibility), bo cała zmiana broni opiera się właśnie na nim.
+
+**`JointSnapEventData`** przepina kość pod inną kość na wybrany zakres klatek. Tak broń zmienia rękę w trakcie zamachu.
+
+**`FaceCamera`** obraca model przodem do kamery na czas klipu:
+
+```py
+"FaceCamera" = 0xd7a6b107 {}
+```
+
+Opcjonalnie przyjmuje `BlendInTime` i `BlendOutTime`, żeby sterować obrotem. Potrzebujesz tylko tego jednego eventu, nie kopiuj całego bloku dookoła.
+
+---
+
+## Daj efektom własne kości
+
+Nie podpinaj efektu kroku pod stopę. Dodaj do szkieletu osobne kości specjalnie do tego celu, nazwij je po tym, co robią, i doczep efekty do nich. Rig z kośćmi `VFX_Step1`, `VFX_Step2` i `VFX_Dance` daje ci stabilne kotwice, które nie dziedziczą tego, co animacja wyprawia z kończyną.
+
+Dopisuj nowe kości na **koniec** szkieletu, nigdy w środek, bo popsujesz każdą maskę animacji tego bohatera.
+
+---
+
+## Resztki zwykle nie szkodzą
+
+Jeśli podmienisz mesh bohatera, jego oryginalne klipy dalej będą miały eventy wskazujące na submeshe i efekty, których już nie ma. Takie eventy po prostu nic nie robią. Posprzątanie ich jest schludne, ale wydane mody na co dzień zostawiają je w spokoju i nic złego się nie dzieje.
+
+Poradnik autorstwa Kaizen

@@ -1,0 +1,179 @@
+---
+title: "Animasyonlara VFX Bağlama"
+description: "Animasyon event'lerinden partikül, ses ve submesh değişimi tetikleme: effect key'ler, kemikler, döngüler, frame'ler ve bir efekti onu kapatan şeyle eşleştirme."
+category: "vfx-bins"
+---
+
+[Kalıcı efekt koşulları](/docs/lol/vfx-bins/persistent-effect-conditions) süren durumlarla ilgilenir. Animasyon event'leri ise anlarla ilgilenir: bir ayak basışı, bir namlu alevi, 20. frame'de beliren bir silah. Bu sayfa, bir klipten bir şeyi nasıl tetikleyeceğini anlatır.
+
+---
+
+## Gerekli Araçlar
+
+| Araç        | Amaç                                                   |
+| :---------- | :----------------------------------------------------- |
+| **Flint**   | Şampiyonu çıkar, animasyon bin'ine böyle ulaşırsın     |
+| **Jade**    | `.bin` dosyasını görsel olarak düzenle (önerilen)      |
+| **Ritobin** | Alternatif: düzenlemek için `.bin`'i `.py`'ye dönüştür |
+
+---
+
+## Event'ler nerede durur
+
+Animasyon bin'inde her klip bir `AtomicClipData`'dır ve her klip bir `mEventDataMap` taşır. Bu sayfadaki her şey oraya girer.
+
+```py
+AtomicClipData {
+    mAnimationResourceData: AnimationResourceData {
+        mAnimationFilePath: string = "ASSETS/.../YourChamp_Attack1.anm"
+    }
+    mEventDataMap: map[hash,pointer] = {
+        "MyEvent" = ParticleEventData { ... }
+    }
+}
+```
+
+İşin neredeyse tamamını dört event türü yapar: partiküller, submesh görünürlüğü, sesler ve joint snap.
+
+---
+
+## Partikül tetikleme
+
+```py
+"Jetpack_Blast" = ParticleEventData {
+    mEffectKey: hash = "Jetpack_Blast"
+    mParticleEventDataPairList: list[embed] = {
+        ParticleEventDataPair { mBoneName: hash = "L_Vent_Buffbone" }
+    }
+    mStartFrame: f32 = 16
+    mIsLoop: bool = true
+    mIsKillEvent: bool = true
+}
+```
+
+Önemli alanlar:
+
+| Alan                         | Ne yapar                                                                            |
+| :--------------------------- | :---------------------------------------------------------------------------------- |
+| `mEffectKey`                 | Hangi efektin oynayacağı. **Bir yol değil, resolver anahtarı**, aşağıya bak         |
+| `mParticleEventDataPairList` | Her spawn için bir giriş. Birden fazla giriş, aynı efekti birden fazla kemikte çalıştırır |
+| `mBoneName`                  | Nereye bağlanacağı                                                                  |
+| `mTargetBoneName`            | İkinci bir bağlanma noktası, tether gibi iki uçlu efektler için                     |
+| `mStartFrame` / `mEndFrame`  | Klip içindeki zamanlama. Başlangıcı yazmazsan 0. frame'den tetiklenir               |
+| `mIsLoop`                    | Tek seferlik tetiklemek yerine efekti klip boyunca canlı tutar                       |
+| `mIsKillEvent`               | Klibin yerini başka bir klip aldığında efekti temizler                              |
+| `mIsDetachable`              | Efektin kemikten ayrılmasına izin verir                                             |
+
+Event üzerindeki `mName` serbest bir tanımlayıcıdır, ne istersen yazabilirsin.
+
+> **Not:** `mBoneName` hash olarak tanımlıdır ama kemik adını düz metin yazabilirsin, Ritobin senin için hash'ler.
+
+### Effect key kayıtlı olmalı
+
+`mEffectKey` tek başına hiçbir şey yapmaz. Skin bin'indeki `mResourceResolver` içinde bir kaydın **sol tarafında** yer alması gerekir:
+
+```py
+"Rocks_Wheel1" = "Characters/Fiora/Skins/Skin0/Particles/Fiora_Ground_1"
+```
+
+Sol taraf senin uydurduğun anahtar, sağ taraf gerçek sistem. İnsanların sürekli yaptığı hata, iki tarafa da aynı metni yazmak. Anahtar resolver'da yoksa hiçbir şey oynamaz ve hiçbir hata da çıkmaz.
+
+Resolver kaydı bin'in herhangi bir yerinde olabilir, o yüzden sonda olduğunu varsayma, ara. Bir bin'de birden fazla resolver da bulunabilir. Sadece ilkini güncellersen elinde hiç efekti olmayan bir skin kalır.
+
+---
+
+## İki uçlu efektler
+
+`mBoneName`'in yanına `mTargetBoneName` eklemek efekte iki bağlanma noktası verir:
+
+```py
+ParticleEventDataPair {
+    mBoneName:       hash = "L_Buffbone_Glb_Hand_Loc"
+    mTargetBoneName: hash = "C_Buffbone_Glb_Chest_Loc"
+}
+```
+
+Tether emitter'ı içeren her Riot efekti bu şekilde yeniden bağlanabilir: efekti çıkaranın istediğin bir kemiğinden hedefteki istediğin bir noktaya. Efekti çıkaranın elinden hedefin göğsüne uzanan bir ruh çalma bağı, karşıdakinden bir şey söküldüğü izlenimi verir.
+
+Bu, bir mekaniği taklit etmenin ucuz yolu, çünkü şampiyonun davranışında hiçbir şey değişmiyor.
+
+> **Not:** Bu, sabit bir efekti hareket eden bir efekte çevirmez. Efekt bir mermi değilse `mTargetBoneName` ve `mIsDetachable` onu uçurmaz. Elinde ele yapışmış, küçülmüş bir şey kalır. Mermi yapmak animasyon event'i değil, şampiyon bin'i düzenlemesidir.
+
+---
+
+## Efekti onu kapatan şeyle eşleştir
+
+Bu sayfadaki en işe yarar alışkanlık. Bir efekti bir klip açıp başka bir klip kapatacaksa, **frame yerine key ile eşleştir**.
+
+İki event'e de aynı event key'ini, ama iki farklı effect key'i ver:
+
+- Efekti başlatması gereken her klipte "açma" efekti, `mIsKillEvent: true` ile
+- Efekti bitirmesi gereken her klipte "kapatma" efekti, aynı kemikte
+
+İkisi de aynı key yuvasına yazdığı için, en son tetiklenen kazanır. Her yetenek girişinde yanan ve her toparlanma klibinde geri çekilen bir ışın kılıcı hiç frame numarası istemez ve oyuncu yeteneği yarıda kestiğinde bozulmaz.
+
+Frame'leri sadece zamanlama gerçekten tek bir klibe özelse yaz. Bir makineyi uzuv uzuv patlatan ölüm animasyonu, on bir farklı kemikte elle seçilmiş frame'ler için doğru yer.
+
+### Bir döngüyü temiz kapatmak
+
+Kesilebilen bir yetenekteki döngülü efekt için, aynı key'i her toparlanma klibinde bir `mEndFrame` ile yeniden tanımla. Bu, hangi toparlanma varyantı oynarsa oynasın döngüyü toparlanmanın sabit bir noktasında keser.
+
+---
+
+## Sesler
+
+```py
+SoundEventData {
+    mSoundName: string = "Play_sfx_Poppy_Taunt3D_buffactivate"
+    mStartFrame: f32 = 20
+    mIsLoop: bool = false
+}
+```
+
+`mSoundName` gerçek bir Wwise event adıdır. Yeni bir event oluşturmuyorsun, zaten var olanı tetikliyorsun.
+
+### Ses taşıyıcı olarak kullanılan, partikülsüz bir partikül sistemi
+
+Bu alandaki en temiz numara. Hiç emitter'ı olmayan, sadece bir ses alanı taşıyan bir `VfxSystemDefinitionData`:
+
+```py
+"R_Channel_Sound" = VfxSystemDefinitionData {
+    ParticleName: string = "R_Channel_Sound"
+    ParticlePath: string = "R_Channel_Sound"
+    SoundOnCreateDefault: string = "Play_sfx_Poppy_PoppyR_fullcharge"
+}
+```
+
+Partikül spawn edebildiğin her yerde bunu spawn et, hiçbir yetenek script'ine dokunmadan sesi alırsın. Aynı alan, bir döngüyü bitirmek için `Stop_` event'i de kabul eder ve `SoundPersistentDefault` döngülü sesleri yönetir.
+
+---
+
+## Diğer event türleri
+
+**`SubmeshVisibilityEventData`** mesh'in parçalarını gösterir ve gizler. Silah değişimi tamamen bunun üzerine kurulu olduğu için [kendi sayfası](/docs/lol/vfx-bins/submesh-visibility) var.
+
+**`JointSnapEventData`** bir kemiği belirli bir frame aralığı boyunca başka bir kemiğe bağlar. Bir silahın vuruşun ortasında el değiştirmesi böyle olur.
+
+**`FaceCamera`** klip boyunca modeli kameraya döndürür:
+
+```py
+"FaceCamera" = 0xd7a6b107 {}
+```
+
+Dönüşü ayarlamak için isteğe bağlı olarak `BlendInTime` ve `BlendOutTime` alır. Sadece o tek event'e ihtiyacın var, onu almak için çevresindeki bloğu kopyalama.
+
+---
+
+## Efektlere kendi kemiklerini ver
+
+Ayak basma efektini ayağa bağlama. İskelete bu iş için ayrı kemikler ekle, ne işe yaradıklarına göre adlandır ve efektleri onlara bağla. Üzerinde `VFX_Step1`, `VFX_Step2` ve `VFX_Dance` olan bir rig sana sabit bağlanma noktaları verir. Bunlar, animasyonun uzva yaptığı hiçbir şeyi devralmaz.
+
+Yeni kemikleri iskeletin **sonuna** ekle, asla araya değil. Yoksa şampiyondaki bütün animasyon mask'larını bozarsın.
+
+---
+
+## Artıklar genelde zararsızdır
+
+Bir şampiyonun mesh'ini değiştirirsen, orijinal klipleri artık var olmayan submesh'lere ve efektlere işaret eden event'ler taşımaya devam eder. Bunlar sessizce hiçbir şey yapmaz. Temizlemek düzenli olur ama yayınlanan modlar bunları çoğu zaman öylece bırakır ve hiçbir sorun çıkmaz.
+
+Rehber: Kaizen

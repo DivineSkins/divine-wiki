@@ -1,0 +1,189 @@
+---
+title: "Condições de Efeito Persistente"
+description: "Troque submeshes e VFX com base no estado do jogo: buffs, animações tocando, ranks de habilidade. O mecanismo por trás de mudanças de forma, avisos de passiva pronta e skins de transformação."
+category: "vfx-bins"
+---
+
+A maior parte do VFX de uma skin é disparada por um evento de animação: o clip chega no frame 20 e um efeito nasce. As condições de efeito persistente funcionam ao contrário. Elas observam um pedaço do estado do jogo e mantêm algo ligado enquanto esse estado durar.
+
+É assim que um campeão ganha um modelo diferente enquanto a ultimate está ativa, que um brilho de passiva pronta aparece e some sozinho, e que um rosto troca para uma expressão de fúria no instante em que um buff entra.
+
+---
+
+## Ferramentas Necessárias
+
+| Ferramenta  | Para quê                                            |
+| :---------- | :-------------------------------------------------- |
+| **Flint**   | Extrair o campeão para você ter o bin da skin       |
+| **Jade**    | Editar o `.bin` da skin visualmente (recomendado)   |
+| **Ritobin** | Alternativa: converter o `.bin` para `.py` e editar |
+
+---
+
+## Onde isso fica
+
+`PersistentEffectConditions` é uma lista dentro de `SkinCharacterDataProperties`, no **bin da skin**, escrita logo depois do `mResourceResolver`. Cada entrada da lista é uma condição e as coisas que ela troca.
+
+O mesmo campo também existe em `CharacterRecord`, no bin do campeão, onde a Riot às vezes coloca uma condição para valer em todas as skins. Edite a cópia do bin da skin, não essa, assim você não distribui o bin do campeão junto.
+
+---
+
+## O que ela troca e o que não troca
+
+Cada `PersistentEffectConditionData` carrega uma condição e até três payloads:
+
+| Campo             | Troca                                                 |
+| :---------------- | :----------------------------------------------------- |
+| `SubmeshesToShow` | Submeshes que ficam visíveis enquanto a condição vale  |
+| `SubmeshesToHide` | Submeshes escondidas enquanto ela vale                 |
+| `PersistentVfxs`  | Efeitos criados e mantidos vivos enquanto ela vale     |
+
+**Ela não troca animação.** Não existe campo de clip nessa estrutura, e procurar por um é um jeito comum de perder uma tarde inteira. Clips de animação são trocados à parte, no bin de animação, com `ConditionBoolClipData` e `ConditionFloatClipData`.
+
+Os dois sistemas compartilham boa parte do mesmo vocabulário de drivers, e por isso parecem uma coisa só. Não são. **Uma mudança de forma completa exige os dois**: uma condição de efeito persistente para o modelo e os efeitos, e um condition clip para o conjunto de animações, cada um com a própria cópia da condição.
+
+---
+
+## O exemplo mais simples possível
+
+Um brilho que existe por padrão e some enquanto a passiva está em cooldown:
+
+```py
+PersistentEffectConditions: list2[pointer] = {
+    PersistentEffectConditionData {
+        OwnerCondition: pointer = NotMaterialDriver {
+            mDriver: pointer = HasBuffDynamicMaterialBoolDriver {
+                Spell: hash = "Characters/Poppy/Spells/PoppyPassiveAbility/PoppyPassiveCooldown" } }
+        PersistentVfxs: list2[embed] = {
+            PersistentVfxData {
+                EffectKey: hash = "Slayer_Passive_Ready"
+                BoneName: string = "Buffbone_Shield" } } } }
+```
+
+Repare na inversão. Em vez de acompanhar o buff entrando e saindo, você checa o buff de **cooldown** e nega ele. O efeito fica ligado sempre que o cooldown não está.
+
+---
+
+## Os drivers
+
+O `OwnerCondition` aceita qualquer um destes. Ele aceita um driver solto, então o wrapper `AllTrue` é opcional quando você tem só uma condição.
+
+**`HasBuffDynamicMaterialBoolDriver`** pergunta se um buff está no campeão. Existem duas formas e as duas funcionam:
+
+```py
+HasBuffDynamicMaterialBoolDriver { Spell: hash = "Characters/Nasus/Spells/NasusRAbility/NasusR" }
+HasBuffDynamicMaterialBoolDriver { mScriptName: string = "UndyingRage" }
+```
+
+A primeira aponta para o caminho de uma spell. A segunda nomeia direto o script do buff.
+
+**`IsAnimationPlayingDynamicMaterialBoolDriver`** guarda uma lista de nomes de clip e é verdadeiro enquanto qualquer um deles estiver tocando:
+
+```py
+IsAnimationPlayingDynamicMaterialBoolDriver {
+    mAnimationNames: list[hash] = { "Spell2" "Spell2_0" "Spell2_90" "Spell2_-90"
+                                    "Spell2_180" "Spell2_-180" "Taunt" } }
+```
+
+> **Nota:** A lista funciona como um OR, e normalmente você precisa de todas as variantes. Se o animation graph escolher um clip específico de direção, listar só o nome base faz o seu efeito piscar e sumir em todos os ângulos, menos um.
+
+**`DelayedBoolMaterialDriver`** envolve outro driver e adiciona timing:
+
+```py
+DelayedBoolMaterialDriver {
+    mBoolDriver: pointer = IsAnimationPlayingDynamicMaterialBoolDriver {
+        mAnimationNames: list[hash] = { "spell1" } }
+    mDelayOn: f32 = 0
+    mDelayOff: f32 = 5 }
+```
+
+O `mDelayOff` é quanto tempo o estado continua depois que a condição deixa de ser verdadeira. Cinco segundos aqui mantêm uma arma visível depois que a habilidade que invocou ela terminou.
+
+**`NotMaterialDriver`** inverte. **`AllTrueMaterialDriver`** recebe uma lista e exige todos eles.
+
+Não existe driver de OR. Faça o OR escrevendo dois blocos de condição, ou colocando vários nomes em uma mesma lista de animações.
+
+---
+
+## Montando uma máquina de estados pequena
+
+AND e NOT bastam para estados mutuamente exclusivos. Três estados de olhos a partir de dois buffs:
+
+```py
+// normal: neither ability active
+OwnerCondition = AllTrueMaterialDriver { mDrivers = {
+    NotMaterialDriver { mDriver = HasBuff... NasusR }
+    NotMaterialDriver { mDriver = HasBuff... NasusQ } } }
+
+// ultimate: R active, Q not
+OwnerCondition = AllTrueMaterialDriver { mDrivers = {
+    HasBuff... NasusR
+    NotMaterialDriver { mDriver = HasBuff... NasusQ } } }
+```
+
+Cada bloco aponta para um efeito diferente. Como as condições não podem ser verdadeiras ao mesmo tempo, você tem uma troca limpa em vez de dois efeitos brigando.
+
+---
+
+## Mudanças de forma
+
+Uma condição com vários payloads no mesmo bloco é a base de uma transformação:
+
+```py
+PersistentEffectConditionData {
+    OwnerCondition: pointer = AllTrueMaterialDriver { mDrivers: list[pointer] = {
+        HasBuffDynamicMaterialBoolDriver { mScriptName: string = "UndyingRage" } } }
+    SubmeshesToShow: list2[hash] = { "Face_Rage"  "Sword"  "Metal" }
+    SubmeshesToHide: list2[hash] = { "Face_Neutral"  "Face_Happy"  "Face_Laugh"
+                                     "Face_Shout"  "Face_Smirk" } }
+```
+
+Isso troca um conjunto inteiro de expressões faciais de uma vez só quando um buff entra. Adicione um segundo bloco com a mesma condição carregando `PersistentVfxs` e você tem os efeitos também.
+
+As duas famílias de payload são válidas em um bloco só. Separar em blocos com a condição idêntica também funciona, e parece ser o que a maioria das pessoas faz.
+
+---
+
+## Prendendo na câmera em vez de um osso
+
+Omita o `BoneName` e o efeito pode ser preso na câmera, que é como se faz aqueles efeitos que lavam a tela inteira durante uma transformação:
+
+```py
+PersistentEffectConditionData {
+    OwnerCondition: pointer = AllTrueMaterialDriver { mDrivers = { HasBuff... } }
+    ForceRenderVfx: bool = true
+    PersistentVfxs: list2[embed] = {
+        PersistentVfxData {
+            effectKey: hash = "Yone_Skin58_E_CameraBoundVFX"
+            ShowToOwnerOnly: bool = true
+            AttachToCamera: bool = true } } }
+```
+
+O `ShowToOwnerOnly` deixa o efeito fora da tela de todo mundo, o que é quase sempre o que você quer para um overlay de tela.
+
+---
+
+## A effect key precisa resolver
+
+O `effectKey` **não é um caminho de partícula**. Ele é uma key dentro do `mResourceResolver`, que liga a key a uma entrada `VfxSystemDefinitionData`. **Se a key não estiver no resolver, nada toca e nenhum erro aparece.** Esse é de longe o motivo mais comum de um bloco de condição aparentemente certo não fazer nada.
+
+Duas formas de ligar isso:
+
+- **Dê um nome próprio ao efeito.** A entrada do resolver liga um nome que você inventou ao seu próprio sistema. É o mais limpo quando o efeito é seu.
+- **Reaponte uma key existente** para um sistema emprestado, para que uma key original passe a resolver na partícula de outro campeão. É prático quando você está pegando um efeito de outro lugar.
+
+---
+
+## Dois usos não óbvios
+
+**Máscara de submesh por animação.** Como o `IsAnimationPlayingDynamicMaterialBoolDriver` aceita nomes de clip, você pode esconder props durante um recall, mostrar um trono durante uma dança e trocar um corpo durante o respawn, tudo pelo bin da skin. É fazer com condições o que exigiria [eventos de visibilidade de submesh](/docs/lol/vfx-bins/submesh-visibility) escritos em cada clip, um por um, e dá muito menos trabalho de manter.
+
+**Um rastro escalonado feito com delays.** Vários blocos na mesma condição, cada um com um `DelayedBoolMaterialDriver` e o `mDelayOn` um pouco mais afastado, criam o mesmo efeito em intervalos. Isso te dá uma sequência de rastro a partir de um buff só, sem tocar no emitter.
+
+---
+
+## Quando não usar isso
+
+Se o que você quer é um efeito em um frame específico de um clip específico, use um [evento de animação](/docs/lol/vfx-bins/animation-vfx). Condições persistentes são para estados que duram, não para momentos.
+
+Guia por Kaizen

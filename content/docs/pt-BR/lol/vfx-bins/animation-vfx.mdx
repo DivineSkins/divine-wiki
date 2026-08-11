@@ -1,0 +1,179 @@
+---
+title: "Ligando VFX às Animações"
+description: "Disparando partículas, sons e trocas de submesh a partir de eventos de animação: effect keys, ossos, loops, frames e como parear um efeito com o que desliga ele."
+category: "vfx-bins"
+---
+
+As [condições de efeito persistente](/docs/lol/vfx-bins/persistent-effect-conditions) cuidam de estados que duram. Eventos de animação cuidam de momentos: uma pisada, o clarão de um disparo, uma arma que aparece no frame 20. Esta página mostra como disparar coisas a partir de um clip.
+
+---
+
+## Ferramentas Necessárias
+
+| Ferramenta  | Para quê                                            |
+| :---------- | :-------------------------------------------------- |
+| **Flint**   | Extrair o campeão para você ter o bin de animação   |
+| **Jade**    | Editar o `.bin` visualmente (recomendado)           |
+| **Ritobin** | Alternativa: converter o `.bin` para `.py` e editar |
+
+---
+
+## Onde ficam os eventos
+
+Dentro do bin de animação, cada clip é um `AtomicClipData`, e cada clip carrega um `mEventDataMap`. Tudo desta página vai dentro dele.
+
+```py
+AtomicClipData {
+    mAnimationResourceData: AnimationResourceData {
+        mAnimationFilePath: string = "ASSETS/.../YourChamp_Attack1.anm"
+    }
+    mEventDataMap: map[hash,pointer] = {
+        "MyEvent" = ParticleEventData { ... }
+    }
+}
+```
+
+Quatro tipos de evento fazem quase todo o trabalho: partículas, visibilidade de submesh, sons e snap de joints.
+
+---
+
+## Disparando uma partícula
+
+```py
+"Jetpack_Blast" = ParticleEventData {
+    mEffectKey: hash = "Jetpack_Blast"
+    mParticleEventDataPairList: list[embed] = {
+        ParticleEventDataPair { mBoneName: hash = "L_Vent_Buffbone" }
+    }
+    mStartFrame: f32 = 16
+    mIsLoop: bool = true
+    mIsKillEvent: bool = true
+}
+```
+
+Os campos que importam:
+
+| Campo                        | Faz                                                                          |
+| :--------------------------- | :--------------------------------------------------------------------------- |
+| `mEffectKey`                 | Qual efeito tocar. **É uma key do resolver, não um caminho**, veja abaixo     |
+| `mParticleEventDataPairList` | Uma entrada por spawn. Várias entradas significam o mesmo efeito em vários ossos |
+| `mBoneName`                  | Onde o efeito se prende                                                      |
+| `mTargetBoneName`            | Uma segunda âncora, para efeitos de dois pontos como tethers                 |
+| `mStartFrame` / `mEndFrame`  | Timing dentro do clip. Sem o start, ele dispara a partir do frame 0          |
+| `mIsLoop`                    | Mantém o efeito vivo durante o clip em vez de disparar uma vez               |
+| `mIsKillEvent`               | Limpa o efeito quando o clip é substituído                                   |
+| `mIsDetachable`              | Deixa o efeito sair do osso                                                  |
+
+O `mName` do evento é um identificador livre e pode ser qualquer coisa.
+
+> **Nota:** O `mBoneName` é do tipo hash, mas você pode escrever o nome do osso em texto puro e o Ritobin gera o hash para você.
+
+### A effect key precisa estar registrada
+
+O `mEffectKey` sozinho não faz nada. Ele precisa aparecer do **lado esquerdo** de uma entrada no `mResourceResolver` do bin da skin:
+
+```py
+"Rocks_Wheel1" = "Characters/Fiora/Skins/Skin0/Particles/Fiora_Ground_1"
+```
+
+O lado esquerdo é a key que você inventou. O lado direito é o sistema de verdade. Usar a mesma string dos dois lados é um erro que acontece o tempo todo. Se a key não estiver no resolver, nada toca e nenhum erro aparece.
+
+A entrada do resolver pode estar em qualquer lugar do bin, então pesquise por ela em vez de assumir que está no fim. Um bin também pode ter mais de um resolver, e atualizar só o primeiro é um jeito garantido de terminar com uma skin sem efeito nenhum.
+
+---
+
+## Efeitos de dois pontos
+
+Adicionar `mTargetBoneName` junto do `mBoneName` dá duas âncoras ao efeito:
+
+```py
+ParticleEventDataPair {
+    mBoneName:       hash = "L_Buffbone_Glb_Hand_Loc"
+    mTargetBoneName: hash = "C_Buffbone_Glb_Chest_Loc"
+}
+```
+
+Qualquer efeito da Riot que tenha um emitter de tether pode ser religado assim, entre um osso qualquer de quem lança e um ponto qualquer do alvo. Da mão de quem lança até o peito da vítima, um tether de roubo de alma parece estar puxando algo de dentro dela.
+
+É um jeito barato de simular uma mecânica, porque nada no comportamento do campeão muda.
+
+> **Nota:** Isso não transforma um efeito parado em um efeito que viaja. Se o efeito não for um projétil, `mTargetBoneName` e `mIsDetachable` não vão fazer ele voar, e você acaba com algo encolhido e grudado na mão. Criar um projétil é edição do bin do campeão, não um evento de animação.
+
+---
+
+## Pareie cada efeito com o que desliga ele
+
+Este é o hábito mais útil da página. Quando um efeito precisa ser ligado por um clip e desligado por outro, **pareie os dois pela key, não pelo frame**.
+
+Dê aos dois eventos a mesma key de evento e duas effect keys diferentes:
+
+- O efeito de "ligar" em todo clip que deve iniciar ele, com `mIsKillEvent: true`
+- O efeito de "desligar" em todo clip que deve encerrar ele, no mesmo osso
+
+Como os dois escrevem no mesmo slot de key, quem disparar por último fica com ele. Um sabre de luz que acende em toda entrada de habilidade e recolhe em todo clip de recuperação não precisa de número de frame nenhum, e não tem como dessincronizar quando o jogador interrompe a habilidade no meio.
+
+Use frames explícitos só onde o timing for mesmo específico de um clip. Uma animação de morte que explode uma máquina membro por membro é o lugar certo para frames escolhidos a dedo em onze ossos diferentes.
+
+### Encerrando um loop sem sujeira
+
+Para um efeito em loop numa habilidade que pode ser interrompida, redeclare a mesma key em todo clip de recuperação com um `mEndFrame`. Isso corta o loop sempre no mesmo ponto da recuperação, seja qual for a variante que tocar.
+
+---
+
+## Sons
+
+```py
+SoundEventData {
+    mSoundName: string = "Play_sfx_Poppy_Taunt3D_buffactivate"
+    mStartFrame: f32 = 20
+    mIsLoop: bool = false
+}
+```
+
+O `mSoundName` é o nome literal de um evento do Wwise. Você está disparando um evento que já existe, não criando um novo.
+
+### Um sistema de partículas sem partículas, usado como carregador de som
+
+O truque mais limpo dessa área. Um `VfxSystemDefinitionData` sem nenhum emitter, carregando só um campo de som:
+
+```py
+"R_Channel_Sound" = VfxSystemDefinitionData {
+    ParticleName: string = "R_Channel_Sound"
+    ParticlePath: string = "R_Channel_Sound"
+    SoundOnCreateDefault: string = "Play_sfx_Poppy_PoppyR_fullcharge"
+}
+```
+
+Dispare ele em qualquer lugar onde uma partícula pode nascer e você ganha um som, sem tocar em nenhum script de habilidade. O mesmo campo aceita um evento `Stop_` para encerrar um loop, e o `SoundPersistentDefault` cuida de sons em loop.
+
+---
+
+## Outros tipos de evento
+
+**`SubmeshVisibilityEventData`** mostra e esconde partes da mesh. Ele tem [uma página só dele](/docs/lol/vfx-bins/submesh-visibility), porque a troca de armas é construída inteira em cima disso.
+
+**`JointSnapEventData`** troca o parent de um joint por uma janela de frames. É assim que uma arma muda de mão no meio do golpe.
+
+**`FaceCamera`** vira o modelo para encarar a câmera durante o clip:
+
+```py
+"FaceCamera" = 0xd7a6b107 {}
+```
+
+Ele aceita, de forma opcional, `BlendInTime` e `BlendOutTime` para controlar a virada. Você precisa só desse evento. Não copie o bloco em volta para conseguir ele.
+
+---
+
+## Dê ossos próprios aos efeitos
+
+Não faça um efeito de pisada virar filho do pé. Adicione joints dedicados ao esqueleto para isso, com nomes que digam o que eles fazem, e prenda os efeitos neles. Um rig com `VFX_Step1`, `VFX_Step2` e `VFX_Dance` te dá âncoras estáveis, que não herdam o que a animação está fazendo com o membro.
+
+Adicione joints novos no **fim** do esqueleto, nunca no meio, ou você quebra todas as máscaras de animação do campeão.
+
+---
+
+## Sobras costumam ser inofensivas
+
+Se você trocar a mesh de um campeão, os clips originais dele continuam com eventos apontando para submeshes e efeitos que não existem mais. Eles não fazem nada e não reclamam. Limpar isso é organizado, mas mods publicados deixam essas sobras lá o tempo todo, sem problema nenhum.
+
+Guia por Kaizen

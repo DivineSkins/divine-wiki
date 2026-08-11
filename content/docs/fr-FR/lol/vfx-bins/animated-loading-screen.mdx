@@ -1,0 +1,149 @@
+---
+title: "Écrans de chargement animés"
+description: "Comment faire pulser, briller et onduler un écran de chargement, et comment masquer la distorsion pour qu'elle suive la silhouette de ton personnage."
+category: "vfx-bins"
+---
+
+La plupart des écrans de chargement sont une image plate. Ce n'est pas une obligation. Avec une propriété en plus dans le bin du skin et un masque peint à la main, un écran de chargement peut pulser, briller et onduler, avec l'ondulation limitée au personnage plutôt qu'étalée sur tout le fond.
+
+C'est cette dernière partie que les gens ratent. L'animation en elle-même est facile à copier et se retrouve assez souvent dans les mods. C'est le masque qui donne l'impression d'un choix voulu, au lieu d'une image entière sous l'eau.
+
+---
+
+## Outils requis
+
+| Outil                            | Rôle                                                              |
+| :------------------------------- | :---------------------------------------------------------------- |
+| **Flint**                        | Extraire le champion et convertir entre `.tex` et `.dds`          |
+| **Jade**                         | Éditer le `.bin` du skin visuellement (recommandé)                |
+| **Ritobin**                      | Alternative : convertir le `.bin` en `.py` pour l'éditer          |
+| **Photoshop, GIMP ou Paint.NET** | Peindre le masque. Utilise le plugin `.tex` adapté à ton éditeur  |
+
+---
+
+## Comment ça marche
+
+Deux morceaux doivent s'aligner.
+
+**Côté bin**, on lie un matériau à l'image de l'écran de chargement. Normalement, l'écran de chargement n'est qu'une image, déclarée comme ça :
+
+```py
+"Loadscreen": {
+    "__class": "CensoredImage",
+    "Image": "ASSETS/Characters/YourChamp/Skins/Base/YourChampLoadScreen.dds"
+}
+```
+
+**Côté masque**, c'est une texture dont les canaux de couleur pilotent l'animation : deux d'entre eux fournissent un bruit qui bouge, et un autre décide où ce bruit a le droit de s'appliquer.
+
+Sans le masque, la distorsion couvre toute l'image. Avec lui, la distorsion reste confinée à ce que tu as peint en blanc.
+
+---
+
+## Partie 1 : le bin
+
+À côté de `Loadscreen`, ajoute une propriété de plus sur `SkinCharacterDataProperties` :
+
+```py
+0xeda7817e: link = "YourMaterialEntryName"
+```
+
+C'est une propriété sans nom, donc elle s'affiche sous forme de hash. C'est elle qui lie un matériau à l'écran de chargement. Un bin de champion d'origine ne l'a pas, et c'est facile à vérifier toi-même : ouvre n'importe quel bin de skin vanilla, tu y trouveras `Loadscreen` mais pas `0xeda7817e`.
+
+Ensuite, il te faut le matériau vers lequel elle pointe. Plutôt que d'en écrire un, copie tel quel le matériau d'UI de l'Ahri Hall of Legends de Riot :
+
+```py
+"Characters/Ahri/Skins/Skin86/Materials/UI_Base_HoL_Ahri_Skin86_inst" = StaticMaterialDef {
+    ...
+    samplerValues: list[embed] = {
+        StaticMaterialShaderSamplerDef {
+            samplerName: string = "UI_Secondary_Texture"
+            texturePath: string = "ASSETS/Characters/YourChamp/Skins/Base/yourLoadMask.tex"
+            addressW: u32 = 1
+        }
+    }
+    ...
+}
+```
+
+> **Note :** Ne livre pas le shader. Le matériau pointe vers un shader qui est déjà dans le jeu, et copier ce lien suffit. Ça veut dire que la technique dépend de Riot qui continue à livrer le matériau de l'Ahri Hall of Legends. Note-le comme une dépendance externe dans tes notes de projet.
+
+### Les paramètres à connaître
+
+Ce sont les valeurs qui contrôlent le rendu. Tout est en float4.
+
+| Paramètre                        | Valeur d'exemple | Ce que ça fait                              |
+| :------------------------------- | :--------------- | :------------------------------------------- |
+| `UI_Secondary_DistortionControl` | `0.05, 0.005`    | Force de la distorsion, en X et en Y        |
+| `UI_Secondary_R_ScrollSpeed`     | `0.5, -0.25`     | Vitesse et direction de la vague            |
+| `UI_Secondary_G_ScrollSpeed`     | `0`              | Laisse à zéro pour que le masque reste fixe |
+| `GlowPulseFrequency`             | `2.0`            | Pulsations par seconde                      |
+| `RGBGlowMinMaxValue`             | `0.85, 1.15`     | Jusqu'où le glow descend et monte           |
+| `Shine_FrequencySpeed`           | `10, 8`          | Vitesse du reflet qui balaie l'image        |
+| `Shine_Direction`                | `0.5, -0.7`      | Direction du reflet                         |
+| `Shine_Strength`                 | `0.02`           | Force du reflet                             |
+
+Commence par régler `UI_Secondary_DistortionControl` et `UI_Secondary_R_ScrollSpeed`. Ces deux-là font l'essentiel du rendu.
+
+### Les switches sont inversés, et ça va te perdre
+
+Les booléens de ce bin sont écrits **seulement quand ils sont faux**, et omis quand ils sont vrais.
+
+Donc si tu cherches le switch qui active ton effet, tu ne le trouveras pas. Les switches actifs sont ceux qui sont absents du fichier. Pour cet effet, ceux que tu veux activés, donc absents, sont :
+
+- `GLOW_PULSE_ON`
+- `SHINE_ON`
+- `UI_SECONDARY_RGB_SCROLL_ON`
+- `DISTORTION_ON_PRIMARY`
+
+Et un que tu veux explicitement à false : `UI_SECONDARY_ON`. Ce switch dessine la texture du masque comme une couleur visible. Tu ne veux pas voir le masque, tu veux seulement qu'il serve de pilote.
+
+> 💡 **Astuce :** Si tu lis un exemple qui marche et que tu ne trouves pas une propriété attendue, demande-toi si son absence est justement le but.
+
+---
+
+## Partie 2 : le masque
+
+Copie le `ahriLoadMaskPacked.SKINS_Ahri_HoL.tex` de Riot dans ton propre dossier d'assets et repeins-le. Il fait **256 sur 512, en BC3 / DXT5, sans mipmaps.** Garde ces réglages.
+
+Les canaux ont chacun leur rôle :
+
+| Canal   | Contenu                            | Rôle                                                             |
+| :------ | :--------------------------------- | :---------------------------------------------------------------- |
+| **R**   | Bruit doux, basse fréquence        | Défile, et c'est ce que tu vois comme vague                      |
+| **G**   | Bruit plus grossier, ne défile pas | Un biais de déformation fixe qui évite un mouvement trop uniforme |
+| **B**   | Matte noir et blanc franc          | **Là où la distorsion a le droit de s'appliquer**                |
+| **A**   | Inutilisé                          |                                                                   |
+
+**B est le canal qui compte, et celui que les gens sautent.** Peins-le comme un matte franc, noir pur ou blanc pur, sans bords doux, en suivant la partie du personnage que tu veux faire onduler. Le blanc déforme, le noir non.
+
+Tu n'as pas besoin de détourer tout le personnage, et c'est souvent mieux quand tu ne le fais pas. Un bon résultat vient du choix des parties qui se lisent comme du tissu ou du mouvement : une cape, un manteau, une étoffe qui pend, des cheveux. Laisse l'armure, les visages et le fond en noir. Environ un tiers de l'image en blanc, c'est une bonne dose.
+
+### Le piège qui va t'avoir
+
+**Le masque et l'écran de chargement n'ont ni la même taille ni le même ratio.** Le masque fait 256 sur 512. Un écran de chargement fait 308 sur 560.
+
+Le shader échantillonne les deux dans le même espace UV de 0 à 1, donc le masque est étiré sur l'écran de chargement quelles que soient ses propres proportions. Ça veut dire que tu dois **peindre le matte par-dessus l'écran de chargement en 308 sur 560, puis l'écraser en 256 sur 512 à l'export.**
+
+Si tu le peins directement en 256 sur 512, ta silhouette aura une forme légèrement fausse et l'ondulation ne tombera pas là où est ton personnage. C'est la raison la plus probable pour qu'un premier essai ait l'air presque juste.
+
+---
+
+## Tout assembler
+
+1. Crée ton écran de chargement comme d'habitude, en 308 sur 560, DXT5, sans mipmaps, et mets-le dans ton propre dossier d'assets.
+2. Copie le `ahriLoadMaskPacked.SKINS_Ahri_HoL.tex` de Riot dans le même dossier. Décode-le pour pouvoir éditer les canaux.
+3. Ne touche pas à R ni à G. Repeins le **B** en matte noir et blanc des parties que tu veux faire onduler, peint par-dessus l'écran de chargement en 308 sur 560, puis écrasé en 256 sur 512.
+4. Réencode le masque en BC3 sans mipmaps.
+5. Copie le `StaticMaterialDef` nommé `Characters/Ahri/Skins/Skin86/Materials/UI_Base_HoL_Ahri_Skin86_inst` dans le bin de ton skin, garde son lien de shader, et fais pointer `UI_Secondary_Texture` vers ton masque.
+6. Ajoute `0xeda7817e` sur `SkinCharacterDataProperties` comme lien vers ce matériau, à côté du `Loadscreen` normal.
+7. Laisse `UI_SECONDARY_ON` à false. Laisse absents les quatre switches listés plus haut.
+8. Teste, puis règle `UI_Secondary_DistortionControl` et `UI_Secondary_R_ScrollSpeed`.
+
+---
+
+## Ce que ce guide ne couvre pas
+
+**Les icônes.** Le point d'accroche du matériau n'existe que pour `Loadscreen`. `IconCircle` et `IconSquare` sont de simples listes de chemins, sans propriété de matériau disponible, donc la même technique ne s'étend pas à elles.
+
+Guide par Kaizen

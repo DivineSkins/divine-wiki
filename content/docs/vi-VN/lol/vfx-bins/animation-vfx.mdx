@@ -1,0 +1,179 @@
+---
+title: "Gắn VFX vào Animation"
+description: "Bắn particle, âm thanh và đổi submesh từ event animation: effect key, xương, loop, frame, và cách ghép một hiệu ứng với thứ tắt nó đi."
+category: "vfx-bins"
+---
+
+[Persistent effect conditions](/docs/lol/vfx-bins/persistent-effect-conditions) lo phần trạng thái kéo dài. Event animation lo phần khoảnh khắc: một bước chân chạm đất, một chớp lửa đầu nòng, một vũ khí hiện ra ở frame 20. Trang này nói về cách bắn mọi thứ ra từ một clip.
+
+---
+
+## Công cụ cần dùng
+
+| Công cụ     | Để làm gì                                    |
+| :---------- | :------------------------------------------- |
+| **Flint**   | Trích xuất tướng để có animation bin         |
+| **Jade**    | Chỉnh file `.bin` trực quan (khuyên dùng)    |
+| **Ritobin** | Cách khác: chuyển `.bin` sang `.py` để chỉnh |
+
+---
+
+## Event nằm ở đâu
+
+Trong animation bin, mỗi clip là một `AtomicClipData`, và mỗi clip mang theo một `mEventDataMap`. Mọi thứ trong trang này đều nằm ở đó.
+
+```py
+AtomicClipData {
+    mAnimationResourceData: AnimationResourceData {
+        mAnimationFilePath: string = "ASSETS/.../YourChamp_Attack1.anm"
+    }
+    mEventDataMap: map[hash,pointer] = {
+        "MyEvent" = ParticleEventData { ... }
+    }
+}
+```
+
+Bốn loại event lo gần hết mọi việc: particle, submesh visibility, âm thanh, và joint snap.
+
+---
+
+## Bắn một particle
+
+```py
+"Jetpack_Blast" = ParticleEventData {
+    mEffectKey: hash = "Jetpack_Blast"
+    mParticleEventDataPairList: list[embed] = {
+        ParticleEventDataPair { mBoneName: hash = "L_Vent_Buffbone" }
+    }
+    mStartFrame: f32 = 16
+    mIsLoop: bool = true
+    mIsKillEvent: bool = true
+}
+```
+
+Các trường quan trọng:
+
+| Trường                       | Làm gì                                                                            |
+| :--------------------------- | :-------------------------------------------------------------------------------- |
+| `mEffectKey`                 | Chọn hiệu ứng nào được phát. **Là key của resolver, không phải đường dẫn**, xem bên dưới |
+| `mParticleEventDataPairList` | Mỗi mục là một lần sinh ra. Nhiều mục nghĩa là cùng hiệu ứng đó trên nhiều xương  |
+| `mBoneName`                  | Chỗ hiệu ứng bám vào                                                              |
+| `mTargetBoneName`            | Điểm neo thứ hai, cho hiệu ứng hai đầu như dây nối                                |
+| `mStartFrame` / `mEndFrame`  | Thời điểm bên trong clip. Bỏ trống start thì nó bắn từ frame 0                    |
+| `mIsLoop`                    | Giữ hiệu ứng sống suốt clip thay vì chỉ bắn một lần                               |
+| `mIsKillEvent`               | Dọn hiệu ứng đi khi clip bị thay thế                                              |
+| `mIsDetachable`              | Cho phép hiệu ứng rời khỏi xương                                                  |
+
+`mName` trên event chỉ là một cái tên tự do, đặt gì cũng được.
+
+> **Lưu ý:** `mBoneName` khai báo kiểu hash, nhưng bạn cứ viết tên xương ở dạng chữ bình thường và Ritobin sẽ hash giúp bạn.
+
+### Effect key phải được đăng ký
+
+`mEffectKey` tự nó không làm gì cả. Nó phải xuất hiện ở **vế trái** của một mục trong `mResourceResolver` của skin bin:
+
+```py
+"Rocks_Wheel1" = "Characters/Fiora/Skins/Skin0/Particles/Fiora_Ground_1"
+```
+
+Vế trái là key bạn tự nghĩ ra, vế phải là system thật. Dùng cùng một chuỗi cho cả hai vế là lỗi rất nhiều người mắc. Nếu key không có trong resolver, không có gì phát ra và cũng không có lỗi nào báo.
+
+Mục resolver có thể nằm ở bất cứ đâu trong bin, nên hãy search nó thay vì đoán rằng nó ở cuối file. Một bin cũng có thể chứa nhiều resolver, và chỉ sửa cái đầu tiên là cách nhanh nhất để có một bộ skin không còn hiệu ứng nào.
+
+---
+
+## Hiệu ứng hai đầu
+
+Thêm `mTargetBoneName` bên cạnh `mBoneName` là hiệu ứng có hai điểm neo:
+
+```py
+ParticleEventDataPair {
+    mBoneName:       hash = "L_Buffbone_Glb_Hand_Loc"
+    mTargetBoneName: hash = "C_Buffbone_Glb_Chest_Loc"
+}
+```
+
+Bất kỳ hiệu ứng nào của Riot có emitter dạng dây nối đều gắn lại được theo cách này, giữa một xương bất kỳ của người thi triển và một điểm bất kỳ trên mục tiêu. Từ bàn tay người thi triển tới ngực nạn nhân, một sợi dây hút linh hồn trông y như đang rút thứ gì đó ra khỏi họ.
+
+Đây là cách rẻ tiền để giả một cơ chế, vì hành vi của tướng không đổi chút nào.
+
+> **Lưu ý:** Nó không biến một hiệu ứng đứng yên thành hiệu ứng bay. Nếu hiệu ứng không phải projectile, `mTargetBoneName` và `mIsDetachable` sẽ không làm nó bay được, bạn chỉ nhận về một thứ bị thu nhỏ và dính chặt vào tay. Làm projectile là việc chỉnh bin của tướng, không phải việc của event animation.
+
+---
+
+## Ghép hiệu ứng với thứ tắt nó đi
+
+Thói quen hữu ích nhất trong trang này. Khi một hiệu ứng cần được clip này bật lên và clip khác tắt đi, **hãy ghép chúng theo key chứ đừng ghép theo frame**.
+
+Đặt cho cả hai event cùng một event key, và hai effect key khác nhau:
+
+- Hiệu ứng "bật" trên mọi clip cần khởi động nó, kèm `mIsKillEvent: true`
+- Hiệu ứng "tắt" trên mọi clip cần kết thúc nó, trên cùng một xương
+
+Vì cả hai cùng ghi vào một ô key, cái nào bắn sau thì cái đó nắm quyền. Một thanh kiếm ánh sáng bật lên ở mọi lần vào chiêu và thu lại ở mọi clip hồi chiêu thì không cần con số frame nào cả, và không thể lệch nhịp khi người chơi ngắt chiêu giữa chừng.
+
+Chỉ dùng frame cụ thể ở chỗ mà thời điểm thật sự chỉ thuộc về đúng một clip. Một animation chết làm cỗ máy nổ tung từng bộ phận mới là chỗ đúng để chọn tay từng frame trên mười một cái xương khác nhau.
+
+### Cắt một loop cho gọn
+
+Với hiệu ứng loop trên một chiêu có thể bị ngắt, hãy khai báo lại đúng key đó trên mọi clip hồi chiêu kèm `mEndFrame`. Cách này cắt loop ở một khoảng cố định trong phần hồi chiêu, bất kể biến thể hồi chiêu nào được phát.
+
+---
+
+## Âm thanh
+
+```py
+SoundEventData {
+    mSoundName: string = "Play_sfx_Poppy_Taunt3D_buffactivate"
+    mStartFrame: f32 = 20
+    mIsLoop: bool = false
+}
+```
+
+`mSoundName` là tên event Wwise nguyên văn. Bạn đang bắn một event có sẵn, không phải tạo ra event mới.
+
+### Particle system không có particle, dùng để chở âm thanh
+
+Mẹo gọn nhất ở mảng này. Một `VfxSystemDefinitionData` không có emitter nào cả, chỉ mang mỗi trường âm thanh:
+
+```py
+"R_Channel_Sound" = VfxSystemDefinitionData {
+    ParticleName: string = "R_Channel_Sound"
+    ParticlePath: string = "R_Channel_Sound"
+    SoundOnCreateDefault: string = "Play_sfx_Poppy_PoppyR_fullcharge"
+}
+```
+
+Sinh nó ra ở bất cứ đâu sinh được particle là bạn có âm thanh, không cần đụng tới script chiêu nào. Cũng trường đó nhận một event `Stop_` để kết thúc loop, còn `SoundPersistentDefault` lo phần âm thanh lặp.
+
+---
+
+## Các loại event khác
+
+**`SubmeshVisibilityEventData`** hiện và ẩn từng phần của mesh. Nó có [trang riêng](/docs/lol/vfx-bins/submesh-visibility), vì chuyện đổi vũ khí được xây hoàn toàn trên nó.
+
+**`JointSnapEventData`** đổi cha của một joint trong một khoảng frame. Đây là cách một vũ khí đổi tay ngay giữa cú vung.
+
+**`FaceCamera`** xoay model quay mặt về camera trong suốt clip:
+
+```py
+"FaceCamera" = 0xd7a6b107 {}
+```
+
+Nó nhận thêm `BlendInTime` và `BlendOutTime` để điều khiển cú xoay. Bạn chỉ cần đúng event đó thôi, đừng copy cả khối xung quanh để lấy nó.
+
+---
+
+## Cho hiệu ứng bộ xương riêng
+
+Đừng gắn hiệu ứng bước chân vào xương bàn chân. Hãy thêm joint chuyên dụng vào khung xương, đặt tên theo đúng việc chúng làm, rồi gắn hiệu ứng vào đó. Một rig có `VFX_Step1`, `VFX_Step2` và `VFX_Dance` cho bạn các điểm neo ổn định, không bị ăn theo mọi thứ animation đang làm với chi đó.
+
+Thêm joint mới vào **cuối** khung xương, đừng bao giờ chèn vào giữa, nếu không bạn sẽ phá mọi animation mask của tướng.
+
+---
+
+## Đồ thừa thường vô hại
+
+Nếu bạn thay mesh của một tướng, các clip gốc của nó vẫn chứa event trỏ tới submesh và hiệu ứng không còn tồn tại. Chúng chỉ là lệnh rỗng, chạy im lặng. Dọn đi thì gọn gàng, nhưng các bản mod đã phát hành vẫn thường để nguyên mà chẳng sao cả.
+
+Hướng dẫn bởi Kaizen

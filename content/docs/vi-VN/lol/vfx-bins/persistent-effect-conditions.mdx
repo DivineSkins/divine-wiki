@@ -1,0 +1,189 @@
+---
+title: "Persistent Effect Conditions"
+description: "Đổi submesh và VFX theo trạng thái trong game: buff, animation đang chạy, cấp chiêu. Cơ chế đứng sau đổi dạng, dấu hiệu nội tại sẵn sàng và skin biến hình."
+category: "vfx-bins"
+---
+
+Phần lớn VFX trong một bộ skin do event animation bắn ra: clip chạy tới frame 20 và một hiệu ứng sinh ra. Persistent effect condition làm ngược lại. Nó canh một mẩu trạng thái trong game và giữ thứ gì đó bật suốt thời gian trạng thái đó còn đúng.
+
+Đây là cách một tướng mọc ra model khác khi chiêu cuối đang bật, cách một vầng sáng báo nội tại sẵn sàng tự hiện lên rồi tự tắt, và cách một khuôn mặt đổi sang biểu cảm giận dữ ngay lúc buff dính vào.
+
+---
+
+## Công cụ cần dùng
+
+| Công cụ     | Để làm gì                                       |
+| :---------- | :---------------------------------------------- |
+| **Flint**   | Trích xuất tướng để có skin bin                 |
+| **Jade**    | Chỉnh file `.bin` của skin trực quan (khuyên dùng) |
+| **Ritobin** | Cách khác: chuyển `.bin` sang `.py` để chỉnh    |
+
+---
+
+## Nó nằm ở đâu
+
+`PersistentEffectConditions` là một list trên `SkinCharacterDataProperties`, nằm trong **skin bin**, viết ngay sau `mResourceResolver`. Mỗi mục trong list là một điều kiện và những thứ nó bật tắt.
+
+Trường này cũng có trên `CharacterRecord` trong bin của tướng, chỗ Riot thỉnh thoảng đặt một cái để nó áp cho mọi skin. Hãy sửa bản nằm trong skin bin, đừng sửa bản kia, để bạn không phải phát hành cả bin của tướng.
+
+---
+
+## Nó đổi được gì và không đổi được gì
+
+Mỗi `PersistentEffectConditionData` mang một điều kiện và tối đa ba payload:
+
+| Trường            | Đổi cái gì                                     |
+| :---------------- | :--------------------------------------------- |
+| `SubmeshesToShow` | Submesh được hiện khi điều kiện còn đúng       |
+| `SubmeshesToHide` | Submesh bị ẩn khi điều kiện còn đúng           |
+| `PersistentVfxs`  | Hiệu ứng được sinh ra và giữ sống khi còn đúng |
+
+**Nó không đổi được animation.** Cấu trúc này không có trường clip nào, và đi tìm một trường như vậy là cách quen thuộc để mất cả buổi chiều. Clip animation được đổi ở chỗ khác, trong animation bin, bằng `ConditionBoolClipData` và `ConditionFloatClipData`.
+
+Hai hệ thống dùng chung phần lớn vốn từ về driver, nên chúng cho cảm giác là một. Không phải vậy. **Một cú đổi dạng đầy đủ nghĩa là viết cả hai**: một persistent effect condition cho model và hiệu ứng, và một condition clip cho bộ animation, mỗi bên mang bản sao điều kiện của riêng nó.
+
+---
+
+## Ví dụ đơn giản nhất có thể
+
+Một vầng sáng mặc định luôn hiện và biến mất khi nội tại đang hồi:
+
+```py
+PersistentEffectConditions: list2[pointer] = {
+    PersistentEffectConditionData {
+        OwnerCondition: pointer = NotMaterialDriver {
+            mDriver: pointer = HasBuffDynamicMaterialBoolDriver {
+                Spell: hash = "Characters/Poppy/Spells/PoppyPassiveAbility/PoppyPassiveCooldown" } }
+        PersistentVfxs: list2[embed] = {
+            PersistentVfxData {
+                EffectKey: hash = "Slayer_Passive_Ready"
+                BoneName: string = "Buffbone_Shield" } } } }
+```
+
+Để ý chỗ đảo ngược. Thay vì bám vào lúc buff bật rồi tắt, bạn kiểm tra buff **hồi chiêu** rồi phủ định nó. Hiệu ứng bật bất cứ khi nào buff hồi chiêu không có.
+
+---
+
+## Các driver
+
+`OwnerCondition` nhận bất kỳ cái nào dưới đây. Nó chấp nhận một driver trần, nên lớp bọc `AllTrue` là tùy chọn khi bạn chỉ có một điều kiện.
+
+**`HasBuffDynamicMaterialBoolDriver`** hỏi xem tướng có đang mang một buff hay không. Có hai dạng và cả hai đều chạy:
+
+```py
+HasBuffDynamicMaterialBoolDriver { Spell: hash = "Characters/Nasus/Spells/NasusRAbility/NasusR" }
+HasBuffDynamicMaterialBoolDriver { mScriptName: string = "UndyingRage" }
+```
+
+Dạng đầu trỏ tới đường dẫn của một chiêu, dạng sau gọi thẳng tên script của buff.
+
+**`IsAnimationPlayingDynamicMaterialBoolDriver`** giữ một danh sách tên clip và đúng khi bất kỳ clip nào trong đó đang chạy:
+
+```py
+IsAnimationPlayingDynamicMaterialBoolDriver {
+    mAnimationNames: list[hash] = { "Spell2" "Spell2_0" "Spell2_90" "Spell2_-90"
+                                    "Spell2_180" "Spell2_-180" "Taunt" } }
+```
+
+> **Lưu ý:** Danh sách này là một phép OR, và thường bạn cần ghi đủ mọi biến thể. Nếu animation graph chọn clip theo hướng mà bạn chỉ ghi mỗi tên gốc, hiệu ứng của bạn sẽ chớp tắt ở mọi góc trừ đúng một góc.
+
+**`DelayedBoolMaterialDriver`** bọc một driver khác và thêm phần thời gian:
+
+```py
+DelayedBoolMaterialDriver {
+    mBoolDriver: pointer = IsAnimationPlayingDynamicMaterialBoolDriver {
+        mAnimationNames: list[hash] = { "spell1" } }
+    mDelayOn: f32 = 0
+    mDelayOff: f32 = 5 }
+```
+
+`mDelayOff` là khoảng thời gian trạng thái còn nán lại sau khi điều kiện hết đúng. Năm giây ở đây giữ cho một vũ khí còn hiện sau khi chiêu triệu hồi nó đã kết thúc.
+
+**`NotMaterialDriver`** đảo ngược. **`AllTrueMaterialDriver`** nhận một danh sách và đòi tất cả phải đúng.
+
+Không có driver OR. Muốn diễn tả OR thì viết hai khối điều kiện, hoặc nhét nhiều tên vào chung một danh sách animation.
+
+---
+
+## Dựng một máy trạng thái nhỏ
+
+AND và NOT là đủ cho các trạng thái loại trừ nhau. Ba trạng thái mắt từ hai buff:
+
+```py
+// normal: neither ability active
+OwnerCondition = AllTrueMaterialDriver { mDrivers = {
+    NotMaterialDriver { mDriver = HasBuff... NasusR }
+    NotMaterialDriver { mDriver = HasBuff... NasusQ } } }
+
+// ultimate: R active, Q not
+OwnerCondition = AllTrueMaterialDriver { mDrivers = {
+    HasBuff... NasusR
+    NotMaterialDriver { mDriver = HasBuff... NasusQ } } }
+```
+
+Mỗi khối trỏ tới một hiệu ứng khác nhau, và vì hai điều kiện không thể cùng đúng, bạn được một cú chuyển sạch sẽ thay vì hai hiệu ứng đánh nhau.
+
+---
+
+## Đổi dạng
+
+Một điều kiện, nhiều payload trong cùng một khối, là viên gạch dựng nên một cú biến hình:
+
+```py
+PersistentEffectConditionData {
+    OwnerCondition: pointer = AllTrueMaterialDriver { mDrivers: list[pointer] = {
+        HasBuffDynamicMaterialBoolDriver { mScriptName: string = "UndyingRage" } } }
+    SubmeshesToShow: list2[hash] = { "Face_Rage"  "Sword"  "Metal" }
+    SubmeshesToHide: list2[hash] = { "Face_Neutral"  "Face_Happy"  "Face_Laugh"
+                                     "Face_Shout"  "Face_Smirk" } }
+```
+
+Đó là cả một bộ biểu cảm khuôn mặt được tráo nguyên khối ngay khi buff dính vào. Thêm một khối thứ hai trên cùng điều kiện đó mang theo `PersistentVfxs` là bạn có luôn phần hiệu ứng.
+
+Cả hai họ payload đều hợp lệ trong một khối. Tách chúng ra thành nhiều khối với điều kiện y hệt cũng chạy, và hình như đa số mọi người làm theo cách đó.
+
+---
+
+## Gắn vào camera thay vì vào xương
+
+Bỏ `BoneName` đi thì hiệu ứng gắn được vào camera, đây là cách người ta làm những màn phủ kín màn hình lúc biến hình:
+
+```py
+PersistentEffectConditionData {
+    OwnerCondition: pointer = AllTrueMaterialDriver { mDrivers = { HasBuff... } }
+    ForceRenderVfx: bool = true
+    PersistentVfxs: list2[embed] = {
+        PersistentVfxData {
+            effectKey: hash = "Yone_Skin58_E_CameraBoundVFX"
+            ShowToOwnerOnly: bool = true
+            AttachToCamera: bool = true } } }
+```
+
+`ShowToOwnerOnly` giữ nó khỏi màn hình của người khác, và đó gần như luôn là thứ bạn muốn cho một lớp phủ màn hình.
+
+---
+
+## Effect key phải phân giải được
+
+`effectKey` **không phải đường dẫn particle**. Nó là một key trỏ vào `mResourceResolver`, nơi ánh xạ key đó tới một mục `VfxSystemDefinitionData`. **Nếu key không có trong resolver, không có gì phát ra và cũng không có lỗi nào báo.** Đó là lý do phổ biến nhất khiến một khối điều kiện trông rất đúng nhưng chẳng làm gì cả.
+
+Hai cách người ta hay đấu dây:
+
+- **Đặt tên riêng cho hiệu ứng.** Mục resolver ánh xạ một cái tên bạn tự nghĩ ra tới system của chính bạn. Gọn nhất khi hiệu ứng là của bạn.
+- **Trỏ lại một key có sẵn** vào một system đi mượn, để một key gốc giờ phân giải ra particle của tướng khác. Tiện khi bạn đang bê một hiệu ứng từ nơi khác về.
+
+---
+
+## Hai cách dùng không hiển nhiên
+
+**Che submesh theo từng animation.** Vì `IsAnimationPlayingDynamicMaterialBoolDriver` nhận tên clip, bạn ẩn được prop lúc hồi thành, hiện một cái ngai khi nhảy múa, và tráo cơ thể lúc hồi sinh, tất cả từ skin bin. Đó là dùng điều kiện để làm việc mà bình thường phải viết [event submesh visibility](/docs/lol/vfx-bins/submesh-visibility) vào từng clip một, và bảo trì nhẹ hơn rất nhiều.
+
+**Một vệt hiệu ứng so le nhờ độ trễ.** Nhiều khối trên cùng một điều kiện, mỗi khối là một `DelayedBoolMaterialDriver` với `mDelayOn` cách nhau một chút, sẽ sinh cùng một hiệu ứng theo từng nhịp. Bạn có một chuỗi kéo dài chỉ từ một buff mà không phải đụng tới emitter.
+
+---
+
+## Khi nào đừng dùng nó
+
+Nếu thứ bạn muốn là một hiệu ứng ở đúng một frame của đúng một clip, hãy dùng [event animation](/docs/lol/vfx-bins/animation-vfx) thay cho nó. Persistent condition dành cho trạng thái kéo dài, không dành cho khoảnh khắc.
+
+Hướng dẫn bởi Kaizen

@@ -1,0 +1,120 @@
+---
+title: "Maya'da Basit Control Rig'ler"
+description: "Basit bir control rig ne zaman kurmaya değer, onu çalışır halde tutan kurallar ve ona güvenmeden önce bilmen gereken sınırlar."
+category: "maya"
+---
+
+Bir League şampiyonuna çıplak iskelet üzerinde de animasyon yapabilirsin ama zar zor. Kemikleri tek tek taşıyıp key koymak yavaş ve zahmetli. Tam bir animasyonu bu şekilde yapmak gerçekçi değil.
+
+Var olan bir klipte küçük bir değişiklik için sorun yok, mesela bir saldırı sırasında dirseği diğer yöne itmek gibi. Bundan büyük her iş control rig ister. Bu sayfa nedenini anlatıyor ve basit bir tane kurman için yeterini veriyor.
+
+---
+
+## Gerekli Araçlar
+
+| Araç                                                  | Amaç                                          |
+| :---------------------------------------------------- | :-------------------------------------------- |
+| **Autodesk Maya**                                     | Maya 2023 önerilir                            |
+| **[LoL-Maya plugin](/docs/lol/maya/lol-maya-plugin)** | `.skn`, `.skl` ve `.anm` import ve export et  |
+
+---
+
+## Ne zaman kurmalısın
+
+**Animasyon diyebileceğin her iş için bir tane kur.** Kurulumu zaman alır ama o zamanı sonraki her klipte geri kazanırsın. Alternatifi ise hiçbir ölçekte gerçekten iş görmez.
+
+Çıplak iskelette çalışmanın tek mantıklı olduğu durum, **var olan bir klipte küçük bir düzeltme**. Yani birkaç karede bir iki kemiğe dokunman. Bunun ötesindeki her şeyde önce rig'i kur.
+
+Bilmeye değer bir ara yol var: **azaltılmış rig**. Bir grup klip sadece üst gövdeyi hareket ettiriyorsa, bacakları çıkarılmış bir rig varyantı export'ta bacak kanallarını temiz tutar. Böylece animasyon graph'ı, başıboş key'lerle boğuşmadan onların üzerini maskeleyebilir.
+
+---
+
+## Adımlar
+
+Basit bir control rig sana IK bacaklar ve istersen IK kollar verir. Geri kalan kemiklere doğrudan key **koyabilirsin**. Daha iyi animasyonlar için rigging üzerine düzgün bir kurs takip et.
+
+Bizim basit ihtiyacımız için şunları yapman gerekiyor:
+
+1. Animation workspace'i aç.
+2. **Create IK Handle**'ı bul ve tıkla.
+3. Önce kalça kemiğini (bacaklar için) ya da omuz kemiğini (kollar için) seç.
+4. Sonra uç kemiği seç, yani ayağı ya da eli. Riot'un bu kemiklerin üzerine binen buffbone'lar koymayı sevdiğini unutma, doğru olanı seçtiğinden emin ol.
+5. Handle'lar artık oluştu ama onları sürecek bir şeye hâlâ ihtiyacın var. Basit NURBS eğrileri oluştur, daireler yeterli, ve onları ayak ile el kemiklerinin üzerine taşı. Sonra **her IK handle'ı kendi dairesinin altına parent et**: önce handle'ı, sonra daireyi seç ve **P**'ye bas. Artık daireyi hareket ettirdiğinde handle da hareket eder ve uzuv onu takip eder.
+6. İkinci bir NURBS daire seti oluştur, ilk sete dik dursunlar diye 90 derece döndür ve onları dizlere ve dirseklere yerleştir. Diz olanları öne çek, dirsek olanları arkaya it.
+7. Bunlardan birini seç, sonra eşleşen IK handle'ı seç ve pole vector yap. Artık onu hareket ettirmek dizin ya da dirseğin baktığı yönü değiştirir, uzvun geri kalanı yerinde kalır.
+
+> **Not:** Seçim sırası önemli ve iki adımda aynı değil. Parent ederken önce çocuk, sonra parent gelir. Pole vector constraint'inde önce controller, sonra IK handle gelir.
+
+---
+
+## Kurallar
+
+Bozulduklarında en çok zamana mal olanlar bunlar.
+
+**IK handle'lara asla key koyma.** Sahnedeki diğer her şey serbest. Bir IK handle'a key koymak, rig'in ilerde tahmin edilemez davranmasının en hızlı yolu.
+
+**Kontrol dairelerini değil, ayak kemiklerini döndür.** Daireler taşımak için. Bir daireyi döndürmek, önce ayakların sonra kolların bozulduğu klasik rig sorununun sebebi.
+
+**Ayak kemiklerinin rengini kontrol et.** Normal renk yerine turuncu görünüyorlarsa handle yanlış kurulmuş. Etrafından dolaşmak yerine yeniden kur.
+
+**Pole vector'ler uzvun arkasında durur ve ona bakar.** Tam olarak yerleştirilmeleri gerekmez, taşımak da sorun değil. Döndürmek sorun.
+
+**Ön bükümden sonra preferred angle'ı sıfırla.** Bir diz ya da dirsek ters yöne büküldüğünde güvenilir çözüm şu: IK handle'ı ve pole vector'ü sil, Maya hangi yöne gitmesi gerektiğini bilsin diye kemiği hafifçe bük, preferred angle'ı sıfırla, sonra ikisini yeniden oluştur.
+
+**Rig bitince kemikleri gizle.** Onları grupla ve grubu gizle. Karşı argüman da geçerli: controller'ı olmayan bir kemik test edilemez. Bu yüzden bir şeyi gizlemeden önce önemsediğin her şeyin bir controller'ı olduğundan emin ol.
+
+---
+
+## Planlaman gereken iki sınır
+
+**Control rig scale süremez.** Bir controller'dan kemiğe scale transform'u geçirmenin güvenilir bir yolu yok. Karakterinin squash, stretch ya da smear karelerine ihtiyacı varsa ya da sık sık boyutlandırılan blok tarzı bir model üzerinde çalışıyorsan bu önemli. Çözüm, o geçişleri rig olmadan ayrı bir sahnede yapmak.
+
+**Control rig FBX'ten sağ çıkmaz.** NURBS şekilleri export olur ama hiçbir şeye bağlı olmadan gelir. Bir rig'i birlikte çalıştığın birine veriyorsan FBX değil, Maya sahne dosyasını gönder.
+
+---
+
+## Set driven key'ler
+
+Set driven key'ler, ikincil mekanikleri otomatikleştirme yolun. Maya'ya, bir attribute değiştiğinde başka birinin onu takip edeceğini söylersin: root yukarı çıkınca ayaklar aşağı döner, bir uzuv uzayınca hidrolik piston kayar.
+
+Riot'un kendi rig'leri bunları yoğun kullanır ve mekanik her şeyde kurulumuna değer. Pistonlarında ve kapaklarında driven key olan bir rig, o kanallara tüm animasyon seti boyunca elle key koymanı gerektirmez.
+
+Karşılığında, IK handle'ın aksine istemediğinde onları kapatamazsın. Kurulumlarını bilerek yap.
+
+---
+
+## Pelerin ve etek zincirleri
+
+İki yaklaşım da çalışır.
+
+**Aim constraint.** Zincirin ortasına, üst üste iki daireyle bir aim constraint koy: alttaki constraint'i taşır, üstteki onu kontrol eder. Yanlışlıkla seçilmesin diye aim dairesini görünmez yap. Stretch olmadan sadece dönüş istiyorsan constraint'i doğrudan kemiğe koy.
+
+**IK spline.** Uzun zincirlerde anlaşılır ve tahmin edilebilir.
+
+Bir zincir öne arkaya hareket ettirdiğinde yana yatıyorsa aim vector ayarları yanlış. Hiç uslanmıyorsa kemik rotasyonlarını sıfırla, zincirin kökünü yeniden yönlendir, preferred angle'ı sıfırla ve yeniden kur.
+
+> **Not:** Riot'un kendi pelerin ve kuyruklarının bazıları elle animasyonlanmaz ve control rig değildir. Onlar, bin'de tanımlanan ve engine kodunun sürdüğü bir kemik grubudur. O sürüklenen hareketi sadece rigging ile taklit etmeye çalışıyorsan yanlış problemi çözüyorsun.
+
+---
+
+## Şekil kütüphanesi kur
+
+Controller şekilleri her projede aynı. Bir NURBS şekil setini bir kez kaydet ve tekrar kullan. Böylece yeni bir rig kurmak, daire çizmekle geçen bir öğleden sonra yerine bir dakika sürer.
+
+---
+
+## Düzen üzerine bir not
+
+Şablon sahnelerini klip sahnelerinden ayrı tut. İşe yarayan bir set şöyle:
+
+| Sahne              | İçerik                                                    |
+| :----------------- | :--------------------------------------------------------- |
+| **rig yok**        | Sadece mesh ve bind iskeleti. Bu senin export şablonun     |
+| **control rig'li** | Aynısı, artı kontroller. Her klip için bunu kopyala        |
+| **retargeting**    | Kaynak ve hedef iskeletler bir arada                       |
+
+Sadece klipleri değil, rig şablonunun kendisini de versiyonla. Projenin üçüncü haftasında yapılan bir rig düzeltmesi geri getirilebilir olmalı.
+
+> 💡 **İpucu:** Her klibi kendi Maya sahnesi olarak kaydet ve sırayla hazırla, böylece birinin son karesi diğerinin 0. karesi olur. Gerçekten birbirine değen geçişleri böyle kurmak, sonradan pozları eşleştirmekten çok daha kolay.
+
+Rehber: Kaizen

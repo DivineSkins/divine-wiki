@@ -1,0 +1,107 @@
+---
+title: "Meshes como Partículas"
+description: "Como adicionar props, veículos e até personagens inteiros a mais em uma skin sem sistema de spawn, colocando uma mesh dentro de uma partícula."
+category: "vfx-bins"
+---
+
+Uma partícula não precisa ser um sprite. Ela pode ser uma mesh, e essa mesh pode ter esqueleto e animação próprios. É assim que um campeão ganha um dropship (uma nave de transporte) no recall, um holograma durante a piada, uma dançarina parada do lado dele ou um personagem completamente diferente na tela ao mesmo tempo.
+
+Não existe sistema de spawn envolvido nem uma segunda entidade de campeão. É tudo um sistema de partículas só.
+
+---
+
+## Ferramentas Necessárias
+
+| Ferramenta          | Para quê                                                    |
+| :------------------ | :---------------------------------------------------------- |
+| **Flint**           | Extrair o campeão e empacotar o mod                         |
+| **Jade**            | Editar o `.bin` visualmente (recomendado)                   |
+| **Maya ou Blender** | Modelar o prop e exportar `.skn`, `.skl`, `.anm` ou `.scb`   |
+
+---
+
+## Duas formas
+
+**Props rígidos** usam uma mesh estática, sem esqueleto e sem animação própria:
+
+```py
+Primitive: pointer = VfxPrimitiveMesh {
+    mMesh: embed = VfxMeshDefinitionData {
+        mSimpleMeshName: string = "ASSETS/.../poppy_base_p_shield.scb"
+    }
+}
+DisableBackfaceCull: bool = true
+BirthScale0: 1.7424
+BirthRotation0: { 90, 0, 0 }
+BirthRotationalVelocity0: { 0, 180, 0 }
+```
+
+Todo o movimento vem do emitter. Esse exemplo é um escudo arremessado, e o giro é de 180 graus por segundo no eixo Y, controlado só por dados de partícula, porque um `.scb` não tem animação nenhuma para oferecer.
+
+**Props animados** usam o trio completo:
+
+```py
+Primitive: pointer = VfxPrimitiveMesh {
+    mMesh: embed = VfxMeshDefinitionData {
+        mMeshName:         "ASSETS/.../Particles/laat.skn"
+        mMeshSkeletonName: "ASSETS/.../Particles/laat.skl"
+        mAnimationName:    "ASSETS/.../Particles/laat.anm"
+    }
+}
+IsSingleParticle: flag = true
+EmitterName: string = "LAAT"
+```
+
+O `IsSingleParticle` significa emitir exatamente uma, que é o que você quer para um dropship.
+
+Coloque os arquivos do prop na **pasta `particles/`** da skin, junto das texturas de sprite, não na pasta de animações. Animações consumidas por partículas não fazem parte do animation graph e não pertencem lá.
+
+---
+
+## Posicionando
+
+O `Transform: mtx44` do sistema desloca a coisa toda no espaço do mundo. A última linha é a posição, e valores acima ou abaixo de 1 na diagonal mudam a escala.
+
+Uma dançarina parada ao lado do campeão, em vez de dentro dele, é uma translação de umas duas centenas de unidades em um eixo, mais uma escala, e nada além disso.
+
+---
+
+## Fazendo o spawn
+
+Dispare o prop a partir de um evento de animação, como qualquer outro efeito. A effect key resolve pelo `mResourceResolver` do jeito de sempre, e o prop aparece onde o evento mandar.
+
+Um recall que pousa um dropship é um único `ParticleEventData` no clip de recall, preso a um osso de layout.
+
+---
+
+## Reusando a animação do próprio campeão em uma segunda mesh
+
+Este é o truque que vale guardar. Uma partícula de mesh pode ser controlada pelo **arquivo `.anm` do próprio campeão**, desde que o esqueleto do prop tenha os mesmos nomes de joint.
+
+Duas coisas saem disso.
+
+**Um segundo modelo fazendo a mesma animação.** Aponte uma partícula de mesh para o seu modelo alternativo, controle ela com o clip de emote do campeão e esconda o campeão de verdade com um [evento de visibilidade de submesh](/docs/lol/vfx-bins/submesh-visibility) no mesmo frame. O resultado é um personagem trocado por outro no meio do emote, sem criar animação nova nenhuma. Adicione uma fumacinha no frame da troca para cobrir a transição.
+
+**Um prop que existe dentro e fora do campeão.** Se um veículo estiver construído dentro do esqueleto do campeão como alguns joints extras, você pode exportar o mesmo clip duas vezes: uma como animação do campeão, outra como animação do prop. Como as tracks se ligam pelo nome do joint, só os joints que batem se aplicam ao prop, e os dois nunca saem de sincronia, porque são literalmente o mesmo arquivo.
+
+---
+
+## Escolhendo entre um prop e uma entidade de verdade
+
+Três opções, em ordem crescente de custo:
+
+**Junte tudo no esqueleto do campeão.** Joints extras no rig que já existe, com skinning na mesma mesh e keys nos mesmos clips. A sincronia vem de graça e o preço é um clip só. Um cavalo montado pode ocupar um terço dos joints de um rig e ainda assim ser animado dentro da animação de quem monta.
+
+**Faça uma partícula de mesh.** Esqueleto e clips próprios e pequenos, criados por um evento. É a escolha certa para tudo que aparece e some, e para tudo que precisa existir longe do corpo do campeão.
+
+**Faça uma entidade companheira de verdade.** Só quando ela tiver ciclo de vida próprio no jogo, como um pet que é invocado e morre por conta própria. Isso significa um fluxo paralelo completo: bin próprio em `data/characters/<name>/skins/`, esqueleto e mesh próprios, animation graph próprio. Conte com umas três vezes mais trabalho de bin.
+
+O erro é partir para a terceira opção quando a primeira já resolveria.
+
+---
+
+## O que isso não é
+
+**Props não precisam de definição de spawn nem de minion.** Um campeão com dropship, holograma, dançarina e furadeira continua tendo exatamente um character record. Se você se pegar procurando como spawnar uma unidade, está no caminho errado.
+
+Guia por Kaizen

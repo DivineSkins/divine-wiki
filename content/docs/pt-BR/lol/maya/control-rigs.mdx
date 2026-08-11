@@ -1,0 +1,120 @@
+---
+title: "Rigs de Controle Simples no Maya"
+description: "Quando vale a pena montar um rig de controle simples, as regras que mantêm ele funcionando e os limites que você precisa conhecer antes de depender dele."
+category: "maya"
+---
+
+Dá para animar um campeão de League direto no esqueleto, mas é sofrido. Mover os ossos e colocar keys um por um é lento e desconfortável, e fazer uma animação inteira assim não é realista.
+
+Isso serve para um ajuste pequeno em um clipe que já existe, tipo virar o cotovelo para o outro lado durante um ataque. Qualquer coisa maior que isso pede um rig de controle. Esta página explica o porquê e te dá o suficiente para montar um rig simples.
+
+---
+
+## Ferramentas Necessárias
+
+| Ferramenta                                            | Função                                      |
+| :---------------------------------------------------- | :------------------------------------------ |
+| **Autodesk Maya**                                     | Maya 2023 recomendado                       |
+| **[LoL-Maya Plugin](/docs/lol/maya/lol-maya-plugin)** | Importar e exportar `.skn`, `.skl` e `.anm` |
+
+---
+
+## Quando montar um rig
+
+**Monte um rig para qualquer coisa que você chamaria de animação.** Ele dá trabalho para configurar e devolve esse tempo em todo clipe seguinte, e a alternativa não é viável em escala nenhuma.
+
+O único caso em que vale trabalhar direto no esqueleto é uma **edição pequena em um clipe que já existe**, mexendo em um ou dois ossos por alguns frames. Fora isso, monte o rig primeiro.
+
+Existe um meio-termo que vale conhecer: o **rig reduzido**. Se um grupo de clipes só mexe na parte de cima do corpo, uma versão do rig sem as pernas mantém os canais das pernas limpos na exportação. Assim o animation graph consegue mascarar esses canais sem brigar com keys perdidas.
+
+---
+
+## Os passos
+
+Um rig de controle simples te dá pernas em IK e, se você quiser, braços em IK. O resto dos ossos **pode** receber keys direto. Para animações melhores, faça um curso de verdade sobre rigging.
+
+Para o nosso caso simples, você precisa:
+
+1. Abra o workspace **Animation**.
+2. Procure e clique em **Create IK Handle**.
+3. Selecione primeiro o osso do quadril (para as pernas) ou o osso do ombro (para os braços).
+4. Selecione o osso final, o do pé ou o da mão. Fique atento: a Riot costuma colocar buffbones em cima da posição desses ossos, então confira se você pegou o certo.
+5. Os handles já estão criados, mas ainda falta algo para controlar eles. Crie curvas NURBS simples, círculos resolvem, e posicione cada uma sobre os ossos do pé e da mão. Depois **faça o parent de cada IK handle no seu círculo**: selecione primeiro o handle, depois o círculo, e aperte **P**. Agora mover o círculo move o handle, e o membro acompanha.
+6. Crie outro conjunto de círculos NURBS, gire eles 90 graus para ficarem perpendiculares ao primeiro conjunto, e coloque nos joelhos e cotovelos. Puxe os dos joelhos para a frente e empurre os dos cotovelos para trás.
+7. Selecione um desses círculos, depois o IK handle correspondente, e transforme ele em pole vector. Mover ele agora muda a direção para onde o joelho ou o cotovelo aponta, enquanto o resto do membro fica no lugar.
+
+> **Nota:** A ordem da seleção importa e não é a mesma nos dois passos. No parent, o filho vem primeiro e o pai depois. No constraint de pole vector, o controlador vem primeiro e o IK handle depois.
+
+---
+
+## As regras
+
+Estas são as regras que mais custam tempo quando você quebra.
+
+**Nunca coloque keys nos IK handles.** Todo o resto da cena está liberado. Colocar key em um IK handle é o jeito mais rápido de deixar o rig imprevisível lá na frente.
+
+**Gire os ossos do pé, não os círculos de controle.** Círculos servem para mover. Girar um círculo é a causa clássica daquele rig em que os pés ficam errados e os braços vão junto.
+
+**Confira a cor dos ossos do pé.** Se eles aparecerem em laranja no lugar da cor normal, o handle foi criado errado. Refaça o handle em vez de improvisar em cima.
+
+**Pole vectors ficam atrás do membro, apontando para ele.** Não precisam de posição exata, e mover eles é normal. Girar não é.
+
+**Redefina o Preferred Angle depois de pré-dobrar o osso.** Quando um joelho ou cotovelo dobra para o lado errado, a correção confiável é apagar o IK handle e o pole vector, dobrar o osso um pouco para o Maya saber a direção certa, redefinir o Preferred Angle e criar os dois de novo.
+
+**Esconda os ossos quando o rig estiver pronto.** Agrupe eles e esconda o grupo. Mas o contra-argumento é real: um osso sem controlador não dá para testar, então garanta que tudo que te interessa tem um controlador antes de esconder qualquer coisa.
+
+---
+
+## Duas limitações para você planejar
+
+**Um rig de controle não controla escala.** Não existe jeito confiável de passar uma transformação de escala do controlador para o osso. Isso pesa se o seu personagem precisa de squash, stretch ou frames de smear, ou se você trabalha em um modelo quadradão ou estilizado que muda de tamanho toda hora. A saída é fazer essas passadas em uma cena separada, sem o rig.
+
+**Um rig de controle não sobrevive ao FBX.** As formas NURBS até são exportadas, mas chegam desconectadas de tudo. Se você vai entregar um rig para outra pessoa, mande o arquivo de cena do Maya, não um FBX.
+
+---
+
+## Set driven keys
+
+Set driven keys são o jeito de automatizar mecânicas secundárias. Você diz para o Maya que, quando um atributo muda, outro acompanha: quando o osso Root sobe, os pés giram para baixo; quando um membro estende, um pistão hidráulico desliza.
+
+Os rigs da própria Riot usam bastante isso, e vale o trabalho de configurar em qualquer coisa mecânica. Um rig com driven keys nos pistões e nas tampas é um rig em que esses canais nunca precisam de key na mão em um conjunto inteiro de animações.
+
+A troca é que, diferente de um IK handle, você não consegue desligar as driven keys quando não quiser elas. Configure com intenção.
+
+---
+
+## Cadeias de capa e saia
+
+Duas abordagens funcionam.
+
+**Aim constraint.** Coloque um aim constraint no meio da cadeia com dois círculos empilhados: o de baixo carrega o constraint, o de cima controla ele. Deixe o círculo do aim invisível para ninguém selecionar ele sem querer. Se você quer rotação sem esticar, coloque o constraint direto no osso.
+
+**IK spline.** Direto e previsível para cadeias longas.
+
+Se a cadeia inclina para o lado quando você move ela para frente e para trás, as configurações do aim vector estão erradas. Se ela não se comporta de jeito nenhum, zere as rotações dos ossos, reoriente a raiz da cadeia, redefina o Preferred Angle e monte de novo.
+
+> **Nota:** Algumas capas e caudas da própria Riot não são animadas na mão e não são rig de controle. Elas são um grupo de ossos controlado por código da engine, declarado no bin. Se você está tentando reproduzir aquele movimento de arrasto só com rigging, você está resolvendo o problema errado.
+
+---
+
+## Monte uma biblioteca de shapes
+
+As formas dos controladores são as mesmas em todo projeto. Salve um conjunto de shapes NURBS uma vez e reutilize sempre, para montar um rig novo levar um minuto em vez de uma tarde inteira desenhando círculos.
+
+---
+
+## Sobre organização
+
+Mantenha as cenas de template separadas das cenas de clipe. Um conjunto que funciona:
+
+| Cena               | Contém                                                    |
+| :----------------- | :-------------------------------------------------------- |
+| **no rig**         | Só a mesh e o esqueleto de bind. Seu template de exportação |
+| **control rigged** | O mesmo, mais os controles. Clone para cada clipe         |
+| **retargeting**    | Esqueleto de origem e de destino juntos                   |
+
+Versione o template do rig, não só os clipes. Uma correção de rig feita três semanas depois do início do projeto precisa ser recuperável.
+
+> 💡 **Dica:** Salve cada clipe como uma cena própria do Maya e crie eles em ordem, para o último frame de um virar o frame 0 do seguinte. Transições que encaixam de verdade saem muito mais fácil assim do que ajustando poses depois.
+
+Guia por Kaizen
