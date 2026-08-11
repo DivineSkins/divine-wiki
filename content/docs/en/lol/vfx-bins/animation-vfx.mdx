@@ -4,17 +4,17 @@ description: "Firing particles, sounds and submesh changes from animation events
 category: "vfx-bins"
 ---
 
-Persistent effect conditions handle states that last. Animation events handle moments: a footfall, a muzzle flash, a weapon appearing on frame 20. This page covers how to fire things from a clip.
+[Persistent effect conditions](/docs/lol/vfx-bins/persistent-effect-conditions) handle states that last. Animation events handle moments: a footfall, a muzzle flash, a weapon appearing on frame 20. This page covers how to fire things from a clip.
 
 ---
 
 ## Required Tools
 
-| Tool        | Purpose                                                     |
-| :---------- | :---------------------------------------------------------- |
-| **Flint**   | Extract the champion so you have the animation bin          |
-| **Jade**    | Edit the `.bin` visually (recommended)                      |
-| **Ritobin** | Alternative: convert `.bin` to `.py` for editing            |
+| Tool        | Purpose                                            |
+| :---------- | :------------------------------------------------- |
+| **Flint**   | Extract the champion so you have the animation bin |
+| **Jade**    | Edit the `.bin` visually (recommended)             |
+| **Ritobin** | Alternative: convert `.bin` to `.py` for editing   |
 
 ---
 
@@ -53,16 +53,16 @@ Four event types do nearly all the work: particles, submesh visibility, sounds, 
 
 The fields that matter:
 
-| Field | Does |
-| :---- | :----- |
-| `mEffectKey` | Which effect to play. **A resolver key, not a path**, see below |
+| Field                        | Does                                                                        |
+| :--------------------------- | :-------------------------------------------------------------------------- |
+| `mEffectKey`                 | Which effect to play. **A resolver key, not a path**, see below             |
 | `mParticleEventDataPairList` | One entry per spawn. Several entries means the same effect on several bones |
-| `mBoneName` | Where it attaches |
-| `mTargetBoneName` | A second anchor, for two-point effects like tethers |
-| `mStartFrame` / `mEndFrame` | Timing within the clip. Omit the start and it fires from frame 0 |
-| `mIsLoop` | Keeps it alive for the clip rather than firing once |
-| `mIsKillEvent` | Cleans it up when the clip is displaced |
-| `mIsDetachable` | Lets the effect leave the bone |
+| `mBoneName`                  | Where it attaches                                                           |
+| `mTargetBoneName`            | A second anchor, for two-point effects like tethers                         |
+| `mStartFrame` / `mEndFrame`  | Timing within the clip. Omit the start and it fires from frame 0            |
+| `mIsLoop`                    | Keeps it alive for the clip rather than firing once                         |
+| `mIsKillEvent`               | Cleans it up when the clip is displaced                                     |
+| `mIsDetachable`              | Lets the effect leave the bone                                              |
 
 `mName` on the event is a free identifier and can be anything.
 
@@ -95,7 +95,7 @@ ParticleEventDataPair {
 
 Any Riot effect containing a tether emitter can be rebound this way, between an arbitrary caster bone and an arbitrary point on the target. From the caster's hand to the victim's chest, a soul-steal tether reads as pulling something out of them.
 
-This is a cheap way to fake a mechanic, because nothing about the champion's behaviour changes.
+This is a cheap way to fake a mechanic, because nothing about the champion's behavior changes.
 
 > **Note:** It does not turn a stationary effect into a travelling one. If the effect is not a projectile, `mTargetBoneName` and `mIsDetachable` will not make it fly, and you will end up with something shrunk and stuck to the hand. Making a projectile is a champion bin edit, not an animation event.
 
@@ -150,7 +150,7 @@ Spawn it anywhere a particle can be spawned and you get a sound, without touchin
 
 ## Other event types
 
-**`SubmeshVisibilityEventData`** shows and hides parts of the mesh. It has its own page, since weapon swapping is built entirely on it.
+**`SubmeshVisibilityEventData`** shows and hides parts of the mesh. It has [its own page](/docs/lol/vfx-bins/submesh-visibility), since weapon swapping is built entirely on it.
 
 **`JointSnapEventData`** re-parents a joint for a window of frames. This is how a weapon changes hands mid-swing.
 

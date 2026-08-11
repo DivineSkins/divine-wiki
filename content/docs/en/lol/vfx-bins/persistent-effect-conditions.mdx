@@ -12,11 +12,11 @@ This is how a champion grows a different model when their ultimate is active, ho
 
 ## Required Tools
 
-| Tool        | Purpose                                                     |
-| :---------- | :---------------------------------------------------------- |
-| **Flint**   | Extract the champion so you have the skin bin               |
-| **Jade**    | Edit the skin `.bin` visually (recommended)                 |
-| **Ritobin** | Alternative: convert `.bin` to `.py` for editing            |
+| Tool        | Purpose                                          |
+| :---------- | :----------------------------------------------- |
+| **Flint**   | Extract the champion so you have the skin bin    |
+| **Jade**    | Edit the skin `.bin` visually (recommended)      |
+| **Ritobin** | Alternative: convert `.bin` to `.py` for editing |
 
 ---
 
@@ -32,8 +32,8 @@ The same field also exists on `CharacterRecord` in the champion bin, where Riot 
 
 Each `PersistentEffectConditionData` carries a condition and up to three payloads:
 
-| Field | Switches |
-| :---- | :--------- |
+| Field             | Switches                                         |
+| :---------------- | :----------------------------------------------- |
 | `SubmeshesToShow` | Submeshes made visible while the condition holds |
 | `SubmeshesToHide` | Submeshes hidden while it holds                  |
 | `PersistentVfxs`  | Effects spawned and kept alive while it holds    |
@@ -176,7 +176,7 @@ Two ways people wire it:
 
 ## Two non-obvious uses
 
-**Per-animation submesh masking.** Because `IsAnimationPlayingDynamicMaterialBoolDriver` accepts clip names, you can hide props during a recall, show a throne during a dance, and swap a body during a respawn, all from the skin bin. That is doing with conditions what would otherwise need submesh visibility events written into every clip individually, and it is far less work to maintain.
+**Per-animation submesh masking.** Because `IsAnimationPlayingDynamicMaterialBoolDriver` accepts clip names, you can hide props during a recall, show a throne during a dance, and swap a body during a respawn, all from the skin bin. That is doing with conditions what would otherwise need [submesh visibility events](/docs/lol/vfx-bins/submesh-visibility) written into every clip individually, and it is far less work to maintain.
 
 **A staggered trail from delays.** Several blocks on the same condition, each a `DelayedBoolMaterialDriver` with `mDelayOn` stepped a little further apart, spawn the same effect at intervals. That gives you a trailing sequence out of one buff without touching the emitter.
 
@@ -184,6 +184,6 @@ Two ways people wire it:
 
 ## When not to use it
 
-If what you want is an effect at a specific frame of a specific clip, use an animation event instead. Persistent conditions are for states that last, not for moments.
+If what you want is an effect at a specific frame of a specific clip, use an [animation event](/docs/lol/vfx-bins/animation-vfx) instead. Persistent conditions are for states that last, not for moments.
 
 Guide by Kaizen

@@ -12,12 +12,12 @@ This surprises people, and once you know it a lot of otherwise impossible-lookin
 
 ## Required Tools
 
-| Tool        | Purpose                                                     |
-| :---------- | :---------------------------------------------------------- |
-| **Flint**   | Extract the champion                                        |
-| **Jade**    | Edit the skin and animation `.bin` visually (recommended)   |
-| **Ritobin** | Alternative: convert `.bin` to `.py` for editing            |
-| **Maya or Blender** | Model the extra parts into the mesh as named submeshes |
+| Tool                | Purpose                                                   |
+| :------------------ | :-------------------------------------------------------- |
+| **Flint**           | Extract the champion                                      |
+| **Jade**            | Edit the skin and animation `.bin` visually (recommended) |
+| **Ritobin**         | Alternative: convert `.bin` to `.py` for editing          |
+| **Maya or Blender** | Model the extra parts into the mesh as named submeshes    |
 
 ---
 
@@ -103,7 +103,7 @@ A crit that reverts the shotgun at frame 44 in the to-run exit might revert it a
 
 ## Making a character vanish
 
-Hide every body submesh in one event. This is how a recall ends with the champion disappearing, and how you swap the champion for a completely different model mid-emote: hide all of the body, and spawn the replacement as a mesh particle.
+Hide every body submesh in one event. This is how a recall ends with the champion disappearing, and how you swap the champion for a completely different model mid-emote: hide all of the body, and spawn the replacement as a [mesh particle](/docs/lol/vfx-bins/meshes-as-particles).
 
 ---
 
@@ -139,7 +139,7 @@ One trap: if every submesh has a `materialOverride`, the top-level `texture` on 
 
 ## When to use something else
 
-**For a state that lasts**, a form change tied to an ultimate or a buff, use persistent effect conditions instead. Those take the same submesh show and hide lists but are driven by game state rather than by a clip, so you write the condition once instead of touching every animation.
+**For a state that lasts**, a form change tied to an ultimate or a buff, use [persistent effect conditions](/docs/lol/vfx-bins/persistent-effect-conditions) instead. Those take the same submesh show and hide lists but are driven by game state rather than by a clip, so you write the condition once instead of touching every animation.
 
 **For a change that must outlive the clip**, note that submesh toggles only last for the duration of the animation, whereas texture swaps persist after it ends. If you need a part gone permanently after an emote, swap to a texture with that region fully transparent, or use a persistent condition.
 

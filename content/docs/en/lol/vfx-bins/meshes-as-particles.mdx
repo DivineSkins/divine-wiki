@@ -12,11 +12,11 @@ There is no spawn system involved and no second champion entity. It is all one p
 
 ## Required Tools
 
-| Tool                | Purpose                                                     |
-| :------------------ | :----------------------------------------------------------- |
-| **Flint**           | Extract the champion, pack the mod                          |
-| **Jade**            | Edit the `.bin` visually (recommended)                      |
-| **Maya or Blender** | Model the prop and export `.skn`, `.skl`, `.anm` or `.scb`  |
+| Tool                | Purpose                                                    |
+| :------------------ | :--------------------------------------------------------- |
+| **Flint**           | Extract the champion, pack the mod                         |
+| **Jade**            | Edit the `.bin` visually (recommended)                     |
+| **Maya or Blender** | Model the prop and export `.skn`, `.skl`, `.anm` or `.scb` |
 
 ---
 
@@ -80,7 +80,7 @@ This is the trick worth remembering. A mesh particle can be driven by **the cham
 
 Two things fall out of that.
 
-**A second model performing the same animation.** Point a mesh particle at your alternate model, drive it with the champion's emote clip, and hide the real champion with a submesh visibility event on the same frame. The result is one character replaced by another mid-emote, with no new animation authored. Add a puff of smoke on the swap frame to cover the transition.
+**A second model performing the same animation.** Point a mesh particle at your alternate model, drive it with the champion's emote clip, and hide the real champion with a [submesh visibility event](/docs/lol/vfx-bins/submesh-visibility) on the same frame. The result is one character replaced by another mid-emote, with no new animation authored. Add a puff of smoke on the swap frame to cover the transition.
 
 **A prop that exists both inside and outside the champion.** If a vehicle is built into the champion's skeleton as a few extra joints, you can export the same clip twice: once as the champion's animation, once as the prop's. Because tracks bind by joint name, only the matching joints apply to the prop, and the two can never drift out of sync because they are literally the same file.
 
@@ -90,7 +90,7 @@ Two things fall out of that.
 
 Three options, in increasing cost:
 
-**Merge it into the champion's skeleton.** Extra joints on the existing rig, skinned into the same mesh, keyed in the same clips. You get synchronisation for free and it costs one clip. A mounted horse can be a third of the joints on a rig and still be animated inside the rider's animation.
+**Merge it into the champion's skeleton.** Extra joints on the existing rig, skinned into the same mesh, keyed in the same clips. You get synchronization for free and it costs one clip. A mounted horse can be a third of the joints on a rig and still be animated inside the rider's animation.
 
 **Make it a mesh particle.** Its own small skeleton and clips, spawned by an event. Right for anything that appears and disappears, and for anything that needs to exist away from the champion's body.
 

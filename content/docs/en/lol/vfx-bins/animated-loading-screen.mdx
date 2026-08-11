@@ -12,12 +12,12 @@ That last part is the bit people miss. The animation itself is easy to copy and 
 
 ## Required Tools
 
-| Tool                                    | Purpose                                                        |
-| :-------------------------------------- | :-------------------------------------------------------------- |
-| **Flint**                               | Extract the champion and convert between `.tex` and `.dds`      |
-| **Jade**                                | Edit the skin `.bin` visually (recommended)                     |
-| **Ritobin**                             | Alternative: convert `.bin` to `.py` for editing                |
-| **Photoshop, GIMP or Paint.NET**        | Paint the mask. Use the matching `.tex` plugin for your editor  |
+| Tool                             | Purpose                                                        |
+| :------------------------------- | :------------------------------------------------------------- |
+| **Flint**                        | Extract the champion and convert between `.tex` and `.dds`     |
+| **Jade**                         | Edit the skin `.bin` visually (recommended)                    |
+| **Ritobin**                      | Alternative: convert `.bin` to `.py` for editing               |
+| **Photoshop, GIMP or Paint.NET** | Paint the mask. Use the matching `.tex` plugin for your editor |
 
 ---
 
@@ -34,7 +34,7 @@ Two pieces have to line up.
 }
 ```
 
-**The mask side** is a texture whose colour channels drive the animation: two of them supply moving noise, and one of them decides where that noise is allowed to apply.
+**The mask side** is a texture whose color channels drive the animation: two of them supply moving noise, and one of them decides where that noise is allowed to apply.
 
 Without the mask, the distortion covers the entire image. With it, the distortion is confined to whatever you painted white.
 
@@ -72,16 +72,16 @@ Then you need the material it points at. Rather than writing one, copy Riot's Ha
 
 These are the values that control the look. Everything is a float4.
 
-| Parameter                          | Example value  | What it does                               |
-| :--------------------------------- | :------------- | :------------------------------------------ |
-| `UI_Secondary_DistortionControl`   | `0.05, 0.005`  | Distortion strength, X and Y                |
-| `UI_Secondary_R_ScrollSpeed`       | `0.5, -0.25`   | Speed and direction of the wave             |
-| `UI_Secondary_G_ScrollSpeed`       | `0`            | Leave at zero so the mask stays put         |
-| `GlowPulseFrequency`               | `2.0`          | Pulses per second                           |
-| `RGBGlowMinMaxValue`               | `0.85, 1.15`   | How far the glow dips and peaks             |
-| `Shine_FrequencySpeed`             | `10, 8`        | Speed of the sweeping shine                 |
-| `Shine_Direction`                  | `0.5, -0.7`    | Direction of the shine                      |
-| `Shine_Strength`                   | `0.02`         | How strong the shine is                     |
+| Parameter                        | Example value | What it does                        |
+| :------------------------------- | :------------ | :---------------------------------- |
+| `UI_Secondary_DistortionControl` | `0.05, 0.005` | Distortion strength, X and Y        |
+| `UI_Secondary_R_ScrollSpeed`     | `0.5, -0.25`  | Speed and direction of the wave     |
+| `UI_Secondary_G_ScrollSpeed`     | `0`           | Leave at zero so the mask stays put |
+| `GlowPulseFrequency`             | `2.0`         | Pulses per second                   |
+| `RGBGlowMinMaxValue`             | `0.85, 1.15`  | How far the glow dips and peaks     |
+| `Shine_FrequencySpeed`           | `10, 8`       | Speed of the sweeping shine         |
+| `Shine_Direction`                | `0.5, -0.7`   | Direction of the shine              |
+| `Shine_Strength`                 | `0.02`        | How strong the shine is             |
 
 Start by tuning `UI_Secondary_DistortionControl` and `UI_Secondary_R_ScrollSpeed`. Those two account for most of what the effect looks like.
 
@@ -96,7 +96,7 @@ So if you go looking for the switch that turns your effect on, you will not find
 - `UI_SECONDARY_RGB_SCROLL_ON`
 - `DISTORTION_ON_PRIMARY`
 
-And one you want explicitly set to false: `UI_SECONDARY_ON`. That switch draws the mask texture as visible colour. You do not want to see the mask, you only want it read as a driver.
+And one you want explicitly set to false: `UI_SECONDARY_ON`. That switch draws the mask texture as visible color. You do not want to see the mask, you only want it read as a driver.
 
 > 💡 **Tip:** If you are reading a working example and cannot find a property you expect, check whether its absence is the point.
 
@@ -108,12 +108,12 @@ Copy Riot's `ahriLoadMaskPacked.SKINS_Ahri_HoL.tex` into your own asset folder a
 
 The channels do different jobs:
 
-| Channel | Contents                        | Role                                                        |
-| :------ | :------------------------------ | :----------------------------------------------------------- |
-| **R**   | Smooth, low-frequency noise     | Scrolls, and is what you see as the wave                     |
-| **G**   | Coarser noise, does not scroll  | A static warp bias that stops the motion looking uniform     |
-| **B**   | Hard black and white matte      | **Where the distortion is allowed to apply**                 |
-| **A**   | Unused                          |                                                              |
+| Channel | Contents                       | Role                                                     |
+| :------ | :----------------------------- | :------------------------------------------------------- |
+| **R**   | Smooth, low-frequency noise    | Scrolls, and is what you see as the wave                 |
+| **G**   | Coarser noise, does not scroll | A static warp bias that stops the motion looking uniform |
+| **B**   | Hard black and white matte     | **Where the distortion is allowed to apply**             |
+| **A**   | Unused                         |                                                          |
 
 **B is the channel that matters and the one people skip.** Paint it as a hard matte, pure black or pure white with no soft edges, tracing the part of the character you want to ripple. White distorts, black does not.
 

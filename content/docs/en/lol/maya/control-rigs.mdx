@@ -4,16 +4,18 @@ description: "When a simple control rig is worth building, the rules that keep i
 category: "maya"
 ---
 
-You can animate a League champion on the bare skeleton, but only just. Moving and keying joints directly is awkward and inefficient, and for a full animation it is unfeasible. It is fine for a small change to an existing clip, nudging an elbow the other way during an attack, for instance, and it should not be used for anything more serious than that. 3D models are meant to be moved with control rigs. This page covers why, and gives you enough to build a simple one.
+You can animate a League champion on the bare skeleton, but barely. Moving and keying joints directly is slow and awkward, and a full animation that way is not realistic.
+
+It is fine for a small change to a clip that already exists, like nudging an elbow the other way during an attack. Anything bigger than that wants a control rig. This page covers why, and gives you enough to build a simple one.
 
 ---
 
 ## Required Tools
 
-| Tool                 | Purpose                                                     |
-| :------------------- | :----------------------------------------------------------- |
-| **Autodesk Maya**    | Maya 2023 recommended                                        |
-| **LoL-Maya plugin**  | Import and export `.skn`, `.skl` and `.anm`                  |
+| Tool                                                  | Purpose                                     |
+| :---------------------------------------------------- | :------------------------------------------ |
+| **Autodesk Maya**                                     | Maya 2023 recommended                       |
+| **[LoL-Maya plugin](/docs/lol/maya/lol-maya-plugin)** | Import and export `.skn`, `.skl` and `.anm` |
 
 ---
 
@@ -29,11 +31,11 @@ There is a middle option worth knowing: a **reduced rig**. If a group of clips o
 
 ## The steps
 
-A simple control rig basically allows you to use IK legs and, if you want it, also arms. The rest of the joints **can** be keyed directly, but of course, if you want to do better animations I recommend following a proper course on rigging.
+A simple control rig gives you IK legs and, if you want it, IK arms. The rest of the joints **can** be keyed directly. For better animations, follow a proper course on rigging.
 
 For our simple needs, however, you need to:
 
-1. Navigate to the Animation workspace.
+1. Open the Animation workspace.
 2. Find and click **Create IK Handle**.
 3. Select first either the hip joint (for legs) or the shoulder joint (for arms).
 4. Select the end joint, either the foot or the hand. Be mindful that Riot likes to put buffbones overlaying the position of these joints, so make sure you select the right one.
@@ -53,7 +55,7 @@ These are the ones that cost the most time when broken.
 
 **Rotate the foot bones, not the control circles.** Circles are for moving. Rotating a circle is the classic cause of a rig where the feet are wrong and then the arms go wrong too.
 
-**Check the colour of your foot bones.** If they show as orange rather than the normal colour, the handle was built wrong. Rebuild it rather than working around it.
+**Check the color of your foot bones.** If they show as orange rather than the normal color, the handle was built wrong. Rebuild it rather than working around it.
 
 **Pole vectors go behind the limb, pointing at it.** They do not need to be precisely placed, and moving them is fine. Rotating them is not.
 
@@ -65,7 +67,7 @@ These are the ones that cost the most time when broken.
 
 ## Two limitations to plan around
 
-**A control rig cannot drive scale.** There is no reliable way to pass a scale transform from a controller through to a joint. This matters if your character needs squash, stretch or smear frames, or if you are working on a blocky or stylised model that needs resizing often. The workaround is to do those passes in a separate scene without the rig.
+**A control rig cannot drive scale.** There is no reliable way to pass a scale transform from a controller through to a joint. This matters if your character needs squash, stretch or smear frames, or if you are working on a blocky or stylized model that needs resizing often. The workaround is to do those passes in a separate scene without the rig.
 
 **A control rig does not survive FBX.** The NURBS shapes export, but they arrive disconnected from anything. If you are handing a rig to a collaborator, send the Maya scene file, not an FBX.
 
@@ -77,7 +79,7 @@ Set driven keys are how you automate secondary mechanics. You tell Maya that whe
 
 Riot's own rigs use them heavily, and they are worth the setup on anything mechanical. A rig with driven keys on its pistons and covers is a rig where those channels never need hand-keying across an entire animation set.
 
-The trade-off is that, unlike an IK handle, you cannot simply switch them off when you do not want them. Set them up deliberately.
+The trade-off is that, unlike an IK handle, you cannot switch them off when you do not want them. Set them up deliberately.
 
 ---
 
@@ -101,15 +103,15 @@ Controller shapes are the same on every project. Save a set of NURBS shapes once
 
 ---
 
-## A note on organisation
+## A note on organization
 
 Keep template scenes separate from clip scenes. A workable set is:
 
-| Scene                     | Contains                                                        |
-| :------------------------ | :--------------------------------------------------------------- |
-| **no rig**                | Mesh and bind skeleton only. This is your export template        |
-| **control rigged**        | The same plus controls. Clone this for every clip                |
-| **retargeting**           | Source and target skeletons together                             |
+| Scene              | Contains                                                  |
+| :----------------- | :-------------------------------------------------------- |
+| **no rig**         | Mesh and bind skeleton only. This is your export template |
+| **control rigged** | The same plus controls. Clone this for every clip         |
+| **retargeting**    | Source and target skeletons together                      |
 
 Version the rig template itself, not just the clips. A rig fix made three weeks into a project needs to be recoverable.
 
