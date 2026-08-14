@@ -77,8 +77,14 @@ export default async function Layout({
           // appearance gear on the right. Replaces fumadocs' boxed
           // icon strip (no `githubUrl` / icon links on docs pages) so
           // the footer has no bordered containers.
+          // `key` is required even though this is a single element: fumadocs'
+          // Sidebar is a client component that renders `footer` as one entry of
+          // a children array. React normally skips key validation for such
+          // static arrays, but the flag that suppresses it is lost when the
+          // element is serialized across the RSC boundary from this Server
+          // Component — so without a key React warns on every render.
           footer: (
-            <div className="flex items-center gap-1 pt-1">
+            <div key="footer" className="flex items-center gap-1 pt-1">
               <a
                 href={discordInviteUrl}
                 target="_blank"

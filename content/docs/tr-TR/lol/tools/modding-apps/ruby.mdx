@@ -1,0 +1,386 @@
+---
+title: "Ruby"
+description: "League of Legends VFX ve material'ları için canlı önizleme uygulaması. Dahili BIN düzenleyici ve asset tarayıcı ile birlikte gelir."
+category: "tools"
+---
+
+Ruby, League of Legends partikülleri ve material'ları için bir önizleme
+uygulaması. İçinde BIN düzenleyici var. VFX **Frog**, shader ve material'lar
+**Dazashu**, RE **DAKA** tarafından.
+
+[GitHub'da Ruby](https://github.com/RitoShark/RubyVFX)
+
+---
+
+## Ne yapar
+
+- İstediğin şampiyonda, istediğin an, animasyonlarıyla birlikte **VFX
+  önizleme**.
+- Aynı şekilde **material önizleme**, düzenledikçe canlı güncellenir.
+- VFX sistemleri ve material'lar için canlı önizlemeli **dahili BIN
+  düzenleyici**: bir değeri değiştir, sonucu viewport'ta anında gör.
+- **Asset tarayıcı** skinleri doğrudan oyun kurulumundan çeker, elle çıkarmaya
+  gerek yok. TFT companion'ları da dahil.
+
+---
+
+## Oyun yolunu ayarlama
+
+Ruby'nin şampiyonları, skinleri ve material'ları yükleyebilmesi için League
+kurulumuna ihtiyacı var.
+
+1. **Settings**'i aç.
+2. **League install** altında, **Game WAD folder** yanındaki **Browse**'a tıkla.
+3. League of Legends kurulum klasörünü göster.
+
+<img
+  src="/wiki-images/options-path.webp"
+  alt="Ruby Settings, League kurulum yolu"
+  width={280}
+/>
+
+---
+
+## Üst çubuk
+
+Ekranın sol üstündeki menü, bir skin yüklü olup olmamasına göre değişir.
+
+### Skin yüklü değilken
+
+<img
+  src="/wiki-images/no-skin-loaded.webp"
+  alt="Skin yüklü değilken Ruby üst çubuğu"
+  width={380}
+/>
+
+1. Elle BIN dosyası yükle. (Modunu ya da modelini içe aktarıp önizlemede anında
+   görmek için en çok kullanacağın buton bu.)
+2. `.skn` dosyası yükle.
+3. Son yüklenen BIN'i aç. Yalnızca BIN hâlâ diskteyse çalışır.
+4. Asset tarayıcıyı aç.
+
+### Skin yüklüyken
+
+<img
+  src="/wiki-images/skin-loaded.webp"
+  alt="Skin yüklüyken Ruby üst çubuğu"
+  width={420}
+/>
+
+5. Ruby'nin Bin Editor'ünü aç.
+6. Yüklü BIN'i dosya gezgininde göster.
+
+---
+
+## Asset tarayıcı
+
+Asset tarayıcıyı açarak kurulumundaki her skini gezebilir ve birini çıkarma
+adımı olmadan doğrudan görüntüleyiciye yükleyebilirsin. League şampiyon
+skinlerini ve TFT companion'larını kapsar.
+
+<img
+  src="/wiki-images/asset-picker.webp"
+  alt="Ruby asset tarayıcısında şampiyon skinleri"
+  width={700}
+/>
+
+---
+
+## VFX Systems
+
+**VFX Systems** sayfası VFX'leri elle seçip önizlemeni sağlar. Bir VFX'in
+adının solundaki oka tıklayarak sistemini aç, emitter'larını gör ve VFX'in hangi
+kemikte doğacağını seç.
+
+**Ctrl + Tık** ya da **Shift + Tık** ile birden fazla VFX seçebilirsin.
+
+<img
+  src="/wiki-images/vfx-systems.webp"
+  alt="Ruby VFX Systems sekmesi"
+  width={280}
+/>
+
+---
+
+## Animasyonlar
+
+Animasyon menüsü ekranın sağında, **VFX Systems** sekmesinin altında durur.
+Modun içindeki animasyonları yükler, böylece onları VFX ve material'larla
+birlikte oynatıp her şeyi gerçek maçtaki hâliyle görebilirsin.
+
+Her animasyon birkaç etiket taşıyabilir:
+
+- **seq**: animasyon bir sequencer.
+- **loop**: animasyon oyunda döngüye girer.
+- **1 ev**, **2 ev** ve devamı: sayı, animasyon bin'inin o animasyon boyunca
+  tetiklediği event sayısıdır. Event dediğimiz şey bir VFX'in doğması ya da bir
+  submesh'in görünüp kaybolması gibi bir şey. Sayı sadece kaç tane olduğunu
+  söyler, ne olduklarını değil.
+
+<Callout type="warning" title="İki dosya da gerekli">
+  Bir animasyon, yalnızca hem `.anm` dosyası hem de animasyon bin'i modda varsa
+  yüklenir. İkisinden biri eksikse animasyon yüklenemez.
+</Callout>
+
+<img
+  src="/wiki-images/animations-tab.webp"
+  alt="Ruby animasyonlar sekmesi"
+  width={280}
+/>
+
+---
+
+## Options paneli
+
+Options panelinin dört sekmesi var: **Scene**, **Look**, **Transform** ve
+**Behaviour**.
+
+### Scene
+
+Önizlemenin parçalarını aç ve kapat: mesh/SKN, statik material'lar, iskelet,
+idle partikülleri, kalıcı efektler, zemin, eksen okları, harita zemini ve harita
+geometrisi (WAD'dan yüklenir). Ayrıca bir skybox açıp görselini seçebilir, zemin
+rengini ayarlayabilirsin.
+
+<img
+  src="/wiki-images/scene-options.webp"
+  alt="Ruby Options paneli, Scene sekmesi"
+  width={280}
+/>
+
+### Look
+
+Bloom'u (açık/kapalı ve şiddet), ortam ışığını ayarla ve oyundaki güneşi aç ya
+da kapat.
+
+<img
+  src="/wiki-images/look-options.webp"
+  alt="Ruby Options paneli, Look sekmesi"
+  width={280}
+/>
+
+### Transform
+
+Yansıtma açısını, yüksekliği, boyutu, fit'i, billboard'u ve model ölçeğini
+ayarla. Ayrı bir distortion bloğu opaklığı ve yönü kontrol eder.
+
+<img
+  src="/wiki-images/transform-options.webp"
+  alt="Ruby Options paneli, Transform sekmesi"
+  width={280}
+/>
+
+### Behaviour
+
+VFX'lerin oynanış event'lerine nasıl tepki vereceğini değiştir: missile, dash,
+target (kuklada doğma) ve beam (kuklaya nişan alma). Ayrıca ekran VFX'leri,
+dikey/yatay çevirme, eye behind, up inverted ve ekran fit/X/Y kaydırıcıları.
+Kemiğe bağlı efektleri test etmek için buraya bir caster animasyonu yükle.
+
+<img
+  src="/wiki-images/behaviour-options.webp"
+  alt="Ruby Options paneli, Behaviour sekmesi"
+  width={280}
+/>
+
+---
+
+## Haritayı yükleme
+
+Options panelindeki **Scene** sekmesinden **Summoner's Rift** ya da **ARAM**
+yükleyebilirsin. Şampiyonun haritadaki konumuna bağlı material ve shader'ları,
+mesela güneşi test etmek için kullan.
+
+<img
+  src="/wiki-images/map-load.webp"
+  alt="Ruby Summoner's Rift'i yüklerken"
+  width={280}
+/>
+
+---
+
+## Kalıcı efektler ve idle partikülleri
+
+Bir skinde kalıcı efektler ya da idle partikülleri varsa, Ruby bunlar için Scene
+sekmesinde anahtarlar gösterir, böylece önizlemeyi efekt bazında açıp
+kapatabilirsin.
+
+---
+
+## Conditions
+
+**Conditions** sekmesi, oyunda bir VFX'i ya da material'ı açan koşulları
+(buff'lar, yetenek durumları ve benzerleri) elle açmanı sağlar. Böylece o koşul
+aktifken skinin nasıl göründüğünü, koşulu gerçekten tetiklemeden görebilirsin.
+
+<img
+  src="/wiki-images/conditions.webp"
+  alt="Ruby Conditions sekmesi"
+  width={220}
+/>
+
+---
+
+## Ruby Bin Editor
+
+### VFX
+
+<img
+  src="/wiki-images/bin-editor-vfx.webp"
+  alt="Ruby Bin Editor, VFX sekmesi"
+  width={700}
+/>
+
+Bu sekme VFX ile ilgili her şeyi düzenler.
+
+1. **VFX Systems**: burada yalnızca açtığın bin'deki sistemler görünür, ona
+   bağlı bin'lerdekiler değil. Önce VFX'lerini tek bir bin'de birleştir,
+   Quartz'ın sağ tık menüsü bunu kolaylaştırır.
+2. Düzenlemek istediğin **emitter**'ı seç.
+3. **Yeni bir System oluştur**.
+4. **Yeni bir Emitter oluştur**.
+
+Burada yaptığın her değişiklik Ruby'nin önizlemesinde canlı görünür, yani
+düzenlersin ve sonucu anında görürsün.
+
+Düzenleyicinin geri kalanını kendin kurcalayarak keşfetmen daha iyi. Çoğu şey
+kendini anlatıyor.
+
+### Material
+
+<img
+  src="/wiki-images/material-tab.webp"
+  alt="Ruby Bin Editor, Material sekmesi"
+  width={700}
+/>
+
+Bu sekme material'ları aynı şekilde, VFX'teki gibi canlı önizlemeyle düzenler.
+
+1. Bin'deki tüm material'lar.
+2. Başka bir skinden material ekle. Bu, içeri almak için iki yol açar.
+
+#### Yeni material
+
+<img
+  src="/wiki-images/new-material.webp"
+  alt="Ruby Yeni material menüsü"
+  width={600}
+/>
+
+Burada bir preset kullan, kendi [özel shader'ların](#özel-shaderlar) dahil: içe
+aktardığın her `.rubyshader` bu listede görünür. **My library** daha önce
+kaydettiğin material'ları tutar. **Copy one here** bin'de zaten olan bir
+material'ı çoğaltır. **From a bin** mevcut bir bin'den ya da skinden çeker.
+
+#### Bir skinden alma
+
+<img
+  src="/wiki-images/take-from-a-skin.webp"
+  alt="Ruby Bir skinden alma menüsü"
+  width={700}
+/>
+
+**Browse skins** asset tarayıcıyı açar, böylece doğrudan bir Riot skininden
+material alabilirsin. **From a bin** yukarıdaki gibi mevcut bir bin'den çeker.
+**My library** kaydettiğin material'ları açar. **`.rubymat`** dosyası tek başına
+dışa aktarılmış bir material'dır: sonra tekrar kullanmak için kendin kaydet ya
+da başkası kendininkini dışa aktarıp sana versin.
+
+3. Material'ın adını benzersiz yap. Aynı ad çakışmaya yol açar.
+4. Seçili material'ı kütüphanene kaydet.
+5. Seçili material'ı `.rubymat` dosyası olarak dışa aktar.
+
+Düzenleyicinin birkaç sekmesi daha var.
+
+<img
+  src="/wiki-images/menu-mat.webp"
+  alt="Ruby Material sekme çubuğu"
+  width={327}
+/>
+
+**Material** sekmesinde başlarsın, material'ı net biçimde gösterir.
+
+<img
+  src="/wiki-images/material-menu.webp"
+  alt="Ruby Material sekmesi, Material görünümü"
+  width={700}
+/>
+
+**Conditions** material için kendi koşullarını kurmanı ya da tek butonla bir
+koşulu temel material'a gömmeni sağlar. Riot'un bazı material'larında işe yarar.
+
+<img
+  src="/wiki-images/conditions-menu.webp"
+  alt="Ruby Material sekmesi, Conditions görünümü"
+  width={700}
+/>
+
+**Mesh** seçili material'ı istediğin mesh'e uygular.
+
+<img
+  src="/wiki-images/mesh-menu.webp"
+  alt="Ruby Material sekmesi, Mesh görünümü"
+  width={700}
+/>
+
+**Raw** material'ı olduğu gibi gösterir ve her şeyi doğrudan düzenlemene izin
+verir. **StaticMaterialDef only** kutusunun işaretini kaldırdığında işe yarar:
+`SkinCharacterProperties`'i doğrudan seçip gerekirse içinden doku adlarını
+alabilirsin.
+
+<img
+  src="/wiki-images/raw-menu.webp"
+  alt="Ruby Material sekmesi, Raw görünümü"
+  width={700}
+/>
+
+---
+
+## Özel shader'lar
+
+Asset tarayıcının içindeki **Shaders** sekmesi, kendi shader'larını Ruby'ye içe
+aktardığın ve daha önce eklediklerini yönetip dışa aktardığın yer.
+
+<img
+  src="/wiki-images/custom-shader-tab.webp"
+  alt="Ruby Shaders sekmesi"
+  width={700}
+/>
+
+### Dazashu'nun shader'ları
+
+- **[AnimeToon](/wiki-files/AnimeToon.rubyshader)**: test olarak yapılan ilk
+  shader. Anime gölgeleme efekti ve dış çizgi verir.
+- **[AnimeShade](/wiki-files/AnimeShade.rubyshader)**: AnimeToon'dan daha güzel
+  bir anime gölgeleme efekti.
+
+<Callout type="info" title="Bunlar test shader'ları">
+  İkisi de deneme ve tam olarak çalışmayabilir. BIN düzenleyicide kullanmak için
+  asset tarayıcıdaki **Shaders** sekmesinden içe aktar.
+</Callout>
+
+**Share** shader'ı `.rubyshader` dosyası olarak dışa aktarır. Bu sadece adı
+değiştirilmiş bir `.7z` arşivi.
+
+<Callout type="warning" title="Oyunda kullanmak için WAD'ı dışa aktar">
+  Özel bir shader oyunda ancak **Export WAD** yaptıktan sonra çalışır. Bu bir
+  `ShaderCache.dx11.wad.client` dosyası kaydeder, onu moduna ekle yoksa özel
+  shader yüklenmez.
+</Callout>
+
+Bir shader uygulamak için, [Ruby Bin Editor](#ruby-bin-editor)'ün Material
+sekmesindeki [Yeni material](#yeni-material) preset menüsünden seç.
+
+---
+
+## Diğer uygulama ayarları
+
+- **Skeleton butonu**: yüzen kemik anahtarı (rig'lenmiş model gerekir).
+- **Capture butonu**: yüzen sprite sheet yakalama kontrolü.
+- **Auto-import model**: bir BIN'i açtığında SKN ve SKL'sini otomatik yükler.
+- **Automatic updates**: güncellemeleri açılışta sormadan kurar.
+- **Field Coverage**: renderer'ın şu an neleri desteklediğini gösteren tablo.
+- **Fit Scale**: efekt bazında ölçek geçersiz kılmaları.
+
+Ruby güncellemeler için kendi sürüm akışına bakar, bunu mevcut sürümünle
+birlikte **App updates** altında görürsün.

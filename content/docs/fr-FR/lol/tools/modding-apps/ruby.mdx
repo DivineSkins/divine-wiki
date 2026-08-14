@@ -1,0 +1,401 @@
+---
+title: "Ruby"
+description: "Une app de preview en direct pour les VFX et les materials de League of Legends, avec un éditeur de BIN intégré et un navigateur d'assets."
+category: "tools"
+---
+
+Ruby est une app de preview pour les particules et les materials de League of
+Legends, avec un éditeur de BIN intégré. VFX par **Frog**, shaders et materials
+par **Dazashu**, RE par **DAKA**.
+
+[Ruby sur GitHub](https://github.com/RitoShark/RubyVFX)
+
+---
+
+## Ce que ça fait
+
+- **Preview des VFX** sur n'importe quel champion, à la demande, avec ses
+  animations.
+- **Preview des materials** de la même façon, avec mise à jour en direct quand
+  tu les édites.
+- **Éditeur de BIN intégré** pour les systèmes VFX et les materials, avec
+  preview en direct : change une valeur et vois le résultat tout de suite dans
+  le viewport.
+- **Navigateur d'assets** qui va chercher les skins directement dans ton
+  install du jeu, sans extraction manuelle. Les compagnons TFT aussi.
+
+---
+
+## Configurer le chemin du jeu
+
+Ruby a besoin de ton install de League pour charger les champions, les skins et
+les materials.
+
+1. Ouvre les **Settings**.
+2. Sous **League install**, clique sur **Browse** à côté de **Game WAD folder**.
+3. Pointe vers ton dossier d'installation de League of Legends.
+
+<img
+  src="/wiki-images/options-path.webp"
+  alt="Settings de Ruby, chemin de l'install de League"
+  width={280}
+/>
+
+---
+
+## La barre du haut
+
+Le menu en haut à gauche de l'écran change selon qu'un skin est chargé ou non.
+
+### Aucun skin chargé
+
+<img
+  src="/wiki-images/no-skin-loaded.webp"
+  alt="Barre du haut de Ruby sans skin chargé"
+  width={380}
+/>
+
+1. Charger un fichier BIN à la main. (Le bouton que tu utiliseras le plus pour
+   importer ton mod ou ton modèle et le voir tout de suite dans la preview.)
+2. Charger un fichier `.skn`.
+3. Ouvrir un BIN récemment chargé. Marche seulement si le BIN est toujours sur
+   le disque.
+4. Ouvrir le navigateur d'assets.
+
+### Skin chargé
+
+<img
+  src="/wiki-images/skin-loaded.webp"
+  alt="Barre du haut de Ruby avec un skin chargé"
+  width={420}
+/>
+
+5. Ouvrir le Bin Editor de Ruby.
+6. Afficher le BIN chargé dans ton explorateur de fichiers.
+
+---
+
+## Navigateur d'assets
+
+Ouvre le navigateur d'assets pour parcourir tous les skins de ton install et en
+charger un directement dans le viewer, sans étape d'extraction. Il couvre les
+skins de champions League et les compagnons TFT.
+
+<img
+  src="/wiki-images/asset-picker.webp"
+  alt="Navigateur d'assets de Ruby parcourant les skins de champions"
+  width={700}
+/>
+
+---
+
+## VFX Systems
+
+La page **VFX Systems** te laisse choisir des VFX à la main et les prévisualiser.
+Clique sur la flèche à gauche du nom d'un VFX pour ouvrir son système, voir ses
+emitters, et choisir sur quel bone le VFX apparaît.
+
+Sélectionne plusieurs VFX d'un coup avec **Ctrl + Clic** ou **Maj + Clic**.
+
+<img
+  src="/wiki-images/vfx-systems.webp"
+  alt="Onglet VFX Systems de Ruby"
+  width={280}
+/>
+
+---
+
+## Animations
+
+Le menu des animations se trouve à droite de l'écran, sous l'onglet **VFX
+Systems**. Il charge les animations livrées dans le mod, pour que tu puisses les
+jouer avec les VFX et les materials et voir le tout comme en vraie partie.
+
+Chaque animation peut porter quelques tags :
+
+- **seq** : l'animation est un sequencer.
+- **loop** : l'animation boucle en jeu.
+- **1 ev**, **2 ev**, et ainsi de suite : le chiffre correspond au nombre
+  d'events que le bin d'animation déclenche pendant cette animation. Un event,
+  c'est par exemple un VFX qui apparaît ou un submesh qui s'affiche ou se cache.
+  Le compte dit juste combien il y en a, pas ce que c'est.
+
+<Callout type="warning" title="Les deux fichiers sont obligatoires">
+  Une animation ne se charge que si son fichier `.anm` et le bin d'animation
+  sont tous les deux présents dans le mod. S'il en manque un, l'animation ne
+  peut pas se charger.
+</Callout>
+
+<img
+  src="/wiki-images/animations-tab.webp"
+  alt="Onglet animations de Ruby"
+  width={280}
+/>
+
+---
+
+## Le panneau Options
+
+Le panneau Options a quatre onglets : **Scene**, **Look**, **Transform** et
+**Behaviour**.
+
+### Scene
+
+Active et désactive des parties de la preview : mesh/SKN, materials statiques,
+skeleton, particules d'idle, effets persistants, sol, flèches d'axes, sol de la
+map et géométrie de la map (chargée depuis le WAD). Tu peux aussi activer une
+skybox et choisir son image, et régler la couleur du sol.
+
+<img
+  src="/wiki-images/scene-options.webp"
+  alt="Panneau Options de Ruby, onglet Scene"
+  width={280}
+/>
+
+### Look
+
+Règle le bloom (activé/désactivé et intensité), la lumière ambiante, et active
+ou non le soleil du jeu.
+
+<img
+  src="/wiki-images/look-options.webp"
+  alt="Panneau Options de Ruby, onglet Look"
+  width={280}
+/>
+
+### Transform
+
+Règle l'angle de projection, la hauteur, la taille, le fit, le billboard et
+l'échelle du modèle. Un bloc distortion à part contrôle l'opacité et
+l'orientation.
+
+<img
+  src="/wiki-images/transform-options.webp"
+  alt="Panneau Options de Ruby, onglet Transform"
+  width={280}
+/>
+
+### Behaviour
+
+Change la façon dont les VFX réagissent aux events de gameplay : missile, dash,
+target (apparition sur un mannequin) et beam (visée sur le mannequin). Aussi les
+VFX d'écran, le flip vertical/horizontal, eye behind, up inverted, et des
+sliders pour le fit/X/Y à l'écran. Charge une animation de caster ici pour
+tester les effets attachés à un bone.
+
+<img
+  src="/wiki-images/behaviour-options.webp"
+  alt="Panneau Options de Ruby, onglet Behaviour"
+  width={280}
+/>
+
+---
+
+## Charger la map
+
+Tu peux charger **Summoner's Rift** ou **ARAM** depuis l'onglet **Scene** du
+panneau Options. Sers-t'en pour tester les materials et les shaders qui
+dépendent de la position du champion sur la map, comme le soleil.
+
+<img
+  src="/wiki-images/map-load.webp"
+  alt="Ruby chargeant Summoner's Rift"
+  width={280}
+/>
+
+---
+
+## Effets persistants et particules d'idle
+
+Si un skin a des effets persistants ou des particules d'idle, Ruby affiche des
+interrupteurs pour chacun dans l'onglet Scene, pour que tu actives ou désactives
+la preview effet par effet.
+
+---
+
+## Conditions
+
+L'onglet **Conditions** te laisse activer les conditions qui débloquent un VFX
+ou un material en jeu (buffs, états de sorts, et compagnie), pour voir à quoi
+ressemble le skin quand cette condition est active sans avoir à la déclencher
+pour de vrai.
+
+<img
+  src="/wiki-images/conditions.webp"
+  alt="Onglet Conditions de Ruby"
+  width={220}
+/>
+
+---
+
+## Ruby Bin Editor
+
+### VFX
+
+<img
+  src="/wiki-images/bin-editor-vfx.webp"
+  alt="Bin Editor de Ruby, onglet VFX"
+  width={700}
+/>
+
+Cet onglet édite tout ce qui touche aux VFX.
+
+1. **VFX Systems** : seuls les systèmes du bin que tu as ouvert apparaissent
+   ici, pas ceux de ses bins liés. Fusionne d'abord tes VFX dans un seul bin, le
+   menu contextuel de Quartz rend ça facile.
+2. Choisis l'**emitter** que tu veux éditer.
+3. **Créer un nouveau System**.
+4. **Créer un nouvel Emitter**.
+
+Chaque changement que tu fais ici apparaît en direct dans la preview de Ruby :
+tu édites et tu vois le résultat tout de suite.
+
+Le reste de l'éditeur se découvre bien tout seul. C'est plutôt parlant.
+
+### Material
+
+<img
+  src="/wiki-images/material-tab.webp"
+  alt="Bin Editor de Ruby, onglet Material"
+  width={700}
+/>
+
+Cet onglet édite les materials de la même façon, avec la même preview en direct
+que les VFX.
+
+1. Tous les materials du bin.
+2. Ajouter un material venant d'un autre skin. Ça ouvre deux façons d'en
+   importer un.
+
+#### Nouveau material
+
+<img
+  src="/wiki-images/new-material.webp"
+  alt="Menu Nouveau material de Ruby"
+  width={600}
+/>
+
+Utilise un preset ici, y compris tes propres [shaders
+personnalisés](#shaders-personnalisés) : tout `.rubyshader` que tu as importé
+apparaît dans cette liste. **My library** contient les materials que tu as
+sauvegardés avant. **Copy one here** duplique un material déjà présent dans le
+bin. **From a bin** en récupère un depuis un bin ou un skin existant.
+
+#### Prendre depuis un skin
+
+<img
+  src="/wiki-images/take-from-a-skin.webp"
+  alt="Menu Prendre depuis un skin de Ruby"
+  width={700}
+/>
+
+**Browse skins** ouvre le navigateur d'assets pour que tu prennes un material
+directement dans un skin Riot. **From a bin** en récupère un depuis un bin
+existant, comme au-dessus. **My library** ouvre tes materials sauvegardés. Un
+fichier **`.rubymat`** est un material exporté tout seul : sauvegardes-en un
+pour le réutiliser plus tard, ou quelqu'un d'autre exporte le sien et te le
+passe.
+
+3. Rends le nom du material unique. Un nom en double crée un conflit.
+4. Sauvegarde le material sélectionné dans ta librairie.
+5. Exporte le material sélectionné en fichier `.rubymat`.
+
+L'éditeur a encore quelques onglets.
+
+<img
+  src="/wiki-images/menu-mat.webp"
+  alt="Barre d'onglets Material de Ruby"
+  width={327}
+/>
+
+Tu démarres sur l'onglet **Material**, qui affiche le material clairement.
+
+<img
+  src="/wiki-images/material-menu.webp"
+  alt="Onglet Material de Ruby, vue Material"
+  width={700}
+/>
+
+**Conditions** te laisse construire tes propres conditions pour le material, ou
+intégrer une condition dans le material de base en un bouton, pratique pour
+certains materials de Riot.
+
+<img
+  src="/wiki-images/conditions-menu.webp"
+  alt="Onglet Material de Ruby, vue Conditions"
+  width={700}
+/>
+
+**Mesh** applique le material sélectionné au mesh que tu veux.
+
+<img
+  src="/wiki-images/mesh-menu.webp"
+  alt="Onglet Material de Ruby, vue Mesh"
+  width={700}
+/>
+
+**Raw** montre le material exactement tel qu'il est et te laisse tout éditer
+directement. Utile une fois que tu décoches **StaticMaterialDef only** : tu peux
+sélectionner `SkinCharacterProperties` directement et y récupérer des noms de
+textures si tu en as besoin.
+
+<img
+  src="/wiki-images/raw-menu.webp"
+  alt="Onglet Material de Ruby, vue Raw"
+  width={700}
+/>
+
+---
+
+## Shaders personnalisés
+
+L'onglet **Shaders**, dans le navigateur d'assets, c'est là que tu importes tes
+propres shaders dans Ruby, et que tu gères et exportes ceux que tu as déjà
+ajoutés.
+
+<img
+  src="/wiki-images/custom-shader-tab.webp"
+  alt="Onglet Shaders de Ruby"
+  width={700}
+/>
+
+### Shaders par Dazashu
+
+- **[AnimeToon](/wiki-files/AnimeToon.rubyshader)** : le premier shader fait
+  pour tester. Donne un rendu anime et un contour.
+- **[AnimeShade](/wiki-files/AnimeShade.rubyshader)** : un rendu anime plus
+  joli qu'AnimeToon.
+
+<Callout type="info" title="Ce sont des shaders de test">
+  Les deux sont des expérimentations et peuvent ne pas marcher parfaitement.
+  Importe-les depuis l'onglet **Shaders** du navigateur d'assets pour les
+  utiliser dans le Bin Editor.
+</Callout>
+
+**Share** exporte le shader en fichier `.rubyshader`. C'est juste une archive
+`.7z` renommée.
+
+<Callout type="warning" title="Exporte le WAD pour l'utiliser en jeu">
+  Un shader personnalisé ne marche en jeu qu'une fois que tu fais **Export
+  WAD**. Ça enregistre un fichier `ShaderCache.dx11.wad.client`, mets-le dans
+  ton mod ou le shader personnalisé ne se chargera pas.
+</Callout>
+
+Pour appliquer un shader, choisis-le dans le menu de presets de [Nouveau
+material](#nouveau-material), dans l'onglet Material du [Ruby Bin
+Editor](#ruby-bin-editor).
+
+---
+
+## Autres réglages de l'app
+
+- **Bouton Skeleton** : interrupteur de bones flottant (demande un modèle riggé).
+- **Bouton Capture** : contrôle flottant de capture en sprite sheet.
+- **Auto-import model** : charge automatiquement le SKN et le SKL d'un BIN quand
+  tu l'ouvres.
+- **Automatic updates** : installe les mises à jour au lancement sans demander.
+- **Field Coverage** : un tableau de ce que le renderer implémente actuellement.
+- **Fit Scale** : réglages d'échelle par effet.
+
+Ruby surveille son propre flux de releases pour les mises à jour, affiché sous
+**App updates** avec ta version actuelle.

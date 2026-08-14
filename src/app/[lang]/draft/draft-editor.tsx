@@ -201,8 +201,7 @@ export function DraftEditor({
         setTitle((parsed.data.title as string) ?? "");
         setDescription((parsed.data.description as string) ?? "");
         const credits = parsed.data.credits as
-          | { discord?: string; github?: string }
-          | undefined;
+          { discord?: string; github?: string } | undefined;
         setDiscord(credits?.discord ?? "");
         setGithub(credits?.github ?? "");
         setBody(parsed.content.replace(/^\s+/, ""));

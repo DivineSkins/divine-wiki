@@ -1,0 +1,378 @@
+---
+title: "Ruby"
+description: "App xem trước trực tiếp VFX và material của League of Legends, có sẵn trình sửa BIN và trình duyệt asset."
+category: "tools"
+---
+
+Ruby là app xem trước particle và material của League of Legends, có sẵn trình
+sửa BIN bên trong. VFX do **Frog**, shader và material do **Dazashu**, RE do
+**DAKA**.
+
+[Ruby trên GitHub](https://github.com/RitoShark/RubyVFX)
+
+---
+
+## Nó làm được gì
+
+- **Xem trước VFX** trên bất kỳ tướng nào, bất cứ lúc nào, kèm animation của
+  tướng đó.
+- **Xem trước material** y như vậy, cập nhật trực tiếp trong lúc bạn chỉnh.
+- **Trình sửa BIN có sẵn** cho VFX system và material, kèm xem trước trực tiếp:
+  đổi một giá trị là thấy ngay thay đổi trong viewport.
+- **Trình duyệt asset** kéo skin thẳng từ thư mục cài game của bạn, không cần
+  trích xuất tay. Companion TFT cũng có.
+
+---
+
+## Thiết lập đường dẫn game
+
+Ruby cần thư mục cài League để nạp tướng, skin và material.
+
+1. Mở **Settings**.
+2. Ở mục **League install**, bấm **Browse** cạnh **Game WAD folder**.
+3. Trỏ tới thư mục cài League of Legends của bạn.
+
+<img
+  src="/wiki-images/options-path.webp"
+  alt="Settings của Ruby, đường dẫn cài League"
+  width={280}
+/>
+
+---
+
+## Thanh trên cùng
+
+Menu ở góc trên bên trái màn hình đổi tùy theo đang có skin được nạp hay không.
+
+### Chưa nạp skin
+
+<img
+  src="/wiki-images/no-skin-loaded.webp"
+  alt="Thanh trên cùng của Ruby khi chưa nạp skin"
+  width={380}
+/>
+
+1. Nạp file BIN thủ công. (Nút chính bạn sẽ dùng để đưa mod hoặc model vào và
+   thấy nó ngay trong phần xem trước.)
+2. Nạp file `.skn`.
+3. Mở một BIN vừa nạp gần đây. Chỉ chạy được nếu BIN vẫn còn trên ổ đĩa.
+4. Mở trình duyệt asset.
+
+### Đã nạp skin
+
+<img
+  src="/wiki-images/skin-loaded.webp"
+  alt="Thanh trên cùng của Ruby khi đã nạp skin"
+  width={420}
+/>
+
+5. Mở Bin Editor của Ruby.
+6. Hiện BIN đang nạp trong trình quản lý file.
+
+---
+
+## Trình duyệt asset
+
+Mở trình duyệt asset để xem mọi skin trong thư mục cài của bạn và nạp thẳng một
+skin vào khung xem, không cần bước trích xuất. Nó bao gồm skin tướng League và
+companion TFT.
+
+<img
+  src="/wiki-images/asset-picker.webp"
+  alt="Trình duyệt asset của Ruby đang xem skin tướng"
+  width={700}
+/>
+
+---
+
+## VFX Systems
+
+Trang **VFX Systems** cho bạn tự chọn VFX và xem trước. Bấm mũi tên bên trái tên
+một VFX để mở system của nó, xem các emitter, và chọn xương mà VFX sẽ sinh ra.
+
+Chọn nhiều VFX cùng lúc bằng **Ctrl + Click** hoặc **Shift + Click**.
+
+<img
+  src="/wiki-images/vfx-systems.webp"
+  alt="Tab VFX Systems của Ruby"
+  width={280}
+/>
+
+---
+
+## Animation
+
+Menu animation nằm bên phải màn hình, dưới tab **VFX Systems**. Nó nạp các
+animation đi kèm trong mod, để bạn chạy chúng cùng VFX và material và thấy mọi
+thứ đúng như trong trận đấu thật.
+
+Mỗi animation có thể mang vài tag:
+
+- **seq**: animation là một sequencer.
+- **loop**: animation lặp lại trong game.
+- **1 ev**, **2 ev**, và cứ thế: con số là số event mà animation bin bắn ra
+  trong animation đó. Event là kiểu như một VFX sinh ra hoặc một submesh
+  hiện/ẩn. Con số chỉ nói có bao nhiêu cái, không nói chúng là gì.
+
+<Callout type="warning" title="Cần cả hai file">
+  Một animation chỉ nạp được nếu cả file `.anm` lẫn animation bin của nó đều có
+  trong mod. Thiếu một trong hai là animation không nạp được.
+</Callout>
+
+<img
+  src="/wiki-images/animations-tab.webp"
+  alt="Tab animation của Ruby"
+  width={280}
+/>
+
+---
+
+## Bảng Options
+
+Bảng Options có bốn tab: **Scene**, **Look**, **Transform** và **Behaviour**.
+
+### Scene
+
+Bật tắt từng phần của khung xem trước: mesh/SKN, material tĩnh, khung xương,
+particle idle, hiệu ứng kéo dài, mặt đất, mũi tên trục, sàn map và địa hình map
+(nạp từ WAD). Bạn cũng bật được skybox và chọn ảnh cho nó, và chỉnh màu mặt đất.
+
+<img
+  src="/wiki-images/scene-options.webp"
+  alt="Bảng Options của Ruby, tab Scene"
+  width={280}
+/>
+
+### Look
+
+Chỉnh bloom (bật/tắt và độ mạnh), ánh sáng môi trường, và bật tắt mặt trời
+trong game.
+
+<img
+  src="/wiki-images/look-options.webp"
+  alt="Bảng Options của Ruby, tab Look"
+  width={280}
+/>
+
+### Transform
+
+Chỉnh góc chiếu, độ cao, kích thước, fit, billboard và tỉ lệ model. Một khối
+distortion riêng điều khiển độ trong suốt và hướng quay.
+
+<img
+  src="/wiki-images/transform-options.webp"
+  alt="Bảng Options của Ruby, tab Transform"
+  width={280}
+/>
+
+### Behaviour
+
+Đổi cách VFX phản ứng với event trong trận: missile, dash, target (sinh ra trên
+hình nộm) và beam (nhắm vào hình nộm). Còn có VFX màn hình, lật dọc/ngang, eye
+behind, up inverted, và thanh trượt fit/X/Y trên màn hình. Nạp animation của
+caster ở đây để thử hiệu ứng gắn vào xương.
+
+<img
+  src="/wiki-images/behaviour-options.webp"
+  alt="Bảng Options của Ruby, tab Behaviour"
+  width={280}
+/>
+
+---
+
+## Nạp map
+
+Bạn nạp được **Summoner's Rift** hoặc **ARAM** từ tab **Scene** trong bảng
+Options. Dùng nó để thử material và shader phụ thuộc vào vị trí của tướng trên
+map, ví dụ như mặt trời.
+
+<img
+  src="/wiki-images/map-load.webp"
+  alt="Ruby đang nạp Summoner's Rift"
+  width={280}
+/>
+
+---
+
+## Hiệu ứng kéo dài và particle idle
+
+Nếu một skin có hiệu ứng kéo dài hoặc particle idle, Ruby hiện nút bật tắt cho
+chúng ở tab Scene, để bạn bật hoặc tắt phần xem trước theo từng hiệu ứng.
+
+---
+
+## Conditions
+
+Tab **Conditions** cho bạn bật những điều kiện mở khóa một VFX hay material
+trong game (buff, trạng thái kỹ năng, và tương tự), để bạn thấy skin trông ra
+sao khi điều kiện đó đang bật mà không cần kích hoạt nó thật.
+
+<img
+  src="/wiki-images/conditions.webp"
+  alt="Tab Conditions của Ruby"
+  width={220}
+/>
+
+---
+
+## Ruby Bin Editor
+
+### VFX
+
+<img
+  src="/wiki-images/bin-editor-vfx.webp"
+  alt="Bin Editor của Ruby, tab VFX"
+  width={700}
+/>
+
+Tab này chỉnh mọi thứ liên quan tới VFX.
+
+1. **VFX Systems**: chỉ những system trong bin bạn đang mở mới hiện ở đây, không
+   có system của các bin liên kết với nó. Gộp VFX của bạn vào một bin trước đã,
+   menu chuột phải của Quartz làm việc này rất nhanh.
+2. Chọn **emitter** bạn muốn chỉnh.
+3. **Tạo System mới**.
+4. **Tạo Emitter mới**.
+
+Mọi thay đổi bạn làm ở đây hiện trực tiếp trong khung xem trước của Ruby, nên
+bạn chỉnh và thấy kết quả ngay.
+
+Phần còn lại của trình sửa thì bạn tự mò sẽ hay hơn. Hầu hết đều dễ hiểu.
+
+### Material
+
+<img
+  src="/wiki-images/material-tab.webp"
+  alt="Bin Editor của Ruby, tab Material"
+  width={700}
+/>
+
+Tab này chỉnh material theo cách y hệt, với cùng kiểu xem trước trực tiếp như
+VFX.
+
+1. Toàn bộ material trong bin.
+2. Thêm material từ skin khác. Cái này mở ra hai cách để đưa material vào.
+
+#### Material mới
+
+<img
+  src="/wiki-images/new-material.webp"
+  alt="Menu Material mới của Ruby"
+  width={600}
+/>
+
+Dùng preset ở đây, gồm cả [shader tự làm](#shader-tự-làm) của bạn: mọi
+`.rubyshader` bạn đã nhập vào đều hiện trong danh sách này. **My library** giữ
+những material bạn đã lưu trước đó. **Copy one here** nhân đôi một material đã
+có sẵn trong bin. **From a bin** kéo một cái từ bin hoặc skin có sẵn.
+
+#### Lấy từ một skin
+
+<img
+  src="/wiki-images/take-from-a-skin.webp"
+  alt="Menu Lấy từ một skin của Ruby"
+  width={700}
+/>
+
+**Browse skins** mở trình duyệt asset để bạn lấy material thẳng từ skin của
+Riot. **From a bin** kéo một cái từ bin có sẵn, giống như trên. **My library**
+mở những material bạn đã lưu. File **`.rubymat`** là một material xuất ra riêng
+lẻ: tự lưu một cái để dùng lại sau, hoặc người khác xuất của họ rồi đưa cho bạn.
+
+3. Đặt tên material sao cho không trùng. Tên trùng là gây xung đột.
+4. Lưu material đang chọn vào thư viện của bạn.
+5. Xuất material đang chọn thành file `.rubymat`.
+
+Trình sửa còn vài tab nữa.
+
+<img
+  src="/wiki-images/menu-mat.webp"
+  alt="Thanh tab Material của Ruby"
+  width={327}
+/>
+
+Bạn bắt đầu ở tab **Material**, tab này hiện material rất rõ ràng.
+
+<img
+  src="/wiki-images/material-menu.webp"
+  alt="Tab Material của Ruby, khung nhìn Material"
+  width={700}
+/>
+
+**Conditions** cho bạn tự dựng điều kiện cho material, hoặc nướng sẵn một điều
+kiện vào material gốc chỉ với một nút, tiện cho vài material của chính Riot.
+
+<img
+  src="/wiki-images/conditions-menu.webp"
+  alt="Tab Material của Ruby, khung nhìn Conditions"
+  width={700}
+/>
+
+**Mesh** áp material đang chọn lên mesh nào bạn muốn.
+
+<img
+  src="/wiki-images/mesh-menu.webp"
+  alt="Tab Material của Ruby, khung nhìn Mesh"
+  width={700}
+/>
+
+**Raw** hiện material đúng y như nó vốn có và cho bạn chỉnh trực tiếp mọi thứ.
+Hữu ích khi bạn bỏ tick **StaticMaterialDef only**: bạn chọn thẳng được
+`SkinCharacterProperties` và lấy tên texture từ đó nếu cần.
+
+<img
+  src="/wiki-images/raw-menu.webp"
+  alt="Tab Material của Ruby, khung nhìn Raw"
+  width={700}
+/>
+
+---
+
+## Shader tự làm
+
+Tab **Shaders**, nằm trong trình duyệt asset, là chỗ bạn nhập shader của mình
+vào Ruby, cũng như quản lý và xuất những shader đã thêm trước đó.
+
+<img
+  src="/wiki-images/custom-shader-tab.webp"
+  alt="Tab Shaders của Ruby"
+  width={700}
+/>
+
+### Shader của Dazashu
+
+- **[AnimeToon](/wiki-files/AnimeToon.rubyshader)**: shader đầu tiên làm ra để
+  thử. Cho hiệu ứng đổ bóng kiểu anime và một đường viền.
+- **[AnimeShade](/wiki-files/AnimeShade.rubyshader)**: hiệu ứng đổ bóng anime
+  đẹp hơn AnimeToon.
+
+<Callout type="info" title="Đây là shader thử nghiệm">
+  Cả hai đều là thử nghiệm và có thể chạy chưa hoàn hảo. Nhập chúng từ tab
+  **Shaders** trong trình duyệt asset để dùng trong trình sửa BIN.
+</Callout>
+
+**Share** xuất shader thành file `.rubyshader`. Nó chỉ là một file nén `.7z`
+đổi tên.
+
+<Callout type="warning" title="Xuất WAD để dùng được trong game">
+  Shader tự làm chỉ chạy trong game sau khi bạn bấm **Export WAD**. Thao tác này
+  lưu ra file `ShaderCache.dx11.wad.client`, hãy để nó trong mod của bạn, không
+  thì shader tự làm sẽ không nạp.
+</Callout>
+
+Để áp một shader, chọn nó từ menu preset trong [Material
+mới](#material-mới), ở tab Material của [Ruby Bin Editor](#ruby-bin-editor).
+
+---
+
+## Các thiết lập khác của app
+
+- **Nút Skeleton**: nút bật tắt xương nổi (cần model đã rig).
+- **Nút Capture**: nút điều khiển chụp sprite sheet nổi.
+- **Auto-import model**: tự nạp SKN và SKL của một BIN khi bạn mở nó.
+- **Automatic updates**: cài bản cập nhật lúc khởi động mà không hỏi.
+- **Field Coverage**: bảng liệt kê những gì renderer hiện đang hỗ trợ.
+- **Fit Scale**: ghi đè tỉ lệ theo từng hiệu ứng.
+
+Ruby tự kiểm tra kênh phát hành của nó để tìm bản cập nhật, hiện ở mục **App
+updates** kèm phiên bản hiện tại của bạn.

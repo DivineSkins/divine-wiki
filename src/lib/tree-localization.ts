@@ -38,8 +38,7 @@ export function createPlaceholderTranslator(
       if (translated == null || typeof translated !== "object")
         return undefined;
       translated = translated[keys[i]] as
-        | string
-        | Record<string, string | object>;
+        string | Record<string, string | object>;
     }
 
     if (typeof translated !== "string") return undefined;

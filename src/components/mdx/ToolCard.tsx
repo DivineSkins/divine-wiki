@@ -13,6 +13,11 @@ interface ToolCardProps {
  * Tool list card — matches the Divine Academy layout where each tool
  * renders as its own row with a purple-light left rail, the name as a
  * link, a pipe separator, and the description trailing in muted text.
+ *
+ * The whole row is one anchor, so `children` MUST NOT contain links —
+ * a markdown link in the description renders an `<a>` inside this `<a>`,
+ * which is invalid HTML and breaks hydration. Reference other tools by
+ * name (inline code) and let the row's own href do the navigating.
  */
 export function ToolCard({ name, href, children, badge, icon }: ToolCardProps) {
   const isExternal = /^https?:\/\//i.test(href);
