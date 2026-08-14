@@ -1,0 +1,74 @@
+---
+title: "Frame rate des animations"
+description: "Pourquoi les animations de League doivent être en 30 fps, ce qui se passe quand elles ne le sont pas, et comment changer la vitesse de lecture d'un clip depuis l'animation bin."
+category: "animations"
+---
+
+Tous les guides d'animation te disent d'exporter en 30 fps, y compris [import et export d'animations](/docs/lol/animations/animation-import-export). Cette page explique pourquoi, ce qui se passe vraiment quand tu ne le fais pas, et comment changer le frame rate d'un clip déjà exporté.
+
+---
+
+## Outils requis
+
+| Outil       | Utilité                                                  |
+| :---------- | :------------------------------------------------------- |
+| **Jade**    | Éditer l'animation `.bin` visuellement (recommandé)      |
+| **Ritobin** | Alternative : convertir le `.bin` en `.py` pour l'éditer |
+
+---
+
+## Le frame rate, c'est la vitesse de lecture, pas la fluidité
+
+C'est la partie qui surprend les gens qui viennent d'autres domaines de la 3D. Dans League, le frame rate d'un clip ne contrôle pas à quel point il a l'air fluide. Il contrôle **à quelle vitesse il joue**.
+
+League fait tourner les animations en 30 fps. Donc :
+
+- Un clip exporté en **60 fps joue deux fois plus vite**.
+- Un clip exporté en **15 fps joue à moitié vitesse**.
+- Un clip exporté avec le **24 fps par défaut de Maya joue un peu trop vite**, ce qui est la raison habituelle pour laquelle une première animation semble légèrement précipitée sans raison évidente.
+
+> **Note :** Règle ta scène Maya ou Blender sur 30 fps avant de commencer à animer, pas au moment d'exporter. Retimer un clip fini demande beaucoup plus de travail que de le régler correctement dès le début.
+
+---
+
+## Changer le frame rate depuis le bin
+
+Tu n'es pas toujours obligé de réexporter. L'animation bin peut écraser le tick rate clip par clip :
+
+```py
+mTickDuration: f32 = 0.03333333333
+```
+
+La valeur, c'est `1 / FPS`, donc :
+
+| Images par seconde | `mTickDuration` |
+| :----------------- | :-------------- |
+| 30 (standard)      | `0.03333333333` |
+| 60                 | `0.01666666666` |
+| 15                 | `0.06666666666` |
+
+C'est la façon pratique de ralentir ou d'accélérer un clip de Riot que tu réutilises, sans même ouvrir un logiciel 3D.
+
+---
+
+## Riot n'utilise pas toujours du 30
+
+Certaines animations livrées sont créées à d'autres frame rates, et ça compte quand tu les remplaces.
+
+**Ne pars pas du principe qu'un champion est uniforme.** Quand ça arrive, c'est en général seulement une partie des clips du champion et pas tous, donc vérifie chaque clip que tu comptes remplacer plutôt que de vérifier le champion une seule fois. Malzahar a été un exemple de ça, mais est-ce toujours vrai sur le patch actuel, et est-il le seul cas, ce n'est pas quelque chose à prendre pour argent comptant.
+
+Si tu remplaces un clip Riot en 60 fps par ton propre clip en 30 fps sans rien changer d'autre, ta version jouera deux fois moins vite que l'originale.
+
+> 💡 **Astuce de pro :** Si une animation de remplacement semble fausse en jeu à exactement la moitié ou au double de la vitesse voulue, vérifie le frame rate du clip que tu as remplacé avant de chercher ailleurs.
+
+---
+
+## Deux effets de bord à connaître
+
+**Les transitions se déchirent contre les clips hors frame rate.** Une [transition](/docs/lol/animations/animation-bin-clips-and-transitions) qui blend vers ou depuis un clip en 60 fps peut visiblement casser. Si une transition a l'air déchirée et que tu as vérifié les causes habituelles, vérifie le frame rate des deux clips concernés.
+
+**La pseudo-physique part en vrille.** Tout mouvement secondaire piloté par des bones dynamiques, capes, queues, tentacules, cheveux, se comporte bizarrement quand un clip joue à un frame rate pour lequel il n'a pas été créé. Le mouvement a été réglé pour le timing d'origine et ne s'adapte pas proprement.
+
+> 💡 **Astuce de pro :** Si une cape ou une queue a l'air correcte dans ton logiciel 3D et fausse en jeu, le frame rate vaut le coup d'œil avant de te lancer dans du re-weighting. Certaines de ces chaînes sont [pilotées par du code moteur et pas par l'animation](/docs/lol/maya/control-rigs) du tout.
+
+Guide par Kaizen

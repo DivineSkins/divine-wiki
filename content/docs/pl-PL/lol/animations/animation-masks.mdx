@@ -1,0 +1,84 @@
+---
+title: "Maski animacji"
+description: "Czym są maski animacji, dlaczego dodawanie kości psuje je po cichu i jak je naprawić w LtMAO albo ręcznie."
+category: "animations"
+---
+
+Maska animacji ogranicza klip do części szkieletu, dzięki czemu animacja castu może ruszać górną połową ciała, podczas gdy nogi dalej idą. To także najczęstszy powód, dla którego mod, który działał wczoraj, dzisiaj wygląda na zepsuty, bo dodałeś kość.
+
+---
+
+## Potrzebne narzędzia
+
+| Narzędzie   | Do czego                                                       |
+| :---------- | :------------------------------------------------------------- |
+| **LtMAO**   | Jego mask viewer pozwala czytać i ustawiać wartości maski kość po kości |
+| **Jade**    | Wizualna edycja animation `.bin` (zalecane)                    |
+| **Ritobin** | Alternatywa: konwersja `.bin` na `.py` do edycji               |
+
+---
+
+## Czym maska jest naprawdę
+
+Maska to **łańcuch jedynek i zer, po jednym na kość, w kolejności szkieletu**. Jedynka znaczy, że klip napędza tę kość, zero znaczy, że nie.
+
+Najważniejsze jest to, że maska jest **pozycyjna**. Nie zna nazw kości. Wie tylko, że siedemnasty wpis to jedynka, a osiemnasty to zero.
+
+Wszystko poniżej wynika właśnie z tego.
+
+---
+
+## Dlaczego dodawanie kości psuje maski
+
+Jeśli dodasz kości do szkieletu, łańcuch maski przestaje się z nim pokrywać.
+
+- **Wstaw albo przestaw kość** i każdy wpis maski po tym miejscu wskazuje teraz złą kość. Maska nóg potrafi skończyć na zamrożeniu rąk.
+- **Dopisz kości na końcu** i maska jest za krótka, żeby objąć nowe, co też potrafi dać złe zachowanie.
+
+Objawem nie jest błąd. Animacja leci, tylko ruszają się nie te części ciała co trzeba albo nie ruszają się wcale.
+
+> **Uwaga:** Zawsze dopisuj nowe kości na końcu szkieletu. Nigdy nie wstawiaj kości w środek istniejącej hierarchii, jeśli zależy ci na tym, żeby maski Riotu dalej działały. Ta sama zasada wraca przy [dodawaniu kości pod VFX](/docs/lol/vfx-bins/animation-vfx), dokładnie z tego powodu.
+
+---
+
+## Naprawa masek w LtMAO
+
+Problem da się naprawić w LtMAO, ale wymaga to trochę chodzenia tam i z powrotem.
+
+1. Otwórz LtMAO i wejdź w mask viewer.
+2. Wczytaj **szkielet**, czyli plik `.skl` modelu. `.skn` nie jest potrzebny.
+3. Wczytaj **animation bin**.
+4. Przejdź przez kości i sprawdź ich wartości, decydując przy każdej, czy chcesz, żeby ta kość była ruszana w animacjach używających wypisanych masek. Zmień te wartości, które są złe. Jeśli chcesz zachować oryginalną hierarchię Riotu, otwórz drugie okno LtMAO z niezmodowanymi plikami i porównuj z nim.
+5. Użyj **Save As** i nadpisz animation bin.
+
+Szkielet jest mu potrzebny, bo tak przypisuje nazwę do każdej pozycji w łańcuchu, i dopiero to sprawia, że krok 4 da się w ogóle czytać.
+
+> **Uwaga:** To nie jest naprawa jednym kliknięciem. LtMAO pokazuje ci łańcuch obok twoich nazw kości i pozwala ustawić wartości, ale to ty decydujesz, jakie mają być. Tym bardziej, jeśli pracujesz na własnym rigu i własnych kościach, gdzie nie ma oryginału Riotu, do którego można wrócić.
+
+---
+
+## Albo edytuj łańcuch ręcznie
+
+Otwórz animation bin, znajdź maskę i wyedytuj łańcuch tak, żeby:
+
+- każda kość, którą klip ma napędzać, była jedynką
+- każda kość, którą ma zostawić w spokoju, była zerem
+- długość łańcucha zgadzała się z liczbą kości w szkielecie
+
+To żmudne, ale nietrudne, a na bohaterze z małą liczbą masek często szybsze niż tańce z LtMAO.
+
+> 💡 **Pro tip:** Możesz w ogóle nie wpuścić zbędnych keyów w maskowany obszar, animując na [okrojonym control rigu](/docs/lol/maya/control-rigs), takim z usuniętymi kośćmi, których nie ruszasz.
+
+---
+
+## Wyjście awaryjne
+
+Jeśli maska stawia opór, a bohater i tak ma już warianty tego klipu na całe ciało, nie musisz wygrywać tej kłótni. **Usuń maskę i zrób pełną animację zamiast niej.**
+
+Skopiowanie zamaskowanego wpisu tak, żeby stał się zwykłym [`AtomicClipData`](/docs/lol/animations/animation-bin-clips-and-transitions), też działa. Przestaje być traktowany jak maska, a zaczyna jak normalny klip na całe ciało.
+
+Mordekaiser jest tu czystym przypadkiem, bo ma już `spell2_consume_shield` i `spell2_run_consume_shield` jako osobne klipy, więc jest gdzie wsadzić wersje na całe ciało.
+
+> 💡 **Pro tip:** Zanim usuniesz maskę, ustal, co robiła. U części bohaterów obsługuje zmianę postawy albo formy, i jej usunięcie będzie cię kosztować to zachowanie.
+
+Poradnik autorstwa Kaizen

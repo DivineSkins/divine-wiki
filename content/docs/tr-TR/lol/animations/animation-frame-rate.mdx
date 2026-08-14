@@ -1,0 +1,74 @@
+---
+title: "Animasyon Frame Rate'i"
+description: "League animasyonları neden 30 fps olmak zorunda, olmadıklarında ne oluyor ve bir klibin oynatma hızını animation bin'den nasıl değiştirirsin."
+category: "animations"
+---
+
+Her animasyon rehberi sana 30 fps'te export etmeni söyler, [animasyon import export](/docs/lol/animations/animation-import-export) dahil. Bu sayfa nedenini, etmediğinde gerçekte ne olduğunu ve zaten export edilmiş bir klibin frame rate'ini nasıl değiştireceğini anlatıyor.
+
+---
+
+## Gerekli Araçlar
+
+| Araç        | Ne işe yarar                                              |
+| :---------- | :--------------------------------------------------------- |
+| **Jade**    | Animasyon `.bin` dosyasını görsel olarak düzenle (önerilen) |
+| **Ritobin** | Alternatif: düzenlemek için `.bin`'i `.py`'ye dönüştür     |
+
+---
+
+## Frame rate akıcılık değil, oynatma hızıdır
+
+Başka 3D işlerinden gelenleri şaşırtan kısım bu. League'de bir klibin frame rate'i ne kadar akıcı göründüğünü belirlemez. **Ne kadar hızlı oynadığını** belirler.
+
+League animasyonu 30 fps'te çalıştırır. Yani:
+
+- **60 fps'te export edilen bir klip iki kat hızlı oynar.**
+- **15 fps'te export edilen bir klip yarı hızda oynar.**
+- Maya'nın varsayılanı olan **24 fps'te export edilen bir klip hafif hızlı oynar** ve ilk animasyonun ortada sebep yokken biraz aceleci hissettirmesinin olağan nedeni budur.
+
+> **Not:** Maya veya Blender sahneni animasyona başlamadan önce 30 fps'e ayarla, export anında değil. Bitmiş bir klibin zamanlamasını yeniden kurmak, en baştan doğru ayarlamaktan çok daha fazla iş.
+
+---
+
+## Frame rate'i bin'den değiştirmek
+
+Her seferinde yeniden export etmen gerekmez. Animation bin, tick rate'i klip bazında ezebilir:
+
+```py
+mTickDuration: f32 = 0.03333333333
+```
+
+Değer `1 / FPS`, yani:
+
+| Saniyedeki kare | `mTickDuration` |
+| :-------------- | :-------------- |
+| 30 (standart)   | `0.03333333333` |
+| 60              | `0.01666666666` |
+| 15              | `0.06666666666` |
+
+Yeniden kullandığın bir Riot klibini yavaşlatmanın ya da hızlandırmanın pratik yolu bu, hem de hiç 3D program açmadan.
+
+---
+
+## Riot her zaman 30 kullanmıyor
+
+Oyunla gelen bazı animasyonlar başka frame rate'lerde yapılmış ve onları değiştirirken bu önem kazanıyor.
+
+**Bir şampiyonun tek tip olduğunu varsayma.** Bu durum genelde şampiyonun tüm klipleri için değil, sadece bir kısmı için geçerli, o yüzden şampiyonu bir kez kontrol etmek yerine değiştirmeyi düşündüğün her klibi ayrı ayrı kontrol et. Malzahar bunun bir örneğiydi ama güncel yamada hâlâ öyle mi ve tek örnek o mu, bunu peşinen doğru kabul etme.
+
+60 fps'lik bir Riot klibini kendi 30 fps'lik klibinle değiştirir ve başka hiçbir şeye dokunmazsan, senin versiyonun orijinalin yarı hızında oynar.
+
+> 💡 **Pro İpucu:** Değiştirdiğin bir animasyon oyunda tam olarak istediğinin yarısı ya da iki katı hızda yanlış hissettiriyorsa, başka hiçbir yere bakmadan önce değiştirdiğin klibin frame rate'ine bak.
+
+---
+
+## Bilmeye değer iki yan etki
+
+**Geçişler farklı frame rate'teki kliplere karşı yırtılır.** 60 fps'lik bir klibe girip çıkarken blend yapan bir [geçiş](/docs/lol/animations/animation-bin-clips-and-transitions) gözle görülür şekilde dağılabilir. Bir geçiş yırtık görünüyorsa ve alışılmış sebepleri zaten kontrol ettiysen, işin içindeki iki klibin de frame rate'ine bak.
+
+**Sözde fizik bozulur.** Dinamik kemiklerle sürülen her ikincil hareket, pelerinler, kuyruklar, dokunaçlar, saçlar, bir klip yapılmadığı bir hızda oynadığında tuhaf davranır. O hareket orijinal zamanlamaya göre ayarlanmıştı ve temiz şekilde ölçeklenmiyor.
+
+> 💡 **Pro İpucu:** Bir pelerin ya da kuyruk 3D programında doğru, oyunda yanlış görünüyorsa, ağırlıkları yeniden dağıtmaya girişmeden önce frame rate'e bakmaya değer. Bu zincirlerin bir kısmı zaten [animasyonla değil, motor koduyla sürülüyor](/docs/lol/maya/control-rigs).
+
+Rehber: Kaizen

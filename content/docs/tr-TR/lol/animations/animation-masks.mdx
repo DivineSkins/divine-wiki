@@ -1,0 +1,84 @@
+---
+title: "Animasyon Maskeleri"
+description: "Animasyon maskeleri nedir, kemik eklemek onları neden sessizce bozar ve LtMAO ile ya da elle nasıl onarırsın."
+category: "animations"
+---
+
+Bir animasyon maskesi klibi iskeletin bir bölümüyle sınırlar, böylece bir cast animasyonu bacaklar yürümeye devam ederken üst bedeni oynatabilir. Aynı zamanda, dün çalışan bir modun sen bir kemik ekledikten sonra bugün bozuk görünmesinin en yaygın sebebi.
+
+---
+
+## Gerekli Araçlar
+
+| Araç        | Ne işe yarar                                                        |
+| :---------- | :-------------------------------------------------------------------- |
+| **LtMAO**   | Mask viewer'ı maske değerlerini kemik kemik okumanı ve ayarlamanı sağlar |
+| **Jade**    | Animasyon `.bin` dosyasını görsel olarak düzenle (önerilen)         |
+| **Ritobin** | Alternatif: düzenlemek için `.bin`'i `.py`'ye dönüştür              |
+
+---
+
+## Maske aslında nedir
+
+Maske, **iskelet sırasına göre her kemik için bir tane olmak üzere birler ve sıfırlardan oluşan bir zincirdir**. Bir demek klip o kemiği sürüyor demek, sıfır demek sürmüyor demek.
+
+Önemli kısım şu: maske **konumsaldır**. Kemik adlarını bilmez. Sadece on yedinci kaydın bir, on sekizincinin sıfır olduğunu bilir.
+
+Aşağıdaki her şey bundan çıkıyor.
+
+---
+
+## Kemik eklemek maskeleri neden bozar
+
+İskelete kemik eklersen, maske zinciri artık onunla hizalanmaz.
+
+- **Bir kemik araya sok ya da sırasını değiştir**, o noktadan sonraki her maske kaydı artık yanlış kemiği gösterir. Bir bacak maskesi kolları dondurmakla sonuçlanabilir.
+- **Sona kemik ekle**, maske yenileri kapsayacak kadar uzun olmaz ve bu da yanlış davranış üretebilir.
+
+Belirti bir hata mesajı değil. Animasyon oynar ama bedenin yanlış kısımları hareket eder ya da hareket etmeyi reddeder.
+
+> **Not:** Yeni kemikleri her zaman iskeletin sonuna ekle. Riot'un maskelerinin çalışmaya devam etmesini önemsiyorsan, mevcut bir hiyerarşinin ortasına asla kemik sokma. Aynı kural [VFX için kemik eklerken](/docs/lol/vfx-bins/animation-vfx) de tam bu yüzden karşına çıkıyor.
+
+---
+
+## Maskeleri LtMAO ile onarmak
+
+Sorunu LtMAO ile çözebilirsin ama biraz gidip gelmek gerekiyor.
+
+1. LtMAO'yu aç ve mask viewer'a gir.
+2. **İskeleti**, yani modelin `.skl` dosyasını yükle. `.skn`'ye ihtiyacın yok.
+3. **Animation bin'i** yükle.
+4. Kemikleri tek tek gez ve değerlerini kontrol et, her biri için listelenen maskeleri kullanan animasyonlar sırasında o kemiğin etkilenmesini isteyip istemediğine karar ver. Yanlış olan değerleri değiştir. Riot'un orijinal hiyerarşisini korumak istiyorsan, modlanmamış dosyalarla ikinci bir LtMAO penceresi aç ve onunla karşılaştır.
+5. **Save As** kullan ve animation bin'in üzerine yaz.
+
+İskelete ihtiyaç duymasının sebebi, zincirdeki her konuma bir ad koymasının tek yolu bu olması ve 4. adımı okunabilir yapan da bu.
+
+> **Not:** Bu tek tıkla çözüm değil. LtMAO sana zinciri kendi kemik adlarının karşısında gösterir ve değerleri ayarlamana izin verir ama ne olmaları gerektiğine karar veren sensin. Kendi rig'in ve kendi kemiklerinle çalışıyorsan, yani geri dönülecek bir Riot orijinali yoksa, bu daha da geçerli.
+
+---
+
+## Ya da zinciri elle düzenle
+
+Animation bin'i aç, maskeyi bul ve zinciri şöyle düzenle:
+
+- klibin sürmesi gereken her kemik bir olsun
+- rahat bırakması gereken her kemik sıfır olsun
+- zincirin uzunluğu iskeletin kemik sayısıyla eşleşsin
+
+Bu yorucu ama zor değil ve az sayıda maskesi olan bir şampiyonda genelde LtMAO dansına girmekten daha hızlı.
+
+> 💡 **Pro İpucu:** Maskeli bölgeye baştan başıboş key düşmesini, dokunmadığın kemiklerin çıkarıldığı [azaltılmış bir control rig](/docs/lol/maya/control-rigs) üzerinde animasyon yaparak engelleyebilirsin.
+
+---
+
+## Acil çıkış
+
+Bir maske sana direniyorsa ve şampiyon etkilenen klibin tam beden varyantlarını zaten taşıyorsa, bu kavgayı kazanmak zorunda değilsin. **Maskeyi sil ve yerine tam animasyonu yap.**
+
+Maskeli kaydı kopyalayıp kendi sıradan [`AtomicClipData`](/docs/lol/animations/animation-bin-clips-and-transitions)'sı hâline getirmek de işe yarar. Maske olarak görülmeyi bırakır, normal bir tam beden klibi olarak görülmeye başlar.
+
+Mordekaiser bunun temiz bir örneği, çünkü `spell2_consume_shield` ve `spell2_run_consume_shield` klipleri zaten ayrı ayrı var, yani tam beden versiyonlarının gideceği bir yer mevcut.
+
+> 💡 **Pro İpucu:** Bir maskeyi silmeden önce ne iş yaptığını çöz. Bazı şampiyonlarda duruş değişimini ya da form geçişini o hallediyor ve kaldırmak sana o davranışa mal olur.
+
+Rehber: Kaizen

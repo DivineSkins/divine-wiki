@@ -1,0 +1,210 @@
+---
+title: "Animation Bin: Klipler, Koşullar ve Geçişler"
+description: "Animation bin hangi klibin oynayacağına nasıl karar verir: klip türleri, hareket hızı veya oyun durumuyla sürülen koşullu klipler ve aralarındaki geçiş klipleri."
+category: "animations"
+---
+
+[Bir `.anm` export etmek](/docs/lol/animations/animation-import-export) animasyon moddinginin sadece bir parçası. Diğer yarısı, **hangi** klibin **ne zaman** oynayacağına karar veren animation bin. Bu rehber karşılaşacağın klip türlerini, oyun durumuna göre klipler arasında nasıl geçiş yapacağını ve animasyonların zıplamayı bırakması için nasıl geçiş ekleyeceğini anlatıyor.
+
+---
+
+## Gerekli Araçlar
+
+| Araç                   | Ne işe yarar                                                |
+| :--------------------- | :----------------------------------------------------------- |
+| **Jade**               | Animasyon `.bin` dosyasını görsel olarak düzenle (önerilen)  |
+| **Ritobin**            | Alternatif: düzenlemek için `.bin`'i `.py`'ye dönüştür       |
+| **Flint**              | Şampiyonu çıkar, bin'e en baştan böyle ulaşırsın             |
+| **ReadWriteBlendData** | Geçiş blend data'sını okunabilir klip adlarına çevirir       |
+
+---
+
+## Klip türleri
+
+Animasyon grafiği bir slot adını bir klibe eşler. Kayıtların çoğu tek bir dosya ama bileşik türler insanların beklediğinden fazla iş yapıyor.
+
+| Tür                       | Ne yapar                                                  |
+| :------------------------ | :--------------------------------------------------------- |
+| `AtomicClipData`          | Tek bir `.anm` dosyası                                     |
+| `SequencerClipData`       | Klipleri sırayla oynatır                                   |
+| `SelectorClipData`        | Ağırlıklarla, rastgele bir klip seçer                      |
+| `ParametricClipData`      | Sayısal bir değer üzerinden blend yapar, bakış açısı gibi  |
+| `ConditionBoolClipData`   | Doğru ya da yanlış bir oyun durumuna göre geçer            |
+| `ConditionFloatClipData`  | Sayısal bir oyun değerine göre geçer, hareket hızı gibi    |
+| `ParallelClipData`        | İki klibi farklı maskelerde aynı anda oynatır              |
+| `TransitionClipBlendData` | Adı geçen iki klibin arasına sokulan bir klip              |
+
+`ParallelClipData`, iki klipten her birinin hangi kemikleri sürmesine izin verileceğine karar vermek için [animasyon maskelerine](/docs/lol/animations/animation-masks) dayanır.
+
+Atomik bir klip şöyle görünür:
+
+```py
+AtomicClipData {
+    mAnimationResourceData: AnimationResourceData {
+        mAnimationFilePath: string = "ASSETS/Characters/YourChamp/Skins/Base/Animations/YourChamp_Attack1.anm"
+    }
+}
+```
+
+> **Not:** Diskteki `.anm` dosya adının önemi yok. Sadece bin'e yazılan yolun tutması gerekiyor.
+
+---
+
+## Klipleri hareket hızıyla değiştirmek
+
+`ConditionFloatClipData`, şampiyonun ne kadar hızlı hareket ettiğine göre hangi animasyonun oynayacağını seçmeni sağlar. Yürüyüş, koşu ve haste'li koşu için doğru araç bu; ayrıca hareket hâlinde oynayan her animasyon için, cast sırasında hareket etmeye izin veren yetenekler dahil.
+
+Bunu, homeguard animasyonu olmayan bir şampiyona böyle bir animasyon eklemek için de kullanabilirsin ama bu **önerilen yaklaşım değil**. Homeguard buff'ını kontrol etmek daha iyi, çünkü şampiyonun o anki hareket hızının ne olduğunu umursamaz. Aşağıdaki buff bölümüne bak.
+
+```py
+"Run" = ConditionFloatClipData {
+    mFlags: u32 = 2
+    mConditionFloatPairDataList: list[embed] = {
+        ConditionFloatPairData { mClipName: hash = "RunWalk" }
+        ConditionFloatPairData { mClipName: hash = "RunFast"
+                                 mValue: f32 = 400 }
+    }
+    Updater: pointer = MoveSpeedParametricUpdater {}
+    mChangeAnimationMidPlay: bool = true
+}
+```
+
+Şöyle oku: normalde `RunWalk` oyna, hareket hızı 400'e ulaştığında `RunFast` oyna.
+
+İstediğin kadar kademe zincirleyebilirsin. Üç kademeli bir versiyon hızlı koşu için 424, çok hızlı koşu için 520 ve pratikte sadece homeguard altında ulaşılabilen 1000'de dördüncü bir klip kullanabilir.
+
+Bilmen gerekenler:
+
+- **`mValue` taşımayan çift varsayılandır**, yavaş olan.
+- **`mValue` oyundaki ham hareket hızıdır**, ölçeklenmiş ya da normalize edilmiş bir sayı değil. 400 temel hareket hızı civarı. İşe yarar referans noktaları kabaca hızlı koşu için 400, haste'li koşu için 440 ve homeguard için 530; bunlar şampiyon başına değil, genel rakamlar.
+- **`mFlags: u32 = 2` klibi döngüye alır.** En çok danslar gibi emote'larda istenir.
+- **Adını yazdığın klipler bin'de kayıt olarak var olmalı.** Genelde `AtomicClipData` olurlar ama olmak zorunda değiller. Her klip türü çalışır, yani koşullu bir dal bir selector'ı ya da başka bir bileşiği gösterebilir.
+- **Sadece bir klibin adı `Run` olabilir.** Koşulluyu eklemeden önce mevcut olanın adını değiştir. Bunun `Run`'ın basit bir animasyon olması gerektiği anlamına gelmediğini, sadece o adda tek bir kayıt bulunduğu anlamına geldiğini unutma. O kayıt kendisi birkaç klip arasından seçen bir selector olabilir.
+
+> 💡 **Pro İpucu:** Eşiklerini sadece temel hareket hızına göre değil, şampiyonun bir maçta gerçekten ulaşacağı hızlara göre seç. Oyuncunun hiç aşmadığı bir eşik, kimsenin hiç görmediği bir animasyondur.
+
+---
+
+## Klipleri oyun durumuyla değiştirmek
+
+`ConditionBoolClipData` aynı işi doğru ya da yanlış koşullar için yapar:
+
+```py
+"Run" = ConditionBoolClipData {
+    Updater: pointer = IsHomeguardParametricUpdater {}
+    mChangeAnimationMidPlay: bool = true
+    DontStompTransitionClip: bool = true
+    mTrueConditionClipName: hash = "Run_Homeguard"
+    mFalseConditionClipName: hash = "Run_Base"
+}
+```
+
+`DontStompTransitionClip`, durum oynatma sırasında değiştiğinde geçiş kliplerinin hayatta kalmasını sağlayan şey. Bir klip çalışırken değişebilen bir durumun etrafında geçişlerin varsa, bunu istersin.
+
+Driver'lar kalıcı efekt sistemiyle ortak, yani bir VFX'i neye bağlayabiliyorsan bir klibi de ona bağlayabilirsin:
+
+| Driver                                  | Neye göre geçer                                                          |
+| :-------------------------------------- | :------------------------------------------------------------------------ |
+| `IsHomeguardParametricUpdater`          | Homeguard durumunda olmak                                                 |
+| `IsMovingParametricUpdater`             | Hareket etmek ya da durmak                                                |
+| `IsCastingBoolDriver { SpellSlot }`     | Belirli bir yeteneği kullanmak                                            |
+| `SubmeshVisibilityBoolDriver`           | Bir [submesh](/docs/lol/vfx-bins/submesh-visibility)'in o an görünür olup olmadığı |
+| `HasBuffDynamicMaterialBoolDriver`      | Adı geçen bir buff'a sahip olmak                                          |
+| `HasGearDynamicMaterialBoolDriver`      | Gear yükseltme durumu                                                     |
+| `LearnedSpellDynamicMaterialBoolDriver` | Bir yeteneğe puan basılıp basılmadığı                                     |
+| `SpellRankIntDriver { SpellSlot }`      | Bir yeteneğin seviyesi, `ConditionFloatClipData` ile kullanılır           |
+
+Yetenek slotları Q için `0`, W için `1`, E için `2` ve R için `3`.
+
+> **Not:** Yaygın bir belirti, R'ye bağlamak istediğin bir değişikliğin Q'da tetiklenmesi. Bu, driver'ın `0` numaralı slota düştüğü anlamına gelir. İki olası sebep var: `LearnedSpellDynamicMaterialBoolDriver`, buff driver'ının aldığı `Spell: hash` yerine `mSlot: u8` bekler, yani ona bir hash vermek slotu varsayılanında bırakır; ya da yeteneğin yolu yanlıştır, hiçbir şey çözülmez ve varsayılana düşer. Hangisinin seni ısırdığını varsaymadan önce ikisini de kontrol et.
+
+Bir driver'ı tersine çevirmek için `NotMaterialDriver`, birkaçını aynı anda şart koşmak için `AllTrueMaterialDriver` içine sar. Tek bir driver'ı `AllTrueMaterialDriver` içine sarma, hiçbir şey yapmaz.
+
+---
+
+## Durumu hareket hızı üzerinden değil, doğrudan sor
+
+Hız eşiği bir durumu yan etkisinden çıkarsar. Motorun durumun kendisini sunduğu yerde doğrudan sor, çünkü o zaman o sayıyı oynatan başka hiçbir şey seni yanıltamaz.
+
+Homeguard en net örnek ve kendine ait bir updater'ı var:
+
+```py
+"Run" = ConditionBoolClipData {
+    Updater: pointer = IsHomeguardParametricUpdater {}
+    mChangeAnimationMidPlay: bool = true
+    DontStompTransitionClip: bool = true
+    mTrueConditionClipName: hash = "Run_Homeguard"
+    mFalseConditionClipName: hash = "Run_Base"
+}
+```
+
+Aynısını `Idle1` için de yap, bir `Idle_Homeguard` klibini göstererek, ve iki durum arasındaki geçiş kliplerini hazırla. Bu, bir eşiğin yapamadığı şekilde **tüm hareket hızı etkilerini ezer**.
+
+> 💡 **Pro İpucu:** Özellikle homeguard'da bazı şampiyonlar doğrudan eklenen bir `Homeguard` atomik klibini kabul eder ve çalışır. Sadece bazıları, o yüzden önce dene, hiçbir şey olmuyorsa koşula dön.
+
+### Koşulların nerede yaşadığına dair bir not
+
+Bir skin'de iki koşul sistemi var ve bunları karıştırmak kolay, çünkü driver kelimelerinin çoğunu paylaşıyorlar.
+
+**Animasyon klipleri** burada, animation bin'de, `ConditionBoolClipData` ve `ConditionFloatClipData` ile, bir `*ParametricUpdater` tarafından sürülerek değiştirilir.
+
+**Submesh'ler ve VFX** skin bin'inde, `PersistentEffectConditions` ile, bir `*MaterialBoolDriver` tarafından sürülerek değiştirilir. O mekanizma bir animasyonu değiştiremez, o yüzden onda klip alanı arama. [Kendi sayfasında](/docs/lol/vfx-bins/persistent-effect-conditions) anlatılıyor.
+
+Bir klibi özel bir updater yerine bool driver'la sürmek için driver'ı `LogicDriverBoolParametricUpdater` içine sar ve onu bir `ConditionBoolClipData`'nın `Updater`'ı olarak kullan.
+
+Tam bir form değişimi bu yüzden genelde ikisini de yazmak demek: model ve efektler için bir kalıcı efekt koşulu, animasyon seti için bir koşul klibi. Her biri aynı koşulun kendi kopyasını taşır.
+
+---
+
+## Geçişler
+
+Geçiş, iki klip arasında oynayan bir kliptir. Bir yetenek animasyonunun idle'a geri zıplamasını engelleyen şey odur.
+
+```py
+"Spell3_Run_Cast" To "Idle1" = TransitionClipBlendData {
+    mClipName: hash = "Spell3_Run_Cast_Transition"
+}
+```
+
+`mClipName`, asıl ara animasyonu tutan normal bir `AtomicClipData`'yı gösterir.
+
+Geçişler özellikle **eski şampiyonlarda** işe yarar; oralarda saldırı ve yetenek toparlanmaları gözle görülür şekilde kesilip idle'a dönmeye zorlar. Animasyonu uzatmak yerine geçişi ekle.
+
+### Bir geçişin sessizce hiçbir şey yapmamasına yol açan dört şey
+
+1. **Klip adını bin'de yazdığı gibi, büyük küçük harf dahil birebir yaz.** `spell3_cast` ile çalışmayıp `Spell3_Cast` ile çalışan en az bir bildirilmiş geçiş vakası var, o yüzden biri aksini ortaya koyana kadar adları büyük küçük harfe duyarlı kabul et. Adı yeniden yazmak yerine bin'den kopyalamak hiçbir şeye mal olmaz ve soruyu ortadan kaldırır.
+2. **Yaprağı değil, ebeveyni hedefle.** `Spell3_Cast` hem duruşta hem koşarken cast'i içeren bir `ParametricClipData` ise, geçiş `Spell3_Cast`'e bağlanır. `Spell3_Run_Cast`'e bağlamak hiçbir şey yapmaz.
+3. **Koşullu bir klibe geçiş yapma.** `Run` bir koşul sarmalayıcısıysa, geçişi altındaki atomik kliplere yap.
+4. **Şampiyonun gerçekten içinde olduğu duruma geçiş yap.** Oyuncu hareket hâlindeyken biten bir cast, idle'a değil koşuya geçiş ister.
+
+Şampiyonda var olmayan bir adı gösteren geçiş, klasik sessiz hatadır. Çözüldüğünde `"RunFast" To "Hashed:0xba9fda17"` gibi bir şey olarak okunur ve o çözülmemiş hash, hedef adının yanlış olduğunun işaretidir.
+
+> **Not:** Tetiklenen ama gözle görülür şekilde yırtılan bir geçiş başka bir sorun. İşin içindeki iki klibin de [frame rate'ine](/docs/lol/animations/animation-frame-rate) bak.
+
+### Geçişi bir geçiş üzerinden zincirlemek
+
+Bazen çıktığın durum sandığın durum değildir. Tryndamere'de hareket komutu verip sonra E basmak onu durdurur, yani cast ile koşu arasına tek karelik bir idle oturur. Doğrudan cast'ten koşuya geçiş asla tetiklenmez.
+
+Çözüm, o idle üzerinden zincirleyerek geçişe bir geçiş yazmak. Gereksiz görünüyor ama işe yarıyor.
+
+### Blend data'yı okumak
+
+Ritobin blend data tam sayılarını okunabilir klip adlarına çevirmez, sayıları yazar. Onları adlara ve geri çevirmek için ya **ReadWriteBlendData** ya da **Jade** kullan. ReadWriteBlendData kullanıyorsan, düzenlemeden önce ve düzenledikten sonra tekrar çalıştır, yoksa değişikliklerin gidiş dönüşten sağ çıkmaz.
+
+---
+
+## Şampiyonda olmayan klipleri eklemek
+
+Her boşluk kalıcı değil ve bir şampiyonu elemeden önce buna bakmaya değer.
+
+**Özellikle eski şampiyonlar, yok değil pasif durumdaki klipleri taşıyor.** En çok fark edileni recall, çünkü bazı şampiyonlarda gerçekten hiç yok, ama tek örnek olmaktan çok uzak. `AtomicClipData` kaydını oluşturmak çoğu zaman birini geri getirmek için yeterli oluyor. Hangi kliplerin hangi şampiyonda uykuda olduğuna dair yayımlanmış bir liste yok, yani bu bir arama meselesi.
+
+Ayrıca eklenebilecekler:
+
+- **Genel geçiş emote'u (Ctrl+5)**, herkes için geçerli.
+- **Riot'un düşürdüğü saldırı varyasyonları**, animation bin'e yeniden ekleyerek.
+- **Homeguard ve haste koşuları**, yukarıdaki gibi `ConditionFloatClipData` kullanarak.
+
+Her şey diriltilemez. Bazı klipler animation bin'in dışındaki bir şey tarafından kapatılmış görünüyor ve hiçbir bin düzenlemesi onları geri getirmiyor. Her referansı doğru şekilde yönlendirdiğin hâlde bir klip oynamayı reddediyorsa, animation bin'i kazmayı bırak, cevap orada değil.
+
+Rehber: Kaizen

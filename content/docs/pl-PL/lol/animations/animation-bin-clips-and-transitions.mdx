@@ -1,0 +1,210 @@
+---
+title: "Animation bin: klipy, warunki i przejścia"
+description: "Jak animation bin decyduje, który klip leci: typy klipów, klipy warunkowe napędzane prędkością ruchu albo stanem gry, i klipy przejść między nimi."
+category: "animations"
+---
+
+[Eksport `.anm`](/docs/lol/animations/animation-import-export) to dopiero część moddowania animacji. Druga połowa to animation bin, który decyduje, **który** klip leci i **kiedy**. Ten poradnik omawia typy klipów, na które trafisz, jak przełączać się między klipami w zależności od stanu gry i jak dodać przejścia, żeby animacje przestały przeskakiwać.
+
+---
+
+## Potrzebne narzędzia
+
+| Narzędzie              | Do czego                                                     |
+| :--------------------- | :----------------------------------------------------------- |
+| **Jade**               | Wizualna edycja animation `.bin` (zalecane)                  |
+| **Ritobin**            | Alternatywa: konwersja `.bin` na `.py` do edycji             |
+| **Flint**              | Wypakowanie bohatera, żeby w ogóle mieć ten bin              |
+| **ReadWriteBlendData** | Zamienia blend data przejść na czytelne nazwy klipów         |
+
+---
+
+## Typy klipów
+
+Graf animacji mapuje nazwę slotu na klip. Większość wpisów to pojedynczy plik, ale typy złożone robią więcej, niż ludzie się spodziewają.
+
+| Typ                       | Co robi                                                  |
+| :------------------------ | :-------------------------------------------------------- |
+| `AtomicClipData`          | Jeden plik `.anm`                                         |
+| `SequencerClipData`       | Odtwarza klipy po kolei                                   |
+| `SelectorClipData`        | Losuje jeden klip, z wagami                               |
+| `ParametricClipData`      | Blenduje po wartości liczbowej, na przykład kącie zwrotu  |
+| `ConditionBoolClipData`   | Przełącza na stan gry prawda albo fałsz                   |
+| `ConditionFloatClipData`  | Przełącza na wartość liczbową, na przykład prędkość ruchu |
+| `ParallelClipData`        | Odtwarza dwa klipy naraz na różnych maskach               |
+| `TransitionClipBlendData` | Klip wstawiony między dwa inne nazwane klipy              |
+
+`ParallelClipData` opiera się na [maskach animacji](/docs/lol/animations/animation-masks), żeby zdecydować, które kości może napędzać każdy z dwóch klipów.
+
+Klip atomowy wygląda tak:
+
+```py
+AtomicClipData {
+    mAnimationResourceData: AnimationResourceData {
+        mAnimationFilePath: string = "ASSETS/Characters/YourChamp/Skins/Base/Animations/YourChamp_Attack1.anm"
+    }
+}
+```
+
+> **Uwaga:** Nazwa pliku `.anm` na dysku nie ma znaczenia. Zgadzać się musi tylko ścieżka zapisana w binie.
+
+---
+
+## Przełączanie klipów prędkością ruchu
+
+`ConditionFloatClipData` pozwala wybrać, która animacja leci, w zależności od tego, jak szybko porusza się bohater. To właściwe narzędzie do chodu, biegu i biegu z haste, oraz do każdej animacji lecącej w ruchu, łącznie z umiejętnościami pozwalającymi się ruszać podczas castu.
+
+Da się tym też dodać animację homeguard bohaterowi, który jej nie ma, ale to **nie jest zalecane podejście**. Sprawdzanie buffa homeguard jest lepsze, bo nie obchodzi go, ile akurat wynosi prędkość ruchu bohatera. Zobacz sekcję o buffach niżej.
+
+```py
+"Run" = ConditionFloatClipData {
+    mFlags: u32 = 2
+    mConditionFloatPairDataList: list[embed] = {
+        ConditionFloatPairData { mClipName: hash = "RunWalk" }
+        ConditionFloatPairData { mClipName: hash = "RunFast"
+                                 mValue: f32 = 400 }
+    }
+    Updater: pointer = MoveSpeedParametricUpdater {}
+    mChangeAnimationMidPlay: bool = true
+}
+```
+
+Czytaj to tak: leć `RunWalk` normalnie, a `RunFast` od momentu, gdy prędkość ruchu sięgnie 400.
+
+Możesz łączyć tyle progów, ile chcesz. Wersja trzypoziomowa może użyć 424 na szybki bieg, 520 na bardzo szybki bieg i czwartego klipu przy 1000, co w praktyce jest osiągalne tylko pod homeguardem.
+
+Co warto wiedzieć:
+
+- **Para bez `mValue` jest domyślna**, ta wolna.
+- **`mValue` to surowa prędkość ruchu z gry**, nie liczba przeskalowana ani znormalizowana. 400 to okolice bazowej prędkości ruchu. Przydatne punkty odniesienia to mniej więcej 400 na szybki bieg, 440 na bieg z haste i 530 na homeguard, przy czym są to liczby ogólne, a nie wartości per bohater.
+- **`mFlags: u32 = 2` zapętla klip.** Najczęściej chcesz tego przy emotkach w rodzaju tańców.
+- **Klipy, które nazwiesz, muszą istnieć jako wpisy w binie.** Zwykle są to `AtomicClipData`, ale nie muszą. Każdy typ klipu działa, więc gałąź warunkowa może wskazywać na selector albo inny typ złożony.
+- **Tylko jeden klip może nazywać się `Run`.** Zmień nazwę istniejącego, zanim dodasz warunkowy. Zauważ, że to nie znaczy, że `Run` musi być prostą animacją, tylko że jest jeden wpis o tej nazwie. Ten wpis sam może być selectorem wybierającym spośród kilku klipów.
+
+> 💡 **Pro tip:** Dobieraj progi pod prędkości, które bohater naprawdę osiągnie w grze, a nie tylko pod bazową prędkość ruchu. Próg, którego gracz nigdy nie przekracza, to animacja, której nikt nigdy nie widzi.
+
+---
+
+## Przełączanie klipów stanem gry
+
+`ConditionBoolClipData` robi to samo dla warunków prawda albo fałsz:
+
+```py
+"Run" = ConditionBoolClipData {
+    Updater: pointer = IsHomeguardParametricUpdater {}
+    mChangeAnimationMidPlay: bool = true
+    DontStompTransitionClip: bool = true
+    mTrueConditionClipName: hash = "Run_Homeguard"
+    mFalseConditionClipName: hash = "Run_Base"
+}
+```
+
+`DontStompTransitionClip` to jest to, co pozwala klipom przejść przeżyć, gdy stan przeskoczy w trakcie odtwarzania. Jeśli masz przejścia wokół stanu, który może się zmienić podczas lecącego klipu, chcesz tego.
+
+Drivery są wspólne z systemem trwałych efektów, więc na czymkolwiek możesz zawiesić VFX, możesz zawiesić i klip:
+
+| Driver                                  | Przełącza na                                                                    |
+| :-------------------------------------- | :------------------------------------------------------------------------------ |
+| `IsHomeguardParametricUpdater`          | Bycie w stanie homeguard                                                         |
+| `IsMovingParametricUpdater`             | Ruch albo stanie w miejscu                                                       |
+| `IsCastingBoolDriver { SpellSlot }`     | Castowanie danej umiejętności                                                    |
+| `SubmeshVisibilityBoolDriver`           | To, czy [submesh](/docs/lol/vfx-bins/submesh-visibility) jest aktualnie pokazany |
+| `HasBuffDynamicMaterialBoolDriver`      | Posiadanie nazwanego buffa                                                       |
+| `HasGearDynamicMaterialBoolDriver`      | Stan ulepszenia gearu                                                            |
+| `LearnedSpellDynamicMaterialBoolDriver` | To, czy umiejętność została wbita                                                |
+| `SpellRankIntDriver { SpellSlot }`      | Poziom umiejętności, używany z `ConditionFloatClipData`                          |
+
+Sloty umiejętności to `0` dla Q, `1` dla W, `2` dla E i `3` dla R.
+
+> **Uwaga:** Częstym objawem jest to, że zmiana, którą chciałeś zawiesić na R, odpala się na Q. To znaczy, że driver spada do slotu `0`. Są dwie prawdopodobne przyczyny: `LearnedSpellDynamicMaterialBoolDriver` oczekuje `mSlot: u8`, a nie `Spell: hash`, który bierze driver buffa, więc podanie mu hasha zostawia slot na wartości domyślnej; albo sama ścieżka do umiejętności jest zła, więc nic się nie rozwiązuje i leci domyślka. Sprawdź obie, zanim założysz, która cię ugryzła.
+
+Owiń driver w `NotMaterialDriver`, żeby go odwrócić, albo w `AllTrueMaterialDriver`, żeby wymagać kilku naraz. Nie owijaj pojedynczego drivera w `AllTrueMaterialDriver`, to nic nie daje.
+
+---
+
+## Pytaj o stan wprost, nie przez prędkość ruchu
+
+Próg prędkości wnioskuje stan ze skutku ubocznego. Tam, gdzie silnik wystawia sam stan, pytaj o niego wprost, bo wtedy nic innego, co akurat rusza tę liczbę, nie może cię wywieść w pole.
+
+Homeguard jest tu najczystszym przypadkiem i ma własny updater:
+
+```py
+"Run" = ConditionBoolClipData {
+    Updater: pointer = IsHomeguardParametricUpdater {}
+    mChangeAnimationMidPlay: bool = true
+    DontStompTransitionClip: bool = true
+    mTrueConditionClipName: hash = "Run_Homeguard"
+    mFalseConditionClipName: hash = "Run_Base"
+}
+```
+
+Zrób to samo dla `Idle1`, wskazując na klip `Idle_Homeguard`, i zrób klipy przejść między tymi dwoma stanami. To **nadpisuje wszelkie efekty prędkości ruchu**, czego próg nie robi.
+
+> 💡 **Pro tip:** Akurat przy homeguardzie część bohaterów przyjmie klip atomowy `Homeguard` dodany wprost i to działa. Tylko część, więc najpierw spróbuj, a jak nic się nie dzieje, wróć do warunku.
+
+### Słowo o tym, gdzie mieszkają warunki
+
+W skinie są dwa systemy warunków i łatwo je pomylić, bo dzielą sporą część słownika driverów.
+
+**Klipy animacji** przełącza się tutaj, w animation binie, przez `ConditionBoolClipData` i `ConditionFloatClipData`, napędzane przez `*ParametricUpdater`.
+
+**Submeshe i VFX** przełącza się w binie skina, przez `PersistentEffectConditions`, napędzane przez `*MaterialBoolDriver`. Tamten mechanizm nie umie zmienić animacji, więc nie szukaj w nim pola na klip. Jest opisany na [własnej stronie](/docs/lol/vfx-bins/persistent-effect-conditions).
+
+Żeby napędzić klip bool driverem, a nie dedykowanym updaterem, owiń driver w `LogicDriverBoolParametricUpdater` i użyj go jako `Updater` w `ConditionBoolClipData`.
+
+Pełna zmiana formy zwykle oznacza więc napisanie obu rzeczy: trwałego warunku efektu na model i efekty oraz klipu warunkowego na zestaw animacji, każde z własną kopią tego samego warunku.
+
+---
+
+## Przejścia
+
+Przejście to klip, który leci między dwoma innymi klipami. To ono sprawia, że animacja umiejętności nie przeskakuje z powrotem do idle'a.
+
+```py
+"Spell3_Run_Cast" To "Idle1" = TransitionClipBlendData {
+    mClipName: hash = "Spell3_Run_Cast_Transition"
+}
+```
+
+`mClipName` wskazuje na zwykły `AtomicClipData` trzymający właściwą animację pośrednią.
+
+Przejścia są szczególnie przydatne u **starszych bohaterów**, gdzie końcówki ataków i umiejętności widocznie się ucinają i wymuszają powrót do idle'a. Zamiast wydłużać animację, dodaj przejście.
+
+### Cztery rzeczy, przez które przejście po cichu nic nie robi
+
+1. **Wpisz nazwę klipu dokładnie tak, jak stoi w binie, razem z wielkością liter.** Jest co najmniej jeden zgłoszony przypadek przejścia, które nie działa z `spell3_cast`, a działa ze `Spell3_Cast`, więc traktuj nazwy jako czułe na wielkość liter, dopóki ktoś nie ustali inaczej. Skopiowanie nazwy z binu zamiast przepisywania jej z palca nic nie kosztuje i zdejmuje pytanie.
+2. **Celuj w rodzica, nie w liść.** Jeśli `Spell3_Cast` jest `ParametricClipData` zawierającym cast w miejscu i w biegu, przejście podpina się pod `Spell3_Cast`. Podpięcie go pod `Spell3_Run_Cast` nic nie da.
+3. **Nie rób przejścia do klipu warunkowego.** Jeśli `Run` jest opakowaniem warunku, zrób przejście do leżących pod nim klipów atomowych.
+4. **Rób przejście do stanu, w którym bohater naprawdę jest.** Cast kończący się, gdy gracz się rusza, potrzebuje przejścia do biegu, a nie do idle'a.
+
+Przejście wskazujące na nazwę, której u bohatera nie ma, to klasyczna cicha porażka. Po zdekodowaniu czyta się to mniej więcej jako `"RunFast" To "Hashed:0xba9fda17"`, a ten nierozwiązany hash jest sygnałem, że nazwa celu jest zła.
+
+> **Uwaga:** Przejście, które odpala, ale widocznie się rwie, to inny problem. Sprawdź [frame rate](/docs/lol/animations/animation-frame-rate) obu klipów.
+
+### Łańcuch przejścia przez przejście
+
+Czasem stan, z którego wychodzisz, nie jest tym, o którym myślisz. U Tryndamere'a wydanie rozkazu ruchu, a potem rzucenie E zatrzymuje go, więc między castem a biegiem siedzi jedna klatka idle'a. Bezpośrednie przejście z castu do biegu nigdy nie odpala.
+
+Naprawa polega na zrobieniu przejścia dla przejścia, łańcuchem przez ten idle. Wygląda to nadmiarowo, ale działa.
+
+### Czytanie blend data
+
+Ritobin nie dekoduje liczb blend data na czytelne nazwy klipów, wypisuje same liczby. Użyj albo **ReadWriteBlendData**, albo **Jade**, żeby zamienić je na nazwy i z powrotem. Jeśli korzystasz z ReadWriteBlendData, odpal go przed edycją i jeszcze raz po niej, bo inaczej twoje zmiany nie przetrwają tej podróży w obie strony.
+
+---
+
+## Dodawanie klipów, których bohater nie ma
+
+Nie każda dziura jest trwała i warto to sprawdzić, zanim skreślisz bohatera.
+
+**Zwłaszcza starsi bohaterowie noszą klipy nieaktywne, a nie nieobecne.** Recall jest tym zauważanym najczęściej, bo część bohaterów faktycznie żadnego nie ma, ale to daleko nie jedyny przypadek. Stworzenie wpisu `AtomicClipData` często wystarcza, żeby taki klip wrócił. Nie ma opublikowanej listy, które klipy śpią u którego bohatera, więc to kwestia szukania.
+
+Do dodania są też:
+
+- **Ogólna emotka na przełącznik (Ctrl+5)**, która działa u każdego.
+- **Warianty ataku porzucone przez Riot**, przez dodanie ich z powrotem do animation binu.
+- **Biegi homeguard i haste**, przez `ConditionFloatClipData` jak wyżej.
+
+Nie wszystko da się wskrzesić. Część klipów wygląda na blokowaną przez coś spoza animation binu i żadna edycja binu ich nie przywróci. Jeśli klip odmawia odtworzenia, choć wycelowałeś każdą referencję poprawnie, przestań kopać w animation binie, odpowiedzi tam nie ma.
+
+Poradnik autorstwa Kaizen

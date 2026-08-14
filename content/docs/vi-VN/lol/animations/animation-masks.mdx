@@ -1,0 +1,84 @@
+---
+title: "Animation Mask"
+description: "Animation mask là gì, vì sao thêm xương lại phá chúng trong im lặng, và cách sửa bằng LtMAO hoặc sửa tay."
+category: "animations"
+---
+
+Animation mask giới hạn một clip vào một phần khung xương, nhờ vậy animation cast có thể cử động phần thân trên trong khi chân vẫn đi. Nó cũng là lý do phổ biến nhất khiến một bộ mod hôm qua còn chạy ngon, hôm nay trông hỏng, sau khi bạn thêm một cái xương.
+
+---
+
+## Công cụ cần dùng
+
+| Công cụ     | Để làm gì                                                    |
+| :---------- | :------------------------------------------------------------ |
+| **LtMAO**   | Mask viewer của nó cho bạn đọc và đặt giá trị mask từng xương |
+| **Jade**    | Chỉnh file `.bin` animation trực quan (khuyên dùng)          |
+| **Ritobin** | Cách khác: chuyển `.bin` sang `.py` để chỉnh                 |
+
+---
+
+## Mask thật ra là gì
+
+Mask là **một chuỗi số một và số không, mỗi xương một số, theo đúng thứ tự khung xương**. Số một nghĩa là clip điều khiển xương đó, số không nghĩa là không.
+
+Điểm quan trọng là nó mang tính **vị trí**. Mask không biết tên xương. Nó chỉ biết mục thứ mười bảy là số một và mục thứ mười tám là số không.
+
+Mọi thứ bên dưới đều bắt nguồn từ đó.
+
+---
+
+## Vì sao thêm xương lại phá mask
+
+Nếu bạn thêm xương vào khung xương, chuỗi mask không còn khớp với nó nữa.
+
+- **Chèn hoặc đổi thứ tự một xương** và mọi mục mask sau điểm đó giờ trỏ nhầm xương. Một mask cho chân có thể kết thúc bằng việc đóng băng hai tay.
+- **Thêm xương vào cuối** thì mask quá ngắn để phủ hết các xương mới, và cũng có thể sinh ra hành vi sai.
+
+Triệu chứng không phải là một thông báo lỗi. Animation vẫn chạy, chỉ là sai phần cơ thể cử động hoặc không chịu cử động.
+
+> **Lưu ý:** Luôn thêm xương mới vào cuối khung xương. Đừng bao giờ chèn xương vào giữa một cây phân cấp có sẵn nếu bạn còn muốn giữ mask của Riot chạy đúng. Quy tắc này cũng xuất hiện khi [thêm xương cho VFX](/docs/lol/vfx-bins/animation-vfx), đúng vì lý do đó.
+
+---
+
+## Sửa mask bằng LtMAO
+
+Bạn sửa được vấn đề này bằng LtMAO, nhưng phải đi tới đi lui một chút.
+
+1. Mở LtMAO và vào mask viewer.
+2. Nạp **khung xương**, tức file `.skl` của model. Bạn không cần `.skn`.
+3. Nạp **animation bin**.
+4. Rà qua các xương và kiểm giá trị của chúng, với mỗi xương hãy quyết định bạn có muốn nó bị ảnh hưởng trong những animation dùng các mask được liệt kê hay không. Sửa những giá trị sai. Nếu bạn muốn giữ nguyên cây phân cấp gốc của Riot, mở thêm một cửa sổ LtMAO với file chưa mod và đối chiếu.
+5. Dùng **Save As** và ghi đè lên animation bin.
+
+Nó cần khung xương vì đó là cách nó gắn tên vào từng vị trí trong chuỗi, và chính điều đó khiến bước 4 đọc được.
+
+> **Lưu ý:** Đây không phải kiểu sửa một nút bấm. LtMAO bày chuỗi ra cạnh tên xương của bạn và cho bạn đặt giá trị, nhưng người quyết định chúng phải là gì vẫn là bạn. Càng đúng hơn nếu bạn làm với rig riêng và xương riêng, chỗ không có bản gốc của Riot để dựa vào.
+
+---
+
+## Hoặc sửa chuỗi bằng tay
+
+Mở animation bin, tìm mask, rồi sửa chuỗi sao cho:
+
+- mọi xương clip cần điều khiển là số một
+- mọi xương clip cần để yên là số không
+- độ dài chuỗi khớp với số xương của khung xương
+
+Việc này lích kích nhưng không khó, và với một tướng có ít mask thì thường nhanh hơn là đi qua màn nhảy múa với LtMAO.
+
+> 💡 **Mẹo hay:** Bạn có thể chặn key thừa rơi vào vùng bị mask ngay từ đầu, bằng cách làm animation trên một [control rig rút gọn](/docs/lol/maya/control-rigs), loại đã bỏ đi những xương bạn không đụng tới.
+
+---
+
+## Lối thoát hiểm
+
+Nếu một cái mask cứ chống lại bạn mà tướng vốn đã có sẵn bản toàn thân của clip đó, bạn không cần phải thắng cuộc cãi này. **Xóa mask và làm hẳn animation đầy đủ thay thế.**
+
+Sao chép mục bị mask để nó thành một [`AtomicClipData`](/docs/lol/animations/animation-bin-clips-and-transitions) bình thường cũng được. Nó thôi bị coi là mask và bắt đầu được coi là một clip toàn thân bình thường.
+
+Mordekaiser là ví dụ gọn cho chuyện này, vì hắn vốn đã có `spell2_consume_shield` và `spell2_run_consume_shield` như hai clip riêng, nên có sẵn chỗ để đặt bản toàn thân.
+
+> 💡 **Mẹo hay:** Trước khi xóa một mask, hãy tìm ra nó đang làm gì. Ở một số tướng, nó đang lo phần đổi tư thế hoặc đổi dạng, và bỏ nó đi sẽ khiến bạn mất luôn hành vi đó.
+
+Hướng dẫn bởi Kaizen

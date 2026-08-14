@@ -1,0 +1,210 @@
+---
+title: "Animation Bin: Clip, Điều kiện và Chuyển tiếp"
+description: "Cách animation bin quyết định clip nào chạy: các loại clip, clip điều kiện chạy theo tốc độ di chuyển hoặc trạng thái game, và clip chuyển tiếp giữa chúng."
+category: "animations"
+---
+
+[Export một file `.anm`](/docs/lol/animations/animation-import-export) mới chỉ là một phần của việc mod animation. Nửa còn lại là animation bin, thứ quyết định clip **nào** chạy và chạy **lúc nào**. Hướng dẫn này nói về các loại clip bạn sẽ gặp, cách đổi clip theo trạng thái game, và cách thêm chuyển tiếp để animation thôi giật cục.
+
+---
+
+## Công cụ cần dùng
+
+| Công cụ                | Để làm gì                                             |
+| :--------------------- | :----------------------------------------------------- |
+| **Jade**               | Chỉnh file `.bin` animation trực quan (khuyên dùng)    |
+| **Ritobin**            | Cách khác: chuyển `.bin` sang `.py` để chỉnh           |
+| **Flint**              | Trích xuất tướng để có cái bin ngay từ đầu             |
+| **ReadWriteBlendData** | Đổi blend data của chuyển tiếp thành tên clip đọc được |
+
+---
+
+## Các loại clip
+
+Đồ thị animation ánh xạ một tên slot sang một clip. Phần lớn mục là một file đơn lẻ, nhưng các loại tổ hợp làm nhiều việc hơn người ta tưởng.
+
+| Loại                      | Nó làm gì                                             |
+| :------------------------ | :----------------------------------------------------- |
+| `AtomicClipData`          | Một file `.anm`                                        |
+| `SequencerClipData`       | Chạy các clip theo thứ tự                              |
+| `SelectorClipData`        | Bốc ngẫu nhiên một clip, có trọng số                   |
+| `ParametricClipData`      | Blend theo một giá trị số, ví dụ góc hướng mặt         |
+| `ConditionBoolClipData`   | Đổi theo trạng thái game đúng hoặc sai                 |
+| `ConditionFloatClipData`  | Đổi theo một giá trị số, ví dụ tốc độ di chuyển        |
+| `ParallelClipData`        | Chạy hai clip cùng lúc trên hai mask khác nhau         |
+| `TransitionClipBlendData` | Một clip chèn vào giữa hai clip được nêu tên           |
+
+`ParallelClipData` dựa vào [animation mask](/docs/lol/animations/animation-masks) để quyết định mỗi clip trong hai clip được phép điều khiển những xương nào.
+
+Một clip nguyên tử trông như sau:
+
+```py
+AtomicClipData {
+    mAnimationResourceData: AnimationResourceData {
+        mAnimationFilePath: string = "ASSETS/Characters/YourChamp/Skins/Base/Animations/YourChamp_Attack1.anm"
+    }
+}
+```
+
+> **Lưu ý:** Tên file `.anm` trên ổ đĩa không quan trọng. Chỉ đường dẫn ghi trong bin là phải khớp.
+
+---
+
+## Đổi clip theo tốc độ di chuyển
+
+`ConditionFloatClipData` cho bạn chọn animation nào chạy dựa trên việc tướng đang di chuyển nhanh cỡ nào. Đó là công cụ đúng cho đi bộ, chạy và chạy có haste, và cho mọi animation chạy trong lúc di chuyển, kể cả các chiêu cho phép di chuyển khi đang cast.
+
+Bạn cũng có thể dùng nó để thêm animation homeguard cho tướng chưa có, nhưng đó **không phải cách được khuyên dùng**. Kiểm buff homeguard thì tốt hơn, vì nó không quan tâm tốc độ di chuyển của tướng lúc đó là bao nhiêu. Xem phần về buff bên dưới.
+
+```py
+"Run" = ConditionFloatClipData {
+    mFlags: u32 = 2
+    mConditionFloatPairDataList: list[embed] = {
+        ConditionFloatPairData { mClipName: hash = "RunWalk" }
+        ConditionFloatPairData { mClipName: hash = "RunFast"
+                                 mValue: f32 = 400 }
+    }
+    Updater: pointer = MoveSpeedParametricUpdater {}
+    mChangeAnimationMidPlay: bool = true
+}
+```
+
+Đọc nó như sau: chạy `RunWalk` bình thường, và chạy `RunFast` khi tốc độ di chuyển chạm 400.
+
+Bạn muốn nối bao nhiêu bậc cũng được. Bản ba bậc có thể dùng 424 cho chạy nhanh, 520 cho chạy rất nhanh, và clip thứ tư ở 1000, mức mà thực tế chỉ đạt được khi có homeguard.
+
+Những điều cần biết:
+
+- **Cặp không có `mValue` là mặc định**, cái chậm.
+- **`mValue` là tốc độ di chuyển thô trong game**, không phải số đã co giãn hay chuẩn hóa. 400 là quanh mức tốc độ di chuyển gốc. Vài mốc tham khảo hữu ích là khoảng 400 cho chạy nhanh, 440 cho chạy có haste và 530 cho homeguard, và đây là con số chung chứ không phải giá trị riêng từng tướng.
+- **`mFlags: u32 = 2` làm clip lặp.** Thường được dùng nhất ở các emote như điệu nhảy.
+- **Các clip bạn nêu tên phải tồn tại như mục trong bin.** Chúng thường là `AtomicClipData`, nhưng không bắt buộc. Loại clip nào cũng được, nên một nhánh điều kiện có thể trỏ tới một selector hoặc một tổ hợp khác.
+- **Chỉ một clip được mang tên `Run`.** Đổi tên cái đang có trước khi bạn thêm cái điều kiện. Lưu ý điều này không có nghĩa `Run` phải là một animation đơn giản, chỉ có nghĩa là chỉ có một mục mang tên đó. Bản thân mục đó có thể là một selector chọn giữa nhiều clip.
+
+> 💡 **Mẹo hay:** Chọn ngưỡng dựa trên những tốc độ tướng thật sự đạt được trong trận, đừng chỉ dựa vào tốc độ di chuyển gốc. Một cái ngưỡng người chơi không bao giờ vượt qua là một animation không ai từng thấy.
+
+---
+
+## Đổi clip theo trạng thái game
+
+`ConditionBoolClipData` làm đúng việc đó cho các điều kiện đúng hoặc sai:
+
+```py
+"Run" = ConditionBoolClipData {
+    Updater: pointer = IsHomeguardParametricUpdater {}
+    mChangeAnimationMidPlay: bool = true
+    DontStompTransitionClip: bool = true
+    mTrueConditionClipName: hash = "Run_Homeguard"
+    mFalseConditionClipName: hash = "Run_Base"
+}
+```
+
+`DontStompTransitionClip` là thứ giúp clip chuyển tiếp sống sót khi trạng thái lật giữa chừng. Nếu bạn có chuyển tiếp quanh một trạng thái có thể đổi trong lúc clip đang chạy, bạn cần cái này.
+
+Các driver dùng chung với hệ thống hiệu ứng bền, nên thứ gì gắn được VFX vào thì cũng gắn được clip vào:
+
+| Driver                                  | Đổi theo                                                            |
+| :-------------------------------------- | :-------------------------------------------------------------------- |
+| `IsHomeguardParametricUpdater`          | Đang ở trạng thái homeguard                                          |
+| `IsMovingParametricUpdater`             | Đang di chuyển hay đứng yên                                          |
+| `IsCastingBoolDriver { SpellSlot }`     | Đang cast một chiêu cụ thể                                           |
+| `SubmeshVisibilityBoolDriver`           | Một [submesh](/docs/lol/vfx-bins/submesh-visibility) có đang hiện không |
+| `HasBuffDynamicMaterialBoolDriver`      | Đang mang một buff có tên                                            |
+| `HasGearDynamicMaterialBoolDriver`      | Trạng thái nâng cấp gear                                             |
+| `LearnedSpellDynamicMaterialBoolDriver` | Một chiêu đã được cộng điểm hay chưa                                 |
+| `SpellRankIntDriver { SpellSlot }`      | Cấp của một chiêu, dùng kèm `ConditionFloatClipData`                 |
+
+Slot chiêu là `0` cho Q, `1` cho W, `2` cho E và `3` cho R.
+
+> **Lưu ý:** Một triệu chứng hay gặp là thay đổi bạn định gắn vào R lại kích hoạt ở Q. Nghĩa là driver đang rơi về slot `0`. Có hai nguyên nhân khả dĩ: `LearnedSpellDynamicMaterialBoolDriver` chờ `mSlot: u8` chứ không phải `Spell: hash` như driver buff nhận, nên đưa cho nó một hash sẽ để slot nằm ở mặc định; hoặc chính đường dẫn tới chiêu bị sai, nên không có gì phân giải được và nó rơi về mặc định. Kiểm cả hai trước khi đoán cái nào cắn bạn.
+
+Bọc một driver trong `NotMaterialDriver` để đảo nó, hoặc trong `AllTrueMaterialDriver` để đòi nhiều cái cùng lúc. Đừng bọc một driver đơn lẻ trong `AllTrueMaterialDriver`, chẳng có tác dụng gì.
+
+---
+
+## Hỏi thẳng trạng thái, đừng đi vòng qua tốc độ di chuyển
+
+Ngưỡng tốc độ suy ra trạng thái từ một tác dụng phụ. Chỗ nào engine phơi ra chính trạng thái đó, hãy hỏi thẳng, vì khi ấy không thứ gì khác vô tình làm xê dịch con số có thể hạ bạn.
+
+Homeguard là ví dụ rõ nhất, và nó có updater riêng:
+
+```py
+"Run" = ConditionBoolClipData {
+    Updater: pointer = IsHomeguardParametricUpdater {}
+    mChangeAnimationMidPlay: bool = true
+    DontStompTransitionClip: bool = true
+    mTrueConditionClipName: hash = "Run_Homeguard"
+    mFalseConditionClipName: hash = "Run_Base"
+}
+```
+
+Làm y hệt cho `Idle1`, trỏ tới một clip `Idle_Homeguard`, rồi làm luôn các clip chuyển tiếp giữa hai trạng thái. Cách này **đè lên mọi tác động của tốc độ di chuyển**, điều mà một cái ngưỡng không làm được.
+
+> 💡 **Mẹo hay:** Riêng với homeguard, một số tướng chấp nhận clip nguyên tử `Homeguard` thêm thẳng vào và nó chạy. Chỉ một số thôi, nên cứ thử trước, không ăn thua thì quay về dùng điều kiện.
+
+### Đôi lời về chỗ các điều kiện nằm
+
+Trong một bộ skin có hai hệ thống điều kiện và rất dễ lẫn, vì chúng dùng chung phần lớn từ vựng driver.
+
+**Clip animation** được đổi ở đây, trong animation bin, bằng `ConditionBoolClipData` và `ConditionFloatClipData`, do một `*ParametricUpdater` điều khiển.
+
+**Submesh và VFX** được đổi trong skin bin, bằng `PersistentEffectConditions`, do một `*MaterialBoolDriver` điều khiển. Cơ chế đó không đổi được animation, nên đừng đi tìm trường clip ở đấy. Nó có [trang riêng](/docs/lol/vfx-bins/persistent-effect-conditions).
+
+Để điều khiển một clip bằng bool driver thay vì bằng updater chuyên dụng, hãy bọc driver trong `LogicDriverBoolParametricUpdater` rồi dùng nó làm `Updater` của một `ConditionBoolClipData`.
+
+Vì vậy một pha đổi dạng hoàn chỉnh thường có nghĩa là phải viết cả hai: một điều kiện hiệu ứng bền cho model và hiệu ứng, và một clip điều kiện cho bộ animation, mỗi bên giữ bản sao riêng của cùng một điều kiện.
+
+---
+
+## Chuyển tiếp
+
+Chuyển tiếp là một clip chạy giữa hai clip khác. Nó là thứ ngăn animation chiêu thức giật phắt về idle.
+
+```py
+"Spell3_Run_Cast" To "Idle1" = TransitionClipBlendData {
+    mClipName: hash = "Spell3_Run_Cast_Transition"
+}
+```
+
+`mClipName` trỏ tới một `AtomicClipData` bình thường chứa đoạn animation trung gian thật sự.
+
+Chuyển tiếp đặc biệt hữu ích với **các tướng cũ**, nơi đoạn thu chiêu và thu đòn đánh bị cắt thấy rõ rồi ép về idle. Thay vì kéo dài animation, hãy thêm chuyển tiếp.
+
+### Bốn thứ khiến một chuyển tiếp lặng lẽ không làm gì cả
+
+1. **Viết tên clip đúng y như trong bin, kể cả hoa thường.** Có ít nhất một trường hợp được báo lại là chuyển tiếp hỏng với `spell3_cast` và chạy với `Spell3_Cast`, nên cứ coi tên là phân biệt hoa thường cho tới khi có ai đó xác định khác đi. Chép tên từ bin ra thay vì gõ lại chẳng tốn gì mà lại dẹp luôn câu hỏi.
+2. **Nhắm vào cha, đừng nhắm vào lá.** Nếu `Spell3_Cast` là một `ParametricClipData` chứa cả bản cast đứng yên lẫn cast khi chạy, chuyển tiếp phải gắn vào `Spell3_Cast`. Gắn vào `Spell3_Run_Cast` không có tác dụng.
+3. **Đừng chuyển tiếp vào một clip điều kiện.** Nếu `Run` là lớp bọc điều kiện, hãy chuyển tiếp tới các clip nguyên tử nằm dưới nó.
+4. **Chuyển tiếp tới đúng trạng thái tướng đang ở.** Một pha cast kết thúc trong lúc người chơi đang di chuyển cần chuyển tiếp sang chạy, không phải sang idle.
+
+Chuyển tiếp trỏ tới một cái tên không tồn tại trên tướng là kiểu hỏng lặng lẽ kinh điển. Giải mã ra, nó đọc thành đại loại `"RunFast" To "Hashed:0xba9fda17"`, và cái hash chưa phân giải đó chính là dấu hiệu tên đích bị sai.
+
+> **Lưu ý:** Chuyển tiếp có kích hoạt nhưng rách thấy rõ lại là chuyện khác. Hãy kiểm [frame rate](/docs/lol/animations/animation-frame-rate) của cả hai clip liên quan.
+
+### Nối chuyển tiếp qua một chuyển tiếp khác
+
+Đôi khi trạng thái bạn đang thoát ra không phải trạng thái bạn nghĩ. Với Tryndamere, ra lệnh di chuyển rồi cast E sẽ làm hắn dừng lại, nên có đúng một frame idle nằm chen giữa pha cast và pha chạy. Chuyển tiếp thẳng từ cast sang chạy không bao giờ kích hoạt.
+
+Cách sửa là làm một chuyển tiếp cho chính chuyển tiếp đó, nối qua cái idle kia. Trông thừa thãi nhưng lại chạy.
+
+### Đọc blend data
+
+Ritobin không giải mã các số nguyên blend data thành tên clip đọc được, nó in ra số. Hãy dùng **ReadWriteBlendData** hoặc **Jade** để đổi chúng thành tên rồi đổi ngược lại. Nếu bạn dùng ReadWriteBlendData, hãy chạy nó trước khi chỉnh và chạy lại sau khi chỉnh, không thì thay đổi của bạn không sống sót qua vòng đi về.
+
+---
+
+## Thêm clip mà tướng không có
+
+Không phải lỗ hổng nào cũng vĩnh viễn, và cái này đáng kiểm trước khi bạn gạch tên một tướng.
+
+**Các tướng cũ nói riêng mang sẵn những clip đang bị tắt chứ không phải không có.** Recall là cái được để ý nhiều nhất, vì một số tướng đúng là chẳng có cái nào, nhưng còn xa mới là trường hợp duy nhất. Tạo mục `AtomicClipData` thường là đủ để kéo một cái quay lại. Không có danh sách công bố nào về clip nào đang ngủ trên tướng nào, nên chuyện này là chuyện đi mò.
+
+Cũng thêm được:
+
+- **Emote bật tắt chung (Ctrl+5)**, áp dụng cho bất kỳ ai.
+- **Các biến thể đòn đánh Riot đã bỏ**, bằng cách thêm lại chúng vào animation bin.
+- **Chạy homeguard và chạy haste**, dùng `ConditionFloatClipData` như trên.
+
+Không phải thứ gì cũng hồi sinh được. Một số clip có vẻ bị chặn bởi thứ gì đó nằm ngoài animation bin, và không chỉnh sửa bin nào kéo chúng về được. Nếu một clip nhất định không chịu chạy sau khi bạn đã trỏ đúng mọi tham chiếu, hãy thôi đào trong animation bin, câu trả lời không nằm ở đó.
+
+Hướng dẫn bởi Kaizen

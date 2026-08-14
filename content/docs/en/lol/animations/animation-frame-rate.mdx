@@ -1,0 +1,74 @@
+---
+title: "Animation Frame Rate"
+description: "Why League animations must be 30 fps, what happens when they are not, and how to change the playback rate of a clip from the animation bin."
+category: "animations"
+---
+
+Every animation guide tells you to export at 30 fps, including [animation import and export](/docs/lol/animations/animation-import-export). This page explains why, what actually happens when you do not, and how to change the rate of a clip that is already exported.
+
+---
+
+## Required Tools
+
+| Tool        | Purpose                                          |
+| :---------- | :----------------------------------------------- |
+| **Jade**    | Edit the animation `.bin` visually (recommended) |
+| **Ritobin** | Alternative: convert `.bin` to `.py` for editing |
+
+---
+
+## Frame rate is playback speed, not smoothness
+
+This is the part that surprises people coming from other 3D work. In League, the frame rate of a clip does not control how smooth it looks. It controls **how fast it plays**.
+
+League runs animation at 30 fps. So:
+
+- A clip exported at **60 fps plays twice as fast**.
+- A clip exported at **15 fps plays at half speed**.
+- A clip exported at Maya's default **24 fps plays slightly fast**, which is the usual reason a first animation feels a little rushed for no obvious reason.
+
+> **Note:** Set your Maya or Blender scene to 30 fps before you start animating, not at export time. Retiming a finished clip is much more work than setting it correctly at the start.
+
+---
+
+## Changing the rate from the bin
+
+You do not always have to re-export. The animation bin can override the tick rate per clip:
+
+```py
+mTickDuration: f32 = 0.03333333333
+```
+
+The value is `1 / FPS`, so:
+
+| Frames per second | `mTickDuration` |
+| :---------------- | :-------------- |
+| 30 (standard)     | `0.03333333333` |
+| 60                | `0.01666666666` |
+| 15                | `0.06666666666` |
+
+This is the practical way to slow down or speed up a Riot clip you are reusing, without opening a 3D package at all.
+
+---
+
+## Riot does not always use 30
+
+Some shipped animations are authored at other rates, and this matters when you are replacing them.
+
+**Do not assume a champion is uniform.** Where this happens, it is usually only some of a champion's clips rather than all of them, so check each clip you intend to replace rather than checking the champion once. Malzahar has been an example of this, though whether that is still true on the current patch, and whether he is the only case, is not something you should take on trust.
+
+If you replace a 60 fps Riot clip with your own 30 fps clip and change nothing else, your version will play at half the speed of the original.
+
+> 💡 **Tip:** If a replacement animation feels wrong in game at exactly half or double the speed you intended, check the rate of the clip you replaced before looking anywhere else.
+
+---
+
+## Two side effects worth knowing
+
+**Transitions tear against off-rate clips.** A [transition](/docs/lol/animations/animation-bin-clips-and-transitions) blending into or out of a 60 fps clip can visibly break up. If a transition looks torn and you have checked the usual causes, check the frame rate of both clips involved.
+
+**Pseudo-physics goes wrong.** Any secondary motion driven by dynamic joints, capes, tails, tentacles, hair, behaves oddly when a clip plays at a rate it was not authored for. The motion was tuned for the original timing and does not scale cleanly.
+
+> 💡 **Tip:** If a cape or tail looks fine in your 3D package and wrong in game, frame rate is worth checking before you start re-weighting anything. Some of those chains are [driven by engine code rather than by animation](/docs/lol/maya/control-rigs) at all.
+
+Guide by Kaizen

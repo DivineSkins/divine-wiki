@@ -1,0 +1,74 @@
+---
+title: "Frame Rate da Animação"
+description: "Por que as animações do League precisam estar em 30 fps, o que acontece quando não estão, e como mudar a velocidade de reprodução de um clip pelo animation bin."
+category: "animations"
+---
+
+Todo guia de animação manda você exportar em 30 fps, incluindo [importação e exportação de animações](/docs/lol/animations/animation-import-export). Esta página explica por quê, o que realmente acontece quando você não faz isso, e como mudar o frame rate de um clip que já foi exportado.
+
+---
+
+## Ferramentas Necessárias
+
+| Ferramenta  | Para quê                                              |
+| :---------- | :---------------------------------------------------- |
+| **Jade**    | Editar o `.bin` de animação visualmente (recomendado) |
+| **Ritobin** | Alternativa: converter o `.bin` para `.py` e editar   |
+
+---
+
+## Frame rate é velocidade de reprodução, não suavidade
+
+Essa é a parte que surpreende quem vem de outros trabalhos em 3D. No League, o frame rate de um clip não controla o quanto ele parece suave. Ele controla **o quão rápido ele toca**.
+
+O League roda animação a 30 fps. Então:
+
+- Um clip exportado a **60 fps toca duas vezes mais rápido**.
+- Um clip exportado a **15 fps toca na metade da velocidade**.
+- Um clip exportado no padrão do Maya, **24 fps, toca um pouco acelerado**, e essa é a razão comum de uma primeira animação parecer levemente apressada sem motivo óbvio.
+
+> **Nota:** Configure sua cena no Maya ou no Blender para 30 fps antes de começar a animar, não na hora de exportar. Reajustar o tempo de um clip pronto dá muito mais trabalho do que acertar isso no começo.
+
+---
+
+## Mudando o frame rate pelo bin
+
+Você nem sempre precisa exportar de novo. O animation bin consegue sobrescrever o tick rate clip a clip:
+
+```py
+mTickDuration: f32 = 0.03333333333
+```
+
+O valor é `1 / FPS`, então:
+
+| Quadros por segundo | `mTickDuration` |
+| :------------------ | :-------------- |
+| 30 (padrão)         | `0.03333333333` |
+| 60                  | `0.01666666666` |
+| 15                  | `0.06666666666` |
+
+Esse é o jeito prático de deixar mais lento ou mais rápido um clip da Riot que você está reaproveitando, sem nem abrir um programa 3D.
+
+---
+
+## A Riot nem sempre usa 30
+
+Algumas animações que vêm no jogo foram feitas em outros frame rates, e isso importa na hora de substituí-las.
+
+**Não presuma que um campeão é uniforme.** Quando isso acontece, costuma valer só para parte dos clips do campeão e não para todos, então confira cada clip que você pretende trocar em vez de conferir o campeão uma vez só. Malzahar já foi um exemplo disso, mas se ainda vale no patch atual, e se ele é o único caso, não é algo para aceitar de olhos fechados.
+
+Se você trocar um clip da Riot de 60 fps pelo seu de 30 fps e não mudar mais nada, a sua versão vai tocar na metade da velocidade da original.
+
+> 💡 **Dica:** Se uma animação substituta parece errada no jogo exatamente na metade ou no dobro da velocidade que você queria, confira o frame rate do clip que você trocou antes de procurar em qualquer outro lugar.
+
+---
+
+## Dois efeitos colaterais que valem a pena conhecer
+
+**Transições rasgam contra clips fora do frame rate.** Uma [transição](/docs/lol/animations/animation-bin-clips-and-transitions) que faz blend entrando ou saindo de um clip de 60 fps pode quebrar de forma visível. Se uma transição parece rasgada e você já checou as causas de sempre, confira o frame rate dos dois clips envolvidos.
+
+**A pseudofísica dá errado.** Qualquer movimento secundário guiado por ossos dinâmicos, capas, caudas, tentáculos, cabelo, se comporta de forma estranha quando um clip toca num ritmo para o qual não foi feito. O movimento foi ajustado para o tempo original e não escala de forma limpa.
+
+> 💡 **Dica:** Se uma capa ou cauda parece certa no seu programa 3D e errada no jogo, vale conferir o frame rate antes de sair repesando nada. Algumas dessas correntes são [guiadas por código do motor e não por animação](/docs/lol/maya/control-rigs) nenhuma.
+
+Guia por Kaizen

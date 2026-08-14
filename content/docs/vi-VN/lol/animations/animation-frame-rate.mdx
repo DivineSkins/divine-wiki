@@ -1,0 +1,74 @@
+---
+title: "Frame Rate của Animation"
+description: "Vì sao animation trong League phải ở 30 fps, chuyện gì xảy ra khi không phải vậy, và cách đổi tốc độ phát của một clip ngay trong animation bin."
+category: "animations"
+---
+
+Hướng dẫn animation nào cũng bảo bạn export ở 30 fps, kể cả [import và export animation](/docs/lol/animations/animation-import-export). Trang này giải thích vì sao, chuyện gì thật sự xảy ra khi bạn không làm vậy, và cách đổi frame rate của một clip đã export rồi.
+
+---
+
+## Công cụ cần dùng
+
+| Công cụ     | Để làm gì                                          |
+| :---------- | :-------------------------------------------------- |
+| **Jade**    | Chỉnh file `.bin` animation trực quan (khuyên dùng) |
+| **Ritobin** | Cách khác: chuyển `.bin` sang `.py` để chỉnh        |
+
+---
+
+## Frame rate là tốc độ phát, không phải độ mượt
+
+Đây là chỗ làm dân từ mảng 3D khác bất ngờ. Trong League, frame rate của một clip không quyết định nó trông mượt tới đâu. Nó quyết định **clip chạy nhanh tới đâu**.
+
+League chạy animation ở 30 fps. Nên:
+
+- Clip export ở **60 fps sẽ chạy nhanh gấp đôi**.
+- Clip export ở **15 fps sẽ chạy chậm một nửa**.
+- Clip export ở mức mặc định **24 fps của Maya sẽ chạy hơi nhanh**, và đó là lý do quen thuộc khiến animation đầu tay cảm giác hơi vội mà không rõ vì sao.
+
+> **Lưu ý:** Đặt scene trong Maya hoặc Blender về 30 fps trước khi bắt đầu làm animation, đừng để tới lúc export. Chỉnh lại nhịp cho một clip đã xong tốn công hơn nhiều so với đặt đúng ngay từ đầu.
+
+---
+
+## Đổi frame rate ngay trong bin
+
+Không phải lúc nào bạn cũng phải export lại. Animation bin có thể ghi đè tick rate cho từng clip:
+
+```py
+mTickDuration: f32 = 0.03333333333
+```
+
+Giá trị là `1 / FPS`, nên:
+
+| Khung hình mỗi giây | `mTickDuration` |
+| :------------------ | :-------------- |
+| 30 (chuẩn)          | `0.03333333333` |
+| 60                  | `0.01666666666` |
+| 15                  | `0.06666666666` |
+
+Đây là cách thực tế để làm chậm hoặc tăng tốc một clip của Riot mà bạn đang dùng lại, không cần mở phần mềm 3D nào.
+
+---
+
+## Riot không phải lúc nào cũng dùng 30
+
+Một số animation có sẵn trong game được làm ở frame rate khác, và điều đó quan trọng khi bạn thay chúng.
+
+**Đừng cho rằng một tướng là đồng nhất.** Khi chuyện này xảy ra, thường chỉ một phần clip của tướng bị vậy chứ không phải tất cả, nên hãy kiểm từng clip bạn định thay thay vì kiểm tướng một lần rồi thôi. Malzahar từng là một ví dụ, nhưng bản hiện tại còn đúng không và có phải chỉ mình hắn không, đừng vội tin.
+
+Nếu bạn thay một clip 60 fps của Riot bằng clip 30 fps của mình mà không đổi gì khác, bản của bạn sẽ chạy chậm bằng nửa bản gốc.
+
+> 💡 **Mẹo hay:** Nếu một animation thay thế cảm giác sai trong game đúng ở mức nhanh gấp đôi hoặc chậm một nửa so với ý bạn, hãy kiểm frame rate của clip bạn vừa thay trước khi tìm ở bất cứ chỗ nào khác.
+
+---
+
+## Hai tác dụng phụ đáng biết
+
+**Chuyển tiếp bị rách khi gặp clip lệch frame rate.** Một [chuyển tiếp](/docs/lol/animations/animation-bin-clips-and-transitions) blend vào hoặc ra khỏi clip 60 fps có thể vỡ thấy rõ. Nếu một chuyển tiếp trông rách mà bạn đã kiểm hết các nguyên nhân quen thuộc, hãy kiểm frame rate của cả hai clip liên quan.
+
+**Vật lý giả bị loạn.** Mọi chuyển động phụ do xương động điều khiển, áo choàng, đuôi, xúc tu, tóc, đều cư xử kỳ lạ khi clip chạy ở tốc độ nó không được làm cho. Chuyển động đó được canh theo nhịp gốc và không co giãn sạch sẽ.
+
+> 💡 **Mẹo hay:** Nếu áo choàng hay đuôi trông ổn trong phần mềm 3D mà sai trong game, frame rate đáng kiểm trước khi bạn lao vào chỉnh lại trọng số. Một số chuỗi kiểu đó vốn [do code engine điều khiển chứ không phải animation](/docs/lol/maya/control-rigs).
+
+Hướng dẫn bởi Kaizen

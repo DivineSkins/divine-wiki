@@ -1,0 +1,84 @@
+---
+title: "Máscaras de Animação"
+description: "O que são máscaras de animação, por que adicionar ossos as quebra em silêncio, e como consertá-las com o LtMAO ou na mão."
+category: "animations"
+---
+
+Uma máscara de animação restringe um clip a uma parte do esqueleto, para que uma animação de cast possa mover a parte de cima do corpo enquanto as pernas continuam andando. Elas também são o motivo mais comum de um mod que funcionava ontem parecer quebrado hoje, depois que você adicionou um osso.
+
+---
+
+## Ferramentas Necessárias
+
+| Ferramenta  | Para quê                                                              |
+| :---------- | :--------------------------------------------------------------------- |
+| **LtMAO**   | O mask viewer dele deixa você ler e definir os valores da máscara osso a osso |
+| **Jade**    | Editar o `.bin` de animação visualmente (recomendado)                 |
+| **Ritobin** | Alternativa: converter o `.bin` para `.py` e editar                   |
+
+---
+
+## O que uma máscara é de verdade
+
+Uma máscara é uma **corrente de uns e zeros, um por osso, na ordem do esqueleto**. Um um significa que o clip guia aquele osso, um zero significa que não.
+
+A parte importante é que ela é **posicional**. A máscara não conhece nomes de ossos. Ela sabe que a décima sétima entrada é um um e a décima oitava é um zero.
+
+Tudo abaixo decorre disso.
+
+---
+
+## Por que adicionar ossos quebra as máscaras
+
+Se você adiciona ossos a um esqueleto, a corrente da máscara deixa de bater com ele.
+
+- **Insira ou reordene um osso** e cada entrada da máscara depois daquele ponto passa a se referir ao osso errado. Uma máscara de pernas pode acabar congelando os braços.
+- **Adicione ossos no fim** e a máscara fica curta demais para cobrir os novos, o que também pode produzir comportamento errado.
+
+O sintoma não é um erro. A animação toca, mas as partes erradas do corpo se movem ou se recusam a se mover.
+
+> **Nota:** Sempre adicione ossos novos no fim do esqueleto. Nunca insira um osso no meio de uma hierarquia existente se você faz questão de manter as máscaras da Riot funcionando. A mesma regra aparece quando você [adiciona ossos para VFX](/docs/lol/vfx-bins/animation-vfx), exatamente por isso.
+
+---
+
+## Consertando máscaras com o LtMAO
+
+Dá para resolver o problema com o LtMAO, mas exige um vai e vem.
+
+1. Abra o LtMAO e vá até o mask viewer.
+2. Carregue **o esqueleto**, ou seja, o arquivo `.skl` do modelo. Você não precisa do `.skn`.
+3. Carregue **o animation bin**.
+4. Percorra os ossos e confira os valores, decidindo em cada um se você quer aquele osso influenciado durante as animações que usam as máscaras listadas. Mude os valores que estiverem errados. Se você quer manter a hierarquia original da Riot, abra uma segunda janela do LtMAO com os arquivos sem mod e compare com ela.
+5. Use **Save As** e sobrescreva o animation bin.
+
+Ele precisa do esqueleto porque é assim que ele coloca um nome em cada posição da corrente, e é isso que torna o passo 4 legível.
+
+> **Nota:** Isso não é um conserto de um clique. O LtMAO mostra a corrente ao lado dos seus nomes de ossos e deixa você definir os valores, mas quem decide quais eles devem ser é você. Isso vale ainda mais se você trabalha com o seu próprio rig e os seus próprios ossos, onde não existe um original da Riot para servir de referência.
+
+---
+
+## Ou então edite a corrente na mão
+
+Abra o animation bin, ache a máscara e edite a corrente para que:
+
+- todo osso que o clip deve guiar seja um um
+- todo osso que ele deve deixar quieto seja um zero
+- o tamanho da corrente bata com a contagem de ossos do esqueleto
+
+É chato, mas não é difícil, e num campeão com poucas máscaras costuma ser mais rápido do que encarar a dança do LtMAO.
+
+> 💡 **Dica:** Dá para evitar que keys perdidas caiam numa região mascarada logo de saída, animando num [control rig reduzido](/docs/lol/maya/control-rigs), com os ossos que você não vai tocar removidos.
+
+---
+
+## A saída de emergência
+
+Se uma máscara está brigando com você e o campeão já traz variantes de corpo inteiro do clip afetado, você não precisa vencer a discussão. **Apague a máscara e faça a animação completa no lugar.**
+
+Copiar a entrada mascarada para que ela vire um [`AtomicClipData`](/docs/lol/animations/animation-bin-clips-and-transitions) comum também funciona. Ela deixa de ser tratada como máscara e passa a ser tratada como um clip de corpo inteiro normal.
+
+Mordekaiser é um caso limpo disso, porque ele já tem `spell2_consume_shield` e `spell2_run_consume_shield` como clips separados, então existe onde colocar as versões de corpo inteiro.
+
+> 💡 **Dica:** Antes de apagar uma máscara, descubra o que ela fazia. Em alguns campeões ela cuida de uma troca de postura ou de forma, e tirá-la vai te custar esse comportamento.
+
+Guia por Kaizen

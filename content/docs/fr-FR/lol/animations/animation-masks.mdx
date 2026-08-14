@@ -1,0 +1,84 @@
+---
+title: "Masques d'animation"
+description: "Ce que sont les masques d'animation, pourquoi ajouter des bones les casse en silence, et comment les réparer avec LtMAO ou à la main."
+category: "animations"
+---
+
+Un masque d'animation restreint un clip à une partie du squelette, pour qu'une animation de cast puisse bouger le haut du corps pendant que les jambes continuent de marcher. C'est aussi la raison numéro un pour laquelle un mod qui marchait hier a l'air cassé aujourd'hui, après que tu as ajouté un bone.
+
+---
+
+## Outils requis
+
+| Outil       | Utilité                                                             |
+| :---------- | :------------------------------------------------------------------ |
+| **LtMAO**   | Son mask viewer permet de lire et régler les valeurs de masque bone par bone |
+| **Jade**    | Éditer l'animation `.bin` visuellement (recommandé)                 |
+| **Ritobin** | Alternative : convertir le `.bin` en `.py` pour l'éditer            |
+
+---
+
+## Ce qu'est vraiment un masque
+
+Un masque, c'est une **chaîne de uns et de zéros, un par bone, dans l'ordre du squelette**. Un un veut dire que le clip pilote ce bone, un zéro veut dire que non.
+
+Le point important, c'est que c'est **positionnel**. Le masque ne connaît pas les noms des bones. Il sait que la dix-septième entrée est un un et que la dix-huitième est un zéro.
+
+Tout ce qui suit découle de là.
+
+---
+
+## Pourquoi ajouter des bones casse les masques
+
+Si tu ajoutes des bones à un squelette, la chaîne du masque ne s'aligne plus avec lui.
+
+- **Insère ou réordonne un bone** et chaque entrée du masque après ce point désigne maintenant le mauvais bone. Un masque de jambes peut finir par geler les bras.
+- **Ajoute des bones à la fin** et le masque est trop court pour couvrir les nouveaux, ce qui peut aussi produire un comportement faux.
+
+Le symptôme n'est pas une erreur. L'animation joue, mais ce sont les mauvaises parties du corps qui bougent ou qui refusent de bouger.
+
+> **Note :** Ajoute toujours les nouveaux bones à la fin du squelette. N'insère jamais un bone au milieu d'une hiérarchie existante si tu tiens à garder les masques de Riot fonctionnels. La même règle revient quand tu [ajoutes des bones pour des VFX](/docs/lol/vfx-bins/animation-vfx), exactement pour cette raison.
+
+---
+
+## Réparer les masques avec LtMAO
+
+Tu peux corriger le problème avec LtMAO, mais ça demande des allers-retours.
+
+1. Ouvre LtMAO et va dans le mask viewer.
+2. Charge **le squelette**, c'est-à-dire le fichier `.skl` du modèle. Tu n'as pas besoin du `.skn`.
+3. Charge **l'animation bin**.
+4. Parcours les bones et vérifie leurs valeurs, en décidant pour chacun si tu veux que ce bone soit influencé pendant les animations qui utilisent les masques listés. Change les valeurs qui sont fausses. Si tu veux conserver la hiérarchie d'origine de Riot, ouvre une deuxième fenêtre LtMAO avec les fichiers non moddés et compare avec.
+5. Utilise **Save As** et écrase l'animation bin.
+
+Il a besoin du squelette parce que c'est comme ça qu'il met un nom sur chaque position de la chaîne, et c'est ce qui rend l'étape 4 lisible.
+
+> **Note :** Ce n'est pas une correction en un clic. LtMAO te montre la chaîne en face de tes noms de bones et te laisse régler les valeurs, mais c'est toi qui décides ce qu'elles doivent être. C'est encore plus vrai si tu travailles avec ton propre rig et tes propres bones, là où il n'y a pas d'original Riot sur lequel se rabattre.
+
+---
+
+## Sinon, édite la chaîne à la main
+
+Ouvre l'animation bin, trouve le masque, et édite la chaîne pour que :
+
+- chaque bone que le clip doit piloter soit un un
+- chaque bone qu'il doit laisser tranquille soit un zéro
+- la longueur de la chaîne corresponde au nombre de bones du squelette
+
+C'est fastidieux mais ce n'est pas difficile, et sur un champion avec peu de masques c'est souvent plus rapide que de se taper la danse LtMAO.
+
+> 💡 **Astuce de pro :** Tu peux empêcher des keys parasites d'atterrir dans une zone masquée dès le départ, en animant sur un [control rig réduit](/docs/lol/maya/control-rigs), avec les bones que tu ne touches pas retirés.
+
+---
+
+## La sortie de secours
+
+Si un masque te résiste et que le champion livre déjà des variantes corps entier du clip concerné, tu n'es pas obligé de gagner le combat. **Supprime le masque et crée l'animation complète à la place.**
+
+Copier l'entrée masquée pour qu'elle devienne son propre [`AtomicClipData`](/docs/lol/animations/animation-bin-clips-and-transitions) ordinaire marche aussi. Elle arrête d'être traitée comme un masque et se fait traiter comme un clip corps entier normal.
+
+Mordekaiser est un cas net pour ça, parce qu'il a déjà `spell2_consume_shield` et `spell2_run_consume_shield` comme clips séparés, donc il y a un endroit où mettre les versions corps entier.
+
+> 💡 **Astuce de pro :** Avant de supprimer un masque, trouve ce qu'il faisait. Sur certains champions il gère un changement de stance ou de forme, et le retirer te coûtera ce comportement.
+
+Guide par Kaizen

@@ -1,0 +1,74 @@
+---
+title: "Frame rate animacji"
+description: "Dlaczego animacje w League muszą mieć 30 fps, co się dzieje, gdy nie mają, i jak zmienić prędkość odtwarzania klipu z poziomu animation binu."
+category: "animations"
+---
+
+Każdy poradnik o animacjach każe eksportować w 30 fps, w tym [import i eksport animacji](/docs/lol/animations/animation-import-export). Ta strona tłumaczy dlaczego, co się naprawdę dzieje, gdy tego nie zrobisz, i jak zmienić frame rate klipu, który jest już wyeksportowany.
+
+---
+
+## Potrzebne narzędzia
+
+| Narzędzie   | Do czego                                             |
+| :---------- | :--------------------------------------------------- |
+| **Jade**    | Wizualna edycja animation `.bin` (zalecane)          |
+| **Ritobin** | Alternatywa: konwersja `.bin` na `.py` do edycji     |
+
+---
+
+## Frame rate to prędkość odtwarzania, nie płynność
+
+To jest ta część, która zaskakuje ludzi przychodzących z innej roboty w 3D. W League frame rate klipu nie decyduje o tym, jak płynnie wygląda. Decyduje o tym, **jak szybko leci**.
+
+League odtwarza animacje w 30 fps. Czyli:
+
+- Klip wyeksportowany w **60 fps leci dwa razy szybciej**.
+- Klip wyeksportowany w **15 fps leci na połowie prędkości**.
+- Klip wyeksportowany w domyślnych dla Mayi **24 fps leci lekko za szybko**, i to jest zwykły powód, dla którego pierwsza animacja wydaje się odrobinę pośpieszona bez wyraźnej przyczyny.
+
+> **Uwaga:** Ustaw scenę w Mayi albo Blenderze na 30 fps, zanim zaczniesz animować, a nie przy eksporcie. Przetaktowanie gotowego klipu to dużo więcej roboty niż ustawienie tego dobrze na starcie.
+
+---
+
+## Zmiana frame rate'u z poziomu binu
+
+Nie zawsze musisz eksportować od nowa. Animation bin potrafi nadpisać tick rate dla każdego klipu z osobna:
+
+```py
+mTickDuration: f32 = 0.03333333333
+```
+
+Wartość to `1 / FPS`, więc:
+
+| Klatki na sekundę | `mTickDuration` |
+| :---------------- | :-------------- |
+| 30 (standard)     | `0.03333333333` |
+| 60                | `0.01666666666` |
+| 15                | `0.06666666666` |
+
+To jest praktyczny sposób na spowolnienie albo przyspieszenie klipu Riotu, którego używasz ponownie, bez otwierania programu 3D w ogóle.
+
+---
+
+## Riot nie zawsze używa 30
+
+Część wydanych animacji jest zrobiona w innych frame rate'ach i to ma znaczenie, gdy je podmieniasz.
+
+**Nie zakładaj, że bohater jest jednolity.** Gdy to się zdarza, dotyczy zwykle tylko części klipów bohatera, a nie wszystkich, więc sprawdzaj każdy klip, który zamierzasz podmienić, zamiast sprawdzać bohatera raz. Malzahar bywał takim przykładem, ale czy nadal tak jest na aktualnym patchu i czy to jedyny przypadek, tego nie bierz na wiarę.
+
+Jeśli podmienisz klip Riotu w 60 fps na własny w 30 fps i nie zmienisz nic więcej, twoja wersja poleci dwa razy wolniej od oryginału.
+
+> 💡 **Pro tip:** Jeśli podmieniona animacja wygląda w grze źle dokładnie o połowę wolniej albo dwa razy szybciej, niż chciałeś, sprawdź frame rate klipu, który podmieniłeś, zanim zaczniesz szukać gdziekolwiek indziej.
+
+---
+
+## Dwa skutki uboczne warte poznania
+
+**Przejścia rwą się przy klipach z innym frame rate'em.** [Przejście](/docs/lol/animations/animation-bin-clips-and-transitions), które blenduje do klipu w 60 fps albo z niego, potrafi się widocznie rozsypać. Jeśli przejście wygląda na porwane, a sprawdziłeś już typowe przyczyny, sprawdź frame rate obu klipów.
+
+**Pseudofizyka wariuje.** Każdy ruch wtórny napędzany dynamicznymi kośćmi, peleryny, ogony, macki, włosy, zachowuje się dziwnie, gdy klip leci w tempie, dla którego nie był zrobiony. Ten ruch był dostrojony pod oryginalny timing i nie skaluje się czysto.
+
+> 💡 **Pro tip:** Jeśli peleryna albo ogon wygląda dobrze w programie 3D, a źle w grze, frame rate warto sprawdzić, zanim zabierzesz się za poprawianie wag. Część takich łańcuchów jest [napędzana kodem silnika, a nie animacją](/docs/lol/maya/control-rigs) w ogóle.
+
+Poradnik autorstwa Kaizen
