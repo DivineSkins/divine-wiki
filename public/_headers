@@ -17,3 +17,14 @@
 
 /og/*
   Cache-Control: public, max-age=86400
+
+# Downloadable wiki files (currently the .rubyshader shaders, which are
+# renamed .7z archives). Workers static assets have no MIME mapping for
+# these extensions, so responses shipped with no Content-Type at all;
+# combined with the nosniff above, browsers rendered the raw archive bytes
+# as a page of garbage text instead of downloading. Setting the type and
+# forcing attachment makes a click, or a pasted URL, download the file.
+/wiki-files/*
+  Content-Type: application/octet-stream
+  Content-Disposition: attachment
+  Cache-Control: public, max-age=86400
