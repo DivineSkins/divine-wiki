@@ -1,0 +1,150 @@
+---
+title: "Otimize Modelos que Excedem os Limites do League"
+description: "Reduza a quantidade de ossos e vértices de um modelo no Maya sem perder os pesos da skin nem a compatibilidade de exportação do League of Legends."
+category: "maya"
+credits:
+  discord: "ac_lys"
+  github: "https://github.com/NoThoughtHeadEmpty"
+---
+
+Este guia mostra como reduzir a quantidade de ossos e vértices de um modelo no Maya, preservando a maior parte dos pesos da skin.
+
+Se você só quer fazer um model swap 3D e não pretende editar animações, pule para [Reduzir a geometria da mesh](#3-reduzir-a-geometria-da-mesh).
+
+<img
+  src="https://github.com/NoThoughtHeadEmpty/b/blob/main/Screenshot%202026-08-23%20234620.png?raw=true"
+  alt="Cena do Maya com um modelo acima do limite de ossos ou vértices do League"
+  width={1052}
+  height={785}
+/>
+
+## 1. Reduzir a quantidade de ossos
+
+<YouTube id="cfLxL4gFCcg" title="Transferir pesos da skin entre ossos" />
+
+Use este script para transferir os pesos da skin de um ou mais ossos de origem para os ossos de destino correspondentes.
+
+1. Copie o bloco abaixo para o Script Editor do Maya.
+2. Substitua os nomes de exemplo em `source_joints` e `target_joints`. Cada osso de origem precisa corresponder ao osso de destino na mesma posição da lista.
+3. Selecione a mesh com bind e execute o script.
+
+```python
+import maya.cmds as cmds
+
+def transfer_weights_multi(source_joints, target_joints):
+    if len(source_joints) != len(target_joints):
+        cmds.error("Source and target joint lists must be the same length.")
+
+    # Get selected mesh
+    sel = cmds.ls(sl=True, type="transform")
+    if not sel:
+        cmds.error("Select the skinned mesh first.")
+    mesh = sel[0]
+
+    # Find skinCluster
+    skin_cluster = None
+    history = cmds.listHistory(mesh)
+    for node in history:
+        if cmds.nodeType(node) == "skinCluster":
+            skin_cluster = node
+            break
+
+    if not skin_cluster:
+        cmds.error("No skinCluster found on selected mesh.")
+
+    # Get all vertices once
+    verts = cmds.ls(mesh + ".vtx[*]", fl=True)
+
+    for source_joint, target_joint in zip(source_joints, target_joints):
+        # Ensure target joint is an influence
+        influences = cmds.skinCluster(skin_cluster, q=True, inf=True)
+        if target_joint not in influences:
+            cmds.skinCluster(skin_cluster, e=True, ai=target_joint, lw=False, wt=0)
+
+        for v in verts:
+            src_w = cmds.skinPercent(skin_cluster, v, q=True, t=source_joint)
+            if src_w > 0:
+                tgt_w = cmds.skinPercent(skin_cluster, v, q=True, t=target_joint)
+                cmds.skinPercent(
+                    skin_cluster,
+                    v,
+                    tv=[
+                        (target_joint, tgt_w + src_w),
+                        (source_joint, 0)
+                    ]
+                )
+
+        print("Transferred weights from {} to {}".format(source_joint, target_joint))
+
+    print("All joint transfers complete.")
+
+
+# ===== USAGE =====
+# 1. Select the skinned mesh
+# 2. Replace joint names below
+
+source_joints = [
+    "_Bone_Hair045_L",
+
+]
+
+target_joints = [
+    "_Bone_Hair044_L",
+
+]
+
+transfer_weights_multi(source_joints, target_joints)
+```
+
+Quando o script terminar, mova cada osso de origem. Ele não deve mais deformar a mesh. Mova também o osso de destino para confirmar que agora ele recebeu o peso transferido.
+
+<Callout type="info" title="Importante">
+  Um osso pode influenciar várias meshes. Selecione cada mesh afetada e execute o script de novo antes de remover esse osso.
+</Callout>
+
+O script transfere os pesos, mas não apaga os ossos. Primeiro processe todas as meshes afetadas. Depois confira os ossos descendentes de cada osso de origem e apague somente os que você confirmou que não são mais necessários.
+
+Execute este script para conferir a quantidade total de ossos na cena:
+
+```python
+import maya.cmds as cmds
+
+# Find all joint nodes in the entire scene
+joints = cmds.ls(type='joint') or []
+print(f"Total Joints in Scene: {len(joints)}")
+
+```
+
+Se a quantidade ainda estiver acima do limite de exportação, repita a transferência com outro par seguro de ossos de origem e destino.
+
+## 2. Separar meshes e copiar pesos da skin
+
+<YouTube id="trdkUoEdaiQ" title="Separar uma mesh e copiar seus pesos da skin" />
+
+1. Selecione a mesh e pressione `Ctrl+D` para duplicar ela.
+2. Selecione o grupo duplicado e use **Separate Mesh by Material** na shelf do Lemon 3D.
+3. Selecione todas as meshes separadas do grupo e faça bind delas no SKL original. Nas opções de Bind Skin, escolha **Closest Distance** para ter o resultado mais rápido.
+4. Selecione a mesh original, depois uma mesh separada, e copie os pesos da skin. Repita para cada material.
+5. Divida o grupo da mesh em grupos menores. Arraste o SKL para cada grupo e exporte. Neste ponto, você pode remover qualquer material que não queira incluir.
+6. Abra uma cena nova no Maya e arraste de volta todos os arquivos SKL e SKN que você exportou.
+
+## 3. Reduzir a geometria da mesh
+
+<YouTube id="v4YBd4xBMlU" title="Remover geometria oculta de uma mesh" />
+
+<Callout type="info" title="Remova primeiro a geometria oculta">
+  Comece pela geometria que fica dentro das roupas do personagem. A câmera do League vista de cima normalmente não mostra isso no jogo.
+</Callout>
+
+1. Selecione a mesh. Esconda as outras meshes para facilitar os próximos passos.
+2. Pressione `F11` e clique duas vezes nas faces que você quer remover.
+3. Segure o botão direito do mouse, arraste para baixo para atribuir um material novo e escolha qualquer material no menu.
+4. Abra o Hypershade e confirme o nome do novo material.
+5. Volte ao grupo da skin, exporte e importe de novo.
+6. Encontre o novo grupo de geometria ou material no Outliner. Faça o unbind da geometria indesejada da skin e apague ela.
+
+Como alternativa, use a ferramenta **Reduce** do Maya para diminuir a qualidade da mesh e depois faça novamente o bind da mesh reduzida ao SKL original.
+
+<Callout type="info" title="A ordem importa">
+  Se a cena exceder o limite de ossos, termine de reduzir a quantidade de ossos antes de separar ou exportar a mesh. Caso contrário, o modelo não poderá ser exportado. Para um model swap 3D simples que não altera animações, você pode ir direto para a seção 3.
+</Callout>

@@ -1,0 +1,150 @@
+---
+title: "Optymalizacja modeli przekraczających limity League"
+description: "Zmniejsz liczbę kości i wierzchołków modelu w Mayi, zachowując wagi skina oraz zgodność z eksportem do League of Legends."
+category: "maya"
+credits:
+  discord: "ac_lys"
+  github: "https://github.com/NoThoughtHeadEmpty"
+---
+
+Ten poradnik pokaże ci, jak zmniejszyć liczbę kości i wierzchołków modelu w Mayi, zachowując większość wag skina.
+
+Jeśli chcesz tylko podmienić model 3D i nie planujesz edytować animacji, przejdź od razu do sekcji [Zredukuj geometrię mesha](#3-zredukuj-geometrię-mesha).
+
+<img
+  src="https://github.com/NoThoughtHeadEmpty/b/blob/main/Screenshot%202026-08-23%20234620.png?raw=true"
+  alt="Scena w Mayi z modelem przekraczającym limit liczby kości lub wierzchołków w League"
+  width={1052}
+  height={785}
+/>
+
+## 1. Zmniejsz liczbę kości
+
+<YouTube id="cfLxL4gFCcg" title="Przenieś wagi skina między kośćmi" />
+
+Użyj tego skryptu, żeby przenieść wagi skina z jednej lub kilku kości źródłowych na odpowiadające im kości docelowe.
+
+1. Skopiuj poniższy blok do Script Editora w Mayi.
+2. Zastąp przykładowe nazwy w `source_joints` i `target_joints`. Każda kość źródłowa musi odpowiadać kości docelowej na tej samej pozycji w drugiej liście.
+3. Zaznacz zbindowany mesh i uruchom skrypt.
+
+```python
+import maya.cmds as cmds
+
+def transfer_weights_multi(source_joints, target_joints):
+    if len(source_joints) != len(target_joints):
+        cmds.error("Source and target joint lists must be the same length.")
+
+    # Get selected mesh
+    sel = cmds.ls(sl=True, type="transform")
+    if not sel:
+        cmds.error("Select the skinned mesh first.")
+    mesh = sel[0]
+
+    # Find skinCluster
+    skin_cluster = None
+    history = cmds.listHistory(mesh)
+    for node in history:
+        if cmds.nodeType(node) == "skinCluster":
+            skin_cluster = node
+            break
+
+    if not skin_cluster:
+        cmds.error("No skinCluster found on selected mesh.")
+
+    # Get all vertices once
+    verts = cmds.ls(mesh + ".vtx[*]", fl=True)
+
+    for source_joint, target_joint in zip(source_joints, target_joints):
+        # Ensure target joint is an influence
+        influences = cmds.skinCluster(skin_cluster, q=True, inf=True)
+        if target_joint not in influences:
+            cmds.skinCluster(skin_cluster, e=True, ai=target_joint, lw=False, wt=0)
+
+        for v in verts:
+            src_w = cmds.skinPercent(skin_cluster, v, q=True, t=source_joint)
+            if src_w > 0:
+                tgt_w = cmds.skinPercent(skin_cluster, v, q=True, t=target_joint)
+                cmds.skinPercent(
+                    skin_cluster,
+                    v,
+                    tv=[
+                        (target_joint, tgt_w + src_w),
+                        (source_joint, 0)
+                    ]
+                )
+
+        print("Transferred weights from {} to {}".format(source_joint, target_joint))
+
+    print("All joint transfers complete.")
+
+
+# ===== USAGE =====
+# 1. Select the skinned mesh
+# 2. Replace joint names below
+
+source_joints = [
+    "_Bone_Hair045_L",
+
+]
+
+target_joints = [
+    "_Bone_Hair044_L",
+
+]
+
+transfer_weights_multi(source_joints, target_joints)
+```
+
+Po zakończeniu skryptu porusz każdą kością źródłową. Nie powinna już deformować mesha. Porusz też kością docelową, żeby potwierdzić, że przejęła przeniesione wagi.
+
+<Callout type="info" title="Ważne">
+  Jedna kość może wpływać na kilka meshy. Zanim ją usuniesz, zaznacz każdy mesh, na który wpływa, i ponownie uruchom skrypt.
+</Callout>
+
+Skrypt przenosi wagi, ale nie usuwa kości. Najpierw przetwórz wszystkie meshe, na które wpływa dana kość. Potem sprawdź kości potomne każdej kości źródłowej i usuń tylko te kości, które na pewno nie są już potrzebne.
+
+Uruchom ten skrypt, żeby sprawdzić łączną liczbę kości w scenie:
+
+```python
+import maya.cmds as cmds
+
+# Find all joint nodes in the entire scene
+joints = cmds.ls(type='joint') or []
+print(f"Total Joints in Scene: {len(joints)}")
+
+```
+
+Jeśli liczba nadal przekracza limit eksportu, powtórz przenoszenie dla innej bezpiecznej pary kości źródłowej i docelowej.
+
+## 2. Rozdziel meshe i skopiuj wagi skina
+
+<YouTube id="trdkUoEdaiQ" title="Rozdziel mesh i skopiuj jego wagi skina" />
+
+1. Zaznacz mesh i naciśnij `Ctrl+D`, żeby go zduplikować.
+2. Zaznacz zduplikowaną grupę, a potem wybierz **Separate Mesh by Material** na shelfie Lemon 3D.
+3. Zaznacz wszystkie rozdzielone meshe w grupie i zbinduj je z oryginalnym SKL. W opcjach Bind Skin wybierz **Closest Distance**, żeby najszybciej uzyskać wynik.
+4. Zaznacz oryginalny mesh, a potem jeden z rozdzielonych meshy, i skopiuj wagi skina. Powtórz to dla każdego materiału.
+5. Podziel grupę meshy na mniejsze grupy. Przeciągnij SKL do każdej z nich, a potem ją wyeksportuj. Na tym etapie możesz usunąć wszystkie materiały, których nie chcesz uwzględniać.
+6. Otwórz nową scenę w Mayi, a potem przeciągnij do niej wszystkie wyeksportowane pliki SKL i SKN.
+
+## 3. Zredukuj geometrię mesha
+
+<YouTube id="v4YBd4xBMlU" title="Usuń ukrytą geometrię z mesha" />
+
+<Callout type="info" title="Najpierw usuń ukrytą geometrię">
+  Zacznij od geometrii wewnątrz ubrań postaci. Kamera League patrzy z góry, więc zwykle nie będzie jej widać w grze.
+</Callout>
+
+1. Zaznacz mesh. Ukryj pozostałe meshe, żeby ułatwić sobie kolejne kroki.
+2. Naciśnij `F11`, a potem kliknij dwukrotnie ścianki, które chcesz usunąć.
+3. Przytrzymaj prawy przycisk myszy, przeciągnij w dół, żeby przypisać nowy materiał, i wybierz dowolny materiał z menu.
+4. Otwórz Hypershade i sprawdź nazwę nowego materiału.
+5. Wróć do grupy skina, wyeksportuj ją, a potem zaimportuj ponownie.
+6. Znajdź nową grupę geometrii lub materiału w Outlinerze. Odłącz niechcianą geometrię od skina, a potem ją usuń.
+
+Możesz też użyć narzędzia **Reduce** w Mayi, żeby obniżyć jakość mesha, a potem zbindować zredukowany mesh z oryginalnym SKL.
+
+<Callout type="info" title="Kolejność ma znaczenie">
+  Jeśli scena przekracza limit kości, dokończ zmniejszanie ich liczby, zanim rozdzielisz lub wyeksportujesz mesh. W przeciwnym razie modelu nie da się wyeksportować. Przy prostej podmianie modelu 3D bez zmian w animacjach możesz przejść od razu do sekcji 3.
+</Callout>

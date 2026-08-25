@@ -1,0 +1,150 @@
+---
+title: "Optimiser les modèles qui dépassent les limites de League"
+description: "Réduis le nombre de bones et de vertices d'un modèle dans Maya tout en préservant les poids de skin et la compatibilité avec l'export de League of Legends."
+category: "maya"
+credits:
+  discord: "ac_lys"
+  github: "https://github.com/NoThoughtHeadEmpty"
+---
+
+Ce guide t'explique comment réduire le nombre de bones et de vertices d'un modèle dans Maya tout en conservant la plupart de ses poids de skin.
+
+Si tu veux seulement faire un 3D Model Swap et que tu ne comptes pas modifier les animations, passe directement à [Réduire la géométrie du mesh](#3-réduire-la-géométrie-du-mesh).
+
+<img
+  src="https://github.com/NoThoughtHeadEmpty/b/blob/main/Screenshot%202026-08-23%20234620.png?raw=true"
+  alt="Scène Maya avec un modèle qui dépasse les limites de bones ou de vertices de League"
+  width={1052}
+  height={785}
+/>
+
+## 1. Réduire le nombre de bones
+
+<YouTube id="cfLxL4gFCcg" title="Transférer les poids de skin d'un bone à un autre" />
+
+Utilise ce script pour déplacer les poids de skin d'un ou plusieurs bones sources vers les bones cibles correspondants.
+
+1. Copie le bloc ci-dessous dans le Script Editor de Maya.
+2. Remplace les noms d'exemple dans `source_joints` et `target_joints`. Chaque bone source doit correspondre au bone cible placé à la même position dans l'autre liste.
+3. Sélectionne le mesh skinné, puis exécute le script.
+
+```python
+import maya.cmds as cmds
+
+def transfer_weights_multi(source_joints, target_joints):
+    if len(source_joints) != len(target_joints):
+        cmds.error("Source and target joint lists must be the same length.")
+
+    # Get selected mesh
+    sel = cmds.ls(sl=True, type="transform")
+    if not sel:
+        cmds.error("Select the skinned mesh first.")
+    mesh = sel[0]
+
+    # Find skinCluster
+    skin_cluster = None
+    history = cmds.listHistory(mesh)
+    for node in history:
+        if cmds.nodeType(node) == "skinCluster":
+            skin_cluster = node
+            break
+
+    if not skin_cluster:
+        cmds.error("No skinCluster found on selected mesh.")
+
+    # Get all vertices once
+    verts = cmds.ls(mesh + ".vtx[*]", fl=True)
+
+    for source_joint, target_joint in zip(source_joints, target_joints):
+        # Ensure target joint is an influence
+        influences = cmds.skinCluster(skin_cluster, q=True, inf=True)
+        if target_joint not in influences:
+            cmds.skinCluster(skin_cluster, e=True, ai=target_joint, lw=False, wt=0)
+
+        for v in verts:
+            src_w = cmds.skinPercent(skin_cluster, v, q=True, t=source_joint)
+            if src_w > 0:
+                tgt_w = cmds.skinPercent(skin_cluster, v, q=True, t=target_joint)
+                cmds.skinPercent(
+                    skin_cluster,
+                    v,
+                    tv=[
+                        (target_joint, tgt_w + src_w),
+                        (source_joint, 0)
+                    ]
+                )
+
+        print("Transferred weights from {} to {}".format(source_joint, target_joint))
+
+    print("All joint transfers complete.")
+
+
+# ===== USAGE =====
+# 1. Select the skinned mesh
+# 2. Replace joint names below
+
+source_joints = [
+    "_Bone_Hair045_L",
+
+]
+
+target_joints = [
+    "_Bone_Hair044_L",
+
+]
+
+transfer_weights_multi(source_joints, target_joints)
+```
+
+Une fois le script terminé, déplace chaque bone source. Il ne doit plus déformer le mesh. Déplace aussi le bone cible pour vérifier qu'il porte bien le poids transféré.
+
+<Callout type="info" title="Important">
+  Un bone peut influencer plusieurs meshes. Sélectionne chaque mesh concerné et relance le script avant de supprimer ce bone.
+</Callout>
+
+Le script transfère les poids, mais ne supprime aucun bone. Traite d'abord tous les meshes concernés. Vérifie ensuite les descendants de chaque bone source et ne supprime que les bones dont tu as confirmé qu'ils ne sont plus nécessaires.
+
+Exécute ce script pour vérifier le nombre total de bones dans la scène :
+
+```python
+import maya.cmds as cmds
+
+# Find all joint nodes in the entire scene
+joints = cmds.ls(type='joint') or []
+print(f"Total Joints in Scene: {len(joints)}")
+
+```
+
+Si le total dépasse encore la limite d'export, recommence avec une autre paire de bones source et cible sans risque pour le rig.
+
+## 2. Séparer les meshes et copier les poids de skin
+
+<YouTube id="trdkUoEdaiQ" title="Séparer un mesh et copier ses poids de skin" />
+
+1. Sélectionne ton mesh et appuie sur `Ctrl+D` pour le dupliquer.
+2. Sélectionne le groupe dupliqué, puis utilise **Separate Mesh by Material** dans la shelf Lemon 3D.
+3. Sélectionne tous les meshes séparés du groupe et bind-les au SKL d'origine. Dans les options de Bind Skin, choisis **Closest Distance** pour obtenir le résultat le plus rapidement.
+4. Sélectionne le mesh d'origine, puis un mesh séparé, et copie les poids de skin. Répète l'opération pour chaque matériau.
+5. Divise le groupe de meshes en groupes plus petits. Glisse le SKL dans chaque groupe, puis exporte chaque groupe. Tu peux retirer les matériaux que tu ne veux pas inclure à cette étape.
+6. Ouvre une nouvelle scène Maya, puis glisse-dépose tous les fichiers SKL et SKN que tu viens d'exporter.
+
+## 3. Réduire la géométrie du mesh
+
+<YouTube id="v4YBd4xBMlU" title="Supprimer la géométrie cachée d'un mesh" />
+
+<Callout type="info" title="Supprime d'abord la géométrie cachée">
+  Commence par la géométrie située à l'intérieur des vêtements du personnage. Avec la caméra en vue du dessus de League, elle ne sera généralement pas visible en jeu.
+</Callout>
+
+1. Sélectionne le mesh. Masque les autres meshes pour faciliter la suite.
+2. Appuie sur `F11`, puis double-clique sur les faces que tu veux supprimer.
+3. Maintiens le bouton droit de la souris, fais glisser vers le bas pour assigner un nouveau matériau, puis choisis n'importe quel matériau dans le menu.
+4. Ouvre Hypershade et vérifie le nom du nouveau matériau.
+5. Retourne dans le groupe de skin, exporte-le, puis réimporte-le.
+6. Repère le nouveau groupe de géométrie ou de matériaux dans l'Outliner. Unbind la géométrie indésirable du skin, puis supprime-la.
+
+Sinon, utilise l'outil **Reduce** de Maya pour diminuer la qualité du mesh, puis bind le mesh réduit à son SKL d'origine.
+
+<Callout type="info" title="L'ordre compte">
+  Si la scène dépasse la limite de bones, termine d'abord de réduire leur nombre avant de séparer ou d'exporter le mesh. Sinon, le modèle ne pourra pas être exporté. Pour un simple 3D Model Swap qui ne modifie pas les animations, tu peux aller directement à la section 3.
+</Callout>

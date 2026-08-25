@@ -1,18 +1,34 @@
 ---
-title: Optimizing model above league limit
+title: "Optimize Models That Exceed League's Limits"
+description: "Reduce a model's joint and vertex count in Maya while preserving skin weights and League of Legends export compatibility."
+category: "maya"
 credits:
   discord: "ac_lys"
   github: "https://github.com/NoThoughtHeadEmpty"
 ---
 
-This guide helps lowering your vertex/joint count while still maintaining their weight. Well, majority of it ofc.
+This guide shows you how to reduce a model's joint and vertex count in Maya while preserving most of its skin weights.
 
-  If your sole aim is just 3d model swap and you dont want to do anything with animation, skip to step 3.
-<img src="https://github.com/NoThoughtHeadEmpty/b/blob/main/Screenshot%202026-08-23%20234620.png?raw=true" />
-1. Reducing joint count 
-<YouTube id="cfLxL4gFCcg" title="What the video shows" />
- Copy the block below and paste it into your script editor, change the source_joint and target_joint name.
- ```bash
+If you only want to make a 3D model swap and do not plan to edit animations, skip to [Reduce mesh geometry](#3-reduce-mesh-geometry).
+
+<img
+  src="https://github.com/NoThoughtHeadEmpty/b/blob/main/Screenshot%202026-08-23%20234620.png?raw=true"
+  alt="Maya scene containing a model that exceeds League's joint or vertex limits"
+  width={1052}
+  height={785}
+/>
+
+## 1. Reduce the joint count
+
+<YouTube id="cfLxL4gFCcg" title="Transfer skin weights between joints" />
+
+Use this script to move skin weights from one or more source joints to matching target joints.
+
+1. Copy the block below into Maya's Script Editor.
+2. Replace the example names in `source_joints` and `target_joints`. Each source joint must line up with the target joint in the same list position.
+3. Select the skinned mesh and run the script.
+
+```python
 import maya.cmds as cmds
 
 def transfer_weights_multi(source_joints, target_joints):
@@ -43,7 +59,7 @@ def transfer_weights_multi(source_joints, target_joints):
         # Ensure target joint is an influence
         influences = cmds.skinCluster(skin_cluster, q=True, inf=True)
         if target_joint not in influences:
-            cmds.skinCluster(skin_cluster, e=True, ai=target_joint, lw=True, wt=0)
+            cmds.skinCluster(skin_cluster, e=True, ai=target_joint, lw=False, wt=0)
 
         for v in verts:
             src_w = cmds.skinPercent(skin_cluster, v, q=True, t=source_joint)
@@ -79,12 +95,19 @@ target_joints = [
 
 transfer_weights_multi(source_joints, target_joints)
 ```
- Select the mesh you want to transfer weight. Once done, try moving the child joint and see if there's any influence on that joint. 
+
+Move each source joint after the script finishes. It should no longer deform the mesh. Move the target joint as well to confirm that it now carries the transferred weight.
+
 <Callout type="info" title="Important">
-  One joint might influence over multiple mesh. In that case, select each mesh and run the script above *multiple* times.
+  One joint can influence several meshes. Select each affected mesh and run the
+  script again before removing that joint.
 </Callout>
- Run this script to check total joint count
-```bash
+
+The script transfers weights but does not delete joints. Process every affected mesh first. Then check each source joint's descendants and delete only the joints you have confirmed are no longer needed.
+
+Run this script to check the scene's total joint count:
+
+```python
 import maya.cmds as cmds
 
 # Find all joint nodes in the entire scene
@@ -92,37 +115,41 @@ joints = cmds.ls(type='joint') or []
 print(f"Total Joints in Scene: {len(joints)}")
 
 ```
-2. Mesh spliting and copying skin weight.
-   <YouTube id="trdkUoEdaiQ" title="What the video shows" />
-  Select your mesh, Ctrl D.
 
- Select the newly pasted group, then select separate mesh by material on lemon3d shelf.
+If the count is still above the export limit, repeat the transfer with another safe source and target pair.
 
- Select all material in the group, bind it to the original skl. In the bind skin screen, tick on Closest Distance for fastest result (it wouldnt matter what option you choose anyways).
+## 2. Split meshes and copy skin weights
 
- Select original mesh, then select the newly splited material to copy skin weight. *Repeat for all material*
+<YouTube id="trdkUoEdaiQ" title="Split a mesh and copy its skin weights" />
 
- Split your mesh group into smaller group, drag the skl into it then export. You can also remove material you dont like to include during this step.
+1. Select your mesh and press `Ctrl+D` to duplicate it.
+2. Select the duplicated group, then use **Separate Mesh by Material** on the Lemon 3D shelf.
+3. Select every separated mesh in the group and bind them to the original SKL. In the Bind Skin options, choose **Closest Distance** for the fastest result.
+4. Select the original mesh, then a separated mesh, and copy the skin weights. Repeat this for every material.
+5. Divide the mesh group into smaller groups. Drag the SKL into each group, then export it. You can remove any material you do not want to include at this point.
+6. Open a new Maya scene, then drag all the SKL and SKN files you exported back into it.
 
- New maya scene, then drag all previously exported skl skn in back.
- 
-3. Mesh reducing.
-<YouTube id="v4YBd4xBMlU" title="What the video shows" />
- <Callout type="info" title="Mesh that are on the inner side of your character clothes should be the one to remove first, as youre looking into the game top down, majority of time they wont be showned anyways.">
+## 3. Reduce mesh geometry
+
+<YouTube id="v4YBd4xBMlU" title="Remove hidden geometry from a mesh" />
+
+<Callout type="info" title="Remove hidden geometry first">
+  Start with geometry inside the character's clothing. League's top-down camera
+  usually will not show it in game.
 </Callout>
- First select on the mesh, you can hide all another for bit more convinient.
 
- F11, double click on the part you want to remove.
+1. Select the mesh. Hide the other meshes to make the next steps easier.
+2. Press `F11`, then double-click the faces you want to remove.
+3. Hold the right mouse button, drag down to assign a new material, and choose any material in the menu.
+4. Open Hypershade and confirm the new material's name.
+5. Return to the skin group, export it, then import it again.
+6. Find the new geometry or material group in the Outliner. Unbind the unwanted geometry from the skin, then delete it.
 
- Right click hold, drag down to assign new material. Select anything on that screen. 
+Alternatively, use Maya's **Reduce** tool to lower the mesh quality, then bind the reduced mesh back to its original SKL.
 
- You can double check them by opening hypershade and check for their name.
- 
- Go back to your skin group, export, then import.
-
- By then, another material should appear on your outliner, to remove, simply unbind them from the skin, then delete it
-
-NOT IN VIDEO: Alternatively, you can use mesh reduce to reduce the mesh quality, then rebind it to its original skl. 
-<Callout type="info" title="Note">
-  This must be done in order, else if you skip to step 2 or 3 first, your model can't export due to the joint count limit. Again, unless youre model swapping, it wouldnt matter at all.
+<Callout type="info" title="Order matters">
+  If the scene exceeds the joint limit, finish reducing the joint count before
+  you split or export the mesh. Otherwise, the model cannot export. For a simple
+  3D model swap that does not change animations, you can go directly to section
+  3.
 </Callout>
