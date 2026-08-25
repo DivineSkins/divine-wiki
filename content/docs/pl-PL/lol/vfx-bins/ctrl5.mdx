@@ -1,0 +1,143 @@
+---
+title: "Przełącznik CTRL+5"
+description: "Dodaj do moda League of Legends przełącznik submesha uruchamiany skrótem CTRL+5 za pomocą Jade i grafu animacji."
+category: "vfx-bins"
+---
+
+<Callout type="info" title="Przełącznik CTRL+5">
+  Dodaj do moda przełącznik uruchamiany skrótem CTRL+5, używając wyłącznie Jade.
+</Callout>
+
+Ten poradnik pokazuje, jak dodać przełącznik CTRL+5 taki jak na tym filmie:
+
+<YouTube id="AeuXesgfyIc" title="Przykład przełącznika CTRL+5" />
+
+Najpierw dodaj `initialSubmeshToHide` wewnątrz `skinMeshProperties`. Zamień
+`YourSubmesh` na submesh, który ma być domyślnie ukryty.
+
+```py
+initialSubmeshToHide: string = "YourSubmesh"
+```
+
+<img
+  src="/wiki-images/screenshot-2026-08-25-104212.png"
+  alt="Pole initialSubmeshToHide ustawione na Skirt wewnątrz skinMeshProperties"
+/>
+
+W `AnimationGraphData` dodaj poniższe wpisy do `mClipDataMap`. Linie
+`mCascadeBlendValue` i `mClipDataMap` pokazują, gdzie je wstawić. Jeśli pole
+`mClipDataMap` już istnieje, nie twórz drugiego.
+
+```py
+      mCascadeBlendValue: f32 = 0
+            mClipDataMap: map[hash,pointer] = {
+                "Toggle" = ConditionBoolClipData {
+                    Updater: pointer = LogicDriverBoolParametricUpdater {
+                        driver: pointer = SubmeshVisibilityBoolDriver {
+                            Submeshes: list[hash] = {
+                                "Skirt"
+                            }
+                            VISIBLE: bool = false
+                        }
+                    }
+                    mTrueConditionClipName: hash = 0xbe8683f0
+                    mFalseConditionClipName: hash = 0x8aa48b13
+                }
+                0xbe8683f0 = ParallelClipData {
+                    mFlags: u32 = 14
+                    mClipNameList: list[hash] = {
+                        0x43191761
+                    }
+                }
+                0x43191761 = AtomicClipData {
+                    mFlags: u32 = 14
+                    mTrackDataName: hash = "Toggle"
+                    mMaskDataName: hash = "Default"
+                    mEventDataMap: map[hash,pointer] = {
+                        "Fade" = ParticleEventData {
+                            mEffectKey: hash = 0xcef6c126
+                            mParticleEventDataPairList: list[embed] = {
+                                ParticleEventDataPair {
+                                    mBoneName: hash = "C_Buffbone_GLB_Layout_Loc"
+                                }
+                            }
+                            mIsLoop: bool = false
+                            mIsKillEvent: bool = false
+                        }
+                        0x38503e10 = SubmeshVisibilityEventData {
+                            mShowSubmeshList: list[hash] = {
+                                "Skirt"
+                            }
+                            mHideSubmeshList: list[hash] = {
+                                0x8ba930d1
+                            }
+                        }
+                    }
+                    mAnimationResourceData: embed = AnimationResourceData {
+                        mAnimationFilePath: string = "ASSETS/cosmic/0/bum/Characters/camille/Skins/Base/Animations/camille_Taunt.anm"
+                    }
+                }
+                0x8aa48b13 = ParallelClipData {
+                    mFlags: u32 = 14
+                    mClipNameList: list[hash] = {
+                        0x04acc354
+                    }
+                }
+                0x04acc354 = AtomicClipData {
+                    mFlags: u32 = 14
+                    mTrackDataName: hash = "Toggle"
+                    mMaskDataName: hash = "Default"
+                    mEventDataMap: map[hash,pointer] = {
+                        "FadeOut" = ParticleEventData {
+                            mEffectKey: hash = 0xe271f27c
+                            mParticleEventDataPairList: list[embed] = {
+                                ParticleEventDataPair {
+                                    mBoneName: hash = "C_Buffbone_GLB_Layout_Loc"
+                                }
+                            }
+                            mIsLoop: bool = false
+                            mIsKillEvent: bool = false
+                        }
+                        "Hide_Mesh" = SubmeshVisibilityEventData {
+                            mHideSubmeshList: list[hash] = {
+                                "Skirt"
+                            }
+                            mShowSubmeshList: list[hash] = {
+                                0x8ba930d1
+                            }
+                        }
+                    }
+                    mAnimationResourceData: embed = AnimationResourceData {
+                        mAnimationFilePath: string = "ASSETS/cosmic/0/bum/Characters/camille/Skins/Base/Animations/camille_taunt.anm"
+                    }
+                }
+            }
+```
+
+Każdy ciąg `"Skirt"` zamień na nazwę submesha, który chcesz przełączać. W
+przykładzie submesh oznaczony hashem `0x8ba930d1` jest przełączany odwrotnie.
+Zamień ten hash na nazwę lub hash drugiego submesha. Jeśli chcesz tylko
+pokazywać i ukrywać jeden submesh, usuń te wpisy.
+
+<Callout type="warning" title="Użyj poprawnej ścieżki animacji">
+  Zmień obie wartości `mAnimationFilePath` tak, żeby wskazywały na animację
+  dostępną dla twojego bohatera. Jeśli ścieżka jest błędna, przełącznik może nie
+  zadziałać albo gra może crashować.
+</Callout>
+
+Na koniec dodaj ten wpis do `mTrackDataMap`:
+
+```py
+"Toggle" = TrackData {
+    mPriority: u8 = 1
+}
+```
+
+Powinno to wyglądać tak:
+
+<img
+  src="/wiki-images/screenshot-2026-08-25-104813.png"
+  alt="Wpis Toggle typu TrackData wewnątrz mTrackDataMap"
+/>
+
+I to wszystko :P
