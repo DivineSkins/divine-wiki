@@ -1,0 +1,150 @@
+---
+title: "League'in Sınırlarını Aşan Modelleri Optimize Etme"
+description: "Maya'da bir modelin joint ve vertex sayısını azaltırken skin weight'leri ve League of Legends export uyumluluğunu koru."
+category: "maya"
+credits:
+  discord: "ac_lys"
+  github: "https://github.com/NoThoughtHeadEmpty"
+---
+
+Bu rehber, skin weight'lerin çoğunu korurken Maya'da bir modelin joint ve vertex sayısını nasıl azaltacağını gösteriyor.
+
+Yalnızca 3D model swap yapacaksan ve animasyon düzenlemeyeceksen doğrudan [Mesh geometrisini azalt](#3-mesh-geometrisini-azalt) bölümüne geç.
+
+<img
+  src="https://github.com/NoThoughtHeadEmpty/b/blob/main/Screenshot%202026-08-23%20234620.png?raw=true"
+  alt="League'in joint veya vertex sınırını aşan modeli içeren Maya sahnesi"
+  width={1052}
+  height={785}
+/>
+
+## 1. Joint sayısını azalt
+
+<YouTube id="cfLxL4gFCcg" title="Joint'ler arasında skin weight aktarımı" />
+
+Bir veya daha fazla kaynak joint'teki skin weight'leri eşleşen hedef joint'lere taşımak için bu script'i kullan.
+
+1. Aşağıdaki bloğu Maya'nın Script Editor'üne kopyala.
+2. `source_joints` ve `target_joints` içindeki örnek adları değiştir. Her kaynak joint, listede aynı sıradaki hedef joint ile eşleşmeli.
+3. İskelete bind edilmiş mesh'i seç ve script'i çalıştır.
+
+```python
+import maya.cmds as cmds
+
+def transfer_weights_multi(source_joints, target_joints):
+    if len(source_joints) != len(target_joints):
+        cmds.error("Source and target joint lists must be the same length.")
+
+    # Get selected mesh
+    sel = cmds.ls(sl=True, type="transform")
+    if not sel:
+        cmds.error("Select the skinned mesh first.")
+    mesh = sel[0]
+
+    # Find skinCluster
+    skin_cluster = None
+    history = cmds.listHistory(mesh)
+    for node in history:
+        if cmds.nodeType(node) == "skinCluster":
+            skin_cluster = node
+            break
+
+    if not skin_cluster:
+        cmds.error("No skinCluster found on selected mesh.")
+
+    # Get all vertices once
+    verts = cmds.ls(mesh + ".vtx[*]", fl=True)
+
+    for source_joint, target_joint in zip(source_joints, target_joints):
+        # Ensure target joint is an influence
+        influences = cmds.skinCluster(skin_cluster, q=True, inf=True)
+        if target_joint not in influences:
+            cmds.skinCluster(skin_cluster, e=True, ai=target_joint, lw=False, wt=0)
+
+        for v in verts:
+            src_w = cmds.skinPercent(skin_cluster, v, q=True, t=source_joint)
+            if src_w > 0:
+                tgt_w = cmds.skinPercent(skin_cluster, v, q=True, t=target_joint)
+                cmds.skinPercent(
+                    skin_cluster,
+                    v,
+                    tv=[
+                        (target_joint, tgt_w + src_w),
+                        (source_joint, 0)
+                    ]
+                )
+
+        print("Transferred weights from {} to {}".format(source_joint, target_joint))
+
+    print("All joint transfers complete.")
+
+
+# ===== USAGE =====
+# 1. Select the skinned mesh
+# 2. Replace joint names below
+
+source_joints = [
+    "_Bone_Hair045_L",
+
+]
+
+target_joints = [
+    "_Bone_Hair044_L",
+
+]
+
+transfer_weights_multi(source_joints, target_joints)
+```
+
+Script bittikten sonra her kaynak joint'i hareket ettir. Artık mesh'i deforme etmemeli. Aktarılan weight'i artık hedef joint'in taşıdığını doğrulamak için onu da hareket ettir.
+
+<Callout type="info" title="Önemli">
+  Bir joint birden fazla mesh'i etkileyebilir. O joint'i kaldırmadan önce etkilenen her mesh'i seçip script'i yeniden çalıştır.
+</Callout>
+
+Script weight'leri aktarır ama joint'leri silmez. Önce etkilenen her mesh'te işlemi tamamla. Ardından her kaynak joint'in altındaki joint'leri kontrol et ve yalnızca artık gerekmediğini doğruladığın joint'leri sil.
+
+Sahnedeki toplam joint sayısını kontrol etmek için bu script'i çalıştır:
+
+```python
+import maya.cmds as cmds
+
+# Find all joint nodes in the entire scene
+joints = cmds.ls(type='joint') or []
+print(f"Total Joints in Scene: {len(joints)}")
+
+```
+
+Sayı hâlâ export sınırının üzerindeyse güvenli başka bir kaynak ve hedef joint çiftiyle aktarımı tekrarla.
+
+## 2. Mesh'leri böl ve skin weight'leri kopyala
+
+<YouTube id="trdkUoEdaiQ" title="Mesh'i bölme ve skin weight'lerini kopyalama" />
+
+1. Mesh'ini seç ve kopyalamak için `Ctrl+D` tuşlarına bas.
+2. Kopyalanan grubu seç, ardından Lemon 3D shelf'teki **Separate Mesh by Material** aracını kullan.
+3. Gruptaki ayrılmış tüm mesh'leri seçip orijinal SKL'ye bind et. En hızlı sonuç için Bind Skin seçeneklerinden **Closest Distance**'ı seç.
+4. Önce orijinal mesh'i, sonra ayrılmış bir mesh'i seçip skin weight'leri kopyala. Bunu her materyal için tekrarla.
+5. Mesh grubunu daha küçük gruplara ayır. SKL'yi her gruba sürükleyip export et. Bu aşamada dahil etmek istemediğin materyalleri kaldırabilirsin.
+6. Yeni bir Maya sahnesi aç, ardından export ettiğin tüm SKL ve SKN dosyalarını sahneye geri sürükle.
+
+## 3. Mesh geometrisini azalt
+
+<YouTube id="v4YBd4xBMlU" title="Mesh'teki gizli geometriyi kaldırma" />
+
+<Callout type="info" title="Önce gizli geometriyi kaldır">
+  Karakter kıyafetlerinin içinde kalan geometriyle başla. League'in yukarıdan bakan kamerası bunları oyunda çoğu zaman göstermez.
+</Callout>
+
+1. Mesh'i seç. Sonraki adımları kolaylaştırmak için diğer mesh'leri gizle.
+2. `F11` tuşuna bas, ardından kaldırmak istediğin face'lere çift tıkla.
+3. Sağ fare tuşunu basılı tut, yeni bir materyal atamak için aşağı sürükle ve menüden herhangi bir materyal seç.
+4. Hypershade'i açıp yeni materyalin adını doğrula.
+5. Skin grubuna dön, export et, ardından yeniden import et.
+6. Outliner'da yeni geometri veya materyal grubunu bul. İstemediğin geometriyi skin'den unbind et, ardından sil.
+
+Alternatif olarak Maya'nın **Reduce** aracını kullanarak mesh kalitesini düşür, ardından azaltılmış mesh'i orijinal SKL'ye yeniden bind et.
+
+<Callout type="info" title="Sıra önemli">
+  Sahne joint sınırını aşıyorsa mesh'i bölmeden veya export etmeden önce joint sayısını azaltmayı bitir. Yoksa model export edilemez. Animasyonları değiştirmeyen basit bir 3D model swap için doğrudan 3. bölüme geçebilirsin.
+</Callout>

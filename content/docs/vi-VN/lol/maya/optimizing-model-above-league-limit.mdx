@@ -1,0 +1,154 @@
+---
+title: "Tối ưu model vượt giới hạn của LMHT"
+description: "Giảm số xương và vertex của model trong Maya mà vẫn giữ được skin weight và export được cho Liên Minh Huyền Thoại."
+category: "maya"
+credits:
+  discord: "ac_lys"
+  github: "https://github.com/NoThoughtHeadEmpty"
+---
+
+Hướng dẫn này giúp bạn giảm số xương và vertex của model trong Maya mà vẫn giữ được phần lớn skin weight.
+
+Nếu bạn chỉ muốn đổi model 3D và không định sửa animation, hãy đi thẳng tới [Giảm geometry của mesh](#3-giảm-geometry-của-mesh).
+
+<img
+  src="https://github.com/NoThoughtHeadEmpty/b/blob/main/Screenshot%202026-08-23%20234620.png?raw=true"
+  alt="Scene Maya chứa model vượt giới hạn xương hoặc vertex của LMHT"
+  width={1052}
+  height={785}
+/>
+
+## 1. Giảm số lượng xương
+
+<YouTube id="cfLxL4gFCcg" title="Chuyển skin weight giữa các xương" />
+
+Dùng script này để chuyển skin weight từ một hoặc nhiều xương nguồn sang các xương đích tương ứng.
+
+1. Copy đoạn code dưới đây vào Script Editor của Maya.
+2. Thay các tên ví dụ trong `source_joints` và `target_joints`. Mỗi xương nguồn phải khớp với xương đích ở cùng vị trí bên danh sách kia.
+3. Chọn mesh đã bind rồi chạy script.
+
+```python
+import maya.cmds as cmds
+
+def transfer_weights_multi(source_joints, target_joints):
+    if len(source_joints) != len(target_joints):
+        cmds.error("Source and target joint lists must be the same length.")
+
+    # Get selected mesh
+    sel = cmds.ls(sl=True, type="transform")
+    if not sel:
+        cmds.error("Select the skinned mesh first.")
+    mesh = sel[0]
+
+    # Find skinCluster
+    skin_cluster = None
+    history = cmds.listHistory(mesh)
+    for node in history:
+        if cmds.nodeType(node) == "skinCluster":
+            skin_cluster = node
+            break
+
+    if not skin_cluster:
+        cmds.error("No skinCluster found on selected mesh.")
+
+    # Get all vertices once
+    verts = cmds.ls(mesh + ".vtx[*]", fl=True)
+
+    for source_joint, target_joint in zip(source_joints, target_joints):
+        # Ensure target joint is an influence
+        influences = cmds.skinCluster(skin_cluster, q=True, inf=True)
+        if target_joint not in influences:
+            cmds.skinCluster(skin_cluster, e=True, ai=target_joint, lw=False, wt=0)
+
+        for v in verts:
+            src_w = cmds.skinPercent(skin_cluster, v, q=True, t=source_joint)
+            if src_w > 0:
+                tgt_w = cmds.skinPercent(skin_cluster, v, q=True, t=target_joint)
+                cmds.skinPercent(
+                    skin_cluster,
+                    v,
+                    tv=[
+                        (target_joint, tgt_w + src_w),
+                        (source_joint, 0)
+                    ]
+                )
+
+        print("Transferred weights from {} to {}".format(source_joint, target_joint))
+
+    print("All joint transfers complete.")
+
+
+# ===== USAGE =====
+# 1. Select the skinned mesh
+# 2. Replace joint names below
+
+source_joints = [
+    "_Bone_Hair045_L",
+
+]
+
+target_joints = [
+    "_Bone_Hair044_L",
+
+]
+
+transfer_weights_multi(source_joints, target_joints)
+```
+
+Sau khi script chạy xong, di chuyển từng xương nguồn. Mesh sẽ không còn biến dạng theo nó nữa. Di chuyển cả xương đích để chắc skin weight đã chuyển sang đó.
+
+<Callout type="info" title="Quan trọng">
+  Một xương có thể ảnh hưởng nhiều mesh. Chọn từng mesh bị ảnh hưởng và chạy lại
+  script trước khi xóa xương đó.
+</Callout>
+
+Script chỉ chuyển weight, không xóa xương. Xử lý hết các mesh bị ảnh hưởng trước. Sau đó kiểm tra các xương con của từng xương nguồn và chỉ xóa những xương bạn đã chắc là không còn cần.
+
+Chạy script này để kiểm tra tổng số xương trong scene:
+
+```python
+import maya.cmds as cmds
+
+# Find all joint nodes in the entire scene
+joints = cmds.ls(type='joint') or []
+print(f"Total Joints in Scene: {len(joints)}")
+
+```
+
+Nếu số lượng vẫn vượt giới hạn export, hãy lặp lại thao tác chuyển weight với một cặp xương nguồn và đích an toàn khác.
+
+## 2. Tách mesh và sao chép skin weight
+
+<YouTube id="trdkUoEdaiQ" title="Tách mesh và sao chép skin weight" />
+
+1. Chọn mesh rồi nhấn `Ctrl+D` để nhân bản nó.
+2. Chọn group vừa nhân bản, rồi dùng **Separate Mesh by Material** trên shelf Lemon 3D.
+3. Chọn toàn bộ mesh đã tách trong group và bind chúng vào SKL gốc. Trong tùy chọn Bind Skin, chọn **Closest Distance** để có kết quả nhanh nhất.
+4. Chọn mesh gốc, rồi chọn một mesh đã tách và sao chép skin weight. Lặp lại cho từng material.
+5. Chia group mesh thành các group nhỏ hơn. Kéo SKL vào từng group rồi export group đó. Ở bước này, bạn có thể bỏ bất kỳ material nào không muốn đưa vào.
+6. Mở một scene Maya mới, rồi kéo toàn bộ file SKL và SKN vừa export trở lại.
+
+## 3. Giảm geometry của mesh
+
+<YouTube id="v4YBd4xBMlU" title="Xóa geometry bị che khuất khỏi mesh" />
+
+<Callout type="info" title="Xóa geometry bị che khuất trước">
+  Bắt đầu từ geometry nằm bên trong quần áo của nhân vật. Camera nhìn từ trên
+  xuống của LMHT thường sẽ không cho thấy phần đó trong game.
+</Callout>
+
+1. Chọn mesh. Ẩn các mesh khác để những bước tiếp theo dễ làm hơn.
+2. Nhấn `F11`, rồi nhấp đúp vào các face bạn muốn xóa.
+3. Giữ nút chuột phải, kéo xuống để gán material mới, rồi chọn material nào cũng được trong menu.
+4. Mở Hypershade và xác nhận tên của material mới.
+5. Quay lại group skin, export nó, rồi import lại.
+6. Tìm group geometry hoặc material mới trong Outliner. Unbind phần geometry không cần khỏi skin, rồi xóa nó.
+
+Hoặc dùng tool **Reduce** của Maya để giảm chất lượng mesh, rồi bind mesh đã giảm trở lại SKL gốc.
+
+<Callout type="info" title="Thứ tự rất quan trọng">
+  Nếu scene vượt giới hạn xương, hãy giảm xong số xương trước khi tách hoặc export
+  mesh. Nếu không, model sẽ không export được. Nếu bạn chỉ đổi model 3D và không
+  sửa animation, có thể đi thẳng tới phần 3.
+</Callout>
