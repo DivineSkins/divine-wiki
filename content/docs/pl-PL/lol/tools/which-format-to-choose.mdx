@@ -1,0 +1,114 @@
+---
+title: "Który format wybrać"
+description: "Wybierz .modpkg lub .fantome z niespakowanymi folderami WAD, aby zachować własne ścieżki podczas migracji Riotu na hashe file."
+category: "tools"
+---
+
+**Wybierz `.modpkg`, jeśli obsługuje go twój menedżer skinów.** Jeśli potrzebujesz `.fantome`, umieść w nim **niespakowane foldery `.wad.client`**.
+
+Obie opcje zachowują czytelne ścieżki plików. Dzięki temu narzędzia mogą później otwierać, edytować, naprawiać i przepathować mod.
+
+| Pakiet | Co wybrać |
+| --- | --- |
+| `.modpkg` | Zalecany, gdy jest obsługiwany. Przechowuje ścieżki razem z plikami pakietu. |
+| `.fantome` z niespakowanymi folderami `.wad.client` | Zalecany dla Fantome. Zachowuje osobne pliki i ich ścieżki. |
+| `.fantome` ze spakowanymi plikami `.wad.client` | Unikaj przy nowych eksportach. Bez zapisanej tabeli hashy własne ścieżki mogą być niemożliwe do odzyskania. |
+
+## Dlaczego to teraz ważne
+
+Riot zmienia odwołania do zasobów w plikach BIN z czytelnych wartości `string` na wartości `file` przechowujące hashe.
+Im więcej odwołań się zmienia, tym mniej czytelnych ścieżek narzędzia mogą odzyskać z samego BIN-a.
+
+Zależnie od edytora tekstowego ten typ może wyglądać jak `file:` lub `file =`.
+Plik binarny przechowuje 64-bitowy hash ścieżki. Edytor pokazuje czytelną nazwę, gdy zna odpowiadającą mu ścieżkę.
+
+Wcześniej odwołanie string mogło przechowywać własną ścieżkę tekstury bezpośrednio w BIN-ie:
+
+```text
+assets/my_custom_skin/textures/body.tex
+```
+
+Po konwersji na `file` odwołanie przechowuje hash tej ścieżki.
+Jeśli nic innego nie zachowa nazwy, narzędzie nie odzyska jej niezawodnie z samego hasha.
+
+Dotyczy to odwołań do zasobów. Nie oznacza, że każde pole tekstowe w BIN-ie staje się odwołaniem do pliku.
+
+## Jak działa unhashing
+
+Spakowany WAD identyfikuje pliki przez hashe ścieżek. Nie zachowuje zwykłego katalogu z czytelnymi nazwami plików.
+
+Narzędzia takie jak [Quartz](/docs/lol/tools/modding-apps/quartz) korzystają z tabeli wyszukiwania:
+
+1. Odczytaj hash pliku.
+2. Wyszukaj go w słowniku znanych ścieżek.
+3. Wyświetl pasującą ścieżkę, jeśli istnieje.
+4. Zachowaj liczbowy hash, jeśli ścieżka jest nieznana.
+
+**Unhashing to wyszukiwanie, a nie odwracanie hasha.**
+Społecznościowe bazy hashy zawierają znane ścieżki gry. Nie znają automatycznie ścieżek wymyślonych dla twojego moda.
+Narzędzia mogą też poznawać nazwy z folderów projektu, czytelnych stringów BIN-a i osadzonych tabel hashy.
+
+Pakowanie WAD-a usuwa czytelne nazwy. Konwersja stringów BIN-a na hashe `file` usuwa kolejne źródło tych nazw.
+Bez zapisanych powiązań pliki mogą zostać wypakowane pod nazwami szesnastkowymi.
+Może to uniemożliwić odnajdywanie tekstur, śledzenie odwołań i poprawny repath zasobów.
+
+<Callout type="warning" title="Wczytanie moda a odzyskanie nazw plików">
+  Mod może nadal działać w grze, jeśli jego hashe pasują. Problem dotyczy odzyskania
+  czytelnych ścieżek do późniejszej edycji i napraw. Nieznana nazwa pliku nie
+  oznacza, że samego WAD-a nie można otworzyć.
+</Callout>
+
+## Jak spakować Fantome
+
+Zachowaj każdy `.wad.client` jako **folder z osobnymi plikami moda** w `WAD/`.
+Przykładowa struktura wewnątrz archiwum `.fantome`:
+
+```text
+MySkin.fantome
+├── META/
+│   └── info.json
+└── WAD/
+    └── Ahri.wad.client/
+        ├── assets/
+        │   └── my_custom_skin/
+        │       └── textures/
+        │           └── body.tex
+        └── data/
+            └── characters/
+                └── ahri/
+                    └── skins/
+                        └── skin0.bin
+```
+
+`Ahri.wad.client/` jest folderem. Pojedynczy spakowany plik WAD nie zachowuje takiej listy katalogów.
+„Raw” oznacza osobne pliki wewnątrz pakietu. Zewnętrzny `.fantome` nadal może używać kompresji ZIP.
+
+Eksporter Fantome w [Flint](/docs/lol/tools/modding-apps/flint) tworzy taką strukturę folderów.
+[Hematite](/docs/lol/tools/modding-apps/hematite) również zapisuje naprawione WAD-y jako niespakowane foldery, aby zachować rozpoznane ścieżki.
+Zachowaj tę strukturę podczas pakowania wyniku.
+
+## Kiedy wybrać Modpkg
+
+Wybierz `.modpkg`, jeśli obsługuje go docelowy menedżer. Eksporter Flinta dołącza ścieżki pakowanych zasobów.
+Narzędzia mogą używać tych nazw bez polegania wyłącznie na społecznościowej bazie hashy.
+
+Eksportuj z oryginalnego projektu, dopóki czytelne ścieżki nadal istnieją.
+Konwersja starego spakowanego WAD-a do `.modpkg` nie odtworzy utraconych nazw.
+
+## Przed udostępnieniem
+
+1. Wyeksportuj `.modpkg` lub `.fantome` z niespakowanymi folderami WAD.
+2. Otwórz pakiet ponownie i sprawdź, czy twoje własne ścieżki są czytelne.
+3. Zachowaj wygenerowane tabele hashy i metadane ścieżek razem z pakietem.
+4. Przetestuj eksport w docelowym menedżerze skinów i w grze.
+5. Zachowaj oryginalny folder projektu na przyszłe aktualizacje.
+
+Osadzone tabele hashy i metadane ścieżek BIN-ów pomagają zgodnym narzędziom rozpoznawać własne odwołania.
+Zachowaj je, ale nie zakładaj, że każde narzędzie pozostawi je podczas zapisu.
+Żaden z zalecanych formatów nie zastępuje kopii zapasowej projektu źródłowego.
+
+## Źródła
+
+- [Kod eksportu Flinta](https://github.com/RitoShark/Flint/blob/main/src-tauri/src/commands/import_export/export.rs): foldery Fantome i ścieżki Modpkg.
+- [Kod unhashingu Quartz](https://github.com/RitoShark/Quartz/blob/main/src-tauri/crates/quartz-lib/src/bin/jade/unhasher.rs): wyszukiwanie wartości `file`, `hash` i `link` w słowniku.
+- [Hematite](https://github.com/RitoShark/Hematite): naprawa modów i przetwarzanie WAD-ów.

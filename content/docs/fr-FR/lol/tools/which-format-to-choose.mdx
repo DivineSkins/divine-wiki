@@ -1,0 +1,114 @@
+---
+title: "Quel format choisir"
+description: "Choisis .modpkg ou un .fantome avec des dossiers WAD non empaquetés pour préserver les chemins personnalisés face aux références file de Riot."
+category: "tools"
+---
+
+**Choisis `.modpkg` si ton gestionnaire de skins le prend en charge.** Pour un `.fantome`, garde des **dossiers `.wad.client` non empaquetés** à l'intérieur.
+
+Ces deux options conservent les chemins lisibles des fichiers. Les outils pourront ainsi rouvrir, modifier, repath et réparer ton mod.
+
+| Format | Que choisir |
+| --- | --- |
+| `.modpkg` | Recommandé si compatible. Conserve les chemins avec les fichiers du package. |
+| `.fantome` avec des dossiers `.wad.client` non empaquetés | Recommandé pour Fantome. Conserve les fichiers séparés et leurs chemins. |
+| `.fantome` avec des fichiers `.wad.client` empaquetés | À éviter pour les nouveaux exports. Sans table de hachage sauvegardée, certains chemins peuvent devenir irrécupérables. |
+
+## Pourquoi c'est important maintenant
+
+Riot remplace les références aux fichiers dans les BIN : les valeurs `string` lisibles deviennent des valeurs `file` hachées.
+Plus cette migration avance, moins les outils peuvent retrouver de chemins dans le BIN lui-même.
+
+Selon l'éditeur, ce type s'affiche comme `file:` ou `file =`.
+Le fichier binaire stocke un hash de chemin sur 64 bits. L'éditeur affiche un nom lisible s'il connaît le chemin correspondant.
+
+Avant, une référence string pouvait conserver directement ce chemin de texture dans le BIN :
+
+```text
+assets/my_custom_skin/textures/body.tex
+```
+
+Après conversion en `file`, la référence contient le hash du chemin.
+Si rien ne conserve le nom, le hash seul ne permet pas de le retrouver de manière fiable.
+
+Cela concerne les références aux fichiers. Tous les champs de texte d'un BIN ne deviennent pas des références file.
+
+## Comment fonctionne l'unhashing
+
+Un WAD empaqueté identifie ses fichiers par des hashes de chemins. Il ne conserve pas un répertoire classique de noms lisibles.
+
+Des outils comme [Quartz](/docs/lol/tools/modding-apps/quartz) utilisent une table de correspondance :
+
+1. Lis le hash du fichier.
+2. Recherche ce hash dans un dictionnaire de chemins connus.
+3. Affiche le chemin correspondant s'il existe.
+4. Garde le hash numérique si le chemin est inconnu.
+
+**L'unhashing est une recherche, pas une inversion du hash.**
+Les bases communautaires connaissent des chemins du jeu, mais pas automatiquement ceux que tu inventes pour ton mod.
+Les outils peuvent aussi récupérer des noms depuis les dossiers du projet, les strings du BIN et les tables intégrées.
+
+Empaqueter un WAD supprime les noms lisibles. Convertir les strings en hashes `file` supprime une autre source de noms.
+Sans correspondance sauvegardée, les fichiers peuvent être extraits avec des noms hexadécimaux.
+Les outils risquent alors de ne plus retrouver les textures, suivre les références ou repath correctement les fichiers.
+
+<Callout type="warning" title="Charger un mod et retrouver ses noms sont deux choses différentes">
+  Le mod peut encore fonctionner en jeu si ses hashes correspondent. Le problème
+  concerne les chemins lisibles nécessaires aux modifications et réparations.
+  Un nom inconnu ne signifie pas que le WAD ne peut pas être ouvert.
+</Callout>
+
+## Comment empaqueter un Fantome
+
+Garde chaque `.wad.client` comme un **dossier contenant les fichiers séparés du mod** sous `WAD/`.
+Voici un exemple de structure dans l'archive `.fantome` :
+
+```text
+MySkin.fantome
+├── META/
+│   └── info.json
+└── WAD/
+    └── Ahri.wad.client/
+        ├── assets/
+        │   └── my_custom_skin/
+        │       └── textures/
+        │           └── body.tex
+        └── data/
+            └── characters/
+                └── ahri/
+                    └── skins/
+                        └── skin0.bin
+```
+
+`Ahri.wad.client/` est un dossier. Un seul fichier WAD empaqueté ne conserve pas cette liste de chemins.
+« Raw » signifie que les fichiers restent séparés dans le package. Le `.fantome` peut toujours utiliser la compression ZIP.
+
+L'exporteur Fantome de [Flint](/docs/lol/tools/modding-apps/flint) crée cette structure.
+[Hematite](/docs/lol/tools/modding-apps/hematite) écrit aussi les WAD réparés sous forme de dossiers pour conserver les chemins résolus.
+Garde cette structure quand tu empaquettes le résultat.
+
+## Quand choisir Modpkg
+
+Choisis `.modpkg` si le gestionnaire cible le prend en charge. Flint inclut les chemins des fichiers dans cet export.
+Les outils peuvent utiliser ces noms sans dépendre uniquement de la base communautaire.
+
+Exporte depuis ton projet original, tant que les chemins lisibles existent.
+Convertir un ancien WAD empaqueté en `.modpkg` ne recrée pas les noms déjà perdus.
+
+## Avant de partager
+
+1. Exporte en `.modpkg` ou en `.fantome` avec des dossiers WAD non empaquetés.
+2. Rouvre le package et vérifie que tes chemins personnalisés restent lisibles.
+3. Conserve les tables de hachage générées et les métadonnées de chemins avec le package.
+4. Teste l'export dans le gestionnaire cible et en jeu.
+5. Garde ton dossier de projet original pour les futures mises à jour.
+
+Les tables intégrées et les métadonnées de chemins des BIN aident les outils compatibles à résoudre les références personnalisées.
+Conserve-les, mais ne suppose pas que tous les outils les gardent lors d'une sauvegarde.
+Aucun de ces formats ne remplace une sauvegarde du projet source.
+
+## Références
+
+- [Code d'export de Flint](https://github.com/RitoShark/Flint/blob/main/src-tauri/src/commands/import_export/export.rs) : dossiers Fantome et chemins Modpkg.
+- [Code d'unhashing de Quartz](https://github.com/RitoShark/Quartz/blob/main/src-tauri/crates/quartz-lib/src/bin/jade/unhasher.rs) : recherche des valeurs `file`, `hash` et `link` dans le dictionnaire.
+- [Hematite](https://github.com/RitoShark/Hematite) : réparation des mods et traitement des WAD.

@@ -1,0 +1,114 @@
+---
+title: "Nên chọn định dạng nào"
+description: "Chọn .modpkg hoặc .fantome chứa thư mục WAD chưa đóng gói để giữ đường dẫn tùy chỉnh khi Riot chuyển tham chiếu string sang hash file."
+category: "tools"
+---
+
+**Chọn `.modpkg` nếu trình quản lý skin của bạn hỗ trợ.** Nếu cần `.fantome`, hãy dùng **thư mục `.wad.client` chưa đóng gói** bên trong.
+
+Cả hai cách đều giữ đường dẫn tệp có thể đọc được. Nhờ đó, công cụ có thể mở lại, chỉnh sửa, repath và sửa mod sau này.
+
+| Gói | Nên chọn gì |
+| --- | --- |
+| `.modpkg` | Khuyên dùng nếu được hỗ trợ. Lưu đường dẫn cùng với các tệp trong gói. |
+| `.fantome` chứa thư mục `.wad.client` chưa đóng gói | Khuyên dùng cho Fantome. Giữ các tệp riêng lẻ và đường dẫn thư mục. |
+| `.fantome` chứa tệp `.wad.client` đã đóng gói | Tránh dùng cho bản xuất mới. Đường dẫn tùy chỉnh có thể không khôi phục được nếu thiếu bảng hash đã lưu. |
+
+## Vì sao điều này quan trọng lúc này
+
+Riot đang chuyển tham chiếu tài nguyên trong tệp BIN từ giá trị `string` đọc được sang giá trị `file` chứa hash.
+Càng nhiều tham chiếu được chuyển đổi, công cụ càng có ít đường dẫn đọc được để khôi phục từ chính BIN.
+
+Tùy trình soạn thảo, bạn có thể thấy kiểu này được viết là `file:` hoặc `file =`.
+Tệp nhị phân lưu hash đường dẫn 64 bit. Trình soạn thảo có thể hiện tên đọc được nếu biết đường dẫn tương ứng.
+
+Trước đây, tham chiếu string có thể lưu trực tiếp đường dẫn texture tùy chỉnh trong BIN:
+
+```text
+assets/my_custom_skin/textures/body.tex
+```
+
+Sau khi chuyển sang `file`, tham chiếu lưu hash của đường dẫn đó.
+Nếu tên không được giữ ở nơi khác, công cụ không thể khôi phục đáng tin cậy chỉ từ hash.
+
+Thay đổi này liên quan đến tham chiếu tài nguyên. Không phải mọi trường văn bản trong BIN đều trở thành tham chiếu tệp.
+
+## Unhash thực sự hoạt động thế nào
+
+WAD đã đóng gói xác định tệp bằng hash đường dẫn. Nó không giữ danh mục tên tệp đọc được như thư mục thông thường.
+
+Các công cụ như [Quartz](/docs/lol/tools/modding-apps/quartz) dùng bảng tra cứu để phân giải hash:
+
+1. Đọc hash của tệp.
+2. Tìm hash đó trong từ điển đường dẫn đã biết.
+3. Hiện đường dẫn tương ứng nếu có.
+4. Giữ hash dạng số nếu không biết đường dẫn.
+
+**Unhash là tra cứu, không phải đảo ngược hash.**
+Cơ sở dữ liệu cộng đồng chứa đường dẫn đã biết của trò chơi. Nó không tự biết đường dẫn bạn tạo cho mod.
+Công cụ cũng có thể lấy tên từ thư mục dự án, chuỗi BIN đọc được và bảng hash nhúng.
+
+Đóng gói WAD loại bỏ tên tệp đọc được. Chuyển string trong BIN sang hash `file` loại bỏ thêm một nguồn tên.
+Nếu không lưu ánh xạ, các tệp tùy chỉnh có thể được trích xuất với tên dạng thập lục phân.
+Điều này có thể khiến công cụ không tìm được texture, theo dõi tham chiếu hoặc repath tài nguyên đúng cách.
+
+<Callout type="warning" title="Tải mod khác với khôi phục tên tệp">
+  Mod vẫn có thể hoạt động trong game nếu các hash khớp nhau. Vấn đề là khôi phục
+  đường dẫn đọc được để chỉnh sửa và sửa lỗi sau này. Tên tệp không xác định
+  không có nghĩa là không thể mở WAD.
+</Callout>
+
+## Cách đóng gói Fantome
+
+Giữ mỗi `.wad.client` dưới dạng **thư mục chứa các tệp mod riêng lẻ** bên trong `WAD/`.
+Ví dụ cấu trúc bên trong tệp `.fantome`:
+
+```text
+MySkin.fantome
+├── META/
+│   └── info.json
+└── WAD/
+    └── Ahri.wad.client/
+        ├── assets/
+        │   └── my_custom_skin/
+        │       └── textures/
+        │           └── body.tex
+        └── data/
+            └── characters/
+                └── ahri/
+                    └── skins/
+                        └── skin0.bin
+```
+
+`Ahri.wad.client/` ở đây là thư mục. Một tệp WAD đã đóng gói không giữ danh sách thư mục này.
+“Raw” nghĩa là các tệp nằm riêng trong gói. Tệp `.fantome` bên ngoài vẫn có thể dùng nén ZIP.
+
+Trình xuất Fantome của [Flint](/docs/lol/tools/modding-apps/flint) tạo cấu trúc thư mục này.
+[Hematite](/docs/lol/tools/modding-apps/hematite) cũng ghi WAD đã sửa thành thư mục chưa đóng gói để giữ đường dẫn đã phân giải.
+Giữ cấu trúc đó khi đóng gói kết quả.
+
+## Khi nào nên chọn Modpkg
+
+Chọn `.modpkg` nếu trình quản lý đích hỗ trợ. Flint đưa đường dẫn tài nguyên vào gói khi xuất.
+Công cụ có thể dùng các tên này mà không chỉ phụ thuộc vào cơ sở dữ liệu hash cộng đồng.
+
+Xuất từ dự án gốc khi đường dẫn đọc được vẫn còn.
+Chuyển WAD cũ đã đóng gói sang `.modpkg` không thể tạo lại tên tùy chỉnh đã mất.
+
+## Trước khi chia sẻ
+
+1. Xuất thành `.modpkg` hoặc `.fantome` chứa thư mục WAD chưa đóng gói.
+2. Mở lại gói và kiểm tra đường dẫn tùy chỉnh vẫn đọc được.
+3. Giữ bảng hash được tạo và siêu dữ liệu đường dẫn cùng với gói.
+4. Kiểm tra bản xuất trong trình quản lý skin đích và trong game.
+5. Giữ thư mục dự án gốc cho các bản cập nhật sau.
+
+Bảng hash nhúng và siêu dữ liệu đường dẫn BIN có thể giúp công cụ tương thích phân giải tham chiếu tùy chỉnh.
+Hãy giữ chúng, nhưng đừng cho rằng mọi công cụ đều giữ lại khi lưu.
+Cả hai định dạng được khuyên dùng đều không thay thế bản sao lưu dự án gốc.
+
+## Nguồn tham khảo
+
+- [Mã xuất của Flint](https://github.com/RitoShark/Flint/blob/main/src-tauri/src/commands/import_export/export.rs): cấu trúc thư mục Fantome và đường dẫn Modpkg.
+- [Mã unhash của Quartz](https://github.com/RitoShark/Quartz/blob/main/src-tauri/crates/quartz-lib/src/bin/jade/unhasher.rs): tra cứu `file`, `hash` và `link` trong từ điển.
+- [Hematite](https://github.com/RitoShark/Hematite): sửa mod và xử lý WAD.
