@@ -1,21 +1,48 @@
 ---
-title: Material atlas plugin (all versions of blender)
+title: "Material Atlas (Any Blender Version)"
+description: "Combine all of a model's materials into one texture with the Material Combiner add-on. Works on every Blender version."
+category: "blender"
+credits:
+  discord: Ceerel
+  github: CeerelXP
 ---
 
-There was a materal atlas guide i made a while back, only for blender 5.0, heres a new version for all blender versions
+<PremiumCard
+  title="Required add-on: Material Combiner"
+  href="https://github.com/Grim-es/material-combiner-addon/releases/latest"
+>
+  Download the `.zip` from the latest release. Don't unzip it.
+</PremiumCard>
 
-First install this plugin
+A material atlas packs every texture on your model into a single image, so League only has to load one texture. The [CATS version of this guide](/docs/lol/blender/material-atlas) only works on Blender 5.0. This one uses the Material Combiner add-on, which works on every Blender version.
 
-```bash
-https://blender-addons.org/material-combiner/
-```
+## Install the add-on
 
-Drag & Drop into blender and install required libaries
+1. Install the `.zip`:
+   - **Blender 4.2 and newer:** drag and drop the `.zip` into the Blender window.
+   - **Older versions:** go to **Edit → Preferences → Add-ons**, click **Install**, pick the `.zip` and enable **Material Combiner**.
+2. Press `N` in the viewport to open the sidebar and open the **MatCombiner** tab.
+3. Click **Install Pillow** to download the library the add-on needs, then restart Blender.
 
-<img src="/wiki-images/atyayaya.png" alt="" />
+## Build the atlas
 
-Press generate Material list
+1. Select your model and open the **MatCombiner** tab again.
+2. Click **Generate Material List**. Every material on the model shows up in the list. Untick any you want to leave out.
 
-And save atlas
+<img
+  src="/wiki-images/atyayaya.png"
+  alt="The MatCombiner tab in the Blender sidebar with the Generate Material List button underlined"
+/>
 
-Thats basically it, its just like the old blender guide but for every version
+3. Click **Save Atlas to..** (called **Generate Texture Atlas** in newer builds) and pick a folder. The add-on saves the combined texture there and switches your model to a single material.
+
+That's it. Your model now uses one texture instead of one per material.
+
+<Callout type="info" title="Atlas missing textures?">
+
+- If your textures are packed inside the `.blend`, save the file and first use **File → External Data → Unpack Resources**.
+- The add-on looks for nodes by their English names. Switch Blender's language to English and reimport the model if the atlas comes out empty.
+
+</Callout>
+
+Prefer not to use an add-on? See [Material Atlas (No Plugin)](/docs/lol/blender/material-atlas-no-plugin).
