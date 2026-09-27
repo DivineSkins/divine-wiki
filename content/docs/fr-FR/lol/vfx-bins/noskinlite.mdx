@@ -1,0 +1,65 @@
+---
+title: "Faire marcher ton mod sur tous les skins avec NoSkinLite"
+description: "Utilise NoSkinLite de Quartz pour copier ton BIN skin0 dans chaque emplacement de skin et de chroma, pour que ton mod s'affiche quel que soit le skin équipé."
+category: "vfx-bins"
+credits:
+  discord: Ceerel
+  github: CeerelXP
+---
+
+<PremiumCard
+  title="Outil requis : Quartz"
+  href="https://github.com/RitoShark/Quartz"
+>
+  Installe Quartz avant de commencer ce tutoriel.
+</PremiumCard>
+
+<Callout type="info" title="Les skins custom sont sûrs hors de Corée et de Chine">
+  Les skins custom sont sûrs sur toutes les régions sauf la **Corée** et la
+  **Chine**. Ne teste jamais de skins custom sur les serveurs coréens ou
+  chinois. L'anti-cheat là-bas bloque tous les mods et bannit les comptes.
+</Callout>
+
+Un mod fait sur `skin0.bin` ne remplace que le skin de base. Si tu équipes un autre skin ou un chroma en jeu, le mod n'apparaît pas. **NoSkinLite** règle ça en copiant ton `skin0.bin` dans tous les autres emplacements de skin du champion.
+
+## Trouve ton BIN skin0
+
+Dans les fichiers de ton mod, ouvre le dossier des skins du champion :
+
+```text
+data/characters/<champion>/skins
+```
+
+NoSkinLite lit le nom du champion depuis ce chemin, alors garde la structure des dossiers telle quelle.
+
+## Lance NoSkinLite
+
+Fais un clic droit sur `skin0.bin` et choisis **Quartz → NoSkinLite**.
+
+<img
+  src="/wiki-images/noskinlite-1.webp"
+  alt="Menu clic droit sur skin0.bin avec le sous-menu Quartz ouvert et NoSkinLite dans la liste"
+/>
+
+<Callout type="info" title="Tu ne vois pas le menu Quartz ?">
+  Sur Windows 11, clique d'abord sur **Afficher d'autres options**. S'il n'y
+  est toujours pas, ouvre les paramètres de Quartz et active **Explorer
+  Integration** dans **Windows Integration**.
+</Callout>
+
+Quartz crée `skin1.bin`, `skin2.bin` et ainsi de suite dans le même dossier, un pour chaque skin et chroma du champion, plus quelques emplacements de réserve pour les futurs skins. Si tu vois ces nouveaux fichiers, ça a marché.
+
+<img
+  src="/wiki-images/noskinlite-2.webp"
+  alt="Le dossier skins de Gwen avec skin1.bin à skin14.bin créés à côté de skin0.bin"
+/>
+
+## Champions avec des dossiers en plus
+
+Certains champions ont plus d'un dossier dans `data/characters`, par exemple la boîte de Shaco (`shacobox`) ou l'ombre de Zed (`zedshadow`). Chacun a son propre `skin0.bin`. Lance aussi NoSkinLite dessus, sinon ils ne s'afficheront correctement que sur le skin de base.
+
+<Callout type="warning" title="Tu as modifié skin0 après l'avoir lancé ?">
+  NoSkinLite n'écrase jamais un `skinN.bin` qui existe déjà. Si tu modifies
+  `skin0.bin` plus tard, supprime d'abord les fichiers générés et relance
+  NoSkinLite, sinon les autres skins gardent l'ancienne version.
+</Callout>
