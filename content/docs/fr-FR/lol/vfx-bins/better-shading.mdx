@@ -77,7 +77,8 @@ Clique sur **More** en bas du BIN editor, puis :
 />
 
 Dans la fenêtre **New material**, choisis le preset **AnimeShade** et clique
-sur **Create**.
+sur **Create**. Si tu vois une case **Fade in brush, camouflage and on death**,
+laisse-la cochée.
 
 <img
   src="/wiki-images/better-shading-preset.webp"
@@ -87,6 +88,13 @@ sur **Create**.
 
 Ruby relie le shader à ton skin tout seul. Clique maintenant sur **More → Make
 name unique**.
+
+<Callout type="info" title="Pourquoi cette case compte">
+  La case n'apparaît qu'avec une ancienne version du preset. Sans elle, ton
+  champion reste complètement visible quand il entre dans un buisson (et aussi
+  pendant un camouflage ou son fondu de mort). La version actuelle d'AnimeShade
+  gère déjà le fondu, donc avec elle il n'y a aucune case à cocher.
+</Callout>
 
 ## 4. Mettre ta texture
 
@@ -123,17 +131,18 @@ La preview se met à jour tout de suite. Clique sur **Save**.
   un dissolve de mort : le remplacer supprime cet effet.
 </Callout>
 
-## 6. Exporter le WAD du shader
+## 6. Exporter le shader dans ton mod
 
-Retourne dans l'onglet **Shaders** et clique sur **Export WAD** sur AnimeShade.
-Ça enregistre un `ShaderCache.dx11.wad.client`.
+Garde ton skin ouvert, retourne dans l'onglet **Shaders** et clique sur
+**Export to mod** sur AnimeShade.
 
 <img
   src="/wiki-images/better-shading-export.webp"
-  alt="Le bouton Export WAD du preset AnimeShade"
+  alt="Le bouton d'export du preset AnimeShade"
 />
 
-Mets-le dans ton mod **à côté** du WAD de ton champion, dans la **même couche** :
+Ruby crée un **dossier** `ShaderCache.dx11.wad.client` à côté du WAD de ton
+champion, dans la **même couche** :
 
 ```plaintext
 content/base/
@@ -141,10 +150,36 @@ content/base/
     ShaderCache.dx11.wad.client/
 ```
 
-<Callout type="danger" title="Livre toujours les deux">
-  Ton skin utilise maintenant le shader. Si tu oublies
-  `ShaderCache.dx11.wad.client`, **le jeu crashe au chargement**. La preview
-  de Ruby ne te préviendra pas.
+Ruby choisit l'emplacement en fonction du skin que tu as ouvert :
+
+- **Ton mod n'a qu'une couche** (ou c'est un simple dossier extrait) : le shader
+  va directement à côté du WAD de ton champion.
+- **Ton mod a plusieurs couches** : Ruby te demande laquelle. La couche de ton
+  skin est mise en surbrillance. Choisis celle-là.
+- **Tu as importé ton propre dossier extrait dans le Celestial Creator Hub** :
+  continue d'éditer ce dossier comme d'habitude. Ruby retrouve le projet du
+  Creator Hub qui en fait une copie et place le shader là où Reload le reprend,
+  et Reload l'y conserve.
+- **Tu as importé un projet de mod** (un dossier avec `mod.config.json`) : Ruby
+  écrit directement dans ce projet. Redépose le projet dans le Creator Hub pour
+  mettre à jour sa copie, comme après n'importe quelle autre modif.
+- **Ruby ne sait pas où va ton skin** (aucun skin ouvert, ou un skin en dehors
+  de tout mod) : Ruby te demande un dossier. Choisis celui qui **contient** le
+  `.wad.client` de ton champion (pour un projet de mod, `content/base`).
+
+<Callout type="danger" title="Livre toujours les deux, dans la même couche">
+  Ton skin utilise maintenant le shader. Si `ShaderCache.dx11.wad.client`
+  manque, ou se trouve dans une couche désactivée, **le jeu crashe au
+  chargement**. La preview de Ruby ne te préviendra pas.
+</Callout>
+
+<Callout type="info" title="Tu as un ancien fichier ShaderCache.dx11.wad.client ?">
+  Les anciennes versions de Ruby enregistraient un seul fichier packé au lieu
+  d'un dossier, et la plupart des outils de mod ne savent pas packager un
+  fichier déjà packé posé dans une couche. Clique à nouveau sur **Export to
+  mod** : Ruby extrait l'ancien fichier dans le dossier et le garde en backup
+  `.bak`. Dans un projet de mod, le backup va dans le dossier racine du projet,
+  en dehors de `content/`, pour qu'il ne se retrouve jamais dans ton mod.
 </Callout>
 
 C'est tout. Package ton mod et profite du nouveau rendu en jeu.
@@ -164,3 +199,17 @@ jour en direct :
 | `Rim_Intensity` | Lumière douce autour des bords du modèle. |
 | `Specular_Intensity` | Brillance sur les reflets. |
 | `Base_Color` | Multiplie toute la texture. Baisse-le pour assombrir le skin. |
+
+---
+
+## Toujours visible dans les buissons ?
+
+Si tu as créé ton material avant que la case de fondu existe, ton champion
+reste complètement visible dans les buissons. Pour corriger ça :
+
+1. Ouvre le skin et va dans l'onglet **Material**.
+2. Sélectionne le material AnimeShade. Sa passe affiche un avertissement
+   indiquant qu'elle est opaque.
+3. Clique sur **Make it fade**, puis sur **Save**.
+
+Fais-le pour chaque material qui utilise AnimeShade.

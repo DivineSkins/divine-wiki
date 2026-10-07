@@ -76,7 +76,8 @@ Click **More** at the bottom of the BIN editor, then:
 />
 
 In the **New material** window, pick **AnimeShade** as the preset and click
-**Create**.
+**Create**. If you see a **Fade in brush, camouflage and on death** box, leave
+it ticked.
 
 <img
   src="/wiki-images/better-shading-preset.webp"
@@ -86,6 +87,13 @@ In the **New material** window, pick **AnimeShade** as the preset and click
 
 Ruby links the shader to your skin for you. Now click **More → Make name
 unique**.
+
+<Callout type="info" title="Why the fade box matters">
+  The box only appears with an older copy of the preset. Without it your
+  champion stays fully visible when it walks into a bush (and during camouflage
+  or its death fade). The current AnimeShade download already fades, so with it
+  there is no box to tick.
+</Callout>
 
 ## 4. Set your texture
 
@@ -121,17 +129,18 @@ The preview updates right away. Click **Save**.
   effect.
 </Callout>
 
-## 6. Export the shader WAD
+## 6. Export the shader into your mod
 
-Go back to the **Shaders** tab and click **Export WAD** on AnimeShade. This
-saves a `ShaderCache.dx11.wad.client`.
+Keep your skin open, go back to the **Shaders** tab and click **Export to mod**
+on AnimeShade.
 
 <img
   src="/wiki-images/better-shading-export.webp"
-  alt="The Export WAD button on the AnimeShade preset"
+  alt="The export button on the AnimeShade preset"
 />
 
-Put it in your mod **next to** your champion WAD, in the **same layer**:
+Ruby writes a `ShaderCache.dx11.wad.client` **folder** next to your champion
+WAD, in the **same layer**:
 
 ```plaintext
 content/base/
@@ -139,9 +148,35 @@ content/base/
     ShaderCache.dx11.wad.client/
 ```
 
-<Callout type="danger" title="Always ship both">
-  Your skin now uses the shader. If you leave out `ShaderCache.dx11.wad.client`,
-  **the game crashes on load**. Ruby's preview won't warn you.
+Ruby picks the place from the skin you have open:
+
+- **Your mod has one layer** (or it's a plain extracted folder): the shader goes
+  straight next to your champion WAD.
+- **Your mod has several layers**: Ruby asks which one. Your skin's own layer is
+  highlighted. Pick that one.
+- **You imported your own extracted folder into the Celestial Creator Hub**:
+  keep editing that folder as usual. Ruby finds the Creator Hub project that
+  copies it and puts the shader where Reload carries it over, and Reload keeps
+  it there.
+- **You imported a mod project** (a folder with `mod.config.json`): Ruby writes
+  into that project. Drop the project into the Creator Hub again to update its
+  copy, the same as after any other edit.
+- **Ruby can't tell where your skin goes** (no skin open, or a skin outside any
+  mod): Ruby asks for a folder. Pick the one that **holds** your champion's
+  `.wad.client` (for a mod project, `content/base`).
+
+<Callout type="danger" title="Always ship both, in the same layer">
+  Your skin now uses the shader. If `ShaderCache.dx11.wad.client` is missing, or
+  sits in a layer that's switched off, **the game crashes on load**. Ruby's
+  preview won't warn you.
+</Callout>
+
+<Callout type="info" title="Have an old ShaderCache.dx11.wad.client file?">
+  Older Ruby versions saved a single packed file instead of a folder, and most
+  mod tools don't build a packed file sitting in a layer. Click **Export to mod**
+  again: Ruby unpacks the old file into the folder and keeps the old file as a
+  `.bak` backup. In a mod project the backup goes to the project's top folder,
+  outside `content/`, so it never ends up in your mod.
 </Callout>
 
 That's it. Pack your mod and enjoy the new look in game.
@@ -160,3 +195,16 @@ Every setting is under **Parameters** in the Material tab and updates live:
 | `Rim_Intensity`                          | Soft light around the model's edges.                       |
 | `Specular_Intensity`                     | Shine on highlights.                                       |
 | `Base_Color`                             | Multiplies the whole texture. Lower it to darken the skin. |
+
+---
+
+## Still solid in a bush?
+
+If you made your material before the fade box existed, your champion stays fully
+visible in brush. To fix it:
+
+1. Open the skin and go to the **Material** tab.
+2. Select the AnimeShade material. Its pass shows a warning that it is opaque.
+3. Click **Make it fade**, then **Save**.
+
+Do this for every material that uses AnimeShade.

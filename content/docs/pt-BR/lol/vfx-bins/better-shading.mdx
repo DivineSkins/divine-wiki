@@ -77,7 +77,8 @@ Clique em **More** na parte de baixo do BIN editor e depois:
 />
 
 Na janela **New material**, escolha o preset **AnimeShade** e clique em
-**Create**.
+**Create**. Se aparecer uma caixa **Fade in brush, camouflage and on death**,
+deixe ela marcada.
 
 <img
   src="/wiki-images/better-shading-preset.webp"
@@ -87,6 +88,13 @@ Na janela **New material**, escolha o preset **AnimeShade** e clique em
 
 O Ruby liga o shader à sua skin sozinho. Agora clique em **More → Make name
 unique**.
+
+<Callout type="info" title="Por que essa caixa importa">
+  A caixa só aparece com uma cópia antiga do preset. Sem ela, seu campeão
+  continua totalmente visível quando entra numa moita (e também durante a
+  camuflagem ou o fade de morte). O AnimeShade baixado agora já faz fade, então
+  com ele não tem caixa nenhuma para marcar.
+</Callout>
 
 ## 4. Defina sua textura
 
@@ -122,17 +130,18 @@ O preview atualiza na hora. Clique em **Save**.
   morte: substituir remove esse efeito.
 </Callout>
 
-## 6. Exporte o WAD do shader
+## 6. Exporte o shader para o seu mod
 
-Volte para a aba **Shaders** e clique em **Export WAD** no AnimeShade. Isso
-salva um `ShaderCache.dx11.wad.client`.
+Com a skin ainda aberta, volte para a aba **Shaders** e clique em
+**Export to mod** no AnimeShade.
 
 <img
   src="/wiki-images/better-shading-export.webp"
-  alt="O botão Export WAD no preset AnimeShade"
+  alt="O botão de exportar no preset AnimeShade"
 />
 
-Coloque no seu mod **ao lado** do WAD do campeão, na **mesma camada**:
+O Ruby cria uma **pasta** `ShaderCache.dx11.wad.client` ao lado do WAD do
+campeão, na **mesma camada**:
 
 ```plaintext
 content/base/
@@ -140,10 +149,36 @@ content/base/
     ShaderCache.dx11.wad.client/
 ```
 
-<Callout type="danger" title="Sempre envie os dois">
-  Sua skin agora usa o shader. Se você deixar de fora o
-  `ShaderCache.dx11.wad.client`, **o jogo crasha ao carregar**. O preview do
-  Ruby não vai te avisar.
+O Ruby escolhe o lugar a partir da skin que está aberta:
+
+- **Seu mod tem uma camada só** (ou é uma pasta extraída simples): o shader vai
+  direto para o lado do WAD do campeão.
+- **Seu mod tem várias camadas**: o Ruby pergunta qual usar. A camada da sua
+  skin aparece destacada. Escolha essa.
+- **Você importou sua própria pasta extraída no Celestial Creator Hub**:
+  continue editando essa pasta normalmente. O Ruby encontra o projeto do Creator
+  Hub que copia ela e coloca o shader onde o Reload leva junto, e o Reload
+  mantém ele lá.
+- **Você importou um projeto de mod** (uma pasta com `mod.config.json`): o Ruby
+  grava dentro desse projeto. Solte o projeto no Creator Hub de novo para
+  atualizar a cópia dele, igual depois de qualquer outra edição.
+- **O Ruby não consegue saber onde fica sua skin** (nenhuma skin aberta, ou uma
+  skin fora de qualquer mod): o Ruby pede uma pasta. Escolha a que **contém** o
+  `.wad.client` do seu campeão (num projeto de mod, `content/base`).
+
+<Callout type="danger" title="Sempre envie os dois, na mesma camada">
+  Sua skin agora usa o shader. Se o `ShaderCache.dx11.wad.client` estiver
+  faltando, ou estiver numa camada desativada, **o jogo crasha ao carregar**. O
+  preview do Ruby não vai te avisar.
+</Callout>
+
+<Callout type="info" title="Tem um arquivo ShaderCache.dx11.wad.client antigo?">
+  Versões antigas do Ruby salvavam um único arquivo empacotado em vez de uma
+  pasta, e a maioria das ferramentas de mod não monta um arquivo empacotado
+  solto numa camada. Clique em **Export to mod** de novo: o Ruby desempacota o
+  arquivo antigo na pasta e guarda o arquivo antigo como backup `.bak`. Num
+  projeto de mod, o backup vai para a pasta raiz do projeto, fora de
+  `content/`, então ele nunca acaba indo parar no seu mod.
 </Callout>
 
 Pronto. Empacote seu mod e aproveite o novo visual no jogo.
@@ -162,3 +197,17 @@ Todas as opções ficam em **Parameters** na aba Material e atualizam ao vivo:
 | `Rim_Intensity` | Luz suave em volta das bordas do modelo. |
 | `Specular_Intensity` | Brilho nos reflexos. |
 | `Base_Color` | Multiplica a textura inteira. Diminua para escurecer a skin. |
+
+---
+
+## Continua sólido na moita?
+
+Se você criou seu material antes da caixa de fade existir, seu campeão continua
+totalmente visível na moita. Para corrigir:
+
+1. Abra a skin e vá para a aba **Material**.
+2. Selecione o material do AnimeShade. O pass dele mostra um aviso de que ele é
+   opaco.
+3. Clique em **Make it fade** e depois em **Save**.
+
+Faça isso em todo material que usa o AnimeShade.
