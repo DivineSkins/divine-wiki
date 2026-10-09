@@ -29,6 +29,44 @@ npm run dev
 
 Open http://localhost:3000.
 
+## Production builds and media
+
+`npm run cf:build` prerenders the guides and packages the Cloudflare Worker.
+OpenNext serves those prerendered responses from its static-assets cache;
+guide updates require a new deployment. This configuration does not support
+runtime cache writes or on-demand revalidation.
+
+The build exports one search index per locale to
+`public/search/<content-hash>/<locale>.json`. Search downloads that static
+file and runs queries in the browser. The hash includes content and search
+configuration, so changed inputs produce a new URL. These generated files
+are ignored by Git. Development still uses `/api/search/<locale>`.
+
+The `IMAGES` binding in `wrangler.toml` enables Next.js image resizing on
+Cloudflare. Prebuild scans local media and supplies missing dimensions to
+literal MDX images, preserving author-specified sizes and aspect ratios.
+Animated WebP images bypass resizing to preserve animation.
+
+Use WebP for guide screenshots (lossless for small text and UI details).
+Use the shared `<Video>` component for silent WebM demonstrations:
+
+```mdx
+<Video
+  src="/wiki-videos/demo.webm"
+  poster="/wiki-images/demo-poster.webp"
+  width={600}
+  height={400}
+  alt="Describe what the demonstration shows"
+  original="/wiki-images/demo.webp"
+/>
+```
+
+Videos defer downloading until playback, play near the viewport, pause
+offscreen, and respect reduced-motion preferences. Keep animations with
+transparency as animated WebP unless the replacement preserves alpha.
+Check dimensions, timing, and visual quality before replacing media, and
+update references in every locale. Keep app icons in their required formats.
+
 ## Content layout
 
 Guides live in `content/docs/en/lol/<category>/*.mdx`. `lol/` is a "game segment" so future games (Valorant, etc.) can sit alongside it. Each category has a `meta.json` that controls sidebar order.

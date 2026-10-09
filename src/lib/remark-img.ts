@@ -1,5 +1,11 @@
 import { visit } from "unist-util-visit";
 import type { Root } from "mdast";
+import type {
+  MdxJsxAttribute,
+  MdxJsxFlowElement,
+  MdxJsxTextElement,
+} from "mdast-util-mdx-jsx";
+import mediaSizes from "./media-sizes.json";
 
 // MDX compiles `<img />` written literally in a document to a plain host
 // element (`_jsx("img", ...)`) — the parser marks author-written JSX with
@@ -15,22 +21,74 @@ import type { Root } from "mdast";
 // preview (src/lib/draft/mdx-config.ts) so staged blob URLs can be swapped
 // in by its components.img override.
 
-interface MdxJsxElement {
-  type: string;
-  name?: string | null;
-  data?: { _mdxExplicitJsx?: boolean } & Record<string, unknown>;
+type ImageElement = MdxJsxFlowElement | MdxJsxTextElement;
+const sizes: Record<
+  string,
+  { width: number; height: number; animated?: boolean }
+> = mediaSizes;
+
+function dimension(attribute?: MdxJsxAttribute): number | undefined {
+  const value = attribute?.value;
+  const text = typeof value === "string" ? value : value?.value;
+  return text && /^\d+(?:\.\d+)?$/.test(text) && Number(text) > 0
+    ? Number(text)
+    : undefined;
+}
+
+function addDimensions(el: ImageElement) {
+  // Spread props can override src/dimensions; leave those author-controlled.
+  if (el.attributes.some((attr) => attr.type === "mdxJsxExpressionAttribute"))
+    return;
+  const attributes = el.attributes.filter(
+    (attr) => attr.type === "mdxJsxAttribute",
+  );
+  const src = attributes.find((attr) => attr.name === "src")?.value;
+  if (typeof src !== "string" || !Object.hasOwn(sizes, src)) return;
+  const size = sizes[src];
+  if (
+    size.animated &&
+    !attributes.some((attr) => attr.name === "unoptimized")
+  ) {
+    el.attributes.push({
+      type: "mdxJsxAttribute",
+      name: "unoptimized",
+      value: null,
+    });
+  }
+  const widthAttr = attributes.find((attr) => attr.name === "width");
+  const heightAttr = attributes.find((attr) => attr.name === "height");
+  const width = dimension(widthAttr);
+  const height = dimension(heightAttr);
+  if ((widthAttr && !width) || (heightAttr && !height)) return;
+  if (!widthAttr)
+    el.attributes.push({
+      type: "mdxJsxAttribute",
+      name: "width",
+      value: String(
+        height ? Math.round((height * size.width) / size.height) : size.width,
+      ),
+    });
+  if (!heightAttr)
+    el.attributes.push({
+      type: "mdxJsxAttribute",
+      name: "height",
+      value: String(
+        width ? Math.round((width * size.height) / size.width) : size.height,
+      ),
+    });
 }
 
 export default function remarkImg() {
   return (tree: Root) => {
     visit(tree, (node) => {
-      const el = node as unknown as MdxJsxElement;
       if (
-        (el.type === "mdxJsxFlowElement" || el.type === "mdxJsxTextElement") &&
-        el.name === "img" &&
-        el.data
+        (node.type === "mdxJsxFlowElement" ||
+          node.type === "mdxJsxTextElement") &&
+        node.name === "img"
       ) {
-        delete el.data._mdxExplicitJsx;
+        if (node.data && "_mdxExplicitJsx" in node.data)
+          delete node.data._mdxExplicitJsx;
+        addDimensions(node);
       }
     });
   };

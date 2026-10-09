@@ -4,6 +4,7 @@
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { resolve, dirname } from "node:path";
+import { createHash } from "node:crypto";
 
 const OUT = resolve("src/git-info.json");
 
@@ -128,3 +129,37 @@ try {
   mkdirSync(dirname(ENTITY_OUT), { recursive: true });
   writeFileSync(ENTITY_OUT, "[]\n");
 }
+
+// Hash search inputs, including uncommitted edits and builds without .git.
+const searchHash = createHash("sha256");
+function hashSearchInput(path) {
+  if (statSync(path).isDirectory()) {
+    for (const entry of readdirSync(path).sort()) {
+      hashSearchInput(resolve(path, entry));
+    }
+    return;
+  }
+  searchHash.update(path.slice(process.cwd().length));
+  searchHash.update("\0");
+  searchHash.update(readFileSync(path));
+  searchHash.update("\0");
+}
+for (const input of [
+  "content/docs",
+  "messages",
+  "src/app/api/search",
+  "src/lib/i18n.ts",
+  "src/lib/source.ts",
+  "src/lib/tree-localization.ts",
+  "src/lib/remark-img.ts",
+  "src/lib/remark-youtube.ts",
+  "source.config.ts",
+  "package-lock.json",
+]) {
+  hashSearchInput(resolve(input));
+}
+writeFileSync(
+  resolve("src/lib/search-version.json"),
+  JSON.stringify({ version: searchHash.digest("hex").slice(0, 20) }) + "\n",
+);
+await import("./prepare-media.mjs");
