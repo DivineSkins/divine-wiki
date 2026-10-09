@@ -14,10 +14,10 @@ import {
   SearchDialogOverlay,
   type SharedProps,
 } from "fumadocs-ui/components/dialog/search";
-import gitInfo from "@/git-info.json";
+import { version } from "@/lib/search-version.json";
 
 // Orama rejects locale codes ("fr-FR") — it wants language names. Keep in
-// sync with the localeMap in src/app/api/search/route.ts so the client
+// sync with the localeMap in src/app/api/search/[locale]/route.ts so the client
 // tokenizes queries the same way the index was built.
 const ORAMA_LANGUAGES: Record<string, string> = {
   en: "english",
@@ -34,7 +34,7 @@ const ORAMA_LANGUAGES: Record<string, string> = {
 
 /**
  * Static search dialog: downloads the current locale's exported index once
- * (keyed by the deployed commit so a new deploy fetches a fresh copy) and
+ * (keyed by the search inputs so changed content fetches a fresh copy) and
  * runs all queries in the browser. Replaces the default dialog, which sent
  * a request to the Worker on every keystroke.
  *
@@ -46,7 +46,10 @@ export default function StaticSearchDialog(props: SharedProps) {
   const { locale } = useI18n();
   const { search, setSearch, query } = useDocsSearch({
     type: "static",
-    from: `/api/search/${locale ?? "en"}?v=${gitInfo.commit}`,
+    from:
+      process.env.NODE_ENV === "development"
+        ? `/api/search/${locale ?? "en"}`
+        : `/search/${version}/${locale ?? "en"}.json`,
     initOrama: () =>
       create({
         schema: { _: "string" },

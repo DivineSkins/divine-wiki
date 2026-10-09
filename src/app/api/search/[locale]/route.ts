@@ -4,14 +4,9 @@ import { searchPath } from "fumadocs-core/breadcrumb";
 import { i18n } from "@/lib/i18n";
 import { createPlaceholderTranslator } from "@/lib/tree-localization";
 
-// Static search: instead of answering queries, each locale route exports that
-// locale's pre-built search index once (~560 KB gzipped). The browser
-// downloads it on first search and runs every query locally — zero Worker
-// compute per keystroke. All four routes are prerendered at build time.
-//
-// The client (src/components/search-dialog.tsx) fetches with a `?v=<commit>`
-// param so each deploy busts the browser cache; next.config.mjs marks the
-// response immutable.
+// Prerender one index per locale. scripts/export-search.mjs publishes these
+// responses as versioned static files after next build. Production clients
+// download those files directly; this route supports dev and older clients.
 export const revalidate = false;
 export const dynamicParams = false;
 
