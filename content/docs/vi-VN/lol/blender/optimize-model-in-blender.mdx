@@ -1,0 +1,79 @@
+---
+title: "Tối ưu model trong Blender"
+description: "Đưa model nhiều polygon xuống dưới giới hạn 65.000 vertex của League bằng Merge by Distance và modifier Decimate."
+category: "blender"
+credits:
+  discord: Ceerel
+  github: CeerelXP
+---
+
+League không load được model có hơn khoảng **65.000 vertex**. Các model bạn tải về, nhất là model tạo bằng AI, thường vượt xa con số này. Hướng dẫn này chỉ bạn hai cách giảm số vertex trong Blender.
+
+<img
+  src="/wiki-images/optimize-model-1.webp"
+  alt="Model 2B trong Blender với overlay thống kê hiển thị 219.906 vertex"
+/>
+
+Model 2B này có **219.906 vertex**, gấp hơn ba lần giới hạn.
+
+<Callout type="info" title="Không thấy số vertex?">
+  Mở menu **Overlays** ở góc trên bên phải viewport rồi bật **Statistics**.
+</Callout>
+
+## Gộp theo khoảng cách
+
+Hầu hết model khi import đều có rất nhiều vertex trùng nằm chồng lên nhau. Gộp chúng lại không mất gì cả: model trông vẫn y như cũ mà giảm được một lượng vertex khổng lồ.
+
+1. Chọn model rồi nhấn `Tab` để vào **Edit Mode**.
+
+<img
+  src="/wiki-images/optimize-model-2.webp"
+  alt="Model trong Edit Mode với toàn bộ mesh được chọn"
+/>
+
+2. Nhấn `A` để chọn tất cả vertex.
+3. Nhấn `M` để mở menu **Merge** rồi chọn **By Distance**. Luôn dùng By Distance, các lựa chọn khác sẽ dồn mọi thứ bạn đã chọn về một điểm duy nhất.
+
+<img
+  src="/wiki-images/optimize-model-3.webp"
+  alt="Menu Merge đang mở với At Center, At Cursor, Collapse và By Distance"
+/>
+
+Blender hiện số vertex đã xoá ở cuối cửa sổ. Ở đây nó đã xoá 188.335 vertex và model giảm xuống còn **31.571**, thấp hơn giới hạn rất nhiều.
+
+<img
+  src="/wiki-images/optimize-model-4.webp"
+  alt="Sau Merge by Distance model còn 31.571 vertex và Blender báo đã xoá 188.335"
+/>
+
+Nếu số vertex vẫn quá cao, tăng nhẹ **Merge Distance** ở bảng góc dưới bên trái, ví dụ lên `0.001`. Đừng tăng quá tay, nếu không các chi tiết gần nhau sẽ bắt đầu dính vào nhau.
+
+## Decimate
+
+Nếu gộp vẫn chưa đủ, dùng modifier **Decimate** để giản lược mesh.
+
+1. Nhấn `Tab` để quay lại **Object Mode** rồi chọn model.
+2. Mở tab **Modifiers** (biểu tượng cờ lê màu xanh) ở bảng Properties bên phải.
+
+<img
+  src="/wiki-images/optimize-model-5.webp"
+  alt="Tab Modifiers, biểu tượng cờ lê màu xanh, được khoanh lại trong bảng Properties"
+/>
+
+3. Nhấn **Add Modifier** rồi tìm `Decimate`.
+4. Chuyển chế độ sang **Planar**.
+5. Tăng **Angle Limit** từ từ và theo dõi số vertex cho đến khi đạt mức bạn muốn. Bật **UVs** trong mục **Delimit** để texture không bị kéo giãn.
+
+<img
+  src="/wiki-images/optimize-model-6.webp"
+  alt="Modifier Decimate ở chế độ Planar với Angle Limit và các tuỳ chọn Delimit"
+/>
+
+6. Mở mũi tên menu thả xuống của modifier rồi nhấn **Apply** để thay đổi được áp vào mesh trước khi export.
+
+<Callout type="info" title="Kết hợp cả hai">
+  Với model quá nhiều polygon, hãy gộp theo khoảng cách trước, sau đó Decimate
+  phần còn lại. Nên giữ dưới 60.000 vertex để có khoảng dư. Xem thêm các bước
+  chuẩn bị model trong [hướng dẫn 3D Model
+  Swap](/docs/lol/blender/3d-model-swap).
+</Callout>

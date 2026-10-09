@@ -1,0 +1,80 @@
+---
+title: "Optimiser un modèle dans Blender"
+description: "Fais passer un modèle high-poly sous la limite de 65 000 vertices de League avec Merge by Distance et le modificateur Decimate."
+category: "blender"
+credits:
+  discord: Ceerel
+  github: CeerelXP
+---
+
+League ne peut pas charger un modèle de plus de **65 000 vertices** environ. Les modèles que tu télécharges, surtout ceux générés par IA, dépassent souvent largement cette limite. Ce guide montre deux façons de réduire ce nombre dans Blender.
+
+<img
+  src="/wiki-images/optimize-model-1.webp"
+  alt="Un modèle de 2B dans Blender avec l'overlay de statistiques affichant 219 906 vertices"
+/>
+
+Ce modèle de 2B a **219 906 vertices**, plus de trois fois la limite.
+
+<Callout type="info" title="Tu ne vois pas le nombre de vertices ?">
+  Ouvre le menu **Overlays** en haut à droite du viewport et active
+  **Statistics**.
+</Callout>
+
+## Fusionner par distance
+
+La plupart des modèles importés contiennent plein de vertices en double, empilés les uns sur les autres. Les fusionner ne coûte rien : le modèle reste identique et perd une énorme partie de ses vertices.
+
+1. Sélectionne ton modèle et appuie sur `Tab` pour passer en **Edit Mode**.
+
+<img
+  src="/wiki-images/optimize-model-2.webp"
+  alt="Le modèle en Edit Mode avec tout le mesh sélectionné"
+/>
+
+2. Appuie sur `A` pour sélectionner tous les vertices.
+3. Appuie sur `M` pour ouvrir le menu **Merge** et choisis **By Distance**. Utilise toujours By Distance, les autres options écrasent tout ce que tu as sélectionné en un seul point.
+
+<img
+  src="/wiki-images/optimize-model-3.webp"
+  alt="Le menu Merge ouvert avec At Center, At Cursor, Collapse et By Distance"
+/>
+
+Blender affiche en bas de la fenêtre le nombre de vertices supprimés. Ici, il en a supprimé 188 335 et le modèle est tombé à **31 571**, bien sous la limite.
+
+<img
+  src="/wiki-images/optimize-model-4.webp"
+  alt="Après Merge by Distance, le modèle a 31 571 vertices et Blender indique 188 335 supprimés"
+/>
+
+Si le nombre est encore trop élevé, augmente un peu **Merge Distance** dans le panneau en bas à gauche, par exemple à `0.001`. N'exagère pas, sinon les détails proches commencent à se fondre entre eux.
+
+## Decimate
+
+Si la fusion ne suffit pas, utilise le modificateur **Decimate** pour simplifier le mesh.
+
+1. Appuie sur `Tab` pour revenir en **Object Mode** et sélectionne ton modèle.
+2. Ouvre l'onglet **Modifiers** (l'icône de clé bleue) dans le panneau Properties à droite.
+
+<img
+  src="/wiki-images/optimize-model-5.webp"
+  alt="L'onglet Modifiers, une icône de clé bleue, entouré dans le panneau Properties"
+/>
+
+3. Clique sur **Add Modifier** et cherche `Decimate`.
+4. Passe le mode sur **Planar**.
+5. Augmente **Angle Limit** petit à petit en surveillant le nombre de vertices jusqu'à obtenir ce que tu veux. Active **UVs** sous **Delimit** pour que les textures ne soient pas étirées.
+
+<img
+  src="/wiki-images/optimize-model-6.webp"
+  alt="Le modificateur Decimate en mode Planar avec Angle Limit et les options Delimit"
+/>
+
+6. Ouvre la flèche du menu déroulant du modificateur et clique sur **Apply** pour que le changement soit appliqué au mesh avant l'export.
+
+<Callout type="info" title="Combine les deux">
+  Sur les modèles très high-poly, fusionne par distance d'abord, puis décime ce
+  qui reste. Vise moins de 60 000 vertices pour garder de la marge. Pour plus
+  d'étapes de préparation du modèle, consulte le [guide 3D Model
+  Swap](/docs/lol/blender/3d-model-swap).
+</Callout>

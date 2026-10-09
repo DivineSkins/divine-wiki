@@ -1,0 +1,80 @@
+---
+title: "Optymalizacja modelu w Blenderze"
+description: "Zejdź z modelem high-poly poniżej limitu 65 000 wierzchołków w League dzięki Merge by Distance i modyfikatorowi Decimate."
+category: "blender"
+credits:
+  discord: Ceerel
+  github: CeerelXP
+---
+
+League nie wczyta modelu, który ma więcej niż około **65 000 wierzchołków**. Pobrane modele, zwłaszcza te wygenerowane przez AI, często mocno przekraczają ten limit. Ten poradnik pokazuje dwa sposoby na zmniejszenie tej liczby w Blenderze.
+
+<img
+  src="/wiki-images/optimize-model-1.webp"
+  alt="Model 2B w Blenderze z nakładką statystyk pokazującą 219 906 wierzchołków"
+/>
+
+Ten model 2B ma **219 906 wierzchołków**, ponad trzy razy więcej niż limit.
+
+<Callout type="info" title="Nie widzisz liczby wierzchołków?">
+  Otwórz menu **Overlays** w prawym górnym rogu viewportu i włącz
+  **Statistics**.
+</Callout>
+
+## Scalanie według odległości
+
+Większość importowanych modeli ma mnóstwo zduplikowanych wierzchołków leżących jeden na drugim. Ich scalenie nic nie kosztuje: model wygląda tak samo, a traci ogromną część wierzchołków.
+
+1. Zaznacz model i wciśnij `Tab`, żeby wejść w **Edit Mode**.
+
+<img
+  src="/wiki-images/optimize-model-2.webp"
+  alt="Model w Edit Mode z zaznaczoną całą siatką"
+/>
+
+2. Wciśnij `A`, żeby zaznaczyć wszystkie wierzchołki.
+3. Wciśnij `M`, żeby otworzyć menu **Merge**, i wybierz **By Distance**. Zawsze używaj By Distance, pozostałe opcje zgniatają wszystko, co zaznaczyłeś, w jeden punkt.
+
+<img
+  src="/wiki-images/optimize-model-3.webp"
+  alt="Otwarte menu Merge z opcjami At Center, At Cursor, Collapse i By Distance"
+/>
+
+Blender pokazuje na dole okna, ile wierzchołków usunął. Tutaj usunął 188 335 wierzchołków, a model spadł do **31 571**, grubo poniżej limitu.
+
+<img
+  src="/wiki-images/optimize-model-4.webp"
+  alt="Po Merge by Distance model ma 31 571 wierzchołków, a Blender zgłasza usunięcie 188 335"
+/>
+
+Jeśli liczba wciąż jest za wysoka, lekko zwiększ **Merge Distance** w panelu w lewym dolnym rogu, na przykład do `0.001`. Nie przesadzaj, bo bliskie detale zaczną się ze sobą zlewać.
+
+## Decimate
+
+Jeśli scalanie nie wystarczy, użyj modyfikatora **Decimate**, żeby uprościć siatkę.
+
+1. Wciśnij `Tab`, żeby wrócić do **Object Mode**, i zaznacz model.
+2. Otwórz kartę **Modifiers** (niebieska ikona klucza) w panelu Properties po prawej.
+
+<img
+  src="/wiki-images/optimize-model-5.webp"
+  alt="Karta Modifiers, niebieska ikona klucza, zakreślona w panelu Properties"
+/>
+
+3. Kliknij **Add Modifier** i wyszukaj `Decimate`.
+4. Przełącz tryb na **Planar**.
+5. Zwiększaj **Angle Limit** stopniowo i obserwuj liczbę wierzchołków, aż dojdziesz do wartości, jaką chcesz. Włącz **UVs** w sekcji **Delimit**, żeby tekstury się nie rozciągały.
+
+<img
+  src="/wiki-images/optimize-model-6.webp"
+  alt="Modyfikator Decimate w trybie Planar z Angle Limit i opcjami Delimit"
+/>
+
+6. Rozwiń strzałkę menu modyfikatora i kliknij **Apply**, żeby zmiana została zapisana w siatce przed eksportem.
+
+<Callout type="info" title="Połącz oba sposoby">
+  Przy bardzo gęstych modelach najpierw scal według odległości, a potem użyj
+  Decimate na tym, co zostało. Celuj poniżej 60 000 wierzchołków, żeby mieć
+  zapas. Więcej kroków przygotowania modelu znajdziesz w [poradniku 3D Model
+  Swap](/docs/lol/blender/3d-model-swap).
+</Callout>

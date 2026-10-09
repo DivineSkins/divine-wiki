@@ -4,125 +4,192 @@ description: "Guide on making custom audio banks with Wwise."
 category: "sounds"
 ---
 
-## Learn Wwise First
+**Required tools:**
 
-Before diving in, it's worth spending some time with the official Wwise learning
-content:
+<ToolCard
+  name="Wwise 2022.1.3"
+  href="https://www.audiokinetic.com/en/download/"
+>
+  Download from Audiokinetic. Use version 2022.1.3. League's current banks are
+  built with Wwise 2022.1, and banks from other versions may not load.
+</ToolCard>
 
-- [Wwise 101](https://www.youtube.com/watch?v=1EhEhDyZ6o4&list=PLXMeprTk4ORPxeFVB6o5t1_IHyHkf4BgO)
-- [Wwise 201](https://www.youtube.com/watch?v=_bvus5FIjxk&list=PLXMeprTk4ORNT-u6190PcRDA7-UEUwBo-)
+**Helpful resources:**
+
+<ToolCard
+  name="Wwise 101"
+  href="https://www.youtube.com/watch?v=1EhEhDyZ6o4&list=PLXMeprTk4ORPxeFVB6o5t1_IHyHkf4BgO"
+>
+  Official beginner course. Watch it to learn how to use Wwise.
+</ToolCard>
+
+<ToolCard
+  name="Wwise 201"
+  href="https://www.youtube.com/watch?v=_bvus5FIjxk&list=PLXMeprTk4ORNT-u6190PcRDA7-UEUwBo-"
+>
+  Official advanced course.
+</ToolCard>
+
+<ToolCard
+  name="League Wwise Hierarchy Reference"
+  href="https://lol-wwise-hierarchy.aurecueil.uk/"
+>
+  See how the official banks are structured and what you can reuse to make your
+  sounds better.
+</ToolCard>
+
+<ToolCard
+  name="Custom Announcer Template by aurecueil and Jessibee"
+  href="https://github.com/Aurecueil/Custom-Announcer-Template"
+>
+  Free template. Drop in your sounds to build a full custom announcer bank.
+</ToolCard>
+
+<Callout type="info">
+  This guide covers building custom banks that work inside League's audio setup.
+  For the basics of using Wwise, start with Wwise 101 above.
+</Callout>
 
 ---
 
-## Understanding Bank Structure
+## Bank Structure & Split Exports
 
-Riot splits audio into two separate files intentionally:
+League splits audio into two separate files:
 
-- `audio.bnk` / `audio.wpk`: contains the raw sound data only.
-- `events.bnk`: contains the logic hierarchy (events, action sequences,
-  routing).
+- `audio.bnk` / `audio.wpk`: contains **media only** (raw `.wem` audio files).
+- `events.bnk`: contains the **logic hierarchy** (events, action sequences, containers, switches, and bus routing).
 
-`.wpk` is a Riot-original format. It can only hold audio files and has no
-metadata header. Think of it as a lightweight container purely for sound data.
+Wwise's hierarchy is flat. Every element carries an `ID` and a `ParentID`. This makes it possible to inject new elements that attach themselves to existing parents in League's hierarchy without replacing the entire tree.
 
-Wwise's hierarchy is not nested. Instead, every element carries an `ID` and a
-`ParentID`. This flat structure makes it possible to inject new elements that
-attach themselves to existing parents in the hierarchy, without needing to
-replace the entire tree.
+### Splitting Audio and Events in Custom Banks
 
-For example: you create a bus called `MUS` in your project, and under it a child
-called `bus_aurecueil`. When your custom bank loads, the dummy `MUS` entry is
-ignored (the real one is already loaded), and `bus_aurecueil` gets attached to
-the original `MUS` automatically.
+When generating SoundBanks, Wwise can bundle structure and media into a single bank. You can optionally split the audio from the events and structure. Splitting lets others edit your custom banks later with [Quartz](/docs/lol/sounds/sound-easy).
+
+If you split, generate:
+
+1. An `_audio.bnk` holding media only.
+2. An `_events.bnk` holding the structure and event definitions.
+
+If you don't split, generate:
+
+1. An `_events.bnk` holding the media, structure, and event definitions. In short, everything.
 
 ---
 
-## Loading Order and Overrides
+## Project Hierarchy Best Practices
 
-In League, **first loaded wins**. If two banks define the same element, the
-second one is silently discarded.
+Avoid placing sound objects directly under a Work Unit:
 
-Since core buses like `MUS` are loaded very early in the game's boot process, you
-can't replace them directly. However, you _can_ override individual events by
-making sure your custom bank loads before the original one.
+```text
+❌ Bad:
+Work Unit -> Sound SFX
 
-You control this through the `.bin` file:
+✅ Good:
+Work Unit -> Actor-Mixer -> Random / Sequence Container -> Sound SFX
+```
+
+### Why Use Actor-Mixers?
+
+An Actor-Mixer acts as a central controller for a character kit or spell group. You set the defaults on the Actor-Mixer once:
+
+- Output bus routing (`daad0rhm` for SFX)
+- Attenuation sharesets
+- Playback priority
+- Base Make-up Gain
+
+Child containers inherit these settings automatically. If one sound needs special behavior, enable **Override parent** on that specific child.
+
+### Adjust Volume with Make-up Gain
+
+When balancing levels in Wwise, **adjust Make-up Gain rather than Voice Volume**. Voice Volume interacts with run-time faders and ducking headroom. Make-up Gain gives you clean, predictable static gain without clipping.
+
+### Adding Random Pitch Variation
+
+Riot often applies a small random pitch change to repetitive actions so they feel natural (for example, Sett W cast variants or Grasp of the Undying procs):
+
+1. Select your container or sound object.
+2. Right-click the icon to the right of **Pitch**.
+3. Set a range, for example from `-100` to `+100` cents.
+
+---
+
+## Audio Routing: Output Buses
+
+You can't modify or replace existing game buses. You can, however, route directly to existing buses or create your own child buses under them.
+
+| Purpose                                                            | Bus name               |
+| ------------------------------------------------------------------ | ---------------------- |
+| **Champion SFX** (standard spell casts, impacts, and auto-attacks) | `daad0rhm`             |
+| **Champion VO**                                                    | `vo_champions`         |
+| **Announcer callouts**                                             | `vo_announcer_default` |
+| **Champion theme music** (create a custom child bus under this)    | `mus_champion`         |
+| **Background / map music**                                         | `mus_map`              |
+| **Notifications & UI audio**                                       | `sfx_hud`              |
+| **Tactical pings**                                                 | `sfx_pings`            |
+| **Ambient and environmental sound**                                | `sfx_environment`      |
+| **Teamfight Tactics music**                                        | `tft_mus_default`      |
+
+<Callout type="info">
+  Champion combat sounds should always route to `daad0rhm`. Wet buses run
+  through global environmental reverb and distortion filters (such as Evelynn's
+  passive sound distortion). Routing to `daad0rhm` keeps your SFX clear.
+</Callout>
+
+---
+
+## Auto-Ducking Official Buses
+
+If your custom sound needs to push down background audio (for example, a special ultimate voice line or a custom music track):
+
+1. Route your sound through a custom child bus.
+2. In your custom bus's **Auto-Ducking** tab, add the target official bus (for example, `mus_map`).
+3. Set the target bus to duck by **Bus Volume**, **never Voice Volume**. Ducking Voice Volume can make sounds that are already playing drop out entirely.
+
+---
+
+## Positioning & Attenuation
+
+Attenuation controls how sound falls off over distance. Without attenuation, sounds play across the entire map at full volume.
+
+<img src="/wiki-images/wwise-pos.webp" alt="Wwise positioning settings" />
+
+<img src="/wiki-images/wwise-atten.webp" alt="Wwise attenuation settings" />
+
+### Key Settings
+
+- **Distance units:** Wwise distance units map directly to League's in-game range units (Flash range is 400; basic ranged attacks are 500 to 650).
+- **Disable Height Spread:** League is played on a flat plane with an isometric camera. Always disable Height Spread in 3D positioning to prevent vertical panning glitches.
+- **Replicating official curves:** You can't reference official attenuation assets by ID. Instead, check the [League Wwise Hierarchy Reference](https://lol-wwise-hierarchy.aurecueil.uk/) to see the max distance, roll-off curves, and cones used by base champions, then recreate matching curves in your project's attenuation sharesets.
+
+---
+
+## Loading Order & .bin Overrides
+
+In League, **first loaded wins**. If two banks define the same element, the second one is silently discarded.
+
+You set the loading order in the skin's `.bin` file:
 
 ```text
 bankPath: list[string] = {
-    "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Custom_VO_audio.bnk"  ← Your bank, loaded first
+    "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Custom_VO_audio.bnk"  ← Custom bank loads first
     "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_VO_audio.bnk"
     "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_VO_audio.wpk"
     "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_VO_events.bnk"
 }
 ```
 
-Your custom bank overrides matching elements in the original events bank because
-it's listed first.
+### Bank Naming Rules
 
-**Note on IDs:**
-
-- Events match by **name**, so as long as your event has the same name, it
-  overrides correctly.
-- Many other hierarchy elements (random containers, sequences, switches, etc.)
-  use **random IDs generated by Wwise**. To override these, you need to manually
-  match the original IDs in your `.wwu` project files.
+- **Overriding official events:** If you only replace events that already exist in the base game, your custom bank does **not** need `_events` in its filename. The engine already registers those event names from the base game bank, so your bank intercepts them as long as it loads first.
+- **Adding new events:** If you add brand-new events the base champion doesn't have, your bank filename **must contain `_events`** (for example, `Yone_Custom_events.bnk`). League's sound loader only reads event definitions from banks with `_events` in the filename.
+- **Custom states and switches:** Creating custom states or switches requires generating and loading an `Init.bnk`. _(Injecting or renaming a custom `Init.bnk` in League is experimental and unverified. Use the existing official states and switches where you can.)_
 
 ---
 
-### Audio Settings: Attenuation
+## Misc Tip: Conversion Settings
 
-Attenuation controls how sound behaves over distance. If you're adding new
-sounds, always set this up explicitly, or they may sound wrong in-game (too loud
-up close, audible from across the map, etc.). Distance is defined in in-game
-units (you can use champion range as a reference for those units).
-
-<img src="/wiki-images/wwise-pos.webp" alt="Wwise positioning settings" />
-
-<img src="/wiki-images/wwise-atten.webp" alt="Wwise attenuation settings" />
-
-**Always disable Height Spread.** League is played on a flat plane, and height
-spread can cause unintended behavior.
+You can use custom conversion settings in your Wwise project (Vorbis compression, lower quality or sample rate) to greatly reduce the final size of your exported `.bnk` and `.wem` files.
 
 ---
 
-### Audio Routing: Using the Right Bus
-
-Every sound in Wwise routes through an output bus. Use the correct bus for your
-sound type, or it won't be mixed properly in-game (wrong reverb, wrong volume
-fader, etc.).
-
-| Bus ID         | Purpose                                  |
-| -------------- | ---------------------------------------- |
-| `MUS`          | Music (wet, includes reverb/processing)  |
-| `SFX`          | SFX (wet)                                |
-| `daad0rhm`     | SFX (dry), **use this for champion SFX** |
-| `SFX_HUD`      | Notifications & UI (wet)                 |
-| `janep6uv`     | Announcer (dry)                          |
-| `mus_lag_vp_0` | Champion VO (dry)                        |
-| `sfx_npc`      | Ambience (wet)                           |
-| `sfx_eog`      | End of Game (wet)                        |
-
-When in doubt, prefer the **dry** version of the bus for your category. The wet
-buses have their effects applied (for example, Evelynn distorts SFX during her
-passive, so routing sounds through the `SFX` bus bypasses that distortion).
-
----
-
-### Misc Tip
-
-You can use **custom conversion settings** in your Wwise project to reduce the
-final file size of your banks. Useful if your mod includes a lot of audio.
-
----
-
-## Bonus
-
-<ToolCard
-  name="Custom Announcer Template by aurecueill and Jessibee"
-  href="https://github.com/Aurecueil/Custom-Announcer-Template"
->
-  Download from GitHub and place it alongside your other Wwise projects.
-</ToolCard>
-
-guide by aurecueil
+_Guide by aurecueil_

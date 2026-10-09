@@ -1,0 +1,80 @@
+---
+title: "Otimize um Modelo no Blender"
+description: "Deixe um modelo high-poly abaixo do limite de 65.000 vértices do League com Merge by Distance e o modificador Decimate."
+category: "blender"
+credits:
+  discord: Ceerel
+  github: CeerelXP
+---
+
+O League não consegue carregar um modelo com mais de uns **65.000 vértices**. Modelos baixados, principalmente os gerados por IA, costumam passar muito disso. Este guia mostra dois jeitos de diminuir essa contagem no Blender.
+
+<img
+  src="/wiki-images/optimize-model-1.webp"
+  alt="Um modelo da 2B no Blender com o overlay de estatísticas mostrando 219.906 vértices"
+/>
+
+Este modelo da 2B tem **219.906 vértices**, mais de três vezes o limite.
+
+<Callout type="info" title="Não está vendo a contagem de vértices?">
+  Abra o menu **Overlays** no canto superior direito da viewport e ative
+  **Statistics**.
+</Callout>
+
+## Mesclar por distância
+
+A maioria dos modelos importados tem um monte de vértices duplicados, um em cima do outro. Mesclar eles não custa nada: o modelo fica igual e perde uma parte enorme dos vértices.
+
+1. Selecione seu modelo e aperte `Tab` para entrar no **Edit Mode**.
+
+<img
+  src="/wiki-images/optimize-model-2.webp"
+  alt="O modelo no Edit Mode com a malha inteira selecionada"
+/>
+
+2. Aperte `A` para selecionar todos os vértices.
+3. Aperte `M` para abrir o menu **Merge** e escolha **By Distance**. Use sempre By Distance, as outras opções esmagam tudo o que você selecionou em um único ponto.
+
+<img
+  src="/wiki-images/optimize-model-3.webp"
+  alt="O menu Merge aberto com At Center, At Cursor, Collapse e By Distance"
+/>
+
+O Blender mostra na parte de baixo da janela quantos vértices removeu. Aqui ele removeu 188.335 vértices e o modelo caiu para **31.571**, bem abaixo do limite.
+
+<img
+  src="/wiki-images/optimize-model-4.webp"
+  alt="Depois do Merge by Distance o modelo tem 31.571 vértices e o Blender informa 188.335 removidos"
+/>
+
+Se a contagem ainda estiver alta demais, aumente um pouco o **Merge Distance** no painel do canto inferior esquerdo, por exemplo para `0.001`. Não exagere, senão detalhes próximos começam a se fundir.
+
+## Decimate
+
+Se mesclar não bastar, use o modificador **Decimate** para simplificar a malha.
+
+1. Aperte `Tab` para voltar ao **Object Mode** e selecione seu modelo.
+2. Abra a aba **Modifiers** (o ícone de chave inglesa azul) no painel Properties à direita.
+
+<img
+  src="/wiki-images/optimize-model-5.webp"
+  alt="A aba Modifiers, um ícone de chave inglesa azul, circulada no painel Properties"
+/>
+
+3. Clique em **Add Modifier** e procure por `Decimate`.
+4. Mude o modo para **Planar**.
+5. Aumente o **Angle Limit** aos poucos, de olho na contagem de vértices, até chegar onde você quer. Ative **UVs** em **Delimit** para as texturas não esticarem.
+
+<img
+  src="/wiki-images/optimize-model-6.webp"
+  alt="O modificador Decimate no modo Planar com Angle Limit e as opções de Delimit"
+/>
+
+6. Abra a setinha do menu do modificador e clique em **Apply** para a mudança ser aplicada na malha antes de exportar.
+
+<Callout type="info" title="Combine os dois">
+  Em modelos com muitos polígonos, mescle por distância primeiro e depois use o
+  Decimate no que sobrar. Tente ficar abaixo de 60.000 vértices para ter uma
+  folga. Para mais etapas de preparação do modelo, veja o [guia de 3D Model
+  Swap](/docs/lol/blender/3d-model-swap).
+</Callout>

@@ -1,0 +1,114 @@
+---
+title: "Hangi formatı seçmelisin"
+description: "Riot string referanslarını file hash'lerine dönüştürürken özel yolları korumak için .modpkg veya ham WAD klasörleri içeren .fantome seç."
+category: "tools"
+---
+
+**Skin yöneticin destekliyorsa `.modpkg` seç.** `.fantome` gerekiyorsa içine **ham `.wad.client` klasörleri** koyarak paketle.
+
+Her iki seçenek de okunabilir dosya yollarını korur. Böylece araçlar modunu daha sonra açabilir, düzenleyebilir, repath yapabilir ve onarabilir.
+
+| Paket | Hangisini seçmelisin |
+| --- | --- |
+| `.modpkg` | Destekleniyorsa önerilir. Dosya yollarını paketlenen dosyalarla birlikte saklar. |
+| Ham `.wad.client` klasörleri içeren `.fantome` | Fantome için önerilir. Ayrı dosyaları ve klasör yollarını korur. |
+| Paketlenmiş `.wad.client` dosyaları içeren `.fantome` | Yeni dışa aktarımlarda kaçın. Kaydedilmiş hash tablosu yoksa özel yollar kurtarılamayabilir. |
+
+## Bu neden artık önemli
+
+Riot, BIN dosyalarındaki varlık referanslarını okunabilir `string` değerlerinden hash içeren `file` değerlerine taşıyor.
+Daha fazla referans değiştikçe araçların BIN içinden kurtarabileceği okunabilir yol sayısı azalıyor.
+
+Kullandığın metin düzenleyicisine göre bu türü `file:` veya `file =` olarak görebilirsin.
+İkili dosya, yolun 64 bitlik hash'ini saklar. Düzenleyici eşleşen yolu biliyorsa okunabilir adı gösterebilir.
+
+Önceden bir string referansı, özel doku yolunu doğrudan BIN içinde taşıyabiliyordu:
+
+```text
+assets/my_custom_skin/textures/body.tex
+```
+
+`file` değerine dönüştürüldüğünde referans artık yolun hash'ini saklar.
+Adı başka bir yerde korunmuyorsa araç yalnızca hash'e bakarak yolu güvenilir biçimde geri getiremez.
+
+Bu değişiklik varlık referanslarıyla ilgilidir. BIN içindeki her metin alanının dosya referansına dönüştüğü anlamına gelmez.
+
+## Unhash işlemi nasıl çalışır
+
+Paketlenmiş bir WAD, dosyalarını yol hash'leriyle tanımlar. Okunabilir dosya adlarından oluşan normal bir dizin tutmaz.
+
+[Quartz](/docs/lol/tools/modding-apps/quartz) gibi araçlar bu hash'leri bir eşleştirme tablosuyla çözer:
+
+1. Dosyanın hash'ini oku.
+2. Bilinen yollar sözlüğünde bu hash'i ara.
+3. Eşleşme varsa yolu göster.
+4. Yol bilinmiyorsa sayısal hash'i koru.
+
+**Unhash, hash'i tersine çevirmek değil, sözlükte aramaktır.**
+Topluluk hash veritabanları bilinen oyun yollarını içerir. Modun için oluşturduğun yolları otomatik olarak bilemezler.
+Araçlar proje klasörlerinden, okunabilir BIN string'lerinden ve gömülü hash tablolarından da ad öğrenebilir.
+
+WAD paketlemek okunabilir dosya adlarını kaldırır. BIN string'lerini `file` hash'lerine dönüştürmek başka bir ad kaynağını kaldırır.
+Kaydedilmiş eşleştirme yoksa özel dosyalar onaltılık adlarla çıkarılabilir.
+Bu durum araçların dokuları bulmasını, referansları takip etmesini veya dosyaları doğru repath yapmasını engelleyebilir.
+
+<Callout type="warning" title="Yüklemek ile dosya adlarını kurtarmak farklıdır">
+  Hash'ler eşleşiyorsa mod oyunda çalışmaya devam edebilir. Sorun, sonraki düzenleme
+  ve onarımlar için okunabilir yolları kurtarmaktır. Dosya adının bilinmemesi,
+  WAD dosyasının açılamadığı anlamına gelmez.
+</Callout>
+
+## Fantome nasıl paketlenmeli
+
+Her `.wad.client` öğesini `WAD/` altında **ayrı mod dosyalarını içeren bir klasör** olarak tut.
+`.fantome` arşivinin içi şöyle görünebilir:
+
+```text
+MySkin.fantome
+├── META/
+│   └── info.json
+└── WAD/
+    └── Ahri.wad.client/
+        ├── assets/
+        │   └── my_custom_skin/
+        │       └── textures/
+        │           └── body.tex
+        └── data/
+            └── characters/
+                └── ahri/
+                    └── skins/
+                        └── skin0.bin
+```
+
+Buradaki `Ahri.wad.client/` bir klasördür. Tek bir paketlenmiş `Ahri.wad.client` dosyası bu dizin listesini korumaz.
+“Ham”, paket içindeki dosyaların ayrı durması demektir. Dıştaki `.fantome` yine ZIP sıkıştırması kullanabilir.
+
+[Flint](/docs/lol/tools/modding-apps/flint)'in Fantome dışa aktarımı bu klasör yapısını oluşturur.
+[Hematite](/docs/lol/tools/modding-apps/hematite) de çözümlenen yolları korumak için onarılan WAD'leri paketlenmemiş klasörler olarak yazar.
+Sonucu paketlerken bu yapıyı koru.
+
+## Modpkg ne zaman seçilmeli
+
+Hedef yöneticin destekliyorsa `.modpkg` seç. Flint, paketlenen dosyaların yollarını dışa aktarıma ekler.
+Araçlar yalnızca topluluk hash veritabanına bağlı kalmadan bu adları kullanabilir.
+
+Okunabilir yollar hâlâ mevcutken orijinal projenden dışa aktar.
+Eski bir paketlenmiş WAD'yi `.modpkg` biçimine dönüştürmek kaybolmuş özel adları geri getirmez.
+
+## Paylaşmadan önce
+
+1. `.modpkg` veya ham WAD klasörleri içeren `.fantome` olarak dışa aktar.
+2. Paketi yeniden aç ve özel dosya yollarının okunabilir kaldığını kontrol et.
+3. Oluşturulan hash tablolarını ve yol metaverilerini paketle birlikte tut.
+4. Dışa aktarımı hedef skin yöneticinde ve oyunda test et.
+5. Gelecekteki güncellemeler için orijinal proje klasörünü sakla.
+
+Gömülü hash tabloları ve BIN yol metaverileri, uyumlu araçların özel referansları çözmesine yardımcı olabilir.
+Bunları koru, ancak her aracın kaydederken bunları sakladığını varsayma.
+Önerilen iki format da kaynak proje yedeğinin yerini tutmaz.
+
+## Kaynaklar
+
+- [Flint dışa aktarma kodu](https://github.com/RitoShark/Flint/blob/main/src-tauri/src/commands/import_export/export.rs): klasör biçiminde Fantome çıktısı ve Modpkg yolları.
+- [Quartz unhash kodu](https://github.com/RitoShark/Quartz/blob/main/src-tauri/crates/quartz-lib/src/bin/jade/unhasher.rs): `file`, `hash` ve `link` için sözlük aramaları.
+- [Hematite](https://github.com/RitoShark/Hematite): mod onarımı ve WAD işleme.

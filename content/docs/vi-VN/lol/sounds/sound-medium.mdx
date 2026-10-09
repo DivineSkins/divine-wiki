@@ -1,125 +1,197 @@
 ---
 title: "Trung bình - Bank tùy chỉnh"
-description: "Hướng dẫn tạo bank âm thanh tùy chỉnh với Wwise."
+description: "Hướng dẫn tạo bank âm thanh tùy chỉnh bằng Wwise."
 category: "sounds"
 ---
 
-## Học Wwise trước đã
+**Công cụ cần có:**
 
-Trước khi lao vào, bạn nên dành chút thời gian với nội dung học Wwise chính thức:
+<ToolCard
+  name="Wwise 2022.1.3"
+  href="https://www.audiokinetic.com/en/download/"
+>
+  Tải từ Audiokinetic. Dùng bản 2022.1.3. Các bank hiện tại của Liên Minh được
+  tạo bằng Wwise 2022.1, và bank từ phiên bản khác có thể không load được.
+</ToolCard>
 
-- [Wwise 101](https://www.youtube.com/watch?v=1EhEhDyZ6o4&list=PLXMeprTk4ORPxeFVB6o5t1_IHyHkf4BgO)
-- [Wwise 201](https://www.youtube.com/watch?v=_bvus5FIjxk&list=PLXMeprTk4ORNT-u6190PcRDA7-UEUwBo-)
+**Tài liệu hữu ích:**
+
+<ToolCard
+  name="Wwise 101"
+  href="https://www.youtube.com/watch?v=1EhEhDyZ6o4&list=PLXMeprTk4ORPxeFVB6o5t1_IHyHkf4BgO"
+>
+  Khóa học chính thức cho người mới. Xem để học cách dùng Wwise.
+</ToolCard>
+
+<ToolCard
+  name="Wwise 201"
+  href="https://www.youtube.com/watch?v=_bvus5FIjxk&list=PLXMeprTk4ORNT-u6190PcRDA7-UEUwBo-"
+>
+  Khóa học nâng cao chính thức.
+</ToolCard>
+
+<ToolCard
+  name="League Wwise Hierarchy Reference"
+  href="https://lol-wwise-hierarchy.aurecueil.uk/"
+>
+  Xem các bank chính thức được tổ chức ra sao và bạn có thể tận dụng những gì để
+  âm thanh của mình hay hơn.
+</ToolCard>
+
+<ToolCard
+  name="Custom Announcer Template của aurecueil và Jessibee"
+  href="https://github.com/Aurecueil/Custom-Announcer-Template"
+>
+  Template miễn phí. Thả âm thanh của bạn vào để dựng một bank phát thanh viên
+  tùy chỉnh hoàn chỉnh.
+</ToolCard>
+
+<Callout type="info">
+  Hướng dẫn này chỉ cách dựng bank tùy chỉnh chạy được trong hệ thống âm thanh
+  của Liên Minh. Nếu cần kiến thức cơ bản về Wwise, hãy bắt đầu với Wwise 101 ở
+  trên.
+</Callout>
 
 ---
 
-## Hiểu cấu trúc bank
+## Cấu trúc bank và xuất tách riêng
 
-Riot cố ý tách âm thanh thành hai file riêng:
+Liên Minh chia âm thanh thành hai file riêng:
 
-- `audio.bnk` / `audio.wpk`: chỉ chứa dữ liệu âm thanh thô.
-- `events.bnk`: chứa cây logic (event, chuỗi hành động, định tuyến).
+- `audio.bnk` / `audio.wpk`: **chỉ chứa media** (các file âm thanh `.wem` thô).
+- `events.bnk`: chứa **hierarchy logic** (event, chuỗi action, container, switch và định tuyến bus).
 
-`.wpk` là định dạng riêng của Riot. Nó chỉ chứa được file âm thanh và không có
-phần header metadata. Cứ coi nó như một hộp chứa nhẹ chỉ để đựng dữ liệu âm thanh.
+Hierarchy của Wwise là dạng phẳng. Mỗi element có một `ID` và một `ParentID`. Nhờ vậy bạn có thể chèn element mới tự gắn vào các element cha có sẵn trong hierarchy của Liên Minh, mà không phải thay cả cây.
 
-Cây phân cấp của Wwise không lồng nhau. Thay vào đó, mỗi phần tử mang một `ID` và
-một `ParentID`. Cấu trúc phẳng này cho phép chèn phần tử mới tự gắn vào các phần
-tử cha có sẵn trong cây, mà không cần thay cả cây.
+### Tách âm thanh và event trong bank tùy chỉnh
 
-Ví dụ: bạn tạo một bus tên `MUS` trong project, và dưới nó một phần tử con tên
-`bus_aurecueil`. Khi bank tùy chỉnh của bạn nạp, mục `MUS` giả sẽ bị bỏ qua (cái
-thật đã nạp rồi), và `bus_aurecueil` tự động gắn vào `MUS` gốc.
+Khi tạo SoundBank, Wwise có thể gộp cấu trúc và media vào một bank. Bạn có thể tùy chọn tách âm thanh khỏi event và cấu trúc. Tách ra giúp người khác sau này sửa được bank tùy chỉnh của bạn bằng [Quartz](/docs/lol/sounds/sound-easy).
+
+Nếu tách, hãy tạo:
+
+1. Một file `_audio.bnk` chỉ chứa media.
+2. Một file `_events.bnk` chứa cấu trúc và định nghĩa event.
+
+Nếu không tách, hãy tạo:
+
+1. Một file `_events.bnk` chứa media, cấu trúc và định nghĩa event. Nói gọn là tất cả.
 
 ---
 
-## Thứ tự nạp và ghi đè
+## Cách tổ chức hierarchy trong project
 
-Trong League, **cái nạp trước thắng**. Nếu hai bank cùng định nghĩa một phần tử,
-cái thứ hai bị lặng lẽ bỏ đi.
+Tránh đặt sound object ngay dưới một Work Unit:
 
-Vì các bus lõi như `MUS` được nạp rất sớm trong quá trình khởi động game, bạn
-không thay chúng trực tiếp được. Tuy nhiên, bạn _có thể_ ghi đè từng event riêng
-lẻ bằng cách bảo đảm bank tùy chỉnh của mình nạp trước bank gốc.
+```text
+❌ Sai:
+Work Unit -> Sound SFX
 
-Bạn điều khiển việc này qua file `.bin`:
+✅ Đúng:
+Work Unit -> Actor-Mixer -> Random / Sequence Container -> Sound SFX
+```
+
+### Vì sao nên dùng Actor-Mixer?
+
+Actor-Mixer đóng vai trò bộ điều khiển trung tâm cho bộ kỹ năng của một nhân vật hoặc một nhóm phép. Bạn chỉ cần đặt giá trị mặc định trên Actor-Mixer một lần:
+
+- Định tuyến bus đầu ra (`daad0rhm` cho SFX)
+- Shareset attenuation
+- Độ ưu tiên phát
+- Make-up Gain cơ bản
+
+Các container con tự động kế thừa những thiết lập này. Nếu một âm thanh cần hoạt động khác, hãy bật **Override parent** trên đúng element con đó.
+
+### Chỉnh âm lượng bằng Make-up Gain
+
+Khi cân mức âm lượng trong Wwise, **hãy chỉnh Make-up Gain thay vì Voice Volume**. Voice Volume tương tác với các fader lúc chạy và khoảng trống dành cho ducking. Make-up Gain cho bạn mức gain tĩnh sạch, dễ đoán và không bị clipping.
+
+### Thêm biến thiên pitch ngẫu nhiên
+
+Riot thường thêm một chút thay đổi pitch ngẫu nhiên cho các hành động lặp lại để nghe tự nhiên hơn (ví dụ các biến thể W của Sett hoặc lúc Quyền Năng Bất Diệt kích hoạt):
+
+1. Chọn container hoặc sound object của bạn.
+2. Bấm chuột phải vào biểu tượng bên phải **Pitch**.
+3. Đặt một khoảng, ví dụ từ `-100` đến `+100` cent.
+
+---
+
+## Định tuyến âm thanh: bus đầu ra
+
+Bạn không thể sửa hay thay các bus có sẵn của game. Tuy nhiên, bạn có thể định tuyến thẳng tới các bus đó hoặc tạo bus con của riêng mình bên dưới chúng.
+
+| Mục đích                                                                   | Tên bus                |
+| -------------------------------------------------------------------------- | ---------------------- |
+| **SFX của tướng** (tung chiêu thông thường, va chạm và đòn đánh thường)    | `daad0rhm`             |
+| **VO của tướng**                                                           | `vo_champions`         |
+| **Thông báo của phát thanh viên**                                          | `vo_announcer_default` |
+| **Nhạc chủ đề của tướng** (tạo một bus con tùy chỉnh bên dưới bus này)     | `mus_champion`         |
+| **Nhạc nền / nhạc bản đồ**                                                 | `mus_map`              |
+| **Thông báo và âm thanh UI**                                               | `sfx_hud`              |
+| **Ping chiến thuật**                                                       | `sfx_pings`            |
+| **Âm thanh môi trường và không gian**                                      | `sfx_environment`      |
+| **Nhạc Đấu Trường Chân Lý (TFT)**                                          | `tft_mus_default`      |
+
+<Callout type="info">
+  Âm thanh chiến đấu của tướng luôn nên đi qua `daad0rhm`. Các bus wet chạy qua
+  reverb và bộ lọc méo tiếng toàn cục của môi trường (như hiệu ứng méo tiếng từ
+  nội tại của Evelynn). Định tuyến tới `daad0rhm` giúp SFX của bạn luôn rõ.
+</Callout>
+
+---
+
+## Auto-ducking các bus chính thức
+
+Nếu âm thanh tùy chỉnh của bạn cần làm nhỏ âm thanh nền (ví dụ một câu thoại đặc biệt khi dùng chiêu cuối hoặc một bản nhạc tùy chỉnh):
+
+1. Định tuyến âm thanh của bạn qua một bus con tùy chỉnh.
+2. Trong tab **Auto-Ducking** của bus tùy chỉnh, thêm bus chính thức cần duck (ví dụ `mus_map`).
+3. Đặt bus đó duck bằng **Bus Volume**, **không bao giờ dùng Voice Volume**. Duck bằng Voice Volume có thể làm các âm thanh đang phát bị tắt hẳn.
+
+---
+
+## Định vị và attenuation
+
+Attenuation quyết định âm thanh nhỏ dần theo khoảng cách như thế nào. Không có attenuation, âm thanh sẽ phát khắp bản đồ với âm lượng tối đa.
+
+<img src="/wiki-images/wwise-pos.webp" alt="Thiết lập định vị trong Wwise" />
+
+<img src="/wiki-images/wwise-atten.webp" alt="Thiết lập attenuation trong Wwise" />
+
+### Các thiết lập quan trọng
+
+- **Đơn vị khoảng cách:** Đơn vị khoảng cách của Wwise tương ứng trực tiếp với đơn vị tầm đánh trong Liên Minh (tầm Tốc Biến là 400; đòn đánh thường tầm xa từ 500 đến 650).
+- **Tắt Height Spread:** Liên Minh được chơi trên mặt phẳng với camera isometric. Luôn tắt Height Spread trong phần định vị 3D để tránh lỗi panning theo chiều dọc.
+- **Tái tạo đường cong chính thức:** Bạn không thể tham chiếu asset attenuation chính thức bằng ID. Thay vào đó, xem [League Wwise Hierarchy Reference](https://lol-wwise-hierarchy.aurecueil.uk/) để biết khoảng cách tối đa, đường cong roll-off và cone mà các tướng gốc dùng, rồi dựng lại đường cong tương tự trong shareset attenuation của project.
+
+---
+
+## Thứ tự load và override qua .bin
+
+Trong Liên Minh, **cái nào load trước thì thắng**. Nếu hai bank cùng định nghĩa một element, element của bank thứ hai sẽ bị bỏ qua mà không báo gì.
+
+Bạn đặt thứ tự load trong file `.bin` của skin:
 
 ```text
 bankPath: list[string] = {
-    "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Custom_VO_audio.bnk"  ← Your bank, loaded first
+    "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Custom_VO_audio.bnk"  ← Bank tùy chỉnh load trước
     "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_VO_audio.bnk"
     "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_VO_audio.wpk"
     "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_VO_events.bnk"
 }
 ```
 
-Bank tùy chỉnh của bạn ghi đè các phần tử trùng khớp trong bank event gốc vì nó
-được liệt kê trước.
+### Quy tắc đặt tên bank
 
-**Lưu ý về ID:**
-
-- Event khớp theo **tên**, nên chỉ cần event của bạn có cùng tên, nó sẽ ghi đè
-  đúng.
-- Nhiều phần tử phân cấp khác (random container, sequence, switch, v.v.) dùng
-  **ID ngẫu nhiên do Wwise sinh ra**. Để ghi đè chúng, bạn phải tự khớp lại ID
-  gốc trong file project `.wwu` của mình.
+- **Override event chính thức:** Nếu bạn chỉ thay những event đã có sẵn trong game, tên file bank của bạn **không** cần có `_events`. Engine đã đăng ký tên các event đó từ bank gốc của game, nên bank của bạn sẽ chặn được chúng miễn là nó load trước.
+- **Thêm event mới:** Nếu bạn thêm event hoàn toàn mới mà tướng gốc không có, tên file bank của bạn **bắt buộc phải chứa `_events`** (ví dụ `Yone_Custom_events.bnk`). Bộ load âm thanh của Liên Minh chỉ đọc định nghĩa event từ những bank có `_events` trong tên file.
+- **State và switch tùy chỉnh:** Tạo state hoặc switch tùy chỉnh cần phải tạo và load một file `Init.bnk`. _(Chèn hoặc đổi tên một `Init.bnk` tùy chỉnh trong Liên Minh vẫn đang thử nghiệm và chưa được kiểm chứng. Hãy dùng các state và switch chính thức có sẵn khi có thể.)_
 
 ---
 
-### Cài đặt âm thanh: Attenuation
+## Mẹo thêm: thiết lập chuyển đổi
 
-Attenuation điều khiển cách âm thanh biến đổi theo khoảng cách. Nếu bạn thêm âm
-thanh mới, luôn thiết lập cái này rõ ràng, không thì nó có thể nghe sai trong
-game (quá to khi gần, nghe được từ tận bên kia bản đồ, v.v.). Khoảng cách được
-xác định bằng đơn vị trong game (bạn có thể lấy tầm đánh của tướng làm mốc cho
-mấy đơn vị này).
-
-<img src="/wiki-images/wwise-pos.webp" alt="Cài đặt định vị trong Wwise" />
-
-<img src="/wiki-images/wwise-atten.webp" alt="Cài đặt attenuation trong Wwise" />
-
-**Luôn tắt Height Spread.** League chơi trên một mặt phẳng, và height spread có
-thể gây ra hành vi ngoài ý muốn.
+Bạn có thể dùng thiết lập chuyển đổi tùy chỉnh trong project Wwise (nén Vorbis, giảm chất lượng hoặc sample rate) để giảm đáng kể dung lượng cuối cùng của các file `.bnk` và `.wem` được xuất ra.
 
 ---
 
-### Định tuyến âm thanh: Dùng đúng bus
-
-Mọi âm thanh trong Wwise đều đi qua một output bus. Dùng đúng bus cho loại âm
-thanh của bạn, không thì nó sẽ không được mix đúng trong game (sai reverb, sai
-fader âm lượng, v.v.).
-
-| Bus ID         | Mục đích                                 |
-| -------------- | ---------------------------------------- |
-| `MUS`          | Nhạc (wet, có reverb/xử lý)              |
-| `SFX`          | SFX (wet)                                |
-| `daad0rhm`     | SFX (dry), **dùng cái này cho SFX tướng**|
-| `SFX_HUD`      | Thông báo & giao diện (wet)              |
-| `janep6uv`     | Người dẫn (dry)                          |
-| `mus_lag_vp_0` | VO tướng (dry)                           |
-| `sfx_npc`      | Âm nền (wet)                             |
-| `sfx_eog`      | Kết thúc trận (wet)                      |
-
-Khi phân vân, hãy chọn bản **dry** của bus cho nhóm của bạn. Các bus wet đã áp
-sẵn hiệu ứng (ví dụ, Evelynn làm méo SFX khi cô ấy vào nội tại, nên định tuyến âm
-thanh qua bus `SFX` sẽ né được cái méo đó).
-
----
-
-### Mẹo linh tinh
-
-Bạn có thể dùng **cài đặt conversion tùy chỉnh** trong project Wwise để giảm dung
-lượng file cuối cùng của bank. Hữu ích nếu mod của bạn có nhiều âm thanh.
-
----
-
-## Phần thưởng thêm
-
-<ToolCard
-  name="Custom Announcer Template by aurecueill and Jessibee"
-  href="https://github.com/Aurecueil/Custom-Announcer-Template"
->
-  Tải từ GitHub và đặt nó cạnh các project Wwise khác của bạn.
-</ToolCard>
-
-hướng dẫn bởi aurecueil
+_Hướng dẫn bởi aurecueil_

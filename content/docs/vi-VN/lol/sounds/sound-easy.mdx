@@ -1,136 +1,123 @@
 ---
 title: "Dễ - Mod âm thanh cơ bản"
-description: "Hướng dẫn cho người mới bắt đầu làm mod âm thanh"
+description: "Hướng dẫn cho người mới về cách thay âm thanh có sẵn của Liên Minh Huyền Thoại bằng Quartz"
 category: "sounds"
 ---
 
 **Công cụ cần có:**
 
 <ToolCard name="Quartz" href="https://github.com/RitoShark/Quartz">
-  Tải từ GitHub.
+  Công cụ chính để đọc, nghe thử và thay âm thanh trong file `.bnk` và `.wpk`.
 </ToolCard>
 
 **Công cụ hữu ích:**
 
 <ToolCard name="Audacity" href="https://www.audacityteam.org/download/">
-  Phần mềm chỉnh sửa âm thanh.
+  Nên dùng. Để cắt âm thanh, cân lại độ lớn và xuất file sạch.
 </ToolCard>
 
 <ToolCard name="yt-dlp" href="https://github.com/yt-dlp/yt-dlp">
-  Công cụ tiện lợi để tải media từ trên mạng.
+  Không bắt buộc. Công cụ dòng lệnh để tải mẫu âm thanh từ các nguồn trên mạng.
 </ToolCard>
 
 ---
 
-### Bạn đang làm việc với cái gì
+## Các định dạng file
 
-Liên Minh Huyền Thoại lưu âm thanh trong vài loại file mà bạn sẽ gặp đi gặp lại
-hoài:
+Liên Minh lưu âm thanh và phần logic của nó trong ba loại file:
 
-- `.bnk`: một "SoundBank" của Wwise, chứa dữ liệu âm thanh và/hoặc phần logic và
-  cây phân cấp event.
-- `.wpk`: định dạng riêng của Riot, chỉ chứa âm thanh thô (không có metadata).
-- `.wem`: định dạng âm thanh nén riêng lẻ mà Wwise dùng bên trong.
+- `.bnk`: Một SoundBank của Wwise. Có thể chứa dữ liệu âm thanh thô (`audio.bnk`) hoặc hierarchy, định tuyến bus và logic kích hoạt event (`events.bnk`).
+- `.wpk`: Định dạng riêng của Riot, không có header logic. Một gói phẳng chỉ chứa dữ liệu âm thanh (thường dùng cho VO).
+- `.wem`: Các file âm thanh nén riêng lẻ được Wwise mã hóa, nằm bên trong container `.bnk` và `.wpk`.
 
-<Callout type="info" title="File nào bạn sẽ chỉnh">
-  Với **SFX** (kỹ năng, va chạm, âm thanh giao diện), bạn thường sẽ chỉnh một
-  file `audio.bnk`.
+<Callout type="info" title="File SFX và file VO">
+  **SFX** (kỹ năng, đòn đánh thường, tiếng va chạm, UI) nằm trong `audio.bnk`.
 
-Với **VO** (lời thoại, người dẫn), bạn thường sẽ chỉnh một file `audio.wpk`.
-
+  **VO** (câu thoại của tướng, thông báo của phát thanh viên) nằm trong `audio.wpk` và được điều khiển bởi `events.bnk`.
 </Callout>
 
 ---
 
-### Tìm đúng file cần chỉnh
+## Tìm các file cần thiết
 
-Bạn cần ba file để chỉnh âm thanh của một nhân vật:
+Để sửa âm thanh của tướng, bạn cần ghép các file âm thanh với file `.bin` của skin:
 
-| File               | Ví dụ đường dẫn                                                                       |
-| ------------------ | ------------------------------------------------------------------------------------- |
-| Audio (wpk hoặc bnk) | `ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_vo_audio.wpk`  |
-| Bank event         | `ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_vo_events.bnk` |
-| File Bin           | `data/characters/Yone/skins/skin0.bin`                                                |
+| Vai trò của file         | Định dạng          | Ví dụ đường dẫn                                                                       |
+| :----------------------- | :----------------- | :------------------------------------------------------------------------------------ |
+| **Bank / gói âm thanh**  | `.bnk` hoặc `.wpk` | `ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_vo_audio.wpk`  |
+| **Bank event**           | `.bnk`             | `ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_vo_events.bnk` |
+| **Định nghĩa skin**      | `.bin`             | `data/characters/Yone/skins/skin0.bin`                                                |
 
-Bạn có thể nạp thẳng mấy file này vào Quartz, hoặc dùng một trong các tùy chọn có sẵn:
+Quartz cho bạn hai cách để load các file này:
 
-- **Từ game.** Chọn một vị tướng và skin của họ (tùy chọn ngoài cùng bên trái).
-- **Từ một mod có sẵn.** Nếu bạn đang chỉnh, lấy nguồn, hoặc phát triển thêm trên
-  một mod khác, hãy nạp thư mục của mod đó (tùy chọn thứ hai từ trái sang).
+- **Từ game:** Chọn tướng và skin trong danh sách để lấy file thẳng từ bản cài Liên Minh của bạn.
+- **Từ một mod có sẵn:** Trỏ Quartz tới thư mục của một mod đã giải nén nếu bạn đang làm tiếp trên mod của người khác.
 
 <img src="/wiki-images/quartz-selection-2.webp" alt="Chọn nguồn trong Quartz" />
 
 ---
 
-### Từng bước: Thay một âm thanh
+## Từng bước: thay âm thanh
 
-**1. Mở tab Sound Bank trong Quartz.**
+### 1. Mở tab Sound Bank
+
+Chuyển sang tab **Sound Bank** trong cửa sổ chính của Quartz.
 
 <img src="/wiki-images/quartz-empty-2.webp" alt="Tab Sound Bank trống trong Quartz" />
 
-**2. Nạp file của bạn ở phía BÊN TRÁI.**
+### 2. Đọc bank của game (bảng bên trái)
 
-Nhấn vào panel bên trái và trỏ Quartz tới file `.bin`, file audio (`.bnk` hoặc `.wpk`),
-và file event (`.bnk`) của bạn. Rồi bấm **Parse**.
+1. Chọn các file nguồn (`.bin`, `audio.bnk`/`audio.wpk` và `events.bnk`) hoặc chọn một preset của game.
+2. Bấm **Parse**.
+3. Bảng bên trái sẽ hiện ra mọi event và ID âm thanh trong bank. Bấm vào một mục để nghe thử và chắc chắn là bạn chọn đúng âm thanh.
 
-Thao tác này sẽ đổ vào bên trái một danh sách tất cả âm thanh trong bank đó.
+<img src="/wiki-images/quartz-2-2.webp" alt="Bank đã đọc ở bảng bên trái" />
 
-<img src="/wiki-images/quartz-2-2.webp" alt="Bank đã parse ở panel bên trái" />
+### 3. Load âm thanh thay thế (bảng bên phải)
 
-Bạn có thể parse và nạp nhiều bank cùng lúc ở bên trái.
+Load các file âm thanh của bạn vào bảng bên phải. Quartz nhận:
 
-**3. Thêm âm thanh thay thế ở phía BÊN PHẢI.**
-
-Panel bên phải là nơi bạn nạp âm thanh mới muốn dùng. Quartz nhận:
-
-- `.wav`
-- `.wem`
-- `.ogg`
+- `.wav` (nên dùng PCM không nén để có chất lượng tốt nhất)
 - `.mp3`
+- `.ogg`
+- `.wem` (âm thanh Wwise đã chuyển đổi sẵn)
 
-Nó tự chuyển đổi định dạng. Bạn không cần chuyển sang `.wem` trước khi import.
+<Callout type="info" title="Tự động chuyển đổi">
+  Quartz tự chuyển các file `.wav`, `.mp3` và `.ogg` được import sang `.wem`.
+  Bạn không cần chuyển đổi gì trước.
+</Callout>
 
-Bạn cũng có thể nạp một bank audio khác của League đã parse vào bên phải và lấy
-âm thanh trực tiếp từ đó.
+Bạn cũng có thể đọc thêm một bank Liên Minh thứ hai ở bên phải để mượn âm thanh từ tướng hoặc skin khác.
 
-<img
-  src="/wiki-images/quartz-3-2.webp"
-  alt="Âm thanh thay thế ở panel bên phải"
-/>
+<img src="/wiki-images/quartz-3-2.webp" alt="Âm thanh thay thế ở bảng bên phải" />
 
-**4. Kéo để thay thế.**
+### 4. Thay âm thanh
 
-Kéo một âm thanh từ **panel bên phải** thả lên âm thanh bạn muốn thay ở **panel
-bên trái**. Mục bên trái sẽ cập nhật theo âm thanh thay thế.
+- Kéo một âm thanh từ **bảng bên phải** thả lên âm thanh bạn muốn thay ở **bảng bên trái**.
+- Biểu tượng và chữ ở bảng bên trái sẽ đổi để đánh dấu mục đó đã bị sửa.
+- Bấm vào mục đã thay để nghe thử âm thanh mới và kiểm tra âm lượng.
 
-<img
-  src="/wiki-images/quartz4.webp"
-  alt="Kéo một âm thanh để thay nó trong Quartz"
-/>
+<img src="/wiki-images/quartz4.webp" alt="Kéo một âm thanh để thay nó trong Quartz" />
 
-**5. Lưu bank đã chỉnh.**
+### 5. Xuất bank đã sửa
 
-Chọn bank của bạn ở panel bên trái, rồi nhấn **"Save as BNK/WPK"** và lưu vào
-đâu đó trong thư mục mod của bạn.
+1. Chọn bank đã sửa ở bảng bên trái.
+2. Bấm **Save as BNK/WPK**.
+3. Lưu file vào thư mục mod của bạn, giữ đúng cấu trúc thư mục mà Liên Minh cần.
 
-<img
-  src="/wiki-images/quartz-save-2.webp"
-  alt="Lưu bank đã chỉnh trong Quartz"
-/>
+<img src="/wiki-images/quartz-save-2.webp" alt="Lưu bank đã sửa trong Quartz" />
 
 ---
 
-### Cần bỏ gì vào mod của bạn
+## Đóng gói mod
 
-| Loại mod | File cần bỏ vào                  |
-| -------- | -------------------------------- |
-| Mod SFX  | Chỉ `audio.bnk`                  |
-| Mod VO   | `audio.wpk` **VÀ** `events.bnk`  |
+Khi đóng gói mod (ví dụ cho cslol-manager), chỉ đưa vào những file bạn đã sửa:
 
-Với mod VO, bank event là bắt buộc vì nó xác định file âm thanh nào phát cho mỗi
-event trong game (đánh, chết, giỡn, v.v.). Thiếu nó, âm thanh mới của bạn sẽ
-không kích hoạt đúng.
+| Loại mod     | File cần đưa vào                          | Ghi chú                                                                                                                                  |
+| :----------- | :---------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------- |
+| **Mod SFX**  | `..._audio.bnk`                           | Thay âm thanh đơn thuần thì không cần sửa bank event hay file `.bin`.                                                                    |
+| **Mod VO**   | `..._audio.wpk` **VÀ** `..._events.bnk`   | `events.bnk` quy định âm thanh nào phát ở mỗi event trong game. Nếu thiếu nó đi kèm `.wpk`, câu thoại của bạn sẽ không được kích hoạt.   |
 
 ---
 
-hướng dẫn bởi aurecueil
+_Hướng dẫn bởi aurecueil_

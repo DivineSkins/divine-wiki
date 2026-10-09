@@ -1,0 +1,210 @@
+---
+title: "How to Easily Make Your Skin Look Better with Shading"
+description: "Give your custom model real light and shadow in a few clicks with Ruby. No code, no Blender, just one material."
+category: "vfx-bins"
+---
+
+<LevelPill level="beginner" />
+
+Most custom models look **flat** in game. The texture is fine, but there is no
+light or shadow on it, so it looks pasted onto the champion.
+
+A shading material fixes that. With [Ruby](/docs/lol/tools/modding-apps/ruby)
+it takes a few clicks, and you see the result live before you open the game.
+
+## Before and after
+
+**Illumi Zoldyck on Locke**
+
+<img
+  src="/wiki-images/better-shading-illumi.webp"
+  alt="Illumi Zoldyck Locke skin before and after adding a shading material"
+/>
+
+**Rem on Zaahen**
+
+<img
+  src="/wiki-images/better-shading-rem.webp"
+  alt="Rem Zaahen skin before and after adding a shading material"
+/>
+
+Same model, same texture. Only the material changed. Look at the arms, the
+sleeves and the skirt: they finally have a light side and a shadow side.
+
+In this guide we use **AnimeShade**, Dazashu's shading preset made for Ruby.
+It works on any skin, not only anime characters.
+
+---
+
+## 1. Install the preset
+
+1. Download **[AnimeShade](/wiki-files/AnimeShade.rubyshader)**.
+2. In Ruby, click the **Browse League / TFT skins** icon (the last icon in the
+   top bar) and open the **Shaders** tab.
+3. Click **Install a pack** and pick the file you downloaded.
+
+<img
+  src="/wiki-images/better-shading-install.webp"
+  alt="Ruby Shaders tab with the Install a pack button highlighted"
+/>
+
+You only do this once. The preset stays in Ruby for every future skin.
+
+## 2. Open your skin
+
+1. Click **Open BIN** (the folder icon) and pick your skin's `skin0.bin` from
+   your **extracted** mod folder.
+2. Click **BIN editor** in the bottom right corner and go to the **Material**
+   tab.
+
+<img
+  src="/wiki-images/better-shading-open.webp"
+  alt="Ruby with the Open BIN and BIN editor buttons highlighted"
+/>
+
+## 3. Create the material
+
+Click **More** at the bottom of the BIN editor, then:
+
+1. **New Material**.
+2. Later, once it's created, **Make name unique**. This stops it clashing with
+   other mods that use the same preset.
+
+<img
+  src="/wiki-images/better-shading-new-material.webp"
+  alt="The More menu with New Material and Make name unique highlighted"
+/>
+
+In the **New material** window, pick **AnimeShade** as the preset and click
+**Create**. If you see a **Fade in brush, camouflage and on death** box, leave
+it ticked.
+
+<img
+  src="/wiki-images/better-shading-preset.webp"
+  alt="The New material window with the AnimeShade preset highlighted"
+  width={600}
+/>
+
+Ruby links the shader to your skin for you. Now click **More → Make name
+unique**.
+
+<Callout type="info" title="Why the fade box matters">
+  The box only appears with an older copy of the preset. Without it your
+  champion stays fully visible when it walks into a bush (and during camouflage
+  or its death fade). The current AnimeShade download already fades, so with it
+  there is no box to tick.
+</Callout>
+
+## 4. Set your texture
+
+Under **Textures**, paste your model's texture path into **Diffuse_Texture**
+and click **Set**. It's the same `.tex` your skin already uses.
+
+<img
+  src="/wiki-images/better-shading-texture.webp"
+  alt="The Diffuse_Texture slot on the new material"
+/>
+
+## 5. Put it on your model
+
+Open the **Mesh** tab at the bottom of the BIN editor. Under **Base material**,
+click **Apply**. That puts the material on your whole model.
+
+<img
+  src="/wiki-images/better-shading-mesh.webp"
+  alt="The Mesh tab with the Apply button under Base material highlighted"
+/>
+
+The preview updates right away. Click **Save**.
+
+<img
+  src="/wiki-images/better-shading-result.webp"
+  alt="Illumi with the shading material applied in Ruby"
+/>
+
+<Callout type="info" title="Only want it on some parts?">
+  Each row under **Mesh assignment** is one part of the model. Click **Apply**
+  on a row to shade only that part. Skip parts that already use a special Riot
+  material, like a transformation or a death dissolve: replacing it removes that
+  effect.
+</Callout>
+
+## 6. Export the shader into your mod
+
+Keep your skin open, go back to the **Shaders** tab and click **Export to mod**
+on AnimeShade.
+
+<img
+  src="/wiki-images/better-shading-export.webp"
+  alt="The export button on the AnimeShade preset"
+/>
+
+Ruby writes a `ShaderCache.dx11.wad.client` **folder** next to your champion
+WAD, in the **same layer**:
+
+```plaintext
+content/base/
+    Locke.wad.client/
+    ShaderCache.dx11.wad.client/
+```
+
+Ruby picks the place from the skin you have open:
+
+- **Your mod has one layer** (or it's a plain extracted folder): the shader goes
+  straight next to your champion WAD.
+- **Your mod has several layers**: Ruby asks which one. Your skin's own layer is
+  highlighted. Pick that one.
+- **You imported your own extracted folder into the Celestial Creator Hub**:
+  keep editing that folder as usual. Ruby finds the Creator Hub project that
+  copies it and puts the shader where Reload carries it over, and Reload keeps
+  it there.
+- **You imported a mod project** (a folder with `mod.config.json`): Ruby writes
+  into that project. Drop the project into the Creator Hub again to update its
+  copy, the same as after any other edit.
+- **Ruby can't tell where your skin goes** (no skin open, or a skin outside any
+  mod): Ruby asks for a folder. Pick the one that **holds** your champion's
+  `.wad.client` (for a mod project, `content/base`).
+
+<Callout type="danger" title="Always ship both, in the same layer">
+  Your skin now uses the shader. If `ShaderCache.dx11.wad.client` is missing, or
+  sits in a layer that's switched off, **the game crashes on load**. Ruby's
+  preview won't warn you.
+</Callout>
+
+<Callout type="info" title="Have an old ShaderCache.dx11.wad.client file?">
+  Older Ruby versions saved a single packed file instead of a folder, and most
+  mod tools don't build a packed file sitting in a layer. Click **Export to mod**
+  again: Ruby unpacks the old file into the folder and keeps the old file as a
+  `.bak` backup. In a mod project the backup goes to the project's top folder,
+  outside `content/`, so it never ends up in your mod.
+</Callout>
+
+That's it. Pack your mod and enjoy the new look in game.
+
+---
+
+## Make it yours
+
+Every setting is under **Parameters** in the Material tab and updates live:
+
+| Setting                                  | What it does                                               |
+| ---------------------------------------- | ---------------------------------------------------------- |
+| `Saturation`                             | Color strength.                                            |
+| `Shading_Threshold` / `Shading_Softness` | Where the shadow starts and how soft its edge is.          |
+| `Shadow_Color`                           | Tint of the shadow side.                                   |
+| `Rim_Intensity`                          | Soft light around the model's edges.                       |
+| `Specular_Intensity`                     | Shine on highlights.                                       |
+| `Base_Color`                             | Multiplies the whole texture. Lower it to darken the skin. |
+
+---
+
+## Still solid in a bush?
+
+If you made your material before the fade box existed, your champion stays fully
+visible in brush. To fix it:
+
+1. Open the skin and go to the **Material** tab.
+2. Select the AnimeShade material. Its pass shows a warning that it is opaque.
+3. Click **Make it fade**, then **Save**.
+
+Do this for every material that uses AnimeShade.

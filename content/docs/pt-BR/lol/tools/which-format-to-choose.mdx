@@ -1,0 +1,114 @@
+---
+title: "Qual formato escolher"
+description: "Escolha .modpkg ou um .fantome com pastas WAD não empacotadas para preservar caminhos personalizados com as novas referências file da Riot."
+category: "tools"
+---
+
+**Escolha `.modpkg` quando seu gerenciador de skins oferecer suporte.** Se precisar de `.fantome`, use **pastas `.wad.client` não empacotadas** dentro dele.
+
+As duas opções preservam caminhos legíveis. Isso ajuda as ferramentas a reabrir, editar, fazer repath e reparar seu mod depois.
+
+| Pacote | O que escolher |
+| --- | --- |
+| `.modpkg` | Recomendado quando compatível. Armazena os caminhos junto com os arquivos empacotados. |
+| `.fantome` com pastas `.wad.client` não empacotadas | Recomendado para Fantome. Mantém os arquivos separados e seus caminhos. |
+| `.fantome` com arquivos `.wad.client` empacotados | Evite em novas exportações. Sem uma tabela de hashes salva, caminhos personalizados podem ficar irrecuperáveis. |
+
+## Por que isso importa agora
+
+A Riot está migrando referências a arquivos nos BINs de valores `string` legíveis para valores `file` com hashes.
+Quanto mais referências mudam, menos caminhos legíveis as ferramentas conseguem recuperar do próprio BIN.
+
+Dependendo do editor de texto, esse tipo aparece como `file:` ou `file =`.
+O binário armazena um hash de caminho de 64 bits. O editor mostra o nome legível quando conhece o caminho correspondente.
+
+Antes, uma referência string podia guardar um caminho de textura personalizado diretamente no BIN:
+
+```text
+assets/my_custom_skin/textures/body.tex
+```
+
+Após a conversão para `file`, a referência armazena o hash desse caminho.
+Se nada preservar o nome, a ferramenta não consegue recuperá-lo de forma confiável usando apenas o hash.
+
+Isso se aplica a referências a arquivos. Não significa que todo campo de texto do BIN vira uma referência file.
+
+## Como o unhash funciona
+
+Um WAD empacotado identifica seus arquivos por hashes de caminhos. Ele não mantém um diretório normal com nomes legíveis.
+
+Ferramentas como [Quartz](/docs/lol/tools/modding-apps/quartz) usam uma tabela de consulta:
+
+1. Leia o hash do arquivo.
+2. Procure esse hash em um dicionário de caminhos conhecidos.
+3. Mostre o caminho correspondente, se existir.
+4. Mantenha o hash numérico se o caminho for desconhecido.
+
+**Unhash é uma consulta, não uma reversão do hash.**
+As bases da comunidade cobrem caminhos conhecidos do jogo. Elas não conhecem automaticamente os caminhos que você inventou.
+As ferramentas também podem obter nomes das pastas do projeto, das strings legíveis do BIN e de tabelas incorporadas.
+
+Empacotar um WAD remove os nomes legíveis. Converter strings do BIN em hashes `file` elimina outra fonte desses nomes.
+Sem um mapeamento salvo, os arquivos personalizados podem ser extraídos com nomes hexadecimais.
+Isso pode impedir que ferramentas encontrem texturas, sigam referências ou façam repath corretamente.
+
+<Callout type="warning" title="Carregar o mod é diferente de recuperar nomes">
+  O mod ainda pode funcionar no jogo quando seus hashes correspondem. O problema
+  é recuperar caminhos legíveis para edição e reparos. Um nome desconhecido não
+  significa que o próprio WAD não pode ser aberto.
+</Callout>
+
+## Como empacotar um Fantome
+
+Mantenha cada `.wad.client` como uma **pasta com os arquivos soltos do mod** dentro de `WAD/`.
+Exemplo de estrutura dentro do `.fantome`:
+
+```text
+MySkin.fantome
+├── META/
+│   └── info.json
+└── WAD/
+    └── Ahri.wad.client/
+        ├── assets/
+        │   └── my_custom_skin/
+        │       └── textures/
+        │           └── body.tex
+        └── data/
+            └── characters/
+                └── ahri/
+                    └── skins/
+                        └── skin0.bin
+```
+
+`Ahri.wad.client/` é uma pasta. Um único arquivo WAD empacotado não preserva essa listagem de diretórios.
+“Raw” significa arquivos soltos dentro do pacote. O `.fantome` externo ainda pode usar compressão ZIP.
+
+O exportador Fantome do [Flint](/docs/lol/tools/modding-apps/flint) cria essa estrutura de pastas.
+O [Hematite](/docs/lol/tools/modding-apps/hematite) também grava WADs reparados como pastas não empacotadas para preservar os caminhos resolvidos.
+Mantenha essa estrutura ao empacotar o resultado.
+
+## Quando escolher Modpkg
+
+Escolha `.modpkg` se o gerenciador de destino oferecer suporte. O Flint inclui os caminhos dos arquivos na exportação.
+As ferramentas podem usar esses nomes sem depender apenas da base de hashes da comunidade.
+
+Exporte do projeto original enquanto os caminhos legíveis ainda existem.
+Converter um WAD antigo empacotado para `.modpkg` não recria nomes personalizados que já foram perdidos.
+
+## Antes de compartilhar
+
+1. Exporte como `.modpkg` ou `.fantome` com pastas WAD não empacotadas.
+2. Reabra o pacote e confira se os caminhos personalizados continuam legíveis.
+3. Mantenha as tabelas de hashes geradas e os metadados de caminhos junto com o pacote.
+4. Teste a exportação no gerenciador de destino e no jogo.
+5. Guarde a pasta original do projeto para futuras atualizações.
+
+Tabelas incorporadas e metadados de caminhos dos BINs podem ajudar ferramentas compatíveis a resolver referências personalizadas.
+Preserve esses dados, mas não suponha que toda ferramenta os mantém ao salvar.
+Nenhum dos formatos recomendados substitui um backup do projeto original.
+
+## Referências
+
+- [Código de exportação do Flint](https://github.com/RitoShark/Flint/blob/main/src-tauri/src/commands/import_export/export.rs): pastas Fantome e caminhos Modpkg.
+- [Código de unhash do Quartz](https://github.com/RitoShark/Quartz/blob/main/src-tauri/crates/quartz-lib/src/bin/jade/unhasher.rs): consultas de `file`, `hash` e `link` no dicionário.
+- [Hematite](https://github.com/RitoShark/Hematite): reparo de mods e processamento de WADs.

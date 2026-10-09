@@ -1,0 +1,80 @@
+---
+title: "Blender'da model optimize etme"
+description: "Merge by Distance ve Decimate modifier'ı ile yüksek poligonlu bir modeli League'in 65.000 vertex sınırının altına indir."
+category: "blender"
+credits:
+  discord: Ceerel
+  github: CeerelXP
+---
+
+League yaklaşık **65.000 vertex**'ten fazlasına sahip bir modeli yükleyemez. İndirdiğin modeller, özellikle yapay zekâyla üretilmiş olanlar, bu sınırı çoğu zaman fazlasıyla aşar. Bu rehber Blender'da bu sayıyı düşürmenin iki yolunu gösteriyor.
+
+<img
+  src="/wiki-images/optimize-model-1.webp"
+  alt="Blender'da istatistik katmanının 219.906 vertex gösterdiği bir 2B modeli"
+/>
+
+Bu 2B modelinde **219.906 vertex** var, yani sınırın üç katından fazla.
+
+<Callout type="info" title="Vertex sayısını göremiyor musun?">
+  Viewport'un sağ üstündeki **Overlays** menüsünü aç ve **Statistics**
+  seçeneğini etkinleştir.
+</Callout>
+
+## Mesafeye göre birleştirme
+
+İçe aktarılan modellerin çoğunda üst üste binmiş bir sürü kopya vertex bulunur. Bunları birleştirmenin hiçbir bedeli yok: model aynı görünür ve vertex sayısının büyük bir kısmından kurtulur.
+
+1. Modelini seç ve **Edit Mode**'a geçmek için `Tab` tuşuna bas.
+
+<img
+  src="/wiki-images/optimize-model-2.webp"
+  alt="Tüm mesh'i seçili hâlde Edit Mode'daki model"
+/>
+
+2. Tüm vertex'leri seçmek için `A` tuşuna bas.
+3. **Merge** menüsünü açmak için `M` tuşuna bas ve **By Distance**'ı seç. Her zaman By Distance kullan, diğer seçenekler seçtiğin her şeyi tek bir noktaya ezer.
+
+<img
+  src="/wiki-images/optimize-model-3.webp"
+  alt="At Center, At Cursor, Collapse ve By Distance seçenekleriyle açık Merge menüsü"
+/>
+
+Blender kaç vertex sildiğini pencerenin altında gösterir. Burada 188.335 vertex silindi ve model **31.571**'e düştü, sınırın epey altında.
+
+<img
+  src="/wiki-images/optimize-model-4.webp"
+  alt="Merge by Distance sonrası 31.571 vertex'e düşen model ve Blender'ın 188.335 vertex silindi bildirimi"
+/>
+
+Sayı hâlâ çok yüksekse sol alttaki paneldeki **Merge Distance** değerini biraz artır, örneğin `0.001` yap. Çok abartma, yoksa birbirine yakın detaylar kaynaşmaya başlar.
+
+## Decimate
+
+Birleştirme yetmezse mesh'i sadeleştirmek için **Decimate** modifier'ını kullan.
+
+1. **Object Mode**'a dönmek için `Tab` tuşuna bas ve modelini seç.
+2. Sağdaki Properties panelinde **Modifiers** sekmesini (mavi anahtar simgesi) aç.
+
+<img
+  src="/wiki-images/optimize-model-5.webp"
+  alt="Properties panelinde daire içine alınmış mavi anahtar simgeli Modifiers sekmesi"
+/>
+
+3. **Add Modifier**'a tıkla ve `Decimate` diye arat.
+4. Modu **Planar** olarak değiştir.
+5. **Angle Limit** değerini azar azar artır ve istediğin seviyeye gelene kadar vertex sayısını takip et. Dokuların esnememesi için **Delimit** altındaki **UVs** seçeneğini etkinleştir.
+
+<img
+  src="/wiki-images/optimize-model-6.webp"
+  alt="Angle Limit ve Delimit seçenekleriyle Planar modunda Decimate modifier'ı"
+/>
+
+6. Değişikliğin dışa aktarmadan önce mesh'e işlenmesi için modifier'ın açılır okunu aç ve **Apply**'a tıkla.
+
+<Callout type="info" title="İkisini birlikte kullan">
+  Çok yüksek poligonlu modellerde önce mesafeye göre birleştir, sonra kalanını
+  Decimate ile azalt. Pay bırakmak için 60.000 vertex'in altını hedefle. Model
+  hazırlığıyla ilgili diğer adımlar için [3D Model Swap
+  rehberine](/docs/lol/blender/3d-model-swap) göz at.
+</Callout>

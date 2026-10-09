@@ -1,103 +1,198 @@
 ---
 title: "Intermediário - Bancos de Som Personalizados"
-description: "Guia sobre como criar bancos de áudio personalizados com Wwise."
+description: "Guia sobre como criar bancos de áudio personalizados com o Wwise."
 category: "sounds"
 ---
 
-## Aprenda Wwise primeiro
+**Ferramentas necessárias:**
 
-Antes de começar, vale a pena estudar o conteúdo oficial do Wwise:
+<ToolCard
+  name="Wwise 2022.1.3"
+  href="https://www.audiokinetic.com/en/download/"
+>
+  Baixe pela Audiokinetic. Use a versão 2022.1.3. Os bancos atuais do League são
+  gerados com o Wwise 2022.1, e bancos de outras versões podem não carregar.
+</ToolCard>
 
-- [Wwise 101](https://www.youtube.com/watch?v=1EhEhDyZ6o4&list=PLXMeprTk4ORPxeFVB6o5t1_IHyHkf4BgO)
-- [Wwise 201](https://www.youtube.com/watch?v=_bvus5FIjxk&list=PLXMeprTk4ORNT-u6190PcRDA7-UEUwBo-)
+**Materiais úteis:**
+
+<ToolCard
+  name="Wwise 101"
+  href="https://www.youtube.com/watch?v=1EhEhDyZ6o4&list=PLXMeprTk4ORPxeFVB6o5t1_IHyHkf4BgO"
+>
+  Curso oficial para iniciantes. Assista para aprender a usar o Wwise.
+</ToolCard>
+
+<ToolCard
+  name="Wwise 201"
+  href="https://www.youtube.com/watch?v=_bvus5FIjxk&list=PLXMeprTk4ORNT-u6190PcRDA7-UEUwBo-"
+>
+  Curso oficial avançado.
+</ToolCard>
+
+<ToolCard
+  name="League Wwise Hierarchy Reference"
+  href="https://lol-wwise-hierarchy.aurecueil.uk/"
+>
+  Veja como os bancos oficiais são estruturados e o que você pode reaproveitar
+  para deixar seus sons melhores.
+</ToolCard>
+
+<ToolCard
+  name="Custom Announcer Template por aurecueil e Jessibee"
+  href="https://github.com/Aurecueil/Custom-Announcer-Template"
+>
+  Template gratuito. Coloque seus sons nele para montar um banco de narrador
+  totalmente personalizado.
+</ToolCard>
+
+<Callout type="info">
+  Este guia mostra como montar bancos personalizados que funcionam dentro do
+  sistema de áudio do League. Para o básico do Wwise, comece pelo Wwise 101
+  acima.
+</Callout>
 
 ---
 
-## Entendendo a estrutura dos bancos
+## Estrutura dos bancos e exportação separada
 
-A Riot separa o áudio em dois arquivos principais:
+O League divide o áudio em dois arquivos separados:
 
-- `audio.bnk` / `audio.wpk`: contém apenas os dados brutos de áudio.
-- `events.bnk`: contém a lógica (eventos, sequências e roteamento).
+- `audio.bnk` / `audio.wpk`: contém **só mídia** (os arquivos de áudio `.wem` brutos).
+- `events.bnk`: contém a **hierarquia de lógica** (eventos, sequências de ações, containers, switches e roteamento de buses).
 
-O `.wpk` é um formato próprio da Riot. Ele só armazena áudio, sem metadados - basicamente um container leve de sons.
+A hierarquia do Wwise é plana. Cada elemento tem um `ID` e um `ParentID`. Isso permite injetar novos elementos que se ligam a pais já existentes na hierarquia do League, sem substituir a árvore inteira.
 
-A hierarquia do Wwise não é aninhada. Em vez disso, cada elemento tem um `ID` e um `ParentID`. Isso permite injetar novos elementos que se conectam automaticamente à hierarquia existente sem precisar substituir tudo.
+### Separando áudio e eventos nos bancos personalizados
 
-Por exemplo: você cria um bus chamado `MUS` e um filho `bus_custom`. Quando o banco é carregado, o `MUS` original é mantido e o seu filho se conecta a ele automaticamente.
+Na hora de gerar os SoundBanks, o Wwise pode juntar estrutura e mídia em um único banco. Se quiser, você pode separar o áudio dos eventos e da estrutura. Separar permite que outras pessoas editem seus bancos personalizados depois com o [Quartz](/docs/lol/sounds/sound-easy).
+
+Se for separar, gere:
+
+1. Um `_audio.bnk` só com a mídia.
+2. Um `_events.bnk` com a estrutura e as definições de eventos.
+
+Se não for separar, gere:
+
+1. Um `_events.bnk` com a mídia, a estrutura e as definições de eventos. Resumindo, tudo.
 
 ---
 
-## Ordem de carregamento e sobrescrita
+## Boas práticas na hierarquia do projeto
 
-No League of Legends, **o primeiro carregado tem prioridade**. Se dois bancos definirem o mesmo elemento, o segundo é ignorado.
+Evite colocar objetos de som direto abaixo de um Work Unit:
 
-Como buses principais como `MUS` são carregados cedo no boot do jogo, você não pode substituí-los diretamente. Porém, você pode sobrescrever eventos individuais carregando seu banco antes do original.
+```text
+❌ Ruim:
+Work Unit -> Sound SFX
 
-Isso é controlado pelo arquivo `.bin`:
+✅ Bom:
+Work Unit -> Actor-Mixer -> Random / Sequence Container -> Sound SFX
+```
+
+### Por que usar Actor-Mixers?
+
+Um Actor-Mixer funciona como um controle central para o kit de um personagem ou um grupo de feitiços. Você define os padrões no Actor-Mixer uma vez só:
+
+- Roteamento do bus de saída (`daad0rhm` para SFX)
+- Sharesets de atenuação
+- Prioridade de reprodução
+- Make-up Gain base
+
+Os containers filhos herdam essas configurações automaticamente. Se um som precisar de um comportamento especial, ative **Override parent** nesse filho específico.
+
+### Ajuste o volume com o Make-up Gain
+
+Na hora de equilibrar os níveis no Wwise, **ajuste o Make-up Gain em vez do Voice Volume**. O Voice Volume interage com os faders em tempo de execução e a margem de ducking. O Make-up Gain dá um ganho estático limpo e previsível, sem clipping.
+
+### Adicionando variação aleatória de pitch
+
+A Riot costuma aplicar uma pequena variação aleatória de pitch em ações repetitivas para que soem naturais (por exemplo, as variações do W do Sett ou os procs de Aperto dos Mortos-Vivos):
+
+1. Selecione seu container ou objeto de som.
+2. Clique com o botão direito no ícone à direita de **Pitch**.
+3. Defina um intervalo, por exemplo de `-100` a `+100` cents.
+
+---
+
+## Roteamento de áudio: buses de saída
+
+Você não pode modificar nem substituir os buses existentes do jogo. Mas pode rotear direto para eles ou criar seus próprios buses filhos abaixo deles.
+
+| Uso                                                                              | Nome do bus            |
+| -------------------------------------------------------------------------------- | ---------------------- |
+| **SFX de campeão** (conjuração de feitiços padrão, impactos e ataques básicos)   | `daad0rhm`             |
+| **VO de campeão**                                                                | `vo_champions`         |
+| **Avisos do narrador**                                                           | `vo_announcer_default` |
+| **Música tema do campeão** (crie um bus filho personalizado abaixo deste)        | `mus_champion`         |
+| **Música de fundo / do mapa**                                                    | `mus_map`              |
+| **Notificações e áudio de interface**                                            | `sfx_hud`              |
+| **Pings táticos**                                                                | `sfx_pings`            |
+| **Sons de ambiente**                                                             | `sfx_environment`      |
+| **Música do Teamfight Tactics**                                                  | `tft_mus_default`      |
+
+<Callout type="info">
+  Os sons de combate dos campeões devem sempre ir para o `daad0rhm`. Os buses
+  wet passam pela reverberação e pelos filtros de distorção globais do ambiente
+  (como a distorção de som da passiva da Evelynn). Rotear para o `daad0rhm`
+  mantém seus SFX limpos.
+</Callout>
+
+---
+
+## Auto-ducking dos buses oficiais
+
+Se o seu som precisar abaixar o áudio de fundo (por exemplo, uma fala especial na ultimate ou uma música personalizada):
+
+1. Roteie seu som por um bus filho personalizado.
+2. Na aba **Auto-Ducking** do seu bus, adicione o bus oficial alvo (por exemplo, `mus_map`).
+3. Configure o bus alvo para fazer ducking por **Bus Volume**, **nunca por Voice Volume**. Fazer ducking no Voice Volume pode cortar por completo os sons que já estão tocando.
+
+---
+
+## Posicionamento e atenuação
+
+A atenuação controla como o som diminui com a distância. Sem atenuação, os sons tocam no mapa inteiro com volume máximo.
+
+<img src="/wiki-images/wwise-pos.webp" alt="Configurações de posicionamento no Wwise" />
+
+<img src="/wiki-images/wwise-atten.webp" alt="Configurações de atenuação no Wwise" />
+
+### Configurações principais
+
+- **Unidades de distância:** As unidades de distância do Wwise correspondem direto às unidades de alcance do League (o alcance do Flash é 400; ataques básicos à distância ficam entre 500 e 650).
+- **Desative o Height Spread:** O League é jogado em um plano com câmera isométrica. Sempre desative o Height Spread no posicionamento 3D para evitar falhas de pan vertical.
+- **Reproduzindo as curvas oficiais:** Não dá para referenciar os assets de atenuação oficiais por ID. Em vez disso, consulte a [League Wwise Hierarchy Reference](https://lol-wwise-hierarchy.aurecueil.uk/) para ver a distância máxima, as curvas de roll-off e os cones usados pelos campeões base, e depois recrie curvas equivalentes nos sharesets de atenuação do seu projeto.
+
+---
+
+## Ordem de carregamento e overrides pelo .bin
+
+No League, **o primeiro a carregar vence**. Se dois bancos definirem o mesmo elemento, o do segundo é descartado sem aviso.
+
+Você define a ordem de carregamento no arquivo `.bin` da skin:
 
 ```text
 bankPath: list[string] = {
-    "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Custom_VO_audio.bnk"  ← Seu banco (carrega primeiro)
+    "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Custom_VO_audio.bnk"  ← O banco personalizado carrega primeiro
     "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_VO_audio.bnk"
     "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_VO_audio.wpk"
     "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_VO_events.bnk"
 }
 ```
 
-Seu banco personalizado sobrescreve os elementos correspondentes no banco de eventos original porque está listado primeiro.
+### Regras de nome dos bancos
 
-**Nota sobre IDs:**
-
-- Eventos são identificados por **nome**, então basta que seu evento tenha o mesmo nome para sobrescrever corretamente.
-- Muitos outros elementos da hierarquia (containers aleatórios, sequências, switches, etc.) usam **IDs aleatórios gerados pelo Wwise**. Para sobrescrevê-los, você precisa igualar manualmente os IDs originais nos seus arquivos de projeto `.wwu`.
-
----
-
-### Configurações de áudio: atenuação
-
-A atenuação controla como o som se comporta ao longo da distância. Se você está adicionando novos sons, sempre configure isso de forma explícita, ou eles podem soar errado no jogo (alto demais de perto, audíveis do outro lado do mapa, etc.). A distância é definida em unidades do jogo (você pode usar o alcance do campeão como referência para essas unidades).
-
-<img src="/wiki-images/wwise-pos.webp" alt="Configurações de posicionamento do Wwise" />
-
-<img src="/wiki-images/wwise-atten.webp" alt="Configurações de atenuação do Wwise" />
-
-**Sempre desative o Height Spread.** O League é jogado em um plano plano, e o height spread pode causar comportamentos indesejados.
+- **Sobrescrevendo eventos oficiais:** Se você só substitui eventos que já existem no jogo base, seu banco **não** precisa ter `_events` no nome do arquivo. O motor já registrou esses nomes de eventos pelo banco do jogo, então seu banco os intercepta desde que carregue primeiro.
+- **Adicionando eventos novos:** Se você adicionar eventos novos que o campeão base não tem, o nome do arquivo do seu banco **precisa conter `_events`** (por exemplo, `Yone_Custom_events.bnk`). O carregador de som do League só lê definições de eventos de bancos que têm `_events` no nome.
+- **States e switches personalizados:** Criar states ou switches personalizados exige gerar e carregar um `Init.bnk`. _(Injetar ou renomear um `Init.bnk` personalizado no League é experimental e não verificado. Use os states e switches oficiais existentes sempre que puder.)_
 
 ---
 
-### Roteamento de áudio: usando o bus certo
+## Dica extra: configurações de conversão
 
-Todo som no Wwise passa por um bus de saída. Use o bus correto para o seu tipo de som, ou ele não será mixado corretamente no jogo (reverb errado, fader de volume errado, etc.).
-
-| ID do Bus      | Finalidade                                    |
-| -------------- | --------------------------------------------- |
-| `MUS`          | Música (wet, inclui reverb/processamento)     |
-| `SFX`          | SFX (wet)                                     |
-| `daad0rhm`     | SFX (dry), **use este para SFX de campeão**   |
-| `SFX_HUD`      | Notificações e UI (wet)                       |
-| `janep6uv`     | Locutor (dry)                                 |
-| `mus_lag_vp_0` | VO de campeão (dry)                           |
-| `sfx_npc`      | Ambiente (wet)                                |
-| `sfx_eog`      | Fim de jogo (wet)                             |
-
-Na dúvida, prefira a versão **dry** do bus da sua categoria. Os buses wet têm seus efeitos aplicados (por exemplo, a Evelynn distorce o SFX durante a passiva, então rotear os sons pelo bus `SFX` ignora essa distorção).
+Você pode usar configurações de conversão personalizadas no seu projeto do Wwise (compressão Vorbis, qualidade ou taxa de amostragem menores) para reduzir bastante o tamanho final dos arquivos `.bnk` e `.wem` exportados.
 
 ---
 
-### Dica extra
-
-Você pode usar **configurações de conversão personalizadas** no seu projeto Wwise para reduzir o tamanho final dos seus bancos. Útil se o seu mod inclui muito áudio.
-
----
-
-## Bônus
-
-<ToolCard
-  name="Custom Announcer Template by aurecueill and Jessibee"
-  href="https://github.com/Aurecueil/Custom-Announcer-Template"
->
-  Baixe do GitHub e coloque junto com seus outros projetos Wwise.
-</ToolCard>
-
-guia por aurecueil
+_Guia por aurecueil_

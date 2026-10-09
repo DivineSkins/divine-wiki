@@ -4,124 +4,193 @@ description: "Wwise ile özel ses bank'ları yapma rehberi."
 category: "sounds"
 ---
 
-## Önce Wwise'ı Öğren
+**Gerekli araçlar:**
 
-Başlamadan önce, resmi Wwise öğrenme içeriğine biraz zaman ayırmaya değer:
+<ToolCard
+  name="Wwise 2022.1.3"
+  href="https://www.audiokinetic.com/en/download/"
+>
+  Audiokinetic'ten indir. 2022.1.3 sürümünü kullan. League'in güncel bank'ları
+  Wwise 2022.1 ile oluşturuluyor ve başka sürümlerden çıkan bank'lar
+  yüklenmeyebilir.
+</ToolCard>
 
-- [Wwise 101](https://www.youtube.com/watch?v=1EhEhDyZ6o4&list=PLXMeprTk4ORPxeFVB6o5t1_IHyHkf4BgO)
-- [Wwise 201](https://www.youtube.com/watch?v=_bvus5FIjxk&list=PLXMeprTk4ORNT-u6190PcRDA7-UEUwBo-)
+**Faydalı kaynaklar:**
+
+<ToolCard
+  name="Wwise 101"
+  href="https://www.youtube.com/watch?v=1EhEhDyZ6o4&list=PLXMeprTk4ORPxeFVB6o5t1_IHyHkf4BgO"
+>
+  Yeni başlayanlar için resmi kurs. Wwise'ı kullanmayı öğrenmek için izle.
+</ToolCard>
+
+<ToolCard
+  name="Wwise 201"
+  href="https://www.youtube.com/watch?v=_bvus5FIjxk&list=PLXMeprTk4ORNT-u6190PcRDA7-UEUwBo-"
+>
+  İleri seviye resmi kurs.
+</ToolCard>
+
+<ToolCard
+  name="League Wwise Hierarchy Reference"
+  href="https://lol-wwise-hierarchy.aurecueil.uk/"
+>
+  Resmi bank'ların nasıl yapılandığını ve seslerini daha iyi yapmak için neleri
+  yeniden kullanabileceğini gör.
+</ToolCard>
+
+<ToolCard
+  name="Custom Announcer Template, aurecueil ve Jessibee"
+  href="https://github.com/Aurecueil/Custom-Announcer-Template"
+>
+  Ücretsiz şablon. Seslerini içine at ve tamamen özel bir spiker bank'ı kur.
+</ToolCard>
+
+<Callout type="info">
+  Bu rehber, League'in ses sistemi içinde çalışan özel bank'ları nasıl
+  kuracağını anlatır. Wwise'ın temelleri için yukarıdaki Wwise 101 ile başla.
+</Callout>
 
 ---
 
-## Bank Yapısını Anlamak
+## Bank Yapısı ve Ayrı Dışa Aktarma
 
-Riot sesi bilinçli olarak iki ayrı dosyaya böler:
+League sesi iki ayrı dosyaya böler:
 
-- `audio.bnk` / `audio.wpk`: sadece ham ses verisini içerir.
-- `events.bnk`: mantık hiyerarşisini içerir (event'ler, aksiyon dizileri,
-  yönlendirme).
+- `audio.bnk` / `audio.wpk`: **sadece medya** içerir (ham `.wem` ses dosyaları).
+- `events.bnk`: **mantık hiyerarşisini** içerir (event'ler, aksiyon dizileri, container'lar, switch'ler ve bus yönlendirmesi).
 
-`.wpk` Riot'a özgü bir formattır. Sadece ses dosyası tutabilir ve metadata
-başlığı yoktur. Onu tamamen ses verisi için hafif bir konteyner olarak düşün.
+Wwise'ın hiyerarşisi düzdür. Her elementin bir `ID`'si ve bir `ParentID`'si vardır. Bu sayede, tüm ağacı değiştirmeden League'in hiyerarşisindeki mevcut ebeveynlere kendiliğinden bağlanan yeni elementler enjekte edebilirsin.
 
-Wwise'ın hiyerarşisi iç içe değildir. Bunun yerine her eleman bir `ID` ve bir
-`ParentID` taşır. Bu düz yapı, tüm ağacı değiştirmene gerek kalmadan
-hiyerarşideki var olan üst elemanlara kendini bağlayan yeni elemanlar enjekte
-etmeni mümkün kılar.
+### Özel Bank'larda Ses ve Event'leri Ayırmak
 
-Örneğin: projende `MUS` adında bir bus, onun altında da `bus_aurecueil` adında
-bir alt eleman oluşturursun. Özel bank'ın yüklendiğinde sahte `MUS` kaydı yok
-sayılır (gerçeği zaten yüklüdür) ve `bus_aurecueil` otomatik olarak orijinal
-`MUS`'a bağlanır.
+SoundBank oluştururken Wwise yapıyı ve medyayı tek bir bank'ta toplayabilir. İstersen sesi event'lerden ve yapıdan ayırabilirsin. Ayırmak, başkalarının özel bank'larını daha sonra [Quartz](/docs/lol/sounds/sound-easy) ile düzenleyebilmesini sağlar.
+
+Ayırırsan şunları oluştur:
+
+1. Sadece medyayı tutan bir `_audio.bnk`.
+2. Yapıyı ve event tanımlarını tutan bir `_events.bnk`.
+
+Ayırmazsan şunu oluştur:
+
+1. Medyayı, yapıyı ve event tanımlarını tutan bir `_events.bnk`. Kısacası her şeyi.
 
 ---
 
-## Yükleme Sırası ve Geçersiz Kılma
+## Proje Hiyerarşisi İçin İyi Uygulamalar
 
-League'de **ilk yüklenen kazanır**. İki bank aynı elemanı tanımlıyorsa, ikincisi
-sessizce atılır.
+Ses objelerini doğrudan bir Work Unit'in altına koyma:
 
-`MUS` gibi çekirdek bus'lar oyunun açılış sürecinde çok erken yüklendiği için
-onları doğrudan değiştiremezsin. Ancak özel bank'ının orijinalden önce
-yüklendiğinden emin olarak tek tek event'leri geçersiz kılabilirsin.
+```text
+❌ Kötü:
+Work Unit -> Sound SFX
 
-Bunu `.bin` dosyasından kontrol edersin:
+✅ İyi:
+Work Unit -> Actor-Mixer -> Random / Sequence Container -> Sound SFX
+```
+
+### Neden Actor-Mixer Kullanmalı?
+
+Actor-Mixer, bir karakterin yetenek seti ya da bir büyü grubu için merkezi bir kontrolcü gibi çalışır. Varsayılanları Actor-Mixer'da bir kez ayarlarsın:
+
+- Çıkış bus'ı yönlendirmesi (SFX için `daad0rhm`)
+- Attenuation shareset'leri
+- Çalma önceliği
+- Temel Make-up Gain
+
+Alt container'lar bu ayarları otomatik olarak devralır. Bir sesin özel bir davranışa ihtiyacı varsa, o alt elementte **Override parent**'ı aç.
+
+### Ses Seviyesini Make-up Gain ile Ayarla
+
+Wwise'da seviyeleri dengelerken **Voice Volume yerine Make-up Gain'i ayarla**. Voice Volume, çalışma zamanındaki fader'lar ve ducking payı ile etkileşir. Make-up Gain ise temiz, öngörülebilir, clipping yapmayan statik bir kazanç verir.
+
+### Rastgele Pitch Varyasyonu Eklemek
+
+Riot tekrar eden aksiyonlara doğal duyulsunlar diye genelde küçük, rastgele bir pitch değişimi uygular (örneğin Sett'in W varyasyonları ya da Ölümsüzün Kavrayışı tetiklenmeleri):
+
+1. Container'ını ya da ses objeni seç.
+2. **Pitch**'in sağındaki simgeye sağ tıkla.
+3. Bir aralık ayarla, örneğin `-100` ile `+100` cent arası.
+
+---
+
+## Ses Yönlendirme: Çıkış Bus'ları
+
+Oyunun mevcut bus'larını değiştiremezsin. Ama doğrudan mevcut bus'lara yönlendirebilir ya da onların altında kendi alt bus'larını oluşturabilirsin.
+
+| Kullanım                                                                         | Bus adı                |
+| -------------------------------------------------------------------------------- | ---------------------- |
+| **Şampiyon SFX'i** (standart büyü kullanımları, isabetler ve temel saldırılar)   | `daad0rhm`             |
+| **Şampiyon VO'su**                                                               | `vo_champions`         |
+| **Spiker anonsları**                                                             | `vo_announcer_default` |
+| **Şampiyon tema müziği** (bunun altında özel bir alt bus oluştur)                | `mus_champion`         |
+| **Arka plan / harita müziği**                                                    | `mus_map`              |
+| **Bildirimler ve arayüz sesleri**                                                | `sfx_hud`              |
+| **Taktik ping'ler**                                                              | `sfx_pings`            |
+| **Ortam ve çevre sesleri**                                                       | `sfx_environment`      |
+| **Teamfight Tactics müziği**                                                     | `tft_mus_default`      |
+
+<Callout type="info">
+  Şampiyon savaş sesleri her zaman `daad0rhm`'ye yönlendirilmeli. Wet bus'lar
+  global çevre reverb'ünden ve bozulma filtrelerinden geçer (Evelynn'in pasif
+  ses bozulması gibi). `daad0rhm`'ye yönlendirmek SFX'lerini temiz tutar.
+</Callout>
+
+---
+
+## Resmi Bus'larda Auto-Ducking
+
+Özel sesinin arka plandaki sesleri kısması gerekiyorsa (örneğin özel bir ulti repliği ya da özel bir müzik):
+
+1. Sesini özel bir alt bus üzerinden yönlendir.
+2. Özel bus'ının **Auto-Ducking** sekmesinde hedef resmi bus'ı ekle (örneğin `mus_map`).
+3. Hedef bus'ı **Bus Volume** ile duck edecek şekilde ayarla, **asla Voice Volume ile değil**. Voice Volume'u duck etmek, o anda çalan seslerin tamamen kesilmesine yol açabilir.
+
+---
+
+## Konumlandırma ve Attenuation
+
+Attenuation, sesin mesafeyle nasıl azaldığını kontrol eder. Attenuation olmadan sesler tüm haritada tam ses seviyesiyle çalar.
+
+<img src="/wiki-images/wwise-pos.webp" alt="Wwise konumlandırma ayarları" />
+
+<img src="/wiki-images/wwise-atten.webp" alt="Wwise attenuation ayarları" />
+
+### Önemli Ayarlar
+
+- **Mesafe birimleri:** Wwise mesafe birimleri doğrudan League'in oyun içi menzil birimlerine denk gelir (Sıçra menzili 400; menzilli temel saldırılar 500 ile 650 arası).
+- **Height Spread'i kapat:** League izometrik kameralı düz bir zeminde oynanır. Dikey panlama hatalarını önlemek için 3D konumlandırmada Height Spread'i her zaman kapat.
+- **Resmi eğrileri kopyalamak:** Resmi attenuation asset'lerine ID ile referans veremezsin. Bunun yerine [League Wwise Hierarchy Reference](https://lol-wwise-hierarchy.aurecueil.uk/) üzerinden temel şampiyonların kullandığı maksimum mesafeye, roll-off eğrilerine ve konilere bak, sonra projenin attenuation shareset'lerinde aynı eğrileri yeniden oluştur.
+
+---
+
+## Yükleme Sırası ve .bin ile Override
+
+League'de **ilk yüklenen kazanır**. İki bank aynı elementi tanımlarsa ikincisininki sessizce yok sayılır.
+
+Yükleme sırasını skin'in `.bin` dosyasında ayarlarsın:
 
 ```text
 bankPath: list[string] = {
-    "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Custom_VO_audio.bnk"  ← Senin bank'ın, ilk yüklenen
+    "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Custom_VO_audio.bnk"  ← Özel bank ilk yüklenir
     "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_VO_audio.bnk"
     "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_VO_audio.wpk"
     "ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_VO_events.bnk"
 }
 ```
 
-Özel bank'ın orijinal event bank'ındaki eşleşen elemanları geçersiz kılar,
-çünkü listede önce o var.
+### Bank İsimlendirme Kuralları
 
-**ID'ler hakkında not:**
-
-- Event'ler **isme göre** eşleşir. Yani event'in aynı isme sahip olduğu sürece
-  doğru şekilde geçersiz kılar.
-- Diğer birçok hiyerarşi elemanı (random container'lar, sequence'ler, switch'ler
-  vb.) **Wwise'ın ürettiği rastgele ID'ler** kullanır. Bunları geçersiz kılmak
-  için orijinal ID'leri `.wwu` proje dosyalarında elle eşleştirmen gerekir.
+- **Resmi event'leri override etmek:** Sadece oyunda zaten var olan event'leri değiştiriyorsan, özel bank'ının dosya adında `_events` olması **gerekmez**. Motor bu event adlarını oyunun kendi bank'ından zaten kaydetmiştir, yani bank'ın ilk yüklendiği sürece onları yakalar.
+- **Yeni event eklemek:** Temel şampiyonda olmayan tamamen yeni event'ler ekliyorsan, bank'ının dosya adı **`_events` içermek zorunda** (örneğin `Yone_Custom_events.bnk`). League'in ses yükleyicisi event tanımlarını sadece adında `_events` geçen bank'lardan okur.
+- **Özel state'ler ve switch'ler:** Özel state ya da switch oluşturmak için bir `Init.bnk` oluşturup yüklemen gerekir. _(League'de özel bir `Init.bnk` enjekte etmek ya da adını değiştirmek deneysel ve doğrulanmamış. Mümkün olduğunda mevcut resmi state ve switch'leri kullan.)_
 
 ---
 
-### Ses Ayarları: Attenuation
+## Ek İpucu: Dönüştürme Ayarları
 
-Attenuation, sesin mesafeye göre nasıl davrandığını kontrol eder. Yeni sesler
-ekliyorsan bunu her zaman açıkça ayarla, yoksa oyunda kulağa yanlış gelebilir
-(yakında çok yüksek, haritanın öbür ucundan duyulur vb.). Mesafe oyun içi
-birimlerle tanımlanır (bu birimler için şampiyon menzilini referans
-alabilirsin).
-
-<img src="/wiki-images/wwise-pos.webp" alt="Wwise konumlandırma ayarları" />
-
-<img src="/wiki-images/wwise-atten.webp" alt="Wwise attenuation ayarları" />
-
-**Height Spread'i her zaman kapat.** League düz bir düzlemde oynanır ve height
-spread istenmeyen davranışlara yol açabilir.
+Wwise projende özel dönüştürme ayarları kullanarak (Vorbis sıkıştırma, daha düşük kalite ya da örnekleme hızı) dışa aktardığın `.bnk` ve `.wem` dosyalarının son boyutunu ciddi ölçüde küçültebilirsin.
 
 ---
 
-### Ses Yönlendirme: Doğru Bus'ı Kullan
-
-Wwise'daki her ses bir çıkış bus'ından geçer. Ses türün için doğru bus'ı kullan,
-yoksa oyunda düzgün mikslenmez (yanlış yankı, yanlış ses seviyesi vb.).
-
-| Bus ID         | Amaç                                      |
-| -------------- | ----------------------------------------- |
-| `MUS`          | Müzik (wet, yankı/işleme içerir)          |
-| `SFX`          | SFX (wet)                                 |
-| `daad0rhm`     | SFX (dry), **şampiyon SFX için bunu kullan** |
-| `SFX_HUD`      | Bildirimler ve arayüz (wet)               |
-| `janep6uv`     | Spiker (dry)                              |
-| `mus_lag_vp_0` | Şampiyon VO (dry)                         |
-| `sfx_npc`      | Ortam sesi (wet)                          |
-| `sfx_eog`      | Oyun sonu (wet)                           |
-
-Emin değilsen, kategorin için bus'ın **dry** versiyonunu tercih et. Wet bus'ların
-efektleri zaten uygulanmıştır (örneğin Evelynn pasifi sırasında SFX'i bozar, yani
-sesleri `SFX` bus'ından geçirmek bu bozulmayı atlar).
-
----
-
-### Ufak İpucu
-
-Wwise projende **özel dönüşüm ayarları** kullanarak bank'larının son dosya
-boyutunu küçültebilirsin. Modun çok ses içeriyorsa işine yarar.
-
----
-
-## Bonus
-
-<ToolCard
-  name="aurecueill ve Jessibee'den Özel Spiker Şablonu"
-  href="https://github.com/Aurecueil/Custom-Announcer-Template"
->
-  GitHub'dan indir ve diğer Wwise projelerinin yanına koy.
-</ToolCard>
-
-rehber: aurecueil
+_Rehber: aurecueil_

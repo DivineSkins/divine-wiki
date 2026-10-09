@@ -1,0 +1,65 @@
+---
+title: "Make Your Mod Work on Every Skin with NoSkinLite"
+description: "Use Quartz's NoSkinLite to copy your skin0 BIN into every skin and chroma slot, so your mod shows up whatever skin is equipped."
+category: "vfx-bins"
+credits:
+  discord: Ceerel
+  github: CeerelXP
+---
+
+<PremiumCard
+  title="Required tool: Quartz"
+  href="https://github.com/RitoShark/Quartz"
+>
+  Install Quartz before starting this tutorial.
+</PremiumCard>
+
+<Callout type="info" title="Custom skins are safe outside Korea and China">
+  Custom skins are safe on every region except **Korea** and **China**. Never
+  test custom skins on Korean or Chinese servers. The anti-cheat there blocks
+  all mods and bans accounts.
+</Callout>
+
+A mod built on `skin0.bin` only replaces the base skin. If you equip any other skin or chroma in game, the mod doesn't show up. **NoSkinLite** fixes that by copying your `skin0.bin` into every other skin slot for that champion.
+
+## Find your skin0 BIN
+
+In your mod's files, open the champion's skins folder:
+
+```text
+data/characters/<champion>/skins
+```
+
+NoSkinLite reads the champion name from this path, so keep the folder structure as it is.
+
+## Run NoSkinLite
+
+Right-click `skin0.bin` and select **Quartz → NoSkinLite**.
+
+<img
+  src="/wiki-images/noskinlite-1.webp"
+  alt="Right-click menu on skin0.bin with the Quartz submenu open and NoSkinLite listed"
+/>
+
+<Callout type="info" title="Don't see the Quartz menu?">
+  On Windows 11, click **Show more options** first. If it still isn't there,
+  open Quartz settings and turn on **Explorer Integration** under **Windows
+  Integration**.
+</Callout>
+
+Quartz creates `skin1.bin`, `skin2.bin` and so on in the same folder, one for every skin and chroma the champion has, plus some spare slots for future skins. If you see these new files, it worked.
+
+<img
+  src="/wiki-images/noskinlite-2.webp"
+  alt="Gwen's skins folder with skin1.bin to skin14.bin created next to skin0.bin"
+/>
+
+## Champions with extra folders
+
+Some champions have more than one folder in `data/characters`, for example Shaco's box (`shacobox`) or Zed's shadow (`zedshadow`). Each of these has its own `skin0.bin`. Run NoSkinLite on those too, or they'll only look right on the base skin.
+
+<Callout type="warning" title="Edited skin0 after running it?">
+  NoSkinLite never overwrites a `skinN.bin` that already exists. If you change
+  `skin0.bin` later, delete the generated files first and run NoSkinLite again,
+  or the other skins keep the old version.
+</Callout>

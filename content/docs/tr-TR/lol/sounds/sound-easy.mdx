@@ -1,139 +1,126 @@
 ---
 title: "Kolay - Temel Ses Modlama"
-description: "Ses modu yapmaya yeni başlayanlar için rehber"
+description: "Quartz ile mevcut League of Legends seslerini değiştirmeye yeni başlayanlar için rehber"
 category: "sounds"
 ---
 
 **Gerekli araçlar:**
 
 <ToolCard name="Quartz" href="https://github.com/RitoShark/Quartz">
-  GitHub'dan indir.
+  `.bnk` ve `.wpk` dosyalarındaki sesleri okumak, dinlemek ve değiştirmek için
+  ana araç.
 </ToolCard>
 
-**İşe yarayan araçlar:**
+**Faydalı araçlar:**
 
 <ToolCard name="Audacity" href="https://www.audacityteam.org/download/">
-  Ses düzenleme programı.
+  Önerilir. Sesi kırpmak, ses yüksekliğini eşitlemek ve temiz dosyalar dışa
+  aktarmak için.
 </ToolCard>
 
 <ToolCard name="yt-dlp" href="https://github.com/yt-dlp/yt-dlp">
-  İnternetten medya indirmeye yarayan araç.
+  İsteğe bağlı. İnternetteki medyalardan ses örnekleri indirmek için komut
+  satırı aracı.
 </ToolCard>
 
 ---
 
-### Neyle Uğraşıyorsun
+## Dosya Formatları
 
-League of Legends sesini birkaç dosya türünde saklar. Bunlarla sürekli
-karşılaşacaksın:
+League sesi ve ses mantığını üç dosya türünde saklar:
 
-- `.bnk`: ses verisini ve/veya mantık ve event hiyerarşisini tutan bir Wwise
-  "SoundBank"i.
-- `.wpk`: sadece ham ses tutan, Riot'a özgü bir format (metadata yok).
-- `.wem`: Wwise'ın içeride kullandığı, tek tek sıkıştırılmış ses formatı.
+- `.bnk`: Bir Wwise SoundBank. Ham ses verisini (`audio.bnk`) ya da hiyerarşiyi, bus yönlendirmesini ve event tetikleme mantığını (`events.bnk`) tutabilir.
+- `.wpk`: Mantık başlıkları olmayan, Riot'a özel bir format. Sadece ses verisi tutan düz bir paket (genelde VO için kullanılır).
+- `.wem`: Wwise ile kodlanmış, `.bnk` ve `.wpk` container'larının içine paketlenmiş tekil sıkıştırılmış ses dosyaları.
 
-<Callout type="info" title="Hangi dosyayı düzenlersin">
-  **SFX** için (yetenekler, vuruşlar, arayüz sesleri) genelde bir `audio.bnk`
-  dosyası düzenlersin.
+<Callout type="info" title="SFX ve VO dosyaları">
+  **SFX** (yetenekler, temel saldırılar, isabetler, arayüz) `audio.bnk` içinde durur.
 
-**VO** için (replikler, spiker) genelde bir `audio.wpk` dosyası düzenlersin.
-
+  **VO** (şampiyon replikleri, spiker anonsları) `audio.wpk` içinde durur ve `events.bnk` tarafından yönetilir.
 </Callout>
 
 ---
 
-### Doğru Dosyaları Bulmak
+## Gerekli Dosyaları Bulmak
 
-Bir karakterin seslerini düzenlemek için üç dosyaya ihtiyacın var:
+Bir şampiyonun seslerini düzenlemek için ses dosyalarını skin'in `.bin` dosyasıyla eşleştirmen gerekir:
 
-| Dosya              | Örnek yol                                                                             |
-| ------------------ | ------------------------------------------------------------------------------------- |
-| Ses (wpk veya bnk) | `ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_vo_audio.wpk`  |
-| Event bank'ı       | `ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_vo_events.bnk` |
-| Bin dosyası        | `data/characters/Yone/skins/skin0.bin`                                                |
+| Dosya rolü              | Format             | Örnek dosya yolu                                                                      |
+| :---------------------- | :----------------- | :------------------------------------------------------------------------------------ |
+| **Ses bank'ı / paketi** | `.bnk` ya da `.wpk` | `ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_vo_audio.wpk`  |
+| **Events bank'ı**       | `.bnk`             | `ASSETS/Sounds/Wwise2016/VO/en_US/Characters/Yone/Skins/Base/Yone_Base_vo_events.bnk` |
+| **Skin tanımı**         | `.bin`             | `data/characters/Yone/skins/skin0.bin`                                                |
 
-Bu dosyaları doğrudan Quartz'a yükleyebilir ya da hazır seçeneklerden birini
-kullanabilirsin:
+Quartz bu dosyaları yüklemen için iki yol sunar:
 
-- **Oyundan.** Bir şampiyon ve onun skin'ini seç (en soldaki seçenek).
-- **Var olan bir moddan.** Başka bir modu düzenliyor, ondan malzeme alıyor ya da
-  üstüne bir şey inşa ediyorsan, o modun klasörünü yükle (soldan ikinci seçenek).
+- **Oyundan:** Dosyaları doğrudan League kurulumundan çekmek için listeden şampiyonu ve skin'i seç.
+- **Mevcut bir moddan:** Başkasının çalışması üzerine inşa ediyorsan Quartz'ı açılmış bir mod klasörüne yönlendir.
 
-<img src="/wiki-images/quartz-selection-2.webp" alt="Quartz kaynak seçimi" />
+<img src="/wiki-images/quartz-selection-2.webp" alt="Quartz'da kaynak seçimi" />
 
 ---
 
-### Adım Adım: Bir Sesi Değiştirmek
+## Adım Adım: Sesleri Değiştirmek
 
-**1. Quartz'ta Sound Bank sekmesini aç.**
+### 1. Sound Bank Sekmesini Aç
 
-<img src="/wiki-images/quartz-empty-2.webp" alt="Boş Quartz Sound Bank sekmesi" />
+Quartz'ın ana penceresinde **Sound Bank** sekmesine geç.
 
-**2. Dosyalarını SOL tarafa yükle.**
+<img src="/wiki-images/quartz-empty-2.webp" alt="Quartz'da boş Sound Bank sekmesi" />
 
-Sol panele tıkla ve Quartz'a `.bin`, ses (`.bnk` veya `.wpk`) ve event (`.bnk`)
-dosyalarını göster. Sonra **Parse**'a bas.
+### 2. Oyun Bank'ını Oku (Sol Panel)
 
-Bu, sol tarafı o bank'taki tüm seslerin listesiyle doldurur.
+1. Kaynak dosyalarını (`.bin`, `audio.bnk`/`audio.wpk` ve `events.bnk`) seç ya da bir oyun preset'i seç.
+2. **Parse**'a tıkla.
+3. Sol panel bank'taki tüm event'ler ve ses ID'leriyle dolar. Doğru sesi bulduğundan emin olmak için bir girişe tıklayıp dinle.
 
-<img src="/wiki-images/quartz-2-2.webp" alt="Sol panelde parse edilmiş bank" />
+<img src="/wiki-images/quartz-2-2.webp" alt="Sol panelde okunmuş bank" />
 
-Solda aynı anda birden çok bank parse edip yükleyebilirsin.
+### 3. Yeni Sesleri Yükle (Sağ Panel)
 
-**3. Yeni seslerini SAĞ tarafa ekle.**
+Kendi ses dosyalarını sağ panele yükle. Quartz şunları kabul eder:
 
-Sağ panel, kullanmak istediğin yeni sesi yüklediğin yerdir. Quartz şunları
-kabul eder:
-
-- `.wav`
-- `.wem`
-- `.ogg`
+- `.wav` (en iyi kalite için sıkıştırılmamış PCM önerilir)
 - `.mp3`
+- `.ogg`
+- `.wem` (önceden dönüştürülmüş Wwise sesi)
 
-Format dönüşümünü kendi halleder. Import etmeden önce `.wem`'e çevirmene gerek
-yok.
+<Callout type="info" title="Otomatik dönüştürme">
+  Quartz içe aktarılan `.wav`, `.mp3` ve `.ogg` dosyalarını kendisi `.wem`'e
+  dönüştürür. Önceden hiçbir şey dönüştürmen gerekmez.
+</Callout>
 
-Sağ tarafa League'den başka bir parse edilmiş ses bank'ı da yükleyip oradan
-sesleri doğrudan çekebilirsin.
+Başka şampiyonlardan ya da skin'lerden ses almak için sağ tarafta ikinci bir League bank'ı da okutabilirsin.
 
-<img
-  src="/wiki-images/quartz-3-2.webp"
-  alt="Sağ panelde yeni sesler"
-/>
+<img src="/wiki-images/quartz-3-2.webp" alt="Sağ paneldeki yeni sesler" />
 
-**4. Sürükleyip değiştir.**
+### 4. Sesi Değiştir
 
-**Sağ panelden** bir sesi al, **sol paneldeki** değiştirmek istediğin sesin
-üstüne sürükle. Soldaki kayıt güncellenir ve değişikliği gösterir.
+- **Sağ paneldeki** bir sesi, **sol paneldeki** değiştirmek istediğin sesin üzerine sürükle.
+- Sol paneldeki simge ve yazı, girişin değiştirildiğini göstermek için güncellenir.
+- Yeni sesi dinlemek ve ses seviyesini kontrol etmek için değiştirilen girişe tıkla.
 
-<img
-  src="/wiki-images/quartz4.webp"
-  alt="Quartz'ta bir sesi sürükleyip değiştirme"
-/>
+<img src="/wiki-images/quartz4.webp" alt="Quartz'da bir sesi değiştirmek için sürüklemek" />
 
-**5. Düzenlediğin bank'ı kaydet.**
+### 5. Değiştirilen Bank'ı Dışa Aktar
 
-Sol panelde bank'ını seç, sonra **"Save as BNK/WPK"**'ye tıkla ve mod klasörünün
-içinde bir yere kaydet.
+1. Sol panelde değiştirilen bank'ı seç.
+2. **Save as BNK/WPK**'ya tıkla.
+3. Dosyayı, League'in beklediği klasör yapısını koruyarak mod klasörüne kaydet.
 
-<img
-  src="/wiki-images/quartz-save-2.webp"
-  alt="Quartz'ta düzenlenmiş bank'ı kaydetme"
-/>
+<img src="/wiki-images/quartz-save-2.webp" alt="Düzenlenen bank'ı Quartz'da kaydetmek" />
 
 ---
 
-### Modunun İçine Ne Koymalısın
+## Modu Paketlemek
 
-| Mod türü | Eklenecek dosyalar               |
-| -------- | -------------------------------- |
-| SFX modu | sadece `audio.bnk`               |
-| VO modu  | `audio.wpk` **VE** `events.bnk`  |
+Mod paketini hazırlarken (örneğin cslol-manager için) sadece değiştirdiğin dosyaları ekle:
 
-VO modlarında event bank'ı gereklidir, çünkü oyundaki her event için (saldırı,
-ölüm, şaka vb.) hangi ses dosyasının çalacağını o belirler. O olmadan yeni
-sesin doğru tetiklenmez.
+| Mod türü     | Eklenecek dosyalar                       | Notlar                                                                                                                               |
+| :----------- | :--------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------- |
+| **SFX modu** | `..._audio.bnk`                          | Basit ses değişimleri için düzenlenmiş bir events bank'ı ya da `.bin` dosyası gerekmez.                                              |
+| **VO modu**  | `..._audio.wpk` **VE** `..._events.bnk`  | `events.bnk`, oyundaki her event'te hangi sesin çalacağını belirler. `.wpk`'nin yanında o olmadan replikler tetiklenmez.              |
 
 ---
 
-rehber: aurecueil
+_Rehber: aurecueil_

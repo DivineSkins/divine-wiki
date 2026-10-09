@@ -1,0 +1,209 @@
+---
+title: "Skinini Gölgelendirmeyle Kolayca Daha İyi Göstermek"
+description: "Ruby ile birkaç tıklamada özel modeline gerçek ışık ve gölge ver. Kod yok, Blender yok, sadece bir materyal."
+category: "vfx-bins"
+---
+
+<LevelPill level="beginner" />
+
+Çoğu özel model oyunda **düz** görünür. Doku iyidir ama üzerinde ışık ya da
+gölge yoktur, bu yüzden model şampiyonun üstüne yapıştırılmış gibi durur.
+
+Gölgelendirme materyali bunu düzeltir. [Ruby](/docs/lol/tools/modding-apps/ruby)
+ile birkaç tıklama sürer ve sonucu oyunu açmadan önce canlı olarak görürsün.
+
+## Önce ve sonra
+
+**Locke üzerinde Illumi Zoldyck**
+
+<img
+  src="/wiki-images/better-shading-illumi.webp"
+  alt="Illumi Zoldyck Locke skini, gölgelendirme materyali eklenmeden önce ve sonra"
+/>
+
+**Zaahen üzerinde Rem**
+
+<img
+  src="/wiki-images/better-shading-rem.webp"
+  alt="Rem Zaahen skini, gölgelendirme materyali eklenmeden önce ve sonra"
+/>
+
+Aynı model, aynı doku. Sadece materyal değişti. Kollara, yenlere ve eteğe bak:
+artık aydınlık ve gölgeli bir tarafları var.
+
+Bu rehberde Dazashu'nun Ruby için yaptığı gölgelendirme preseti **AnimeShade**'i
+kullanıyoruz. Sadece anime karakterlerinde değil, her skinde çalışır.
+
+---
+
+## 1. Preseti yükle
+
+1. **[AnimeShade](/wiki-files/AnimeShade.rubyshader)**'i indir.
+2. Ruby'de **Browse League / TFT skins** simgesine (üst çubuktaki son simge)
+   tıkla ve **Shaders** sekmesini aç.
+3. **Install a pack**'e tıkla ve indirdiğin dosyayı seç.
+
+<img
+  src="/wiki-images/better-shading-install.webp"
+  alt="Install a pack butonu vurgulanmış Ruby Shaders sekmesi"
+/>
+
+Bunu sadece bir kez yaparsın. Preset gelecekteki tüm skinlerin için Ruby'de
+kalır.
+
+## 2. Skinini aç
+
+1. **Open BIN**'e (klasör simgesi) tıkla ve **çıkarılmış** mod klasöründen
+   skininin `skin0.bin` dosyasını seç.
+2. Sağ alt köşedeki **BIN editor**'e tıkla ve **Material** sekmesine geç.
+
+<img
+  src="/wiki-images/better-shading-open.webp"
+  alt="Open BIN ve BIN editor butonları vurgulanmış Ruby"
+/>
+
+## 3. Materyali oluştur
+
+BIN editor'ün altındaki **More**'a tıkla, sonra:
+
+1. **New Material**.
+2. Daha sonra, oluşturulduktan sonra, **Make name unique**. Böylece aynı preseti
+   kullanan diğer modlarla çakışmaz.
+
+<img
+  src="/wiki-images/better-shading-new-material.webp"
+  alt="New Material ve Make name unique vurgulanmış More menüsü"
+/>
+
+**New material** penceresinde preset olarak **AnimeShade**'i seç ve **Create**'e
+tıkla. **Fade in brush, camouflage and on death** kutusunu görürsen işaretli
+bırak.
+
+<img
+  src="/wiki-images/better-shading-preset.webp"
+  alt="AnimeShade preseti vurgulanmış New material penceresi"
+  width={600}
+/>
+
+Ruby shader'ı skinine kendisi bağlar. Şimdi **More → Make name unique**'e tıkla.
+
+<Callout type="info" title="Fade kutusu neden önemli">
+  Kutu sadece presetin eski bir kopyasında çıkar. O kutu olmadan şampiyonun
+  çalıya girdiğinde (kamuflajda ve ölürkenki saydamlaşmada da) tamamen görünür
+  kalır. Güncel AnimeShade indirmesi zaten saydamlaşıyor, yani onunla
+  işaretlenecek bir kutu yok.
+</Callout>
+
+## 4. Dokunu ayarla
+
+**Textures** altında modelinin doku yolunu **Diffuse_Texture**'a yapıştır ve
+**Set**'e tıkla. Skininin zaten kullandığı `.tex` dosyasıdır.
+
+<img
+  src="/wiki-images/better-shading-texture.webp"
+  alt="Yeni materyaldeki Diffuse_Texture yuvası"
+/>
+
+## 5. Modeline uygula
+
+BIN editor'ün altındaki **Mesh** sekmesini aç. **Base material** altında
+**Apply**'a tıkla. Bu, materyali tüm modeline uygular.
+
+<img
+  src="/wiki-images/better-shading-mesh.webp"
+  alt="Base material altındaki Apply butonu vurgulanmış Mesh sekmesi"
+/>
+
+Önizleme hemen güncellenir. **Save**'e tıkla.
+
+<img
+  src="/wiki-images/better-shading-result.webp"
+  alt="Ruby'de gölgelendirme materyali uygulanmış Illumi"
+/>
+
+<Callout type="info" title="Sadece bazı parçalarda mı istiyorsun?">
+  **Mesh assignment** altındaki her satır modelin bir parçasıdır. Sadece o
+  parçayı gölgelendirmek için satırdaki **Apply**'a tıkla. Dönüşüm veya ölüm
+  dissolve'u gibi özel bir Riot materyali kullanan parçaları atla: onu
+  değiştirmek o efekti kaldırır.
+</Callout>
+
+## 6. Shader'ı moduna aktar
+
+Skinin açık kalsın. **Shaders** sekmesine geri dön ve AnimeShade'deki
+**Export to mod**'a tıkla.
+
+<img
+  src="/wiki-images/better-shading-export.webp"
+  alt="AnimeShade presetindeki dışa aktarma butonu"
+/>
+
+Ruby, şampiyon WAD'ının yanına, **aynı katmana** bir
+`ShaderCache.dx11.wad.client` **klasörü** yazar:
+
+```plaintext
+content/base/
+    Locke.wad.client/
+    ShaderCache.dx11.wad.client/
+```
+
+Ruby yeri, açık olan skinine bakarak seçer:
+
+- **Modunda tek katman var** (ya da düz bir çıkarılmış klasör): shader doğrudan
+  şampiyon WAD'ının yanına gider.
+- **Modunda birkaç katman var**: Ruby hangisine yazacağını sorar. Skininin kendi
+  katmanı vurgulanır. Onu seç.
+- **Kendi çıkarılmış klasörünü Celestial Creator Hub'a içe aktardın**: o
+  klasörü her zamanki gibi düzenlemeye devam et. Ruby onu kopyalayan Creator Hub
+  projesini bulur ve shader'ı Reload'un aktaracağı yere koyar. Reload da onu
+  orada tutar.
+- **Bir mod projesini içe aktardın** (`mod.config.json` içeren bir klasör): Ruby
+  o projeye yazar. Hub'daki kopyayı güncellemek için projeyi Creator Hub'a tekrar
+  bırak, tıpkı diğer düzenlemelerden sonra yaptığın gibi.
+- **Ruby skininin nereye ait olduğunu anlayamıyor** (açık skin yok ya da skin
+  hiçbir modun içinde değil): Ruby bir klasör ister. Şampiyonunun `.wad.client`'ını
+  **içeren** klasörü seç (mod projesinde `content/base`).
+
+<Callout type="danger" title="Her zaman ikisini birlikte, aynı katmanda gönder">
+  Skinin artık shader'ı kullanıyor. `ShaderCache.dx11.wad.client` eksikse ya da
+  kapalı bir katmandaysa **oyun yüklenirken çöker**. Ruby'nin önizlemesi seni
+  uyarmaz.
+</Callout>
+
+<Callout type="info" title="Elinde eski bir ShaderCache.dx11.wad.client dosyası mı var?">
+  Eski Ruby sürümleri klasör yerine tek bir paketlenmiş dosya kaydediyordu ve
+  çoğu mod aracı bir katmanın içinde duran paketlenmiş dosyayı derlemeye almaz.
+  **Export to mod**'a tekrar tıkla: Ruby eski dosyayı klasöre açar ve eski
+  dosyayı `.bak` yedeği olarak saklar. Mod projesinde yedek, projenin en üst
+  klasörüne, `content/` dışına konur; böylece asla modunun içine girmez.
+</Callout>
+
+Bu kadar. Modunu paketle ve oyunda yeni görünümün tadını çıkar.
+
+---
+
+## Kendine göre ayarla
+
+Tüm ayarlar Material sekmesindeki **Parameters** altındadır ve canlı güncellenir:
+
+| Ayar | Ne yapar |
+| --- | --- |
+| `Saturation` | Renk yoğunluğu. |
+| `Shading_Threshold` / `Shading_Softness` | Gölgenin nerede başladığı ve kenarının ne kadar yumuşak olduğu. |
+| `Shadow_Color` | Gölgeli tarafın tonu. |
+| `Rim_Intensity` | Modelin kenarlarındaki yumuşak ışık. |
+| `Specular_Intensity` | Parlamalardaki parlaklık. |
+| `Base_Color` | Tüm dokuyu çarpar. Skini koyulaştırmak için düşür. |
+
+---
+
+## Çalıda hâlâ tamamen görünüyor mu?
+
+Materyalini fade kutusu gelmeden önce yaptıysan, şampiyonun çalıda tamamen
+görünür kalır. Düzeltmek için:
+
+1. Skini aç ve **Material** sekmesine geç.
+2. AnimeShade materyalini seç. Pass'inde opak olduğuna dair bir uyarı görünür.
+3. **Make it fade**'e, sonra **Save**'e tıkla.
+
+AnimeShade kullanan her materyal için bunu yap.

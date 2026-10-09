@@ -1,0 +1,114 @@
+---
+title: "Which format to choose"
+description: "Choose .modpkg or a .fantome with raw WAD folders to preserve custom paths as Riot replaces string references with file hashes."
+category: "tools"
+---
+
+**Choose `.modpkg` when your skin manager supports it.** If you need `.fantome`, pack it with **raw `.wad.client` folders** inside.
+
+Both choices preserve readable asset paths. This helps tools reopen, edit, repath, and repair your mod later.
+
+| Package                                    | What to choose                                                                                   |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------ |
+| `.modpkg`                                  | Recommended when supported. Stores asset paths alongside the packaged files.                     |
+| `.fantome` with raw `.wad.client` folders  | Recommended for Fantome exports. Keeps the loose files and their folder paths.                   |
+| `.fantome` with packed `.wad.client` files | Avoid for new exports. Custom paths can become impossible to recover without a saved hash table. |
+
+## Why this matters now
+
+Riot is moving asset references in BIN files from readable `string` values to hashed `file` values.
+As more references change, tools have fewer readable paths to recover from the BIN itself.
+
+In text editors, you may see this type written as `file:` or `file =`, depending on the editor.
+The binary stores a 64-bit path hash. An editor can display a readable name when it knows the matching path.
+
+Previously, a string reference could carry a custom texture path directly in the BIN:
+
+```text
+assets/my_custom_skin/textures/body.tex
+```
+
+After conversion to a `file` value, the reference stores that path's hash instead.
+If nothing else preserves the name, the tool cannot reliably recover it from the hash alone.
+
+This concerns asset references. It does not mean every text field in a BIN becomes a file reference.
+
+## What unhashing actually does
+
+A packed WAD identifies its files by path hashes. It does not keep a normal directory of readable filenames.
+
+Tools such as [Quartz](/docs/lol/tools/modding-apps/quartz) use a lookup table to resolve those hashes:
+
+1. Read the file's hash.
+2. Look for that hash in a dictionary of known paths.
+3. Show the matching path if one exists.
+4. Keep a numeric hash if the path is unknown.
+
+**Unhashing is a lookup, not a reversal of the hash.**
+Community hash databases cover known game paths. They cannot automatically know paths you invented for your mod.
+Tools can also learn names from project folders, readable BIN strings, and embedded hash tables.
+
+Packing a WAD removes the readable filenames. Converting BIN strings to `file` hashes removes another source of those names.
+Without a saved mapping, custom paths may extract as hexadecimal filenames.
+That can prevent tools from finding textures, following references, or repathing assets correctly.
+
+<Callout type="warning" title="Loading is different from recovering filenames">
+  A mod can still load in-game when its hashes match. The problem is recovering
+  readable paths for later editing and repair. An unknown filename does not mean
+  the WAD itself cannot be opened.
+</Callout>
+
+## How to pack a Fantome
+
+Keep each `.wad.client` as a **folder containing loose mod files** under `WAD/`.
+Here is an example layout inside the `.fantome` archive:
+
+```text
+MySkin.fantome
+├── META/
+│   └── info.json
+└── WAD/
+    └── Ahri.wad.client/
+        ├── assets/
+        │   └── my_custom_skin/
+        │       └── textures/
+        │           └── body.tex
+        └── data/
+            └── characters/
+                └── ahri/
+                    └── skins/
+                        └── skin0.bin
+```
+
+`Ahri.wad.client/` above is a folder. A single packed `Ahri.wad.client` file does not preserve that directory listing.
+“Raw” means loose files inside the package. The outer `.fantome` can still use ZIP compression.
+
+[Flint](/docs/lol/tools/modding-apps/flint)'s Fantome exporter writes this folder layout.
+[Hematite](/docs/lol/tools/modding-apps/hematite) also writes repaired WADs as unpacked folders to preserve resolved paths.
+Keep that structure when packaging the result.
+
+## When to choose Modpkg
+
+Choose `.modpkg` if the receiving manager supports it. Flint's exporter includes the paths for its packaged assets.
+Tools can use those names without relying only on the community hash database.
+
+Export from your original project while the readable paths still exist.
+Converting an old packed WAD to `.modpkg` cannot recreate custom names that have already been lost.
+
+## Before you share
+
+1. Export as `.modpkg` or a `.fantome` containing raw WAD folders.
+2. Reopen the exported package and check that your custom asset paths remain readable.
+3. Keep generated hash tables and path metadata with the package.
+4. Test the export in your target skin manager and in-game.
+5. Keep your original project folder for future updates.
+
+Embedded hash tables and BIN path metadata can help compatible tools resolve custom references.
+Keep them, but do not assume every tool preserves them when saving.
+Neither recommended format replaces a backup of your source project.
+
+## Source references
+
+- [Flint export code](https://github.com/RitoShark/Flint/blob/main/src-tauri/src/commands/import_export/export.rs): folder-form Fantome output and Modpkg asset paths.
+- [Quartz unhashing code](https://github.com/RitoShark/Quartz/blob/main/src-tauri/crates/quartz-lib/src/bin/jade/unhasher.rs): dictionary lookups for `file`, `hash`, and `link` values.
+- [Hematite](https://github.com/RitoShark/Hematite): mod repair and WAD processing.
