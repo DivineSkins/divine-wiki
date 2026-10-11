@@ -78,13 +78,16 @@
 }
 
 :root {
-  --radius: 0.625rem;
+  /* divineskins.gg radius scale: sm 4, md 6, lg 8 (cards, inputs, rows),
+     xl 12 (panels, popovers, code blocks). */
+  --radius: 0.5rem;
   color-scheme: dark;
   /* Promote @theme font tokens to plain CSS vars so chained refs resolve. */
   --font-hero: var(--font-manrope), system-ui, sans-serif;
   --font-section: var(--font-poppins), system-ui, sans-serif;
   --font-ui: var(--font-inter), system-ui, sans-serif;
-  --font-body: var(--font-inter), system-ui, sans-serif;
+  /* Manrope is the divineskins.gg body font. */
+  --font-body: var(--font-manrope), system-ui, sans-serif;
   --background: #0b0a0f;
   --foreground: #e4e4e7;
   --card: #15141c;
@@ -209,19 +212,22 @@ html[data-font] {
      callouts, cards, tabs, code blocks) inherits the purple/gold palette. */
   --color-fd-background: #0b0a0f;
   --color-fd-foreground: #e4e4e7;
-  --color-fd-card: #15141c;
+  /* Surfaces follow the shipped divineskins.gg components, not the older
+     docs: cards/panels #121119 on a #191722 hairline, dividers #25222F,
+     hover #1A1922 (CatalogSkinCard, NewLayout dropdowns, LegalShell). */
+  --color-fd-card: #121119;
   --color-fd-card-foreground: #e4e4e7;
-  --color-fd-popover: #111016;
+  --color-fd-popover: #121119;
   --color-fd-popover-foreground: #e4e4e7;
   --color-fd-primary: #c084fc;
   --color-fd-primary-foreground: #ffffff;
-  --color-fd-secondary: #15141c;
+  --color-fd-secondary: #121119;
   --color-fd-secondary-foreground: #e4e4e7;
-  --color-fd-muted: #141320;
-  --color-fd-muted-foreground: #9b9da8;
-  --color-fd-accent: color-mix(in srgb, #783cb5 22%, transparent);
+  --color-fd-muted: #121119;
+  --color-fd-muted-foreground: #8b8d98;
+  --color-fd-accent: rgba(120, 60, 181, 0.2);
   --color-fd-accent-foreground: #e4e4e7;
-  --color-fd-border: color-mix(in srgb, #783cb5 22%, transparent);
+  --color-fd-border: #25222f;
   --color-fd-ring: #c084fc;
   --color-fd-overlay: color-mix(in srgb, #0b0a0f 82%, transparent);
 }
@@ -492,12 +498,10 @@ html[data-font] {
     color-mix(in srgb, var(--color-divine-primary) 15%, transparent);
 }
 
-/* Gradient text — purple-light → primary, used on brand words and hero accents. */
+/* Brand word accent (home, 404, error titles) — solid lilac; the wiki
+   uses no gradients. Name kept so existing markup keeps working. */
 @utility divine-gradient-text {
-  background: linear-gradient(90deg, #c084fc 0%, #783cb5 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: #c084fc;
 }
 
 /* Divider — structural chrome tone. Used on home + 404 hairline rules. */
@@ -546,6 +550,20 @@ html[data-font] {
   pointer-events: none;
 }
 
+/* GlowCTA solid fill in the dark Divine style — the home hero CTA:
+   solid #783CB5, brightness-110 on hover, and the CTA bloom (inset top
+   highlight + 44px purple halo), constant across idle and hover.
+   Unlayered so it beats the component's utility classes. */
+.dark:not(.minimal) .divine-cta-solid {
+  background-color: #783cb5;
+  box-shadow:
+    inset 0px 1px 1px 0px rgba(255, 255, 255, 0.35),
+    0px 0px 44px 0px rgba(120, 60, 181, 0.55);
+}
+.dark:not(.minimal) .divine-cta-solid:hover {
+  filter: brightness(1.1);
+}
+
 /* ──────────────────────────────────────────────────────────────
    Docs content premium pass — Manrope hero titles in gold
    gradient, glass panel surrounding the prose body, purple-
@@ -562,27 +580,39 @@ html[data-font] {
      `.dark:not(.minimal)` so the Minimal style stays neutral — see the
      .minimal token blocks above. */
 
-  /* Page-level title — bigger, Manrope 800, white (no gradient). */
+  /* Page header — 1:1 with the divineskins.gg legal document header
+     (LegalDocHeader): Manrope 700 at 40/48/56px, tight tracking, and a
+     muted 18px lede. */
   .divine-doc-title {
     font-family: var(--font-hero) !important;
-    font-weight: 800 !important;
-    font-size: clamp(2rem, 1.4rem + 2vw, 2.75rem) !important;
-    line-height: 1.1 !important;
-    letter-spacing: -0.02em !important;
+    font-weight: 700 !important;
+    font-size: 40px !important;
+    line-height: 1.05 !important;
+    letter-spacing: -0.025em !important;
     color: var(--color-divine-text) !important;
-    padding-bottom: 0.1em;
-    margin-bottom: 0.4em !important;
+    overflow-wrap: break-word;
+    margin-bottom: 0.3em !important;
+  }
+  @media (min-width: 640px) {
+    .divine-doc-title {
+      font-size: 48px !important;
+    }
+  }
+  @media (min-width: 768px) {
+    .divine-doc-title {
+      font-size: 56px !important;
+    }
   }
 
   .divine-doc-description {
-    font-family: var(--font-section) !important;
-    font-size: 1.0625rem !important;
-    line-height: 1.55 !important;
+    font-family: var(--font-body) !important;
+    font-size: 1.125rem !important;
+    line-height: 1.6 !important;
     color: var(--color-divine-text-muted) !important;
     max-width: 60ch;
   }
 
-  /* Edit-on-GitHub footer link — secondary pill, matches home CTA language. */
+  /* Edit-on-GitHub footer link — the site's secondary pill. */
   a[href*="github.com"][href*="/edit/"] {
     display: inline-flex !important;
     align-items: center;
@@ -590,64 +620,93 @@ html[data-font] {
     height: 2.5rem;
     padding-inline: 1.25rem;
     border-radius: 999px !important;
-    background: color-mix(in srgb, #ffffff 10%, transparent) !important;
-    color: var(--color-divine-text) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
     font-family: var(--font-body);
-    font-size: 0.8125rem;
-    font-weight: 600;
+    font-size: 0.875rem;
+    font-weight: 700;
     text-decoration: none !important;
     border: 0 !important;
-    transition:
-      background-color 0.2s,
-      color 0.2s;
+    transition: background-color 0.2s;
   }
   a[href*="github.com"][href*="/edit/"]:hover {
-    background: color-mix(
-      in srgb,
-      var(--color-divine-text) 18%,
-      transparent
-    ) !important;
-    color: var(--color-divine-text) !important;
+    background: rgba(255, 255, 255, 0.2) !important;
   }
 
-  /* TOC active state — align with sidebar's purple-light + gold→purple rail. */
-  .dark:not(.minimal) [data-toc] a[data-active="true"],
-  .dark:not(.minimal)
-    nav[aria-label*="able of contents"]
-    a[data-active="true"] {
-    color: var(--color-divine-primary-light) !important;
-    font-weight: 600;
+  /* TOC — 1:1 with the site's LegalTocRail: 11px uppercase eyebrow,
+     13px Manrope links in muted gray, the active one in primary text
+     beside a 2px glowing lilac bar. */
+  .dark:not(.minimal) #nd-toc {
+    font-family: var(--font-body);
+  }
+  .dark:not(.minimal) #nd-toc h3 {
+    font-size: 11px !important;
+    font-weight: 400 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: rgba(139, 141, 152, 0.7) !important;
+  }
+  .dark:not(.minimal) #nd-toc h3 svg {
+    display: none;
+  }
+  .dark:not(.minimal) #nd-toc a {
+    font-size: 13px !important;
+    line-height: 1.375 !important;
+    color: #8b8d98 !important;
+    transition: color 200ms;
+  }
+  .dark:not(.minimal) #nd-toc a:hover,
+  .dark:not(.minimal) #nd-toc a[data-active="true"] {
+    color: #e4e4e7 !important;
+    font-weight: 400;
   }
   .dark:not(.minimal) [data-toc-thumb],
-  .dark:not(.minimal) [data-toc] [data-thumb] {
-    background: #783cb5 !important;
+  .dark:not(.minimal) #nd-toc [data-thumb] {
+    background: #c084fc !important;
     width: 2px !important;
-    border-radius: 2px;
+    border-radius: 999px;
+    box-shadow: 0 0 8px rgba(192, 132, 252, 0.6);
   }
 
-  /* Headings inside prose — Manrope/Poppins, H3 in light purple.
-     The `:not(:where(...))` guard mirrors Tailwind typography's `not-prose`
-     escape hatch: components like the fumadocs Accordion render their
-     trigger inside an `h3.not-prose`, and without the guard our
-     `!important` margins/sizes leak into them. `:where()` keeps
-     specificity unchanged. */
+  /* ──────────────────────────────────────────────────────────────
+     Prose — 1:1 with the divineskins.gg article prose (legalProse.css
+     and markdown.css): Manrope body at clamp(16→18px) / 1.82, Poppins
+     section titles, lilac links and markers, #25222F hairlines.
+     The `:not(:where(...))` guard mirrors Tailwind typography's
+     `not-prose` escape hatch: components like the fumadocs Accordion
+     render their trigger inside an `h3.not-prose`, and without the guard
+     these `!important` rules leak into them. `:where()` keeps
+     specificity unchanged.
+     ────────────────────────────────────────────────────────────── */
+  .prose {
+    font-family: var(--font-body);
+    font-size: clamp(1rem, 0.96rem + 0.16vw, 1.125rem);
+    line-height: 1.82;
+    text-rendering: optimizeLegibility;
+  }
+
   .prose h2:not(:where([class~="not-prose"], [class~="not-prose"] *)) {
-    font-family: var(--font-hero) !important;
+    font-family: var(--font-section) !important;
     font-weight: 700 !important;
-    font-size: 1.875rem !important;
-    line-height: 1.2 !important;
-    letter-spacing: -0.015em !important;
+    font-size: clamp(1.625rem, 1.5rem + 0.45vw, 2rem) !important;
+    line-height: 1.22 !important;
+    letter-spacing: -0.025em !important;
     color: var(--color-divine-text) !important;
-    margin-top: 2.5rem !important;
+    margin-top: 2.75rem !important;
+    margin-bottom: 1rem !important;
+    text-wrap: balance;
   }
 
   .prose h3:not(:where([class~="not-prose"], [class~="not-prose"] *)) {
     font-family: var(--font-section) !important;
     font-weight: 600 !important;
-    font-size: 1.375rem !important;
-    line-height: 1.3 !important;
+    font-size: clamp(1.3rem, 1.22rem + 0.25vw, 1.5rem) !important;
+    line-height: 1.22 !important;
+    letter-spacing: -0.025em !important;
     color: var(--color-divine-text) !important;
     margin-top: 2rem !important;
+    margin-bottom: 0.75rem !important;
+    text-wrap: balance;
   }
 
   .prose h4:not(:where([class~="not-prose"], [class~="not-prose"] *)),
@@ -655,61 +714,64 @@ html[data-font] {
   .prose h6:not(:where([class~="not-prose"], [class~="not-prose"] *)) {
     font-family: var(--font-section) !important;
     font-weight: 600 !important;
+    letter-spacing: -0.015em !important;
     color: var(--color-divine-text) !important;
   }
 
-  /* Body text — Inter, slightly muted, comfortable line-height. The same
-     `not-prose` guard as the headings above: MDX wraps loose text inside
-     components (e.g. a GlowCTA label) in a `<p>`, and without the guard
-     this `!important` color leaks in and overrides the component's own
-     text color — invisible under the Minimal style, where button fills
-     flip but this stray muted color does not. */
+  /* Body text. The same `not-prose` guard as the headings above: MDX
+     wraps loose text inside components (e.g. a GlowCTA label) in a `<p>`,
+     and without the guard this `!important` color leaks in and overrides
+     the component's own text color. */
   .prose p:not(:where([class~="not-prose"], [class~="not-prose"] *)) {
     font-family: var(--font-body) !important;
     font-weight: 400 !important;
-    font-size: 1rem;
-    line-height: 1.75;
-    color: color-mix(
-      in srgb,
-      var(--color-divine-text) 88%,
-      transparent
-    ) !important;
+    margin-top: 0;
+    margin-bottom: 1.25em;
+    color: var(--color-divine-text) !important;
+    text-wrap: pretty;
   }
 
   .prose strong {
     color: var(--color-divine-text) !important;
-    font-weight: 600;
+    font-weight: 700;
+  }
+  .dark:not(.minimal) .prose strong {
+    color: #f4f3f7 !important;
   }
 
-  /* Inline code — purple-tinted pill. */
+  /* Inline code — the site's raised pill on a #25222F hairline. */
   .prose :not(pre) > code {
-    background: color-mix(
-      in srgb,
-      var(--color-divine-primary) 18%,
-      transparent
-    ) !important;
-    border: 1px solid
-      color-mix(in srgb, var(--color-divine-primary) 30%, transparent);
+    background: var(--color-divine-surface) !important;
+    border: 1px solid var(--color-divine-border);
     color: var(--prose-code-text) !important;
-    padding: 0.15em 0.4em !important;
+    padding: 0.14em 0.4em !important;
     border-radius: 6px !important;
     font-family: var(--font-jetbrains-mono), ui-monospace, monospace !important;
-    font-size: 0.875em !important;
+    font-size: 0.86em !important;
     font-weight: 500 !important;
+    font-variant-ligatures: none;
+  }
+  .dark:not(.minimal) .prose :not(pre) > code {
+    background: #1a1922 !important;
+    border-color: #25222f;
+    color: #dcc7ee !important;
   }
 
-  /* Code blocks — brand-accent rail on the outer Fumadocs CodeBlock figure.
-     Fumadocs wraps every <pre> in <figure class="shiki ... rounded-xl border">
-     with its own copy button; restyle that wrapper directly so we don't paint
-     a second border + rail onto the inner <pre>. Background flips per theme
-     so shiki's dual-theme tokens (light-plus / github-dark) stay readable. */
+  /* Code blocks — the site's markdown `pre`: deep void panel, #25222F
+     hairline, 12px radius, soft drop shadow (no side rail). Fumadocs wraps every <pre> in
+     <figure class="shiki ...">; style that wrapper so the inner <pre>
+     doesn't get a second frame. */
   .prose figure.shiki,
   .prose figure[data-rehype-pretty-code-figure] {
+    position: relative;
     background: var(--prose-code-bg) !important;
     border: 1px solid var(--color-divine-border) !important;
-    border-left: 3px solid var(--color-divine-primary) !important;
-    border-radius: 10px !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    border-radius: 12px !important;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.24);
+  }
+  .dark:not(.minimal) .prose figure.shiki,
+  .dark:not(.minimal) .prose figure[data-rehype-pretty-code-figure] {
+    border-color: #25222f !important;
   }
 
   .prose figure.shiki pre,
@@ -717,70 +779,61 @@ html[data-font] {
     background: transparent !important;
     border: 0 !important;
     border-radius: 0 !important;
-    padding: 1rem 1.25rem !important;
+    padding: 0 !important;
     font-family: var(--font-jetbrains-mono), ui-monospace, monospace !important;
     font-size: 0.875rem;
-    line-height: 1.6;
+    line-height: 1.7;
     box-shadow: none !important;
   }
 
-  /* Bare <pre> with no figure wrapper still gets the brand treatment. */
+  /* Bare <pre> with no figure wrapper still gets the same panel. */
   .prose > pre {
     background: var(--prose-code-bg) !important;
     border: 1px solid var(--color-divine-border) !important;
-    border-left: 3px solid var(--color-divine-primary) !important;
-    border-radius: 10px !important;
-    padding: 1rem 1.25rem !important;
+    border-radius: 12px !important;
+    padding: 1.25rem 1.375rem !important;
     font-family: var(--font-jetbrains-mono), ui-monospace, monospace !important;
     font-size: 0.875rem;
-    line-height: 1.6;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    line-height: 1.7;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.24);
+  }
+  .dark:not(.minimal) .prose > pre {
+    border-color: #25222f !important;
   }
 
-  /* Code-block rails get the same light-mode gold treatment as blockquotes. */
-  .light .prose figure.shiki,
-  .light .prose figure[data-rehype-pretty-code-figure],
-  .light .prose > pre {
-    border-left-color: var(--color-divine-primary-light) !important;
-  }
-
-  /* Blockquotes — accent left border, italic body. Surface flips per theme. */
+  /* Blockquotes — purple hairline frame on a solid tinted panel with a
+     straight 2px accent bar (solid colors only). */
   .prose blockquote {
     position: relative;
-    border-left: 0 !important;
-    background: var(--color-divine-surface);
-    border: 1px solid
-      color-mix(in srgb, var(--color-divine-border) 70%, transparent);
-    border-radius: 8px;
-    /* Clip the ::before rail into the rounded left corners. */
+    margin: 1.75rem 0;
+    padding: 1.125rem 1.25rem 1.125rem 1.5rem !important;
     overflow: hidden;
-    padding: 1rem 1.25rem 1rem 1.5rem !important;
-    margin: 1.5rem 0;
-    font-style: italic;
-    color: color-mix(
-      in srgb,
-      var(--color-divine-text) 85%,
-      transparent
-    ) !important;
+    border: 1px solid var(--color-divine-border) !important;
+    border-radius: 8px;
+    background: var(--color-divine-surface);
+    box-shadow: inset 2px 0 0 var(--color-divine-primary-light);
+    font-style: normal;
+    color: var(--color-divine-text) !important;
   }
-  .prose blockquote::before {
+  .dark:not(.minimal) .prose blockquote {
+    border-color: rgba(120, 60, 181, 0.28) !important;
+    background: #1a1724;
+    box-shadow: none;
+  }
+  /* Straight 2px accent bar, inset from the rounded corners. */
+  .dark:not(.minimal) .prose blockquote::before {
     content: "";
     position: absolute;
+    top: 0.75rem;
+    bottom: 0.75rem;
     left: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: var(--color-divine-primary);
+    width: 2px;
+    background: #783cb5;
   }
-  /* Light mode — decorative rails use the brand gold; the deep-amber
-     divine-primary is tuned for text contrast and reads muddy as a fill
-     (see the .light block notes). */
-  .light .prose blockquote::before {
-    background: var(--color-divine-primary-light);
+  .prose blockquote :where(p, ul, ol):last-child {
+    margin-bottom: 0;
   }
-  /* Suppress the Typography preset's open-quote/close-quote characters that
-     otherwise wrap blockquote text in literal “ ” — we already convey the
-     blockquote via the left rail + surface panel. */
+  /* Suppress the Typography preset's open-quote/close-quote characters. */
   .prose blockquote p::before,
   .prose blockquote p::after {
     content: none !important;
@@ -788,168 +841,200 @@ html[data-font] {
 
   /* Heading anchor links (the auto-injected `#section` deep-link wrappers
      Fumadocs renders inside h1–h6) must inherit the heading color and stay
-     un-underlined — otherwise the prose link rule below paints every heading
-     lilac and underlines it, even H2s that should be white. */
-  .prose :is(h1, h2, h3, h4, h5, h6) a:not(.not-prose a) {
+     un-underlined — otherwise the prose link rule below paints every
+     heading lilac and underlines it. */
+  .prose :is(h1, h2, h3, h4, h5, h6) a:not(.not-prose, .not-prose a) {
     color: inherit !important;
+    font-weight: inherit !important;
     text-decoration: none !important;
   }
 
-  /* Links — purple-light, subtle underline that animates on hover. */
-  .prose a:not(.not-prose a) {
+  /* Links — the site's prose link: lilac, semibold, thin underline. */
+  .prose a:not(.not-prose, .not-prose a) {
     color: var(--color-divine-primary-light) !important;
+    font-weight: 600;
     text-decoration: underline;
     text-decoration-thickness: 1px;
-    text-underline-offset: 3px;
+    text-underline-offset: 0.2em;
     text-decoration-color: color-mix(
       in srgb,
-      var(--color-divine-primary-light) 35%,
+      var(--color-divine-primary-light) 55%,
       transparent
     );
+    border-radius: 2px;
     transition:
-      color 0.2s,
-      text-decoration-color 0.2s;
+      color 160ms ease,
+      text-decoration-color 160ms ease;
   }
-  .prose a:not(.not-prose a):hover {
+  .prose a:not(.not-prose, .not-prose a):hover {
     color: var(--color-divine-text) !important;
-    text-decoration-color: var(--color-divine-primary-light);
+    text-decoration-color: currentColor;
+  }
+  .dark:not(.minimal) .prose a:not(.not-prose, .not-prose a):hover {
+    color: #d8b4fe !important;
   }
 
-  /* List markers — purple dots/numbers. */
-  .prose ul > li::marker {
-    color: var(--color-divine-primary-light);
+  /* Lists — lilac bold markers, 0.4em item rhythm. */
+  .prose
+    :where(ul, ol):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+    margin-top: 0;
+    margin-bottom: 1.25em;
+    padding-left: 1.5em;
   }
+  .prose ul > li::marker,
   .prose ol > li::marker {
     color: var(--color-divine-primary-light);
-    font-weight: 600;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
   }
   .prose li {
     font-family: var(--font-body);
-    color: color-mix(in srgb, var(--color-divine-text) 88%, transparent);
+    color: var(--color-divine-text);
+    margin-top: 0.4em;
+    margin-bottom: 0.4em;
+    padding-left: 0.25em;
   }
 
-  /* Tables — surface bg + hover row highlight.
-     `!important` mirrors the rest of the prose rules: Fumadocs typography
-     preset (`.prose :where(table):not(...)`) sets backgrounds to
-     `var(--color-fd-card)` / `--color-fd-muted` which wash out without
-     overrides — every wiki table renders white-on-light otherwise. */
+  /* Tables — the site's legal data table: #121119 panel, #25222F grid,
+     raised header, zebra rows, purple hover wash, 12px radius.
+     `!important` mirrors the rest of the prose rules: the Fumadocs
+     typography preset sets table backgrounds that wash out otherwise. */
   .prose table {
     border-collapse: separate;
     border-spacing: 0;
     width: 100%;
-    border-radius: 10px;
+    border-radius: 12px;
     overflow: hidden;
     border: 1px solid var(--color-divine-border) !important;
-    background: color-mix(
-      in srgb,
-      var(--color-divine-surface) 70%,
-      transparent
-    ) !important;
+    background: var(--color-divine-surface) !important;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.16);
+    font-size: 0.9em;
+    line-height: 1.55;
   }
   .prose thead {
-    background: color-mix(
-      in srgb,
-      var(--color-divine-primary) 12%,
-      transparent
-    ) !important;
+    background: var(--color-divine-elevated) !important;
   }
   .prose th {
-    font-family: var(--font-section) !important;
-    font-weight: 600 !important;
+    font-family: var(--font-body) !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.01em;
     text-align: left !important;
-    padding: 0.75rem 1rem !important;
+    padding: 0.85rem 1rem !important;
     color: var(--color-divine-text) !important;
     /* rgba(0 0 0 / 0) survives Lightning CSS optimization that strips
        `background: transparent`. Without this the th picks up Fumadocs'
-       --color-fd-muted background and the thead tint is hidden. */
+       --color-fd-muted background and hides the thead fill. */
     background-color: rgba(0, 0, 0, 0) !important;
+    border-right: 1px solid var(--color-divine-border) !important;
     border-bottom: 1px solid var(--color-divine-border) !important;
   }
   .prose td {
-    padding: 0.75rem 1rem !important;
-    border-bottom: 1px solid
-      color-mix(in srgb, var(--color-divine-border) 60%, transparent) !important;
-    color: color-mix(
-      in srgb,
-      var(--color-divine-text) 88%,
-      transparent
-    ) !important;
+    padding: 0.85rem 1rem !important;
+    border-right: 1px solid var(--color-divine-border) !important;
+    border-bottom: 1px solid var(--color-divine-border) !important;
+    color: var(--color-divine-text) !important;
+    vertical-align: top;
+  }
+  .prose :is(th, td):last-child {
+    border-right: 0 !important;
   }
   .prose tbody tr:last-child td {
     border-bottom: 0 !important;
   }
-  .prose tbody tr:hover td {
-    background: color-mix(
-      in srgb,
-      var(--color-divine-primary) 6%,
-      transparent
-    ) !important;
+  .dark:not(.minimal) .prose table {
+    background: #121119 !important;
+    border-color: #25222f !important;
+  }
+  .dark:not(.minimal) .prose thead {
+    background: #1a1922 !important;
+  }
+  .dark:not(.minimal) .prose th {
+    color: #f0eff3 !important;
+  }
+  .dark:not(.minimal) .prose :is(th, td) {
+    border-color: #25222f !important;
+  }
+  .dark:not(.minimal) .prose tbody tr:nth-child(even) td {
+    background: rgba(54, 50, 66, 0.16) !important;
+  }
+  .dark:not(.minimal) .prose tbody tr:hover td {
+    background: rgba(120, 60, 181, 0.09) !important;
   }
 
-  /* FAQ details — clean collapsible row with chevron. No box, no gradient. */
+  /* FAQ — 1:1 with the divineskins.gg FAQAccordion: every question is its
+     own card (#121119 on a #191722 hairline, 12px radius) 12px apart,
+     filling #1A1922 on hover and while open (200ms). Question 16px bold,
+     answer 14px medium in muted gray, chevron rotating 180° over 250ms.
+     Applies to hand-written <details> FAQs and the fumadocs Accordions
+     (the `divine-faq` wrapper, src/components/mdx/Accordions.tsx). */
   .prose details {
-    border-bottom: 1px solid
-      color-mix(in srgb, var(--color-divine-border) 60%, transparent);
+    margin-block: 0.75rem;
+    border: 1px solid var(--color-fd-border);
+    border-radius: 12px;
+    background: var(--color-fd-card);
+    overflow: hidden;
+    transition: background-color 200ms;
   }
-  .prose details:first-of-type {
-    border-top: 1px solid
-      color-mix(in srgb, var(--color-divine-border) 60%, transparent);
+  .prose details:hover,
+  .prose details[open] {
+    background: var(--color-fd-accent);
+  }
+  .dark:not(.minimal) .prose details {
+    border-color: #191722;
+    background: #121119;
+  }
+  .dark:not(.minimal) .prose details:hover,
+  .dark:not(.minimal) .prose details[open] {
+    background: #1a1922;
   }
   .prose details > summary {
     cursor: pointer;
     list-style: none;
-    font-family: var(--font-section);
-    font-weight: 600;
-    font-size: 1.0625rem;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 1rem;
+    line-height: 1.5rem;
     color: var(--color-divine-text);
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    padding: 1rem 0.25rem;
-    transition: color 0.15s;
+    padding: 1rem 1.5rem;
   }
   .prose details > summary::-webkit-details-marker {
     display: none;
   }
-  .prose details > summary:hover {
-    color: var(--color-divine-primary-light);
-  }
   .prose details > summary::after {
     content: "";
-    width: 9px;
-    height: 9px;
+    width: 8px;
+    height: 8px;
     border-right: 2px solid var(--color-divine-text-muted);
     border-bottom: 2px solid var(--color-divine-text-muted);
-    transform: rotate(45deg) translate(-2px, -2px);
-    transition:
-      transform 0.25s ease,
-      border-color 0.2s;
+    transform: translateY(-2px) rotate(45deg);
+    transition: transform 250ms ease-in-out;
     flex-shrink: 0;
   }
   .prose details[open] > summary::after {
-    transform: rotate(-135deg) translate(-2px, -2px);
-    border-color: var(--color-divine-primary-light);
-  }
-  .prose details[open] > summary {
-    color: var(--color-divine-primary-light);
+    transform: translateY(2px) rotate(225deg);
   }
   .prose details > *:not(summary) {
-    padding: 0 0.25rem;
-    color: color-mix(in srgb, var(--color-divine-text) 88%, transparent);
-    font-size: 0.9375rem;
-    line-height: 1.55;
+    padding: 0 1.5rem;
+    color: var(--color-divine-text-muted);
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.5rem;
   }
   .prose details > *:not(summary):first-of-type {
     margin-top: 0 !important;
   }
   .prose details > *:not(summary):last-child {
     margin-bottom: 0 !important;
-    padding-bottom: 1rem;
+    padding-bottom: 1.25rem;
   }
   .prose details p {
     margin-top: 0.5rem !important;
     margin-bottom: 0.5rem !important;
+    color: var(--color-divine-text-muted) !important;
   }
   .prose details ul,
   .prose details ol {
@@ -960,221 +1045,199 @@ html[data-font] {
   .prose details li {
     margin-top: 0.15rem !important;
     margin-bottom: 0.15rem !important;
+    color: var(--color-divine-text-muted);
   }
   .prose details li > p {
     margin-top: 0 !important;
     margin-bottom: 0 !important;
   }
 
-  /* Accordions (fumadocs) — reskinned to match the FAQ `details` rows
-     above so both collapsible patterns read as one design: flat rows,
-     hairline dividers, chevron on the right, purple on hover/open.
-     Scoped by the `divine-faq` class added by the wrapper in
-     src/components/mdx/Accordions.tsx. Redefining --color-fd-border
-     recolors the divide-y dividers between items. */
   .divine-faq {
-    --color-fd-border: color-mix(
-      in srgb,
-      var(--color-divine-border) 60%,
-      transparent
-    );
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
     border: 0 !important;
-    border-block: 1px solid var(--color-fd-border) !important;
     border-radius: 0 !important;
     background: transparent !important;
+    overflow: visible !important;
+  }
+  .divine-faq > div {
+    border: 1px solid var(--color-fd-border) !important;
+    border-radius: 12px;
+    background: var(--color-fd-card);
+    overflow: hidden;
+    transition: background-color 200ms;
+  }
+  .divine-faq > div:hover,
+  .divine-faq > div[data-state="open"] {
+    background: var(--color-fd-accent);
+  }
+  .dark:not(.minimal) .divine-faq > div {
+    border-color: #191722 !important;
+    background: #121119;
+  }
+  .dark:not(.minimal) .divine-faq > div:hover,
+  .dark:not(.minimal) .divine-faq > div[data-state="open"] {
+    background: #1a1922;
   }
   .divine-faq h3 > button {
-    font-family: var(--font-section);
-    font-weight: 600;
-    font-size: 1.0625rem;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 1rem;
+    line-height: 1.5rem;
     color: var(--color-divine-text);
-    padding: 1rem 0.25rem !important;
-    transition: color 0.15s;
+    padding: 1rem 1.5rem !important;
   }
-  .divine-faq h3 > button:hover,
-  .divine-faq h3 > button[data-state="open"] {
-    color: var(--color-divine-primary-light);
-  }
-  /* Chevron: move to the right edge, point down closed and up open,
-     the same motion as the `details` marker. Fumadocs rotates it with
-     the Tailwind v4 `rotate` property, hence the rotate overrides. */
+  /* Chevron: on the right, pointing down closed and up open (180° over
+     250ms, as the site). Fumadocs rotates it with the Tailwind v4
+     `rotate` property, hence the rotate overrides. */
   .divine-faq h3 > button > svg {
     order: 1;
     margin-left: auto;
     color: var(--color-divine-text-muted);
     rotate: 90deg !important;
-    transition:
-      rotate 0.25s ease,
-      color 0.2s;
+    transition: rotate 250ms ease-in-out;
   }
   .divine-faq h3 > button[data-state="open"] > svg {
     rotate: -90deg !important;
-    color: var(--color-divine-primary-light);
   }
   .divine-faq [role="region"] > div {
-    padding: 0 0.25rem 1rem !important;
-    color: color-mix(in srgb, var(--color-divine-text) 88%, transparent);
-    line-height: 1.55;
+    padding: 0 1.5rem 1.25rem !important;
+    color: var(--color-divine-text-muted);
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.5rem;
+  }
+  .divine-faq [role="region"] p {
+    color: var(--color-divine-text-muted) !important;
   }
 
-  /* Horizontal rule — match the structural chrome divider tone so every
-     hairline on the page reads as one element. */
+  /* Horizontal rule — the site's hairline divider. */
   .prose hr {
     height: 1px;
     border: 0;
-    background: var(--color-divine-border);
-    margin: 2.5rem 0;
+    background: var(--color-fd-border);
+    margin: 2.75rem 0;
   }
 
-  /* Screenshots inside prose — soft border, subtle shadow.
-
-     `.brand-mark` is excluded on purpose. App logos render as <img> too,
-     and at icon size a 10px radius plus a 1px border is a full circle, so
-     every tool logo came out sitting in an avatar ring. This treatment is
-     for screenshots of the tools, not for the tools' own marks. */
+  /* Screenshots inside prose — the site's markdown image frame.
+     `.brand-mark` is excluded on purpose: app logos render as <img> too,
+     and at icon size a 12px radius plus a border is a full circle. */
   .prose img:not(.brand-mark) {
-    border-radius: 10px;
-    border: 1px solid var(--color-divine-border);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    border-radius: 12px;
+    border: 1px solid var(--color-fd-border);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
   }
 
   /* ──────────────────────────────────────────────────────────────
-     Divine Skins sidebar — overrides Fumadocs' neutral grayscale
-     with the purple/gold brand palette. Inspired by Divine Academy:
-     tighter rows, purple-light active state, gold→purple active bar,
-     radial purple ambient so the lower half never feels empty.
+     Sidebar — 1:1 with the divineskins.gg legal sidebar (LegalSidebar):
+     flat void background on a #191722 hairline, 14px Manrope rows
+     (py-2, 8px radius) in muted gray, white over #191722/60 on hover,
+     and the active row tinted purple at 20% inside a 40% purple
+     hairline. Separators are the site's 11px uppercase eyebrow.
      ────────────────────────────────────────────────────────────── */
 
   .dark:not(.minimal) #nd-sidebar {
-    --color-fd-card: #0a0910;
-    --color-fd-background: #0a0910;
-    --color-fd-foreground: var(--color-divine-text);
-    --color-fd-muted: #15141c;
-    --color-fd-muted-foreground: #9b9da8;
-    --color-fd-border: color-mix(
-      in srgb,
-      var(--color-divine-primary) 22%,
-      transparent
-    );
-    --color-fd-primary: var(--color-divine-primary-light);
+    --color-fd-card: #0b0a0f;
+    --color-fd-background: #0b0a0f;
+    --color-fd-foreground: #e4e4e7;
+    --color-fd-muted: #121119;
+    --color-fd-muted-foreground: #8b8d98;
+    --color-fd-border: #191722;
+    --color-fd-primary: #c084fc;
     --color-fd-primary-foreground: #ffffff;
-    --color-fd-accent: color-mix(
-      in srgb,
-      var(--color-divine-primary) 14%,
-      transparent
-    );
-    --color-fd-accent-foreground: var(--color-divine-text);
-    --color-fd-secondary: #15141c;
-    --color-fd-secondary-foreground: var(--color-divine-text);
-    --color-fd-ring: var(--color-divine-primary-light);
+    --color-fd-accent: rgba(25, 23, 34, 0.6);
+    --color-fd-accent-foreground: #e4e4e7;
+    --color-fd-secondary: #121119;
+    --color-fd-secondary-foreground: #e4e4e7;
+    --color-fd-ring: #c084fc;
 
-    background:
-      radial-gradient(
-        120% 60% at 0% 0%,
-        color-mix(in srgb, var(--color-divine-primary) 14%, transparent) 0%,
-        transparent 55%
-      ),
-      radial-gradient(
-        90% 50% at 20% 110%,
-        color-mix(in srgb, var(--color-divine-primary) 10%, transparent) 0%,
-        transparent 65%
-      ),
-      #0a0910;
-    border-inline-end-color: color-mix(
-      in srgb,
-      var(--color-divine-primary) 20%,
-      transparent
-    ) !important;
+    background: #0b0a0f;
+    font-family: var(--font-body);
+    border-inline-end-color: #191722 !important;
   }
 
-  /* Header block — logo + collapse button, a thin brand separator. */
+  /* Header block — logo, search and game switcher, closed by a #25222F
+     hairline inset to the block's 16px padding so it lines up with the
+     search field and switcher instead of running into the sidebar edge. */
   .dark:not(.minimal) #nd-sidebar > div:first-child {
+    position: relative;
     gap: 0.6rem;
-    padding-bottom: 0.6rem;
-    border-bottom: 1px solid
-      color-mix(in srgb, var(--color-divine-primary) 18%, transparent);
-    margin-bottom: 0.25rem;
+    border-bottom: 0;
+  }
+  .dark:not(.minimal) #nd-sidebar > div:first-child::after {
+    content: "";
+    position: absolute;
+    right: 1rem;
+    bottom: 0;
+    left: 1rem;
+    height: 1px;
+    background: #25222f;
   }
 
-  /* Search trigger — purple-tinted pill that matches the brand. */
+  /* Search trigger — the design system input: 8px radius, #121119 fill,
+     #191722 hairline, purple border on hover. */
   .dark:not(.minimal) #nd-sidebar button[aria-label="Search"],
   .dark:not(.minimal) #nd-sidebar [data-search-full] {
-    background: color-mix(
-      in srgb,
-      var(--color-divine-primary) 6%,
-      #141320 85%
-    ) !important;
-    border: 1px solid
-      color-mix(in srgb, var(--color-divine-primary) 22%, transparent) !important;
-    color: var(--color-divine-text-muted);
+    background: #121119 !important;
+    border: 1px solid #191722 !important;
+    border-radius: 8px !important;
+    color: #8b8d98;
+    font-weight: 500;
   }
   .dark:not(.minimal) #nd-sidebar button[aria-label="Search"]:hover,
   .dark:not(.minimal) #nd-sidebar [data-search-full]:hover {
-    border-color: color-mix(
-      in srgb,
-      var(--color-divine-primary) 40%,
-      transparent
-    ) !important;
+    border-color: #783cb5 !important;
+    color: #e4e4e7;
   }
 
-  /* Nav items — tighter rows, consistent line-height. */
+  /* Nav rows. */
   .dark:not(.minimal) #nd-sidebar a[data-active],
   .dark:not(.minimal) #nd-sidebar button[data-active] {
-    padding-block: 0.3rem;
-    font-size: 0.8125rem;
-    line-height: 1.25rem;
+    padding-block: 0.5rem;
+    font-size: 14px;
+    line-height: 1.375;
     border-radius: 8px;
+    border: 1px solid transparent;
+    color: #8b8d98;
+    transition:
+      color 200ms,
+      background-color 200ms,
+      border-color 200ms;
   }
 
-  /* Hover — subtle purple wash instead of gray. */
   .dark:not(.minimal) #nd-sidebar a[data-active="false"]:hover,
   .dark:not(.minimal) #nd-sidebar button[data-active="false"]:hover {
-    background: color-mix(
-      in srgb,
-      var(--color-divine-primary) 9%,
-      transparent
-    ) !important;
-    color: var(--color-divine-text) !important;
+    background: rgba(25, 23, 34, 0.6) !important;
+    color: #e4e4e7 !important;
   }
 
-  /* Active — purple-light text on purple wash, bold. */
+  /* Active row — solid purple tint (18%) inside a 35% purple hairline,
+     white semibold label, lilac icon. No gradients. */
   .dark:not(.minimal) #nd-sidebar a[data-active="true"],
   .dark:not(.minimal) #nd-sidebar button[data-active="true"] {
-    color: var(--color-divine-primary-light) !important;
-    background: color-mix(
-      in srgb,
-      var(--color-divine-primary) 16%,
-      transparent
-    ) !important;
+    color: #ffffff !important;
+    background: rgba(120, 60, 181, 0.18) !important;
+    border-color: rgba(120, 60, 181, 0.35) !important;
     font-weight: 600;
   }
   .dark:not(.minimal) #nd-sidebar a[data-active="true"] svg,
   .dark:not(.minimal) #nd-sidebar button[data-active="true"] svg {
-    color: var(--color-divine-primary-light) !important;
+    color: #c084fc !important;
   }
 
-  /* Active bar — solid divine purple rail on nested items. */
+  /* The bordered active row replaces fumadocs' side bar on nested items. */
   .dark:not(.minimal) #nd-sidebar a[data-active="true"]::before {
-    background: #783cb5 !important;
-    width: 2px !important;
-    border-radius: 2px;
-    inset-block: 0.4rem !important;
+    display: none !important;
   }
 
-  /* Folder tree guide line — softer, purple-tinted. */
+  /* Folder tree guide line — the site's #25222F hairline. */
   .dark:not(.minimal) #nd-sidebar [class*="before:bg-fd-border"]::before {
-    background: color-mix(
-      in srgb,
-      var(--color-divine-primary) 22%,
-      transparent
-    ) !important;
+    background: #25222f !important;
   }
 
-  /* Sidebar footer (language + GitHub + theme toggle) — pinned,
-     with a brand divider and muted foreground that matches the site. */
+  /* Sidebar footer (language + links + settings) on a #25222F rule. */
   .dark:not(.minimal) #nd-sidebar > div:last-child {
-    border-top: 1px solid
-      color-mix(in srgb, var(--color-divine-primary) 18%, transparent);
     margin-top: auto;
   }
 
@@ -1184,16 +1247,12 @@ html[data-font] {
      the body, add a purple hairline, purple glow, stronger backdrop.
      ────────────────────────────────────────────────────────────── */
 
-  /* Backdrop overlay — darker + stronger blur + faint purple wash. */
+  /* Backdrop overlay — solid dark scrim + blur. */
   .dark:not(.minimal) [data-state="open"][data-slot="overlay"],
   .dark:not(.minimal)
     [data-radix-popper-content-wrapper]
     + div[data-state="open"] {
-    background: radial-gradient(
-      120% 80% at 50% 30%,
-      color-mix(in srgb, var(--color-divine-primary) 12%, transparent) 0%,
-      color-mix(in srgb, #0b0a0f 88%, transparent) 55%
-    );
+    background: rgba(11, 10, 15, 0.8);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
   }
@@ -1205,13 +1264,11 @@ html[data-font] {
     [role="dialog"][data-state="open"]:has(input[placeholder]),
   .dark:not(.minimal)
     [role="dialog"][data-state="open"][aria-labelledby*="radix"] {
-    background: linear-gradient(180deg, #1a1624 0%, #15121f 100%) !important;
-    border: 1px solid
-      color-mix(in srgb, var(--color-divine-primary) 35%, transparent) !important;
-    box-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.04) inset,
-      0 24px 60px -12px rgba(0, 0, 0, 0.6),
-      0 0 60px -10px rgba(120, 60, 181, 0.35) !important;
+    /* The site's floating panel (NewLayout dropdowns). */
+    background: #121119 !important;
+    border: 1px solid #191722 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 12px 40px -8px rgba(0, 0, 0, 0.6) !important;
   }
 
   /* Search input placeholder + caret — muted divine, purple caret. */
@@ -1233,23 +1290,14 @@ html[data-font] {
   /* Search result rows — hover/active uses purple wash, highlighted
      match text uses purple-light (already via --color-fd-primary). */
   .dark:not(.minimal) [role="dialog"] button[aria-selected="true"] {
-    background: color-mix(
-      in srgb,
-      var(--color-divine-primary) 18%,
-      transparent
-    ) !important;
+    background: #1a1922 !important;
     color: var(--color-divine-text) !important;
   }
 
   /* Footer strip inside search dialog (keyboard hints, tags). */
   .dark:not(.minimal) [role="dialog"] [class*="bg-fd-secondary"] {
-    background: color-mix(
-      in srgb,
-      var(--color-divine-primary) 8%,
-      #15141c 90%
-    ) !important;
-    border-top: 1px solid
-      color-mix(in srgb, var(--color-divine-primary) 18%, transparent);
+    background: #0e0d13 !important;
+    border-top: 1px solid #191722;
   }
 
   /* Any ring/outline inside dialogs uses purple-light. */
@@ -1316,9 +1364,6 @@ html[data-font] {
   box-shadow: none;
 }
 .minimal .divine-gradient-text {
-  background: none;
-  -webkit-background-clip: border-box;
-  background-clip: border-box;
   color: var(--color-divine-text);
 }
 
@@ -1334,4 +1379,627 @@ html[data-font] {
 .minimal .divine-cta-solid:hover {
   filter: none;
   opacity: 0.85;
+}
+
+/* Callout (src/components/mdx/Callout.tsx) — the divineskins.gg markdown
+   callout: the component sets the per-type accent / hairline / wash as
+   custom properties; Minimal flattens them to the neutral tokens. */
+.divine-callout {
+  border-color: var(--callout-border);
+  background: var(--callout-background);
+}
+.divine-callout-title {
+  color: var(--callout-accent);
+}
+.minimal .divine-callout {
+  border-color: var(--color-divine-border);
+  background: var(--color-divine-surface);
+}
+.minimal .divine-callout-title {
+  color: var(--color-divine-text);
+}
+
+/* ──────────────────────────────────────────────────────────────
+   divineskins.gg sizing, radius, hover and motion on fumadocs chrome.
+   Unlayered on purpose: fumadocs styles these elements with Tailwind
+   utilities, and an unlayered rule beats any layered one. Colors stay
+   behind `.dark:not(.minimal)`; geometry applies in every style.
+   Motion follows the site: 200ms color/background transitions, cards
+   lift 4px with ease-out, and nothing moves under reduced motion.
+   ────────────────────────────────────────────────────────────── */
+
+/* Sidebar rows — LegalSidebar geometry: px-3 py-2, gap-2.5, 8px radius,
+   4px between rows. Fumadocs indents nesting with an inline
+   padding-inline-start; only the top level (2 × spacing) is widened to
+   the site's 12px so nested depths keep their steps. Fumadocs also kills
+   the transition on hover; the site eases every row change over 200ms. */
+#nd-sidebar a[data-active],
+#nd-sidebar button[data-active] {
+  gap: 0.625rem;
+  padding-block: 0.5rem;
+  padding-inline-end: 0.75rem;
+  margin-block: 2px;
+  border-radius: 8px;
+  transition:
+    color 200ms,
+    background-color 200ms,
+    border-color 200ms !important;
+}
+#nd-sidebar a[data-active][style*="calc(2 * var(--spacing))"],
+#nd-sidebar button[data-active][style*="calc(2 * var(--spacing))"] {
+  padding-inline-start: 0.75rem !important;
+}
+
+/* Search trigger — the design system input: 40px tall, 8px radius,
+   matching the game switcher and language picker around it. */
+#nd-sidebar [data-search-full] {
+  height: 2.5rem;
+  padding-inline: 0.875rem 0.375rem;
+  border-radius: 8px;
+  gap: 0.625rem;
+  transition:
+    color 200ms,
+    border-color 200ms;
+}
+#nd-sidebar [data-search-full] kbd {
+  border-radius: 6px;
+}
+
+/* Game switcher + language picker — 40px rows in the site's field
+   recipe (#121119 on #191722, #1A1922 on hover). */
+#nd-sidebar button[aria-label="Choose a language"],
+#nd-sidebar [data-radix-popper-content-wrapper] + button,
+#nd-sidebar > div:first-child button[aria-haspopup] {
+  min-height: 2.5rem;
+  border-radius: 8px;
+  transition:
+    color 200ms,
+    background-color 200ms,
+    border-color 200ms;
+}
+.dark:not(.minimal) #nd-sidebar button[aria-label="Choose a language"],
+.dark:not(.minimal) #nd-sidebar > div:first-child button[aria-haspopup] {
+  border: 1px solid #191722;
+  background: #121119;
+  color: #e4e4e7;
+}
+.dark:not(.minimal) #nd-sidebar button[aria-label="Choose a language"]:hover,
+.dark:not(.minimal) #nd-sidebar > div:first-child button[aria-haspopup]:hover {
+  background: #1a1922;
+}
+
+/* Breadcrumb — 14px meta row; trail in muted gray, current in lilac. */
+#nd-page > div:first-child:has(> a) {
+  font-size: 14px;
+  gap: 0.5rem;
+}
+#nd-page > div:first-child:has(> a) a {
+  transition: color 200ms;
+}
+.dark:not(.minimal) #nd-page > div:first-child:has(> a) a {
+  color: #8b8d98;
+}
+.dark:not(.minimal) #nd-page > div:first-child:has(> a) a:hover {
+  color: #e4e4e7;
+  opacity: 1;
+}
+
+/* Previous / next guide cards — the site's card recipe: 12px radius,
+   #121119 on a #191722 hairline, #1A1922 and a 4px lift on hover. */
+#nd-page a[class*="@max-lg:col-span-full"] {
+  gap: 0.375rem;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  font-size: 14px;
+  transition:
+    transform 200ms ease-out,
+    background-color 200ms ease-out,
+    border-color 200ms ease-out;
+}
+#nd-page a[class*="@max-lg:col-span-full"] > div:first-child {
+  font-size: 16px;
+  font-weight: 700;
+}
+.dark:not(.minimal) #nd-page a[class*="@max-lg:col-span-full"] {
+  border-color: #191722;
+  background: #121119;
+  color: #e4e4e7;
+}
+.dark:not(.minimal) #nd-page a[class*="@max-lg:col-span-full"]:hover {
+  background: #1a1922;
+  color: #e4e4e7;
+}
+.dark:not(.minimal) #nd-page a[class*="@max-lg:col-span-full"] > p {
+  color: #8b8d98;
+}
+
+/* Tabs — the site's segmented pill control (SupporterBoard): a #121119
+   track on a #191722 hairline, 14px bold pills, the active one solid
+   purple with the CTA inset highlight and a 20px glow. */
+#nd-page div[data-orientation="horizontal"]:has(> [role="tablist"]) {
+  border-radius: 12px;
+}
+.dark:not(.minimal)
+  #nd-page
+  div[data-orientation="horizontal"]:has(> [role="tablist"]) {
+  border-color: #191722;
+  background: #121119;
+}
+#nd-page [role="tablist"] {
+  gap: 0.25rem;
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--color-fd-border);
+}
+.dark:not(.minimal) #nd-page [role="tablist"] {
+  border-bottom-color: #191722;
+}
+#nd-page [role="tab"] {
+  padding: 0.5rem 1rem;
+  border: 0;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  transition:
+    color 200ms,
+    background-color 200ms,
+    box-shadow 200ms;
+}
+.dark:not(.minimal) #nd-page [role="tab"] {
+  color: #8b8d98;
+}
+.dark:not(.minimal) #nd-page [role="tab"]:hover {
+  color: #e4e4e7;
+}
+.dark:not(.minimal) #nd-page [role="tab"][data-state="active"] {
+  background: #783cb5;
+  color: #ffffff;
+  box-shadow:
+    inset 0px 1px 1px 0px rgba(255, 255, 255, 0.35),
+    0px 0px 20px 0px rgba(120, 60, 181, 0.55);
+}
+#nd-page [role="tab"]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 1px rgba(120, 60, 181, 0.5);
+}
+
+/* Code blocks — the site's markdown `pre` spacing, and the copy button
+   as a 32px icon button (8px radius, white/10 on hover). */
+.prose figure.shiki {
+  margin-block: 1.75rem;
+}
+figure.shiki button[aria-label^="Copy"] {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 8px;
+  transition:
+    color 200ms,
+    background-color 200ms;
+}
+.dark:not(.minimal) figure.shiki button[aria-label^="Copy"] {
+  color: #8b8d98;
+}
+.dark:not(.minimal) figure.shiki button[aria-label^="Copy"]:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e4e4e7;
+}
+
+@media (prefers-reduced-motion: reduce) {
+}
+
+/* Code block padding — the site's `pre` inset (20px × 22px). Fumadocs pads
+   the scroll region and each line (--padding-left), so the inset is set
+   there and the <pre> itself stays at zero. */
+figure.shiki > [role="region"] {
+  padding-block: 1.25rem;
+  --padding-left: 1.375rem;
+}
+
+/* Popovers (language picker, game switcher, appearance settings) — the
+   site's dropdown panel (NewLayout "Create Mods" menu): solid #121119 on
+   a #191722 hairline, 12px radius, 6px inset, deep drop shadow. Rows are
+   14px, 8px radius, #1A1922 on hover. Fumadocs' frosted /60 fill is
+   replaced with the solid panel. */
+.dark:not(.minimal) [data-radix-popper-content-wrapper] > div.rounded-xl {
+  background: #121119;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  border-color: #191722;
+  box-shadow: 0 12px 40px -8px rgba(0, 0, 0, 0.6);
+}
+[data-radix-popper-content-wrapper] > div.rounded-xl {
+  border-radius: 12px;
+  padding: 0.375rem;
+}
+
+/* Language picker list (fumadocs LanguageSelect: a title <p> followed by
+   one button per locale). */
+/* Same width as its trigger (the sidebar language button); Radix exposes
+   the trigger width as a custom property. */
+[data-radix-popper-content-wrapper] > div:has(> p + button) {
+  gap: 2px;
+  width: var(--radix-popover-trigger-width);
+  min-width: 0;
+}
+[data-radix-popper-content-wrapper] > div:has(> p + button) > p {
+  padding: 0.5rem 0.625rem 0.375rem;
+  font-size: 11px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}
+[data-radix-popper-content-wrapper] > div:has(> p + button) > button {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.625rem;
+  border-radius: 8px;
+  font-size: 14px;
+  transition:
+    color 150ms,
+    background-color 150ms;
+}
+.dark:not(.minimal)
+  [data-radix-popper-content-wrapper]
+  > div:has(> p + button)
+  > p {
+  color: rgba(139, 141, 152, 0.7);
+}
+.dark:not(.minimal)
+  [data-radix-popper-content-wrapper]
+  > div:has(> p + button)
+  > button {
+  color: #e4e4e7;
+  background: transparent;
+}
+.dark:not(.minimal)
+  [data-radix-popper-content-wrapper]
+  > div:has(> p + button)
+  > button:hover {
+  background: #1a1922;
+}
+/* Current language — the site's active menu item: lilac text on the
+   hover fill. */
+.dark:not(.minimal)
+  [data-radix-popper-content-wrapper]
+  > div:has(> p + button)
+  > button[class*="text-fd-primary"] {
+  background: #1a1922;
+  color: #c084fc;
+  font-weight: 600;
+}
+
+/* Press feedback — the site's buttons shrink while pressed (framer
+   `whileTap` 0.98 on pills, `active:scale-[0.94]` on round icon
+   buttons). Cards don't press, matching the site. */
+.divine-press {
+  transition-property:
+    color, background-color, border-color, filter, box-shadow, transform;
+  transition-duration: 200ms;
+}
+.divine-press:active {
+  transform: scale(0.98);
+}
+#nd-sidebar [data-search-full]:active,
+#nd-page [role="tab"]:active,
+figure.shiki button[aria-label^="Copy"]:active {
+  transform: scale(0.98);
+}
+#nd-page [role="tab"],
+figure.shiki button[aria-label^="Copy"] {
+  transition-property: color, background-color, box-shadow, transform;
+}
+
+/* Entrance — the site's fadeUp: opacity 0 → 1 rising 20px over 0.5s on
+   cubic-bezier(0.4, 0, 0.2, 1), children staggered 80ms after a 100ms
+   delay. Replays on each guide navigation (the article remounts). */
+@keyframes divine-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+#nd-page > * {
+  animation: divine-fade-up 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+#nd-page > :nth-child(1) {
+  animation-delay: 0.1s;
+}
+#nd-page > :nth-child(2) {
+  animation-delay: 0.18s;
+}
+#nd-page > :nth-child(3) {
+  animation-delay: 0.26s;
+}
+#nd-page > :nth-child(4) {
+  animation-delay: 0.34s;
+}
+#nd-page > :nth-child(n + 5) {
+  animation-delay: 0.42s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .divine-press:active,
+  #nd-sidebar [data-search-full]:active,
+  #nd-page [role="tab"]:active,
+  figure.shiki button[aria-label^="Copy"]:active {
+    transform: none;
+  }
+  #nd-page > * {
+    animation: none;
+  }
+}
+
+/* Sidebar header divider — equal 12px above (switcher → line) and below
+   (line → first nav row). Fumadocs pads the header `pb-2` and the nav
+   scroll viewport `pt-4`; rows add their own 2px margin, so the viewport
+   gets 10px. Unlayered so it beats those utilities. */
+#nd-sidebar > div:first-child {
+  padding-bottom: 0.75rem;
+  margin-bottom: 0;
+}
+#nd-sidebar [class*="rounded-[inherit]"] {
+  padding-top: 10px;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   Sidebar rail. Collapsing keeps a 64px icon rail instead of sliding
+   the sidebar off-screen. Every icon sits at the same x as in the
+   expanded sidebar (12px side padding everywhere, icons centered at
+   32px). Rail items share one recipe: 40×40, 8px radius, 16px icon.
+   ────────────────────────────────────────────────────────────── */
+@media (min-width: 768px) {
+  /* Shared 12px side padding (header, nav, footer). */
+  #nd-sidebar > div:first-child,
+  #nd-sidebar [data-radix-scroll-area-viewport],
+  #nd-sidebar > div:last-child {
+    padding-inline: 0.75rem !important;
+  }
+  #nd-sidebar > div:first-child::after {
+    left: 0.75rem !important;
+    right: 0.75rem !important;
+  }
+  /* Field icons aligned to the 32px icon column. */
+  #nd-sidebar [data-search-full] {
+    padding-inline: 0.75rem 0.375rem;
+  }
+  #nd-sidebar > div:first-child > button[aria-haspopup] {
+    padding-inline-start: 0.625rem;
+  }
+  #nd-sidebar button[aria-label="Choose a language"] {
+    padding-inline-start: 0.6875rem;
+  }
+  /* Logo and the Contribute row onto the 32px icon column. */
+  #nd-sidebar > div:first-child > div:first-child > a {
+    margin-inline-start: 4px;
+  }
+  #nd-sidebar [data-radix-scroll-area-viewport] button:not([data-active]) {
+    padding-inline-start: 0.75rem;
+  }
+  #nd-sidebar button[aria-label="Choose a language"] > svg:first-child {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  /* Keep the sidebar's full column reserved while collapsed (fumadocs
+     drops it to 0), so the article and TOC never shift when the sidebar
+     collapses or expands. The rail and its peek live inside it. */
+  #nd-docs-layout:has(#nd-sidebar[data-collapsed="true"]) {
+    --fd-sidebar-col: 268px !important;
+  }
+  /* The rail replaces the floating Collapse / Search cluster. */
+  #nd-docs-layout:has(#nd-sidebar[data-collapsed="true"])
+    div.fixed:has(> button[aria-label="Open Search"]) {
+    display: none;
+  }
+
+  /* The rail stays a rail: no hover peek (fumadocs' data-hovered is
+     ignored), so its icons are used directly, with label chips on hover
+     (src/components/sidebar-rail-tooltip.tsx). */
+  #nd-sidebar[data-collapsed="true"] {
+    --fd-sidebar-width: 268px;
+    translate: none !important;
+    inset-block: 0 !important;
+    border-radius: 0 !important;
+    border-width: 0 1px 0 0 !important;
+    border-color: #191722 !important;
+    box-shadow: none !important;
+    transition: none !important;
+    overflow: hidden;
+    /* Content keeps its 268px layout anchored left; the rail shows its
+       icon column, so every icon sits where it does when expanded. */
+    align-items: flex-start !important;
+    width: 64px !important;
+  }
+  /* ── Rail contents ── */
+  #nd-sidebar[data-collapsed="true"] {
+    /* Logo above the expand button, both on the icon column. */
+    & > div:first-child > div:first-child {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+    & > div:first-child > div:first-child > a > span {
+      display: none;
+    }
+    /* Expand button as a 40×40 rail item. */
+    & button[aria-label="Collapse Sidebar"] {
+      width: 2.25rem;
+      height: 2.25rem;
+      margin-inline-start: 2px;
+      padding: 0;
+      border-radius: 8px;
+    }
+
+    /* 40×40 items: search, switcher, nav rows, contribute, language. */
+    & [data-search-full],
+    & > div:first-child > button[aria-haspopup],
+    & a[data-active],
+    & button[data-active],
+    & [data-radix-scroll-area-viewport] button:not([data-active]),
+    & button[aria-label="Choose a language"] {
+      width: 2.25rem !important;
+      min-width: 2.25rem;
+      height: 2.25rem;
+      min-height: 2.25rem;
+      margin-inline-start: 2px;
+      padding: 0 !important;
+      justify-content: center;
+      gap: 0;
+      border-radius: 8px !important;
+      font-size: 0;
+    }
+    & :is(a, button)[data-active] svg,
+    & [data-radix-scroll-area-viewport] button:not([data-active]) svg {
+      width: 1rem;
+      height: 1rem;
+    }
+    & > div:first-child > button[aria-haspopup] > :first-child {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+    & [data-search-full] > div,
+    & > div:first-child > button[aria-haspopup] > :not(:first-child),
+    & button[aria-label="Choose a language"] > :not(:first-child),
+    & :is(a, button)[data-active] > svg.lucide-chevron-down,
+    & [id^="radix-"][data-state],
+    & [data-radix-scroll-area-viewport] p,
+    & [data-radix-scroll-area-viewport] button:not([data-active]) > span {
+      display: none;
+    }
+
+    /* Footer: language, then the link and settings icons stacked. */
+    & > div:last-child {
+      align-items: flex-start;
+    }
+    & > div:last-child > div:last-child {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    & > div:last-child > div:last-child > .flex-1 {
+      display: none;
+    }
+    /* Discord / GitHub live in the expanded sidebar; the rail keeps
+       language and settings so the whole rail fits a laptop screen. */
+    & > div:last-child > div:last-child > a {
+      display: none;
+    }
+    /* Footer links and settings: the same 36px rail item. */
+    & > div:last-child > div:last-child :is(a, button) {
+      width: 2.25rem;
+      height: 2.25rem;
+      margin-inline-start: 2px;
+    }
+  }
+}
+
+/* Contribute (sidebar, after the last section) — the same row recipe as
+   the nav links (px-3 py-2, 10px gap, 14px, 8px radius, 1px transparent
+   border so its pencil lands on the icon column), set apart from the
+   sections by a #25222F hairline. */
+#nd-sidebar [data-radix-scroll-area-viewport] button:not([data-active]) {
+  position: relative;
+  display: flex;
+  width: 100%;
+  gap: 0.625rem;
+  margin-top: 1.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.375;
+  transition:
+    color 200ms,
+    background-color 200ms;
+}
+#nd-sidebar
+  [data-radix-scroll-area-viewport]
+  button:not([data-active])::before {
+  content: "";
+  position: absolute;
+  top: calc(-0.75rem - 1px);
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: var(--color-fd-border);
+}
+.dark:not(.minimal)
+  #nd-sidebar
+  [data-radix-scroll-area-viewport]
+  button:not([data-active]) {
+  color: #8b8d98;
+}
+.dark:not(.minimal)
+  #nd-sidebar
+  [data-radix-scroll-area-viewport]
+  button:not([data-active]):hover {
+  background: rgba(25, 23, 34, 0.6);
+  color: #e4e4e7;
+}
+.dark:not(.minimal)
+  #nd-sidebar
+  [data-radix-scroll-area-viewport]
+  button:not([data-active])::before {
+  background: #25222f;
+}
+#nd-sidebar [data-radix-scroll-area-viewport] button:not([data-active]) svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Rail label chip (src/components/sidebar-rail-tooltip.tsx) — fades in
+   while sliding 4px out from the icon. */
+@keyframes divine-chip-in {
+  from {
+    opacity: 0;
+    margin-left: -4px;
+  }
+}
+.divine-rail-chip {
+  animation: divine-chip-in 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .divine-rail-chip {
+    animation: none;
+  }
+}
+
+/* Sidebar dividers — all three (under the header, above Contribute,
+   above the footer) are the same #25222F hairline inset to the 12px
+   content edges; in the collapsed rail each spans exactly the 36px item
+   column, aligned under the icons. */
+#nd-sidebar > div:last-child {
+  position: relative;
+  border-top: 0 !important;
+}
+#nd-sidebar > div:last-child::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0.75rem;
+  left: 0.75rem;
+  height: 1px;
+  background: var(--color-fd-border);
+}
+.dark:not(.minimal) #nd-sidebar > div:last-child::before {
+  background: #25222f;
+}
+@media (min-width: 768px) {
+  #nd-sidebar[data-collapsed="true"] > div:first-child::after,
+  #nd-sidebar[data-collapsed="true"] > div:last-child::before {
+    left: calc(0.75rem + 2px) !important;
+    right: auto !important;
+    width: 2.25rem;
+  }
+}
+
+/* The Contribute row is 2px narrower than the item column; stretch its
+   divider to the same span as the other two. */
+#nd-sidebar
+  [data-radix-scroll-area-viewport]
+  button:not([data-active])::before {
+  left: 0 !important;
+  right: -2px !important;
 }

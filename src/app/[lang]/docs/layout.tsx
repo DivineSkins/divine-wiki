@@ -6,6 +6,7 @@ import { localizePageTree } from "@/lib/tree-localization";
 import { getMessages } from "@/lib/locale";
 import { AppearanceSettings } from "@/components/appearance-settings";
 import { SidebarSeparatorWithContribute } from "@/components/sidebar-contribute";
+import { SidebarRailTooltip } from "@/components/sidebar-rail-tooltip";
 import { DiscordLogo, GitHubLogo } from "@/components/brand-logos";
 import {
   contributeSidebarNodeId,
@@ -84,13 +85,13 @@ export default async function Layout({
           // element is serialized across the RSC boundary from this Server
           // Component — so without a key React warns on every render.
           footer: (
-            <div key="footer" className="flex items-center gap-1 pt-1">
+            <div key="footer" className="flex items-center gap-2 pt-1">
               <a
                 href={discordInviteUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={messages.nav.discord}
-                className="text-fd-muted-foreground hover:text-fd-accent-foreground hover:bg-fd-accent rounded-md p-1.5 transition-colors"
+                className="light:border-fd-border light:bg-fd-secondary light:text-fd-muted-foreground light:hover:text-fd-accent-foreground inline-flex size-10 items-center justify-center rounded-lg border border-[#191722] bg-[#121119] text-[#E4E4E7] transition-colors duration-200 hover:bg-[#1A1922] focus-visible:ring-1 focus-visible:ring-[rgba(120,60,181,0.5)] focus-visible:outline-none"
               >
                 <DiscordLogo className="size-4" />
               </a>
@@ -99,7 +100,7 @@ export default async function Layout({
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="GitHub"
-                className="text-fd-muted-foreground hover:text-fd-accent-foreground hover:bg-fd-accent rounded-md p-1.5 transition-colors"
+                className="light:border-fd-border light:bg-fd-secondary light:text-fd-muted-foreground light:hover:text-fd-accent-foreground inline-flex size-10 items-center justify-center rounded-lg border border-[#191722] bg-[#121119] text-[#E4E4E7] transition-colors duration-200 hover:bg-[#1A1922] focus-visible:ring-1 focus-visible:ring-[rgba(120,60,181,0.5)] focus-visible:outline-none"
               >
                 <GitHubLogo className="size-4" />
               </a>
@@ -111,6 +112,7 @@ export default async function Layout({
       >
         {children}
       </DocsLayout>
+      <SidebarRailTooltip />
     </div>
   );
 }

@@ -1,13 +1,6 @@
 "use client";
 
-import { ReactNode } from "react";
-import {
-  Info,
-  AlertTriangle,
-  XCircle,
-  CheckCircle,
-  GraduationCap,
-} from "lucide-react";
+import { ReactNode, type CSSProperties } from "react";
 import { useMessages } from "@/lib/hooks/useMessages";
 
 interface CalloutProps {
@@ -23,26 +16,56 @@ interface CalloutProps {
   children: ReactNode;
 }
 
-const accent: Record<NonNullable<CalloutProps["type"]>, string> = {
-  info: "var(--color-divine-info)",
-  warning: "var(--color-divine-warning)",
-  danger: "var(--color-divine-error)",
-  success: "var(--color-divine-success)",
-  lvl_beginner: "var(--color-divine-success)",
-  lvl_intermediate: "var(--color-divine-secondary)",
-  lvl_advanced: "var(--color-divine-primary-light)",
+interface Tone {
+  accent: string;
+  border: string;
+  background: string;
+}
+
+// The divineskins.gg markdown callout palette (markdown.css): NOTE purple,
+// TIP green, IMPORTANT gold, WARNING yellow, CAUTION red. Each tone is an
+// accent for the title plus a tinted hairline and wash.
+const NOTE: Tone = {
+  accent: "#c084fc",
+  border: "rgba(192, 132, 252, 0.3)",
+  background: "rgba(120, 60, 181, 0.09)",
+};
+const TIP: Tone = {
+  accent: "#4ade80",
+  border: "rgba(34, 197, 94, 0.28)",
+  background: "rgba(34, 197, 94, 0.075)",
+};
+const IMPORTANT: Tone = {
+  accent: "#ecb96a",
+  border: "rgba(236, 185, 106, 0.28)",
+  background: "rgba(236, 185, 106, 0.075)",
+};
+const WARNING: Tone = {
+  accent: "#facc15",
+  border: "rgba(250, 204, 21, 0.28)",
+  background: "rgba(250, 204, 21, 0.07)",
+};
+const CAUTION: Tone = {
+  accent: "#f87171",
+  border: "rgba(239, 68, 68, 0.3)",
+  background: "rgba(239, 68, 68, 0.075)",
 };
 
-const icons = {
-  info: Info,
-  warning: AlertTriangle,
-  danger: XCircle,
-  success: CheckCircle,
-  lvl_beginner: GraduationCap,
-  lvl_intermediate: GraduationCap,
-  lvl_advanced: GraduationCap,
+const tones: Record<NonNullable<CalloutProps["type"]>, Tone> = {
+  info: NOTE,
+  warning: WARNING,
+  danger: CAUTION,
+  success: TIP,
+  lvl_beginner: TIP,
+  lvl_intermediate: IMPORTANT,
+  lvl_advanced: NOTE,
 };
 
+/**
+ * Note panel, 1:1 with the divineskins.gg markdown callout: 8px radius,
+ * tinted hairline and wash, and a bold title in the accent color led by
+ * a small dot.
+ */
 export function Callout({ type = "info", title, children }: CalloutProps) {
   const messages = useMessages();
 
@@ -56,35 +79,30 @@ export function Callout({ type = "info", title, children }: CalloutProps) {
     lvl_advanced: messages.callout.defaultTitles.lvl_advanced,
   };
 
-  const Icon = icons[type];
-  const displayTitle = title || defaultTitles[type];
-
-  if (!Icon) {
+  const tone = tones[type];
+  if (!tone) {
     throw new Error(`Invalid callout type: ${type}`);
   }
-
-  const tone = accent[type];
+  const displayTitle = title || defaultTitles[type];
 
   return (
     <div
-      className="bg-divine-surface ring-divine-border my-4 rounded-[8px] border-l-4 p-4 ring-1"
-      style={{ borderLeftColor: tone }}
+      role="note"
+      className="divine-callout my-7 rounded-[8px] border px-[1.125rem] py-4"
+      style={
+        {
+          "--callout-accent": tone.accent,
+          "--callout-border": tone.border,
+          "--callout-background": tone.background,
+        } as CSSProperties
+      }
     >
-      <div className="flex gap-3">
-        <Icon
-          className="mt-0.5 h-5 w-5 shrink-0"
-          style={{ color: tone }}
-          aria-hidden
-        />
-        <div className="min-w-0 flex-1">
-          <div
-            className="text-divine-text mb-1 font-[var(--font-section)] font-semibold"
-            style={{ color: tone }}
-          >
-            {displayTitle}
-          </div>
-          <div className="text-divine-text/85">{children}</div>
-        </div>
+      <div className="divine-callout-title mb-2.5 flex items-center gap-2.5 text-[0.86em] font-bold tracking-[0.01em]">
+        <span aria-hidden className="size-2 shrink-0 rounded-full bg-current" />
+        {displayTitle}
+      </div>
+      <div className="text-divine-text [&>:first-child]:mt-0 [&>:last-child]:mb-0">
+        {children}
       </div>
     </div>
   );

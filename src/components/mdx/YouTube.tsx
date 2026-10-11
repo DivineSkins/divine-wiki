@@ -15,7 +15,7 @@ export function YouTube({ id, start, list, title }: YouTubeProps) {
   const src = `https://www.youtube-nocookie.com/embed/${id}${qs ? `?${qs}` : ""}`;
 
   return (
-    <div className="border-divine-border my-4 aspect-video overflow-hidden rounded-lg border bg-black">
+    <div className="border-fd-border my-7 aspect-video overflow-hidden rounded-xl border bg-black shadow-[0_10px_28px_rgba(0,0,0,0.22)]">
       <iframe
         src={src}
         title={title ?? "YouTube video"}

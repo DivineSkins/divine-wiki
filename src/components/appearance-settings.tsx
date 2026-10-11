@@ -48,7 +48,9 @@ export interface SettingsLabels {
 // include the size-adjusted fallback fonts — never literal family names.
 // "system" has an empty label: the localized labels.fontSystem fills it.
 const FONT_OPTIONS: { id: FontId; label: string; family: string }[] = [
-  { id: "inter", label: "Inter", family: "var(--font-inter), sans-serif" },
+  // The default id stays "inter" so stored preferences keep working, but
+  // the default face is Manrope, the divineskins.gg body font.
+  { id: "inter", label: "Manrope", family: "var(--font-manrope), sans-serif" },
   { id: "geist", label: "Geist", family: "var(--font-geist), sans-serif" },
   { id: "lora", label: "Lora", family: "var(--font-lora), serif" },
   {
@@ -179,7 +181,7 @@ export function AppearanceSettings({ labels }: { labels: SettingsLabels }) {
           GitHub icon links in the sidebar footer. */}
       <PopoverTrigger
         aria-label={labels.trigger}
-        className="text-fd-muted-foreground hover:text-fd-accent-foreground hover:bg-fd-accent inline-flex items-center justify-center rounded-md p-1.5 transition-colors"
+        className="light:border-fd-border light:bg-fd-secondary light:text-fd-muted-foreground light:hover:text-fd-accent-foreground inline-flex size-10 items-center justify-center rounded-lg border border-[#191722] bg-[#121119] text-[#E4E4E7] transition-colors duration-200 hover:bg-[#1A1922] focus-visible:ring-1 focus-visible:ring-[rgba(120,60,181,0.5)] focus-visible:outline-none"
       >
         <SettingsIcon className="size-4" aria-hidden />
       </PopoverTrigger>
