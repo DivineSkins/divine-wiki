@@ -23,7 +23,7 @@ const SIZE_CLASSES: Record<Size, string> = {
 // Bold body-font labels; focus is a thin lilac ring flush to the edge (the
 // white offset ring is the design system's most common off-brand regression).
 const BASE_CLASSES =
-  "divine-press inline-flex items-center justify-center gap-2 rounded-full " +
+  "not-prose divine-press inline-flex items-center justify-center gap-2 rounded-full " +
   "font-bold whitespace-nowrap no-underline " +
   "outline-none focus-visible:ring-1 focus-visible:ring-[#C084FC] focus-visible:ring-offset-0 " +
   "disabled:opacity-50";

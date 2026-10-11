@@ -21,7 +21,9 @@ interface PremiumCardProps {
  * Link card in the divineskins.gg card recipe (CatalogSkinCard / blog
  * cards): #121119 panel on a #191722 hairline, 12px radius, #1A1922 on
  * hover. No lift on hover: it overlapped the content above. The icon sits
- * in a solid raised tile (#221F2D, lilac glyph).
+ * in the site's IconTile: a raised square with a top-to-bottom
+ * #2A2638 → #191722 fill, #17161C hairline, faint top highlight, and a
+ * lilac (#AB69EF) glyph.
  */
 export function PremiumCard({
   title,
@@ -52,7 +54,7 @@ export function PremiumCard({
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-3">
             {icon ? (
-              <div className="light:border-divine-border light:bg-divine-elevated light:text-divine-primary inline-flex size-11 shrink-0 items-center justify-center rounded-[12px] border border-[#17161C] bg-[#221F2D] text-[#AB69EF] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] [&_img]:size-5 [&_svg]:size-5">
+              <div className="light:border-divine-border light:bg-none light:bg-divine-elevated light:text-divine-primary divine-icon-brand inline-flex size-11 shrink-0 items-center justify-center rounded-[12px] border border-[#17161C] bg-[linear-gradient(180deg,#2A2638_0%,#191722_100%)] text-[#AB69EF] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] [&_img]:size-5 [&_svg]:size-5">
                 {icon}
               </div>
             ) : null}

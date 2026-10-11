@@ -31,7 +31,9 @@ export function DocsFooter({
 
   return (
     // A lone card spans the full row instead of sitting in half of it.
-    <nav className={cn("grid gap-4", previous && next && "sm:grid-cols-2")}>
+    <nav
+      className={cn("mt-8 grid gap-4", previous && next && "sm:grid-cols-2")}
+    >
       {previous ? (
         <FooterCard
           item={previous}

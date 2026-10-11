@@ -13,7 +13,8 @@ interface ToolCardProps {
  * Tool list card — each tool renders as its own row: icon, the name, a
  * pipe separator, and the description trailing. Uses the divineskins.gg
  * card recipe (#121119 on a #191722 hairline, 12px radius, #1A1922 on
- * hover, no lift), plus a straight 2px accent line on the left:
+ * hover, no lift), plus a straight full-height 2px accent line as the
+ * left edge (left corners square):
  * purple, lilac on hover.
  *
  * The whole row is one anchor, so `children` MUST NOT contain links —
@@ -32,13 +33,13 @@ export function ToolCard({ name, href, children, badge, icon }: ToolCardProps) {
     <Tag
       href={href}
       {...externalProps}
-      className="not-prose group light:border-divine-border light:bg-divine-surface light:hover:bg-divine-elevated relative my-2 flex items-center gap-3 rounded-xl border border-[#191722] bg-[#121119] px-4 py-3 leading-normal no-underline transition-[background-color,border-color] duration-200 ease-out hover:bg-[#1A1922]"
+      className="not-prose group light:border-divine-border light:bg-divine-surface light:hover:bg-divine-elevated relative my-2 flex items-center gap-3 rounded-xl rounded-l-none border border-[#191722] bg-[#121119] px-4 py-3 leading-normal no-underline transition-[background-color,border-color] duration-200 ease-out hover:bg-[#1A1922]"
     >
-      {/* Straight accent line, inset from the top and bottom so the card's
-          rounded corners never bend it. */}
+      {/* Straight accent line as the whole left edge; the left corners are
+          square so it runs full height without bending. */}
       <span
         aria-hidden
-        className="absolute inset-y-3 left-0 w-0.5 bg-[#783CB5] transition-colors duration-200 group-hover:bg-[#C084FC]"
+        className="absolute -inset-y-px -left-px w-0.5 bg-[#783CB5] transition-colors duration-200 group-hover:bg-[#C084FC]"
       />
       {icon ? (
         <span className="text-divine-primary-light flex shrink-0 items-center [&_img]:size-[22px] [&_svg]:size-[22px]">

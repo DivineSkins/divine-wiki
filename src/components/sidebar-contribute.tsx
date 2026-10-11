@@ -18,7 +18,7 @@ export function SidebarSeparatorWithContribute({
   item: PageTree.Separator;
 }) {
   if (item.$id === contributeSidebarNodeId) {
-    return <ContributeButton className="mt-4" />;
+    return <ContributeButton className="divine-sidebar-contribute mt-4" />;
   }
   return (
     <SidebarSeparator>

@@ -14,7 +14,7 @@ import { createPortal } from "react-dom";
 
 const RAIL = '#nd-sidebar[data-collapsed="true"]';
 const TARGETS =
-  "a[data-active], button[data-active], [data-search-full], button[aria-haspopup], button[aria-label], a[aria-label], [data-radix-scroll-area-viewport] button";
+  "a[data-active], button[data-active], [data-search-full], button[aria-haspopup], button[aria-label], a[aria-label], .divine-sidebar-contribute";
 
 interface Chip {
   item: HTMLElement;

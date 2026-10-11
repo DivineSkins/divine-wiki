@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { useParams, usePathname } from "next/navigation";
-import { PencilIcon, PencilLine } from "lucide-react";
+import { PencilIcon, PencilLine, XIcon } from "lucide-react";
 import { GitHubLogo } from "@/components/brand-logos";
 import { useMessages } from "@/lib/hooks/useMessages";
 import { PremiumCard } from "@/components/mdx/PremiumCard";
@@ -86,36 +86,36 @@ export function ContributePickerModal() {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+      className="animate-in fade-in-0 fixed inset-0 z-50 flex items-center justify-center bg-[#0b0a0f]/80 p-4 backdrop-blur-sm duration-200"
       onClick={close}
     >
       <div
-        className="bg-divine-surface border-divine-border max-h-[85vh] w-full max-w-2xl overflow-auto rounded-xl border p-6"
+        className="divine-picker animate-in fade-in-0 zoom-in-95 light:bg-divine-surface light:border-divine-border relative max-h-[85vh] w-full max-w-2xl overflow-auto rounded-xl border border-[#191722] bg-[#121119] p-6 shadow-[0_20px_60px_-10px_rgba(0,0,0,0.6)] duration-200"
         role="dialog"
         aria-modal="true"
         aria-label={p.pickerHeading}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="mb-4 flex items-start justify-between gap-4">
+        <div className="mb-5 flex items-start justify-between gap-4 pr-8">
           <div>
-            <h2 className="text-divine-text text-xl font-semibold">
+            <h2 className="text-divine-text text-lg leading-tight font-bold tracking-tight">
               {p.pickerHeading}
             </h2>
-            <p className="text-divine-text-muted mt-1 text-sm">
+            <p className="text-divine-text-muted mt-1.5 text-sm leading-relaxed font-medium">
               {p.pickerSubheading}
             </p>
           </div>
           <button
             type="button"
             aria-label="Close"
-            className="text-divine-text-muted hover:text-divine-text text-2xl leading-none"
+            className="text-divine-text-muted hover:text-divine-text absolute top-4 right-4 flex size-8 items-center justify-center rounded-full transition-colors hover:bg-white/5 focus-visible:ring-2 focus-visible:ring-[rgba(120,60,181,0.4)] focus-visible:outline-none"
             onClick={close}
           >
-            ×
+            <XIcon className="size-4" aria-hidden />
           </button>
         </div>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <PremiumCard
             title={p.visualEditorTitle}
             href={`/${lang}/draft`}

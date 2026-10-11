@@ -21,6 +21,7 @@ import {
 } from "@/components/contribute-picker";
 import StaticSearchDialog from "@/components/search-dialog";
 import { ApplyAppearance } from "@/components/apply-appearance";
+import { IconGradients } from "@/components/icon-gradients";
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -146,6 +147,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body>
+        <IconGradients />
         {/* Apply persisted appearance preferences (reading width, Minimal
             style, font) before first paint — same no-flash trick next-themes
             uses for the theme class. Serialized copy of applyStoredAppearance
