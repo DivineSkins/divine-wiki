@@ -24,6 +24,11 @@ const tones: Record<LevelPillProps["level"], { pill: string; bars: number }> = {
   },
 };
 
+// MDX props aren't type-checked, so a typo or translated value
+// (`level="Intermediario"`) reaches here at runtime. Render a neutral pill
+// with the raw text instead of crashing the prerender and failing the deploy.
+const unknownTone = { pill: "bg-white/[0.06] text-[#D9D7DF]", bars: 0 };
+
 const defaults: Record<LevelPillProps["level"], string> = {
   beginner: "Beginner",
   intermediate: "Intermediate",
@@ -31,7 +36,7 @@ const defaults: Record<LevelPillProps["level"], string> = {
 };
 
 export function LevelPill({ level, label }: LevelPillProps) {
-  const tone = tones[level];
+  const tone = tones[level] ?? unknownTone;
   return (
     <span
       className={`not-prose me-1.5 inline-flex h-7 items-center gap-2 rounded-full px-3 align-middle text-[11px] leading-none font-bold tracking-wider uppercase ${tone.pill}`}
@@ -54,7 +59,7 @@ export function LevelPill({ level, label }: LevelPillProps) {
           />
         ))}
       </svg>
-      {label ?? defaults[level]}
+      {label ?? defaults[level] ?? level}
     </span>
   );
 }
