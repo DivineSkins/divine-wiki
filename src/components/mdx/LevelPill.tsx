@@ -3,13 +3,25 @@ interface LevelPillProps {
   label?: string;
 }
 
-const styles: Record<LevelPillProps["level"], string> = {
-  beginner:
-    "bg-[color-mix(in_srgb,var(--color-divine-success)_15%,transparent)] text-divine-success ring-1 ring-[color-mix(in_srgb,var(--color-divine-success)_25%,transparent)]",
-  intermediate:
-    "bg-[color-mix(in_srgb,var(--color-divine-secondary)_15%,transparent)] text-divine-secondary ring-1 ring-[color-mix(in_srgb,var(--color-divine-secondary)_30%,transparent)]",
-  advanced:
-    "bg-[color-mix(in_srgb,var(--color-divine-primary)_25%,transparent)] text-divine-primary-light ring-1 ring-[color-mix(in_srgb,var(--color-divine-primary)_40%,transparent)]",
+/**
+ * Difficulty marker in the divineskins.gg category chip recipe: a full
+ * pill with bold 11px uppercase tracked text on a soft tint of its tone
+ * (no outline stroke). A three-bar meter before the label lights 1, 2 or
+ * 3 bars, so the level reads without relying on color.
+ */
+const tones: Record<LevelPillProps["level"], { pill: string; bars: number }> = {
+  beginner: {
+    pill: "bg-[rgba(34,197,94,0.12)] text-[#22C55E]",
+    bars: 1,
+  },
+  intermediate: {
+    pill: "bg-[rgba(236,185,106,0.12)] text-[#ECB96A]",
+    bars: 2,
+  },
+  advanced: {
+    pill: "bg-[rgba(120,60,181,0.2)] text-[#C084FC]",
+    bars: 3,
+  },
 };
 
 const defaults: Record<LevelPillProps["level"], string> = {
@@ -19,10 +31,29 @@ const defaults: Record<LevelPillProps["level"], string> = {
 };
 
 export function LevelPill({ level, label }: LevelPillProps) {
+  const tone = tones[level];
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-[var(--font-ui)] font-semibold tracking-wider uppercase ${styles[level]}`}
+      className={`not-prose me-1.5 inline-flex h-7 items-center gap-2 rounded-full px-3 align-middle text-[11px] leading-none font-bold tracking-wider uppercase ${tone.pill}`}
     >
+      <svg
+        aria-hidden
+        viewBox="0 0 12 12"
+        className="size-3 shrink-0"
+        fill="currentColor"
+      >
+        {[0, 1, 2].map((i) => (
+          <rect
+            key={i}
+            x={i * 4.5}
+            y={8 - i * 3}
+            width="3"
+            height={4 + i * 3}
+            rx="1"
+            opacity={i < tone.bars ? 1 : 0.3}
+          />
+        ))}
+      </svg>
       {label ?? defaults[level]}
     </span>
   );

@@ -25,6 +25,9 @@ import { Separator } from "@/components/ui/separator";
 import { DocsLanding } from "@/components/home/docs-landing";
 import { PageCredits } from "@/components/page-credits";
 import { DocsBanner } from "../docs-banner";
+import { DocsFooter } from "@/components/docs-footer";
+import { findNeighbour } from "fumadocs-core/page-tree";
+import { localizePageTree } from "@/lib/tree-localization";
 
 export default async function Page(
   props: PageProps<"/[lang]/docs/[[...slug]]">,
@@ -59,9 +62,27 @@ export default async function Page(
     <RelativeLink {...props} href={localizeHref(props.href, params.lang)} />
   );
 
+  // Previous / next guides for the footer cards, from the same localized
+  // tree the sidebar renders (see ../layout.tsx).
+  const neighbours = findNeighbour(
+    localizePageTree(
+      source.pageTree[params.lang] ?? source.pageTree["en"],
+      params.lang,
+      {
+        translateName: true,
+        translateTitle: true,
+        translateIndex: false,
+        translateChildren: true,
+      },
+    ),
+    page.url,
+  );
+
   return (
     <DocsPage
       toc={loadedPageData.toc}
+      footer={{ items: neighbours }}
+      slots={{ footer: DocsFooter }}
       tableOfContent={{ style: "clerk", footer: <DocsBanner /> }}
       full={page.data.full}
     >
@@ -71,7 +92,7 @@ export default async function Page(
       </DocsDescription>
 
       {authors && authors.length > 0 && (
-        <div className="text-muted-foreground mt-4 text-sm">
+        <div className="text-muted-foreground mt-4 text-[14px]">
           {messages.misc?.credit ?? "Written by"}{" "}
           {authors.map((author, index) => (
             <span key={index}>
@@ -93,7 +114,7 @@ export default async function Page(
         </div>
       )}
 
-      <Separator className="mt-4 mb-6" />
+      <Separator className="bg-fd-border mt-8 mb-10" />
 
       <DocsBody>
         <MDX
@@ -101,7 +122,7 @@ export default async function Page(
             a: MDXLink,
           })}
         />
-        <hr className="border-divine-border my-8" />
+        <hr className="border-fd-border my-10" />
         <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
           <PageCredits
             credits={page.data.credits}
@@ -109,9 +130,9 @@ export default async function Page(
           />
           <Link
             href={`/${params.lang}/draft?edit=${page.slugs.join("/")}`}
-            className="text-divine-primary-light text-sm hover:underline"
+            className="not-prose divine-press light:bg-fd-accent light:text-fd-foreground inline-flex h-10 items-center justify-center rounded-full bg-white/10 px-5 text-sm font-bold text-white hover:bg-white/20 focus-visible:ring-1 focus-visible:ring-[rgba(120,60,181,0.5)] focus-visible:outline-none"
           >
-            {messages.misc?.editOnGithub ?? "Edit on GitHub"} →
+            {messages.misc?.editOnGithub ?? "Edit on GitHub"}
           </Link>
         </div>
       </DocsBody>

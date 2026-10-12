@@ -12,6 +12,7 @@ import { ToolCard } from "@/components/mdx/ToolCard";
 import { Icon } from "@/components/icon";
 import * as TabsComponents from "fumadocs-ui/components/tabs";
 import { Accordions, Accordion } from "@/components/mdx/Accordions";
+import { CodeBlock } from "@/components/mdx/CodeBlock";
 
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
   return {
@@ -30,5 +31,6 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     ToolCard,
     Icon,
     img: ImageZoom,
+    pre: CodeBlock,
   };
 }

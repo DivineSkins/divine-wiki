@@ -72,7 +72,7 @@ export function Video({
       muted
       playsInline
       preload="none"
-      className="h-auto max-w-full rounded-lg border"
+      className="border-fd-border h-auto max-w-full rounded-xl border shadow-[0_10px_28px_rgba(0,0,0,0.22)]"
     >
       <a href={original ?? src}>{alt || "View guide demonstration"}</a>
     </video>

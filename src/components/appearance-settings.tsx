@@ -7,7 +7,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "fumadocs-ui/components/ui/popover";
-import { SettingsIcon, ChevronDownIcon } from "lucide-react";
+import { SettingsIcon, ChevronDownIcon, CheckIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import {
@@ -48,7 +48,9 @@ export interface SettingsLabels {
 // include the size-adjusted fallback fonts — never literal family names.
 // "system" has an empty label: the localized labels.fontSystem fills it.
 const FONT_OPTIONS: { id: FontId; label: string; family: string }[] = [
-  { id: "inter", label: "Inter", family: "var(--font-inter), sans-serif" },
+  // The default id stays "inter" so stored preferences keep working, but
+  // the default face is Manrope, the divineskins.gg body font.
+  { id: "inter", label: "Manrope", family: "var(--font-manrope), sans-serif" },
   { id: "geist", label: "Geist", family: "var(--font-geist), sans-serif" },
   { id: "lora", label: "Lora", family: "var(--font-lora), serif" },
   {
@@ -61,10 +63,14 @@ const FONT_OPTIONS: { id: FontId; label: string; family: string }[] = [
   { id: "system", label: "", family: "system-ui, sans-serif" },
 ];
 
+/** One setting: the site's 11px uppercase eyebrow over a full-width
+ *  control, so every row lines up edge to edge. */
 function Row({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="flex items-center justify-between gap-3">
-      <span className="text-fd-muted-foreground text-xs">{label}</span>
+    <div className="flex flex-col gap-2">
+      <span className="light:text-fd-muted-foreground text-[11px] tracking-[0.18em] text-[#8B8D98]/70 uppercase">
+        {label}
+      </span>
       {children}
     </div>
   );
@@ -85,7 +91,7 @@ function Segmented<T extends string>({
     <div
       role="radiogroup"
       aria-label={groupLabel}
-      className="inline-flex items-center rounded-full border p-0.5"
+      className="light:border-fd-border light:bg-fd-secondary grid w-full auto-cols-fr grid-flow-col gap-0.5 rounded-full border border-[#191722] bg-[#121119] p-0.5"
     >
       {options.map((option) => (
         <button
@@ -95,10 +101,10 @@ function Segmented<T extends string>({
           aria-checked={value === option.value}
           onClick={() => onChange(option.value)}
           className={cn(
-            "rounded-full px-2.5 py-1 text-xs transition-colors",
+            "h-7 rounded-full px-2 text-xs font-bold transition-colors duration-200 focus-visible:ring-1 focus-visible:ring-[rgba(120,60,181,0.5)] focus-visible:outline-none",
             value === option.value
-              ? "bg-fd-accent text-fd-accent-foreground font-medium"
-              : "text-fd-muted-foreground hover:text-fd-foreground",
+              ? "light:bg-fd-primary light:text-fd-primary-foreground light:shadow-none bg-[#783CB5] text-white shadow-[inset_0px_1px_1px_0px_rgba(255,255,255,0.35)]"
+              : "light:text-fd-muted-foreground light:hover:text-fd-foreground text-[#8B8D98] hover:text-[#E4E4E7]",
           )}
         >
           {option.label}
@@ -179,11 +185,11 @@ export function AppearanceSettings({ labels }: { labels: SettingsLabels }) {
           GitHub icon links in the sidebar footer. */}
       <PopoverTrigger
         aria-label={labels.trigger}
-        className="text-fd-muted-foreground hover:text-fd-accent-foreground hover:bg-fd-accent inline-flex items-center justify-center rounded-md p-1.5 transition-colors"
+        className="light:border-fd-border light:bg-fd-secondary light:text-fd-muted-foreground light:hover:text-fd-accent-foreground inline-flex size-10 items-center justify-center rounded-lg border border-[#191722] bg-[#121119] text-[#E4E4E7] transition-colors duration-200 hover:bg-[#1A1922] focus-visible:ring-1 focus-visible:ring-[rgba(120,60,181,0.5)] focus-visible:outline-none"
       >
         <SettingsIcon className="size-4" aria-hidden />
       </PopoverTrigger>
-      <PopoverContent className="flex w-64 flex-col gap-3 p-3">
+      <PopoverContent className="flex w-60 flex-col gap-4 p-3.5!">
         <Row label={labels.mode}>
           {mounted ? (
             <Segmented
@@ -224,39 +230,84 @@ export function AppearanceSettings({ labels }: { labels: SettingsLabels }) {
             dropdown reads more naturally at the bottom of the stack than
             wedged between the pill rows. */}
         <Row label={labels.font}>
-          {/* Native select keeps the row dependency-free. `appearance-none`
-              plus our own chevron gives a consistent trigger across OSes;
-              the control sizes to its content (right-aligned by the Row)
-              instead of stretching. The trigger previews the current font
-              via fontFamily; per-option fontFamily styles the open list
-              where the browser supports it (desktop Chrome/Firefox). */}
-          <div className="relative inline-flex items-center">
-            <select
-              aria-label={labels.font}
-              value={font}
-              onChange={(event) => applyFont(event.target.value as FontId)}
-              style={{
-                fontFamily: FONT_OPTIONS.find((option) => option.id === font)
-                  ?.family,
-              }}
-              className="text-fd-foreground bg-fd-popover appearance-none rounded-full border py-1.5 pr-7 pl-3 text-xs"
-            >
-              {FONT_OPTIONS.map((option) => (
-                <option
-                  key={option.id}
-                  value={option.id}
-                  style={{ fontFamily: option.family }}
-                >
-                  {option.label || labels.fontSystem}
-                </option>
-              ))}
-            </select>
-            <ChevronDownIcon
-              className="text-fd-muted-foreground pointer-events-none absolute right-2.5 size-3.5"
-              aria-hidden
-            />
-          </div>
+          <FontSelect
+            value={font}
+            onChange={applyFont}
+            label={labels.font}
+            systemLabel={labels.fontSystem}
+          />
         </Row>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+/**
+ * Font picker. A custom list instead of a native <select>, whose open menu
+ * the browser draws in OS styling. Same panel as the wiki's other
+ * dropdowns: #121119 on a #191722 hairline, 12px radius, 14px rows on
+ * #1A1922 hover, the current font in lilac with a check. Each row and the
+ * trigger preview their own typeface.
+ */
+function FontSelect({
+  value,
+  onChange,
+  label,
+  systemLabel,
+}: {
+  value: FontId;
+  onChange: (next: FontId) => void;
+  label: string;
+  systemLabel: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const current = FONT_OPTIONS.find((option) => option.id === value);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger
+        aria-label={label}
+        style={{ fontFamily: current?.family }}
+        className="light:border-fd-border light:bg-fd-secondary light:text-fd-foreground flex h-9 w-full items-center justify-between rounded-lg border border-[#191722] bg-[#121119] pr-2.5 pl-3 text-[13px] font-semibold text-[#E4E4E7] transition-colors duration-200 hover:bg-[#1A1922] focus-visible:border-[#25222F] focus-visible:outline-none data-[state=open]:bg-[#1A1922]"
+      >
+        {current?.label || systemLabel}
+        <ChevronDownIcon
+          className={cn(
+            "light:text-fd-muted-foreground size-3.5 text-[#8B8D98] transition-transform duration-200",
+            open && "rotate-180",
+          )}
+          aria-hidden
+        />
+      </PopoverTrigger>
+      <PopoverContent
+        align="start"
+        className="divine-font-list flex w-(--radix-popover-trigger-width) min-w-0 flex-col gap-0.5"
+      >
+        {FONT_OPTIONS.map((option) => {
+          const selected = option.id === value;
+          return (
+            <button
+              key={option.id}
+              type="button"
+              role="option"
+              aria-selected={selected}
+              onClick={() => {
+                onChange(option.id);
+                setOpen(false);
+              }}
+              style={{ fontFamily: option.family }}
+              className={cn(
+                "flex items-center justify-between rounded-lg px-2.5 py-2 text-left text-[14px] transition-colors duration-150",
+                selected
+                  ? "light:bg-fd-accent light:text-fd-foreground bg-[#1A1922] font-semibold text-[#C084FC]"
+                  : "light:text-fd-foreground light:hover:bg-fd-accent text-[#E4E4E7] hover:bg-[#1A1922]",
+              )}
+            >
+              {option.label || systemLabel}
+              {selected ? <CheckIcon className="size-4" aria-hidden /> : null}
+            </button>
+          );
+        })}
       </PopoverContent>
     </Popover>
   );
