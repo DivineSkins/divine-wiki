@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { ImageResponse } from "next/og";
 import { source } from "@/lib/source";
 import { NextRequest } from "next/server";
@@ -153,23 +154,26 @@ function titleFontSize(title: string): number {
 }
 
 /**
- * Reads a file from public/ at runtime. On Cloudflare Workers the Worker bundle
- * has no filesystem access to public/ — static assets are served from the edge,
- * not from the module's working directory — so a plain readFile throws there.
- * Fetch the asset over HTTP from our own origin first (works in every runtime),
- * and keep the filesystem read as a fallback for local tooling that renders
- * without a live origin. `publicPath` is the asset's URL path (e.g.
- * "/og/docs-card-logo.png"); the filesystem fallback resolves it under public/.
+ * Reads a file from public/ at runtime. On Cloudflare Workers, public/ is
+ * served by the static-assets binding, not a filesystem, so readFile throws
+ * there. Fetching our own URL fails too: the Worker's subrequest to its own
+ * custom domain never reaches the assets. So read through the ASSETS binding,
+ * and fall back to disk where there's no Cloudflare context (`next dev`,
+ * `next start`). `publicPath` is the asset's URL path (e.g.
+ * "/og/docs-card-logo.png").
  */
 async function loadPublicAsset(
   origin: string,
   publicPath: string,
 ): Promise<ArrayBuffer | null> {
-  try {
-    const res = await fetch(new URL(publicPath, origin));
-    if (res.ok) return await res.arrayBuffer();
-  } catch {
-    // Fall through to the filesystem read below.
+  const assets = getAssetsBinding();
+  if (assets) {
+    try {
+      const res = await assets.fetch(new URL(publicPath, origin));
+      if (res.ok) return await res.arrayBuffer();
+    } catch {
+      // Fall through to the filesystem read below.
+    }
   }
   try {
     const buf = await readFile(
@@ -182,14 +186,27 @@ async function loadPublicAsset(
       buf.byteOffset + buf.byteLength,
     ) as ArrayBuffer;
   } catch {
+    // The card still renders without it, so log instead of failing the image.
+    console.warn(`[og] could not load ${publicPath}`);
     return null;
+  }
+}
+
+function getAssetsBinding(): Fetcher | undefined {
+  try {
+    return getCloudflareContext().env.ASSETS;
+  } catch {
+    // No Cloudflare context outside the Worker runtime.
+    return undefined;
   }
 }
 
 // Images must be PNG or JPEG, never WebP: the @vercel/og build that next/og
 // bundles has no WebP dimension parser, so embedding one throws
 // "u2 is not iterable" and aborts the whole image.
-const imageCache = new Map<string, string | null>();
+// Only successes are cached: a cached miss would serve bare cards for the rest
+// of the isolate's life, and crawlers keep whatever card they fetched first.
+const imageCache = new Map<string, string>();
 
 async function loadImageDataUri(
   origin: string,
@@ -197,11 +214,10 @@ async function loadImageDataUri(
   mime: "image/png" | "image/jpeg",
 ): Promise<string | null> {
   const cached = imageCache.get(publicPath);
-  if (cached !== undefined) return cached;
+  if (cached) return cached;
   const buf = await loadPublicAsset(origin, publicPath);
-  const uri = buf
-    ? `data:${mime};base64,${Buffer.from(buf).toString("base64")}`
-    : null;
+  if (!buf) return null;
+  const uri = `data:${mime};base64,${Buffer.from(buf).toString("base64")}`;
   imageCache.set(publicPath, uri);
   return uri;
 }
@@ -218,11 +234,11 @@ type OgFont = {
   style: "normal";
 };
 
-// `null` once resolved-but-empty, so we cache the "no fonts" outcome too.
-let cachedFonts: OgFont[] | null | undefined;
+// Cached only once every font loaded, for the same reason as imageCache.
+let cachedFonts: OgFont[] | undefined;
 
 async function loadFonts(origin: string): Promise<OgFont[] | undefined> {
-  if (cachedFonts !== undefined) return cachedFonts ?? undefined;
+  if (cachedFonts) return cachedFonts;
   const loaded = await Promise.all(
     FONT_FILES.map(async ({ name, weight, file }): Promise<OgFont | null> => {
       const data = await loadPublicAsset(origin, `/fonts/${file}`);
@@ -230,10 +246,10 @@ async function loadFonts(origin: string): Promise<OgFont[] | undefined> {
     }),
   );
   const fonts = loaded.filter((font): font is OgFont => font !== null);
+  if (fonts.length === FONT_FILES.length) cachedFonts = fonts;
   // An empty `fonts` array leaves satori with no typeface and throws, whereas
   // omitting the option lets next/og fall back to its bundled default font.
-  cachedFonts = fonts.length > 0 ? fonts : null;
-  return cachedFonts ?? undefined;
+  return fonts.length > 0 ? fonts : undefined;
 }
 
 export function generateStaticParams() {

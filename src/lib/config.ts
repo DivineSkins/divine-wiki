@@ -1,5 +1,13 @@
+// NEXT_PUBLIC_* vars are inlined when `next build` runs, and that's also when
+// the guide pages, sitemap and robots.txt are prerendered. wrangler.toml [vars]
+// only exist at Worker runtime, too late for any of those, so production builds
+// default to the live domain. Falling back to localhost there put
+// localhost og:image URLs in every page and broke all social embeds.
 export const baseUrl =
-  process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  process.env.NEXT_PUBLIC_BASE_URL ||
+  (process.env.NODE_ENV === "production"
+    ? "https://wiki.divineskins.gg"
+    : "http://localhost:3000");
 
 export const divineApiUrl =
   process.env.NEXT_PUBLIC_DIVINE_API_URL || "https://api.divineskins.gg";
