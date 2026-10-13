@@ -7,6 +7,18 @@ import { ogLanguageBlacklist } from "@/lib/i18n";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
+// Card geometry. The Figma frame ("Wiki Embed Banner") is 1920x1000; the card
+// renders it at 0.63 scale (1210x630) with 10px trimmed off the right edge of
+// the wing panel, so every design measurement below is `figmaPx * 0.63`.
+const WIDTH = 1200;
+const HEIGHT = 630;
+const PAD_X = 69; // 110
+const PAD_Y = 71; // 113 top / 112 bottom
+
+const WHITE = "#ffffff";
+const ACCENT = "#ab69ef";
+const MUTED = "#8b8d98";
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ lang: string; slug?: string[] }> },
@@ -17,133 +29,106 @@ export async function GET(
     return notFound();
   }
 
-  const page = source.getPage(slug, lang);
+  // Same English fallback as the docs page itself, so an untranslated page's
+  // card resolves instead of 404ing (its metadata still points here).
+  const page = source.getPage(slug, lang) ?? source.getPage(slug, "en");
   if (!page) return notFound();
 
   const origin = new URL(request.url).origin;
-  const [logoSrc, fonts] = await Promise.all([
-    loadLogoDataUri(origin),
+  const [background, logo, fonts] = await Promise.all([
+    loadImageDataUri(origin, "/og/docs-card-bg.jpg", "image/jpeg"),
+    loadImageDataUri(origin, "/og/docs-card-logo.png", "image/png"),
     loadFonts(origin),
   ]);
+
+  const title = page.data.title;
+  const description = page.data.description;
 
   return new ImageResponse(
     <div
       style={{
-        background:
-          "linear-gradient(135deg, #0b0a0f 0%, #15141c 50%, #111016 100%)",
-        color: "#e4e4e7",
-        height: "100%",
         width: "100%",
+        height: "100%",
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        padding: "96px",
-        fontFamily: "Manrope, sans-serif",
+        padding: `${PAD_Y}px ${PAD_X}px`,
+        background: "#0b0a0f",
         position: "relative",
       }}
     >
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: 6,
-          background: "#783cb5",
-          display: "flex",
-        }}
-      />
+      {/* Static art (liquid texture + wing panel), pre-flattened from Figma:
+          satori can't do its blend modes, rotations or blurred glows. */}
+      {background && (
+        <img
+          src={background}
+          width={WIDTH}
+          height={HEIGHT}
+          alt=""
+          style={{ position: "absolute", top: 0, left: 0 }}
+        />
+      )}
+
+      <div style={{ display: "flex", alignItems: "center", gap: 15 }}>
+        {logo && <img src={logo} width={42} height={35} alt="" />}
+        <div
+          style={{
+            display: "flex",
+            fontFamily: "Mozilla Headline",
+            fontWeight: 600,
+            fontSize: 30,
+            color: WHITE,
+            textTransform: "uppercase",
+          }}
+        >
+          Divine Skins&nbsp;<span style={{ color: ACCENT }}>Wiki</span>
+        </div>
+      </div>
 
       <div
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: "28px",
+          gap: 15,
+          width: 541, // 858
         }}
       >
-        <span
-          style={{
-            fontSize: 64,
-            fontWeight: 800,
-            color: "#ffffff",
-            lineHeight: 1.1,
-            letterSpacing: "-0.02em",
-          }}
-        >
-          {page.data.title}
-        </span>
         <div
           style={{
-            height: 2,
-            width: 280,
-            background: "#783cb5",
-            display: "flex",
+            display: "block",
+            fontFamily: "Mozilla Headline",
+            fontWeight: 600,
+            fontSize: titleFontSize(title),
+            lineHeight: 1.2,
+            color: WHITE,
+            textTransform: "uppercase",
+            lineClamp: 3,
           }}
-        />
-        {page.data.description && (
-          <span
-            style={{
-              fontSize: 32,
-              fontWeight: 400,
-              color: "#8b8d98",
-              lineHeight: 1.35,
-              marginTop: 8,
-            }}
-          >
-            {page.data.description}
-          </span>
-        )}
-      </div>
-
-      <div
-        style={{
-          display: "flex",
-          gap: "20px",
-          alignItems: "center",
-          fontSize: 36,
-          fontWeight: 700,
-        }}
-      >
-        {logoSrc ? (
-          <img
-            src={logoSrc}
-            width={64}
-            height={64}
-            alt="Divine Skins"
-            style={{ borderRadius: 12 }}
-          />
-        ) : (
+        >
+          {title}
+        </div>
+        {description && (
           <div
             style={{
-              width: 64,
-              height: 64,
-              borderRadius: 14,
-              background: "linear-gradient(135deg, #c084fc 0%, #783cb5 100%)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
+              display: "block",
+              fontFamily: "Instrument Sans",
+              fontWeight: 400,
+              fontSize: 25,
+              lineHeight: 1.2,
+              color: MUTED,
+              lineClamp: 3,
             }}
           >
-            <div
-              style={{
-                width: 18,
-                height: 18,
-                borderRadius: 9,
-                background: "#ecb96a",
-              }}
-            />
+            {description}
           </div>
         )}
-        <span style={{ color: "#ffffff", letterSpacing: "-0.01em" }}>
-          Divine Skins Wiki
-        </span>
       </div>
     </div>,
     {
-      // Supply Manrope (the brand hero font) explicitly. The card's CSS asks
-      // for `fontFamily: "Manrope"`, but satori only uses fonts handed to it,
-      // so without this the title renders in next/og's bundled fallback font.
-      // `undefined` (no font loaded) falls back to that default. See loadFonts.
+      width: WIDTH,
+      height: HEIGHT,
+      // satori only uses fonts handed to it; `undefined` (none loaded) falls
+      // back to next/og's bundled default font rather than throwing.
       ...(fonts ? { fonts } : {}),
       // Worker responses aren't edge-cached by Cloudflare, but social crawlers
       // and browsers honor this, so repeat shares don't re-render the image.
@@ -156,13 +141,25 @@ export async function GET(
 }
 
 /**
+ * The design sets titles at 63px (two lines in the 541px column). Step down
+ * for longer titles so they stay within three lines; lineClamp is the backstop.
+ */
+function titleFontSize(title: string): number {
+  const len = title.length;
+  if (len <= 28) return 63;
+  if (len <= 45) return 54;
+  if (len <= 64) return 46;
+  return 40;
+}
+
+/**
  * Reads a file from public/ at runtime. On Cloudflare Workers the Worker bundle
  * has no filesystem access to public/ — static assets are served from the edge,
  * not from the module's working directory — so a plain readFile throws there.
  * Fetch the asset over HTTP from our own origin first (works in every runtime),
  * and keep the filesystem read as a fallback for local tooling that renders
  * without a live origin. `publicPath` is the asset's URL path (e.g.
- * "/icon-192.png"); the filesystem fallback resolves it under public/.
+ * "/og/docs-card-logo.png"); the filesystem fallback resolves it under public/.
  */
 async function loadPublicAsset(
   origin: string,
@@ -189,30 +186,35 @@ async function loadPublicAsset(
   }
 }
 
-let cachedLogo: string | null | undefined;
+// Images must be PNG or JPEG, never WebP: the @vercel/og build that next/og
+// bundles has no WebP dimension parser, so embedding one throws
+// "u2 is not iterable" and aborts the whole image.
+const imageCache = new Map<string, string | null>();
 
-async function loadLogoDataUri(origin: string): Promise<string | null> {
-  if (cachedLogo !== undefined) return cachedLogo;
-  // Must be a PNG, not the WebP brand logo: the @vercel/og build that next/og
-  // bundles has no WebP dimension parser, so embedding a WebP throws
-  // "u2 is not iterable" and aborts the whole image. icon-192.png is the same
-  // mark and is plenty sharp for the 64px render. (This is why the logo was
-  // never the issue in prod — the failed readFile meant no <img> rendered at
-  // all, so the parser was never reached.)
-  const buf = await loadPublicAsset(origin, "/icon-192.png");
-  cachedLogo = buf
-    ? `data:image/png;base64,${Buffer.from(buf).toString("base64")}`
+async function loadImageDataUri(
+  origin: string,
+  publicPath: string,
+  mime: "image/png" | "image/jpeg",
+): Promise<string | null> {
+  const cached = imageCache.get(publicPath);
+  if (cached !== undefined) return cached;
+  const buf = await loadPublicAsset(origin, publicPath);
+  const uri = buf
+    ? `data:${mime};base64,${Buffer.from(buf).toString("base64")}`
     : null;
-  return cachedLogo;
+  imageCache.set(publicPath, uri);
+  return uri;
 }
 
-// Weights the card actually uses: 400 (description), 700 (footer), 800 (title).
-const FONT_WEIGHTS = [400, 700, 800] as const;
+const FONT_FILES = [
+  { name: "Mozilla Headline", weight: 600, file: "MozillaHeadline-600.ttf" },
+  { name: "Instrument Sans", weight: 400, file: "InstrumentSans-400.ttf" },
+] as const;
 
 type OgFont = {
   name: string;
   data: ArrayBuffer;
-  weight: (typeof FONT_WEIGHTS)[number];
+  weight: (typeof FONT_FILES)[number]["weight"];
   style: "normal";
 };
 
@@ -222,21 +224,14 @@ let cachedFonts: OgFont[] | null | undefined;
 async function loadFonts(origin: string): Promise<OgFont[] | undefined> {
   if (cachedFonts !== undefined) return cachedFonts ?? undefined;
   const loaded = await Promise.all(
-    FONT_WEIGHTS.map(async (weight) => {
-      const data = await loadPublicAsset(
-        origin,
-        `/fonts/Manrope-${weight}.ttf`,
-      );
-      return data
-        ? { name: "Manrope", data, weight, style: "normal" as const }
-        : null;
+    FONT_FILES.map(async ({ name, weight, file }): Promise<OgFont | null> => {
+      const data = await loadPublicAsset(origin, `/fonts/${file}`);
+      return data ? { name, data, weight, style: "normal" } : null;
     }),
   );
   const fonts = loaded.filter((font): font is OgFont => font !== null);
-  // If nothing loaded, return undefined rather than an empty array: an empty
-  // `fonts` array leaves satori with no typeface and throws, whereas omitting
-  // the option lets next/og fall back to its bundled default font (today's
-  // behavior). So the worst case is exactly what production renders now.
+  // An empty `fonts` array leaves satori with no typeface and throws, whereas
+  // omitting the option lets next/og fall back to its bundled default font.
   cachedFonts = fonts.length > 0 ? fonts : null;
   return cachedFonts ?? undefined;
 }
