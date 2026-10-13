@@ -96,8 +96,8 @@ const tones: Record<NonNullable<CalloutProps["type"]>, Tone> = {
 /**
  * Note panel on the divineskins.gg markdown callout palette. The body is
  * the wiki's neutral card (#121119 on #191722); color carries meaning
- * only: a straight full-height 2px accent bar as the left edge (left
- * corners square), the type's icon in the site's IconTile (40px raised
+ * only: a 2px accent left edge that follows the rounded corners, the
+ * type's icon in the site's IconTile (40px raised
  * square, #2A2638 → #191722, #17161C hairline, glyph in the IconTile
  * tone color), and a 14px semibold accent title centered on the tile, with the body
  * text running below it (the tile stays at the top for long callouts).
@@ -136,7 +136,7 @@ export function Callout({ type = "info", title, children }: CalloutProps) {
         } as CSSProperties
       }
     >
-      <span aria-hidden className="divine-callout-bar absolute w-0.5" />
+      <span aria-hidden className="divine-callout-bar absolute" />
       <span
         aria-hidden
         className={`divine-callout-icon divine-icon-${tone.gradient} flex size-10 shrink-0 items-center justify-center rounded-[12px] border border-[#17161C] bg-[linear-gradient(180deg,#2A2638_0%,#191722_100%)] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] [&_svg]:size-[18px]`}

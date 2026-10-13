@@ -2074,20 +2074,31 @@ figure.shiki .line:empty:not(:has(~ .line:not(:empty))) {
   margin-block: 1.75rem !important;
 }
 
-/* Callouts and blockquotes — the accent bar is the whole left edge:
-   full height and straight. The left corners are square so the bar never
-   curves; the right corners keep the 8px radius. */
+/* Callouts and blockquotes — all four corners share the 8px radius. The
+   accent is the 2px left border of an overlay covering the hairline with
+   the same radius, so it bends around the left corners and tapers into
+   the top and bottom edges instead of ending square. */
 .divine-callout,
 .prose blockquote {
-  border-top-left-radius: 0 !important;
-  border-bottom-left-radius: 0 !important;
   overflow: visible !important;
 }
 .divine-callout-bar,
 .dark:not(.minimal) .prose blockquote::before {
-  top: -1px !important;
-  bottom: -1px !important;
-  left: -1px !important;
+  inset: -1px !important;
+  width: auto !important;
+  border-left: 2px solid;
+  border-radius: inherit;
+  background: none !important;
+  pointer-events: none;
+}
+.divine-callout-bar {
+  border-left-color: var(--callout-accent);
+}
+.minimal .divine-callout-bar {
+  border-left-color: var(--color-divine-border);
+}
+.dark:not(.minimal) .prose blockquote::before {
+  border-left-color: #783cb5;
 }
 
 /* Nested folder rows (e.g. Tools › Modding apps) are buttons without
@@ -2119,14 +2130,123 @@ figure.shiki .line:empty:not(:has(~ .line:not(:empty))) {
   color: #e4e4e7;
 }
 
+/* Folder tree — every expanded folder draws its own guide line, and rows
+   inside a folder drop the filled pill for a flat tree: hover brightens
+   the label and the row's slice of its guide line, the active page lights
+   that slice purple. Fumadocs only lines the first level (10px); deeper
+   levels follow its 12px indent step, keyed off the inline padding it
+   sets per depth (5 / 8 / 11 × spacing). The doubled id outranks the
+   !important pill rules in the dark sidebar block above; it shares their
+   layer because a layered !important beats an unlayered one. The bar
+   geometry is !important too, since fumadocs' active-bar utilities sit
+   in the later utilities layer. */
+@layer components {
+  #nd-sidebar#nd-sidebar
+    [class*="before:bg-fd-border"]
+    div.relative.overflow-hidden::before,
+  #nd-sidebar#nd-sidebar
+    [class*="before:bg-fd-border"]
+    div.relative.overflow-hidden
+    div.relative.overflow-hidden::before {
+    content: "";
+    position: absolute;
+    inset-block: 0.25rem;
+    inset-inline-start: 22px;
+    width: 1px;
+    background: var(--color-fd-border);
+  }
+  #nd-sidebar#nd-sidebar
+    [class*="before:bg-fd-border"]
+    div.relative.overflow-hidden
+    div.relative.overflow-hidden::before {
+    inset-inline-start: 34px;
+  }
+
+  #nd-sidebar#nd-sidebar
+    [class*="before:bg-fd-border"]
+    :is(a[data-active], button[aria-expanded]) {
+    background: transparent !important;
+    border-color: transparent !important;
+    font-weight: 500;
+  }
+  #nd-sidebar#nd-sidebar
+    [class*="before:bg-fd-border"]
+    :is(a[data-active], button[aria-expanded])::before {
+    content: "" !important;
+    display: block !important;
+    position: absolute;
+    inset-block: 0 !important;
+    inset-inline-start: 9.5px !important;
+    width: 2px !important;
+    border-radius: 0;
+    background: transparent;
+    transition: background-color 200ms;
+  }
+  #nd-sidebar#nd-sidebar
+    [class*="before:bg-fd-border"]
+    :is(
+      a[data-active],
+      button[aria-expanded]
+    )[style*="calc(8 * var(--spacing))"]::before {
+    inset-inline-start: 21.5px !important;
+  }
+  #nd-sidebar#nd-sidebar
+    [class*="before:bg-fd-border"]
+    :is(
+      a[data-active],
+      button[aria-expanded]
+    )[style*="calc(11 * var(--spacing))"]::before {
+    inset-inline-start: 33.5px !important;
+  }
+  #nd-sidebar#nd-sidebar
+    [class*="before:bg-fd-border"]
+    :is(a[data-active], button[aria-expanded]):hover {
+    color: var(--color-fd-foreground) !important;
+  }
+  #nd-sidebar#nd-sidebar
+    [class*="before:bg-fd-border"]
+    :is(a[data-active="false"], button[aria-expanded]):hover::before {
+    background: var(--color-fd-muted-foreground);
+  }
+  #nd-sidebar#nd-sidebar [class*="before:bg-fd-border"] a[data-active="true"] {
+    color: var(--color-fd-foreground) !important;
+    font-weight: 600;
+  }
+  #nd-sidebar#nd-sidebar
+    [class*="before:bg-fd-border"]
+    a[data-active="true"]::before {
+    background: var(--color-fd-primary);
+  }
+
+  .dark:not(.minimal)
+    #nd-sidebar#nd-sidebar
+    [class*="before:bg-fd-border"]
+    div.relative.overflow-hidden::before {
+    background: #25222f;
+  }
+  .dark:not(.minimal)
+    #nd-sidebar#nd-sidebar
+    [class*="before:bg-fd-border"]
+    :is(a[data-active="false"], button[aria-expanded]):hover::before {
+    background: #4a4458;
+  }
+  .dark:not(.minimal)
+    #nd-sidebar#nd-sidebar
+    [class*="before:bg-fd-border"]
+    a[data-active="true"] {
+    color: #ffffff !important;
+  }
+  .dark:not(.minimal)
+    #nd-sidebar#nd-sidebar
+    [class*="before:bg-fd-border"]
+    a[data-active="true"]::before {
+    background: #c084fc;
+  }
+}
+
 /* Callout v2 — neutral card body in the Divine style, color only on the
    bar, the icon tile and the title. Light / Minimal keep the tinted
    panel from the base rules. */
-.divine-callout-bar {
-  top: -1px;
-  bottom: -1px;
-  left: -1px;
-}
 /* Icon: the site's IconTile surface (set in Callout.tsx), glyph in the
    IconTile tone color for the callout type. */
 .divine-callout-icon {
