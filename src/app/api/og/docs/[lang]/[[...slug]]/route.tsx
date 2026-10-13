@@ -192,7 +192,10 @@ async function loadPublicAsset(
   }
 }
 
-function getAssetsBinding(): Fetcher | undefined {
+// Return type is inferred on purpose: `Fetcher` comes from the git-ignored
+// cloudflare-env.d.ts, so naming it breaks type-checking on a fresh checkout
+// (which is what Workers Builds uses).
+function getAssetsBinding() {
   try {
     return getCloudflareContext().env.ASSETS;
   } catch {
