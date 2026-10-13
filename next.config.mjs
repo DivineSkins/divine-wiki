@@ -68,6 +68,12 @@ const config = {
     const locale = "en|fr-FR|tr-TR|pt-BR|pl-PL|vi-VN";
     return [
       {
+        source: `/:lang(${locale})/docs/lol/tools/how-to-make-your-thumbnail-in-flint`,
+        destination:
+          "/:lang/docs/lol/assets-library/how-to-make-your-thumbnail-in-flint",
+        permanent: true,
+      },
+      {
         source: "/docs/:path*",
         destination: "/en/docs/:path*",
         permanent: false,
