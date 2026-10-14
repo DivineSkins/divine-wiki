@@ -11,6 +11,8 @@ import { LevelPill } from "@/components/mdx/LevelPill";
 import { ToolCard } from "@/components/mdx/ToolCard";
 import { Icon } from "@/components/icon";
 import * as TabsComponents from "fumadocs-ui/components/tabs";
+import { Steps, Step } from "fumadocs-ui/components/steps";
+import { Files, Folder, File } from "fumadocs-ui/components/files";
 import { Accordions, Accordion } from "@/components/mdx/Accordions";
 import { CodeBlock } from "@/components/mdx/CodeBlock";
 
@@ -19,6 +21,11 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     ...defaultMdxComponents,
     ...components,
     ...TabsComponents,
+    Steps,
+    Step,
+    Files,
+    Folder,
+    File,
     Accordions,
     Accordion,
     Callout,
