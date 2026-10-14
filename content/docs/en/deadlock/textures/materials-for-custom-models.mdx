@@ -7,11 +7,14 @@ patch: "6779"
 
 <LevelPill level="intermediate" />
 
-Make new materials for your own model so it looks like it belongs in Deadlock. You build them in CSDK 12's Material Editor and assign them in ModelDoc. Your model should already open in ModelDoc: see [Your first model swap](/docs/deadlock/models/prop-swap) or [Hero swap part 2](/docs/deadlock/models/hero-swap-modeldoc).
+Make new materials for your own model so it looks like it belongs in Deadlock. You build them in CSDK 12's Material Editor and assign them in ModelDoc. Your model should already open in ModelDoc. [Your first model swap](/docs/deadlock/models/prop-swap) shows how for a simple model, and the hero swap guides cover heroes.
 
 ## What you need
 
-- [CSDK 12](/docs/deadlock/tools/csdk-12) with your model's addon.
+<ToolCard name="CSDK 12" href="/docs/deadlock/tools/csdk-12">
+  Has the Material Editor and ModelDoc. Use your model's addon.
+</ToolCard>
+
 - Your textures as PNG files. Use power-of-two sizes, such as 1024 x 1024 or 2048 x 2048.
 - The material names you used in Blender.
 
@@ -32,7 +35,12 @@ Pugzilla shows the materials part of a hero swap from 23:17 in this video. It wa
   start={1397}
 />
 
-## Make a new material
+## Build the material
+
+<Steps>
+<Step>
+
+### Make a new material
 
 1. Launch the tools for your addon. In the Asset Browser, click **Material Editor**.
 2. Choose **File > New**.
@@ -45,7 +53,10 @@ The game's own config names a different default shader for new materials, so che
 
 {/* SCREENSHOT: deadlock-textures-materials-for-custom-models-2.webp, the Material Editor File menu with New, and the shader field set to pbr.vfx */}
 
-## Add your textures
+</Step>
+<Step>
+
+### Add your textures
 
 Copy your PNG files into the same `materials` folder. Give each one the ending its slot expects:
 
@@ -68,7 +79,10 @@ The file picker filters by these endings. If a file does not show up, rename it,
 
 {/* SCREENSHOT: deadlock-textures-materials-for-custom-models-3.webp, the texture picker with the filter switched to All images */}
 
-## Turn on the required settings
+</Step>
+<Step>
+
+### Turn on the required settings
 
 Tick both of these on every material:
 
@@ -81,7 +95,10 @@ Use Status Effects Proxy only works with Use NPR Lighting on.
 
 {/* SCREENSHOT: deadlock-textures-materials-for-custom-models-4.webp, the Material Editor feature checkboxes with Use NPR Lighting and Use Status Effects Proxy ticked */}
 
-## Optional settings
+</Step>
+<Step>
+
+### Pick optional settings
 
 <Callout type="danger" title="Glow and see-through settings change visibility">
   Your skin shows on every player who picks that hero, enemies included. Never
@@ -101,9 +118,12 @@ Use Status Effects Proxy only works with Use NPR Lighting on.
 
 {/* NEEDS HANDS-ON TEST: what Write Depth Before Alpha Blending does on an opaque material, and whether the fading artifacts need it (conflict C39). */}
 
-The [hero material settings reference](/docs/deadlock/textures/material-reference) lists every other setting.
+The hero material settings reference, under Next steps, lists every other setting.
 
-## Assign it in ModelDoc
+</Step>
+<Step>
+
+### Assign it in ModelDoc
 
 1. Save the material and close the Material Editor.
 2. Open your model in ModelDoc.
@@ -113,6 +133,16 @@ The [hero material settings reference](/docs/deadlock/textures/material-referenc
 6. Click **Compile**. A red mesh means a slot still has no material.
 
 {/* SCREENSHOT: deadlock-textures-materials-for-custom-models-5.webp, ModelDoc's DefaultMaterialGroup with each slot pointing to a vmat in the addon's materials folder */}
+
+</Step>
+<Step>
+
+### Ship the right files
+
+Ship the compiled `.vmat_c` and every new `.vtex_c` from your addon's game folder, at the same paths. Compiled textures get a code in their name, like `body_color_png_63291cfb.vtex_c`. The material points to that exact name, so a material without its textures shows the error checkerboard in game. Then follow [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
+
+</Step>
+</Steps>
 
 ## Reuse the hero's own materials
 
@@ -127,25 +157,60 @@ Your new model can use materials that already ship with the game. Pugzilla's met
 
 To edit a hero's materials instead, decompile the hero's whole `materials` folder into your addon at the same path. Then work on them like in [Retexture a hero](/docs/deadlock/textures/retexture).
 
-## Ship the right files
-
-Ship the compiled `.vmat_c` and every new `.vtex_c` from your addon's game folder, at the same paths. Compiled textures get a code in their name, like `body_color_png_63291cfb.vtex_c`. The material points to that exact name, so a material without its textures shows the error checkerboard in game. Then follow [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
-
 ## Common problems
 
-- **Shiny plastic look.** Set Roughness to pure white.
-- **Veil Walker and other effects are missing on your skin.** Tick Use Status Effects Proxy.
-- **Purple or black checkerboard in the editor.** A texture path broke. Click the magnifier on that slot and pick the image again.
-- **A texture is missing from the picker.** Rename it with the slot's ending, or switch the filter to **All images**.
-- **A slot in ModelDoc has no name.** The Blender material name ends in `.001` or similar. Rename it, export again, and compile.
-- **Red mesh in ModelDoc.** A slot has no material yet.
-- **It looks different in game.** Source 2 Viewer's preview does not match Deadlock's lighting yet. Always check in game.
+<Accordions>
+<Accordion title="Shiny plastic look">
+
+Set Roughness to pure white.
+
+</Accordion>
+<Accordion title="Veil Walker and other effects are missing on your skin">
+
+Tick Use Status Effects Proxy.
+
+</Accordion>
+<Accordion title="Purple or black checkerboard in the editor">
+
+A texture path broke. Click the magnifier on that slot and pick the image again.
+
+</Accordion>
+<Accordion title="A texture is missing from the picker">
+
+Rename it with the slot's ending, or switch the filter to **All images**.
+
+</Accordion>
+<Accordion title="A slot in ModelDoc has no name">
+
+The Blender material name ends in `.001` or similar. Rename it, export again, and compile.
+
+</Accordion>
+<Accordion title="Red mesh in ModelDoc">
+
+A slot has no material yet.
+
+</Accordion>
+<Accordion title="It looks different in game">
+
+Source 2 Viewer's preview does not match Deadlock's lighting yet. Always check in game.
+
+</Accordion>
+</Accordions>
 
 ## Next steps
 
-- [Hero swap part 2: build the model in ModelDoc](/docs/deadlock/models/hero-swap-modeldoc)
-- [Retexture a hero](/docs/deadlock/textures/retexture)
-- [Hero material settings reference](/docs/deadlock/textures/material-reference)
+<ToolCard
+  name="Hero swap part 2: build the model in ModelDoc"
+  href="/docs/deadlock/models/hero-swap-modeldoc"
+>
+  Swap in your meshes and rebuild material groups, the ragdoll, and LODs.
+</ToolCard>
+<ToolCard
+  name="Hero material settings reference"
+  href="/docs/deadlock/textures/material-reference"
+>
+  Every setting and texture slot in the hero shader, in plain English.
+</ToolCard>
 
 ## Credits
 

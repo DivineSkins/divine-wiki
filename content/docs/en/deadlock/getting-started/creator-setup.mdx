@@ -20,17 +20,26 @@ This guide installs the two tools almost every Deadlock mod needs and creates yo
 
 Valve has not released modding tools for Deadlock, so creators use two free community tools. [Tools overview](/docs/deadlock/tools) lists the others.
 
-| Tool            | What it does                                                                                                         |
-| --------------- | -------------------------------------------------------------------------------------------------------------------- |
-| Source 2 Viewer | Opens the game's files. Previews models, textures, and sounds. Turns compiled files back into files you can edit.    |
-| CSDK 12         | Valve's Source 2 tools, adapted for Deadlock by the community. Compiles your edited files so the game can read them. |
+<ToolCard name="Source 2 Viewer" href="/docs/deadlock/tools/source-2-viewer">
+  Opens the game's files. Previews models, textures, and sounds. Turns compiled
+  files back into files you can edit.
+</ToolCard>
+<ToolCard name="CSDK 12" href="/docs/deadlock/tools/csdk-12">
+  Valve's Source 2 tools, adapted for Deadlock by the community. Compiles your
+  edited files so the game can read them.
+</ToolCard>
 
 ## Want to try first? Use a browser tool
 
 Two unofficial community tools build simple mods in your browser and give you a ready VPK file:
 
-- [Deadlock Forge](https://deadlockforge.net/) by Sirsyorrz: sounds, hero portraits, ability icons, and item art.
-- [DeadMod](https://redmser.github.io/DeadMod/) by RedMser: textures. You still need Source 2 Viewer to get the original texture.
+<ToolCard name="Deadlock Forge" href="https://deadlockforge.net/">
+  By Sirsyorrz. Sounds, hero portraits, ability icons, and item art.
+</ToolCard>
+<ToolCard name="DeadMod" href="https://redmser.github.io/DeadMod/">
+  By RedMser. Textures. You still need Source 2 Viewer to get the original
+  texture.
+</ToolCard>
 
 <img
   src="/wiki-images/deadlock-getting-started-creator-setup-1.webp"
@@ -44,9 +53,14 @@ Two unofficial community tools build simple mods in your browser and give you a 
 
 They only cover simple swaps. Install their VPK like any other mod. [Make mods without installing tools](/docs/deadlock/tools/browser-builders) shows how to use them. {/* NEEDS HANDS-ON TEST: a Deadlock Forge mod and a DeadMod mod both still load on build 6779 */}
 
-## Install Source 2 Viewer
+## Install the tools
 
-Source 2 Viewer is free and open source (MIT), made by the ValveResourceFormat team. [Source 2 Viewer](/docs/deadlock/tools/source-2-viewer) covers it in depth.
+<Steps>
+<Step>
+
+### Install Source 2 Viewer
+
+Source 2 Viewer is free and open source (MIT), made by the ValveResourceFormat team.
 
 1. Open [s2v.app](https://s2v.app/) in your browser.
 2. Click **Download dev build**, the small link under the main download button. Deadlock fixes land in the dev build first, and current guides use it. If you pick the normal release, use version 20.0 or newer.
@@ -60,7 +74,10 @@ Source 2 Viewer is free and open source (MIT), made by the ValveResourceFormat t
 
 {/* NEEDS HANDS-ON TEST: whether the dev build downloads as a zip or a single exe */}
 
-## Install CSDK 12
+</Step>
+<Step>
+
+### Install CSDK 12
 
 <Callout type="warning" title="CSDK 12 is an unofficial community tool">
   Valve did not make CSDK 12 and does not support it. It repackages files from
@@ -80,11 +97,12 @@ Source 2 Viewer is free and open source (MIT), made by the ValveResourceFormat t
 
 Never unzip it on your Desktop or in Documents. OneDrive often syncs those folders, and that breaks the tools. Keep it out of the Deadlock game folder too: a reinstall can delete it, and it gets mixed up with real game files.
 
-[CSDK 12](/docs/deadlock/tools/csdk-12) covers the tool in depth.
-
 {/* NEEDS HANDS-ON TEST: CSDK 12 still opens and compiles against game build 6779 (gap G02) */}
 
-## First launch
+</Step>
+<Step>
+
+### First launch
 
 1. Start Steam. CSDK 12 does not open without it.
 2. Open `csdkcfg.exe` in your `Reduced_CSDK_12` folder. This is the launcher, also called the Configuration Tool. {/* NEEDS HANDS-ON TEST: launcher exe name in the current zip (conflict C22). Older guides open game\bin\win64\Deadlock_with_tools.exe instead */}
@@ -94,16 +112,21 @@ Older downloads used a different launcher name. If `csdkcfg.exe` is missing, che
 
 The binary picker has four choices:
 
-- `bin`: the normal tools. Use this one.
-- `bin_tools`: previews some particle effects that crash `bin`, but crashes on some model compiles. Switch back after.
-- `bin_server`: needs the full game files you skipped. It will not start without them.
-- `bin_cs2`: only for compiling maps.
+| Choice       | What it does                                                                                            |
+| ------------ | ------------------------------------------------------------------------------------------------------- |
+| `bin`        | The normal tools. Use this one.                                                                         |
+| `bin_tools`  | Previews some particle effects that crash `bin`, but crashes on some model compiles. Switch back after. |
+| `bin_server` | Needs the full game files you skipped. It will not start without them.                                  |
+| `bin_cs2`    | Only for compiling maps.                                                                                |
 
 Leave the **No Addon** launch option off. That mode can overwrite the tool's own base files.
 
 {/* NEEDS HANDS-ON TEST: whether the "Fix Models" checkbox is in the current launcher, and whether running bin_tools once as admin makes the tools start faster (one source says yes) */}
 
-## Create your first addon
+</Step>
+<Step>
+
+### Create your first addon
 
 An addon is the project folder for one mod.
 
@@ -118,16 +141,21 @@ An addon is the project folder for one mod.
 
 Right-click an addon in the launcher to see its menu:
 
-- **Explore Content Folder**: opens the folder for your source files.
-- **Explore Game Folder**: opens the folder for your compiled files.
-- **Duplicate**: copies an addon, such as a template.
-- **Compile All Assets**: compiles every file in the addon.
-- **Create VPK**: packs the addon. [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk) uses a different, tested method.
-- **Delete**: removes the addon.
+| Menu item                  | What it does                                                                                                   |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **Explore Content Folder** | Opens the folder for your source files.                                                                        |
+| **Explore Game Folder**    | Opens the folder for your compiled files.                                                                      |
+| **Duplicate**              | Copies an addon, such as a template.                                                                           |
+| **Compile All Assets**     | Compiles every file in the addon.                                                                              |
+| **Create VPK**             | Packs the addon. [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk) uses a different, tested method. |
+| **Delete**                 | Removes the addon.                                                                                             |
 
 CSDK 12 also ships template addons, such as a Billy audio template and a hero image template. The first-mod guides show when to use them.
 
 {/* SCREENSHOT: the addon right-click menu in the launcher. File: deadlock-getting-started-creator-setup-7.webp */}
+
+</Step>
+</Steps>
 
 ## Content folder and game folder
 
@@ -150,13 +178,30 @@ Three rules:
 
 Any editor that saves the right file types works. These are free:
 
-- [GIMP](https://www.gimp.org/) for images. Photoshop works too. Save as PNG, TGA, or PSD.
-- [Audacity](https://www.audacityteam.org/) for sounds. Export as WAV or MP3.
-- [Notepad++](https://notepad-plus-plus.org/) or [VS Code](https://code.visualstudio.com/) for small text edits in tool files.
+<ToolCard name="GIMP" href="https://www.gimp.org/" badge="Free">
+  Images. Photoshop works too. Save as PNG, TGA, or PSD.
+</ToolCard>
+<ToolCard name="Audacity" href="https://www.audacityteam.org/" badge="Free">
+  Sounds. Export as WAV or MP3.
+</ToolCard>
+<ToolCard name="Notepad++" href="https://notepad-plus-plus.org/" badge="Free">
+  Small text edits in tool files.
+</ToolCard>
+<ToolCard name="VS Code" href="https://code.visualstudio.com/" badge="Free">
+  Small text edits in tool files, if you prefer it to Notepad++.
+</ToolCard>
 
 ## Later: Blender for model swaps
 
-You do not need Blender for sounds, recolors, or icons. For model swaps, install [Blender](https://www.blender.org/download/) 5.x and FellOffFuji's [BlenderSource2Tools](https://github.com/FellOffFuji/BlenderSource2Tools) add-on, which exports your model in the DMX format the tools read. [Blender and add-ons](/docs/deadlock/tools/blender-add-ons) has the setup.
+You do not need Blender for sounds, recolors, or icons. For model swaps, install Blender 5.x and FellOffFuji's BlenderSource2Tools add-on, which exports your model in the DMX format the tools read.
+
+<ToolCard
+  name="Blender and add-ons"
+  href="/docs/deadlock/tools/blender-add-ons"
+  badge="Later"
+>
+  Downloads and setup for Blender and BlenderSource2Tools.
+</ToolCard>
 
 {/* NEEDS HANDS-ON TEST: BlenderSource2Tools 3.3.1_2f on Blender 5.2 LTS */}
 
@@ -165,7 +210,7 @@ You do not need Blender for sounds, recolors, or icons. For model swaps, install
 Test both tools before you start a mod.
 
 1. Open Source 2 Viewer and click **File > Open**.
-2. Open `game/citadel/pak01_dir.vpk` in your [Deadlock folder](/docs/deadlock/getting-started/install-by-hand#find-your-deadlock-folder).
+2. Open `game/citadel/pak01_dir.vpk` in your Deadlock folder. In Steam, **Manage > Browse local files** opens that folder.
 3. Open only `pak01_dir.vpk`. Source 2 Viewer reads the numbered `pak01_000.vpk` files with it.
 4. Expand `sounds` or `panorama` and double-click a file to preview it.
 5. Open the CSDK 12 launcher, select your addon, and click **Launch Tools**.
@@ -185,8 +230,29 @@ If both tools open, you are ready for your first mod.
 
 ## Next steps
 
-- Learn how the game loads your files: [How Deadlock mods work](/docs/deadlock/basics/how-mods-work).
-- Make your first mod: [Replace a sound](/docs/deadlock/sounds/replace-a-sound), [Recolor with material values](/docs/deadlock/textures/recolor-a-material), or [Replace portraits, icons, and item art](/docs/deadlock/ui/portraits-and-icons).
+Make your first mod:
+
+<ToolCard
+  name="Replace a sound"
+  href="/docs/deadlock/sounds/replace-a-sound"
+  badge="Start here"
+>
+  Swap one ability sound or music track.
+</ToolCard>
+<ToolCard
+  name="Recolor with material values"
+  href="/docs/deadlock/textures/recolor-a-material"
+>
+  Change a hero's colors without painting a texture.
+</ToolCard>
+<ToolCard
+  name="Replace portraits, icons, and item art"
+  href="/docs/deadlock/ui/portraits-and-icons"
+>
+  Swap hero portraits, ability icons, and item art.
+</ToolCard>
+
+Want to know how the game loads your files first? Read [How Deadlock mods work](/docs/deadlock/basics/how-mods-work).
 
 ## Credits
 

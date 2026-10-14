@@ -7,7 +7,7 @@ patch: "6779"
 
 <LevelPill level="advanced" />
 
-Part 2 of 4. You start with the hero's decompiled `.vmdl` and your DMX files from [part 1](/docs/deadlock/models/hero-swap-blender). You finish with a model that compiles in CSDK 12, with your meshes, materials, bodygroups, ragdoll, and LODs. The whole path is in [Hero model swap: overview](/docs/deadlock/models/hero-model-swap).
+Part 2 of 4. You start with the hero's decompiled `.vmdl` and your DMX files from part 1. You finish with a model that compiles in CSDK 12, with your meshes, materials, bodygroups, ragdoll, and LODs. The whole path is in [Hero model swap: overview](/docs/deadlock/models/hero-model-swap).
 
 <img
   src="/wiki-images/deadlock-models-hero-swap-modeldoc-1.webp"
@@ -16,11 +16,16 @@ Part 2 of 4. You start with the hero's decompiled `.vmdl` and your DMX files fro
 
 ## What you need
 
+<ToolCard name="CSDK 12" href="/docs/deadlock/tools/csdk-12">
+  ModelDoc builds the model.
+</ToolCard>
+<ToolCard name="Source 2 Viewer" href="/docs/deadlock/tools/source-2-viewer">
+  Shows the original hero, so you can compare.
+</ToolCard>
+
 - Your addon from part 1: the decompiled `viper.vmdl` and your DMX files in its `dmx` folder.
-- [CSDK 12](/docs/deadlock/tools/csdk-12).
 - A text editor, such as Notepad++ or VS Code.
-- Source 2 Viewer, to look at the original hero.
-- Materials for your mesh. [Materials for custom models](/docs/deadlock/textures/materials-for-custom-models) shows how to make them.
+- Materials for your mesh. The materials step below shows where to make them.
 
 ## Watch the walkthrough
 
@@ -54,7 +59,12 @@ A hero `.vmdl` is a tree of nodes. This part replaces some, rebuilds some, and k
 | `AttachmentList`, `GameDataList`   | Camera points, health bar, sounds   | Keep. Part 3 checks them                       |
 | `NmSkeletonList`, `AnimGraph2List` | Links to the hero's animations      | Delete now. Part 4 adds them back              |
 
-## Remove the AnimGraph 2 lines
+## Build the model
+
+<Steps>
+<Step>
+
+### Remove the AnimGraph 2 lines
 
 Source 2 Viewer 19.1 and newer write two animation nodes into a decompiled hero. CSDK 12 cannot read them, so it crashes or refuses to open the model.
 
@@ -70,7 +80,10 @@ Do this even if your build does not crash. It costs nothing, because part 4 adds
 
 {/* SCREENSHOT: deadlock-models-hero-swap-modeldoc-2.webp, the decompiled .vmdl in a text editor with the NmSkeletonList and AnimGraph2List blocks highlighted */}
 
-## Open the model in ModelDoc
+</Step>
+<Step>
+
+### Open the model in ModelDoc
 
 1. Open the CSDK 12 launcher, select your addon, and click **Launch Tools**.
 2. In the Asset Browser, search for `vmdl` and find `viper.vmdl`.
@@ -88,7 +101,10 @@ The fresh file avoids skeleton and physics crashes. The work name also protects 
 
 {/* SCREENSHOT: deadlock-models-hero-swap-modeldoc-3.webp, the ModelDoc node tree of viper_work.vmdl with the main lists expanded */}
 
-## Clear out the old meshes
+</Step>
+<Step>
+
+### Clear out the old meshes
 
 1. Open `RenderMeshList`. Delete the LOD meshes. Their names contain `_lod`.
 2. Select the original body meshes and click **Disable**. You delete them in the next section.
@@ -97,7 +113,10 @@ The fresh file avoids skeleton and physics crashes. The work name also protects 
 
 Pocket and Haze need some of these animations for their particles. For them, disable the entries instead of deleting them.
 
-## Add your meshes
+</Step>
+<Step>
+
+### Add your meshes
 
 1. Right-click `RenderMeshList` and choose **Add Meshes**.
 2. Pick your DMX files from the `dmx` folder.
@@ -105,7 +124,7 @@ Pocket and Haze need some of these animations for their particles. For them, dis
 4. Click an original mesh and copy its name, such as `viper` or `gun`.
 5. Delete that original mesh.
 6. Click your matching new mesh. Its name field reads "Anonymous". Paste the original name there.
-7. Repeat steps 4 to 6 for every mesh, then click **Compile**.
+7. Repeat the copy, delete, and rename for every mesh, then click **Compile**.
 
 Names matter. Bodygroups and game events find meshes by name. Delete the original before you rename, or ModelDoc reports a name clash.
 
@@ -115,7 +134,10 @@ If your mesh is tiny or turned, fix it in Blender and export again. Do not fix i
 
 {/* SCREENSHOT: deadlock-models-hero-swap-modeldoc-4.webp, the RenderMeshList right-click menu with Add Meshes, and the renamed mesh named like the original */}
 
-## Rebuild the bodygroups
+</Step>
+<Step>
+
+### Rebuild the bodygroups
 
 Bodygroups switch parts of the model on and off. The first choice of the `default` group is the normal look. Other groups react to abilities and game events, such as Pocket's frog. The decompiled bodygroups do not work, so you rebuild them with the same names.
 
@@ -134,7 +156,10 @@ Vyper needs little here. Heroes like Pocket have several groups.
 
 {/* SCREENSHOT: deadlock-models-hero-swap-modeldoc-5.webp, a BodyGroup named default with a choice holding the renamed meshes */}
 
-## Set the materials
+</Step>
+<Step>
+
+### Set the materials
 
 1. Choose **Add > DefaultMaterialGroup**.
 2. Click **Compile**. One slot appears for each material name from Blender.
@@ -144,7 +169,10 @@ Vyper needs little here. Heroes like Pocket have several groups.
 
 A slot is missing? That material ends in `.001` in Blender. Rename it, then export again.
 
-## Build the ragdoll
+</Step>
+<Step>
+
+### Build the ragdoll
 
 The ragdoll is the body that falls when the hero dies.
 
@@ -158,7 +186,10 @@ The ragdoll is the body that falls when the hero dies.
 
 {/* SCREENSHOT: deadlock-models-hero-swap-modeldoc-6.webp, a new biped ragdoll in ModelDoc with Simulate All Physics running */}
 
-## Make LODs
+</Step>
+<Step>
+
+### Make LODs
 
 LODs are simpler copies of your mesh. The game shows them when the hero is far away.
 
@@ -171,7 +202,10 @@ You can also model your own LOD meshes. One current mod uses hand-made LODs at t
 
 {/* SCREENSHOT: deadlock-models-hero-swap-modeldoc-7.webp, the second LODGroup with Switch Threshold 14, Copy and Simplify ticked, and target triangle percent 0.5 */}
 
-## Compile and fix errors
+</Step>
+<Step>
+
+### Compile and fix errors
 
 1. Click **Compile**.
 2. Read every error and fix it.
@@ -187,10 +221,18 @@ Do not test in game yet. Without part 4, the hero stands in an A-pose and does n
 
 Want moving hair or a coat? Add it now with [Add cloth to a model](/docs/deadlock/models/cloth).
 
+</Step>
+</Steps>
+
 ## Next steps
 
-- [Hero swap part 3: attachments, camera, and game data](/docs/deadlock/models/hero-swap-attachments)
-- [Model and skin problems](/docs/deadlock/errors/model-problems)
+<PremiumCard
+  title="Hero swap part 3: attachments, camera, and game data"
+  href="/docs/deadlock/models/hero-swap-attachments"
+>
+  Copy the original hero's attachments, camera previews, and game data so the
+  camera, health bar, and sounds work.
+</PremiumCard>
 
 ## Credits
 

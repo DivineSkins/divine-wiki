@@ -7,7 +7,7 @@ patch: "6779"
 
 <LevelPill level="advanced" />
 
-A hero model swap puts your own character on a Deadlock hero. It is the biggest mod you can make: four parts, four tools, and a lot of checking. This page shows the whole path and the rules. Do [your first model swap](/docs/deadlock/models/prop-swap) before you start.
+A hero model swap puts your own character on a Deadlock hero. It is the biggest mod you can make: four parts, four tools, and a lot of checking. This page shows the whole path and the rules.
 
 ## What a hero swap is
 
@@ -19,8 +19,23 @@ Like every mod, it only changes your game. You see your skin on every player who
 
 ## Before you start
 
-- Finish the [soul container swap](/docs/deadlock/models/prop-swap). It teaches ModelDoc and the Material Editor on a small model.
-- Learn the [Blender import](/docs/deadlock/models/import-into-blender).
+Do these two guides first.
+
+<ToolCard
+  name="Your first model swap: a soul container"
+  href="/docs/deadlock/models/prop-swap"
+>
+  Teaches ModelDoc and the Material Editor on a small model.
+</ToolCard>
+<ToolCard
+  name="Import a Deadlock model into Blender"
+  href="/docs/deadlock/models/import-into-blender"
+>
+  Gets the hero into Blender at the right size and facing.
+</ToolCard>
+
+Then plan the work:
+
 - Plan a dry run. Pugzilla runs all four parts once with the unchanged hero mesh, then swaps in the new mesh. It proves your setup works before you put work into your own model.
 - Pick an easy hero. Pugzilla learns on Vyper, whose model has few special parts. The video also notes two special cases. Pocket and Haze keep some animations in their model for particles. Haze also needs extra material groups for invisibility.
 - Use your own design. Characters ported from other games, films, or anime carry copyright risk. See [Credits, licenses, and permissions](/docs/deadlock/publishing/credits-and-licenses).
@@ -31,13 +46,28 @@ On build 6779, Violet and Nurse Harrow have no AnimGraph 2 graph of their own. P
 
 ### Tools
 
-| Tool                                                                    | Used in              | What for                                 |
-| ----------------------------------------------------------------------- | -------------------- | ---------------------------------------- |
-| [Source 2 Viewer](/docs/deadlock/tools/source-2-viewer), 20.0 or newer  | Start, parts 3 and 4 | Export the hero and read original values |
-| [Blender and BlenderSource2Tools](/docs/deadlock/tools/blender-add-ons) | Part 1               | Rig your mesh and export DMX             |
-| [CSDK 12](/docs/deadlock/tools/csdk-12): ModelDoc and Material Editor   | Parts 2, 3           | Build the model and its materials        |
-| [CS2 Workshop Tools](/docs/deadlock/tools/cs2-workshop-tools), free     | Part 4               | Add the AnimGraph 2 links and compile    |
-| A text editor, such as Notepad++                                        | Parts 2 to 4         | Edit the `.vmdl` file by hand            |
+<ToolCard name="Source 2 Viewer" href="/docs/deadlock/tools/source-2-viewer">
+  Version 20.0 or newer. Exports the hero and reads original values. Start,
+  parts 3 and 4.
+</ToolCard>
+<ToolCard
+  name="Blender and BlenderSource2Tools"
+  href="/docs/deadlock/tools/blender-add-ons"
+>
+  Rig your mesh and export DMX. Part 1.
+</ToolCard>
+<ToolCard name="CSDK 12" href="/docs/deadlock/tools/csdk-12">
+  ModelDoc and the Material Editor build the model and its materials. Parts 2
+  and 3.
+</ToolCard>
+<ToolCard
+  name="CS2 Workshop Tools"
+  href="/docs/deadlock/tools/cs2-workshop-tools"
+>
+  Free. Adds the AnimGraph 2 links and compiles. Part 4.
+</ToolCard>
+
+You also need a text editor, such as Notepad++. Parts 2 to 4 edit the `.vmdl` file by hand.
 
 Use Source 2 Viewer 20.0 or newer. Older builds decompile the camera attachments slightly wrong, which puts your camera in the middle of the screen.
 
@@ -48,12 +78,34 @@ Use Source 2 Viewer 20.0 or newer. Older builds decompile the camera attachments
   alt="Diagram: export the hero from Source 2 Viewer, then part 1 in Blender makes DMX meshes, part 2 in ModelDoc builds the model and materials, part 3 copies attachments and game data, part 4 in CS2 tools compiles the vmdl_c, and the result is packed into one VPK"
 />
 
-| Part                                                                                 | What you do                                                                | What you get                            |
-| ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------- | --------------------------------------- |
-| 1. [Rig your model in Blender](/docs/deadlock/models/hero-swap-blender)              | Export the hero, fit your mesh to its skeleton, and transfer the weights   | `.dmx` mesh files                       |
-| 2. [Build the model in ModelDoc](/docs/deadlock/models/hero-swap-modeldoc)           | Swap the meshes, then rebuild bodygroups, materials, the ragdoll, and LODs | A `.vmdl` that compiles, plus materials |
-| 3. [Attachments, camera, and game data](/docs/deadlock/models/hero-swap-attachments) | Copy the original's attachments, camera previews, and game data blocks     | A `.vmdl` with a working camera         |
-| 4. [Add AnimGraph 2 and compile](/docs/deadlock/models/hero-swap-compile)            | Add the skeleton and animation graph links, compile, and pack              | The hero's `.vmdl_c` in your VPK        |
+<ToolCard
+  name="Part 1: rig your model in Blender"
+  href="/docs/deadlock/models/hero-swap-blender"
+>
+  Export the hero, fit your mesh to its skeleton, and transfer the weights. You
+  get `.dmx` mesh files.
+</ToolCard>
+<ToolCard
+  name="Part 2: build the model in ModelDoc"
+  href="/docs/deadlock/models/hero-swap-modeldoc"
+>
+  Swap the meshes, then rebuild bodygroups, materials, the ragdoll, and LODs.
+  You get a `.vmdl` that compiles, plus materials.
+</ToolCard>
+<ToolCard
+  name="Part 3: attachments, camera, and game data"
+  href="/docs/deadlock/models/hero-swap-attachments"
+>
+  Copy the original's attachments, camera previews, and game data blocks. You
+  get a `.vmdl` with a working camera.
+</ToolCard>
+<ToolCard
+  name="Part 4: add AnimGraph 2 and compile"
+  href="/docs/deadlock/models/hero-swap-compile"
+>
+  Add the skeleton and animation graph links, compile, and pack. You get the
+  hero's `.vmdl_c` in your VPK.
+</ToolCard>
 
 Part 4 needs a second tool kit. Almost every hero uses AnimGraph 2: its animations live in separate files, and the model must link to them. CSDK 12 cannot compile those links, so the last compile happens in CS2 Workshop Tools. Without them, the hero stands in an A-pose or does not turn.
 
@@ -78,28 +130,63 @@ These rules keep your swap cosmetic and stop it from breaking.
 
 ## Variations
 
-- **Only new colors or textures?** You need no model work. Use [Recolor with material values](/docs/deadlock/textures/recolor-a-material) or [Retexture a hero](/docs/deadlock/textures/retexture).
-- **Add an accessory**, like a hat or a bag, to the stock hero. Import the stock hero in Blender, add your mesh, and weight it to the nearest bone. Then export the stock meshes and your accessory as DMX and continue with parts 2 to 4.
-- **Give a hero another hero's look.** You still build the target hero's model. Export the other hero as glTF, delete its armature, and fit its mesh to the target's skeleton like any custom mesh. Do not count on copying one hero's compiled model to another hero's path. Each model links to its own skeleton and animations.
+<Accordions>
+<Accordion title="Only new colors or textures">
+
+You need no model work. Use one of these instead.
+
+<ToolCard
+  name="Recolor with material values"
+  href="/docs/deadlock/textures/recolor-a-material"
+>
+  Change colors without touching the model.
+</ToolCard>
+<ToolCard name="Retexture a hero" href="/docs/deadlock/textures/retexture">
+  Paint new textures on the hero's own model.
+</ToolCard>
+
+</Accordion>
+<Accordion title="Add an accessory to the stock hero">
+
+Add something like a hat or a bag. Import the stock hero in Blender, add your mesh, and weight it to the nearest bone. Then export the stock meshes and your accessory as DMX and continue with parts 2 to 4.
 
 {/* NEEDS HANDS-ON TEST: whether an accessory can be added as one extra RenderMeshFile on the stock decompiled vmdl instead of re-exporting every mesh (models.md Workflow 3). */}
 
+</Accordion>
+<Accordion title="Give a hero another hero's look">
+
+You still build the target hero's model. Export the other hero as glTF, delete its armature, and fit its mesh to the target's skeleton like any custom mesh.
+
+Do not count on copying one hero's compiled model to another hero's path. Each model links to its own skeleton and animations.
+
 {/* NEEDS HANDS-ON TEST: what happens when one hero's vmdl_c is copied to another hero's path (models.md Workflow 4; reasoning only, not tested). */}
+
+</Accordion>
+</Accordions>
 
 ## Full video walkthroughs
 
 Two creators recorded the whole pipeline. Watch one before you start, then use the part pages as your checklist.
 
-<YouTube id="piEYFbFYmVM" title="General Model Swap Steps by Pugzilla" />
+<Tabs items={["Pugzilla: Vyper", "Basilisken: bat Drifter"]}>
+<Tab value="Pugzilla: Vyper">
 
 Pugzilla's guide (March 2026, 56 minutes) swaps Vyper's model step by step.
+
+<YouTube id="piEYFbFYmVM" title="General Model Swap Steps by Pugzilla" />
+
+</Tab>
+<Tab value="Basilisken: bat Drifter">
+
+Basilisken's walkthrough (May 2026, 86 minutes) builds an original bat creature on Drifter, with a cloth tail and the camera fix.
 
 <YouTube
   id="IL3ywMmK090"
   title="Bat Drifter from Start to Finish, Part 1, by Basilisken"
 />
 
-Basilisken's walkthrough (May 2026, 86 minutes) builds an original bat creature on Drifter, with a cloth tail and the camera fix.
+</Tab>
+</Tabs>
 
 <Callout type="info" title="Read the video descriptions">
   Both videos are older than the September 2026 update and use older tool
@@ -110,22 +197,25 @@ Basilisken's walkthrough (May 2026, 86 minutes) builds an original bat creature 
 
 ## When something breaks
 
-| Symptom                                       | Where to fix it                                                                 |
-| --------------------------------------------- | ------------------------------------------------------------------------------- |
-| ModelDoc crashes when you open the hero       | [Part 2](/docs/deadlock/models/hero-swap-modeldoc)                              |
-| Strange bends when the hero moves             | [Part 1](/docs/deadlock/models/hero-swap-blender), weight painting              |
-| The camera sits in the middle of the screen   | [Part 3](/docs/deadlock/models/hero-swap-attachments)                           |
-| The health bar sits at the feet               | [Part 3](/docs/deadlock/models/hero-swap-attachments)                           |
-| The hero stands in an A-pose or does not turn | [Part 4](/docs/deadlock/models/hero-swap-compile)                               |
-| It broke after a game update                  | [Update your mod after a patch](/docs/deadlock/publishing/update-after-a-patch) |
+| Symptom                                       | Where to fix it                                                                       |
+| --------------------------------------------- | ------------------------------------------------------------------------------------- |
+| ModelDoc crashes when you open the hero       | Part 2                                                                                |
+| Strange bends when the hero moves             | Part 1, weight painting                                                               |
+| The camera sits in the middle of the screen   | Part 3                                                                                |
+| The health bar sits at the feet               | Part 3                                                                                |
+| The hero stands in an A-pose or does not turn | Part 4                                                                                |
+| It broke after a game update                  | [Update your mod after a game update](/docs/deadlock/publishing/update-after-a-patch) |
 
 More fixes are in [Model and skin problems](/docs/deadlock/errors/model-problems).
 
 ## Next steps
 
-- [Hero swap part 1: rig your model in Blender](/docs/deadlock/models/hero-swap-blender)
-- [Materials for custom models](/docs/deadlock/textures/materials-for-custom-models)
-- [Model and skin problems](/docs/deadlock/errors/model-problems)
+<PremiumCard
+  title="Hero swap part 1: rig your model in Blender"
+  href="/docs/deadlock/models/hero-swap-blender"
+>
+  Fit your character to the hero's skeleton and export DMX files for ModelDoc.
+</PremiumCard>
 
 ## Credits
 

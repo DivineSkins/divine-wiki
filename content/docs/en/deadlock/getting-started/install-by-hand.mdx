@@ -20,7 +20,7 @@ Pick one method. If you use a mod manager, let it handle `gameinfo.gi` and the `
 - Deadlock, installed through Steam and updated to the latest version.
 - A plain text editor, such as Notepad, Notepad++, or VS Code.
 - An archive tool, such as 7-Zip, if Windows cannot open your mod download.
-- A mod from the [Deadlock section on GameBanana](https://gamebanana.com/games/20948).
+- A mod from the Deadlock section on GameBanana.
 
 ## How it works
 
@@ -31,9 +31,12 @@ The file `gameinfo.gi` lists the folders the game reads. You add an `addons` fol
   alt="Folder tree: Deadlock/game/citadel holds gameinfo.gi and the addons folder with pak01_dir.vpk and pak02_dir.vpk. The game reads citadel/addons before citadel."
 />
 
-[How Deadlock mods work](/docs/deadlock/basics/how-mods-work#how-the-game-finds-your-mods) explains this in more detail.
+## Install a mod by hand
 
-## Find your Deadlock folder
+<Steps>
+<Step>
+
+### Find your Deadlock folder
 
 1. Open your Steam **Library**.
 2. Right-click **Deadlock**.
@@ -70,12 +73,15 @@ We have not tested these steps on a Steam Deck with the current game build yet. 
 
 {/* NEEDS HANDS-ON TEST: confirm that the addons folder in the normal library path loads under Proton on a Steam Deck on build 6779 (G01, G15). */}
 
-## Edit gameinfo.gi
+</Step>
+<Step>
+
+### Edit gameinfo.gi
 
 <Callout type="warning" title="Edit only the SearchPaths block">
   Change nothing else in this file. Edits to other sections can block
   matchmaking for your whole party. Never paste a "performance" `gameinfo.gi`
-  from the internet. [Read why](/docs/deadlock/getting-started/stay-safe).
+  from the internet.
 </Callout>
 
 Before the edit, Valve's block looks like this. The real file also has a few comment lines that start with `//`.
@@ -125,7 +131,8 @@ If Windows will not save the file, right-click `gameinfo.gi` and choose **Proper
 
 {/* NEEDS HANDS-ON TEST: run this manual edit with the exact block on build 6779, on Windows and on Steam Deck (C01, G01). Check that the game launches, mods load, and localized hero-name art still shows in a non-English UI (C01, C02). Check that a file which already has AddonRoot, OfficialAddonRoot, or AddonConfig lines still works after you replace the block (C03). Check that replacing the whole block, comment lines included, matches what DMM writes (C04). */}
 
-### What each line does
+<Accordions>
+<Accordion title="What each line does">
 
 - `Game citadel/addons` reads your `addons` folder. It must sit above `Game citadel`, so your mod files win.
 - The `Mod` and `Write` lines stop a launch crash: `Unable to read default keybinding configuration`.
@@ -136,11 +143,17 @@ Older guides show lines you should not add:
 - `Game_Language`. Valve renamed it to `Game_UILanguage` in the City Never Sleeps update (September 29, 2026).
 - `AddonRoot`, `OfficialAddonRoot`, or an `AddonConfig` block. These come from the creator tools' config, not the game's.
 
+</Accordion>
+</Accordions>
+
 A typo stops the game from starting with `Failed to parse KeyValues`. Check that every `{` has a matching `}`.
 
 {/* NEEDS HANDS-ON TEST: with this manual block, replays may save to citadel/addons/replays and fail with citadel_replay_manager_error_partial_decompression_failure (C10). Test before adding a fix to this page. */}
 
-## Create the addons folder
+</Step>
+<Step>
+
+### Create the addons folder
 
 1. Open the `game/citadel` folder.
 2. Create a new folder.
@@ -148,7 +161,10 @@ A typo stops the game from starting with `Failed to parse KeyValues`. Check that
 
 Put mods straight into this folder. The game ignores subfolders.
 
-## Add a mod
+</Step>
+<Step>
+
+### Add a mod
 
 1. Open the mod's page on [GameBanana](https://gamebanana.com/games/20948). Under **Files**, click **Manual Download**.
 2. Open the archive and find the `.vpk` file inside.
@@ -159,13 +175,10 @@ Put mods straight into this folder. The game ignores subfolders.
 7. Read the mod's readme. Some mods need extra steps.
 8. Start Deadlock and check the mod in the hideout or a bot match.
 
-### Mods with more than one file
+</Step>
+</Steps>
 
-Big mods can come as a set, such as `pak01_dir.vpk` with `pak01_000.vpk` and `pak01_001.vpk`. Give every file in the set the same new number. For example, rename `pak03_dir.vpk` and `pak03_000.vpk` to `pak05_dir.vpk` and `pak05_000.vpk`.
-
-{/* NEEDS HANDS-ON TEST: confirm that renaming only the _dir file of a multi-part set breaks it. */}
-
-### File names that work
+## File names that work
 
 | File name                                      | Does it load? |
 | ---------------------------------------------- | ------------- |
@@ -177,11 +190,24 @@ Big mods can come as a set, such as `pak01_dir.vpk` with `pak01_000.vpk` and `pa
 
 {/* SCREENSHOT: the addons folder holding pak01_dir.vpk and pak02_dir.vpk. File: deadlock-getting-started-install-by-hand-7.webp */}
 
+### Mods with more than one file
+
+Big mods can come as a set, such as `pak01_dir.vpk` with `pak01_000.vpk` and `pak01_001.vpk`. Give every file in the set the same new number. For example, rename `pak03_dir.vpk` and `pak03_000.vpk` to `pak05_dir.vpk` and `pak05_000.vpk`:
+
+<Files>
+  <Folder name="addons" defaultOpen>
+    <File name="pak05_dir.vpk" />
+    <File name="pak05_000.vpk" />
+  </Folder>
+</Files>
+
+{/* NEEDS HANDS-ON TEST: confirm that renaming only the _dir file of a multi-part set breaks it. */}
+
 ## Choose the load order
 
 When two mods change the same file, the lower number wins: `pak01_dir.vpk` beats `pak05_dir.vpk`. Give the mod you care about most the lowest number, and swap numbers if the wrong mod shows in game.
 
-Mods that change different files all work, in any order. Skins and sounds for the same hero often clash. You can load up to 99 mods this way. [Load order](/docs/deadlock/basics/how-mods-work#load-order) has the details.
+Mods that change different files all work, in any order. Skins and sounds for the same hero often clash. You can load up to 99 mods this way.
 
 ## After a game update
 
@@ -229,20 +255,59 @@ Uninstalling Deadlock does not delete files you added. Old mods can survive a re
 
 ## Common problems
 
-| What you see                                                   | What to do                                                                                                                                                               |
-| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Mods do nothing after an update                                | Steam replaced `gameinfo.gi`. Redo the edit.                                                                                                                             |
-| `Failed to parse KeyValues` at launch                          | A `{` or `}` is missing. Fix it, or verify game files and start over.                                                                                                    |
-| A crash with `Unable to read default keybinding configuration` | The `Mod` and `Write` lines are missing. Paste the full block again.                                                                                                     |
-| Hero name art shows as plain text in other languages           | The `Game_UILanguage` line is missing, or you used the old `Game_Language`. Paste the full block again.                                                                  |
-| `FATAL ERROR: Unable to find child '...'`                      | A HUD mod is outdated. Remove it and wait for an update.                                                                                                                 |
-| `Unable to enter matchmaking while any party member...`        | Someone in your party changed a blocked section or has creator tools open. See [stay safe](/docs/deadlock/getting-started/stay-safe#keep-your-account-in-good-standing). |
+<Accordions>
+<Accordion title="Mods do nothing after an update">
+
+Steam replaced `gameinfo.gi`. Redo the edit.
+
+</Accordion>
+<Accordion title="Failed to parse KeyValues at launch">
+
+A `{` or `}` is missing. Fix it, or verify game files and start over.
+
+</Accordion>
+<Accordion title="A crash with Unable to read default keybinding configuration">
+
+The `Mod` and `Write` lines are missing. Paste the full block again.
+
+</Accordion>
+<Accordion title="Hero name art shows as plain text in other languages">
+
+The `Game_UILanguage` line is missing, or you used the old `Game_Language`. Paste the full block again.
+
+</Accordion>
+<Accordion title="FATAL ERROR: Unable to find child '...'">
+
+A HUD mod is outdated. Remove it and wait for an update.
+
+</Accordion>
+<Accordion title="Unable to enter matchmaking while any party member...">
+
+Someone in your party changed a blocked section or has creator tools open. Close every creator tool, run **Verify integrity of game files**, and redo only the `SearchPaths` edit.
+
+</Accordion>
+</Accordions>
 
 ## Next steps
 
-- [How Deadlock mods work](/docs/deadlock/basics/how-mods-work) explains search paths and load order.
-- [Test your mod in game](/docs/deadlock/basics/test-your-mod) if you are testing your own VPK.
-- [Set up your creator tools](/docs/deadlock/getting-started/creator-setup) to start making your own mods.
+<ToolCard
+  name="How Deadlock mods work"
+  href="/docs/deadlock/basics/how-mods-work"
+>
+  Search paths and load order, explained.
+</ToolCard>
+<ToolCard
+  name="Test your mod in game"
+  href="/docs/deadlock/basics/test-your-mod"
+>
+  Testing your own VPK? Start here.
+</ToolCard>
+<ToolCard
+  name="Set up your creator tools"
+  href="/docs/deadlock/getting-started/creator-setup"
+>
+  Start making your own mods.
+</ToolCard>
 
 ## Credits
 

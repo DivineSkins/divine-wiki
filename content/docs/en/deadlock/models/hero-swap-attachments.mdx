@@ -7,7 +7,7 @@ patch: "6779"
 
 <LevelPill level="advanced" />
 
-Part 3 of 4. You start with `viper_work.vmdl`, which compiles in CSDK 12 after [part 2](/docs/deadlock/models/hero-swap-modeldoc). You finish with the original hero's attachments, camera previews, and game data in your model. Then the camera, health bar, and sounds work. The whole path is in [Hero model swap: overview](/docs/deadlock/models/hero-model-swap).
+Part 3 of 4. You start with `viper_work.vmdl`, which compiles in CSDK 12 after part 2. You finish with the original hero's attachments, camera previews, and game data in your model. Then the camera, health bar, and sounds work. The whole path is in [Hero model swap: overview](/docs/deadlock/models/hero-model-swap).
 
 <img
   src="/wiki-images/deadlock-models-hero-swap-attachments-1.webp"
@@ -16,8 +16,13 @@ Part 3 of 4. You start with `viper_work.vmdl`, which compiles in CSDK 12 after [
 
 ## What you need
 
-- Your work model from part 2, open in CSDK 12's ModelDoc.
-- Source 2 Viewer 20.0 or newer, or a dev build from 2026-08-04 or later.
+<ToolCard name="CSDK 12" href="/docs/deadlock/tools/csdk-12">
+  Your work model from part 2, open in ModelDoc.
+</ToolCard>
+<ToolCard name="Source 2 Viewer" href="/docs/deadlock/tools/source-2-viewer">
+  Version 20.0 or newer, or a dev build from 2026-08-04 or later.
+</ToolCard>
+
 - A text editor, such as Notepad++ or VS Code.
 
 ## Watch the walkthrough
@@ -69,7 +74,12 @@ Source 2 Viewer builds from before 2026-08-04 decompiled attachments with small 
 
 Quick check: select `standing_pivot` in your model. Its angles should be whole numbers like `-90`, not `-89.97`.
 
-## Make a reference copy of the original
+## Copy the original values
+
+<Steps>
+<Step>
+
+### Make a reference copy of the original
 
 The compiled original keeps the exact values. Put a copy where CSDK 12 can open it.
 
@@ -78,11 +88,30 @@ The compiled original keeps the exact values. Put a copy where CSDK 12 can open 
 3. In the CSDK 12 Asset Browser, open that `viper.vmdl_c`.
 4. Place it next to your work model, so you can read both.
 
+<Files>
+  <Folder name="Reduced_CSDK_12" defaultOpen>
+    <Folder name="game" defaultOpen>
+      <Folder name="citadel" defaultOpen>
+        <Folder name="models" defaultOpen>
+          <Folder name="heroes_staging" defaultOpen>
+            <Folder name="viper" defaultOpen>
+              <File name="viper.vmdl_c" />
+            </Folder>
+          </Folder>
+        </Folder>
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+
 Never let your own compiled model overwrite this copy. A replaced reference is a common cause of the centered camera. Your `viper_work` file name keeps them apart.
 
 Pugzilla's short video [Compiled Models In CSDK](https://www.youtube.com/watch?v=d2JGLiH2CAY) exports every hero this way. It takes 4 to 5 GB and slows CSDK 12 down, so one hero is enough here.
 
-## Copy attachment positions and angles
+</Step>
+<Step>
+
+### Copy attachment positions and angles
 
 <img
   src="/wiki-images/deadlock-models-hero-swap-attachments-2.webp"
@@ -100,7 +129,10 @@ Never delete or move an attachment. If one is missing, copy it from the referenc
 
 {/* SCREENSHOT: deadlock-models-hero-swap-attachments-3.webp, the reference model and viper_work side by side in ModelDoc with standing_pivot selected in both AttachmentLists */}
 
-## Add camera previews
+</Step>
+<Step>
+
+### Add camera previews
 
 Each camera attachment needs a preview with the right field of view (FOV).
 
@@ -109,7 +141,7 @@ Each camera attachment needs a preview with the right field of view (FOV).
 3. In ModelDoc, select `standing_pivot` through `gunaim_02`.
 4. Right-click them and choose **Add Attachment Preview**.
 5. Set the FOV to `90` and the screen size to `1920` by `1080`.
-6. Select the three `gunaim_` attachments. Set their FOV to the hero's own value from step 2.
+6. Select the three `gunaim_` attachments. Set their FOV to the hero's own value from the Data tab.
 7. Click **Compile**.
 
 The gun aim FOV differs per hero. The guides show 42 for Vyper, 50 for Billy, and 55 for Drifter. Use the number in your hero's Data tab.
@@ -120,7 +152,10 @@ The gun aim FOV differs per hero. The guides show 42 for Vyper, 50 for Billy, an
 
 {/* SCREENSHOT: deadlock-models-hero-swap-attachments-5.webp, the attachment preview settings in ModelDoc with FOV 90 and 1920 by 1080 */}
 
-## Add the camera prefab
+</Step>
+<Step>
+
+### Add the camera prefab
 
 Fuji's guide adds ready-made camera data from CSDK 12. This step comes from one guide and may differ on the current build.
 
@@ -136,7 +171,10 @@ The folder is missing? Update CSDK 12. Older guides set this camera data in CS2 
 
 {/* SCREENSHOT: deadlock-models-hero-swap-attachments-6.webp, the camera prefab node before and after Flatten Prefab */}
 
-## Copy the game data
+</Step>
+<Step>
+
+### Copy the game data
 
 `GameDataList` holds Deadlock's own settings for the hero. Source 2 Viewer has written these blocks into decompiled models since version 17.0, so yours should be there already.
 
@@ -164,7 +202,7 @@ Some heroes have extra blocks, for example for a pet or a second rig. Copy those
 
 {/* SCREENSHOT: deadlock-models-hero-swap-attachments-7.webp, the GameDataList in ModelDoc with its GenericGameData blocks */}
 
-### Copy a block with a text editor
+#### Copy a block with a text editor
 
 Use this for any block that is missing or wrong. The health bar block is the usual one.
 
@@ -178,13 +216,19 @@ Use this for any block that is missing or wrong. The health bar block is the usu
 
 {/* NEEDS HANDS-ON TEST: the exact "modified externally" prompt in ModelDoc. */}
 
-## Check your work
+</Step>
+<Step>
+
+### Check your work
 
 1. Click **Compile** and fix any errors.
 2. Count the attachments in your model and in the reference. The numbers should match.
 3. Keep the reference copy. You need it again after game updates.
 
 You cannot check the camera in game yet. Part 4 adds the animations, then you test the camera, aiming, health bar, and sounds.
+
+</Step>
+</Steps>
 
 ## Common problems
 
@@ -194,8 +238,13 @@ You cannot check the camera in game yet. Part 4 adds the animations, then you te
 
 ## Next steps
 
-- [Hero swap part 4: add AnimGraph 2 and compile](/docs/deadlock/models/hero-swap-compile)
-- [Model and skin problems](/docs/deadlock/errors/model-problems)
+<PremiumCard
+  title="Hero swap part 4: add AnimGraph 2 and compile"
+  href="/docs/deadlock/models/hero-swap-compile"
+>
+  Link the hero's skeleton and animations in CS2 Workshop Tools, then pack and
+  test your skin.
+</PremiumCard>
 
 ## Credits
 

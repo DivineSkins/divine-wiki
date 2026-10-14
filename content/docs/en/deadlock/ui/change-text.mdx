@@ -11,9 +11,16 @@ Every word the game shows comes from plain text files. Edit one to rename an ite
 
 ## What you need
 
+<ToolCard
+  name="Source 2 Viewer"
+  href="/docs/deadlock/tools/source-2-viewer"
+  badge="Optional"
+>
+  Packs your change into a VPK. Only needed to make it last or share it.
+</ToolCard>
+
 - Deadlock, installed and up to date.
 - A text editor. Notepad works. Notepad++ can also search many files at once.
-- Source 2 Viewer, only if you pack your change into a VPK. See [Set up your creator tools](/docs/deadlock/getting-started/creator-setup).
 
 ## Where the text lives
 
@@ -45,7 +52,14 @@ Never change the key. Change only the text in the second pair of quotes.
 
 Edit the game's own file to try a change. Ship a copy in a VPK when you want it to last or to share it.
 
-## Find the text you want
+## Rename an item
+
+This example renames Close Quarters.
+
+<Steps>
+<Step>
+
+### Find the text you want
 
 1. Open Notepad++.
 2. Choose **Search > Find in Files**.
@@ -55,9 +69,10 @@ Edit the game's own file to try a change. Ship a copy in a VPK when you want it 
 
 The results show the file and the key that hold your text.
 
-## Rename an item
+</Step>
+<Step>
 
-This example renames Close Quarters.
+### Edit the game's file
 
 1. In Steam, right-click Deadlock and choose **Manage > Browse local files**.
 2. Open `game/citadel/resource/localization/citadel_gc_mod_names/`.
@@ -79,7 +94,10 @@ Each item has these two keys: `upgrade_<name>` for the name, and `upgrade_<name>
 
 {/* SCREENSHOT: deadlock-ui-change-text-4.webp, the renamed item in the shop */}
 
-## Make it last: ship it in a VPK
+</Step>
+<Step>
+
+### Make it last: ship it in a VPK
 
 Game updates and Steam's **Verify integrity of game files** put the original file back. Your edit is gone. A copy in a VPK stays in your addons folder.
 
@@ -90,11 +108,28 @@ Game updates and Steam's **Verify integrity of game files** put the original fil
 5. Pack the folder with [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
 6. Load it and check the shop. Follow [Test your mod in game](/docs/deadlock/basics/test-your-mod).
 
+Your staging folder looks like this:
+
+<Files>
+  <Folder name="itemnames" defaultOpen>
+    <Folder name="resource" defaultOpen>
+      <Folder name="localization" defaultOpen>
+        <Folder name="citadel_gc_mod_names" defaultOpen>
+          <File name="citadel_gc_mod_names_english.txt" />
+        </Folder>
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+
 One popular mod ships these text files inside its VPK, so this should work. Nobody has confirmed it on build 6779 yet.
 
 Your VPK replaces the whole file. After an update adds items or changes text, your old copy hides those changes. After each update, copy the new file from the game and redo your edits.
 
 {/* NEEDS HANDS-ON TEST: ship an edited citadel_gc_mod_names_english.txt in an addon VPK on build 6779 and confirm it overrides the loose file (gap G09). */}
+
+</Step>
+</Steps>
 
 ## Rename a hero
 
@@ -125,17 +160,45 @@ Text mods change words, not what you know. Do not use them to add information th
 
 ## Common problems
 
-- **Your change is gone after an update.** The update replaced the loose file. Edit it again, or ship it in a VPK.
-- **Text shows as a code, like `#menu_news`.** A text file is broken or out of date. Restore your backup, or verify the game files. If your VPK holds an old copy, copy the new file and redo your edits.
-- **The shop search does not find the new name.** You changed only the name. Edit the `_search` key too.
-- **The hero's name art still shows the old name.** That is an image, not text. See [Rename a hero](#rename-a-hero).
-- **Nothing changed.** You edited a file for another language, or a quote mark is missing. Check that every line still has both pairs of quotes.
+<Accordions>
+<Accordion title="Your change is gone after an update">
+
+The update replaced the loose file. Edit it again, or ship it in a VPK.
+
+</Accordion>
+<Accordion title="Text shows as a code, like #menu_news">
+
+A text file is broken or out of date. Restore your backup, or verify the game files. If your VPK holds an old copy, copy the new file and redo your edits.
+
+</Accordion>
+<Accordion title="The shop search does not find the new name">
+
+You changed only the name. Edit the `_search` key too.
+
+</Accordion>
+<Accordion title="The hero's name art still shows the old name">
+
+That is an image, not text. See [Rename a hero](#rename-a-hero).
+
+</Accordion>
+<Accordion title="Nothing changed">
+
+You edited a file for another language, or a quote mark is missing. Check that every line still has both pairs of quotes.
+
+</Accordion>
+</Accordions>
 
 ## Next steps
 
-- [Replace portraits, icons, and item art](/docs/deadlock/ui/portraits-and-icons)
-- [Replace voice lines](/docs/deadlock/sounds/voice-lines)
-- [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk)
+<ToolCard
+  name="Replace portraits, icons, and item art"
+  href="/docs/deadlock/ui/portraits-and-icons"
+>
+  Give the items you renamed new art to match.
+</ToolCard>
+<ToolCard name="Restyle a HUD element" href="/docs/deadlock/ui/restyle-hud">
+  Move or restyle one part of the HUD with Panorama CSS.
+</ToolCard>
 
 ## Credits
 

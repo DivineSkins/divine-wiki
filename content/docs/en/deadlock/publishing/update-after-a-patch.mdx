@@ -13,8 +13,11 @@ Players know this happens. GameBanana asks them not to harass creators about bro
 
 ## What you need
 
+<ToolCard name="Source 2 Viewer" href="/docs/deadlock/tools/source-2-viewer">
+  The latest dev build.
+</ToolCard>
+
 - Your mod's CSDK 12 addon and source files. Lost them? Open your old VPK in Source 2 Viewer and decompile the files back into an addon.
-- Source 2 Viewer, the latest dev build.
 - Access to your mod's GameBanana page.
 
 <img
@@ -38,14 +41,26 @@ Your mod ships a full copy of every file it replaces. If Valve changes that file
 
 Cosmetic mods should never ship `scripts/*.vdata_c` files or a skeleton in the first place.
 
-## Check what changed
+## Fix it, step by step
+
+<Steps>
+<Step>
+
+### Check what changed
 
 1. Read Valve's update notes in the official [Changelog forum](https://forums.playdeadlock.com/forums/changelog.10/). Look for the heroes and items your mod touches. The notes never mention mods.
 2. Read GameBanana's news post for big updates. For City Never Sleeps, the [update news](https://gamebanana.com/news/21995) listed which mod types broke.
 3. Open the new `game/citadel/pak01_dir.vpk` in Source 2 Viewer.
 4. Find every file your mod replaces. Check that each path and file name still matches. [Hero names and file paths](/docs/deadlock/basics/hero-codenames) shows how.
 
-For a deeper check, use [GameTracking-Deadlock](https://github.com/SteamTracking/GameTracking-Deadlock) on GitHub. It saves Valve's files for every build.
+For a deeper check, use GameTracking-Deadlock on GitHub. It saves Valve's files for every build.
+
+<ToolCard
+  name="GameTracking-Deadlock"
+  href="https://github.com/SteamTracking/GameTracking-Deadlock"
+>
+  Valve's files for every Deadlock build, saved by SteamTracking.
+</ToolCard>
 
 1. Open the [history of `heroes.vdata`](https://github.com/SteamTracking/GameTracking-Deadlock/commits/master/game/citadel/pak01_dir/scripts/heroes.vdata). Each commit is one game build.
 2. Click the commit for the new build.
@@ -56,7 +71,15 @@ For a deeper check, use [GameTracking-Deadlock](https://github.com/SteamTracking
   alt="GameTracking-Deadlock on GitHub showing the history of heroes.vdata, with one commit per game build such as 6779 and 6769"
 />
 
-## Fix a skin or model mod
+</Step>
+<Step>
+
+### Rebuild your mod
+
+Pick your mod type.
+
+<Tabs items={["Skin or model", "Sounds, images, materials", "HUD or UI", "Animation"]}>
+<Tab value="Skin or model">
 
 Start from a fresh copy of the current hero model, not your old model file. The current model already has Valve's new skeleton, attachments, and animation data. One creator showed this fix in August 2026, before City Never Sleeps, so details may differ now.
 
@@ -69,7 +92,10 @@ Start from a fresh copy of the current hero model, not your old model file. The 
 
 {/* NEEDS HANDS-ON TEST: the fresh-model fix (yt:tI7d19Vxmwk, one C-rated source from 2026-08-24) on build 6779 with one old skin. Check that the decompiled current model compiles as is and keeps its animations and camera. */}
 
-## Fix sounds, images, materials, and particles
+</Tab>
+<Tab value="Sounds, images, materials">
+
+This covers sounds, images, materials, and particles.
 
 1. Find the original file again in Source 2 Viewer.
 2. If its path or name changed, rebuild that path in your addon and staging folder.
@@ -78,7 +104,8 @@ Start from a fresh copy of the current hero model, not your old model file. The 
 
 For materials, this means redoing your values from [Recolor with material values](/docs/deadlock/textures/recolor-a-material) on the new material.
 
-## Fix a HUD or UI mod
+</Tab>
+<Tab value="HUD or UI">
 
 1. Decompile the new `.vcss_c` or `.vxml_c` file with Source 2 Viewer.
 2. Redo only your change on the new file. Never paste your old full file over it.
@@ -86,7 +113,8 @@ For materials, this means redoing your values from [Recolor with material values
 
 Save your change as a `.patch` file next time: a list of the lines you changed. Then you can reapply it to each new version instead of redoing it by hand. [Restyle a HUD element](/docs/deadlock/ui/restyle-hud) has the full steps.
 
-## Fix an animation mod
+</Tab>
+<Tab value="Animation">
 
 1. Decompile the original clip again from the new game files.
 2. Check its frame count and FPS. If they changed, change your animation to match.
@@ -96,13 +124,22 @@ Nobody has published which City Never Sleeps change broke animation mods. [Repla
 
 {/* NEEDS HANDS-ON TEST: what City Never Sleeps changed for animation clips. Rebuild one broken clip mod on build 6779 and note what had to change (gap G12). */}
 
-## Test the fix
+</Tab>
+</Tabs>
+
+</Step>
+<Step>
+
+### Test the fix
 
 1. Turn off your other mods.
 2. Load your mod in a private match. Follow [Test your mod in game](/docs/deadlock/basics/test-your-mod).
 3. Check the console for errors that name your files.
 
-## Post the update
+</Step>
+<Step>
+
+### Post the update
 
 1. Open your mod's page on GameBanana. Post the fix there, not as a new mod.
 2. Upload the new archive.
@@ -115,6 +152,9 @@ Nobody has published which City Never Sleeps change broke animation mods. [Repla
 
 {/* SCREENSHOT: deadlock-publishing-update-after-a-patch-3.webp, the file list on a GameBanana mod page with the control that moves an old file to the archive */}
 
+</Step>
+</Steps>
+
 <Callout type="info" title="Fixes stay free">
   GameBanana never allows a fix for a new game version behind early access.
   Fixing someone else's mod? Ask them first. [Credits, licenses, and
@@ -124,9 +164,18 @@ Nobody has published which City Never Sleeps change broke animation mods. [Repla
 
 ## Next steps
 
-- [Publish your mod on GameBanana](/docs/deadlock/publishing/publish-on-gamebanana): the upload form, step by step.
-- [Crashes, launch errors, and matchmaking blocks](/docs/deadlock/errors/game-crashes): when an outdated mod crashes the game.
-- [Hero names and file paths](/docs/deadlock/basics/hero-codenames): find where a hero's files live now.
+<ToolCard
+  name="Publish your mod on GameBanana"
+  href="/docs/deadlock/publishing/publish-on-gamebanana"
+>
+  The upload form, step by step.
+</ToolCard>
+<ToolCard
+  name="Crashes, launch errors, and matchmaking blocks"
+  href="/docs/deadlock/errors/game-crashes"
+>
+  When an outdated mod crashes the game.
+</ToolCard>
 
 ## Credits
 

@@ -11,23 +11,36 @@ Play a community-made map on your own PC. You put the map file in the right fold
 
 ## What you need
 
+<ToolCard
+  name="Test your mod in game"
+  href="/docs/deadlock/basics/test-your-mod#turn-on-the-console"
+>
+  Shows how to turn on the dev console. You load maps from it.
+</ToolCard>
+
 - Deadlock, installed.
-- The dev console turned on. [Test your mod in game](/docs/deadlock/basics/test-your-mod#turn-on-the-console) shows how.
 - A map from GameBanana.
 
 ## What custom maps exist
 
 Valve has released no map tools for Deadlock, and the game has no Steam Workshop. Community maps are VPK files, shared mostly on GameBanana. It lists 40 map mods as of October 2026.
 
-- **Movement training:** jump and parkour maps, such as [Jump School Map](https://gamebanana.com/mods/658931) by 1Lomi.
-- **Other lane maps:** smaller 6v6 maps, such as [dl_express](https://gamebanana.com/mods/666382) by BestNameExisting and [dl_harbor](https://gamebanana.com/mods/719980) by OhSeismic (work in progress).
-- **Fun maps:** party modes, such as kart racing.
+| Type              | Examples                                                                                                                                                                            |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Movement training | Jump and parkour maps, such as [Jump School Map](https://gamebanana.com/mods/658931) by 1Lomi.                                                                                      |
+| Other lane maps   | Smaller 6v6 maps, such as [dl_express](https://gamebanana.com/mods/666382) by BestNameExisting and [dl_harbor](https://gamebanana.com/mods/719980) by OhSeismic (work in progress). |
+| Fun maps          | Party modes, such as kart racing.                                                                                                                                                   |
 
 This guide covers playing alone. Playing a custom map with friends needs a community server or console tricks, and this wiki does not cover them.
 
 Want to build your own map? Map makers use Hammer from [CSDK 12](/docs/deadlock/tools/csdk-12) with the full game files. This wiki does not cover mapping yet.
 
-## Install a map
+## Play a map
+
+<Steps>
+<Step>
+
+### Install a map
 
 1. Download the map from its GameBanana page.
 2. Unpack the download and find the `.vpk` file. A map never needs an `.exe` file. [What's allowed and how to stay safe](/docs/deadlock/getting-started/stay-safe) shows what a real mod looks like.
@@ -47,7 +60,10 @@ Leave Valve's map files alone. Some maps install through Deadlock Mod Manager in
 
 {/* NEEDS HANDS-ON TEST: whether a map in game/citadel/maps/ loads without the Game citadel/addons line in gameinfo.gi */}
 
-## Load it from the console
+</Step>
+<Step>
+
+### Load it from the console
 
 1. Start Deadlock.
 2. Press **F7** to open the console.
@@ -58,17 +74,10 @@ Read the map's page before you play. Some maps need extra console settings to wo
 
 {/* SCREENSHOT: deadlock-more-mods-custom-maps-3.webp, the console with map dl_harbor typed in */}
 
-## Common map problems
+</Step>
+<Step>
 
-- **The map does not load.** Check that the file is in `maps`, not `addons`. Check the spelling: the command uses the file name without `.vpk`.
-- **You get teleported or killed for no reason.** Deadlock maps have a fixed play area. Read the map's page for the settings it needs.
-- **The map is black.** Another mod can cause this. QOL Lock is a known cause. Move your other mods out of `addons` while you play the map.
-- **Bots don't work.** Custom maps usually lack the data bots need to move around.
-- **The minimap is wrong.** Custom maps show the main map's minimap, so pings land in the wrong place.
-- **It worked before an update.** Game updates break maps. Check the map's page for a new version.
-- **Normal matches crash after you played a map.** Remove the map VPK. See the next section.
-
-## Remove it before matchmaking
+### Remove it before matchmaking
 
 <Callout type="warning" title="Take maps out before a normal match">
   Custom maps don't work in Valve's matches. With a map installed, the normal
@@ -76,7 +85,8 @@ Read the map's page before you play. Some maps need extra console settings to wo
   warns of desyncs and crashes.
 </Callout>
 
-By hand:
+<Tabs items={["By hand", "Deadlock Mod Manager"]}>
+<Tab value="By hand">
 
 1. Close Deadlock.
 2. Move your custom map VPKs out of `game/citadel/maps/` into a folder outside the Deadlock folder.
@@ -84,14 +94,68 @@ By hand:
 
 To play a map again later, copy it back in.
 
-With Deadlock Mod Manager: it warns you before launch when map mods are installed. Click **Disable Map Mods & Launch** before a normal match.
+</Tab>
+<Tab value="Deadlock Mod Manager">
+
+It warns you before launch when map mods are installed. Click **Disable Map Mods & Launch** before a normal match.
 
 {/* NEEDS HANDS-ON TEST: the Disable Map Mods & Launch label on stable DMM v1.1.0, and whether it also covers maps you copied in by hand */}
 
+</Tab>
+</Tabs>
+
+</Step>
+</Steps>
+
+## Common map problems
+
+<Accordions>
+<Accordion title="The map does not load">
+
+Check that the file is in `maps`, not `addons`. Check the spelling: the command uses the file name without `.vpk`.
+
+</Accordion>
+<Accordion title="You get teleported or killed for no reason">
+
+Deadlock maps have a fixed play area. Read the map's page for the settings it needs.
+
+</Accordion>
+<Accordion title="The map is black">
+
+Another mod can cause this. QOL Lock is a known cause. Move your other mods out of `addons` while you play the map.
+
+</Accordion>
+<Accordion title="Bots don't work">
+
+Custom maps usually lack the data bots need to move around.
+
+</Accordion>
+<Accordion title="The minimap is wrong">
+
+Custom maps show the main map's minimap, so pings land in the wrong place.
+
+</Accordion>
+<Accordion title="It worked before an update">
+
+Game updates break maps. Check the map's page for a new version.
+
+</Accordion>
+<Accordion title="Normal matches crash after you played a map">
+
+Remove the map VPK, as shown in the last stage above.
+
+</Accordion>
+</Accordions>
+
 ## Next steps
 
-- [Test your mod in game](/docs/deadlock/basics/test-your-mod)
-- [What's allowed and how to stay safe](/docs/deadlock/getting-started/stay-safe)
+<PremiumCard
+  title="Install mods with Deadlock Mod Manager"
+  href="/docs/deadlock/getting-started/install-with-mod-manager"
+>
+  Install mods in one click. It warns you before a normal match when map mods
+  are installed.
+</PremiumCard>
 
 ## Credits
 

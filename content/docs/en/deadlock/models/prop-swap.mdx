@@ -7,13 +7,21 @@ patch: "6779"
 
 <LevelPill level="intermediate" />
 
-Swap the soul container for your own 3D model. It is the easiest model swap: one bone, one material, and nothing to animate. Set up Source 2 Viewer and CSDK 12 first with [Set up your creator tools](/docs/deadlock/getting-started/creator-setup). If Blender imports are new to you, read [Import a Deadlock model into Blender](/docs/deadlock/models/import-into-blender).
+Swap the soul container for your own 3D model. It is the easiest model swap: one bone, one material, and nothing to animate.
 
 ## What you need
 
-- Source 2 Viewer and CSDK 12. Install them with [Set up your creator tools](/docs/deadlock/getting-started/creator-setup).
+<ToolCard name="Source 2 Viewer" href="/docs/deadlock/tools/source-2-viewer">
+  Exports the original soul container.
+</ToolCard>
+<ToolCard name="CSDK 12" href="/docs/deadlock/tools/csdk-12">
+  ModelDoc and the Material Editor build your new model.
+</ToolCard>
+
 - Blender, any recent version. You need no add-on, because this guide exports FBX.
 - Your own 3D model, plus its color texture as a PNG. A normal map is optional.
+
+Install both tools with [Set up your creator tools](/docs/deadlock/getting-started/creator-setup). If Blender imports are new to you, read [Import a Deadlock model into Blender](/docs/deadlock/models/import-into-blender).
 
 Use your own design. Models ported from other games, films, or anime carry copyright risk.
 
@@ -48,7 +56,12 @@ Pugzilla recorded it in August 2026, before the City Never Sleeps update. We hav
 
 {/* NEEDS HANDS-ON TEST: run this whole page on build 6779 as the model smoke test (gap G04): export, FBX swap, material, compile, pack, and the container showing in the hideout. */}
 
-## Export the original
+## Make the swap
+
+<Steps>
+<Step>
+
+### Export the original
 
 1. Make an empty work folder, for example `soulbox_work`.
 2. Open Source 2 Viewer and open `Deadlock/game/citadel/pak01_dir.vpk`.
@@ -60,7 +73,10 @@ Pugzilla recorded it in August 2026, before the City Never Sleeps update. We hav
 
 {/* SCREENSHOT: deadlock-models-prop-swap-2.webp, Source 2 Viewer open at the soul container folder with the model selected */}
 
-## Fit your model in Blender
+</Step>
+<Step>
+
+### Fit your model in Blender
 
 1. Open Blender and delete the default scene objects.
 2. Choose **File > Import > glTF 2.0**. Tick **Disable Bone Shape** and import the soul container. You see the container and its one bone.
@@ -73,6 +89,9 @@ Pugzilla recorded it in August 2026, before the City Never Sleeps update. We hav
 
 {/* SCREENSHOT: deadlock-models-prop-swap-3.webp, Blender with an original replacement mesh next to the container's single bone, parented with automatic weights */}
 
+</Step>
+<Step>
+
 ### Name the material and export
 
 1. Select your mesh and open the **Material** tab.
@@ -82,12 +101,15 @@ Pugzilla recorded it in August 2026, before the City Never Sleeps update. We hav
 
 The material name links Blender to your material file later. FBX works for a prop with one bone. Hero swaps export DMX instead.
 
-## Set up the addon
+</Step>
+<Step>
+
+### Set up the addon
 
 1. Open the CSDK 12 launcher and click **Create New Addon**. Name it `soulbox`, in lowercase with no spaces.
 2. Right-click the addon and choose **Explore Content Folder**.
 3. Inside it, rebuild the game path: `models/props/gameplay/soul_container/`. Make a `materials` folder inside that folder.
-4. In Source 2 Viewer, right-click the soul container's `.vmdl_c` again. Choose **Decompile & export**, keep the model type, and save into the folder from step 3.
+4. In Source 2 Viewer, right-click the soul container's `.vmdl_c` again. Choose **Decompile & export**, keep the model type, and save into the `soul_container` folder you made in step 3.
 5. Check the folder. It now holds a `.vmdl` file and its `.dmx` mesh.
 6. Copy `soulbox.fbx` into the same folder.
 
@@ -96,7 +118,10 @@ The material name links Blender to your material file later. FBX works for a pro
   alt="Folder trees: the content folder holds the decompiled vmdl, the old dmx, soulbox.fbx and a materials folder; the game folder holds the compiled vmdl_c, vmat_c and vtex_c files you pack"
 />
 
-## Swap the mesh in ModelDoc
+</Step>
+<Step>
+
+### Swap the mesh in ModelDoc
 
 1. In the launcher, select `soulbox` and click **Launch Tools**. The Asset Browser opens.
 2. Double-click the soul container model. ModelDoc opens.
@@ -111,7 +136,10 @@ Keep the original mesh name so the rest of the model still finds it.
 
 {/* SCREENSHOT: deadlock-models-prop-swap-5.webp, ModelDoc's RenderMeshList with soulbox.fbx renamed to the original mesh name */}
 
-## Make the material
+</Step>
+<Step>
+
+### Make the material
 
 1. In ModelDoc, choose **Add > Default Material Group**. A slot appears with your Blender material name. If the slot has no name, your Blender name is wrong. Rename it, export the FBX again, and compile.
 2. In the Asset Browser, open the **Material Editor**. Click **New**, then save right away into `materials/` as `soulbox.vmat`.
@@ -131,7 +159,10 @@ Keep the original mesh name so the rest of the model still finds it.
 
 {/* SCREENSHOT: deadlock-models-prop-swap-6.webp, the Material Editor with Use NPR Lighting and Use Status Effects Proxy ticked and Roughness set to white */}
 
-## Compile, pack, and test
+</Step>
+<Step>
+
+### Compile, pack, and test
 
 1. Close ModelDoc. In the Asset Browser, right-click the model and recompile it.
 2. In the launcher, right-click `soulbox` and choose **Explore Game Folder**.
@@ -147,27 +178,63 @@ Pack only compiled files. Leave out the `.dmx`, `.fbx`, `.vmdl`, `.vmat`, and PN
 
 {/* SCREENSHOT: deadlock-models-prop-swap-7.webp, the new soul container in the hideout practice range */}
 
+</Step>
+</Steps>
+
 ## Other props you can swap
 
-GameBanana's Model Replacement section also has Hideout, Breakables, Spirit Urn, and NPC categories. The same steps work for any model that does not animate. Models with animations, like NPCs and heroes, need more work. For heroes, start with [Hero model swap: overview](/docs/deadlock/models/hero-model-swap).
+GameBanana's Model Replacement section also has Hideout, Breakables, Spirit Urn, and NPC categories. The same steps work for any model that does not animate. Models with animations, like NPCs and heroes, need more work. For heroes, start with the hero model swap overview in Next steps.
 
 The fair-play rule applies to every prop. Objectives like the Spirit Urn must stay as easy to see as the original, never easier or harder.
 
 ## Common problems
 
-- **The old container still shows.** Your folder path or file name differs from the game. Compare every folder name with Source 2 Viewer.
-- **A slot in the Default Material Group has no name.** Your Blender material name has a period, a number, or `.001`. Rename it, export the FBX again, and compile.
-- **The model is red in ModelDoc.** It has no material yet. Add the Default Material Group and pick your material.
-- **The model looks shiny or plastic.** Set Roughness to pure white.
-- **A texture is missing in game.** The `.vtex_c` files are not in your VPK. Copy the whole compiled `materials` folder.
-- **The size or position is wrong.** Fix it in Blender, export the FBX again, and compile.
-- **It worked before an update.** Updates can move props. Find the soul container in Source 2 Viewer again and check the path.
+<Accordions>
+<Accordion title="The old container still shows">
+
+Your folder path or file name differs from the game. Compare every folder name with Source 2 Viewer.
+
+</Accordion>
+<Accordion title="A slot in the Default Material Group has no name">
+
+Your Blender material name has a period, a number, or `.001`. Rename it, export the FBX again, and compile.
+
+</Accordion>
+<Accordion title="The model is red in ModelDoc">
+
+It has no material yet. Add the Default Material Group and pick your material.
+
+</Accordion>
+<Accordion title="The model looks shiny or plastic">
+
+Set Roughness to pure white.
+
+</Accordion>
+<Accordion title="A texture is missing in game">
+
+The `.vtex_c` files are not in your VPK. Copy the whole compiled `materials` folder.
+
+</Accordion>
+<Accordion title="The size or position is wrong">
+
+Fix it in Blender, export the FBX again, and compile.
+
+</Accordion>
+<Accordion title="It worked before an update">
+
+Updates can move props. Find the soul container in Source 2 Viewer again and check the path.
+
+</Accordion>
+</Accordions>
 
 ## Next steps
 
-- [Import a Deadlock model into Blender](/docs/deadlock/models/import-into-blender)
-- [Materials for custom models](/docs/deadlock/textures/materials-for-custom-models)
-- [Hero model swap: overview](/docs/deadlock/models/hero-model-swap)
+<PremiumCard
+  title="Hero model swap: overview"
+  href="/docs/deadlock/models/hero-model-swap"
+>
+  Put your own character on a hero. The whole path, the tools, and the rules.
+</PremiumCard>
 
 ## Credits
 

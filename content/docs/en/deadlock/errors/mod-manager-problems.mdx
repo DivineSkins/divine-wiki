@@ -7,11 +7,14 @@ patch: "6779"
 
 <LevelPill level="beginner" />
 
-Fix the most common problems with Deadlock Mod Manager (DMM). Each section starts with what you see, then the cause and the fix. New to DMM? Set it up first with [Install mods with Deadlock Mod Manager](/docs/deadlock/getting-started/install-with-mod-manager).
+Fix the most common problems with Deadlock Mod Manager (DMM). Each fix starts with what you see, then the cause and the fix. New to DMM? Set it up first with [Install mods with Deadlock Mod Manager](/docs/deadlock/getting-started/install-with-mod-manager).
 
 ## What you need
 
-- Deadlock Mod Manager, downloaded from [deadlockmods.app](https://deadlockmods.app).
+<ToolCard name="Deadlock Mod Manager" href="https://deadlockmods.app">
+  Download it from deadlockmods.app, its official site.
+</ToolCard>
+
 - Your Deadlock folder. In Steam, right-click **Deadlock** and choose **Manage > Browse local files**.
 
 ## Check these first
@@ -38,23 +41,23 @@ This short video covers a few of the fixes below, from 1:12.
   DMM from GameBanana. Get DMM from deadlockmods.app instead.
 </Callout>
 
-## The app will not start
+## The app will not start or gets flagged
 
-**What you see:** DMM does not open, or it closes right after it opens.
+<Accordions type="multiple">
+<Accordion title="DMM does not open, or closes right after it opens" id="the-app-will-not-start">
 
 **Why:** Windows is missing a part DMM needs, your antivirus blocks it, or DMM lacks permissions. Some players also report that version 1.1.0 freezes or crashes on start. That bug is still open on DMM's GitHub.
 
 1. Right-click DMM and choose **Run as administrator**.
-2. Check your antivirus. If it blocked DMM, read the next section.
+2. Check your antivirus. If it blocked DMM, read the antivirus fix below.
 3. Install the latest Microsoft Visual C++ Redistributable from Microsoft's website.
 4. Install any pending Windows updates.
 5. Still broken? Search DMM's [GitHub issues](https://github.com/deadlock-mod-manager/deadlock-mod-manager/issues) for your problem. If you find nothing, open a new issue and add your DMM version.
 
 On Linux, see [Linux and Steam Deck](/docs/deadlock/errors/linux-steam-deck).
 
-## Antivirus warnings
-
-**What you see:** Your antivirus calls DMM a "trojan", or deletes it after an update.
+</Accordion>
+<Accordion title="Your antivirus calls DMM a trojan, or deletes it after an update" id="antivirus-warnings">
 
 **Why:** The DMM developer says these are false alarms from machine-learning scanners. They come in waves after DMM updates. Fakes exist too. One player got a "Deadlock Mod Manager" from the wrong site, and it came with a flagged file and a frozen PC.
 
@@ -63,15 +66,19 @@ On Linux, see [Linux and Steam Deck](/docs/deadlock/errors/linux-steam-deck).
 3. Got it from the official site? Then the choice is yours. You can add an exception for DMM in your antivirus. Only do this for a file from the official site.
 4. Open **Settings > Privacy** in DMM. Turn off **Match Data Sharing** if you do not want DMM to use your Steam login. This feature reads your Steam login token from a Steam file to fetch your match data.
 
+</Accordion>
+</Accordions>
+
 <Callout type="warning" title="Never install DMM from another site">
   `deadlockmodmanager.com` is an unofficial lookalike. GitHub also has fake
   repos named `deadlock-mod-manager-mods`. Read [What's allowed and how to stay
   safe](/docs/deadlock/getting-started/stay-safe) for more signs of a fake.
 </Callout>
 
-## Game folder not found
+## Game folder and downloads
 
-**What you see:** DMM says it cannot find Deadlock, or the status bar does not show the game as ready.
+<Accordions type="multiple">
+<Accordion title="DMM cannot find Deadlock, or the game does not show as ready" id="game-folder-not-found">
 
 **Why:** Deadlock is in a different Steam library, or it has never run on this PC.
 
@@ -86,9 +93,8 @@ The default path is `C:\Program Files (x86)\Steam\steamapps\common\Deadlock`. St
 
 {/* NEEDS HANDS-ON TEST: the Settings > Game label and the path field on the current stable DMM (v1.1.0 or newer). */}
 
-## Downloads stuck or failing
-
-### A download never finishes
+</Accordion>
+<Accordion title="A download never finishes" id="a-download-never-finishes">
 
 Some GameBanana pages have no mod file. They only hold a Google Drive link or a text file. DMM then shows a loading bar that never ends.
 
@@ -113,7 +119,8 @@ If that does not help, reset DMM's mod list:
 
 {/* NEEDS HANDS-ON TEST: the trash can icon, Settings > Tools > Clear All Mods, and where Local Analyze Addons sits on the current stable DMM. Check that Clear All Mods really leaves the files in addons. */}
 
-### Downloads fail
+</Accordion>
+<Accordion title="Downloads fail" id="downloads-fail">
 
 1. Open [GameBanana](https://gamebanana.com/games/20948) in your browser. If it does not load, the site is down. Try again later.
 2. Check that your firewall or antivirus does not block DMM.
@@ -121,9 +128,15 @@ If that does not help, reset DMM's mod list:
 
 Some countries block GameBanana downloads. DMM's [installation guide](https://docs.deadlockmods.app/using-mod-manager/installation) names Brazil, China, Iran, Russia, Turkey, and Ukraine, and suggests a VPN there.
 
-## Mods will not turn off
+</Accordion>
+</Accordions>
 
-**What you see:** A mod still shows in game after you turned it off or removed it in DMM.
+## Mods and files
+
+<Accordions type="multiple">
+<Accordion title="A mod still shows in game after you turned it off" id="mods-will-not-turn-off">
+
+You turned the mod off or removed it in DMM, but it still loads.
 
 **Why:** DMM turns a mod off by renaming its file. The game skips any file that is not named `pak01_dir.vpk` to `pak99_dir.vpk`. But DMM can only rename files it knows about. A mod you copied into `addons` by hand keeps its name, so it keeps loading.
 
@@ -146,7 +159,8 @@ To play with no mods at all, click **Launch without mods** in DMM.
 
 {/* NEEDS HANDS-ON TEST: on the current stable DMM, check the Disable all mods and Launch without mods labels, and check whether DMM's first-run "existing mods" step adopts hand-placed files. */}
 
-## "Access is denied"
+</Accordion>
+<Accordion title='"Access is denied. (os error 5)"' id="access-is-denied">
 
 **What you see:** DMM shows this error when it installs a mod or launches the game:
 
@@ -164,6 +178,9 @@ Access is denied. (os error 5)
 6. Start DMM and try again.
 7. Still denied? Run DMM as administrator once, or delete the old mod files by hand.
 
+</Accordion>
+</Accordions>
+
 ## Switch to Grimoire
 
 If DMM keeps failing on your PC, Grimoire is the main alternative. GameBanana's 1-Click button defaults to DMM, so pick Grimoire from the button's dropdown instead.
@@ -173,26 +190,50 @@ If DMM keeps failing on your PC, Grimoire is the main alternative. GameBanana's 
 3. Install it and use its DMM import. It finds your DMM mods for you.
 4. Uninstall DMM, so only one manager edits `gameinfo.gi`.
 
-Grimoire's Windows installer is not code-signed yet, so Windows may show a warning. Its GitHub page lists checksums you can use to check the file. [Mod managers compared](/docs/deadlock/tools/mod-managers) explains the differences.
+Grimoire's Windows installer is not code-signed yet, so Windows may show a warning. Its GitHub page lists checksums you can use to check the file.
 
 ## Still stuck
 
-DMM's own [Troubleshooting Guide](https://docs.deadlockmods.app/using-mod-manager/troubleshooting) covers more cases, such as display problems, settings that reset, and network checks.
+DMM's own docs and community cover more cases.
 
 <img
   src="/wiki-images/deadlock-errors-mod-manager-problems-3.webp"
   alt="The Troubleshooting Guide page in the Deadlock Mod Manager docs, with its list of sections"
 />
 
-- Ask in the DMM Discord. The link is on [deadlockmods.app](https://deadlockmods.app).
-- Search DMM's [GitHub issues](https://github.com/deadlock-mod-manager/deadlock-mod-manager/issues) before you open a new one.
-- Game crashes at launch? See [Crashes, launch errors, and matchmaking blocks](/docs/deadlock/errors/game-crashes).
+<ToolCard
+  name="DMM Troubleshooting Guide"
+  href="https://docs.deadlockmods.app/using-mod-manager/troubleshooting"
+>
+  More cases, such as display problems, settings that reset, and network checks.
+</ToolCard>
+<ToolCard
+  name="DMM GitHub issues"
+  href="https://github.com/deadlock-mod-manager/deadlock-mod-manager/issues"
+>
+  Search for your problem before you open a new issue.
+</ToolCard>
+<ToolCard name="DMM Discord" href="https://deadlockmods.app">
+  Ask in the DMM Discord. The link is on deadlockmods.app.
+</ToolCard>
 
 ## Next steps
 
-- [Mods not loading](/docs/deadlock/errors/mods-not-loading)
-- [Mod managers compared](/docs/deadlock/tools/mod-managers)
-- [Install mods by hand](/docs/deadlock/getting-started/install-by-hand), if you want to skip a manager
+<ToolCard
+  name="Crashes, launch errors, and matchmaking blocks"
+  href="/docs/deadlock/errors/game-crashes"
+>
+  The game crashes at launch.
+</ToolCard>
+<ToolCard name="Mod managers compared" href="/docs/deadlock/tools/mod-managers">
+  How DMM and Grimoire differ.
+</ToolCard>
+<ToolCard
+  name="Install mods by hand"
+  href="/docs/deadlock/getting-started/install-by-hand"
+>
+  Skip a manager and install mods yourself.
+</ToolCard>
 
 ## Credits
 

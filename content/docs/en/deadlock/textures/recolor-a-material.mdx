@@ -11,8 +11,14 @@ Recolor part of a hero by changing material values in CSDK 12, without painting 
 
 ## What you need
 
-- [Source 2 Viewer](/docs/deadlock/tools/source-2-viewer) and [CSDK 12](/docs/deadlock/tools/csdk-12).
-- The hero's codename. Pocket's briefcase uses `synth`. Other heroes are in [Hero names and file paths](/docs/deadlock/basics/hero-codenames).
+<ToolCard name="Source 2 Viewer" href="/docs/deadlock/tools/source-2-viewer">
+  Finds the hero's material and decompiles it.
+</ToolCard>
+<ToolCard name="CSDK 12" href="/docs/deadlock/tools/csdk-12">
+  Opens the material in the Material Editor and compiles it.
+</ToolCard>
+
+- The hero's codename. Pocket's briefcase uses `synth`.
 
 ## What a material is
 
@@ -32,34 +38,33 @@ You see a recolor on every copy of that hero, enemies included, so a bright skin
   safe](/docs/deadlock/getting-started/stay-safe).
 </Callout>
 
-## Quick options
+## Make the mod
 
-These need no CSDK 12 but give you less control. More in [Make mods without installing tools](/docs/deadlock/tools/browser-builders).
+Pick a route. The full workflow changes the material values themselves. The quick options work in Deadlock Mod Manager or your browser.
 
-- **Mod Foundry in Deadlock Mod Manager.** Open **Settings > Experimental > Mod Foundry**. It recolors a hero's body and weapon and exports a VPK. See the [Mod Foundry docs](https://docs.deadlockmods.app/using-mod-manager/customization).
-- **DeadMod in your browser.** Recolor a texture image you exported with Source 2 Viewer. In [DeadMod](https://redmser.github.io/DeadMod/), paste the texture's game path, upload your image, and click **Save mod as VPK**. This edits images, not material values.
+<Tabs items={["Full CSDK 12 workflow", "Quick options without CSDK 12"]}>
+<Tab value="Full CSDK 12 workflow">
 
-<img
-  src="/wiki-images/deadlock-textures-recolor-a-material-1.webp"
-  alt="DeadMod in the browser, with a file path field, an upload button, the mod file name pak50_dir.vpk, and the Save mod as VPK button"
-/>
+<Steps>
+<Step>
 
-{/* NEEDS HANDS-ON TEST: Mod Foundry on DMM v1.1.0 (menu path, output name, result in game). DeadMod on build 6779 (still builds a working VPK, whether the uploaded pak01_dir.vpk stays on your PC). The web page shows the default "Mod file name" pak50_dir.vpk as of 2026-10-14. */}
-
-## Find the material
+### Find the material
 
 1. Open Source 2 Viewer.
 2. Open `Deadlock/game/citadel/pak01_dir.vpk`.
 3. Go to `models/heroes_staging/synth/materials/`.
 4. Find `pocket_suitcase.vmat_c`.
 
-Materials do not always sit next to the model: Pocket's model is in `models/heroes_wip/pocket/`, but the briefcase material is in `synth`. For other heroes, open the hero's model and check its **References** tab for the real material paths.
+Materials do not always sit next to the model: Pocket's model is in `models/heroes_wip/pocket/`, but the briefcase material is in `synth`. For other heroes, look up the codename in [Hero names and file paths](/docs/deadlock/basics/hero-codenames). Then open the hero's model and check its **References** tab for the real material paths.
 
 {/* NEEDS HANDS-ON TEST: confirm models/heroes_staging/synth/materials/pocket_suitcase.vmat_c still exists on build 6779. */}
 
 {/* SCREENSHOT: deadlock-textures-recolor-a-material-2.webp, Source 2 Viewer showing pocket_suitcase.vmat_c and its path */}
 
-## Decompile it into your addon
+</Step>
+<Step>
+
+### Decompile it into your addon
 
 1. Open the CSDK 12 launcher and create a new addon. Name it in lowercase with no spaces, for example `goldcase`.
 2. Right-click the addon and choose **Explore Content Folder**.
@@ -67,9 +72,32 @@ Materials do not always sit next to the model: Pocket's model is in `models/hero
 4. In Source 2 Viewer, right-click `pocket_suitcase.vmat_c` and choose **Decompile & export**.
 5. Save it into the folder you made in step 3.
 
+Your addon's content folder now looks like this:
+
+<Files>
+  <Folder name="content" defaultOpen>
+    <Folder name="citadel_addons" defaultOpen>
+      <Folder name="goldcase" defaultOpen>
+        <Folder name="models" defaultOpen>
+          <Folder name="heroes_staging" defaultOpen>
+            <Folder name="synth" defaultOpen>
+              <Folder name="materials" defaultOpen>
+                <File name="pocket_suitcase.vmat" />
+              </Folder>
+            </Folder>
+          </Folder>
+        </Folder>
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+
 {/* NEEDS HANDS-ON TEST: whether Decompile & export also writes the material's PNG inputs, and where it puts them (flat in the chosen folder or sorted by path). */}
 
-## Open it in the Material Editor
+</Step>
+<Step>
+
+### Open it in the Material Editor
 
 1. In the CSDK 12 launcher, select `goldcase` and click **Launch Tools**. The Asset Browser opens.
 2. Set the Asset Browser to show only your addon's files.
@@ -84,7 +112,10 @@ Materials do not always sit next to the model: Pocket's model is in `models/hero
 
 {/* SCREENSHOT: deadlock-textures-recolor-a-material-3.webp, the Asset Browser showing only the goldcase addon, filtered with type=material_asset */}
 
-## Change the values
+</Step>
+<Step>
+
+### Change the values
 
 Each setting can read from a texture image or use a fixed value. For polished gold, change three settings:
 
@@ -104,7 +135,10 @@ Each setting can read from a texture image or use a fixed value. For polished go
   have a tint mask, so the tint only shows on some parts.
 </Callout>
 
-## Compile and collect the files
+</Step>
+<Step>
+
+### Compile and collect the files
 
 1. In the Asset Browser, right-click the material and choose **Recompile > Full**.
 2. Right-click `goldcase` in the CSDK 12 launcher and choose **Explore Game Folder**.
@@ -125,7 +159,10 @@ The new material points to its textures by their compiled names, which include a
 
 {/* SCREENSHOT: deadlock-textures-recolor-a-material-7.webp, the addon game folder with the new .vmat_c and .vtex_c files */}
 
-## Pack and test
+</Step>
+<Step>
+
+### Pack and test
 
 1. Pack your staging folder into a VPK with [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
 2. Load the mod and look at Pocket's briefcase in game with [Test your mod in game](/docs/deadlock/basics/test-your-mod).
@@ -134,21 +171,71 @@ Always check in game: Source 2 Viewer's preview does not match Deadlock's lighti
 
 {/* SCREENSHOT: deadlock-textures-recolor-a-material-8.webp, Pocket with the gold briefcase in game */}
 
+</Step>
+</Steps>
+
+</Tab>
+<Tab value="Quick options without CSDK 12">
+
+These need no CSDK 12 but give you less control. More in [Make mods without installing tools](/docs/deadlock/tools/browser-builders).
+
+**Mod Foundry in Deadlock Mod Manager.** Open **Settings > Experimental > Mod Foundry**. It recolors a hero's body and weapon and exports a VPK. See the [Mod Foundry docs](https://docs.deadlockmods.app/using-mod-manager/customization).
+
+**DeadMod in your browser.** Recolor a texture image you exported with Source 2 Viewer. In [DeadMod](https://redmser.github.io/DeadMod/), paste the texture's game path, upload your image, and click **Save mod as VPK**. This edits images, not material values.
+
+<img
+  src="/wiki-images/deadlock-textures-recolor-a-material-1.webp"
+  alt="DeadMod in the browser, with a file path field, an upload button, the mod file name pak50_dir.vpk, and the Save mod as VPK button"
+/>
+
+{/* NEEDS HANDS-ON TEST: Mod Foundry on DMM v1.1.0 (menu path, output name, result in game). DeadMod on build 6779 (still builds a working VPK, whether the uploaded pak01_dir.vpk stays on your PC). The web page shows the default "Mod file name" pak50_dir.vpk as of 2026-10-14. */}
+
+</Tab>
+</Tabs>
+
 ## Common problems
 
-- **Nothing changes in game.** Recompile, then pack the compiled `.vmat_c` from the game folder, not the `.vmat` source.
-- **The old look stays.** Your folder path differs from the original. Check every folder name in Source 2 Viewer.
-- **Purple checkerboard in the Material Editor.** A texture slot lost its image. Click the magnifier on that slot and pick the image that came with the material.
-- **Checkerboard or missing texture in game.** Your VPK lacks the new `.vtex_c` files. Copy them next to the `.vmat_c` and pack again.
-- **It worked before an update.** Updates can move hero files. Find the material again and check the path.
+<Accordions>
+<Accordion title="Nothing changes in game">
+
+Recompile, then pack the compiled `.vmat_c` from the game folder, not the `.vmat` source.
+
+</Accordion>
+<Accordion title="The old look stays">
+
+Your folder path differs from the original. Check every folder name in Source 2 Viewer.
+
+</Accordion>
+<Accordion title="Purple checkerboard in the Material Editor">
+
+A texture slot lost its image. Click the magnifier on that slot and pick the image that came with the material.
+
+</Accordion>
+<Accordion title="Checkerboard or missing texture in game">
+
+Your VPK lacks the new `.vtex_c` files. Copy them next to the `.vmat_c` and pack again.
+
+</Accordion>
+<Accordion title="It worked before an update">
+
+Updates can move hero files. Find the material again and check the path.
+
+</Accordion>
+</Accordions>
 
 More fixes are in [Model and skin problems](/docs/deadlock/errors/model-problems).
 
 ## Next steps
 
-- [Retexture a hero](/docs/deadlock/textures/retexture): paint the hero's images instead of changing values.
-- [Materials for custom models](/docs/deadlock/textures/materials-for-custom-models)
-- [Hero material settings reference](/docs/deadlock/textures/material-reference)
+<ToolCard name="Retexture a hero" href="/docs/deadlock/textures/retexture">
+  Paint the hero's images instead of changing values.
+</ToolCard>
+<ToolCard
+  name="Materials for custom models"
+  href="/docs/deadlock/textures/materials-for-custom-models"
+>
+  Build new materials with the settings Deadlock heroes need.
+</ToolCard>
 
 ## Credits
 

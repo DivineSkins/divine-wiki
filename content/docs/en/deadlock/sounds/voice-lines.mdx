@@ -11,11 +11,17 @@ Replace one voice line, or a hero's whole voice, with your own recordings. The c
 
 ## What you need
 
-- Source 2 Viewer and CSDK 12, set up with [Set up your creator tools](/docs/deadlock/getting-started/creator-setup).
-- One finished sound mod, so you know the Billy Audio Template steps from [Replace a sound](/docs/deadlock/sounds/replace-a-sound).
+<ToolCard name="Source 2 Viewer" href="/docs/deadlock/tools/source-2-viewer">
+  Plays and exports voice lines, and opens the talker and soundevents files.
+</ToolCard>
+<ToolCard name="CSDK 12" href="/docs/deadlock/tools/csdk-12">
+  Compiles your recordings.
+</ToolCard>
+
+- One finished sound mod, so you know the Billy Audio Template steps.
 - Your recordings. Use your own voice, or a voice actor who agreed. GameBanana's Deadlock section does not accept AI-generated content.
 - An audio editor, such as Audacity.
-- The hero's codename from [Hero names and file paths](/docs/deadlock/basics/hero-codenames).
+- The hero's codename.
 
 ## How the game picks a voice line
 
@@ -42,7 +48,12 @@ Voice lines are most of the game's sounds: about 77,800 of 89,800 files. They al
 
 Hero folders use codenames, not hero names. Look the codename up in [Hero names and file paths](/docs/deadlock/basics/hero-codenames), then check the folder name in Source 2 Viewer.
 
-The soundevents for voice lines are in `soundevents/vo/generated_vo_hero_<codename>.vsndevts_c`. The talker rules are in `scripts/talker/generated_response_rules_hero_<codename>.vrr_c`.
+The other two files for a hero's voice:
+
+| File                                                            | What it holds              |
+| --------------------------------------------------------------- | -------------------------- |
+| `soundevents/vo/generated_vo_hero_<codename>.vsndevts_c`        | The voice line soundevents |
+| `scripts/talker/generated_response_rules_hero_<codename>.vrr_c` | The talker rules           |
 
 ## Keep it fair
 
@@ -59,7 +70,8 @@ Mods only change your own game. But you hear your voice lines whenever anyone pl
 
 Pick the way that fits what you know.
 
-### Listen in Source 2 Viewer
+<Tabs items={["Listen in Source 2 Viewer", "Catch it in game", "Follow the talker rule"]}>
+<Tab value="Listen in Source 2 Viewer">
 
 1. Open Source 2 Viewer.
 2. Open `Deadlock/game/citadel/pak01_dir.vpk`.
@@ -69,14 +81,16 @@ Pick the way that fits what you know.
 
 {/* SCREENSHOT: deadlock-sounds-voice-lines-2.webp, Source 2 Viewer open at sounds/vo/<codename>/ with one voice line selected */}
 
-### Catch it in game
+</Tab>
+<Tab value="Catch it in game">
 
-1. Start a private match. [Test your mod in game](/docs/deadlock/basics/test-your-mod) shows how.
+1. Start a private match.
 2. Open the console and type `snd_showstart 1`.
 3. Play until the hero says the line.
 4. Read the path the console prints for that line.
 
-### Follow the talker rule
+</Tab>
+<Tab value="Follow the talker rule">
 
 Use this when you know the moment, but not the file.
 
@@ -92,21 +106,50 @@ If the entry lists several files, the game picks one of them each time. Replace 
 
 {/* SCREENSHOT: deadlock-sounds-voice-lines-3.webp, a decompiled talker rule in Source 2 Viewer with the soundevent name visible */}
 
+</Tab>
+</Tabs>
+
 ## Replace one line
 
-These steps follow [Replace a sound](/docs/deadlock/sounds/replace-a-sound). Go there for the details of each step.
+These are the same steps as in Replace a sound, in short. Go back there for the details of each step.
+
+<Steps>
+<Step>
+
+### Set up the addon
 
 1. In the CSDK 12 launcher, duplicate **Billy Audio Template**. Name the copy in lowercase with no spaces, such as `myvoice`.
 2. Delete the Billy sound files in the copy.
-3. In the addon's content folder, rebuild the line's folder path, such as `sounds/vo/<codename>/`.
-4. Open the original line next to your recording in Audacity. Trim yours to about the same length and loudness.
-5. Export it as `.wav` or `.mp3`. Give it the original name in lowercase. Only the ending changes.
-6. Launch the tools. In the Asset Browser, right-click your file and choose **Recompile > Full**.
-7. Copy the compiled `.vsnd_c` from the addon's game folder into a staging folder, at the same path.
-8. Pack it with [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
-9. Check it with [Test your mod in game](/docs/deadlock/basics/test-your-mod).
+
+</Step>
+<Step>
+
+### Add your recording
+
+1. In the addon's content folder, rebuild the line's folder path, such as `sounds/vo/<codename>/`.
+2. Open the original line next to your recording in Audacity. Trim yours to about the same length and loudness.
+3. Export it as `.wav` or `.mp3`. Give it the original name in lowercase. Only the ending changes.
+
+</Step>
+<Step>
+
+### Compile
+
+Launch the tools. In the Asset Browser, right-click your file and choose **Recompile > Full**.
+
+</Step>
+<Step>
+
+### Pack and test
+
+1. Copy the compiled `.vsnd_c` from the addon's game folder into a staging folder, at the same path.
+2. Pack it with [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
+3. Check it with [Test your mod in game](/docs/deadlock/basics/test-your-mod).
 
 You do not need the template's `soundevents` folder. Leave it out of your VPK.
+
+</Step>
+</Steps>
 
 ## Make a full voice pack
 
@@ -120,7 +163,7 @@ A full pack is the same steps, many times over. You do not need every line. Line
 6. In the Asset Browser, select all your new files at once. Right-click and choose **Recompile > Full**.
 7. Copy every compiled `.vsnd_c` into your staging folder, then pack and test.
 
-Big `.wav` packs make huge VPKs. An `encoding.txt` file can compress them to mp3 when you compile. [Loop and compress sounds](/docs/deadlock/sounds/looping-and-compression) shows how. If your VPK still goes over 2 GB, see [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
+Big `.wav` packs make huge VPKs. An `encoding.txt` file can compress them to mp3 when you compile. [Loop and compress sounds](/docs/deadlock/sounds/looping-and-compression) shows how. If your VPK still goes over 2 GB, the packing guide covers mods that big.
 
 ## Subtitles
 
@@ -149,17 +192,43 @@ No guide covers Patron swaps yet, so test yours well. The game also has language
 
 ## Common problems
 
-- **The old line still plays.** Your path or file name differs from the original. Check every letter in Source 2 Viewer.
-- **The old line plays some of the time.** The soundevent lists several files for that moment. Replace each of them.
-- **The subtitle shows the old words.** Edit the subtitle text. See [Subtitles](#subtitles).
-- **Your VPK is huge.** Compress the pack with `encoding.txt`. See [Loop and compress sounds](/docs/deadlock/sounds/looping-and-compression).
-- **Lines broke after an update.** Game updates change sounds. The "City Never Sleeps" update (2026-09-29) changed many. Find each line again and check its path.
+<Accordions>
+<Accordion title="The old line still plays">
+
+Your path or file name differs from the original. Check every letter in Source 2 Viewer.
+
+</Accordion>
+<Accordion title="The old line plays some of the time">
+
+The soundevent lists several files for that moment. Replace each of them.
+
+</Accordion>
+<Accordion title="The subtitle shows the old words">
+
+Edit the subtitle text, as shown in [Subtitles](#subtitles).
+
+</Accordion>
+<Accordion title="Your VPK is huge">
+
+Compress the pack with `encoding.txt`, as shown in Loop and compress sounds.
+
+</Accordion>
+<Accordion title="Lines broke after an update">
+
+Game updates change sounds. The "City Never Sleeps" update (2026-09-29) changed many. Find each line again and check its path.
+
+</Accordion>
+</Accordions>
 
 ## Next steps
 
-- [Play random sounds with soundevents](/docs/deadlock/sounds/random-sounds)
-- [Change item names and other text](/docs/deadlock/ui/change-text)
-- [Loop and compress sounds](/docs/deadlock/sounds/looping-and-compression)
+<PremiumCard
+  title="Play random sounds with soundevents"
+  href="/docs/deadlock/sounds/random-sounds"
+>
+  Make one moment pick a different sound each time, by editing the hero's
+  soundevents file.
+</PremiumCard>
 
 ## Credits
 

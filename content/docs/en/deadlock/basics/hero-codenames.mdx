@@ -7,12 +7,15 @@ patch: "6779"
 
 <LevelPill level="beginner" />
 
-Deadlock's files use Valve's internal codenames, not the hero names you see in game, and one hero can have several. This page lists the file paths for every hero. To check them yourself, install Source 2 Viewer with [Set up your creator tools](/docs/deadlock/getting-started/creator-setup).
+Deadlock's files use Valve's internal codenames, not the hero names you see in game, and one hero can have several. This page lists the file paths for every hero, and how to check them yourself.
 
 ## What you need
 
-- [Source 2 Viewer](/docs/deadlock/tools/source-2-viewer), to check paths in the game files.
 - Deadlock, updated to the latest version.
+
+<ToolCard name="Source 2 Viewer" href="/docs/deadlock/tools/source-2-viewer">
+  Checks paths in the game files.
+</ToolCard>
 
 ## Why codenames matter
 
@@ -36,11 +39,13 @@ A mod only replaces a file at the exact same path ([How Deadlock mods work](/doc
 
 How to read each column:
 
-- **Model:** add `models/` before the path and `.vmdl_c` after it. Example: `models/heroes_wip/inferno/inferno.vmdl_c`.
-- **Skeleton:** add `models/` before the path and `.vnmskel_c` after it.
-- **Graph:** the hero's animation graph is `animgraphs/animgraph2/hero/hero.vnmgraph+<graph>.vnmgraph_c`.
-- **Portrait:** the start of the hero's interface images, such as `panorama/images/heroes/<portrait>_card_psd.vtex_c`.
-- **Sounds:** the hero's sound event file, `soundevents/hero/<sounds>.vsndevts_c`.
+| Column   | How to read it                                                                                             |
+| -------- | ---------------------------------------------------------------------------------------------------------- |
+| Model    | Add `models/` before the path and `.vmdl_c` after it. Example: `models/heroes_wip/inferno/inferno.vmdl_c`. |
+| Skeleton | Add `models/` before the path and `.vnmskel_c` after it.                                                   |
+| Graph    | The hero's animation graph is `animgraphs/animgraph2/hero/hero.vnmgraph+<graph>.vnmgraph_c`.               |
+| Portrait | The start of the hero's interface images, such as `panorama/images/heroes/<portrait>_card_psd.vtex_c`.     |
+| Sounds   | The hero's sound event file, `soundevents/hero/<sounds>.vsndevts_c`.                                       |
 
 | Hero          | Model                                                | Skeleton                                             | Graph         | Portrait      | Sounds        |
 | ------------- | ---------------------------------------------------- | ---------------------------------------------------- | ------------- | ------------- | ------------- |
@@ -95,14 +100,48 @@ How to read each column:
 
 Many rows mix names or folders. Read across the whole row: Ivy (old name `tengu`), Lady Geist, Mo & Krill, Rem, Yamato, Vyper (old name `kali`), and Kelvin and Viscous, who share one skeleton. Extra files the table does not show:
 
-- **Haze.** Her body model is in `heroes_staging/haze/`, her knife material in `models/heroes_wip/haze/materials/`, and her gun material in `models/heroes_staging/haze_v2/materials/`. Some guides list Haze under `heroes_wip` because of the knife.
-- **Pocket.** His model is in `heroes_wip/pocket/`, but his skeleton, portraits, and briefcase use the old name `synth`. The briefcase material is `models/heroes_staging/synth/materials/pocket_suitcase.vmat_c`.
-- **Grey Talon.** His owl has its own skeleton: `heroes_staging/grey_talon/grey_talon_owl`.
-- **Silver.** The wolf form has its own files in `heroes_wip/werewolf/transform/`, with its own skeleton.
-- **Graves.** He has extra rigs in a `shambler` folder inside his `necro` folder.
-- **Wraith.** Her hero data picks material group 1 for her model. Check which materials that group uses before you edit them.
-- **Violet and Nurse Harrow.** Build 6779 has no main animation graph and no sound event file for them under the usual names. They may still use an older animation system. {/* NEEDS HANDS-ON TEST: open Violet's and Nurse Harrow's vmdl_c Data tab in Source 2 Viewer and check which animation graph and sound files they use (gap G05) */}
-- **The newest heroes.** Nurse Harrow, Rat King, Solomon, Deadman Danny, Baba, and Violet arrived with the "City Never Sleeps" update and become playable through about 2026-10-20. Baba is still marked as in development in build 6779. Expect their paths to change.
+<Accordions>
+<Accordion title="Haze">
+
+Her body model is in `heroes_staging/haze/`, her knife material in `models/heroes_wip/haze/materials/`, and her gun material in `models/heroes_staging/haze_v2/materials/`. Some guides list Haze under `heroes_wip` because of the knife.
+
+</Accordion>
+<Accordion title="Pocket">
+
+His model is in `heroes_wip/pocket/`, but his skeleton, portraits, and briefcase use the old name `synth`. The briefcase material is `models/heroes_staging/synth/materials/pocket_suitcase.vmat_c`.
+
+</Accordion>
+<Accordion title="Grey Talon">
+
+His owl has its own skeleton: `heroes_staging/grey_talon/grey_talon_owl`.
+
+</Accordion>
+<Accordion title="Silver">
+
+The wolf form has its own files in `heroes_wip/werewolf/transform/`, with its own skeleton.
+
+</Accordion>
+<Accordion title="Graves">
+
+He has extra rigs in a `shambler` folder inside his `necro` folder.
+
+</Accordion>
+<Accordion title="Wraith">
+
+Her hero data picks material group 1 for her model. Check which materials that group uses before you edit them.
+
+</Accordion>
+<Accordion title="Violet and Nurse Harrow">
+
+Build 6779 has no main animation graph and no sound event file for them under the usual names. They may still use an older animation system. {/* NEEDS HANDS-ON TEST: open Violet's and Nurse Harrow's vmdl_c Data tab in Source 2 Viewer and check which animation graph and sound files they use (gap G05) */}
+
+</Accordion>
+<Accordion title="The newest heroes">
+
+Nurse Harrow, Rat King, Solomon, Deadman Danny, Baba, and Violet arrived with the "City Never Sleeps" update and become playable through about 2026-10-20. Baba is still marked as in development in build 6779. Expect their paths to change.
+
+</Accordion>
+</Accordions>
 
 Ability effects are in `particles/abilities/<codename>/`, and ability icons in `panorama/images/hud/abilities/<codename>/`. Those folder names can differ again from the table, so check them in Source 2 Viewer.
 
@@ -153,9 +192,21 @@ Advanced: [GameTracking-Deadlock](https://github.com/SteamTracking/GameTracking-
 
 ## Next steps
 
-- [Replace a sound](/docs/deadlock/sounds/replace-a-sound): uses the Sounds column.
-- [Recolor with material values](/docs/deadlock/textures/recolor-a-material): uses the Model column.
-- [Replace portraits, icons, and item art](/docs/deadlock/ui/portraits-and-icons): uses the Portrait column.
+<ToolCard name="Replace a sound" href="/docs/deadlock/sounds/replace-a-sound">
+  Uses the Sounds column.
+</ToolCard>
+<ToolCard
+  name="Recolor with material values"
+  href="/docs/deadlock/textures/recolor-a-material"
+>
+  Uses the Model column.
+</ToolCard>
+<ToolCard
+  name="Replace portraits, icons, and item art"
+  href="/docs/deadlock/ui/portraits-and-icons"
+>
+  Uses the Portrait column.
+</ToolCard>
 
 ## Credits
 

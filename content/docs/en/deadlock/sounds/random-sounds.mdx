@@ -11,11 +11,17 @@ Make one ability play a different sound each time you use it. You edit the hero'
 
 ## What you need
 
-- Source 2 Viewer and CSDK 12, set up with [Set up your creator tools](/docs/deadlock/getting-started/creator-setup).
+<ToolCard name="Source 2 Viewer" href="/docs/deadlock/tools/source-2-viewer">
+  Opens the hero's soundevents file and shows the ability's sound folder.
+</ToolCard>
+<ToolCard name="CSDK 12" href="/docs/deadlock/tools/csdk-12">
+  Compiles your sounds and your edited soundevents file.
+</ToolCard>
+
 - One finished sound mod, so you know the Billy Audio Template steps.
 - A text editor that handles big files, such as Notepad++.
 - Two or more sounds of your own. Make each one about as long and as loud as the original.
-- The hero's codename. Use the Sounds column in [Hero names and file paths](/docs/deadlock/basics/hero-codenames).
+- The hero's codename.
 
 ## What a soundevent is
 
@@ -28,7 +34,7 @@ Give the event a list of files, and the game picks one at random each time.
   alt="Diagram: the original event points to one sound file; in your mod the same event points to a list of three files, and the game picks one at random"
 />
 
-[Replace a sound](/docs/deadlock/sounds/replace-a-sound) swaps a file and leaves the event alone. This page changes the event itself. Use it when you want several sounds for one event, or need to fit the volume or loop length.
+Replace a sound swaps a file and leaves the event alone. This page changes the event itself. Use it when you want several sounds for one event, or need to fit the volume or loop length.
 
 {/* NEEDS HANDS-ON TEST: confirm the event name Punkgoat.Blasted.Lp in soundevents/hero/punkgoat.vsndevts_c on build 6779. */}
 
@@ -60,20 +66,28 @@ This video by Adamtheboss9 shows the whole method on Mo & Krill's Burrow. It sta
   It also uses full songs. Use audio you made or are allowed to share.
 </Callout>
 
-## Set up the addon
+## Make the mod
+
+<Steps>
+<Step>
+
+### Set up the addon
 
 1. In the CSDK 12 launcher, right-click **Billy Audio Template** and choose **Duplicate Addon**.
 2. Name the copy in lowercase with no spaces, such as `randomsounds`.
 3. Right-click it and choose **Explore Content Folder**. You see a `sounds` folder and a `soundevents` folder.
 4. Delete the Billy sound files inside `sounds`.
-5. In Source 2 Viewer, open `game/citadel/pak01_dir.vpk` and go to `sounds/abilities/<codename>/`.
+5. In Source 2 Viewer, open `game/citadel/pak01_dir.vpk` and go to `sounds/abilities/<codename>/`. The codename is in the Sounds column of [Hero names and file paths](/docs/deadlock/basics/hero-codenames).
 6. Find the folder of the ability you want. Copy its folder names exactly.
 7. Rebuild that path inside your addon's `sounds` folder.
 8. Put your sound files there. Use lowercase names with no spaces, such as `my_sound_01.wav`.
 
 Your files can have new names here. The event will point to them by name.
 
-## Copy the hero's soundevents file
+</Step>
+<Step>
+
+### Copy the hero's soundevents file
 
 1. In Source 2 Viewer, open `soundevents/hero/<codename>.vsndevts_c`. For Billy, that is `punkgoat.vsndevts_c`.
 2. Select all of its text and copy it.
@@ -87,7 +101,10 @@ Always paste the whole file. Your copy replaces the game's whole soundevents fil
 
 Use a fresh copy from the current game. Never reuse an old copy from another mod.
 
-## Turn the sound into a list
+</Step>
+<Step>
+
+### Turn the sound into a list
 
 1. Press Ctrl+F and search for the event name, or for the original sound's file name.
 2. Find the event's `vsnd_files` entry. It holds the path of one sound.
@@ -120,19 +137,27 @@ This method comes from one creator's video, made before the "City Never Sleeps" 
 
 {/* SCREENSHOT: deadlock-sounds-random-sounds-2.webp, a decompiled .vsndevts open in Notepad++ with one event's vsnd_files turned into a list */}
 
-## Fit the volume and loop length
+</Step>
+<Step>
+
+### Fit the volume and loop length
 
 Fix loudness in Audacity first. Then check the event's own values.
 
-- **Volume.** If the event has a volume value, you may lower it so your sounds match the original. Never raise it above the original.
-- **Loop length.** Some ability sounds loop while the ability lasts. If the event has a set duration and your clip is longer, the loop restarts before your clip ends. Raise that duration to fit your longest clip.
-- **Pitch.** If your sounds play higher than expected, look for a pitch value on the event.
+| Value       | What to do                                                                                                                                                                                        |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Volume      | If the event has a volume value, you may lower it so your sounds match the original. Never raise it above the original.                                                                           |
+| Loop length | Some ability sounds loop while the ability lasts. If the event has a set duration and your clip is longer, the loop restarts before your clip ends. Raise that duration to fit your longest clip. |
+| Pitch       | If your sounds play higher than expected, look for a pitch value on the event.                                                                                                                    |
 
 A longer loop duration only sets when the loop restarts. Test that the sound still stops when the ability ends.
 
 {/* NEEDS HANDS-ON TEST: the exact keys for volume, loop duration, and pitch in a Deadlock .vsndevts, and that a raised duration never makes a sound play after its ability ends (conflicts C46, C48). */}
 
-## Compile
+</Step>
+<Step>
+
+### Compile
 
 1. In the CSDK 12 launcher, select your addon and click **Launch Tools**.
 2. In the Asset Browser, select your new sound files and your `.vsndevts` file. Select only the files you added or changed.
@@ -142,7 +167,10 @@ A longer loop duration only sets when the loop restarts. Test that the sound sti
 
 {/* SCREENSHOT: deadlock-sounds-random-sounds-3.webp, the addon game folder with soundevents/hero/<codename>.vsndevts_c and the compiled sounds */}
 
-## Pack and test
+</Step>
+<Step>
+
+### Pack and test
 
 1. Make a new staging folder, such as `randomsounds_pack`.
 2. Copy the compiled `sounds` and `soundevents` folders from the addon's game folder into it.
@@ -152,15 +180,29 @@ A longer loop duration only sets when the loop restarts. Test that the sound sti
 
 Your staging folder looks like this:
 
-```text
-randomsounds_pack/
-  sounds/abilities/<codename>/<ability>/
-    my_sound_01.vsnd_c
-    my_sound_02.vsnd_c
-    my_sound_03.vsnd_c
-  soundevents/hero/
-    <codename>.vsndevts_c
-```
+<Files>
+  <Folder name="randomsounds_pack" defaultOpen>
+    <Folder name="sounds" defaultOpen>
+      <Folder name="abilities" defaultOpen>
+        <Folder name="<codename>" defaultOpen>
+          <Folder name="<ability>" defaultOpen>
+            <File name="my_sound_01.vsnd_c" />
+            <File name="my_sound_02.vsnd_c" />
+            <File name="my_sound_03.vsnd_c" />
+          </Folder>
+        </Folder>
+      </Folder>
+    </Folder>
+    <Folder name="soundevents" defaultOpen>
+      <Folder name="hero" defaultOpen>
+        <File name="<codename>.vsndevts_c" />
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+
+</Step>
+</Steps>
 
 ## Why two sound mods for one hero may clash
 
@@ -174,18 +216,50 @@ Updates cause the same problem. Valve can add or change events in an update. You
 
 ## Common problems
 
-- **The same sound plays every time.** Your VPK has no compiled `soundevents` file. Compile the `.vsndevts` and pack the `soundevents` folder too.
-- **The ability makes no sound.** A path in your list does not match a compiled file. Check spelling, lowercase, and the file ending.
-- **Other sounds of the hero went silent.** Your soundevents copy is missing events. Paste the whole current file again.
-- **Nothing changes at all.** You copied files from the content folder. Copy them from the game folder.
-- **Another mod wins.** It has a lower pak number and ships the same soundevents file. Give yours a lower number or remove the other mod.
-- **It stopped working after an update.** Copy the new soundevents file from the game and redo your list.
+<Accordions>
+<Accordion title="The same sound plays every time">
+
+Your VPK has no compiled `soundevents` file. Compile the `.vsndevts` and pack the `soundevents` folder too.
+
+</Accordion>
+<Accordion title="The ability makes no sound">
+
+A path in your list does not match a compiled file. Check spelling, lowercase, and the file ending.
+
+</Accordion>
+<Accordion title="Other sounds of the hero went silent">
+
+Your soundevents copy is missing events. Paste the whole current file again.
+
+</Accordion>
+<Accordion title="Nothing changes at all">
+
+You copied files from the content folder. Copy them from the game folder.
+
+</Accordion>
+<Accordion title="Another mod wins">
+
+It has a lower pak number and ships the same soundevents file. Give yours a lower number or remove the other mod.
+
+</Accordion>
+<Accordion title="It stopped working after an update">
+
+Copy the new soundevents file from the game and redo your list.
+
+</Accordion>
+</Accordions>
 
 ## Next steps
 
-- [Loop and compress sounds](/docs/deadlock/sounds/looping-and-compression)
-- [Replace voice lines](/docs/deadlock/sounds/voice-lines)
-- [Replace a sound](/docs/deadlock/sounds/replace-a-sound)
+<ToolCard
+  name="Loop and compress sounds"
+  href="/docs/deadlock/sounds/looping-and-compression"
+>
+  Set loop points for looping ability sounds, and shrink a big sound mod.
+</ToolCard>
+<ToolCard name="Replace voice lines" href="/docs/deadlock/sounds/voice-lines">
+  Change one line or a hero's whole voice.
+</ToolCard>
 
 ## Credits
 

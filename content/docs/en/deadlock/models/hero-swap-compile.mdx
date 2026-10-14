@@ -7,7 +7,7 @@ patch: "6779"
 
 <LevelPill level="advanced" />
 
-Part 4 of 4. You start with `viper_work.vmdl` from [part 3](/docs/deadlock/models/hero-swap-attachments), with its attachments and game data in place. You finish with a packed `pakNN_dir.vpk` and your skin moving in game. The whole path is in [Hero model swap: overview](/docs/deadlock/models/hero-model-swap).
+Part 4 of 4. You start with `viper_work.vmdl` from part 3, with its attachments and game data in place. You finish with a packed `pakNN_dir.vpk` and your skin moving in game. The whole path is in [Hero model swap: overview](/docs/deadlock/models/hero-model-swap).
 
 <img
   src="/wiki-images/deadlock-models-hero-swap-compile-1.webp"
@@ -24,10 +24,23 @@ CSDK 12 cannot compile these links. Valve's CS2 Workshop Tools can. You use its 
 
 ## What you need
 
+<ToolCard
+  name="CS2 Workshop Tools"
+  href="/docs/deadlock/tools/cs2-workshop-tools"
+>
+  Free with Counter-Strike 2 on Steam. Compiles the AnimGraph 2 links.
+</ToolCard>
+<ToolCard name="Source 2 Viewer" href="/docs/deadlock/tools/source-2-viewer">
+  Shows the original hero's skeleton and graph paths.
+</ToolCard>
+<ToolCard
+  name="Hero names and file paths"
+  href="/docs/deadlock/basics/hero-codenames"
+>
+  Your hero's skeleton and graph names.
+</ToolCard>
+
 - Your work model from part 3.
-- CS2 Workshop Tools, free with Counter-Strike 2 on Steam. Install them with [CS2 Workshop Tools for hero models](/docs/deadlock/tools/cs2-workshop-tools).
-- Source 2 Viewer.
-- Your hero's skeleton and graph names from [Hero names and file paths](/docs/deadlock/basics/hero-codenames).
 
 Some videos use "CSwin64" instead, a repack of the CS2 tools on Google Drive. We do not link it: it is unofficial and its uploader is unknown. The official tools do the same job.
 
@@ -48,7 +61,12 @@ Basilisken adds the AnimGraph 2 nodes in the official CS2 Workshop Tools from 57
   node names. The node names below are the ones to use.
 </Callout>
 
-## Copy your model to CS2 Workshop Tools
+## Compile in CS2 and pack
+
+<Steps>
+<Step>
+
+### Copy your model to CS2 Workshop Tools
 
 1. Close CSDK 12.
 2. Start CS2 Workshop Tools and create a new addon. Give it the same name as your CSDK 12 addon.
@@ -57,7 +75,10 @@ Basilisken adds the AnimGraph 2 nodes in the official CS2 Workshop Tools from 57
 
 The copy holds `viper_work.vmdl`, your DMX files, and your material sources. The DMX files must sit in this addon. ModelDoc cannot load meshes from another addon.
 
-## Add the skeleton and graph references
+</Step>
+<Step>
+
+### Add the skeleton and graph references
 
 1. In the CS2 Asset Browser, find `viper_work.vmdl` and open it in ModelDoc.
 2. Ignore the error and the red checkerboard materials. CS2's shaders differ from Deadlock's.
@@ -98,7 +119,10 @@ Pugzilla points the node at a real file instead. In Source 2 Viewer, decompile t
 
 </Accordions>
 
-## Take only the compiled model
+</Step>
+<Step>
+
+### Take only the compiled model
 
 1. In the CS2 Asset Browser, right-click your model and open the folder of its compiled file.
 2. Find `viper_work.vmdl_c` in `game/csgo_addons/<addon>/models/heroes_staging/viper/`.
@@ -106,7 +130,10 @@ Pugzilla points the node at a real file instead. In Source 2 Viewer, decompile t
 
 Need to change something later? Make the change in CSDK 12, copy the changed nodes into the CS2 copy, and compile there again.
 
-## Build the staging folder
+</Step>
+<Step>
+
+### Build the staging folder
 
 <img
   src="/wiki-images/deadlock-models-hero-swap-compile-4.webp"
@@ -134,7 +161,10 @@ Never ship:
 
 These files break other mods for the same hero, and they break after game updates.
 
-## Pack and test
+</Step>
+<Step>
+
+### Pack and test
 
 1. Pack the staging folder into one VPK. Follow [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
 2. Name it like `pak05_dir.vpk` and put it in `game/citadel/addons/`.
@@ -156,6 +186,9 @@ Then check every item:
 
 Something looks wrong? [Model and skin problems](/docs/deadlock/errors/model-problems) lists each symptom and the part that fixes it. Before you queue for a real match, follow [Before you queue again](/docs/deadlock/basics/test-your-mod#before-you-queue-again).
 
+</Step>
+</Steps>
+
 ## Heroes that may still use AnimGraph 1
 
 Violet and Nurse Harrow had no main AnimGraph 2 graph in build 6779. If your hero's Data tab shows no `hero.vnmgraph+` path, it may still use the older AnimGraph 1.
@@ -166,24 +199,66 @@ Fuji's guide handles AnimGraph 1 heroes with one node. Add an `AnimIncludeModel`
 
 ## A tool that does this step for you
 
-DeadlockTools, a small community tool, can write the AnimGraph 2 references into a model you compiled in CSDK 12. Then you skip CS2 entirely. It is unofficial, its author calls the file writing experimental, and we have not tested it. See [Helper tools and scripts](/docs/deadlock/tools/helper-tools).
+DeadlockTools, a small community tool, can write the AnimGraph 2 references into a model you compiled in CSDK 12. Then you skip CS2 entirely. It is unofficial, its author calls the file writing experimental, and we have not tested it.
+
+<ToolCard
+  name="DeadlockTools"
+  href="/docs/deadlock/tools/helper-tools#animgraph-2-helper-deadlocktools"
+  badge="Untested"
+>
+  Writes the AnimGraph 2 references into a CSDK 12 model. Covered in Helper
+  tools and scripts.
+</ToolCard>
 
 ## Common problems
 
-- **The hero still stands in an A-pose.** One of the three paths is wrong. Copy them again from the Data tab. Check that the UI node is named `ui` in lowercase.
-- **LODs break after the CS2 compile.** Pugzilla's fix: export your DMX files from Blender straight into the CS2 addon's content folder, then compile again in CS2.
-- **Red checkerboards in CS2.** That is normal. Take only the `.vmdl_c` from CS2.
-- **The game still shows the normal hero.** Check the model's name and path against Source 2 Viewer, letter by letter.
+<Accordions>
+<Accordion title="The hero still stands in an A-pose">
+
+One of the three paths is wrong. Copy them again from the Data tab. Check that the UI node is named `ui` in lowercase.
+
+</Accordion>
+<Accordion title="LODs break after the CS2 compile">
+
+Pugzilla's fix: export your DMX files from Blender straight into the CS2 addon's content folder, then compile again in CS2.
 
 {/* NEEDS HANDS-ON TEST: the LOD re-export fix (one source, Pugzilla's video description). */}
+
+</Accordion>
+<Accordion title="Red checkerboards in CS2">
+
+That is normal. Take only the `.vmdl_c` from CS2.
+
+</Accordion>
+<Accordion title="The game still shows the normal hero">
+
+Check the model's name and path against Source 2 Viewer, letter by letter.
+
+</Accordion>
+</Accordions>
 
 That's a full hero swap. Share it once every item on the test list passes.
 
 ## Next steps
 
-- [Publish your mod on GameBanana](/docs/deadlock/publishing/publish-on-gamebanana)
-- [Hero select, shop, and end screen poses](/docs/deadlock/models/menu-scenes)
-- [Update your mod after a patch](/docs/deadlock/publishing/update-after-a-patch)
+<ToolCard
+  name="Publish your mod on GameBanana"
+  href="/docs/deadlock/publishing/publish-on-gamebanana"
+>
+  Share your finished skin.
+</ToolCard>
+<ToolCard
+  name="Hero select, shop, and end screen poses"
+  href="/docs/deadlock/models/menu-scenes"
+>
+  Turn your hero and change the lighting on the menu screens.
+</ToolCard>
+<ToolCard
+  name="Update your mod after a game update"
+  href="/docs/deadlock/publishing/update-after-a-patch"
+>
+  Fix your skin when an update breaks it.
+</ToolCard>
 
 ## Credits
 

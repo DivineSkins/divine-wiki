@@ -16,10 +16,18 @@ Fixes for custom hero models that look or act wrong, in ModelDoc or in game. Fin
 
 ## What you need
 
-- Source 2 Viewer, to compare your model with the original hero.
-- CSDK 12 and your skin's addon.
+<ToolCard name="Source 2 Viewer" href="/docs/deadlock/tools/source-2-viewer">
+  Compares your model with the original hero.
+</ToolCard>
+<ToolCard name="CSDK 12" href="/docs/deadlock/tools/csdk-12">
+  Opens your skin's addon in ModelDoc.
+</ToolCard>
+<ToolCard name="The in-game console" href="/docs/deadlock/basics/test-your-mod">
+  Shows errors that name your files. Click to see how to turn it on.
+</ToolCard>
+
+- Your skin's addon.
 - A text editor, such as Notepad++ or VS Code.
-- The in-game console. [Test your mod in game](/docs/deadlock/basics/test-your-mod) shows how to turn it on.
 
 ## First checks
 
@@ -27,7 +35,10 @@ Fixes for custom hero models that look or act wrong, in ModelDoc or in game. Fin
 2. Check your model's path and file name against Source 2 Viewer, letter by letter.
 3. Open the console with F7 and read the errors that name your files.
 
-## The hero stands in an A-pose or T-pose
+## Find your symptom
+
+<Accordions type="multiple">
+<Accordion title="The hero stands in an A-pose or T-pose" id="the-hero-stands-in-an-a-pose-or-t-pose">
 
 The hero does not animate, or does not turn with the camera. Your model is missing its links to the hero's animations.
 
@@ -40,11 +51,12 @@ The full steps are in [part 4](/docs/deadlock/models/hero-swap-compile#add-the-s
 
 - **You compiled the final model in CSDK 12.** It cannot compile these links. Do the last compile in CS2 Workshop Tools.
 - **Your VPK contains a `.vnmskel_c`.** A shipped skeleton replaces the game's and can freeze the hero. Remove it.
-- **Your hero is Violet or Nurse Harrow.** They may still use AnimGraph 1. See [part 4](/docs/deadlock/models/hero-swap-compile#heroes-that-may-still-use-animgraph-1).
+- **Your hero is Violet or Nurse Harrow.** They may still use AnimGraph 1. Part 4 has a section on heroes that may still use it.
 
 {/* SCREENSHOT: deadlock-errors-model-problems-2.webp, an original test skin standing in an A-pose in the hideout */}
 
-## The camera sits in the middle of the screen
+</Accordion>
+<Accordion title="The camera sits in the middle of the screen" id="the-camera-sits-in-the-middle-of-the-screen">
 
 The camera sits inside the hero or in the screen center. The console often fills with green text that names an attachment. A camera attachment in your model has different values from the original.
 
@@ -69,7 +81,8 @@ Never fix the camera by changing `CitadelCameraSettings_t` or the FOV values. Co
 
 {/* SCREENSHOT: deadlock-errors-model-problems-4.webp, the console (F7) with green text naming a broken camera attachment */}
 
-## The health bar sits at the feet
+</Accordion>
+<Accordion title="The health bar sits at the feet" id="the-health-bar-sits-at-the-feet">
 
 Pugzilla shows this fix from 53:21.
 
@@ -90,7 +103,8 @@ Another route: the DeadlockTools community tool has a `fix unitstatus` command f
 
 {/* SCREENSHOT: deadlock-errors-model-problems-5.webp, the fixed health bar floating above an original test skin's head */}
 
-## Some hero sounds are missing
+</Accordion>
+<Accordion title="Some hero sounds are missing" id="some-hero-sounds-are-missing">
 
 Your model lacks a game data block.
 
@@ -101,7 +115,8 @@ Use the text editor method from [part 3](/docs/deadlock/models/hero-swap-attachm
 
 {/* NEEDS HANDS-ON TEST: which sounds go missing without CitadelTaggedSoundSettings_t (one source, Fuji's guide). */}
 
-## The mesh is solid red, or shows checkerboards
+</Accordion>
+<Accordion title="The mesh is solid red, or shows checkerboards" id="the-mesh-is-solid-red-or-shows-checkerboards">
 
 | What you see                       | Where                     | Fix                                                                      |
 | ---------------------------------- | ------------------------- | ------------------------------------------------------------------------ |
@@ -113,7 +128,8 @@ Use the text editor method from [part 3](/docs/deadlock/models/hero-swap-attachm
 
 Material steps are in [Materials for custom models](/docs/deadlock/textures/materials-for-custom-models).
 
-## The mesh bends or stretches strangely
+</Accordion>
+<Accordion title="The mesh bends or stretches strangely" id="the-mesh-bends-or-stretches-strangely">
 
 This almost always comes from weights.
 
@@ -124,7 +140,8 @@ This almost always comes from weights.
 
 Did you fix the mesh size with ModelDoc's import scale? That can also stretch the mesh against the skeleton. Fix the size in Blender instead. See [part 1](/docs/deadlock/models/hero-swap-blender#rig-your-mesh-to-the-skeleton).
 
-## The hero looks bald or see-through when it fades
+</Accordion>
+<Accordion title="The hero looks bald or see-through when it fades" id="the-hero-looks-bald-or-see-through-when-it-fades">
 
 Some abilities and items make heroes fade or turn see-through. A custom model can then look bald, or show its insides.
 
@@ -134,12 +151,14 @@ Haze also needs extra material groups for her invisibility.
 
 {/* NEEDS HANDS-ON TEST: whether Write Depth Before Alpha Blending fixes fade artifacts on opaque hero materials (conflict C39). Do not tell readers to tick it until tested. */}
 
-## Limbs flip or point the wrong way
+</Accordion>
+<Accordion title="Limbs flip or point the wrong way" id="limbs-flip-or-point-the-wrong-way">
 
 - **After a custom animation:** the animation lacks IK chains or the right IK names. See [Replace an animation](/docs/deadlock/animations/replace-an-animation).
 - **Right after a Blender import:** an import option changed the bone orientation. Import again with it off.
 
-## The weapon floats or sits between the legs
+</Accordion>
+<Accordion title="The weapon floats or sits between the legs" id="the-weapon-floats-or-sits-between-the-legs">
 
 The weapon mesh is not parented to the armature.
 
@@ -150,7 +169,8 @@ The weapon mesh is not parented to the armature.
 
 In the rest pose, a gun between the legs can be normal. Check it while the hero moves.
 
-## ModelDoc crashes
+</Accordion>
+<Accordion title="ModelDoc crashes" id="modeldoc-crashes">
 
 | When it crashes                                | Fix                                                                                                                                                |
 | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -166,9 +186,12 @@ More crash fixes from Fuji's guide:
 - Delete "hull" shapes from `PhysicsShapeList`.
 - If your CSDK 12 launcher has a **Fix Models** box, tick it. If it is greyed out, start the tools from the `bin` or `bin_tools` folder.
 
-Basilisken shows the italic nodes and his clean-file fix [from 55:18](https://www.youtube.com/watch?v=IL3ywMmK090&t=3318s). For crashes outside ModelDoc, see [Errors when making mods](/docs/deadlock/errors/creator-errors).
+Basilisken shows the italic nodes and his clean-file fix [from 55:18](https://www.youtube.com/watch?v=IL3ywMmK090&t=3318s). For crashes outside ModelDoc, see Errors when making mods under Next steps.
 
 {/* NEEDS HANDS-ON TEST: the Fix Models box and the tools exe it depends on (conflict C22); the _cloth_ bone and hull shape fixes (one source). */}
+
+</Accordion>
+</Accordions>
 
 ## The model broke after a game update
 
@@ -180,13 +203,26 @@ Valve sometimes moves a hero's model to a new folder. It can also change the ske
 4. Redo the AnimGraph 2 links with [part 4](/docs/deadlock/models/hero-swap-compile).
 5. Check that your VPK holds no `.vnmskel_c` and nothing from `scripts/`.
 
-[Update your mod after a patch](/docs/deadlock/publishing/update-after-a-patch) has the full routine.
-
 ## Next steps
 
-- [Hero swap part 1: rig your model in Blender](/docs/deadlock/models/hero-swap-blender)
-- [Hero swap part 3: attachments, camera, and game data](/docs/deadlock/models/hero-swap-attachments)
-- [Errors when making mods](/docs/deadlock/errors/creator-errors)
+<ToolCard
+  name="Update your mod after a game update"
+  href="/docs/deadlock/publishing/update-after-a-patch"
+>
+  The full routine for fixing your mod after Valve ships an update.
+</ToolCard>
+<ToolCard
+  name="Hero swap part 1: rig your model in Blender"
+  href="/docs/deadlock/models/hero-swap-blender"
+>
+  Start the swap again from the Blender step.
+</ToolCard>
+<ToolCard
+  name="Errors when making mods"
+  href="/docs/deadlock/errors/creator-errors"
+>
+  Compile, packing, and tool errors outside ModelDoc.
+</ToolCard>
 
 ## Credits
 

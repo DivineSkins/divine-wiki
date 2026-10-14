@@ -30,10 +30,25 @@ You see your clip on enemies who play this hero too. Keep attack wind-ups (parry
 
 ## What you need
 
-- **CS2 Workshop Tools**, free with Counter-Strike 2 on Steam. Its ModelDoc has the AnimGraph 2 Clip preview. CSDK 12 lacks it and compiles clips in an older format. See [CS2 Workshop Tools for hero models](/docs/deadlock/tools/cs2-workshop-tools).
-- **Blender 4.5 or newer** with the **PulseSrcOps** add-on. It is the add-on the guide names for DMX animations in Blender 4.5 and newer. See [Blender and add-ons for Deadlock](/docs/deadlock/tools/blender-add-ons).
-- **Source 2 Viewer**, latest dev build.
-- Your animation, made and baked in Blender as shown in [Replace an animation](/docs/deadlock/animations/replace-an-animation).
+<ToolCard
+  name="CS2 Workshop Tools"
+  href="/docs/deadlock/tools/cs2-workshop-tools"
+>
+  Free with Counter-Strike 2 on Steam. Its ModelDoc has the AnimGraph 2 Clip
+  preview. CSDK 12 lacks it and compiles clips in an older format.
+</ToolCard>
+<ToolCard
+  name="Blender and add-ons"
+  href="/docs/deadlock/tools/blender-add-ons"
+>
+  Blender 4.5 or newer with the PulseSrcOps add-on, the one the guide names for
+  DMX animations in Blender 4.5 and newer.
+</ToolCard>
+<ToolCard name="Source 2 Viewer" href="/docs/deadlock/tools/source-2-viewer">
+  The latest dev build.
+</ToolCard>
+
+- Your animation, made and baked in Blender as shown in the simple route.
 
 {/* NEEDS HANDS-ON TEST: which tools compile clips on build 6779 (conflict C50). Check CS2 Workshop Tools first, then whether CSDK 12 still compiles a working clip for a simple swap. */}
 
@@ -42,9 +57,14 @@ You see your clip on enemies who play this hero too. Keep attack wind-ups (parry
   alt="Six steps: read FPS, frames, and IK chains in Source 2 Viewer; animate and export DMX in Blender; import in ModelDoc in CS2 Workshop Tools; make clips with Make Default Animgraph2; fix ID events, the additive frame, and IK chains; check in Clip preview and ship only the .vnmclip_c."
 />
 
-## Read the original clip
+## Build the clip in ModelDoc
 
-1. Open the hero's `clips` folder in Source 2 Viewer. [Replace an animation](/docs/deadlock/animations/replace-an-animation) shows where it is.
+<Steps>
+<Step>
+
+### Read the original clip
+
+1. Open the hero's `clips` folder in Source 2 Viewer, the same one you used in the simple route.
 2. Select the clip you will replace and preview it.
 3. In the **Data** section, write down **FPS**, **DURATION**, and **FRAME**.
 4. Open the hero's model and go to **Data > IKChains**. For each chain, write down its name (`m_Name`), its end bone, its bone count, and its target bone.
@@ -52,9 +72,12 @@ You see your clip on enemies who play this hero too. Keep attack wind-ups (parry
 
 {/* NEEDS HANDS-ON TEST: confirm that Data > IKChains shows on the hero's model in the current Source 2 Viewer dev build, and which fields it lists. */}
 
-## Check your Blender export
+</Step>
+<Step>
 
-The Blender steps live on [Replace an animation](/docs/deadlock/animations/replace-an-animation). Before you export, check these:
+### Check your Blender export
+
+The Blender steps live in the simple route. Before you export, check these:
 
 - The scene frame rate matches the clip's FPS, rounded to a whole number.
 - The frame count matches the original.
@@ -64,7 +87,10 @@ The Blender steps live on [Replace an animation](/docs/deadlock/animations/repla
 
 To start from the original motion, import the original clip's DMX with PulseSrcOps.
 
-## Import the clips in ModelDoc
+</Step>
+<Step>
+
+### Import the clips in ModelDoc
 
 1. In CS2 Workshop Tools, create an addon.
 2. In its content folder, rebuild the hero's skeleton path, the same path you used in CSDK 12.
@@ -78,7 +104,10 @@ If you skip step 7, you get the warning "Found existing (default) AG2 graph. Ign
 
 {/* NEEDS HANDS-ON TEST: whether Add Simple Animations goes into a new ModelDoc document or a decompiled hero .vmdl, and the exact content folder path in CS2 Workshop Tools (csgo_addons). */}
 
-## Make the clips
+</Step>
+<Step>
+
+### Make the clips
 
 1. Choose **Tools > Make Default Animgraph2**.
 2. Pick the hero's `.vnmskel`.
@@ -88,7 +117,10 @@ If you skip step 7, you get the warning "Found existing (default) AG2 graph. Ign
 
 Older sound and bodygroup events convert on their own.
 
-## Copy the ID events
+</Step>
+<Step>
+
+### Copy the ID events
 
 ID events (`CNmIDEvent`, shown as `CNmClipDocEvent_ID`) do not convert. Your new clip needs the same ones as the original.
 
@@ -97,7 +129,10 @@ ID events (`CNmIDEvent`, shown as `CNmClipDocEvent_ID`) do not convert. Your new
 3. Copy them into your new `.vnmclip`.
 4. Check again that they are there after any later DMX swap.
 
-## Set up aim clips
+</Step>
+<Step>
+
+### Set up aim clips
 
 Aim clips, such as `aim_idle.vnmclip`, are additive. They work relative to their middle frame. Set these lines in the `.vnmclip`:
 
@@ -115,7 +150,10 @@ m_nAdditiveBaseFrameIdx = 31
 
 {/* NEEDS HANDS-ON TEST: the base frame for aim clips of other lengths. The guide only gives 61 and 101 frames. */}
 
-## Match the IK chains
+</Step>
+<Step>
+
+### Match the IK chains
 
 1. In ModelDoc, add one **IKChain** node for each chain you wrote down.
 2. Copy the chain name from `m_Name`.
@@ -125,7 +163,10 @@ m_nAdditiveBaseFrameIdx = 31
 
 {/* SCREENSHOT: deadlock-animations-ik-and-modeldoc-2.webp, ModelDoc's IKChain node with the name, end effector, bone count, and target bone filled in */}
 
-## Check in the Clip preview
+</Step>
+<Step>
+
+### Check in the Clip preview
 
 1. Open the **Clip preview** tab.
 2. Set the filter to your skeleton.
@@ -134,7 +175,10 @@ m_nAdditiveBaseFrameIdx = 31
 
 {/* SCREENSHOT: deadlock-animations-ik-and-modeldoc-3.webp, the Clip preview tab playing the new clip on the hero skeleton */}
 
-## Compile and pack
+</Step>
+<Step>
+
+### Compile and pack
 
 1. In the Asset Browser, right-click your `.vnmclip` and recompile it.
 2. Copy only the compiled `.vnmclip_c` into a staging folder, at the original clip's path.
@@ -142,13 +186,38 @@ m_nAdditiveBaseFrameIdx = 31
 4. Pack the staging folder. Follow [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
 5. Test the move in game. Follow [Test your mod in game](/docs/deadlock/basics/test-your-mod).
 
+</Step>
+</Steps>
+
 ## Common problems
 
-- **Limbs flip or face the wrong way.** The IK constraints are missing, the animation is not baked, or the IK chain names do not match. A custom model with no IK chains needs its creator to add them.
-- **The model stands still, or only part of it moves.** You packed a skeleton, or a body mask is active. Body masks split the upper and lower body for aiming, running, and melee. Use the game's own skeleton.
-- **The model flips or drifts in the preview.** `Root_motion` has keys. Remove them.
-- **The clip plays too fast.** Its length or frame rate does not match the original. Match both.
-- **The warning "Found existing (default) AG2 graph".** Delete the `NMSkeletonList` and `AnimGraph2List` nodes. Then run **Make Default Animgraph2** again.
+<Accordions>
+<Accordion title="Limbs flip or face the wrong way">
+
+The IK constraints are missing, the animation is not baked, or the IK chain names do not match. A custom model with no IK chains needs its creator to add them.
+
+</Accordion>
+<Accordion title="The model stands still, or only part of it moves">
+
+You packed a skeleton, or a body mask is active. Body masks split the upper and lower body for aiming, running, and melee. Use the game's own skeleton.
+
+</Accordion>
+<Accordion title="The model flips or drifts in the preview">
+
+`Root_motion` has keys. Remove them.
+
+</Accordion>
+<Accordion title="The clip plays too fast">
+
+Its length or frame rate does not match the original. Match both.
+
+</Accordion>
+<Accordion title='The warning "Found existing (default) AG2 graph"'>
+
+Delete the `NMSkeletonList` and `AnimGraph2List` nodes. Then run **Make Default Animgraph2** again.
+
+</Accordion>
+</Accordions>
 
 {/* NEEDS HANDS-ON TEST: the guide says a clip with the wrong length plays at "turbo speed" for other players and the server (gap G12). Mods are client-side, so check what other players see before stating it. */}
 
@@ -156,8 +225,18 @@ This is where community knowledge stops for now. The guide's author has no AnimG
 
 ## Next steps
 
-- [Replace an animation](/docs/deadlock/animations/replace-an-animation)
-- [CS2 Workshop Tools for hero models](/docs/deadlock/tools/cs2-workshop-tools)
+<ToolCard
+  name="Publish your mod on GameBanana"
+  href="/docs/deadlock/publishing/publish-on-gamebanana"
+>
+  Animation mods go in the Animations category.
+</ToolCard>
+<ToolCard
+  name="Update your mod after a game update"
+  href="/docs/deadlock/publishing/update-after-a-patch"
+>
+  Keep your clip working after the next game update.
+</ToolCard>
 
 ## Credits
 

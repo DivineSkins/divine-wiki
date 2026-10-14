@@ -16,11 +16,22 @@ CSDK 12 compiles your edited files into files Deadlock can read. Every current g
   community page.
 </Callout>
 
+<ToolCard
+  name="CSDK 12"
+  href="https://deadlockmodding.pages.dev/modding-tools/csdk-12"
+  badge="Unofficial"
+>
+  The community download page on Deadlock Modding Notes.
+</ToolCard>
+
 ## What you need
+
+<ToolCard name="Source 2 Viewer" href="/docs/deadlock/tools/source-2-viewer">
+  Gets files out of the game.
+</ToolCard>
 
 - A Windows PC. CSDK 12 runs on Windows only.
 - Steam, running whenever you use the tools.
-- [Source 2 Viewer](/docs/deadlock/tools/source-2-viewer), to get files out of the game.
 
 ## At a glance
 
@@ -28,13 +39,18 @@ CSDK 12 compiles your edited files into files Deadlock can read. Every current g
 | -------------- | ----------------------------------------------------------------------------------------------------------- |
 | Full name      | Community Source Development Kit 12                                                                         |
 | Version to get | Reduced CSDK 12. It leaves out the full game files and still edits models, sounds, textures, UI, and vdata. |
-| Get it         | The [CSDK 12 page](https://deadlockmodding.pages.dev/modding-tools/csdk-12) on Deadlock Modding Notes       |
+| Get it         | The CSDK 12 page on Deadlock Modding Notes                                                                  |
 | Built for      | The "6 Heroes" update of 2025-08-19. The page was last updated 2026-08-10.                                  |
 | Cost           | Free                                                                                                        |
 
 CSDK 12 is pinned to an older game build. Newer formats, such as AnimGraph 2 animation clips, compile in an outdated form. Hero model swaps use the [CS2 Workshop Tools](/docs/deadlock/tools/cs2-workshop-tools) for that part.
 
-## Download and unzip
+## Get started
+
+<Steps>
+<Step>
+
+### Download and unzip
 
 1. Open the [CSDK 12 page](https://deadlockmodding.pages.dev/modding-tools/csdk-12).
 2. Use the **Download** link in its Installation section. The archive holds a `Reduced_CSDK_12` folder.
@@ -51,7 +67,10 @@ Windows may show a SmartScreen warning for the CSDK 12 programs. Continue only i
 
 {/* NEEDS HANDS-ON TEST: size of the unzipped Reduced_CSDK_12 folder, and whether the current zip still opens and compiles against build 6779 (gap G02) */}
 
-## The launcher
+</Step>
+<Step>
+
+### Open the launcher
 
 1. Start Steam.
 2. Open `csdkcfg.exe` in the `Reduced_CSDK_12` folder. This is the launcher, also called the Configuration Tool.
@@ -63,15 +82,34 @@ Older CSDK 12 downloads start from `game\bin\win64\Deadlock_with_tools.exe` inst
 
 The launcher has these launch options:
 
-- **VConsole**: opens the VConsole window, where compile errors show up. Keep it on.
-- **No Addon**: only for editing the tools' own files. It can overwrite base files in `game/citadel`. Keep it off.
-- **Fix Models**: one guide says ModelDoc needs it on. A greyed-out box means you started the wrong program. Your launcher may not have it.
+<ParameterList
+  parameters={[
+    {
+      name: "VConsole",
+      description:
+        "Opens the VConsole window, where compile errors show up. Keep it on.",
+    },
+    {
+      name: "No Addon",
+      description:
+        "Only for editing the tools' own files. It can overwrite base files in game/citadel. Keep it off.",
+    },
+    {
+      name: "Fix Models",
+      description:
+        "One guide says ModelDoc needs it on. A greyed-out box means you started the wrong program. Your launcher may not have it.",
+    },
+  ]}
+/>
 
 {/* NEEDS HANDS-ON TEST: whether the Fix Models checkbox exists in the current launcher, and what it does */}
 
 {/* SCREENSHOT: deadlock-tools-csdk-12-2.webp, the launcher with the binary picker open and the VConsole and No Addon options visible */}
 
-## Pick a binary
+</Step>
+<Step>
+
+### Pick a binary
 
 The binary picker sits in the top left of the launcher. Each choice starts a different build of the tools.
 
@@ -81,6 +119,9 @@ The binary picker sits in the top left of the launcher. Each choice starts a dif
 | `bin_tools`  | Previewing projected particle effects                                          | Crashes when it compiles AnimGraph 1 models.            |
 | `bin_server` | Starting Deadlock in server mode to preview mods. Compiles VData and Panorama. | Needs the full game files. Will not start without them. |
 | `bin_cs2`    | The GUI Map Compiler, for map lighting                                         | Maps only.                                              |
+
+</Step>
+</Steps>
 
 ## Addons and templates
 
@@ -95,15 +136,29 @@ An addon is one mod project. CSDK 12 gives each addon two folders, and your path
 - Right-click an addon for its menu: **Explore Content Folder**, **Explore Game Folder**, **Duplicate**, **Compile All Assets**, **Create VPK**, and **Delete**.
 - CSDK 12 ships template addons: `hero_image_template` for portraits and icons, and the **Billy Audio Template** for sounds. Duplicate a template to start from it.
 
-[Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk) explains why we do not use **Create VPK** yet.
+We do not use **Create VPK** yet. The packing guide in Next steps explains why.
 
 ## Compile
 
 You have three ways to compile:
 
-1. **Automatic.** While the tools run, they watch the content folder and compile new files into the game folder.
-2. **One file.** In the Asset Browser, right-click the file and choose **Recompile > Full**.
-3. **The whole addon.** In the launcher, right-click the addon and choose **Compile All Assets**.
+<Tabs items={["Automatic", "One file", "The whole addon"]}>
+<Tab value="Automatic">
+
+While the tools run, they watch the content folder and compile new files into the game folder.
+
+</Tab>
+<Tab value="One file">
+
+In the Asset Browser, right-click the file and choose **Recompile > Full**.
+
+</Tab>
+<Tab value="The whole addon">
+
+In the launcher, right-click the addon and choose **Compile All Assets**.
+
+</Tab>
+</Tabs>
 
 To find the result, right-click the asset and choose **File '...' > Open Folder**, or use **Explore Game Folder**. Compiled files end in `_c`.
 
@@ -125,36 +180,51 @@ Every compile runs `resourcecompiler.exe`. Build scripts call it from `game\bin_
 resourcecompiler.exe -i "<full path to your source file>"
 ```
 
-- `-i` sets the input file. `-r` with a wildcard compiles a whole folder.
-- `-f` forces a compile even if nothing changed.
-- `-game <path to gameinfo.gi>` is for files outside the `content` folder.
+<ParameterList
+  parameters={[
+    { name: "-i", description: "Sets the input file." },
+    {
+      name: "-r",
+      description: "With a wildcard, compiles a whole folder.",
+    },
+    { name: "-f", description: "Forces a compile even if nothing changed." },
+    {
+      name: "-game <path to gameinfo.gi>",
+      description: "For files outside the content folder.",
+    },
+  ]}
+/>
 
 ## The tools inside
 
-| Tool                        | What Deadlock creators use it for                                                       |
-| --------------------------- | --------------------------------------------------------------------------------------- |
-| Asset Browser               | The hub. Browse, preview, open editors, and recompile.                                  |
-| Material Editor             | Make and fix `.vmat` materials. A purple checkerboard means a missing texture.          |
-| ModelDoc                    | Build hero and prop models from your exported meshes.                                   |
-| Particle Editor             | Recolor ability particles.                                                              |
-| VConsole                    | Read compile errors and logs.                                                           |
-| Resource Compiler           | Compiles everything. The Asset Browser uses it for you.                                 |
-| CS2 Workshop Manager        | A packing trick. [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk) shows it. |
-| Multichunk Workshop Manager | Packs mods over 2 GB in parts.                                                          |
-| Hammer, S2FM                | Maps, posing, and renders. Both need the full game files.                               |
+| Tool                        | What Deadlock creators use it for                                              |
+| --------------------------- | ------------------------------------------------------------------------------ |
+| Asset Browser               | The hub. Browse, preview, open editors, and recompile.                         |
+| Material Editor             | Make and fix `.vmat` materials. A purple checkerboard means a missing texture. |
+| ModelDoc                    | Build hero and prop models from your exported meshes.                          |
+| Particle Editor             | Recolor ability particles.                                                     |
+| VConsole                    | Read compile errors and logs.                                                  |
+| Resource Compiler           | Compiles everything. The Asset Browser uses it for you.                        |
+| CS2 Workshop Manager        | A packing trick. The packing guide in Next steps shows it.                     |
+| Multichunk Workshop Manager | Packs mods over 2 GB in parts.                                                 |
+| Hammer, S2FM                | Maps, posing, and renders. Both need the full game files.                      |
 
 No AnimGraph editor exists for Deadlock yet. CSDK 12 cannot author animation graphs.
 
 ## Full game files (advanced, optional)
 
-Skip this if you are new. You need the full game files only for `bin_server`, Hammer, and S2FM.
+Skip this if you are new. You need the full game files only for `bin_server`, Hammer, and S2FM. Want only to study how heroes are built? Use the lighter option.
+
+<Tabs items={["Full game files", "Lighter option: hero models"]}>
+<Tab value="Full game files">
 
 - The [CSDK 12 page](https://deadlockmodding.pages.dev/modding-tools/csdk-12) has the steps. They use [DepotDownloader](https://github.com/SteamRE/DepotDownloader) to fetch an older Deadlock build, then Source 2 Viewer to unpack it into the CSDK folder.
 - A `401` error means Valve blocks that old build for your account, which happens if you got Deadlock later. The page offers a workaround. If that fails too, skip the full game files.
 
-### Lighter option: hero models for reference
+</Tab>
+<Tab value="Lighter option: hero models">
 
-Want to study how heroes are built? Export only the hero model folders into CSDK 12.
+Export only the hero model folders into CSDK 12. You get hero models for reference.
 
 1. In Source 2 Viewer, open `pak01_dir.vpk` and go to `models`.
 2. Right-click `heroes_staging` and choose **Export as is**.
@@ -164,15 +234,40 @@ Want to study how heroes are built? Export only the hero model folders into CSDK
 
 Both folders together take about 4 to 5 GB, and CSDK 12 starts slower with more files.
 
+</Tab>
+</Tabs>
+
 <YouTube id="d2JGLiH2CAY" title="Compiled models in CSDK by Pugzilla" />
 
 ## Common problems
 
-- **Your addon is missing from the launcher.** The name has a capital letter, a space, or a special character. Rename the folder in both `content/citadel_addons` and `game/citadel_addons`. Then click **Refresh addons list**.
-- **The tools do not start.** Start Steam first. Move the `Reduced_CSDK_12` folder out of OneDrive folders.
-- **CSDK 12 crashes when it opens a decompiled hero model.** Newer Source 2 Viewer builds add AnimGraph 2 nodes. CSDK 12 cannot read them. [Hero swap part 2](/docs/deadlock/models/hero-swap-modeldoc) shows how to remove them.
-- **Hero materials are missing in the tools.** Export the hero model folders as shown in the lighter option above.
-- **The game will not find a match.** The game refuses to queue while Tools mode runs. Close CSDK 12 before you play online.
+<Accordions>
+<Accordion title="Your addon is missing from the launcher">
+
+The name has a capital letter, a space, or a special character. Rename the folder in both `content/citadel_addons` and `game/citadel_addons`. Then click **Refresh addons list**.
+
+</Accordion>
+<Accordion title="The tools do not start">
+
+Start Steam first. Move the `Reduced_CSDK_12` folder out of OneDrive folders.
+
+</Accordion>
+<Accordion title="CSDK 12 crashes when it opens a decompiled hero model">
+
+Newer Source 2 Viewer builds add AnimGraph 2 nodes. CSDK 12 cannot read them. [Hero swap part 2](/docs/deadlock/models/hero-swap-modeldoc) shows how to remove them.
+
+</Accordion>
+<Accordion title="Hero materials are missing in the tools">
+
+Export the hero model folders, as shown in the lighter option tab above.
+
+</Accordion>
+<Accordion title="The game will not find a match">
+
+The game refuses to queue while Tools mode runs. Close CSDK 12 before you play online.
+
+</Accordion>
+</Accordions>
 
 More fixes are in [Errors when making mods](/docs/deadlock/errors/creator-errors).
 
@@ -180,9 +275,12 @@ More fixes are in [Errors when making mods](/docs/deadlock/errors/creator-errors
 
 ## Next steps
 
-- [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk)
-- [Errors when making mods](/docs/deadlock/errors/creator-errors)
-- [CS2 Workshop Tools for hero models](/docs/deadlock/tools/cs2-workshop-tools)
+<PremiumCard
+  title="Pack your mod into a VPK"
+  href="/docs/deadlock/basics/pack-a-vpk"
+>
+  Turn your compiled files into one mod file the game loads.
+</PremiumCard>
 
 ## Credits
 

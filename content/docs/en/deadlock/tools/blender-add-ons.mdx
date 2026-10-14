@@ -11,9 +11,15 @@ You need Blender only for model and animation work. Sounds, recolors, and icons 
 
 ## What you need
 
-- [Blender](https://www.blender.org/download/), free from blender.org.
-- [Source 2 Viewer](/docs/deadlock/tools/source-2-viewer), to export the models you import.
-- [CSDK 12](/docs/deadlock/tools/csdk-12), which compiles the DMX files you export.
+<ToolCard name="Blender" href="https://www.blender.org/download/" badge="Free">
+  The 3D editor itself, from blender.org.
+</ToolCard>
+<ToolCard name="Source 2 Viewer" href="/docs/deadlock/tools/source-2-viewer">
+  Exports the models you import.
+</ToolCard>
+<ToolCard name="CSDK 12" href="/docs/deadlock/tools/csdk-12">
+  Compiles the DMX files you export.
+</ToolCard>
 
 ## Which add-on does what
 
@@ -58,12 +64,28 @@ All of them are free.
 
 ## BlenderSource2Tools (Fuji fork)
 
-The DMX exporter that every Deadlock model guide uses. FellOffFuji's fork adds what Source 2 needs: cloth vertex maps, bone axis fixes, and model scaling.
+<ToolCard
+  name="BlenderSource2Tools"
+  href="https://github.com/FellOffFuji/BlenderSource2Tools/releases"
+  badge="Recommended"
+>
+  The DMX exporter that every Deadlock model guide uses. By FellOffFuji.
+</ToolCard>
 
-- **Get it:** the [releases page](https://github.com/FellOffFuji/BlenderSource2Tools/releases) on GitHub. Under **Assets**, download the `io_scene_valvesource2` zip, not **Source code**.
+FellOffFuji's fork adds what Source 2 needs: cloth vertex maps, bone axis fixes, and model scaling.
+
+- **Get it:** on the releases page, under **Assets**, download the `io_scene_valvesource2` zip, not **Source code**.
 - **Latest:** 3.3.1_2f, from 2025-12-07. It fixed animation import after a Source 2 Viewer DMX change, plus animation and vertex color export.
-- **Export settings the guides use:** open **Scene Properties > Source Engine Export**. Set the DMX version to **Binary 9** and **Model 22 (ModelDoc)**. Set the export path to your addon's content folder.
 - **Back up your work.** Its readme calls it experimental and warns it may corrupt `.blend` files.
+
+Export settings the guides use, in **Scene Properties > Source Engine Export**:
+
+<ParameterList
+  parameters={[
+    { name: "DMX version", description: "Binary 9 and Model 22 (ModelDoc)" },
+    { name: "Export path", description: "Your addon's content folder" },
+  ]}
+/>
 
 <img
   src="/wiki-images/deadlock-tools-blender-add-ons-3.webp"
@@ -74,9 +96,13 @@ The DMX exporter that every Deadlock model guide uses. FellOffFuji's fork adds w
 
 ## SourceIO
 
-An importer by REDxEYE. It reads compiled game files (`.vmdl_c`, materials, textures, and maps) without a glTF export first. It does not export.
+<ToolCard name="SourceIO" href="https://github.com/REDxEYE/SourceIO">
+  An importer for compiled game files. By REDxEYE.
+</ToolCard>
 
-- **Get it:** [SourceIO on GitHub](https://github.com/REDxEYE/SourceIO). Use release 5.5.4 or newer for Blender 5.x.
+It reads `.vmdl_c` models, materials, textures, and maps without a glTF export first. It does not export.
+
+- **Version:** use release 5.5.4 or newer for Blender 5.x.
 - **Import:** **File > Import > Source Engine Assets**, then the Source 2 model importer.
 - **After import:** delete the extra detail levels (`lod1`, `lod2`, `lod3`). SourceIO brings them all in at once, so the model flickers.
 - **Missing parts:** it can skip parts colored by vertex color only, such as hair, eyes, and faces. If parts come in white or missing, use the glTF route instead.
@@ -94,9 +120,16 @@ Neutraldrift's video shows the full SourceIO import, including the mount and sca
 
 ## PulseSrcOps
 
-A character-focused fork of Blender Source Tools by ToppiOfficial. It imports DMX files that Source 2 Viewer decompiles, including animations. It also exports cloth proxies, jigglebones, hitboxes, and attachments, and it updates itself.
+<ToolCard
+  name="PulseSrcOps"
+  href="https://github.com/ToppiOfficial/PulseSrcOps"
+>
+  A character-focused fork of Blender Source Tools. By ToppiOfficial.
+</ToolCard>
 
-- **Get it:** [PulseSrcOps on GitHub](https://github.com/ToppiOfficial/PulseSrcOps). Version 2.5.0 came out on 2026-10-06.
+It imports DMX files that Source 2 Viewer decompiles, including animations. It also exports cloth proxies, jigglebones, hitboxes, and attachments, and it updates itself.
+
+- **Version:** 2.5.0 came out on 2026-10-06.
 - **Use it for:** animation work. The Deadlock Modding Notes animation guide names it as the tool that imports DMX animations into Blender 4.5 and newer.
 - **For plain model exports,** stay with BlenderSource2Tools until someone tests PulseSrcOps exports in ModelDoc.
 
@@ -104,9 +137,17 @@ A character-focused fork of Blender Source Tools by ToppiOfficial. It imports DM
 
 ## Mesh Data Transfer
 
+<ToolCard
+  name="Mesh Data Transfer"
+  href="https://extensions.blender.org/add-ons/mesh-data-transfer/"
+  badge="Free"
+>
+  A weight transfer add-on on Blender Extensions. By Maurizio Memoli.
+</ToolCard>
+
 Copies vertex groups (weights), shape keys, and UVs from one mesh to another, even when their shapes differ. Model guides use it to move a hero's weights onto a new model.
 
-- **Get it:** [Mesh Data Transfer](https://extensions.blender.org/add-ons/mesh-data-transfer/) on Blender Extensions, free. Some guides link an older Gumroad version. Use the Blender Extensions version instead.
+Some guides link an older Gumroad version. Use the Blender Extensions version instead.
 
 ## Skip these
 
@@ -115,9 +156,24 @@ Copies vertex groups (weights), shape keys, and UVs from one mesh to another, ev
 
 ## Next steps
 
-- [Import a Deadlock model into Blender](/docs/deadlock/models/import-into-blender)
-- [Hero swap part 1: rig your model in Blender](/docs/deadlock/models/hero-swap-blender)
-- [Replace an animation](/docs/deadlock/animations/replace-an-animation)
+<ToolCard
+  name="Import a Deadlock model into Blender"
+  href="/docs/deadlock/models/import-into-blender"
+>
+  Open an exported hero or prop in Blender at the right size and facing.
+</ToolCard>
+<ToolCard
+  name="Hero swap part 1: rig your model in Blender"
+  href="/docs/deadlock/models/hero-swap-blender"
+>
+  Fit your character to a hero's skeleton and export DMX files.
+</ToolCard>
+<ToolCard
+  name="Replace an animation"
+  href="/docs/deadlock/animations/replace-an-animation"
+>
+  Swap one hero animation clip for your own motion.
+</ToolCard>
 
 ## Credits
 

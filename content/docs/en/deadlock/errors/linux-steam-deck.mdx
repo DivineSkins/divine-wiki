@@ -24,14 +24,20 @@ Deadlock has no Linux version. It runs through Proton, Steam's compatibility lay
 
 ## Find the game folder
 
-The easiest way works on every system:
+<Tabs items={["Through Steam", "Type the path"]}>
+<Tab value="Through Steam">
+
+This way works on every system.
 
 1. Open your Steam **Library**.
 2. Right-click **Deadlock**.
 3. Choose **Manage > Browse local files**.
 4. Open `game`, then `citadel`. Your `addons` folder goes here.
 
-If you prefer to type the path, these are the default Deadlock folders. `~` means your home folder.
+</Tab>
+<Tab value="Type the path">
+
+These are the default Deadlock folders. `~` means your home folder.
 
 | Steam install | Deadlock folder                                                                    |
 | ------------- | ---------------------------------------------------------------------------------- |
@@ -42,6 +48,9 @@ If you prefer to type the path, these are the default Deadlock folders. `~` mean
 - Native Steam also reaches the same folder through `~/.steam/steam` and `~/.steam/root`.
 - Flatpak Steam can use `.../data/Steam/...` instead of `.../.local/share/Steam/...`.
 - Is Deadlock on a microSD card or another drive? Open Steam's **Settings > Storage** to see every library.
+
+</Tab>
+</Tabs>
 
 Proton changes where saves and settings live. It does not move the game files.
 
@@ -68,12 +77,14 @@ We have not tested whether the game itself, running under Proton, cares about ca
 
 ## Mod managers on Linux
 
-Both big mod managers have Linux builds. Use only one of them.
+Both big mod managers have Linux builds. Use only one of them. On SteamOS, players use either the DMM Flatpak or the Grimoire Flatpak. Both work for them.
 
-- **Deadlock Mod Manager:** Flatpak, AppImage, `.deb`, `.rpm`, an APT repository, the AUR, nixpkgs, and a Gentoo overlay. The DMM team calls its Linux support "best-effort". Follow its [installation guide](https://docs.deadlockmods.app/using-mod-manager/installation).
-- **Grimoire:** AppImage, `.deb`, Flatpak, the AUR, an APT repository, and a Nix flake. Get it from [grimoiremods.com](https://grimoiremods.com) or its [GitHub page](https://github.com/Slush97/grimoire).
+<Tabs items={["Deadlock Mod Manager", "Grimoire"]}>
+<Tab value="Deadlock Mod Manager">
 
-On SteamOS, players use either the DMM Flatpak or the Grimoire Flatpak. Both work for them.
+**Builds:** Flatpak, AppImage, `.deb`, `.rpm`, an APT repository, the AUR, nixpkgs, and a Gentoo overlay.
+
+The DMM team calls its Linux support "best-effort". Follow its [installation guide](https://docs.deadlockmods.app/using-mod-manager/installation).
 
 <img
   src="/wiki-images/deadlock-errors-linux-steam-deck-3.webp"
@@ -81,6 +92,16 @@ On SteamOS, players use either the DMM Flatpak or the Grimoire Flatpak. Both wor
 />
 
 If DMM feels slow on Linux, install its CEF build. It bundles its own browser engine, which runs faster for most people.
+
+</Tab>
+<Tab value="Grimoire">
+
+**Builds:** AppImage, `.deb`, Flatpak, the AUR, an APT repository, and a Nix flake.
+
+Get it from [grimoiremods.com](https://grimoiremods.com) or its [GitHub page](https://github.com/Slush97/grimoire).
+
+</Tab>
+</Tabs>
 
 ### Play from Game Mode on a Steam Deck
 
@@ -92,11 +113,17 @@ Deadlock should keep loading your mods, because the edit stays in `gameinfo.gi`.
 
 {/* NEEDS HANDS-ON TEST: that a Game Mode launch on a Steam Deck stays modded after one Launch Modded in Desktop Mode, with the DMM Flatpak. */}
 
-## DMM crashes when you pick the game folder
+## DMM fixes on Linux
+
+<Accordions type="multiple">
+<Accordion title="DMM crashes when you pick the game folder" id="dmm-crashes-when-you-pick-the-game-folder">
 
 **What you see:** On a Steam Deck or another Linux PC, you open the folder picker in **Settings > Game**. A dialog flashes, then DMM crashes. DMM may also fail to find the game on its own.
 
 **Why:** The Flatpak sandbox cannot see your Steam library.
+
+<Tabs items={["Flatseal", "Terminal"]}>
+<Tab value="Flatseal">
 
 1. Quit DMM fully, including its tray icon.
 2. On a Steam Deck, switch to Desktop Mode.
@@ -104,11 +131,21 @@ Deadlock should keep loading your mods, because the edit stays in `gameinfo.gi`.
 4. Under **Filesystem > Other files**, add the full path of your Steam library. Add any library on a microSD card too.
 5. Start DMM and pick the game folder again.
 
-You can do steps 3 and 4 in a terminal instead. Replace the example path with your own library path:
+</Tab>
+<Tab value="Terminal">
 
-```bash
-flatpak override --user --filesystem="/home/you/.local/share/Steam" dev.stormix.deadlock-mod-manager
-```
+1. Quit DMM fully, including its tray icon.
+2. On a Steam Deck, switch to Desktop Mode.
+3. Run this in a terminal. Replace the example path with your own library path:
+
+   ```bash
+   flatpak override --user --filesystem="/home/you/.local/share/Steam" dev.stormix.deadlock-mod-manager
+   ```
+
+4. Start DMM and pick the game folder again.
+
+</Tab>
+</Tabs>
 
 Still crashing? DMM's docs list a broader fix as a last resort. It gives DMM access to most of your files, not only the Steam library:
 
@@ -122,16 +159,17 @@ To take that access back later, quit DMM and run:
 flatpak override --user --nofilesystem=host dev.stormix.deadlock-mod-manager
 ```
 
-## DMM opens to a grey window
+</Accordion>
+<Accordion title="DMM opens to a grey window" id="dmm-opens-to-a-grey-window">
 
 **What you see:** The DMM Flatpak opens, but the window stays grey or blank. This happens most with NVIDIA graphics cards.
 
 1. Quit DMM fully, including its tray icon.
 2. Run this in a terminal:
 
-```bash
-flatpak override --user --env=WEBKIT_DISABLE_DMABUF_RENDERER=1 dev.stormix.deadlock-mod-manager
-```
+   ```bash
+   flatpak override --user --env=WEBKIT_DISABLE_DMABUF_RENDERER=1 dev.stormix.deadlock-mod-manager
+   ```
 
 3. Start DMM again. The setting stays for future launches.
 
@@ -143,19 +181,26 @@ To undo the setting, quit DMM and run:
 flatpak override --user --unset-env=WEBKIT_DISABLE_DMABUF_RENDERER dev.stormix.deadlock-mod-manager
 ```
 
-### AppImage or Wayland problems
+</Accordion>
+<Accordion title="The AppImage does not start" id="the-appimage-does-not-start">
 
-- **The AppImage does not start.** Make it executable. Replace the file name with yours:
+Make it executable. Replace the file name with yours:
 
-  ```bash
-  chmod +x ~/Downloads/Deadlock-Mod-Manager.AppImage
-  ```
+```bash
+chmod +x ~/Downloads/Deadlock-Mod-Manager.AppImage
+```
 
-- **Glitches on Wayland with an NVIDIA card.** Start DMM with this setting in front of the command:
+</Accordion>
+<Accordion title="Glitches on Wayland with an NVIDIA card" id="glitches-on-wayland-with-an-nvidia-card">
 
-  ```bash
-  WEBKIT_DISABLE_COMPOSITING_MODE=1 deadlock-modmanager
-  ```
+Start DMM with this setting in front of the command:
+
+```bash
+WEBKIT_DISABLE_COMPOSITING_MODE=1 deadlock-modmanager
+```
+
+</Accordion>
+</Accordions>
 
 {/* NEEDS HANDS-ON TEST: every Flatpak, AppImage, and Wayland fix on this page, on a current DMM build. Check the exact command name DMM installs (deadlock-modmanager vs deadlock-mod-manager) for the Wayland fix. */}
 
@@ -163,9 +208,11 @@ flatpak override --user --unset-env=WEBKIT_DISABLE_DMABUF_RENDERER dev.stormix.d
 
 You can install and play mods on Linux. Making most mods is a different story.
 
-- **CSDK 12 is Windows only.** It compiles sounds, materials, and models. We know of no tested way to run it on Linux.
-- **Source 2 Viewer's window app is Windows only.** Its command-line version runs on Linux. It can open game files and pack a folder into a VPK.
-- **Browser tools** such as Deadlock Forge and DeadMod run in a web browser, so they should work on Linux. See [Make mods without installing tools](/docs/deadlock/tools/browser-builders).
+| Tool                                              | On Linux                                                                                                                                  |
+| ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| CSDK 12                                           | Windows only. It compiles sounds, materials, and models. We know of no tested way to run it on Linux.                                     |
+| Source 2 Viewer                                   | The window app is Windows only. Its command-line version runs on Linux. It can open game files and pack a folder into a VPK.              |
+| Browser tools, such as Deadlock Forge and DeadMod | They run in a web browser, so they should work on Linux. See [Make mods without installing tools](/docs/deadlock/tools/browser-builders). |
 
 For anything that needs a compile step, use a Windows PC.
 
@@ -173,14 +220,21 @@ For anything that needs a compile step, use a Windows PC.
 
 ## Still stuck
 
-- DMM's [Troubleshooting Guide](https://docs.deadlockmods.app/using-mod-manager/troubleshooting) has more Linux fixes.
-- [Deadlock Mod Manager problems](/docs/deadlock/errors/mod-manager-problems) covers problems on every system.
-- [Mods not loading](/docs/deadlock/errors/mods-not-loading) walks through the checks when nothing shows in game.
-
-## Next steps
-
-- [Install mods by hand](/docs/deadlock/getting-started/install-by-hand)
-- [Deadlock Mod Manager problems](/docs/deadlock/errors/mod-manager-problems)
+<ToolCard
+  name="DMM Troubleshooting Guide"
+  href="https://docs.deadlockmods.app/using-mod-manager/troubleshooting"
+>
+  More Linux fixes from the DMM team.
+</ToolCard>
+<ToolCard
+  name="Deadlock Mod Manager problems"
+  href="/docs/deadlock/errors/mod-manager-problems"
+>
+  DMM problems on every system.
+</ToolCard>
+<ToolCard name="Mods not loading" href="/docs/deadlock/errors/mods-not-loading">
+  The checks to run when nothing shows in game.
+</ToolCard>
 
 ## Credits
 

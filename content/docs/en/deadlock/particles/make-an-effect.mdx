@@ -11,9 +11,15 @@ Build your own particle effect in CSDK 12's Particle Editor, then show it in pla
 
 ## What you need
 
-- CSDK 12 and Source 2 Viewer. Install them with [Set up your creator tools](/docs/deadlock/getting-started/creator-setup).
+<ToolCard name="CSDK 12" href="/docs/deadlock/tools/csdk-12">
+  Particle Editor to build the effect, and the compiler.
+</ToolCard>
+<ToolCard name="Source 2 Viewer" href="/docs/deadlock/tools/source-2-viewer">
+  Previews and decompiles the game effect you replace.
+</ToolCard>
+
 - One finished particle recolor.
-- The path of the game effect you want to replace. [Recolor ability effects](/docs/deadlock/particles/recolor-ability-effects) shows how to find it with `dumpparticlelist`.
+- The path of the game effect you want to replace. The recolor guide shows how to find it with `dumpparticlelist`.
 
 ## Keep it fair
 
@@ -54,7 +60,12 @@ Decide three things before you open the editor:
 2. **The size and length to match.** Preview the original in Source 2 Viewer. Note how big it is and how long it lasts.
 3. **The parts.** Build each part as its own file, then join them as children. This page builds a burst from three parts: sparks, a flash, and a ring.
 
-## Build the sparks
+## Build and ship the effect
+
+<Steps>
+<Step>
+
+### Build the sparks
 
 Node names below follow the video. If a name differs in your build, search the add menu for a close match.
 
@@ -75,15 +86,23 @@ Node names below follow the video. If a name differs in your build, search the a
 
 {/* SCREENSHOT: deadlock-particles-make-an-effect-3.webp, the Particle Editor function list for burst_sparks with the emitter, initializers, operators, and renderer visible */}
 
-## Shape it over time
+</Step>
+<Step>
 
-- **Random sizes:** click the value-type button next to the radius and choose **random uniform**. Set a range such as 5 to 10.
-- **Grow or shrink:** add the operator **Radius Scale** with a start and an end scale. The radius you set at spawn is the base size, and this operator multiplies it.
-- **Curves:** for size or fade over a particle's life, use a float node with the input **particle age** (0 to 1). Switch it to a curve and Shift+click to add points.
-- **Keep random sizes:** if a curve wipes out your random radius, change its **set value method** to **scale initial value**.
-- **Layers:** duplicate the sprite renderer and give the copy another texture.
+### Shape it over time
 
-## Add a flash and a ring as children
+| To get            | Do this                                                                                                                                                 |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Random sizes      | Click the value-type button next to the radius and choose **random uniform**. Set a range such as 5 to 10.                                              |
+| Grow or shrink    | Add the operator **Radius Scale** with a start and an end scale. The radius you set at spawn is the base size, and this operator multiplies it.         |
+| Curves            | For size or fade over a particle's life, use a float node with the input **particle age** (0 to 1). Switch it to a curve and Shift+click to add points. |
+| Keep random sizes | If a curve wipes out your random radius, change its **set value method** to **scale initial value**.                                                    |
+| Layers            | Duplicate the sprite renderer and give the copy another texture.                                                                                        |
+
+</Step>
+<Step>
+
+### Add a flash and a ring as children
 
 1. Save a copy of the sparks file as `burst_flash.vpcf`.
 2. In the copy, remove the movement functions and set the spawn distance to 0. The flash now sits in the center.
@@ -95,7 +114,10 @@ Node names below follow the video. If a name differs in your build, search the a
 
 A color set in **Base Properties** blends on top of the color functions. Check there if the colors look wrong.
 
-## Preview and tune
+</Step>
+<Step>
+
+### Preview and tune
 
 1. Restart the effect in the preview after each change.
 2. Compare it with the original effect. Match the size, the brightness, and the length.
@@ -103,7 +125,10 @@ A color set in **Base Properties** blends on top of the color functions. Check t
 
 {/* SCREENSHOT: deadlock-particles-make-an-effect-4.webp, the finished burst (sparks, flash, and ring) playing in the Particle Editor preview */}
 
-## Use it in place of a game effect
+</Step>
+<Step>
+
+### Use it in place of a game effect
 
 The game asks for each effect by its path. A brand new path would need a game data change. Instead, you edit a copy of the original effect so it plays yours as a child.
 
@@ -114,7 +139,7 @@ The game asks for each effect by its path. A brand new path would need a game da
 
 1. Find the game effect you want to replace. Weapon effects, such as muzzle flashes, live in `particles/weapon_fx/`.
 2. Decompile it into your addon at the exact same path.
-3. If it will not open in the tools, fix its header line. [Recolor ability effects](/docs/deadlock/particles/recolor-ability-effects) shows how.
+3. If it will not open in the tools, fix its header line, as the recolor guide shows.
 4. Open it in the Particle Editor. Add `burst_sparks.vpcf` under **Children**. Your file can stay in its own folder.
 5. Turn off the original functions, so only your effect shows.
 6. Scale your effect to the original's size.
@@ -125,7 +150,10 @@ Your effect stays where it spawns. Making it follow a moving weapon needs contro
 
 {/* NEEDS HANDS-ON TEST: the full replacement on build 6779 with one weapon effect in particles/weapon_fx/. Confirm that turning off the original functions works, that no vdata change is needed, and record the exact example file. The video used a Doorman weapon effect before City Never Sleeps. */}
 
-## Compile, pack, and test
+</Step>
+<Step>
+
+### Compile, pack, and test
 
 1. In the Asset Browser, select your three files and the edited game effect.
 2. Right-click and choose **Recompile > Full**.
@@ -135,22 +163,59 @@ Your effect stays where it spawns. Making it follow a moving weapon needs contro
 6. Pack the staging folder. Follow [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
 7. Play the hero or weapon that uses the effect. Follow [Test your mod in game](/docs/deadlock/basics/test-your-mod).
 
+</Step>
+</Steps>
+
 ## Common problems
 
-- **The warning "system will not end on stop".** Add the **Lifespan Decay** operator.
-- **The preview is empty.** Save the file first.
-- **Particles do not move or never disappear.** Add **Movement Basic** and set a life duration.
-- **Black boxes around the sprites.** Set the blend mode to additive.
-- **Random sizes are ignored.** Set the curve's set value method to **scale initial value**.
-- **The effect points the wrong way in game.** Remove fixed directions. The attachment point has its own axes.
-- **The tools crash when you preview an effect.** Some projected effects crash the `bin` binary. Switch to `bin_tools` for the preview.
+<Accordions>
+<Accordion title='The warning "system will not end on stop"'>
+
+Add the **Lifespan Decay** operator.
+
+</Accordion>
+<Accordion title="The preview is empty">
+
+Save the file first.
+
+</Accordion>
+<Accordion title="Particles do not move or never disappear">
+
+Add **Movement Basic** and set a life duration.
+
+</Accordion>
+<Accordion title="Black boxes around the sprites">
+
+Set the blend mode to additive.
+
+</Accordion>
+<Accordion title="Random sizes are ignored">
+
+Set the curve's set value method to **scale initial value**.
+
+</Accordion>
+<Accordion title="The effect points the wrong way in game">
+
+Remove fixed directions. The attachment point has its own axes.
+
+</Accordion>
+<Accordion title="The tools crash when you preview an effect">
+
+Some projected effects crash the `bin` binary. Switch to `bin_tools` for the preview.
+
+</Accordion>
+</Accordions>
 
 Only one Deadlock tutorial builds an effect from scratch. Nobody has documented how to make an effect follow a moving attachment, how team colors work on a new effect, or which effects City Never Sleeps moved.
 
 ## Next steps
 
-- [Recolor ability effects](/docs/deadlock/particles/recolor-ability-effects)
-- [Test your mod in game](/docs/deadlock/basics/test-your-mod)
+<PremiumCard
+  title="Publish your mod on GameBanana"
+  href="/docs/deadlock/publishing/publish-on-gamebanana"
+>
+  Share your finished effect with screenshots, credits, and the right category.
+</PremiumCard>
 
 ## Credits
 

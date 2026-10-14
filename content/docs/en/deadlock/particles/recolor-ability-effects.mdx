@@ -7,14 +7,26 @@ patch: "6779"
 
 <LevelPill level="intermediate" />
 
-Give an ability's effects new colors. You find the particle files the ability uses, recolor them in CSDK 12, and pack them as a mod. Set up your tools first with [Set up your creator tools](/docs/deadlock/getting-started/creator-setup).
+Give an ability's effects new colors. You find the particle files the ability uses, recolor them in CSDK 12, and pack them as a mod.
 
 ## What you need
 
-- Source 2 Viewer and CSDK 12, set up with [Set up your creator tools](/docs/deadlock/getting-started/creator-setup).
-- The developer console, turned on as shown in [Test your mod in game](/docs/deadlock/basics/test-your-mod).
-- Optional: vpcf-editor, to change many colors at once.
-- The hero's folder name for effects. See the note on ability effects in [Hero names and file paths](/docs/deadlock/basics/hero-codenames).
+<ToolCard name="Source 2 Viewer" href="/docs/deadlock/tools/source-2-viewer">
+  Finds the particle files and decompiles them into your addon.
+</ToolCard>
+<ToolCard name="CSDK 12" href="/docs/deadlock/tools/csdk-12">
+  Opens the Particle Editor and compiles your recolored files.
+</ToolCard>
+<ToolCard
+  name="vpcf-editor"
+  href="https://github.com/yousv/vpcf-editor"
+  badge="Optional"
+>
+  Changes many colors at once.
+</ToolCard>
+
+- The developer console, turned on.
+- The hero's folder name for effects.
 
 ## Keep it as readable as the original
 
@@ -62,11 +74,16 @@ This video by Pugzilla recolors Lady Geist's Life Drain to purple.
   and has the header fix shown below.
 </Callout>
 
-## Find the particles an ability uses
+## Recolor the effect
+
+<Steps>
+<Step>
+
+### Find the particles an ability uses
 
 A hero's folder holds many effects the game never uses. Find the exact files first.
 
-1. Start a private match with your hero. [Test your mod in game](/docs/deadlock/basics/test-your-mod) shows how.
+1. Start a private match with your hero. [Test your mod in game](/docs/deadlock/basics/test-your-mod) shows how to turn on the console and start one.
 2. Press **F7** to open the console.
 3. Use the ability. While its effect still plays, run `dumpparticlelist` in the console.
 4. Find the ability's entries in the list. Lady Geist's Life Drain used six: drain, beam, debuff, debuff ring, start player, and start target.
@@ -77,7 +94,10 @@ A hero's folder holds many effects the game never uses. Find the exact files fir
 
 {/* SCREENSHOT: deadlock-particles-recolor-ability-effects-2.webp, the console with dumpparticlelist output listing one ability's particles */}
 
-## Decompile them into your addon
+</Step>
+<Step>
+
+### Decompile them into your addon
 
 1. In the CSDK 12 launcher, create a new addon. Name it in lowercase with no spaces, such as `purpledrain`.
 2. Right-click it and choose **Explore Content Folder**.
@@ -86,11 +106,14 @@ A hero's folder holds many effects the game never uses. Find the exact files fir
 5. Right-click each particle from your list and choose **Decompile & export**.
 6. Save each one into the folder from step 3.
 
-Folder names here can differ from the hero's other files. Lady Geist's model folder is `geist`, but her effects were in `ghost` in late 2025. Check the folder in Source 2 Viewer.
+Folder names here can differ from the hero's other files. Lady Geist's model folder is `geist`, but her effects were in `ghost` in late 2025. Check the folder in Source 2 Viewer. [Hero names and file paths](/docs/deadlock/basics/hero-codenames) has a note on ability effects.
 
 {/* SCREENSHOT: deadlock-particles-recolor-ability-effects-3.webp, Source 2 Viewer open at particles/abilities/<codename>/ with the ability's particles */}
 
-## Fix the header on newer particles
+</Step>
+<Step>
+
+### Fix the header on newer particles
 
 Some newer particles do not open in the tools. Their first line names a format the tools do not know. Open each `.vpcf` in a text editor and check the first line.
 
@@ -112,9 +135,15 @@ This fix comes from late 2025. The format line may differ on the current build. 
 
 {/* NEEDS HANDS-ON TEST: whether decompiled particles on build 6779 still need this header fix, and whether vpcf61 and its version code are still right after the City Never Sleeps update (gap G11). */}
 
-## Change the colors
+</Step>
+<Step>
 
-### In the Particle Editor
+### Change the colors
+
+Use the Particle Editor to recolor file by file. Use vpcf-editor to change many files at once.
+
+<Tabs items={["Particle Editor", "vpcf-editor"]}>
+<Tab value="Particle Editor">
 
 1. In the CSDK 12 launcher, select your addon and click **Launch Tools**.
 2. In the Asset Browser, search for a particle from your list. Click it once to preview it.
@@ -131,9 +160,10 @@ If the preview does not change, the color comes from another function. Keep look
 
 {/* SCREENSHOT: deadlock-particles-recolor-ability-effects-5.webp, the Particle Editor with a Renderer function selected and its color properties visible */}
 
-### Many files at once: vpcf-editor
+</Tab>
+<Tab value="vpcf-editor">
 
-[vpcf-editor](https://github.com/yousv/vpcf-editor) is an unofficial community tool. It opens a folder of `.vpcf` files and lists every color in them. Its shared colors view finds one color across many files and changes them all together. It saves backups before it writes.
+vpcf-editor is an unofficial community tool. It opens a folder of `.vpcf` files and lists every color in them. Its shared colors view finds one color across many files and changes them all together. It saves backups before it writes.
 
 1. Open vpcf-editor and pick the folder you decompiled into.
 2. Change the colors you want. Keep the brightness close to the original.
@@ -144,41 +174,94 @@ Its README says MIT license, but the repository has no license file.
 
 {/* NEEDS HANDS-ON TEST: vpcf-editor's current button labels, its backups folder, and that the files it saves still compile in CSDK 12. */}
 
-## Compile and pack
+</Tab>
+</Tabs>
+
+</Step>
+<Step>
+
+### Compile and pack
 
 1. In the Asset Browser, select every particle you changed.
 2. Right-click and choose **Recompile > Full**.
 3. Right-click your addon in the launcher and choose **Explore Game Folder**.
 4. Copy the `particles` folder from there into a new staging folder. This keeps the right path.
 5. Pack the staging folder with [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
-6. Load it and use the ability. Follow the Particles tab in [Test your mod in game](/docs/deadlock/basics/test-your-mod).
+6. Load it in a private match and use the ability. Work through the **Particles** tab of the testing guide from the first stage.
 
 Compare your effect with the original. It should be as easy to see, no more and no less.
 
 {/* SCREENSHOT: deadlock-particles-recolor-ability-effects-6.webp, the same ability in game before and after the recolor, side by side */}
 
+</Step>
+</Steps>
+
 ## When a color will not change
 
-- **Another color source.** Check every function, the Base Properties, and the Renderer again.
-- **A child effect.** Open the **Children** list. The color may come from a child file you have not recolored.
-- **The wrong file.** The file is not one the ability uses. Run `dumpparticlelist` again.
-- **A color in a texture.** Some effects take color from a texture image, not from a value. Changing values will not help there.
-- **Team colors.** Some effects may change color by team. Nobody has documented yet how a recolor affects them. Check your effect on allies and enemies if you can.
+<Accordions>
+<Accordion title="Another color source">
+
+Check every function, the Base Properties, and the Renderer again.
+
+</Accordion>
+<Accordion title="A child effect">
+
+Open the **Children** list. The color may come from a child file you have not recolored.
+
+</Accordion>
+<Accordion title="The wrong file">
+
+The file is not one the ability uses. Run `dumpparticlelist` again.
+
+</Accordion>
+<Accordion title="A color in a texture">
+
+Some effects take color from a texture image, not from a value. Changing values will not help there.
+
+</Accordion>
+<Accordion title="Team colors">
+
+Some effects may change color by team. Nobody has documented yet how a recolor affects them. Check your effect on allies and enemies if you can.
+
+</Accordion>
+</Accordions>
 
 {/* NEEDS HANDS-ON TEST: which ability effects take their color from textures under materials/particle/, and how recolors of team-colored effects behave for allies and enemies (gap G11). */}
 
 ## Common problems
 
-- **The Asset Browser or Particle Editor crashes on preview.** Some projected effects crash the `bin` tools. Pick `bin_tools` in the CSDK 12 launcher for previews. Switch back for other work.
-- **A file does not show in the tools.** It needs the header fix above.
-- **Nothing changes in game.** You copied from the content folder, or a path differs from the original. Copy compiled files from the game folder.
-- **The effect broke after an update.** Updates can rename or replace particles. Run `dumpparticlelist` again and redo the changed files.
+<Accordions>
+<Accordion title="The Asset Browser or Particle Editor crashes on preview">
+
+Some projected effects crash the `bin` tools. Pick `bin_tools` in the CSDK 12 launcher for previews. Switch back for other work.
+
+</Accordion>
+<Accordion title="A file does not show in the tools">
+
+It needs the header fix above.
+
+</Accordion>
+<Accordion title="Nothing changes in game">
+
+You copied from the content folder, or a path differs from the original. Copy compiled files from the game folder.
+
+</Accordion>
+<Accordion title="The effect broke after an update">
+
+Updates can rename or replace particles. Run `dumpparticlelist` again and redo the changed files.
+
+</Accordion>
+</Accordions>
 
 ## Next steps
 
-- [Make a new particle effect](/docs/deadlock/particles/make-an-effect)
-- [Test your mod in game](/docs/deadlock/basics/test-your-mod)
-- [What's allowed and how to stay safe](/docs/deadlock/getting-started/stay-safe)
+<PremiumCard
+  title="Make a new particle effect"
+  href="/docs/deadlock/particles/make-an-effect"
+>
+  Build your own effect in the Particle Editor and play it in place of a game
+  effect.
+</PremiumCard>
 
 ## Credits
 

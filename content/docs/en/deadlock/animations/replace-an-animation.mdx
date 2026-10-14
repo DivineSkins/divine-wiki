@@ -7,7 +7,7 @@ patch: "6779"
 
 <LevelPill level="advanced" />
 
-Replace one of a hero's animation clips with your own motion. You make the motion in Blender, point the game's clip file at it, compile it, and pack only that clip. Set up your tools first with [Set up your creator tools](/docs/deadlock/getting-started/creator-setup). You also need some Blender skill: [Import a Deadlock model into Blender](/docs/deadlock/models/import-into-blender) is a good start.
+Replace one of a hero's animation clips with your own motion. You make the motion in Blender, point the game's clip file at it, compile it, and pack only that clip. You also need some Blender skill: [Import a Deadlock model into Blender](/docs/deadlock/models/import-into-blender) is a good start.
 
 <Callout type="warning" title="Not tested on the current build">
   This guide follows two community guides from July and September 2026. Both
@@ -20,12 +20,33 @@ Replace one of a hero's animation clips with your own motion. You make the motio
 
 ## What you need
 
-- Source 2 Viewer, the latest dev build. See [Source 2 Viewer](/docs/deadlock/tools/source-2-viewer).
-- CSDK 12, set up with [Set up your creator tools](/docs/deadlock/getting-started/creator-setup).
-- [CS2 Workshop Tools](/docs/deadlock/tools/cs2-workshop-tools), in case your clip does not compile right in CSDK 12.
-- Blender 4.5 or newer, with the PulseSrcOps add-on to export DMX files. See [Blender and add-ons](/docs/deadlock/tools/blender-add-ons).
-- The [Rokoko add-on](https://www.rokoko.com/integrations/blender), only if you copy motion from another skeleton. It needs a free Rokoko account.
-- The hero's codename. Find it in [Hero names and file paths](/docs/deadlock/basics/hero-codenames).
+<ToolCard name="Source 2 Viewer" href="/docs/deadlock/tools/source-2-viewer">
+  The latest dev build. Finds, previews, and decompiles the clip.
+</ToolCard>
+<ToolCard name="CSDK 12" href="/docs/deadlock/tools/csdk-12">
+  Compiles your clip.
+</ToolCard>
+<ToolCard
+  name="CS2 Workshop Tools"
+  href="/docs/deadlock/tools/cs2-workshop-tools"
+>
+  In case your clip does not compile right in CSDK 12.
+</ToolCard>
+<ToolCard
+  name="Blender and add-ons"
+  href="/docs/deadlock/tools/blender-add-ons"
+>
+  Blender 4.5 or newer, with the PulseSrcOps add-on to export DMX files.
+</ToolCard>
+<ToolCard
+  name="Rokoko add-on"
+  href="https://www.rokoko.com/integrations/blender"
+  badge="Optional"
+>
+  Only if you copy motion from another skeleton. It needs a free Rokoko account.
+</ToolCard>
+
+- The hero's codename.
 
 ## What you can and cannot change
 
@@ -54,8 +75,10 @@ In build 6779, every released hero except Violet and Nurse Harrow uses this clip
 
 A hero's animations are clip files. Each source clip (`.vnmclip`) is a small text file that names an animation file (`.dmx`). You swap that name for your own DMX, then compile.
 
-- `.vnmclip_c`: one compiled clip. This is what you replace.
-- `.vnmskel_c`: the hero's skeleton. You use it, but never ship it.
+| File         | What it is                                          |
+| ------------ | --------------------------------------------------- |
+| `.vnmclip_c` | One compiled clip. This is what you replace.        |
+| `.vnmskel_c` | The hero's skeleton. You use it, but never ship it. |
 
 <img
   src="/wiki-images/deadlock-animations-replace-an-animation-2.webp"
@@ -77,11 +100,16 @@ This video by Pugzilla follows the same steps with Haze's ultimate.
   values (at 5:01) may differ with newer Source 2 Viewer versions.
 </Callout>
 
-## Find the clip
+## Replace the clip
+
+<Steps>
+<Step>
+
+### Find the clip
 
 1. Open Source 2 Viewer.
 2. Open `game/citadel/pak01_dir.vpk`.
-3. Go to `models/heroes_staging/<codename>/` or `models/heroes_wip/<codename>/`. Older heroes are in `heroes_staging`, newer ones in `heroes_wip`.
+3. Go to `models/heroes_staging/<codename>/` or `models/heroes_wip/<codename>/`. Older heroes are in `heroes_staging`, newer ones in `heroes_wip`. Look up the codename in [Hero names and file paths](/docs/deadlock/basics/hero-codenames).
 4. Open the `clips` folder. Each `.vnmclip_c` file is one animation.
 5. Click a clip to preview it. Haze's ultimate, for example, is `ability_bullet_flurry`.
 6. Write down the FPS, duration, and frame count from the **Data** section. Haze's ultimate loop has 34 frames.
@@ -92,7 +120,10 @@ The skeleton is not always next to the model. Pocket's model is in `heroes_wip/p
 
 {/* SCREENSHOT: deadlock-animations-replace-an-animation-3.webp, Source 2 Viewer previewing Haze's ability_bullet_flurry clip with FPS, duration, and frame count visible in the Data section */}
 
-## Set up the addon
+</Step>
+<Step>
+
+### Set up the addon
 
 1. In the CSDK 12 launcher, create an addon. Use lowercase and no spaces, like `haze_dance`.
 2. Right-click the addon and choose **Explore Content Folder**.
@@ -100,7 +131,10 @@ The skeleton is not always next to the model. Pocket's model is in `heroes_wip/p
 4. In Source 2 Viewer, right-click the hero's `.vnmskel_c` and choose **Decompile & export**. Save it in the skeleton's folder. You get a `.vnmskel` and a `.dmx`.
 5. Right-click the clip you will replace and choose **Decompile & export**. Save it in `clips`. You get a `.vnmclip` and a `.dmx`.
 
-## Bring the hero into Blender
+</Step>
+<Step>
+
+### Bring the hero into Blender
 
 1. In Source 2 Viewer, right-click the hero's model and choose **Decompile & export**.
 2. Set the type to **glTF**. Save it in a work folder outside your addon.
@@ -116,7 +150,10 @@ The skeleton is not always next to the model. Pocket's model is in `heroes_wip/p
 
 You can also import the clip's DMX with PulseSrcOps instead of using glTF. The VnmClip guide takes this route.
 
-## Retarget or animate
+</Step>
+<Step>
+
+### Retarget or animate
 
 Animate by hand on the hero's armature, or copy motion from another skeleton. Copying motion between skeletons is called retargeting. Here is how with Rokoko:
 
@@ -139,7 +176,10 @@ Downloaded animations have their own terms. Read them before you share your mod,
 
 {/* SCREENSHOT: deadlock-animations-replace-an-animation-4.webp, the Rokoko Retargeting panel with Source and Target armatures set and the bone list built */}
 
-## Add IK constraints and bake
+</Step>
+<Step>
+
+### Add IK constraints and bake
 
 Without these constraints, limbs can flip or break in game. Haze needs them, and they do no harm on other heroes.
 
@@ -157,7 +197,10 @@ Without these constraints, limbs can flip or break in game. Haze needs them, and
 
 {/* SCREENSHOT: deadlock-animations-replace-an-animation-5.webp, Blender's Bone Constraints tab with Copy Location and Copy Rotation on an IK target bone */}
 
-## Export the DMX
+</Step>
+<Step>
+
+### Export the DMX
 
 1. Turn off any other Source Tools add-ons. They clash with PulseSrcOps.
 2. Open the **Scene** properties and find **Source Engine Export**.
@@ -170,7 +213,10 @@ Without these constraints, limbs can flip or break in game. Haze needs them, and
 
 {/* NEEDS HANDS-ON TEST: whether PulseSrcOps provides the "Source Engine Export" panel and these labels, or whether the video used another Source Tools fork. */}
 
-## Point the clip at your DMX
+</Step>
+<Step>
+
+### Point the clip at your DMX
 
 1. Open the decompiled `.vnmclip` in a text editor.
 2. Find the source file name near the top. It names the original DMX, such as `ability_bullet_flurry.dmx`.
@@ -180,20 +226,26 @@ Without these constraints, limbs can flip or break in game. Haze needs them, and
 
 {/* SCREENSHOT: deadlock-animations-replace-an-animation-6.webp, a decompiled .vnmclip open in a text editor with the source file name line highlighted */}
 
-## Compile
+</Step>
+<Step>
+
+### Compile
 
 1. In the CSDK 12 launcher, select your addon and click **Launch Tools**.
 2. In the Asset Browser, right-click your `.vnmclip` and choose **Recompile > Full**.
 3. Right-click your addon in the launcher and choose **Explore Game Folder**.
 4. Open the same path, such as `models/heroes_staging/haze/clips/`. Your `.vnmclip_c` is there.
 
-CSDK 12 writes clips in an older format, says the VnmClip guide. Pugzilla's simple clip still worked. If yours fails in game, compile it with [CS2 Workshop Tools](/docs/deadlock/tools/cs2-workshop-tools) instead.
+CSDK 12 writes clips in an older format, says the VnmClip guide. Pugzilla's simple clip still worked. If yours fails in game, compile it with CS2 Workshop Tools instead.
 
 {/* NEEDS HANDS-ON TEST: whether a CSDK 12 clip compile works on build 6779, or only CS2 Workshop Tools does (conflict C50). Also the CS2 addon path to use for a clip compile. */}
 
 {/* SCREENSHOT: deadlock-animations-replace-an-animation-7.webp, the addon game folder with the compiled ability_bullet_flurry.vnmclip_c */}
 
-## Pack only the clip
+</Step>
+<Step>
+
+### Pack only the clip
 
 1. Make a staging folder, like `haze_dance_pack`.
 2. Inside it, rebuild the clip's path: `models/heroes_staging/haze/clips/`.
@@ -208,22 +260,74 @@ Never pack the skeleton (`.vnmskel_c`). It replaces the game's skeleton, so a la
   alt="Two folders: the addon content folder holds the skeleton, the clip, and the DMX files, while the staging folder holds only the compiled ability_bullet_flurry.vnmclip_c"
 />
 
+</Step>
+</Steps>
+
 ## Common problems
 
-- **It plays much too fast.** Your frame count or length differs from the original. Match both.
-- **Limbs flip or point the wrong way.** IK constraints are missing, or you did not bake. Custom models without IK chains need a fix from the model's creator.
-- **The hero is frozen, or only part of it moves.** You packed a custom skeleton, or a body mask is active. Use the game's own skeleton.
-- **The hero is flipped or offset.** The `Root_motion` bone has keys. Delete them.
-- **Bones look rotated 90 degrees in Blender.** That is normal, because Valve's artists use Maya.
-- **The hero imports twisted.** Turn off automatic bone orientation in the import options.
-- **The old animation still plays.** Your path or clip name differs from the original. Check every letter in Source 2 Viewer.
-- **It worked before an update.** See [Update your mod after a game update](/docs/deadlock/publishing/update-after-a-patch).
+<Accordions>
+<Accordion title="It plays much too fast">
+
+Your frame count or length differs from the original. Match both.
+
+</Accordion>
+<Accordion title="Limbs flip or point the wrong way">
+
+IK constraints are missing, or you did not bake. Custom models without IK chains need a fix from the model's creator.
+
+</Accordion>
+<Accordion title="The hero is frozen, or only part of it moves">
+
+You packed a custom skeleton, or a body mask is active. Use the game's own skeleton.
+
+</Accordion>
+<Accordion title="The hero is flipped or offset">
+
+The `Root_motion` bone has keys. Delete them.
+
+</Accordion>
+<Accordion title="Bones look rotated 90 degrees in Blender">
+
+That is normal, because Valve's artists use Maya.
+
+</Accordion>
+<Accordion title="The hero imports twisted">
+
+Turn off automatic bone orientation in the import options.
+
+</Accordion>
+<Accordion title="The old animation still plays">
+
+Your path or clip name differs from the original. Check every letter in Source 2 Viewer.
+
+</Accordion>
+<Accordion title="It worked before an update">
+
+Updates can break animation mods. Follow Update your mod after a game update, linked under Next steps.
+
+</Accordion>
+</Accordions>
 
 ## Next steps
 
-- [Animation clips in ModelDoc](/docs/deadlock/animations/ik-and-modeldoc): full control over clips, events, and IK chains.
-- [Publish your mod on GameBanana](/docs/deadlock/publishing/publish-on-gamebanana): animation mods go in the Animations category.
-- [Update your mod after a game update](/docs/deadlock/publishing/update-after-a-patch): keep it working.
+<ToolCard
+  name="Animation clips in ModelDoc"
+  href="/docs/deadlock/animations/ik-and-modeldoc"
+>
+  Full control over clips, events, and IK chains.
+</ToolCard>
+<ToolCard
+  name="Publish your mod on GameBanana"
+  href="/docs/deadlock/publishing/publish-on-gamebanana"
+>
+  Animation mods go in the Animations category.
+</ToolCard>
+<ToolCard
+  name="Update your mod after a game update"
+  href="/docs/deadlock/publishing/update-after-a-patch"
+>
+  Keep it working.
+</ToolCard>
 
 ## Credits
 

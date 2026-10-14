@@ -7,7 +7,7 @@ patch: "6779"
 
 <LevelPill level="advanced" />
 
-Turn your hero and change the lighting on the hero select, shop, and end of match screens. Each screen is a small map for each hero. You edit it in Hammer, compile it, and pack it with your skin. Learn [CSDK 12](/docs/deadlock/tools/csdk-12) first.
+Turn your hero and change the lighting on the hero select, shop, and end of match screens. Each screen is a small map for each hero. You edit it in Hammer, compile it, and pack it with your skin. Learn CSDK 12 first.
 
 <Callout type="warning" title="Untested on the current build">
   This page comes from one video made in March 2026, before the City Never
@@ -26,10 +26,20 @@ These screens are menus, not the match map, so these edits give no advantage.
 
 ## What you need
 
-- CSDK 12 with Hammer. Hammer may need the full game files. See [CSDK 12](/docs/deadlock/tools/csdk-12).
+<ToolCard name="CSDK 12" href="/docs/deadlock/tools/csdk-12">
+  With Hammer. Hammer may need the full game files.
+</ToolCard>
+<ToolCard name="Source 2 Viewer" href="/docs/deadlock/tools/source-2-viewer">
+  Decompiles the hero's scene map.
+</ToolCard>
+<ToolCard
+  name="Hero names and file paths"
+  href="/docs/deadlock/basics/hero-codenames"
+>
+  Find the hero's codename.
+</ToolCard>
+
 - The GUI Map Compiler. It ships in the reduced CSDK 12 folder as `GUIMapCompiler/CS2MapCompiler.exe`.
-- Source 2 Viewer.
-- The hero's codename. Find it in [Hero names and file paths](/docs/deadlock/basics/hero-codenames).
 - Optional: the hero's compiled models and materials in CSDK 12, so Hammer shows textures. Pugzilla's [Compiled Models In CSDK](https://www.youtube.com/watch?v=d2JGLiH2CAY) video shows how.
 
 {/* NEEDS HANDS-ON TEST: whether Hammer opens these maps in the reduced CSDK 12 without the full game files (gap G13). The CSDK 12 page lists Hammer as needing them. One Reddit answer says to open Hammer under the bin binary because the others crash. */}
@@ -62,14 +72,22 @@ Pugzilla edits Doorman's hero select scene in this video.
   title="Lightweight map changes for hero select, shop, and postgame by Pugzilla"
 />
 
-## Set up the addon
+## Edit and pack the scene
+
+<Steps>
+<Step>
+
+### Set up the addon
 
 1. Click **Create New Addon** in the CSDK 12 launcher. Name it in lowercase with no spaces, for example `doormanmenus`.
 2. Right-click the addon and choose **Explore Content Folder**.
 3. Create the folder `maps/ui/hero_prefabs/`. Make one folder like this for each screen you edit.
 4. Do not add a folder for the hero inside it.
 
-## Decompile the hero's scene
+</Step>
+<Step>
+
+### Decompile the hero's scene
 
 1. Open Source 2 Viewer.
 2. Open `Deadlock/game/citadel/maps/ui/hero_prefabs/`.
@@ -79,7 +97,21 @@ Pugzilla edits Doorman's hero select scene in this video.
 6. Save it into your addon's `maps/ui/hero_prefabs/` folder.
 7. Check the folder. You should see the `.vmap` and a world nodes folder.
 
-## Edit the scene in Hammer
+<Files>
+  <Folder name="maps" defaultOpen>
+    <Folder name="ui" defaultOpen>
+      <Folder name="hero_prefabs" defaultOpen>
+        <File name="doorman.vmap" />
+        <Folder name="(world nodes folder)" />
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+
+</Step>
+<Step>
+
+### Edit the scene in Hammer
 
 1. In the CSDK 12 launcher, select your addon and click **Launch Tools**.
 2. In the Asset Browser, open **Filter** and click **Mod** twice. Your `.vmap` shows at the top.
@@ -95,7 +127,10 @@ Pugzilla edits Doorman's hero select scene in this video.
 
 {/* SCREENSHOT: deadlock-models-menu-scenes-2.webp, a hero select map open in Hammer with the camera entity and the barn lights visible */}
 
-## Compile the map
+</Step>
+<Step>
+
+### Compile the map
 
 1. In the Asset Browser, right-click the map and open its folder. Copy the folder path.
 2. Open your reduced CSDK 12 folder. Go into `GUIMapCompiler` and run `CS2MapCompiler.exe`.
@@ -108,7 +143,10 @@ Pugzilla edits Doorman's hero select scene in this video.
 
 {/* NEEDS HANDS-ON TEST: the GUI Map Compiler labels (open vmap, change output, custom path, compile) and which folder and option "custom path" needs. The video browses toward the Deadlock game/bin folder; the audio is unclear. */}
 
-## Pack it with your skin
+</Step>
+<Step>
+
+### Pack it with your skin
 
 The compiled map is a VPK. It goes inside your mod's VPK, at the same path.
 
@@ -119,7 +157,10 @@ The compiled map is a VPK. It goes inside your mod's VPK, at the same path.
 
 If another mod ships the same hero's scene, only one of them shows. The lower pak number wins.
 
-## Test each screen
+</Step>
+<Step>
+
+### Test each screen
 
 1. Close CSDK 12. Deadlock does not start while the tools are open.
 2. Start Deadlock.
@@ -128,26 +169,56 @@ If another mod ships the same hero's scene, only one of them shows. The lower pa
 
 {/* SCREENSHOT: deadlock-models-menu-scenes-3.webp, the hero select screen with the turned hero and the new light colors, on the default hero or an original skin */}
 
-## If your skin does not show on these screens
+</Step>
+</Steps>
+
+## Common problems
+
+<Accordions>
+<Accordion title="Your skin shows in matches but not on these screens">
 
 Some heroes may use separate models on menu screens. One October 2026 skin also replaced a model with `picker` in its name. If your skin shows in matches but not on hero select, look in the hero's model folder for a file with `picker` in its name.
 
 {/* NEEDS HANDS-ON TEST: which heroes have separate picker models for menu screens, and whether a skin must replace them (gap G13). */}
 
-## Common problems
+</Accordion>
+<Accordion title="The map does not show in the Asset Browser">
 
-- **The map does not show in the Asset Browser.** Click **Mod** in the filter. Check that the file sits in `maps/ui/hero_prefabs/`, with no hero folder.
-- **Hammer shows no textures.** The hero's compiled models and materials are not in your CSDK 12. See the companion video above.
-- **Your lighting does not show in Hammer.** Switch from **Full Bright** to **3D All Lighting**.
-- **The game shows the old scene.** Check the inner VPK path. Remove any other mod that ships the same scene.
-- **Deadlock will not start.** Close CSDK 12 first.
+Click **Mod** in the filter. Check that the file sits in `maps/ui/hero_prefabs/`, with no hero folder.
+
+</Accordion>
+<Accordion title="Hammer shows no textures">
+
+The hero's compiled models and materials are not in your CSDK 12. See the companion video above.
+
+</Accordion>
+<Accordion title="Your lighting does not show in Hammer">
+
+Switch from **Full Bright** to **3D All Lighting**.
+
+</Accordion>
+<Accordion title="The game shows the old scene">
+
+Check the inner VPK path. Remove any other mod that ships the same scene.
+
+</Accordion>
+<Accordion title="Deadlock will not start">
+
+Close CSDK 12 first.
+
+</Accordion>
+</Accordions>
 
 Only one video covers these screens. Nobody has published tested steps for custom poses or for the team reveal screen.
 
 ## Next steps
 
-- [Hero model swap: overview](/docs/deadlock/models/hero-model-swap)
-- [CSDK 12](/docs/deadlock/tools/csdk-12)
+<PremiumCard
+  title="Hero model swap: overview"
+  href="/docs/deadlock/models/hero-model-swap"
+>
+  Put your own character on a hero. The whole path, the tools, and the rules.
+</PremiumCard>
 
 ## Credits
 

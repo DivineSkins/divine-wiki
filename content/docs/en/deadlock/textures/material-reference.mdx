@@ -7,12 +7,18 @@ patch: "6779"
 
 <LevelPill level="advanced" />
 
-This page lists the settings of `pbr.vfx`, the shader every Deadlock hero material uses. Keep it open next to [Recolor with material values](/docs/deadlock/textures/recolor-a-material) or [Materials for custom models](/docs/deadlock/textures/materials-for-custom-models). The data comes from Valve's own shader as of build 6779.
+This page lists the settings of `pbr.vfx`, the shader every Deadlock hero material uses. Keep it open next to the recolor and custom material guides, linked under Next steps. The data comes from Valve's own shader as of build 6779.
 
 ## What you need
 
-- CSDK 12's Material Editor, or a plain text editor for `.vmat` files. Set it up with [Set up your creator tools](/docs/deadlock/getting-started/creator-setup).
-- Source 2 Viewer, to decompile a hero material and compare.
+<ToolCard name="CSDK 12" href="/docs/deadlock/tools/csdk-12">
+  Its Material Editor shows these settings as fields and checkboxes.
+</ToolCard>
+<ToolCard name="Source 2 Viewer" href="/docs/deadlock/tools/source-2-viewer">
+  Decompiles a hero material so you can compare.
+</ToolCard>
+
+- A plain text editor, if you edit `.vmat` files by hand.
 
 ## Keep it fair
 
@@ -59,10 +65,12 @@ Here is a small example for a custom hero body:
 }
 ```
 
-- **Shader:** always `pbr.vfx` for heroes.
-- **Feature flags** start with `F_`. `"1"` turns a feature on, `"0"` turns it off.
-- **Values** start with `g_`. Colors are lists of numbers from 0 to 1, such as `[1 1 1 0]`.
-- **Texture inputs** end in `1`, such as `TextureColor1`. Each one holds a path to a source image, or a flat color in brackets.
+| Line               | Looks like                          | What it does                                                                      |
+| ------------------ | ----------------------------------- | --------------------------------------------------------------------------------- |
+| **Shader**         | `"shader" "pbr.vfx"`                | Always `pbr.vfx` for heroes.                                                      |
+| **Feature flags**  | Start with `F_`                     | `"1"` turns a feature on, `"0"` turns it off.                                     |
+| **Values**         | Start with `g_`                     | Numbers and colors. Colors are lists of numbers from 0 to 1, such as `[1 1 1 0]`. |
+| **Texture inputs** | End in `1`, such as `TextureColor1` | A path to a source image, or a flat color in brackets.                            |
 
 When you compile, the material becomes a `.vmat_c` file. Each texture input then points to a compiled texture with a code in its name, such as `body_color_png_63291cfb.vtex_c`.
 
@@ -137,10 +145,13 @@ Guides tell you to tick **Write Depth Before Alpha Blending** on every new hero 
 
 ### Flags that need or block each other
 
-- **Use Status Effects Proxy** needs NPR lighting, Unlit, or Self Illumination.
-- **Solid Color Outline**, both outline overrides, and `F_NO_SPECULAR_AT_FULL_ROUGHNESS` need NPR lighting.
-- `F_ADDITIVE_BLEND` and **Write Depth Before Alpha Blending** need **Translucent**.
-- Some flags block each other. For example, Sheen, Glass, Cloak, and Translucent cannot be combined. Cloak and Status Effects Proxy cannot be combined either.
+| Flag                                                                                   | Needs                                     |
+| -------------------------------------------------------------------------------------- | ----------------------------------------- |
+| **Use Status Effects Proxy**                                                           | NPR lighting, Unlit, or Self Illumination |
+| **Solid Color Outline**, both outline overrides, and `F_NO_SPECULAR_AT_FULL_ROUGHNESS` | NPR lighting                              |
+| `F_ADDITIVE_BLEND` and **Write Depth Before Alpha Blending**                           | **Translucent**                           |
+
+Some flags block each other. For example, Sheen, Glass, Cloak, and Translucent cannot be combined. Cloak and Status Effects Proxy cannot be combined either.
 
 ## Texture inputs and how they are packed
 
@@ -170,7 +181,7 @@ The shader packs several input images into one compiled texture. You never pick 
 - **Source images** can be PNG, TGA, PSD, or JPG. TIF, PFM, and SVG also work.
 - **Keep the original size.** Hero body textures seem to be 2048 x 2048, and Abrams' weapon textures 512 x 512. Check yours in Source 2 Viewer. Use sizes that are a power of two, such as 512, 1024, or 2048.
 - **Flat colors become tiny textures.** A flat color in a texture input compiles to a small texture with `_vmat_g_` in its name.
-- **Ship the new compiled files together.** A new `.vmat_c` points to new `.vtex_c` files with new codes in their names. Pack them all. [Recolor with material values](/docs/deadlock/textures/recolor-a-material) shows how.
+- **Ship the new compiled files together.** A new `.vmat_c` points to new `.vtex_c` files with new codes in their names. Pack them all. The recolor guide shows how.
 
 {/* NEEDS HANDS-ON TEST: per-hero texture sizes in Source 2 Viewer's texture viewer (only Abrams was derived from file sizes). */}
 
@@ -198,8 +209,10 @@ Texture inputs can hold a flat color instead of an image. Write red, green, blue
 
 For shine and metal:
 
-- **Roughness:** black is smooth and shiny. White is matte.
-- **Metalness:** 1 looks like metal. 0 does not.
+| Input         | Low                         | High                |
+| ------------- | --------------------------- | ------------------- |
+| **Roughness** | Black: smooth and shiny     | White: matte        |
+| **Metalness** | 0: does not look like metal | 1: looks like metal |
 
 ## Settings you cannot change per material
 
@@ -209,27 +222,59 @@ The NPR rim light and shading steps, such as `g_flNPRRimLightStrength` and `g_fl
 
 Leave these alone on any hero material. Each one changes how easy that hero is to see:
 
-- **Glow:** Self Illumination, `F_UNLIT`, or a bloom override.
-- **Brightness:** a high brightness value, or a tint mode that makes the hero brighter than the original.
-- **Transparency:** Translucent, additive blending, or large alpha test cutouts.
-- **Stealth looks:** removing `F_CLOAK` or translucency from invisibility effects.
-- **Outlines:** removing the outline, making it thicker, or giving it a loud color.
-- **Darkness:** very dark colors that hide a hero in shadows.
+| Kind              | What to leave alone                                                                    |
+| ----------------- | -------------------------------------------------------------------------------------- |
+| **Glow**          | Self Illumination, `F_UNLIT`, or a bloom override                                      |
+| **Brightness**    | A high brightness value, or a tint mode that makes the hero brighter than the original |
+| **Transparency**  | Translucent, additive blending, or large alpha test cutouts                            |
+| **Stealth looks** | Removing `F_CLOAK` or translucency from invisibility effects                           |
+| **Outlines**      | Removing the outline, making it thicker, or giving it a loud color                     |
+| **Darkness**      | Very dark colors that hide a hero in shadows                                           |
 
 ## Common problems
 
-- **Purple checkerboard in the Material Editor.** A texture slot lost its image. Click the magnifier on the slot and pick the image again.
-- **Veil Walker or ultimate effects are missing on your skin.** **Use Status Effects Proxy** is off.
-- **The hero looks like shiny plastic.** Set roughness to a light color for a matte look.
-- **It looks different in Source 2 Viewer.** Source 2 Viewer's Deadlock shading is still a work in progress. Always check in game.
+<Accordions>
+<Accordion title="Purple checkerboard in the Material Editor">
+
+A texture slot lost its image. Click the magnifier on the slot and pick the image again.
+
+</Accordion>
+<Accordion title="Veil Walker or ultimate effects are missing on your skin">
+
+**Use Status Effects Proxy** is off.
+
+</Accordion>
+<Accordion title="The hero looks like shiny plastic">
+
+Set roughness to a light color for a matte look.
+
+</Accordion>
+<Accordion title="It looks different in Source 2 Viewer">
+
+Source 2 Viewer's Deadlock shading is still a work in progress. Always check in game.
+
+</Accordion>
+</Accordions>
 
 More fixes are in [Errors when making mods](/docs/deadlock/errors/creator-errors) and [Model and skin problems](/docs/deadlock/errors/model-problems).
 
 ## Next steps
 
-- [Materials for custom models](/docs/deadlock/textures/materials-for-custom-models)
-- [Recolor with material values](/docs/deadlock/textures/recolor-a-material)
-- [Retexture a hero](/docs/deadlock/textures/retexture)
+<ToolCard
+  name="Recolor with material values"
+  href="/docs/deadlock/textures/recolor-a-material"
+>
+  Change color, roughness, and metalness in the Material Editor.
+</ToolCard>
+<ToolCard name="Retexture a hero" href="/docs/deadlock/textures/retexture">
+  Paint the hero's images and rebuild the material.
+</ToolCard>
+<ToolCard
+  name="Materials for custom models"
+  href="/docs/deadlock/textures/materials-for-custom-models"
+>
+  Build new materials for your own model.
+</ToolCard>
 
 ## Credits
 

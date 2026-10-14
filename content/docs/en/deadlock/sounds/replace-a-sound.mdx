@@ -7,14 +7,20 @@ patch: "6779"
 
 <LevelPill level="beginner" />
 
-Replace one ability sound or music track with your own audio: find it in Source 2 Viewer, compile your file with CSDK 12, and pack it as a mod. First set up your tools with [Set up your creator tools](/docs/deadlock/getting-started/creator-setup). New to mods? Start with [How Deadlock mods work](/docs/deadlock/basics/how-mods-work).
+Replace one ability sound or music track with your own audio: find it in Source 2 Viewer, compile your file with CSDK 12, and pack it as a mod. New to mods? Read [How Deadlock mods work](/docs/deadlock/basics/how-mods-work) and [Set up your creator tools](/docs/deadlock/getting-started/creator-setup) first.
 
 ## What you need
 
-- [Source 2 Viewer](/docs/deadlock/tools/source-2-viewer) and [CSDK 12](/docs/deadlock/tools/csdk-12).
+<ToolCard name="Source 2 Viewer" href="/docs/deadlock/tools/source-2-viewer">
+  Finds the original sound and exports it.
+</ToolCard>
+<ToolCard name="CSDK 12" href="/docs/deadlock/tools/csdk-12">
+  Compiles your audio into a sound the game reads.
+</ToolCard>
+
 - An audio editor, such as Audacity (free).
 - Your own audio. Use sounds you made or have permission to share.
-- The hero's codename. Find it in [Hero names and file paths](/docs/deadlock/basics/hero-codenames).
+- The hero's codename.
 
 ## What you can change
 
@@ -22,7 +28,7 @@ Other players hear the normal game. You hear your sound on every copy of that he
 
 - Change your hero's ability sounds, music, or menu sounds.
 - Keep the new sound about as loud and as long as the original.
-- For your first mod, pick a sound that plays once. Sounds that loop while an ability is active need extra steps: see [Loop and compress sounds](/docs/deadlock/sounds/looping-and-compression).
+- For your first mod, pick a sound that plays once. Sounds that loop while an ability is active need extra steps.
 
 <Callout type="danger" title="Never make warning cues easier to hear">
   Do not make enemy cues louder, longer, or clearer. This includes heavy melee,
@@ -31,9 +37,140 @@ Other players hear the normal game. You hear your sound on every copy of that he
   safe](/docs/deadlock/getting-started/stay-safe).
 </Callout>
 
-## Quick option: Sound Forge
+## Make the mod
 
-Sound Forge on Deadlock Forge builds a sound mod in your browser, with no CSDK 12. Other browser tools are in [Make mods without installing tools](/docs/deadlock/tools/browser-builders).
+Pick a route. The full workflow gives you the most control. The quick option builds the mod in your browser, with no CSDK 12.
+
+<Tabs items={["Full CSDK 12 workflow", "Quick option in the browser"]}>
+<Tab value="Full CSDK 12 workflow">
+
+This video by Pugzilla follows the same steps as this guide.
+
+<YouTube
+  id="okoHFajJHB0"
+  title="Deadlock sound replacement tutorial by Pugzilla"
+/>
+
+<Callout type="info" title="This video uses an older interface">
+  The video was made before the September 2026 update. The CSDK 12 launcher
+  looks different now, but the steps work the same way. The looping part at 7:08
+  uses an older method.
+</Callout>
+
+<Steps>
+<Step>
+
+### Find the sound
+
+1. Open Source 2 Viewer.
+2. Open `Deadlock/game/citadel/pak01_dir.vpk`.
+3. Go to `sounds/abilities/` and open your hero's folder. Folders use codenames, not hero names. Look yours up in [Hero names and file paths](/docs/deadlock/basics/hero-codenames). Music is in `sounds/music/`.
+4. Double-click sounds to play them until you find the one you want.
+5. Write down the full path and file name exactly, letter by letter.
+6. Right-click the sound and choose **Decompile & export**. Save it outside your addon, to compare length and volume later.
+
+{/* SCREENSHOT: deadlock-sounds-replace-a-sound-3.webp, Source 2 Viewer open at sounds/abilities/<codename>/ with one sound selected */}
+
+{/* NEEDS HANDS-ON TEST: the City Never Sleeps update (2026-09-29) changed many sounds. Pick the example sound for this page (a one-shot ability sound) and confirm its path on build 6779. */}
+
+You can also find a sound in game. Load a private map, open the console, and type `snd_showstart 1`. Then use the ability. The console prints the path of each sound as it starts.
+
+{/* NEEDS HANDS-ON TEST: whether snd_showstart 1 works without the -dev launch option or sv_cheats. */}
+
+</Step>
+<Step>
+
+### Start from the Billy Audio Template
+
+CSDK 12 comes with a ready-made sound addon. Copy it instead of building folders by hand.
+
+1. Open the CSDK 12 launcher. Keep Steam running.
+2. Right-click **Billy Audio Template** and choose **Duplicate Addon**.
+3. Name the copy in lowercase with no spaces, for example `mysound`. The launcher hides names with capitals, spaces, or special characters.
+4. Right-click your new addon and choose **Explore Content Folder**. You see a `sounds` folder and a `soundevents` folder.
+5. Delete the Billy sound files inside `sounds`. If you keep them, your mod also changes one of Billy's sounds.
+
+Leave the `soundevents` folder alone and do not pack it.
+
+{/* SCREENSHOT: deadlock-sounds-replace-a-sound-4.webp, the CSDK 12 launcher with Duplicate Addon on Billy Audio Template */}
+
+{/* NEEDS HANDS-ON TEST: launcher menu labels (Duplicate Addon, Explore Content Folder) and the template's exact contents in the current CSDK 12 zip. */}
+
+</Step>
+<Step>
+
+### Add your audio
+
+1. Inside the addon's `sounds` folder, rebuild the original folder path, such as `abilities/<codename>/`.
+2. Open the original sound and your new audio in Audacity.
+3. Trim your audio to about the same length as the original.
+4. Match the volume. If yours is too quiet, use **Effect > Volume and Compression > Amplify**.
+5. Export it as `.wav` or `.mp3`.
+6. Name it exactly like the original, in lowercase. Only the ending changes: `example_sound.vsnd_c` in the game becomes `example_sound.wav` in your addon.
+7. Save it in the folder you made in step 1.
+
+Your addon's content folder now looks like this:
+
+<Files>
+  <Folder name="content" defaultOpen>
+    <Folder name="citadel_addons" defaultOpen>
+      <Folder name="mysound" defaultOpen>
+        <Folder name="sounds" defaultOpen>
+          <Folder name="abilities" defaultOpen>
+            <Folder name="<codename>" defaultOpen>
+              <File name="example_sound.wav" />
+            </Folder>
+          </Folder>
+        </Folder>
+        <Folder name="soundevents" />
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+
+{/* NEEDS HANDS-ON TEST: required sample rate, bit depth, and channels (gap G06). Test 44.1 kHz and 48 kHz, mono and stereo, and wav vs mp3. */}
+
+{/* SCREENSHOT: deadlock-sounds-replace-a-sound-5.webp, the addon content folder with the rebuilt path and the new audio file */}
+
+</Step>
+<Step>
+
+### Compile
+
+1. In the CSDK 12 launcher, select your addon and click **Launch Tools**. The Asset Browser opens.
+2. Find your new sound in the Asset Browser.
+3. Right-click it and choose **Recompile > Full**.
+4. Right-click your addon in the launcher and choose **Explore Game Folder**.
+5. Open the same path, such as `sounds/abilities/<codename>/`. Your compiled `.vsnd_c` file is there.
+
+{/* SCREENSHOT: deadlock-sounds-replace-a-sound-6.webp, Asset Browser right-click menu with Recompile > Full on the sound */}
+
+{/* SCREENSHOT: deadlock-sounds-replace-a-sound-7.webp, the addon game folder with the compiled .vsnd_c */}
+
+</Step>
+<Step>
+
+### Pack and test
+
+Take the compiled file from the game folder. The content folder only holds your source audio.
+
+<img
+  src="/wiki-images/deadlock-sounds-replace-a-sound-8.webp"
+  alt="Your .wav in the content folder compiles to a .vsnd_c in the game folder. You copy it into a staging folder at the same path and pack it as pak05_dir.vpk."
+/>
+
+1. Make a staging folder, such as `mysound_pack`, with the same path inside: `sounds/abilities/<codename>/`.
+2. Copy only your compiled `.vsnd_c` file into it.
+3. Pack the folder into a VPK with [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
+4. Load the mod and check the sound with [Test your mod in game](/docs/deadlock/basics/test-your-mod).
+
+</Step>
+</Steps>
+
+</Tab>
+<Tab value="Quick option in the browser">
+
+Sound Forge on Deadlock Forge builds a sound mod in your browser. Other browser tools are in [Make mods without installing tools](/docs/deadlock/tools/browser-builders).
 
 1. Open [Sound Forge](https://deadlockforge.net/sound/).
 2. Filter the list by category or hero, or search by file name or voice line text. Then click the sound you want to replace.
@@ -52,113 +189,70 @@ Sound Forge on Deadlock Forge builds a sound mod in your browser, with no CSDK 1
 
 {/* SCREENSHOT: deadlock-sounds-replace-a-sound-2.webp, Sound Forge with a sound picked and the Forge VPK button visible */}
 
-## Watch the walkthrough
-
-This video by Pugzilla follows the same steps as this guide.
-
-<YouTube
-  id="okoHFajJHB0"
-  title="Deadlock sound replacement tutorial by Pugzilla"
-/>
-
-<Callout type="info" title="This video uses an older interface">
-  The video was made before the September 2026 update. The CSDK 12 launcher
-  looks different now, but the steps work the same way. The looping part at 7:08
-  uses an older method.
-</Callout>
-
-## Find the sound
-
-1. Open Source 2 Viewer.
-2. Open `Deadlock/game/citadel/pak01_dir.vpk`.
-3. Go to `sounds/abilities/` and open your hero's folder (codename, not hero name). Music is in `sounds/music/`.
-4. Double-click sounds to play them until you find the one you want.
-5. Write down the full path and file name exactly, letter by letter.
-6. Right-click the sound and choose **Decompile & export**. Save it outside your addon, to compare length and volume later.
-
-{/* SCREENSHOT: deadlock-sounds-replace-a-sound-3.webp, Source 2 Viewer open at sounds/abilities/<codename>/ with one sound selected */}
-
-{/* NEEDS HANDS-ON TEST: the City Never Sleeps update (2026-09-29) changed many sounds. Pick the example sound for this page (a one-shot ability sound) and confirm its path on build 6779. */}
-
-You can also find a sound in game. Load a private map, type `snd_showstart 1` in the console, and use the ability. The console prints the path of each sound as it starts. [Test your mod in game](/docs/deadlock/basics/test-your-mod) shows how to open the console.
-
-{/* NEEDS HANDS-ON TEST: whether snd_showstart 1 works without the -dev launch option or sv_cheats. */}
-
-## Start from the Billy Audio Template
-
-CSDK 12 comes with a ready-made sound addon. Copy it instead of building folders by hand.
-
-1. Open the CSDK 12 launcher. Keep Steam running.
-2. Right-click **Billy Audio Template** and choose **Duplicate Addon**.
-3. Name the copy in lowercase with no spaces, for example `mysound`. The launcher hides names with capitals, spaces, or special characters.
-4. Right-click your new addon and choose **Explore Content Folder**. You see a `sounds` folder and a `soundevents` folder.
-5. Delete the Billy sound files inside `sounds`. If you keep them, your mod also changes one of Billy's sounds.
-
-Leave the `soundevents` folder alone and do not pack it.
-
-{/* SCREENSHOT: deadlock-sounds-replace-a-sound-4.webp, the CSDK 12 launcher with Duplicate Addon on Billy Audio Template */}
-
-{/* NEEDS HANDS-ON TEST: launcher menu labels (Duplicate Addon, Explore Content Folder) and the template's exact contents in the current CSDK 12 zip. */}
-
-## Add your audio
-
-1. Inside the addon's `sounds` folder, rebuild the original folder path. For example: `content/citadel_addons/mysound/sounds/abilities/<codename>/`.
-2. Open the original sound and your new audio in Audacity.
-3. Trim your audio to about the same length as the original.
-4. Match the volume. If yours is too quiet, use **Effect > Volume and Compression > Amplify**.
-5. Export it as `.wav` or `.mp3`.
-6. Name it exactly like the original, in lowercase. Only the ending changes: `example_sound.vsnd_c` in the game becomes `example_sound.wav` in your addon.
-7. Save it in the folder you made in step 1.
-
-{/* NEEDS HANDS-ON TEST: required sample rate, bit depth, and channels (gap G06). Test 44.1 kHz and 48 kHz, mono and stereo, and wav vs mp3. */}
-
-{/* SCREENSHOT: deadlock-sounds-replace-a-sound-5.webp, the addon content folder with the rebuilt path and the new audio file */}
-
-## Compile
-
-1. In the CSDK 12 launcher, select your addon and click **Launch Tools**. The Asset Browser opens.
-2. Find your new sound in the Asset Browser.
-3. Right-click it and choose **Recompile > Full**.
-4. Right-click your addon in the launcher and choose **Explore Game Folder**.
-5. Open the same path, such as `sounds/abilities/<codename>/`. Your compiled `.vsnd_c` file is there.
-
-{/* SCREENSHOT: deadlock-sounds-replace-a-sound-6.webp, Asset Browser right-click menu with Recompile > Full on the sound */}
-
-{/* SCREENSHOT: deadlock-sounds-replace-a-sound-7.webp, the addon game folder with the compiled .vsnd_c */}
-
-## Pack and test
-
-Take the compiled file from the game folder. The content folder only holds your source audio.
-
-<img
-  src="/wiki-images/deadlock-sounds-replace-a-sound-8.webp"
-  alt="Your .wav in the content folder compiles to a .vsnd_c in the game folder. You copy it into a staging folder at the same path and pack it as pak05_dir.vpk."
-/>
-
-1. Make a staging folder, such as `mysound_pack`, with the same path inside: `sounds/abilities/<codename>/`.
-2. Copy only your compiled `.vsnd_c` file into it.
-3. Pack the folder into a VPK with [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
-4. Load the mod and check the sound with [Test your mod in game](/docs/deadlock/basics/test-your-mod).
+</Tab>
+</Tabs>
 
 ## Common problems
 
-- **The game plays the old sound.** Your path or file name differs from the original. Check every letter in Source 2 Viewer.
-- **Nothing changes at all.** Copy the `.vsnd_c` from the game folder, not the content folder.
-- **Another mod wins.** Give your mod a lower pak number, or remove the other mod.
-- **The sound is cut off.** The game decides how long a sound plays. Trim your audio to the original length.
-- **The sound is too quiet.** Raise it with Amplify in Audacity, but not above the original.
-- **The sound plays at a higher pitch.** One creator reports that some hero sounds are pitched up when they play. This may differ by hero. Open the hero's file in `soundevents/hero/` in Source 2 Viewer and look for a pitch value on that sound.
-- **It worked before an update.** Updates can move or change sounds. Find the sound again and check the path.
+<Accordions>
+<Accordion title="The game plays the old sound">
+
+Your path or file name differs from the original. Check every letter in Source 2 Viewer.
+
+</Accordion>
+<Accordion title="Nothing changes at all">
+
+Copy the `.vsnd_c` from the game folder, not the content folder.
+
+</Accordion>
+<Accordion title="Another mod wins">
+
+Give your mod a lower pak number, or remove the other mod.
+
+</Accordion>
+<Accordion title="The sound is cut off">
+
+The game decides how long a sound plays. Trim your audio to the original length.
+
+</Accordion>
+<Accordion title="The sound is too quiet">
+
+Raise it with Amplify in Audacity, but not above the original.
+
+</Accordion>
+<Accordion title="The sound plays at a higher pitch">
+
+One creator reports that some hero sounds are pitched up when they play. This may differ by hero. Open the hero's file in `soundevents/hero/` in Source 2 Viewer and look for a pitch value on that sound.
 
 {/* NEEDS HANDS-ON TEST: the "pitched up 25%" claim (conflict C48). Check the pitch value in a decompiled hero .vsndevts before telling readers to pitch their audio down. */}
+
+</Accordion>
+<Accordion title="It worked before an update">
+
+Updates can move or change sounds. Find the sound again and check the path.
+
+</Accordion>
+</Accordions>
 
 More fixes are in [Errors when making mods](/docs/deadlock/errors/creator-errors).
 
 ## Next steps
 
-- [Replace voice lines](/docs/deadlock/sounds/voice-lines)
-- [Play random sounds with soundevents](/docs/deadlock/sounds/random-sounds)
-- [Loop and compress sounds](/docs/deadlock/sounds/looping-and-compression)
+<ToolCard name="Replace voice lines" href="/docs/deadlock/sounds/voice-lines">
+  Change one line or a hero's whole voice.
+</ToolCard>
+<ToolCard
+  name="Play random sounds with soundevents"
+  href="/docs/deadlock/sounds/random-sounds"
+>
+  Make one ability pick a different sound each time.
+</ToolCard>
+<ToolCard
+  name="Loop and compress sounds"
+  href="/docs/deadlock/sounds/looping-and-compression"
+>
+  Make a looping ability sound play smoothly, or shrink a big sound mod.
+</ToolCard>
 
 ## Credits
 

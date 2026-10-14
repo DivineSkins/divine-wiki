@@ -12,8 +12,13 @@ A Deadlock mod is one VPK file with your compiled files at the same paths the ga
 ## What you need
 
 - Your compiled files, in your addon's game folder: `Reduced_CSDK_12/game/citadel_addons/<addon>/`.
-- [Source 2 Viewer](/docs/deadlock/tools/source-2-viewer), dev build or release 20.0 or newer.
-- [CSDK 12](/docs/deadlock/tools/csdk-12), only for the Workshop Manager method.
+
+<ToolCard name="Source 2 Viewer" href="/docs/deadlock/tools/source-2-viewer">
+  Dev build, or release 20.0 or newer.
+</ToolCard>
+<ToolCard name="CSDK 12" href="/docs/deadlock/tools/csdk-12" badge="Optional">
+  Only for the Workshop Manager method.
+</ToolCard>
 
 ## What goes in the VPK, and what stays out
 
@@ -29,7 +34,12 @@ Leave out:
 | Skeletons: `.vnmskel_c`                                       | They break the hero's animations, in other mods too.    |
 | Compiled files you did not change                             | They can clash with other mods and break after updates. |
 
-## Build a staging folder
+## Build, pack, and check
+
+<Steps>
+<Step>
+
+### Build a staging folder
 
 A staging folder holds a copy of your mod's files, laid out like the game. This example packs a recolored briefcase for Pocket.
 
@@ -45,7 +55,15 @@ Shortcut: copy your whole addon folder out of `game/citadel_addons/`, then delet
   alt="The goldcase staging folder holds models/heroes_staging/synth/materials/pocket_suitcase.vmat_c, so the path inside the VPK starts at models/ and not at goldcase/"
 />
 
-## Pack with Source 2 Viewer
+</Step>
+<Step>
+
+### Pack it
+
+There are two ways to pack. Pick one.
+
+<Tabs items={["Source 2 Viewer", "CSDK 12 Workshop Manager"]}>
+<Tab value="Source 2 Viewer" id="pack-with-source-2-viewer">
 
 Start with this method. It works without CSDK 12 open, shows the paths inside the VPK, and most guides use it.
 
@@ -74,7 +92,8 @@ Pugzilla shows the same steps in this model swap video from August 2026. They wo
   start={554}
 />
 
-## Pack with the CSDK 12 Workshop Manager
+</Tab>
+<Tab value="CSDK 12 Workshop Manager" id="pack-with-the-csdk-12-workshop-manager">
 
 Use this if you prefer to stay in CSDK 12. It borrows a Counter-Strike 2 upload window to build the VPK.
 
@@ -90,7 +109,13 @@ Use this if you prefer to stay in CSDK 12. It borrows a Counter-Strike 2 upload 
 
 The CSDK 12 launcher also has a **Create VPK** option on each addon. We have not tested where it saves the file, so this guide does not use it. {/* NEEDS HANDS-ON TEST: output location and contents of the launcher's Create VPK option (conflict C25) */}
 
-## Check what is inside
+</Tab>
+</Tabs>
+
+</Step>
+<Step>
+
+### Check what is inside
 
 Check every new VPK before you test it.
 
@@ -104,7 +129,10 @@ If a path is wrong, fix your staging folder and pack again.
 
 {/* SCREENSHOT: VPK contents in Source 2 Viewer with paths starting at models/. File: deadlock-basics-pack-a-vpk-6.webp */}
 
-## Name and number it
+</Step>
+<Step>
+
+### Name and number it
 
 Name the file `pak`, two digits, then `_dir.vpk`, from `pak01_dir.vpk` to `pak99_dir.vpk`. Put it straight into `game/citadel/addons/`. Other names and subfolders do not load.
 
@@ -115,7 +143,10 @@ Name the file `pak`, two digits, then `_dir.vpk`, from `pak01_dir.vpk` to `pak99
 
 When two mods ship the same file, the lower number wins, so give your mod a lower number to make it win. [How Deadlock mods work](/docs/deadlock/basics/how-mods-work) explains load order.
 
-For test builds, keep one fixed number and overwrite it each time. [Test your mod in game](/docs/deadlock/basics/test-your-mod) explains why.
+For test builds, keep one fixed number and overwrite it each time.
+
+</Step>
+</Steps>
 
 ## Mods bigger than 2 GB
 
@@ -128,7 +159,15 @@ Popular full hero skins are about 125 to 280 MB, so most mods never get close. O
 Source2Viewer-CLI -i "goldcase" --vpk_create "pak05_dir.vpk" --vpk_create_chunk_size 100
 ```
 
-This writes 100 MB chunks next to the `_dir` file. Keep every file of the set together, with the same number.
+This writes 100 MB chunks next to the `_dir` file. Keep every file of the set together, with the same number:
+
+<Files>
+  <Folder name="addons" defaultOpen>
+    <File name="pak05_dir.vpk" />
+    <File name="pak05_000.vpk" />
+    <File name="pak05_001.vpk" />
+  </Folder>
+</Files>
 
 ## Combine several mods into one VPK
 
@@ -141,18 +180,44 @@ If two mods hold the same file, only one copy survives, so choose which one you 
 
 ## Common problems
 
-- **The mod does nothing.** Check the name, the folder, and every path inside the VPK. Copy `_c` files from the game folder, not the content folder.
-- **A change does not show.** Recompile, copy the new `_c` file, and pack again.
-- **Mods stopped loading after a game update.** The update reset `gameinfo.gi`. See [Install mods by hand](/docs/deadlock/getting-started/install-by-hand).
-- **Another mod wins.** Give your mod a lower number.
-- **Source 2 Viewer fails to build the VPK.** Update to the latest dev build.
+<Accordions>
+<Accordion title="The mod does nothing">
+
+Check the name, the folder, and every path inside the VPK. Copy `_c` files from the game folder, not the content folder.
+
+</Accordion>
+<Accordion title="A change does not show">
+
+Recompile, copy the new `_c` file, and pack again.
+
+</Accordion>
+<Accordion title="Mods stopped loading after a game update">
+
+The update reset `gameinfo.gi`. See [Install mods by hand](/docs/deadlock/getting-started/install-by-hand).
+
+</Accordion>
+<Accordion title="Another mod wins">
+
+Give your mod a lower number.
+
+</Accordion>
+<Accordion title="Source 2 Viewer fails to build the VPK">
+
+Update to the latest dev build.
+
+</Accordion>
+</Accordions>
 
 More fixes are in [Errors when making mods](/docs/deadlock/errors/creator-errors) and [Mods not loading](/docs/deadlock/errors/mods-not-loading).
 
 ## Next steps
 
-- [Test your mod in game](/docs/deadlock/basics/test-your-mod): load your VPK and check every part of it.
-- [Publish your mod on GameBanana](/docs/deadlock/publishing/publish-on-gamebanana): share it once it works.
+<PremiumCard
+  title="Test your mod in game"
+  href="/docs/deadlock/basics/test-your-mod"
+>
+  Load your VPK and check every part of it. Then publish it on GameBanana.
+</PremiumCard>
 
 ## Credits
 

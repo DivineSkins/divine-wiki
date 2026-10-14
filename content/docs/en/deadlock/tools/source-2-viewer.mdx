@@ -9,6 +9,10 @@ patch: "6779"
 
 Source 2 Viewer opens Deadlock's game files. Use it to find the file you want to change, preview it, and export a copy you can edit. It also packs mods into VPKs. To install it with the rest of your tools, follow [Set up your creator tools](/docs/deadlock/getting-started/creator-setup).
 
+<ToolCard name="Source 2 Viewer" href="https://s2v.app/" badge="Free">
+  The official download page, s2v.app. By the ValveResourceFormat team.
+</ToolCard>
+
 ## What you need
 
 - A Windows PC for the app. The command-line version also runs on macOS and Linux.
@@ -20,7 +24,7 @@ Source 2 Viewer opens Deadlock's game files. Use it to find the file you want to
 | -------------- | ----------------------------------------------------------------------------------- |
 | Made by        | The ValveResourceFormat team                                                        |
 | Cost, license  | Free, open source (MIT)                                                             |
-| Get it         | [s2v.app](https://s2v.app/)                                                         |
+| Get it         | s2v.app, the dev build                                                              |
 | Platforms      | App: Windows (the site lists Windows 11 and OpenGL 4.6). CLI: Windows, macOS, Linux |
 | Latest release | 20.0, from 2026-08-17. Dev builds get new fixes first.                              |
 
@@ -30,7 +34,7 @@ Source 2 Viewer opens Deadlock's game files. Use it to find the file you want to
 2. Click **Download dev build**, under the big download button.
 3. Put the file in its own folder. There is no installer.
 
-Every current Deadlock guide uses the dev build, because Deadlock fixes land there first. If you prefer a normal release, use **Download v20.0** or newer. Older releases have bugs with hero models (see [Known issues by version](#known-issues-by-version)).
+Every current Deadlock guide uses the dev build, because Deadlock fixes land there first. If you prefer a normal release, use **Download v20.0** or newer. Older releases have bugs with hero models. See [Known issues by version](#known-issues-by-version).
 
 <img
   src="/wiki-images/deadlock-tools-source-2-viewer-1.webp"
@@ -43,17 +47,47 @@ Every current Deadlock guide uses the dev build, because Deadlock fixes land the
 2. Or click **File > Open** and pick `Deadlock/game/citadel/pak01_dir.vpk`.
 3. Open only the `_dir` file. Source 2 Viewer loads the numbered `pak01_000.vpk` parts with it.
 
+<Files>
+  <Folder name="Deadlock" defaultOpen>
+    <Folder name="game" defaultOpen>
+      <Folder name="citadel" defaultOpen>
+        <File name="pak01_dir.vpk" />
+        <File name="pak01_000.vpk" />
+        <File name="pak01_001.vpk" />
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+
 Hero files sit in `models/heroes_wip/` and `models/heroes_staging/`, under codenames. Source 2 Viewer's own docs say `models/heroes/`, but that folder now holds only camera files. [Hero names and file paths](/docs/deadlock/basics/hero-codenames) lists every codename.
 
 {/* SCREENSHOT: deadlock-tools-source-2-viewer-2.webp, the Explorer tab with Deadlock expanded and pak01_dir.vpk open */}
 
 ## Search and preview
 
-- Press **Ctrl+F** to search by file name, full path, or regex.
-- Double-click a model (`.vmdl_c`) to view it. Alt + drag orbits, Shift + drag pans, and the mouse wheel zooms.
-- Double-click a texture (`.vtex_c`) to see its size, format, and color channels. Note the size before you replace it.
-- Double-click a sound to play it.
-- Right-click a file and choose **Copy name** to copy its path. Paste it instead of typing it.
+<ParameterList
+  parameters={[
+    {
+      name: "Ctrl+F",
+      description: "Searches by file name, full path, or regex.",
+    },
+    {
+      name: "Double-click a model (.vmdl_c)",
+      description:
+        "Opens it in the viewer. Alt + drag orbits, Shift + drag pans, and the mouse wheel zooms.",
+    },
+    {
+      name: "Double-click a texture (.vtex_c)",
+      description:
+        "Shows its size, format, and color channels. Note the size before you replace it.",
+    },
+    { name: "Double-click a sound", description: "Plays it." },
+    {
+      name: "Right-click > Copy name",
+      description: "Copies the file's path. Paste it instead of typing it.",
+    },
+  ]}
+/>
 
 If you open a file you copied out of the game folder, its links to other files break. Add Deadlock's `gameinfo.gi` under **Settings > Game content search paths** to fix that.
 
@@ -63,8 +97,20 @@ If you open a file you copied out of the game folder, its links to other files b
 
 When a model is open, two tabs show what it uses:
 
-- **References** lists the materials the model loads. Materials are not always in the hero's folder, so check here instead of guessing.
-- **Data** shows the skeleton, animation graph, camera, and game data values. The model guides read values from here.
+<ParameterList
+  parameters={[
+    {
+      name: "References",
+      description:
+        "Lists the materials the model loads. Materials are not always in the hero's folder, so check here instead of guessing.",
+    },
+    {
+      name: "Data",
+      description:
+        "Shows the skeleton, animation graph, camera, and game data values. The model guides read values from here.",
+    },
+  ]}
+/>
 
 {/* SCREENSHOT: deadlock-tools-source-2-viewer-4.webp, a hero model open in the viewer with the Data tab selected */}
 
@@ -77,28 +123,32 @@ Right-click any file or folder to export it. There are two modes.
   alt="Export as is gives the same compiled file. Decompile and export gives editable files: a model becomes a vmdl with DMX or glTF, a material becomes a vmat with PNG images, a texture becomes PNG, a sound becomes WAV or MP3."
 />
 
-Where to save:
-
-- **One file:** export it into the matching folder of your addon, inside `content/citadel_addons/<addon>/`.
-- **A folder or several files:** export to the addon's root folder. Source 2 Viewer rebuilds the subfolders for you.
-- **Reference copies:** keep glTF files and test exports in a work folder outside `content/`.
+| You export                | Save it to                                                                  |
+| ------------------------- | --------------------------------------------------------------------------- |
+| One file                  | The matching folder of your addon, inside `content/citadel_addons/<addon>/` |
+| A folder or several files | The addon's root folder. Source 2 Viewer rebuilds the subfolders for you.   |
+| Reference copies          | A work folder outside `content/`. Keep glTF files and test exports there.   |
 
 {/* SCREENSHOT: deadlock-tools-source-2-viewer-6.webp, the right-click menu on a file with Decompile & export and Export as is visible */}
 
 {/* NEEDS HANDS-ON TEST: the save dialog in the current dev build. Which model formats it offers (vmdl, gltf, glb), whether exporting materials is a toggle, and whether TGA is still offered for textures. */}
 
-## Export models
+## Export by file type
+
+<Tabs items={["Models", "Textures and sounds"]}>
+<Tab value="Models">
 
 - For a model swap, export the hero model twice. The `.vmdl` export is the ModelDoc project, with DMX meshes, attachments, and hitboxes. The glTF export is the easiest file to open in Blender.
 - Pick `.gltf`, not `.glb`. A `.glb` file breaks above 2 GB.
 - glTF holds only the most detailed version of the model (LOD0). It has no hitboxes, and cloth bones come out stiff.
 - Hero animations sit in a `clips` folder next to the model. Decompile that folder to get `.vnmclip` and DMX files.
 
-[Import a Deadlock model into Blender](/docs/deadlock/models/import-into-blender) has the full steps.
+The Blender import guide in Next steps has the full steps.
 
 {/* SCREENSHOT: deadlock-tools-source-2-viewer-7.webp, the export type dropdown for a model with vmdl and gltf options */}
 
-## Export textures and sounds
+</Tab>
+<Tab value="Textures and sounds">
 
 - Textures export as PNG. HDR textures export as EXR. Only the largest size is saved.
 - An export comes from the compressed game file, not the artist's original. Paint at full size instead of saving the same export over and over.
@@ -106,9 +156,12 @@ Where to save:
 - Sounds export as WAV or MP3.
 - Right-click a folder to export everything in it at once.
 
+</Tab>
+</Tabs>
+
 ## Create a VPK
 
-Source 2 Viewer can pack a folder into a VPK with **File > Create VPK from folder**. Its own docs call the packing screen basic, but most Deadlock guides use it. [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk) has the full steps.
+Source 2 Viewer can pack a folder into a VPK with **File > Create VPK from folder**. Its own docs call the packing screen basic, but most Deadlock guides use it. The packing guide in Next steps has the full steps.
 
 Some older releases had bugs when building VPKs. Use the dev build for packing too.
 
@@ -131,18 +184,46 @@ Source2Viewer-CLI -i "<Deadlock>/game/citadel/pak01_dir.vpk" -o "exported/" -d -
 Source2Viewer-CLI -i "mymod" --vpk_create "pak05_dir.vpk"
 ```
 
-`-d` decompiles and `-o` sets the output. Add `--game <path to gameinfo.gi>` when the file you open sits outside the game folder.
+<ParameterList
+  parameters={[
+    { name: "-d", description: "Decompiles the files." },
+    { name: "-o", description: "Sets the output folder." },
+    {
+      name: "--game <path to gameinfo.gi>",
+      description:
+        "Add it when the file you open sits outside the game folder.",
+    },
+    { name: "--vpk_list", description: "Lists the files in the VPK." },
+    { name: "--vpk_create", description: "Packs a folder into a VPK." },
+  ]}
+/>
 
 {/* NEEDS HANDS-ON TEST: run these three commands against build 6779. They are adapted from the docs and untested. */}
 
 ## Known issues by version
 
-| Version                  | What changed                                                            | What it means for you                                                                                   |
-| ------------------------ | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| 19.1 (2026-04-09)        | Decompiled hero models include AnimGraph 2 nodes                        | CSDK 12 can crash when it opens them. The model guides delete those nodes first.                        |
-| Builds before 2026-08-04 | Attachment values drifted on decompile                                  | Modded heroes got a camera stuck in the center of the screen. Fixed in 20.0.                            |
-| 20.0 (2026-08-17)        | glTF export handles axes differently                                    | Blender steps written before August 2026 may tell you to rescale or rotate bones you no longer need to. |
-| Still open               | Some AnimGraph 2 clip and skeleton exports get the wrong name or folder | Check the paths after you decompile clips.                                                              |
+<Accordions>
+<Accordion title="19.1 (2026-04-09): decompiled hero models include AnimGraph 2 nodes">
+
+CSDK 12 can crash when it opens them. The model guides delete those nodes first.
+
+</Accordion>
+<Accordion title="Builds before 2026-08-04: attachment values drifted on decompile">
+
+Modded heroes got a camera stuck in the center of the screen. Fixed in 20.0.
+
+</Accordion>
+<Accordion title="20.0 (2026-08-17): glTF export handles axes differently">
+
+Blender steps written before August 2026 may tell you to rescale or rotate bones you no longer need to.
+
+</Accordion>
+<Accordion title="Still open: some AnimGraph 2 clip and skeleton exports get the wrong name or folder">
+
+Check the paths after you decompile clips.
+
+</Accordion>
+</Accordions>
 
 {/* NEEDS HANDS-ON TEST: whether decompiles from 20.0 or the current dev build still crash CSDK 12 (conflict C31), and whether glTF bones still need rescaling (conflict C32) */}
 
@@ -150,9 +231,21 @@ Need help with a bug? Source 2 Viewer has a [Discord server](https://discord.gg/
 
 ## Next steps
 
-- [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk)
-- [Import a Deadlock model into Blender](/docs/deadlock/models/import-into-blender)
-- [CSDK 12](/docs/deadlock/tools/csdk-12)
+<ToolCard
+  name="Pack your mod into a VPK"
+  href="/docs/deadlock/basics/pack-a-vpk"
+>
+  Turn your compiled files into one mod file the game loads.
+</ToolCard>
+<ToolCard
+  name="Import a Deadlock model into Blender"
+  href="/docs/deadlock/models/import-into-blender"
+>
+  Open an exported hero or prop in Blender at the right size and facing.
+</ToolCard>
+<ToolCard name="CSDK 12" href="/docs/deadlock/tools/csdk-12">
+  Compile the files you exported and edited.
+</ToolCard>
 
 ## Credits
 
