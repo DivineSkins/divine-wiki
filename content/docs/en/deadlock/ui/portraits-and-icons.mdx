@@ -1,0 +1,203 @@
+---
+title: "Replace portraits, icons, and item art"
+description: "Make custom hero portraits, minimap icons, ability icons, and item art with CSDK 12's image template, then rename and pack the files."
+category: "ui"
+patch: "6779"
+---
+
+<LevelPill level="beginner" />
+
+Replace a hero's portraits and icons with your own art. You compile your images with CSDK 12's image template, rename them, and pack them as a mod. The same steps work for ability icons and item art. Set up your tools first with [Set up your creator tools](/docs/deadlock/getting-started/creator-setup).
+
+## What you need
+
+- Deadlock, installed and up to date.
+- Source 2 Viewer and CSDK 12. Install them with [Set up your creator tools](/docs/deadlock/getting-started/creator-setup).
+- An image editor that saves PNG with transparency, such as GIMP or Photoshop.
+- Your own art. Draw it yourself or use art you have permission to share.
+- The hero's codename. Find it in [Hero names and file paths](/docs/deadlock/basics/hero-codenames).
+
+## Keep it fair
+
+Icon mods change art only. Other players see the normal game.
+
+- Keep icons at their normal size and about as easy to read as the originals.
+- Never make objective or enemy icons brighter, bigger, or glowing.
+- Never add information the game hides, such as timers or health numbers.
+
+Read [What's allowed and how to stay safe](/docs/deadlock/getting-started/stay-safe) for the full list.
+
+## Quick option: Texture Forge and Item Forge
+
+Deadlock Forge builds image mods in your browser. You do not need CSDK 12.
+
+1. Open [Texture Forge](https://deadlockforge.net/texture/) for portraits, ability icons, and minimap icons. Open [Item Forge](https://deadlockforge.net/item/) for shop item art.
+2. Pick the image you want to replace.
+3. Upload your image as PNG, JPG, or WebP.
+4. Download the VPK it builds.
+5. Name the file like `pak05_dir.vpk` if it has another name. The rules are in [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
+6. Install it with [Deadlock Mod Manager](/docs/deadlock/getting-started/install-with-mod-manager) or [by hand](/docs/deadlock/getting-started/install-by-hand).
+
+DeadMod is another browser tool that can replace portraits. RedMser's [DeadMod video](https://www.youtube.com/watch?v=i_tVma2wukk&t=99s) shows it from 1:39.
+
+{/* NEEDS HANDS-ON TEST: Texture Forge and Item Forge on build 6779. Check the labels, the downloaded file name, and that the image shows in game. */}
+
+For full control, use the CSDK 12 steps below.
+
+## Watch the walkthrough
+
+This video by Pugzilla follows the same steps as this guide.
+
+<YouTube id="LCIogCG41kU" title="Custom hero icons tutorial by Pugzilla" />
+
+<Callout type="info" title="This video uses an older interface">
+  The video was made before the September 2026 update. The CSDK 12 launcher
+  looks different now, but the steps work the same way.
+</Callout>
+
+## Which image is which
+
+Hero images live in `panorama/images/heroes/`. Each file name starts with the hero's image codename. This prefix can differ from the hero's other codenames. For Haze it is `haze`:
+
+| File                             | Where it shows                          |
+| -------------------------------- | --------------------------------------- |
+| `haze_card_psd.vtex_c`           | Hero portrait at the top of the HUD     |
+| `haze_card_critical_psd.vtex_c`  | Portrait when the hero is low on health |
+| `haze_card_gloat_psd.vtex_c`     | Kill streak portrait                    |
+| `haze_sm_psd.vtex_c`             | Small icon, used in the kill feed       |
+| `haze_mm_psd.vtex_c`             | Minimap icon                            |
+| `haze_vertical_psd.vtex_c`       | Tall portrait on hero select            |
+| `backgrounds/haze_bg_psd.vtex_c` | Hero background                         |
+
+Other images:
+
+- **Ability icons:** `panorama/images/hud/abilities/<codename>/`
+- **Item art:** `panorama/images/upgrades/` and `panorama/images/items/`
+
+{/* NEEDS HANDS-ON TEST: where card_critical and card_gloat show in game, and that the suffixes match on build 6779 (gap G03). */}
+
+## Check the original size
+
+Your image must be the exact same size as the original.
+
+1. Open Source 2 Viewer.
+2. Open `Deadlock/game/citadel/pak01_dir.vpk`.
+3. Go to `panorama/images/heroes/`.
+4. Double-click the image you want to replace. Write down its width and height.
+5. Repeat this for every image you plan to replace. Each image type has its own size.
+6. Optional: right-click the image and choose **Decompile & export**. You get a PNG to use as a guide.
+
+{/* NEEDS HANDS-ON TEST: record the exact pixel size of each image type (card, card_critical, card_gloat, sm, mm, vertical, bg) on build 6779. */}
+
+{/* SCREENSHOT: deadlock-ui-portraits-and-icons-1.webp, Source 2 Viewer at panorama/images/heroes/ with a card image open and its size visible */}
+
+## Duplicate the image template
+
+CSDK 12 comes with a ready-made image addon called `hero_image_template`.
+
+1. Open the CSDK 12 launcher. Keep Steam running.
+2. Right-click **hero_image_template** and choose **Duplicate Addon**.
+3. Name the copy in lowercase with no spaces, for example `hazeicons`.
+4. Right-click your new addon and choose **Explore Content Folder**.
+5. Open `panorama/images/heroes/`. It holds the template's sample images for Grey Talon.
+6. Delete the sample images. If you keep them, your mod also changes Grey Talon's icons.
+
+The template also has a file called `image_compiler.vdata` in the `panorama` folder. You edit it later.
+
+{/* SCREENSHOT: deadlock-ui-portraits-and-icons-2.webp, the CSDK 12 launcher with Duplicate Addon on hero_image_template */}
+
+{/* NEEDS HANDS-ON TEST: launcher menu labels and the template's exact contents in the current CSDK 12 zip. */}
+
+## Make your images
+
+1. Create a new image at the exact size you wrote down.
+2. Use a transparent background.
+3. Draw your art.
+4. Export it as PNG into `content/citadel_addons/hazeicons/panorama/images/heroes/`.
+5. Name it like the original, without the ending. For example, `haze_card_psd.vtex_c` becomes `haze_card.png`.
+
+{/* SCREENSHOT: deadlock-ui-portraits-and-icons-3.webp, the addon content folder with our own PNG files */}
+
+## List them in image_compiler.vdata
+
+This file tells CSDK 12 which images to compile. Every image in your mod needs one line in it.
+
+1. Open `panorama/image_compiler.vdata` in a text editor, such as Notepad.
+2. Find the lines with the template's sample file names.
+3. Replace each sample name with one of your file names. Include the `.png` ending.
+4. Add a line for each extra image. Copy the format of an existing line.
+5. Save the file.
+
+Each line points at an image inside your addon's `panorama/images` folder. A line for the Haze card looks like this:
+
+```text
+panorama:"file://{images}/heroes/haze_card.png"
+```
+
+For ability icons or item art, put the image in the matching folder and change the path in the line.
+
+{/* NEEDS HANDS-ON TEST: confirm the line format in the current template's image_compiler.vdata. */}
+
+{/* SCREENSHOT: deadlock-ui-portraits-and-icons-4.webp, image_compiler.vdata open in Notepad with our file names */}
+
+## Compile
+
+1. In the CSDK 12 launcher, select your addon and click **Launch Tools**. The Asset Browser opens.
+2. Search for `image_compiler` in the Asset Browser. Do not search for your image names.
+3. Right-click `image_compiler` and choose **Recompile > Full**. This compiles every image in the list.
+4. Close the tools.
+5. Right-click your addon in the launcher and choose **Explore Game Folder**.
+6. Open `panorama/images/heroes/`. Your compiled `.vtex_c` files are there.
+
+{/* NEEDS HANDS-ON TEST: which CSDK 12 binary compiles image_compiler.vdata without the full game files (conflict C44). One guide uses bin_server with Client only, Danger mode, Tools and VConsole ticked. Test the default bin first. */}
+
+{/* SCREENSHOT: deadlock-ui-portraits-and-icons-5.webp, Asset Browser right-click menu with Recompile > Full on image_compiler */}
+
+## Rename to the original names
+
+The compiled files may not have the game's exact names. The game only loads a file with the exact original name.
+
+1. Make a new folder for your mod, for example `hazeicons_pack`.
+2. Inside it, rebuild the path: `panorama/images/heroes/`.
+3. Copy only your compiled images into it. Leave out `image_compiler.vdata_c`.
+4. Rename each file to the exact original name from Source 2 Viewer. For example, `haze_card_png.vtex_c` becomes `haze_card_psd.vtex_c`.
+
+This rename step comes from guides made before the September 2026 update. If your files already have the original names, skip it.
+
+{/* NEEDS HANDS-ON TEST: the _png to _psd rename rule (conflict C42). Check the compiled names on build 6779, and test whether a .psd source with the original name gives the right name directly. */}
+
+{/* SCREENSHOT: deadlock-ui-portraits-and-icons-6.webp, compiled files before and after the rename */}
+
+## Pack and test
+
+1. Pack your mod folder into a VPK. Follow [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
+2. Load the mod and check every image in game. Follow [Test your mod in game](/docs/deadlock/basics/test-your-mod).
+
+{/* SCREENSHOT: deadlock-ui-portraits-and-icons-7.webp, our new portrait in the HUD during a private match */}
+
+## Common problems
+
+- **The image is stretched, cropped, or blurry.** Its size does not match the original. Check the size in Source 2 Viewer and make it again.
+- **The game shows the old image.** The compiled file name or folder is wrong. Compare both with the original in Source 2 Viewer.
+- **Grey Talon's icons changed too.** You left the template's sample images in your mod. Delete them and pack again.
+- **The compile fails.** Check that every line in `image_compiler.vdata` matches a real file name. One older guide uses the `bin_server` option for this compile. That option needs the optional full game files.
+- **It worked before an update.** Game updates can rename or move images. Check the names in Source 2 Viewer again.
+
+## Next steps
+
+- [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk)
+- [Test your mod in game](/docs/deadlock/basics/test-your-mod)
+- Change item names and other text (coming soon)
+
+{/* LINK LATER: /docs/deadlock/ui/change-text */}
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Video:** [(Read Desc) Deadlock - Custom Hero Icons Tutorial](https://www.youtube.com/watch?v=LCIogCG41kU) by Pugzilla.
+- **Guide:** [How to Image Replacement for Dummies](https://gamebanana.com/tuts/19641) by Axelliax.
+- **Guide:** [Compiling UI Textures](https://deadlockmodding.pages.dev/modding-guides/compiling-ui-vtex) from Deadlock Modding Notes.
+- **Data:** [GameTracking-Deadlock](https://github.com/SteamTracking/GameTracking-Deadlock) by SteamTracking, for the image names and folders.
+- **Tool:** [Deadlock Forge](https://deadlockforge.net/) by Sirsyorrz.
+- **Video:** [DeadMod: Make new Deadlock texture mods in minutes](https://www.youtube.com/watch?v=i_tVma2wukk) by Red Mser.
