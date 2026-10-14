@@ -103,6 +103,25 @@ export function LeagueOfLegendsLogo({ className }: LogoProps) {
 }
 
 /**
+ * Deadlock's app icon (the cream wheel-and-eye emblem), from the game's Steam
+ * client icon, 256x256. In colour for the same reason as the League mark.
+ * The disc fills its whole canvas; scale-110 matches it to the League mark's
+ * ring, which lands at about 110% of the box after that mark's scale-125.
+ */
+export function DeadlockLogo({ className }: LogoProps) {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src="/brand/deadlock-logo.webp"
+      alt=""
+      className={`brand-mark size-full scale-110 object-contain ${className ?? ""}`}
+      aria-hidden
+      draggable={false}
+    />
+  );
+}
+
+/**
  * Divine's own app marks — Flint, Jade, Quartz, Ruby — taken from the
  * official set at RitoShark/.github/public and re-encoded to WebP, trimmed
  * to the artwork's own bounds so all four share one optical size.
