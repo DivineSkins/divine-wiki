@@ -13,9 +13,7 @@ import { cn } from "@/lib/utils";
 import {
   STYLE_STORAGE_KEY,
   FONT_STORAGE_KEY,
-  READING_WIDTH_STORAGE_KEY,
   MINIMAL_CLASS,
-  CENTERED_CLASS,
   type FontId,
 } from "@/lib/appearance";
 
@@ -38,9 +36,6 @@ export interface SettingsLabels {
   styleMinimal: string;
   font: string;
   fontSystem: string;
-  width: string;
-  widthWide: string;
-  widthCentered: string;
 }
 
 // Each label renders in its own typeface so the row previews the font.
@@ -130,16 +125,11 @@ export function AppearanceSettings({
 }) {
   const { theme, setTheme } = useTheme();
   // SSR can't read localStorage / the html element; render defaults and
-  // sync once after hydration (same pattern the reading-width toggle
-  // used). `mounted` gates the Mode row to avoid a hydration mismatch
+  // sync once after hydration. `mounted` gates the Mode row to avoid a hydration mismatch
   // from next-themes.
   const [mounted, setMounted] = useState(false);
   const [style, setStyle] = useState<"divine" | "minimal">("divine");
   const [font, setFont] = useState<FontId>("inter");
-  // Centered is the default reading width (see the pre-paint script in
-  // src/app/[lang]/layout.tsx); the effect below reconciles with the actual
-  // <html> class on mount, so visitors who chose "wide" still sync correctly.
-  const [centered, setCentered] = useState(true);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -155,7 +145,6 @@ export function AppearanceSettings({
         ? (storedFont as FontId)
         : "inter",
     );
-    setCentered(root.classList.contains(CENTERED_CLASS));
   }, []);
 
   function persist(key: string, value: string) {
@@ -186,12 +175,6 @@ export function AppearanceSettings({
     persist(FONT_STORAGE_KEY, next);
   }
 
-  function applyWidth(next: boolean) {
-    setCentered(next);
-    document.documentElement.classList.toggle(CENTERED_CLASS, next);
-    persist(READING_WIDTH_STORAGE_KEY, next ? "centered" : "wide");
-  }
-
   return (
     <Popover>
       <PopoverTrigger aria-label={labels.trigger} className={triggerClassName}>
@@ -220,17 +203,6 @@ export function AppearanceSettings({
             options={[
               { value: "divine", label: labels.styleDivine },
               { value: "minimal", label: labels.styleMinimal },
-            ]}
-          />
-        </Row>
-        <Row label={labels.width}>
-          <Segmented
-            groupLabel={labels.width}
-            value={centered ? "centered" : "wide"}
-            onChange={(next) => applyWidth(next === "centered")}
-            options={[
-              { value: "wide", label: labels.widthWide },
-              { value: "centered", label: labels.widthCentered },
             ]}
           />
         </Row>

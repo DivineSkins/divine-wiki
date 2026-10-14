@@ -1100,7 +1100,11 @@ html[data-font] {
   .dark:not(.minimal) .divine-faq > div[data-state="open"] {
     background: #1a1922;
   }
-  .divine-faq h3 > button {
+  /* `[aria-expanded]` picks the Radix trigger only. The header also holds
+     fumadocs' copy-link button (a plain <button>); without the filter it got
+     the trigger's padding and the chevron rotation, so its "copied" check
+     showed up as a big purple box with a sideways check. */
+  .divine-faq h3 > button[aria-expanded] {
     font-family: var(--font-body);
     font-weight: 700;
     font-size: 1rem;
@@ -1111,14 +1115,14 @@ html[data-font] {
   /* Chevron: on the right, pointing down closed and up open (180° over
      250ms, as the site). Fumadocs rotates it with the Tailwind v4
      `rotate` property, hence the rotate overrides. */
-  .divine-faq h3 > button > svg {
+  .divine-faq h3 > button[aria-expanded] > svg {
     order: 1;
     margin-left: auto;
     color: var(--color-divine-text-muted);
     rotate: 90deg !important;
     transition: rotate 250ms ease-in-out;
   }
-  .divine-faq h3 > button[data-state="open"] > svg {
+  .divine-faq h3 > button[aria-expanded][data-state="open"] > svg {
     rotate: -90deg !important;
   }
   .divine-faq [role="region"] > div {
@@ -1339,16 +1343,11 @@ html[data-font] {
    Kept UNLAYERED (not in @layer) on purpose: fumadocs' `max-w-[900px]` is a
    Tailwind utility, and the utilities layer beats @layer components regardless
    of selector specificity — an unlayered rule overrides it cleanly. */
+/* Then cap the reading column at 900px; the article's own `mx-auto` centers
+   it between the sidebar and the TOC, Obsidian-style. (This used to be a
+   "Centered" vs "Wide" choice in the appearance popover; centered is now the
+   only layout.) */
 #nd-page[data-full="false"] {
-  max-width: none;
-}
-
-/* Centered reading mode — the default Width (the pre-paint script in
-   src/app/[lang]/layout.tsx adds `centered-reading` to <html> unless the
-   visitor picked "wide" in the appearance popover's Width row). Caps the
-   column; the article's own `mx-auto` centers it between the sidebar and the
-   TOC, Obsidian-style. */
-.centered-reading #nd-page[data-full="false"] {
   max-width: 900px;
 }
 

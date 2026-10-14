@@ -149,15 +149,13 @@ export default async function RootLayout({
     >
       <body>
         <IconGradients />
-        {/* Apply persisted appearance preferences (reading width, Minimal
-            style, font) before first paint — same no-flash trick next-themes
-            uses for the theme class. Serialized copy of applyStoredAppearance
-            in src/lib/appearance.ts; keep them in sync. Centered reading is
-            the default: add the class unless the visitor explicitly chose
-            "wide". */}
+        {/* Apply persisted appearance preferences (Minimal style, font)
+            before first paint — same no-flash trick next-themes uses for the
+            theme class. Serialized copy of applyStoredAppearance in
+            src/lib/appearance.ts; keep them in sync. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{var c=document.documentElement.classList;if(localStorage.getItem("divine-reading-width")!=="wide")c.add("centered-reading");if(localStorage.getItem("divine-style")==="minimal")c.add("minimal");var f=localStorage.getItem("divine-font");if(f==="geist"||f==="lora"||f==="atkinson"||f==="system")document.documentElement.setAttribute("data-font",f)}catch(e){}`,
+            __html: `try{var c=document.documentElement.classList;if(localStorage.getItem("divine-style")==="minimal")c.add("minimal");var f=localStorage.getItem("divine-font");if(f==="geist"||f==="lora"||f==="atkinson"||f==="system")document.documentElement.setAttribute("data-font",f)}catch(e){}`,
           }}
         />
         {/* Re-applies the same preferences after a language switch: the
