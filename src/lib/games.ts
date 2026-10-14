@@ -17,6 +17,13 @@ export const GAMES = [
 
 export type Game = (typeof GAMES)[number];
 
+/**
+ * Game segments whose guides exist only in English for now. The docs
+ * sidebar hides the language picker on their pages, since every locale would
+ * show the same English text. Remove a slug once its translations land.
+ */
+export const ENGLISH_ONLY_GAMES: ReadonlySet<string> = new Set(["deadlock"]);
+
 /** Where a new draft goes when nothing names a game. */
 export const DEFAULT_GAME = "lol";
 

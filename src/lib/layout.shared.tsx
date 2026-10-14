@@ -1,5 +1,7 @@
 import Image from "next/image";
 import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
+import { LanguageSelectText } from "fumadocs-ui/layouts/shared/slots/language-select";
+import { GameAwareLanguageSelect } from "@/components/language-select";
 import { homePath } from "./i18n";
 import { getMessages } from "./locale";
 
@@ -15,6 +17,14 @@ export function baseOptions(locale: string): BaseLayoutProps {
     // fumadocs-core 16.10 attaches a translations() method to it, which can't
     // cross the server-to-client boundary (locales come from RootProvider).
     i18n: true,
+    // Stock language picker, except on English-only game segments
+    // (ENGLISH_ONLY_GAMES in src/lib/games.ts), where it renders nothing.
+    slots: {
+      languageSelect: {
+        root: GameAwareLanguageSelect,
+        text: LanguageSelectText,
+      },
+    },
     nav: {
       title: (
         <>
