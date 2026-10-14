@@ -131,6 +131,70 @@ export const componentSnippets: ComponentSnippet[] = [
     docsAnchor: "youtube",
     overflow: true,
   },
+  {
+    id: "steps",
+    label: "Steps",
+    blurb: "Numbered stages for a longer task. One ### heading per stage.",
+    snippet:
+      "<Steps>\n<Step>\n\n### First stage\n\n1. Do this.\n\n</Step>\n<Step>\n\n### Second stage\n\n1. Then this.\n\n</Step>\n</Steps>\n",
+    preview:
+      "<Steps>\n<Step>\n\n### Find the file\n\nOpen the game files.\n\n</Step>\n<Step>\n\n### Compile it\n\nRecompile your edit.\n\n</Step>\n</Steps>",
+    docsAnchor: "steps",
+    overflow: true,
+  },
+  {
+    id: "files",
+    label: "Files",
+    blurb: "A folder tree. Shows where files go.",
+    snippet:
+      '<Files>\n  <Folder name="folder" defaultOpen>\n    <File name="file.ext" />\n  </Folder>\n</Files>\n',
+    preview:
+      '<Files>\n  <Folder name="addons" defaultOpen>\n    <File name="pak01_dir.vpk" />\n  </Folder>\n</Files>',
+    docsAnchor: "files",
+    overflow: true,
+  },
+  {
+    id: "requirements",
+    label: "Requirements",
+    blurb: 'The "What you need" list as logo chips.',
+    snippet:
+      '<Requirements>\n  <Requirement icon="Blender" href="/docs/...">Blender</Requirement>\n  <Requirement>Something else you need</Requirement>\n</Requirements>\n',
+    preview:
+      '<Requirements>\n  <Requirement icon="Blender">Blender</Requirement>\n  <Requirement icon="GIMP" note="or Photoshop">GIMP</Requirement>\n</Requirements>',
+    docsAnchor: "requirements",
+    overflow: true,
+  },
+  {
+    id: "toolheader",
+    label: "ToolHeader",
+    blurb: "Summary panel at the top of a tool page: logo, facts, download.",
+    snippet:
+      '<ToolHeader\n  name="Tool name"\n  icon="Wrench"\n  facts={["Free", "Windows"]}\n  primary={{ label: "Download", href: "https://example.com" }}\n>\n  What the tool does, in one sentence.\n</ToolHeader>\n',
+    preview:
+      '<ToolHeader name="Flint" icon="Flint" badge="Recommended" facts={["Free", "Windows"]}>\n  All-in-one modding app.\n</ToolHeader>',
+    docsAnchor: "toolheader",
+    overflow: true,
+  },
+  {
+    id: "cardgrid",
+    label: "CardGrid",
+    blurb: "PremiumCards side by side, for sections and choices.",
+    snippet:
+      '<CardGrid>\n  <PremiumCard title="First" href="/docs/..." icon={<Icon name="Compass" />}>\n    One line.\n  </PremiumCard>\n  <PremiumCard title="Second" href="/docs/..." icon={<Icon name="Wrench" />}>\n    One line.\n  </PremiumCard>\n</CardGrid>\n',
+    preview:
+      '<CardGrid>\n  <PremiumCard title="Maya" href="/docs" icon={<Icon name="Maya" />}>\n    Rigging and export.\n  </PremiumCard>\n  <PremiumCard title="Blender" href="/docs" icon={<Icon name="Blender" />}>\n    The same in Blender.\n  </PremiumCard>\n</CardGrid>',
+    docsAnchor: "cardgrid",
+    overflow: true,
+  },
+  {
+    id: "menupath",
+    label: "MenuPath",
+    blurb: "A menu path inside a step, like File > Export.",
+    snippet: '<MenuPath path="File > Export" />',
+    preview: 'Choose <MenuPath path="File > Export > FBX" />.',
+    docsAnchor: "menupath",
+    overflow: true,
+  },
 ];
 
 export const mainSnippets = componentSnippets.filter((s) => !s.overflow);

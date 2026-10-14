@@ -9,6 +9,10 @@ import { PremiumCard } from "@/components/mdx/PremiumCard";
 import { GlowCTA } from "@/components/mdx/GlowCTA";
 import { LevelPill } from "@/components/mdx/LevelPill";
 import { ToolCard } from "@/components/mdx/ToolCard";
+import { ToolHeader } from "@/components/mdx/ToolHeader";
+import { CardGrid } from "@/components/mdx/CardGrid";
+import { Requirements, Requirement } from "@/components/mdx/Requirements";
+import { MenuPath } from "@/components/mdx/MenuPath";
 import { Icon } from "@/components/icon";
 import * as TabsComponents from "fumadocs-ui/components/tabs";
 import { Steps, Step } from "fumadocs-ui/components/steps";
@@ -36,6 +40,11 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     GlowCTA,
     LevelPill,
     ToolCard,
+    ToolHeader,
+    CardGrid,
+    Requirements,
+    Requirement,
+    MenuPath,
     Icon,
     img: ImageZoom,
     pre: CodeBlock,

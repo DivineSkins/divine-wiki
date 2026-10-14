@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { ArrowUpRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { LevelPill } from "@/components/mdx/LevelPill";
 
 interface PremiumCardProps {
   title: string;
@@ -15,6 +16,8 @@ interface PremiumCardProps {
    * first. Use at most once per page.
    */
   featured?: boolean;
+  /** Optional difficulty tag under the title, for guide cards. */
+  level?: "beginner" | "intermediate" | "advanced";
 }
 
 /**
@@ -31,6 +34,7 @@ export function PremiumCard({
   icon,
   children,
   featured = false,
+  level,
 }: PremiumCardProps) {
   const isExternal = /^https?:\/\//i.test(href);
   const Tag = isExternal ? "a" : LocalizedLink;
@@ -58,8 +62,15 @@ export function PremiumCard({
                 {icon}
               </div>
             ) : null}
-            <div className="text-divine-text text-[18px] leading-snug font-bold">
-              {title}
+            <div className="min-w-0">
+              <div className="text-divine-text text-[18px] leading-snug font-bold">
+                {title}
+              </div>
+              {level ? (
+                <div className="mt-1.5">
+                  <LevelPill level={level} size="sm" />
+                </div>
+              ) : null}
             </div>
           </div>
           {children ? (

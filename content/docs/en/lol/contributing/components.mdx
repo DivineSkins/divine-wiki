@@ -8,6 +8,32 @@ draft editor's toolbar inserts them for you. This page is the full
 reference. Each section shows the component first, then the code that
 makes it.
 
+## Which component to use
+
+Each component has one job. Pick by what you are showing, not by how it
+looks.
+
+| You want to show                             | Use                                                   |
+| -------------------------------------------- | ----------------------------------------------------- |
+| The one page a reader should open first      | [PremiumCard](#premiumcard) with `featured`           |
+| A set of guides or sections to pick from     | [CardGrid](#cardgrid) of [PremiumCards](#premiumcard) |
+| A list of tools                              | [ToolCard](#toolcard) rows, with the tool's logo      |
+| The summary at the top of a tool's own page  | [ToolHeader](#toolheader)                             |
+| What a reader needs before they start        | [Requirements](#requirements)                         |
+| A task with several stages                   | [Steps](#steps)                                       |
+| Two or more ways to do the same thing        | [Tabs](#tabs)                                         |
+| Where files go                               | [Files](#files)                                       |
+| A menu path inside a step                    | [MenuPath](#menupath)                                 |
+| Problems and fixes, FAQs, optional detail    | [Accordion](#accordion)                               |
+| Names with descriptions (settings, commands) | [ParameterList](#parameterlist) or a [table](#table)  |
+| A warning or a tip                           | [Callout](#callout)                                   |
+| The single action a page asks for            | [GlowCTA](#glowcta)                                   |
+
+Two rules keep pages readable:
+
+- **Don't use ToolCard for guides.** It is for tools. Guides go in PremiumCards.
+- **Link each page once.** If a card already points to a page, don't link it again in the text.
+
 ## Callout
 
 A colored box for warnings, tips, and the Korea/China safety note. Use
@@ -235,6 +261,9 @@ Props:
 
 - `name` and `href` are required. External links open in a new tab.
 - `badge` is optional. It renders as a small pill on the right.
+- `icon` is optional. Pass the tool's logo: `icon={<Icon name="Flint" />}`.
+  See [Icon](#icon) for the logos we have.
+- Use it for tools only. For guides, use [PremiumCard](#premiumcard).
 
 ## LevelPill
 
@@ -273,17 +302,160 @@ A two-column name/description table for reference pages.
 
 ## PremiumCard
 
-A prominent card with a gradient border for one featured link. Use it
-to point readers at the most important next page.
+A card that links to a guide or a section. Use one with `featured` for
+the most important next page, or several in a [CardGrid](#cardgrid) for
+a set of choices.
 
-<PremiumCard title="Guided walkthrough" href="/docs/lol/guided-walkthrough">
+<PremiumCard
+  title="Guided walkthrough"
+  href="/docs/lol/guided-walkthrough"
+  icon={<Icon name="Compass" />}
+  featured
+>
   Start here if you are new. One path from empty folder to finished skin.
 </PremiumCard>
 
 ```mdx
-<PremiumCard title="Guided walkthrough" href="/docs/lol/guided-walkthrough">
+<PremiumCard
+  title="Guided walkthrough"
+  href="/docs/lol/guided-walkthrough"
+  icon={<Icon name="Compass" />}
+  featured
+>
   Start here if you are new.
 </PremiumCard>
+```
+
+Props:
+
+- `title` and `href` are required.
+- `icon` is optional: `icon={<Icon name="Compass" />}`.
+- `featured` adds a purple frame. Use it once per page at most.
+- `level` adds a small difficulty tag: `beginner`, `intermediate`, or
+  `advanced`.
+
+## CardGrid
+
+PremiumCards side by side. Use it for the sections of a category, or for
+two or three real choices at the end of a guide.
+
+<CardGrid>
+  <PremiumCard
+    title="Maya"
+    href="/docs/lol/maya"
+    icon={<Icon name="Maya" />}
+    level="intermediate"
+  >
+    Rigging, skinning, and exporting for League.
+  </PremiumCard>
+  <PremiumCard
+    title="Blender"
+    href="/docs/lol/blender"
+    icon={<Icon name="Blender" />}
+    level="intermediate"
+  >
+    The same workflow in Blender.
+  </PremiumCard>
+</CardGrid>
+
+```mdx
+<CardGrid>
+  <PremiumCard title="Maya" href="/docs/lol/maya" icon={<Icon name="Maya" />}>
+    Rigging, skinning, and exporting for League.
+  </PremiumCard>
+  <PremiumCard
+    title="Blender"
+    href="/docs/lol/blender"
+    icon={<Icon name="Blender" />}
+  >
+    The same workflow in Blender.
+  </PremiumCard>
+</CardGrid>
+```
+
+`cols={3}` fits three narrow cards per row on wide screens.
+
+## ToolHeader
+
+The summary at the top of a tool's own page: its logo, what it does,
+short facts, and the download button. Use it once, right under the
+title.
+
+<ToolHeader
+  name="Flint"
+  icon="Flint"
+  badge="Recommended"
+  facts={["Free", "Windows"]}
+  primary={{
+    label: "Download",
+    href: "https://github.com/RitoShark/Flint/releases",
+  }}
+>
+  All-in-one modding app. Extract, preview, edit, and pack in one window.
+</ToolHeader>
+
+```mdx
+<ToolHeader
+  name="Flint"
+  icon="Flint"
+  badge="Recommended"
+  facts={["Free", "Windows"]}
+  primary={{
+    label: "Download",
+    href: "https://github.com/RitoShark/Flint/releases",
+  }}
+  links={[{ label: "GitHub", href: "https://github.com/RitoShark/Flint" }]}
+>
+  All-in-one modding app.
+</ToolHeader>
+```
+
+Props:
+
+- `name` is required. `icon` takes an [Icon](#icon) name.
+- `facts` is a short list: price, license, platforms, version.
+- `primary` is the main download. `links` adds smaller buttons, such as
+  GitHub or docs.
+
+## Requirements
+
+The "What you need" list, as chips. Give each tool its logo and a link
+to its page. Things that aren't tools (an account, a file) go in as
+plain chips.
+
+<Requirements>
+  <Requirement icon="Flint" href="/docs/lol/tools/modding-apps/flint">
+    Flint
+  </Requirement>
+  <Requirement icon="GIMP" note="or Photoshop">
+    GIMP
+  </Requirement>
+  <Requirement icon="FileImage">Your texture as a PNG</Requirement>
+</Requirements>
+
+```mdx
+<Requirements>
+  <Requirement icon="Flint" href="/docs/lol/tools/modding-apps/flint">
+    Flint
+  </Requirement>
+  <Requirement icon="GIMP" note="or Photoshop">
+    GIMP
+  </Requirement>
+  <Requirement icon="FileImage">Your texture as a PNG</Requirement>
+</Requirements>
+```
+
+Keep each label short. Put longer notes in a sentence under the chips.
+
+## MenuPath
+
+A menu path inside a step. It shows each menu item as a key, with arrows
+between them.
+
+1. Right-click the file and choose <MenuPath path="Recompile > Full" />.
+
+```mdx
+1. Right-click the file and choose <MenuPath path="Recompile > Full" />.
 ```
 
 ## GlowCTA
@@ -329,8 +501,19 @@ it into an embed for you.
 ## Icon
 
 An inline icon. Use any [Lucide icon name](https://lucide.dev/icons/),
-or one of the brand names: `Maya`, `Blender`, `Discord`,
-`LeagueOfLegends`.
+or one of the logos below. The same names work for the `icon` prop of
+ToolHeader and Requirement, and inside `icon={<Icon name="..." />}`.
+
+| Group          | Names                                                                                          |
+| -------------- | ---------------------------------------------------------------------------------------------- |
+| Games          | `LeagueOfLegends`, `Deadlock`                                                                  |
+| League tools   | `Flint`, `Jade`, `Quartz`, `Ruby`, `LtMAO`                                                     |
+| Deadlock tools | `Source2Viewer`, `DeadlockModManager`, `Grimoire`                                              |
+| Apps           | `Maya`, `Blender`, `GIMP`, `Audacity`, `Wwise`, `NotepadPlusPlus`                              |
+| Platforms      | `Steam`, `Valve`, `SteamDeck`, `Linux`, `GameBanana`, `GitHub`, `Discord`, `YouTube`, `Reddit` |
+
+<Icon name="Wrench" /> <Icon name="Sparkles" /> <Icon name="Blender" />
+<Icon name="Discord" /> <Icon name="Source2Viewer" /> <Icon name="GameBanana" />
 
 <Icon name="Wrench" /> <Icon name="Sparkles" /> <Icon name="Blender" />
 <Icon name="Discord" />

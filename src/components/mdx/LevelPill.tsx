@@ -1,6 +1,8 @@
 interface LevelPillProps {
   level: "beginner" | "intermediate" | "advanced";
   label?: string;
+  /** `sm` is the compact tag used inside cards (PremiumCard `level`). */
+  size?: "md" | "sm";
 }
 
 /**
@@ -35,16 +37,20 @@ const defaults: Record<LevelPillProps["level"], string> = {
   advanced: "Advanced",
 };
 
-export function LevelPill({ level, label }: LevelPillProps) {
+export function LevelPill({ level, label, size = "md" }: LevelPillProps) {
   const tone = tones[level] ?? unknownTone;
+  const sizing =
+    size === "sm"
+      ? "h-5 gap-1.5 px-2 text-[10px]"
+      : "me-1.5 h-7 gap-2 px-3 text-[11px]";
   return (
     <span
-      className={`not-prose me-1.5 inline-flex h-7 items-center gap-2 rounded-full px-3 align-middle text-[11px] leading-none font-bold tracking-wider uppercase ${tone.pill}`}
+      className={`not-prose inline-flex items-center rounded-full align-middle leading-none font-bold tracking-wider uppercase ${sizing} ${tone.pill}`}
     >
       <svg
         aria-hidden
         viewBox="0 0 12 12"
-        className="size-3 shrink-0"
+        className={`${size === "sm" ? "size-2.5" : "size-3"} shrink-0`}
         fill="currentColor"
       >
         {[0, 1, 2].map((i) => (

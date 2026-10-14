@@ -15,6 +15,17 @@ import {
   LtMAOLogo,
   GimpLogo,
   WwiseLogo,
+  SteamLogo,
+  ValveLogo,
+  AudacityLogo,
+  RedditLogo,
+  LinuxLogo,
+  SteamDeckLogo,
+  NotepadPlusPlusLogo,
+  GameBananaLogo,
+  Source2ViewerLogo,
+  DeadlockModManagerLogo,
+  GrimoireLogo,
 } from "@/components/brand-logos";
 
 // Brand logos (Simple Icons) keyed by the names used in meta.json `icon`
@@ -41,6 +52,17 @@ const brandIcons = {
   GIMP: GimpLogo,
   Gimp: GimpLogo,
   Wwise: WwiseLogo,
+  Steam: SteamLogo,
+  Valve: ValveLogo,
+  Audacity: AudacityLogo,
+  Reddit: RedditLogo,
+  Linux: LinuxLogo,
+  SteamDeck: SteamDeckLogo,
+  NotepadPlusPlus: NotepadPlusPlusLogo,
+  GameBanana: GameBananaLogo,
+  Source2Viewer: Source2ViewerLogo,
+  DeadlockModManager: DeadlockModManagerLogo,
+  Grimoire: GrimoireLogo,
 };
 
 /**
