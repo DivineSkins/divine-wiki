@@ -40,6 +40,12 @@ import {
 } from "@/lib/draft/persistence";
 import { entities } from "@/lib/draft/entities";
 import {
+  acceptsGuides,
+  DEFAULT_GAME,
+  GAMES,
+  gameCategories,
+} from "@/lib/games";
+import {
   normalizeFilename,
   dedupeName,
   wikiImageSrc,
@@ -49,24 +55,33 @@ import {
 
 export interface DraftEditorProps {
   mode: "new" | "edit";
+  /** Docs segment from `?game=`; the contribute picker always sets it. */
+  initialGame: string | null;
   initialCategory: string | null;
   editPath: string | null;
 }
 
-const CATEGORIES = [
-  "guided-walkthrough",
-  "tools",
-  "maya",
-  "blender",
-  "animations",
-  "vfx-bins",
-  "assets-library",
-  "errors",
-  "contributing",
-];
+/**
+ * The game a draft belongs to. An edit path carries it as its first segment
+ * ("lol/tools/flint"); a new draft takes `?game=` if that game accepts
+ * guides, and falls back to the default game otherwise.
+ */
+function resolveGame(initialGame: string | null, editPath: string | null) {
+  const fromPath = editPath?.split("/")[0];
+  if (fromPath && acceptsGuides(fromPath)) return fromPath;
+  if (initialGame && acceptsGuides(initialGame)) return initialGame;
+  return DEFAULT_GAME;
+}
+
+/** Tools is the usual home for a new guide, so it's the default category. */
+function defaultCategory(categories: string[], requested: string | null) {
+  if (requested && categories.includes(requested)) return requested;
+  return categories.includes("tools") ? "tools" : (categories[0] ?? "");
+}
 
 export function DraftEditor({
   mode,
+  initialGame,
   initialCategory,
   editPath,
 }: DraftEditorProps) {
@@ -75,14 +90,21 @@ export function DraftEditor({
   const params = useParams();
   const lang = (params?.lang as string) ?? "en";
 
+  const game = resolveGame(initialGame, editPath);
+  const gameInfo = GAMES.find((g) => g.slug === game);
+  const categories = gameCategories(game);
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState(
-    initialCategory && CATEGORIES.includes(initialCategory)
-      ? initialCategory
-      : "tools",
+  const [category, setCategory] = useState(() =>
+    defaultCategory(categories, initialCategory),
   );
-  const storageKey = draftKey(mode, editPath ?? "new");
+  // New League drafts keep the key they had before the editor knew about
+  // games, so drafts saved back then still offer to restore.
+  const storageKey = draftKey(
+    mode,
+    editPath ?? (game === DEFAULT_GAME ? "new" : `new:${game}`),
+  );
   const [slugTouched, setSlugTouched] = useState(false);
   const [slug, setSlug] = useState("");
   const [body, setBody] = useState("");
@@ -125,7 +147,10 @@ export function DraftEditor({
 
   const slugCollision =
     mode === "new" &&
-    entities.some((e) => e.category === category && e.slug === effectiveSlug);
+    entities.some(
+      (e) =>
+        e.game === game && e.category === category && e.slug === effectiveSlug,
+    );
 
   const isDraftEmpty = !title.trim() && !description.trim() && !body.trim();
 
@@ -209,7 +234,7 @@ export function DraftEditor({
         // e.g. "lol/tools/flint" — the category is the second part.
         const parts = editPath.split("/");
         const categoryPart = (parts.length >= 3 ? parts[1] : parts[0]) ?? "";
-        setCategory(CATEGORIES.includes(categoryPart) ? categoryPart : "tools");
+        setCategory(defaultCategory(categories, categoryPart));
         setSlugTouched(true);
         setSlug(parts[parts.length - 1] ?? "");
         setLoadingSource(false);
@@ -222,7 +247,9 @@ export function DraftEditor({
     return () => {
       cancelled = true;
     };
-  }, [mode, editPath]);
+    // `categories` is the generated index's own array for this game, so it
+    // keeps its identity across renders.
+  }, [mode, editPath, categories]);
 
   const handleInsert = (snippet: string) => {
     editorRef.current?.insertAtCursor(snippet);
@@ -232,7 +259,7 @@ export function DraftEditor({
     if (!restorePrompt) return;
     setTitle(restorePrompt.title);
     setDescription(restorePrompt.description);
-    setCategory(restorePrompt.category);
+    setCategory(defaultCategory(categories, restorePrompt.category));
     setSlugTouched(true);
     setSlug(restorePrompt.slug);
     setBody(restorePrompt.body);
@@ -327,7 +354,7 @@ export function DraftEditor({
       {/* ── Top bar ─────────────────────────────────────────────── */}
       <header className="border-divine-primary/15 bg-divine-void/85 flex h-14 shrink-0 items-center gap-3 border-b px-4 backdrop-blur sm:px-6">
         <Link
-          href={`/${lang}/docs`}
+          href={`/${lang}/docs/${game}`}
           aria-label={d.backToWiki}
           className="text-divine-text-muted hover:text-divine-text group flex items-center gap-2.5 transition-colors"
         >
@@ -352,6 +379,24 @@ export function DraftEditor({
           {mode === "edit" && editPath && (
             <span className="border-divine-primary/30 bg-divine-primary/10 text-divine-primary-light hidden truncate rounded-full border px-2.5 py-0.5 font-mono text-[11px] md:inline">
               {editPath}
+            </span>
+          )}
+          {/* A new draft's game comes from the contribute picker (`?game=`):
+              shown here, not chosen. An edit path already names it. */}
+          {mode === "new" && gameInfo && (
+            <span
+              title={d.fieldGame}
+              className="text-divine-text hidden items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] py-0.5 pr-3 pl-1 text-xs font-semibold sm:inline-flex"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element -- tiny cover thumbnail */}
+              <img
+                src={gameInfo.cover}
+                alt=""
+                width={15}
+                height={20}
+                className="h-5 w-[15px] rounded-[3px] object-cover"
+              />
+              {gameInfo.name}
             </span>
           )}
           {loadingSource && (
@@ -475,7 +520,7 @@ export function DraftEditor({
                   onChange={(e) => setCategory(e.target.value)}
                   disabled={mode === "edit"}
                 >
-                  {CATEGORIES.map((c) => (
+                  {categories.map((c) => (
                     <option key={c} value={c}>
                       {c}
                     </option>
@@ -534,7 +579,7 @@ export function DraftEditor({
         <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1">
           <span className="text-divine-text-muted/80 flex items-center gap-1.5 font-mono text-[11px]">
             <FileText className="size-3.5" />
-            content/docs/en/lol/{category}/{effectiveSlug || "…"}.mdx
+            content/docs/en/{game}/{category}/{effectiveSlug || "…"}.mdx
           </span>
           {slugCollision && (
             <span className="text-divine-warning flex items-center gap-1.5 text-xs">
@@ -657,6 +702,7 @@ export function DraftEditor({
           onContinue={() => setHandoff({ step: "main" })}
           mode={mode}
           mdx={assembledMdx}
+          game={game}
           category={category}
           slug={effectiveSlug}
           editPath={editPath}

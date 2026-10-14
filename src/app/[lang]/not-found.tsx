@@ -26,7 +26,7 @@ export default function NotFound() {
         <GlowCTA href="/en/docs" size="lg">
           Back to the wiki
         </GlowCTA>
-        <GlowCTA href="/en" size="lg" variant="ghost">
+        <GlowCTA href="/" size="lg" variant="ghost">
           Home
         </GlowCTA>
       </div>

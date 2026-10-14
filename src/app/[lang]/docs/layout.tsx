@@ -71,7 +71,7 @@ export default async function Layout({
     <div className="flex min-h-screen flex-col [--fd-layout-width:2000px]">
       <DocsLayout
         tree={tree}
-        {...baseOptions(lang, true)}
+        {...baseOptions(lang)}
         sidebar={{
           components: { Separator: SidebarSeparatorWithContribute },
           // One flat icon row: Discord + GitHub on the left, the

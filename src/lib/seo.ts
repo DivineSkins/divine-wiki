@@ -15,10 +15,11 @@ export const SITE_NAME = "Divine Skins Wiki";
 // sync. Per-page docs cards override `images` with their own slug.
 export const DEFAULT_OG_IMAGE = "/api/og/docs/en";
 
-// Static social card for the site's landing target ONLY. The root redirects
-// /:lang -> /:lang/docs/lol, so the LoL guides index (slug ["lol"]) is the page
-// a shared site link resolves to. The docs generateMetadata gives that one page
-// this card; every other route keeps the dynamic per-page card above. Branded
+// Static social card for the site's landing pages ONLY: the homepage
+// (/:lang, set in src/app/[lang]/(home)/layout.tsx) and the LoL guides index
+// (slug ["lol"], set in the docs generateMetadata), which was the landing
+// page before the homepage existed and still gets shared as one. Every other
+// route keeps the dynamic per-page card above. Branded
 // hero art exported as WebP to keep the asset tiny (~65 KB). Native 16:9
 // (1200x675): platforms that want 1.91:1 (Twitter, Facebook) trim a thin sliver
 // top/bottom; Discord shows it whole. Lives in public/og/home.webp;

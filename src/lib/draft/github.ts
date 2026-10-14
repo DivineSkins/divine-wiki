@@ -2,8 +2,6 @@ const REPO_OWNER = "DivineSkins";
 const REPO_NAME = "divine-wiki";
 const REPO = `${REPO_OWNER}/${REPO_NAME}`;
 const BRANCH = "main";
-/** Game segment under content/docs/en/ — the draft editor is LoL-only today. */
-const GAME = "lol";
 
 /**
  * Conservative cap on the total prefill URL length. GitHub + browsers start
@@ -11,9 +9,13 @@ const GAME = "lol";
  */
 const MAX_PREFILL_URL_BYTES = 6000;
 
-/** Repo-relative path to a guide's .mdx file. */
-export function contentPath(category: string, slug: string): string {
-  return `content/docs/en/${GAME}/${category}/${slug}.mdx`;
+/** Repo-relative path to a guide's .mdx file. `game` is the docs segment. */
+export function contentPath(
+  game: string,
+  category: string,
+  slug: string,
+): string {
+  return `content/docs/en/${game}/${category}/${slug}.mdx`;
 }
 
 /**
@@ -57,12 +59,13 @@ export interface NewFileHandoff {
  * to a blank-file URL (the caller then shows the copy-paste panel).
  */
 export function newFileUrl(
+  game: string,
   category: string,
   slug: string,
   mdx: string,
   owner?: string,
 ): NewFileHandoff {
-  const filename = contentPath(category, slug);
+  const filename = contentPath(game, category, slug);
   const base = `https://github.com/${repoFor(owner)}/new/${BRANCH}`;
   const prefilledUrl =
     `${base}?filename=${encodeURIComponent(filename)}` +
@@ -83,8 +86,8 @@ export function editFileUrl(path: string): string {
 }
 
 /** GitHub "edit" URL for a category's meta.json. */
-export function metaJsonUrl(category: string): string {
-  return `https://github.com/${REPO}/edit/${BRANCH}/content/docs/en/${GAME}/${category}/meta.json`;
+export function metaJsonUrl(game: string, category: string): string {
+  return `https://github.com/${REPO}/edit/${BRANCH}/content/docs/en/${game}/${category}/meta.json`;
 }
 
 /** raw.githubusercontent URL for a guide's source. `path` e.g. "tools/flint". */

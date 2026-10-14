@@ -148,7 +148,6 @@ export function QuartzLogo({ className }: LogoProps) {
 export function RubyLogo({ className }: LogoProps) {
   return <AppMark src="/brand/ruby-logo.webp" className={className} />;
 }
-
 /**
  * LtMAO ships no product logo. Its icon is whichever theme's character art
  * is active, and `raora` is the one the author screenshots in the README,

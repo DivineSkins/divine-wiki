@@ -84,11 +84,6 @@ const config = {
         permanent: false,
       },
       {
-        source: "/",
-        destination: "/en",
-        permanent: true,
-      },
-      {
         source: `/:lang(${locale})/contribute`,
         destination: "/:lang/docs/lol/contributing",
         permanent: true,
@@ -113,21 +108,23 @@ const config = {
         permanent: true,
       },
       // Bare /:lang/docs (no game segment) lands on the LoL guides index.
+      // Root /:lang is the homepage (game picker), so it isn't redirected.
       {
         source: `/:lang(${locale})/docs`,
         destination: "/:lang/docs/lol",
         permanent: false,
       },
-      // Root /:lang sends visitors straight into the LoL guides index. That
-      // target page (slug ["lol"]) carries the branded social card, set in the
-      // docs generateMetadata, so a shared site link still previews the banner
-      // even though crawlers follow this redirect.
-      {
-        source: `/:lang(${locale})`,
-        destination: "/:lang/docs/lol",
-        permanent: false,
-      },
     ];
+  },
+  // The bare domain is the English homepage. A rewrite, not a redirect: the
+  // URL stays `/`. Don't add an `/en -> /` redirect: `/` used to 301 to `/en`,
+  // browsers cache 301s, and the pair would loop for anyone who visited
+  // before. /en renders the same page with its canonical pointing at `/`.
+  // proxy.ts skips `/` so the i18n middleware doesn't redirect it first.
+  async rewrites() {
+    return {
+      beforeFiles: [{ source: "/", destination: "/en" }],
+    };
   },
   // experimental.viewTransition needs React 19 Canary. Stable React 19.2 ships
   // without the <ViewTransition> component, so we can't use it yet. Re-enable

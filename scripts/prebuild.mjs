@@ -90,7 +90,7 @@ function buildEntityIndex() {
         if (!title) continue;
         const url =
           slug === "index" ? `/docs/${game}` : `/docs/${game}/${slug}`;
-        entities.push({ title, slug, category: game, url });
+        entities.push({ title, slug, category: game, game, url });
         continue;
       }
       if (!entryStat.isDirectory()) continue;
@@ -115,7 +115,13 @@ function walkCategory(dirPath, game, category, relParts, entities) {
     if (!title) continue;
     const parts = [game, category, ...relParts];
     if (slug !== "index") parts.push(slug);
-    entities.push({ title, slug, category, url: `/docs/${parts.join("/")}` });
+    entities.push({
+      title,
+      slug,
+      category,
+      game,
+      url: `/docs/${parts.join("/")}`,
+    });
   }
 }
 
@@ -128,6 +134,51 @@ try {
   console.warn("Could not generate entity-index.json:", err.message);
   mkdirSync(dirname(ENTITY_OUT), { recursive: true });
   writeFileSync(ENTITY_OUT, "[]\n");
+}
+
+// --- Game index for the contribute picker and the draft editor -----------
+// Each game segment under content/docs/en/ with its guide categories: the
+// folders its meta.json `pages` lists, in that (sidebar) order, then any
+// folder it doesn't list. A game shows up here as soon as its segment has a
+// category folder, which is what lets the picker offer it for new guides.
+
+const GAMES_OUT = resolve("src/lib/draft/games-index.json");
+
+function buildGamesIndex() {
+  const games = {};
+  if (!existsSync(EN_DIR)) return games;
+  for (const game of readdirSync(EN_DIR).sort()) {
+    const gameDir = resolve(EN_DIR, game);
+    if (!statSync(gameDir).isDirectory()) continue;
+    const folders = readdirSync(gameDir).filter((entry) =>
+      statSync(resolve(gameDir, entry)).isDirectory(),
+    );
+    let pages = [];
+    try {
+      pages = JSON.parse(
+        readFileSync(resolve(gameDir, "meta.json"), "utf-8"),
+      ).pages;
+    } catch {
+      // No meta.json yet: fall back to folder order.
+    }
+    const listed = (Array.isArray(pages) ? pages : []).filter((page) =>
+      folders.includes(page),
+    );
+    const unlisted = folders.filter((f) => !listed.includes(f)).sort();
+    games[game] = [...listed, ...unlisted];
+  }
+  return games;
+}
+
+try {
+  const games = buildGamesIndex();
+  writeFileSync(GAMES_OUT, JSON.stringify(games, null, 2) + "\n");
+  console.log(
+    `games-index.json generated: ${Object.keys(games).join(", ") || "none"}`,
+  );
+} catch (err) {
+  console.warn("Could not generate games-index.json:", err.message);
+  writeFileSync(GAMES_OUT, "{}\n");
 }
 
 // Hash search inputs, including uncommitted edits and builds without .git.

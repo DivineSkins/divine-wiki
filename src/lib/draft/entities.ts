@@ -4,6 +4,8 @@ export interface Entity {
   title: string;
   slug: string;
   category: string;
+  /** Docs segment the guide lives in, e.g. "lol". */
+  game: string;
   url: string;
 }
 

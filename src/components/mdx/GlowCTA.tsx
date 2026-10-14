@@ -62,6 +62,19 @@ const PRIMARY_GLOW: CSSProperties = {
     "0px 0px 44px 0px rgba(120,60,181,0.55)",
 };
 
+/**
+ * The pill classes on their own, for a `<button>` that has to look like a
+ * GlowCTA link (the homepage's "Write a guide" opens the contribute picker
+ * instead of navigating). The `primary` variant's bloom is an inline style,
+ * so reach for `solid` here: its bloom comes from the `divine-cta-solid` hook.
+ */
+export function glowCtaClassName(
+  variant: Exclude<Variant, "primary"> = "solid",
+  size: Size = "md",
+) {
+  return cn(BASE_CLASSES, SIZE_CLASSES[size], VARIANT_CLASSES[variant]);
+}
+
 export function GlowCTA({
   href,
   children,

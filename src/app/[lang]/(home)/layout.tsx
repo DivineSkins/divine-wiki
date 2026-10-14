@@ -1,9 +1,22 @@
 import { type ReactNode } from "react";
-import { HomeLayout } from "fumadocs-ui/layouts/home";
-import { baseOptions } from "@/lib/layout.shared";
 import { Metadata } from "next";
-import { i18n } from "@/lib/i18n";
-import { llmAlternateTypes } from "@/lib/seo";
+import { homePath, i18n } from "@/lib/i18n";
+import { listGames } from "@/lib/guide-count";
+import { getMessages } from "@/lib/locale";
+import {
+  LANDING_OG_HEIGHT,
+  LANDING_OG_IMAGE,
+  LANDING_OG_WIDTH,
+  SITE_NAME,
+  baseOpenGraph,
+  baseTwitter,
+  llmAlternateTypes,
+} from "@/lib/seo";
+import { SiteFooter } from "@/components/site-footer";
+import { SiteHeader } from "@/components/site-header";
+
+const DESCRIPTION =
+  "Guides for making custom skins and mods, written by the Divine Skins creator community. Modeling, VFX, animations, and the tools behind them.";
 
 export async function generateMetadata({
   params,
@@ -12,21 +25,41 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { lang } = await params;
 
-  // The home page exists for every configured locale, so advertise all of
-  // them. canonical is self-referencing per locale.
+  // English is the bare domain. /en still renders the same page (browsers
+  // cached the old `/ -> /en` 301), so its canonical points at `/`.
   const languages: Record<string, string> = Object.fromEntries(
-    i18n.languages.map((locale) => [locale, `/${locale}`]),
+    i18n.languages.map((locale) => [locale, homePath(locale)]),
   );
-  languages["x-default"] = `/${i18n.defaultLanguage}`;
+  languages["x-default"] = homePath(i18n.defaultLanguage);
 
   return {
-    title: "Divine Skins Wiki",
-    description:
-      "Community-written guides for creating custom skins for League of Legends: modeling, VFX, animations, and tools used by the Divine Skins creator community.",
+    title: SITE_NAME,
+    description: DESCRIPTION,
     alternates: {
-      canonical: `/${lang}`,
+      canonical: homePath(lang),
       languages,
       types: llmAlternateTypes,
+    },
+    // The site's landing page gets the static branded banner (see seo.ts).
+    openGraph: {
+      ...baseOpenGraph,
+      title: SITE_NAME,
+      description: DESCRIPTION,
+      url: homePath(lang),
+      images: [
+        {
+          url: LANDING_OG_IMAGE,
+          width: LANDING_OG_WIDTH,
+          height: LANDING_OG_HEIGHT,
+          alt: SITE_NAME,
+        },
+      ],
+    },
+    twitter: {
+      ...baseTwitter,
+      title: SITE_NAME,
+      description: DESCRIPTION,
+      images: [LANDING_OG_IMAGE],
     },
   };
 }
@@ -39,9 +72,24 @@ export default async function Layout({
   children: ReactNode;
 }) {
   const { lang } = await params;
+  const messages = getMessages(lang);
+
   return (
-    <HomeLayout {...baseOptions(lang)} className="flex min-h-screen flex-col">
-      {children}
-    </HomeLayout>
+    <>
+      <SiteHeader
+        lang={lang}
+        games={listGames(lang, messages.home)}
+        labels={{
+          guides: messages.nav.documentation,
+          search: messages.nav.search,
+          language: messages.nav.language,
+          menu: messages.nav.menu,
+          writeGuide: messages.home.ctaContribute,
+          settings: messages.settings,
+        }}
+      />
+      <main className="flex flex-1 flex-col">{children}</main>
+      <SiteFooter lang={lang} />
+    </>
   );
 }

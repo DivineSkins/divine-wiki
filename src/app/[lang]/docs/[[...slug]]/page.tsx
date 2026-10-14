@@ -159,11 +159,11 @@ export async function generateMetadata(
   const slug = params.slug || [];
   const imageUrl = `/api/og/docs/${params.lang}${slug.length > 0 ? "/" + slug.join("/") : ""}`;
 
-  // The LoL guides index (slug ["lol"]) is the redirect target for the site
-  // root (/:lang -> /:lang/docs/lol), so it's the de-facto landing page a
-  // shared site link resolves to. Give it the static branded banner instead of
-  // the dynamic per-page card. The banner is a static image with no localized
-  // text, so it's safe to serve even for OG-blacklisted locales.
+  // The LoL guides index (slug ["lol"]) was the site's landing page before
+  // the homepage existed, and old shares of the site still point at it. Give
+  // it the same static branded banner as the homepage instead of the dynamic
+  // per-page card. The banner is a static image with no localized text, so
+  // it's safe to serve even for OG-blacklisted locales.
   const isLandingTarget = slug.length === 1 && slug[0] === "lol";
   const ogImages = isLandingTarget
     ? [

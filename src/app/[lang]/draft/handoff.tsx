@@ -26,6 +26,8 @@ interface HandoffProps {
   mode: "new" | "edit";
   /** Fully assembled .mdx text. */
   mdx: string;
+  /** Docs segment the guide goes in, e.g. "lol". */
+  game: string;
   category: string;
   slug: string;
   /** For edit mode: the slug path, e.g. "lol/tools/flint". */
@@ -43,6 +45,7 @@ export function Handoff({
   onContinue,
   mode,
   mdx,
+  game,
   category,
   slug,
   editPath,
@@ -124,6 +127,7 @@ export function Handoff({
               <NewGuideHandoff
                 d={d}
                 mdx={mdx}
+                game={game}
                 category={category}
                 slug={slug}
                 username={username}
@@ -244,6 +248,7 @@ function GithubLink({ href, label }: { href: string; label: string }) {
 function NewGuideHandoff({
   d,
   mdx,
+  game,
   category,
   slug,
   username,
@@ -254,6 +259,7 @@ function NewGuideHandoff({
 }: {
   d: DraftMessages;
   mdx: string;
+  game: string;
   category: string;
   slug: string;
   username: string;
@@ -263,8 +269,8 @@ function NewGuideHandoff({
   copied: boolean;
   onCopyMdx: () => void;
 }) {
-  const handoff = newFileUrl(category, slug, mdx, owner);
-  const maintainerUrl = newFileUrl(category, slug, mdx).url;
+  const handoff = newFileUrl(game, category, slug, mdx, owner);
+  const maintainerUrl = newFileUrl(game, category, slug, mdx).url;
 
   return (
     <div className="flex items-start gap-3">

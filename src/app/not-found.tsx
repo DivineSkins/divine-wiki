@@ -114,7 +114,7 @@ export default function RootNotFound() {
               Back to the wiki
             </Link>
             <Link
-              href="/en"
+              href="/"
               style={{
                 display: "inline-flex",
                 alignItems: "center",

@@ -114,7 +114,20 @@ function Segmented<T extends string>({
   );
 }
 
-export function AppearanceSettings({ labels }: { labels: SettingsLabels }) {
+// The sidebar-footer trigger: a square tile beside the Discord and GitHub
+// icon links. The homepage header passes its own circle instead.
+const SIDEBAR_TRIGGER_CLASS =
+  "light:border-fd-border light:bg-fd-secondary light:text-fd-muted-foreground light:hover:text-fd-accent-foreground inline-flex size-10 items-center justify-center rounded-lg border border-[#191722] bg-[#121119] text-[#E4E4E7] transition-colors duration-200 hover:bg-[#1A1922] focus-visible:ring-1 focus-visible:ring-[rgba(120,60,181,0.5)] focus-visible:outline-none";
+
+export function AppearanceSettings({
+  labels,
+  triggerClassName = SIDEBAR_TRIGGER_CLASS,
+  align,
+}: {
+  labels: SettingsLabels;
+  triggerClassName?: string;
+  align?: "start" | "center" | "end";
+}) {
   const { theme, setTheme } = useTheme();
   // SSR can't read localStorage / the html element; render defaults and
   // sync once after hydration (same pattern the reading-width toggle
@@ -181,15 +194,10 @@ export function AppearanceSettings({ labels }: { labels: SettingsLabels }) {
 
   return (
     <Popover>
-      {/* Plain icon button — styled to sit in a row with the Discord and
-          GitHub icon links in the sidebar footer. */}
-      <PopoverTrigger
-        aria-label={labels.trigger}
-        className="light:border-fd-border light:bg-fd-secondary light:text-fd-muted-foreground light:hover:text-fd-accent-foreground inline-flex size-10 items-center justify-center rounded-lg border border-[#191722] bg-[#121119] text-[#E4E4E7] transition-colors duration-200 hover:bg-[#1A1922] focus-visible:ring-1 focus-visible:ring-[rgba(120,60,181,0.5)] focus-visible:outline-none"
-      >
+      <PopoverTrigger aria-label={labels.trigger} className={triggerClassName}>
         <SettingsIcon className="size-4" aria-hidden />
       </PopoverTrigger>
-      <PopoverContent className="flex w-60 flex-col gap-4 p-3.5!">
+      <PopoverContent align={align} className="flex w-60 flex-col gap-4 p-3.5!">
         <Row label={labels.mode}>
           {mounted ? (
             <Segmented

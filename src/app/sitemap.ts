@@ -1,6 +1,6 @@
 import { baseUrl } from "@/lib/config";
 import { source } from "@/lib/source";
-import { i18n } from "@/lib/i18n";
+import { homePath, i18n } from "@/lib/i18n";
 import type { MetadataRoute } from "next";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -8,7 +8,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   for (const lang of i18n.languages) {
     sitemap.push({
-      url: `${baseUrl}/${lang}`,
+      url: `${baseUrl}${homePath(lang)}`,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: lang === i18n.defaultLanguage ? 1.0 : 0.9,

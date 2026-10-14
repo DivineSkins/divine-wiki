@@ -16,6 +16,7 @@ import { ContributeCtaButton } from "@/components/contribute-picker";
 import { getMessages } from "@/lib/locale";
 import { discordInviteUrl } from "@/lib/config";
 import { source } from "@/lib/source";
+import { countGuides } from "@/lib/guide-count";
 
 /** Category portals shown on the docs landing, in display order. The
  *  `title` is pulled from localized `meta.*` messages; descriptions are
@@ -97,9 +98,7 @@ export function DocsLanding({ lang }: { lang: string }) {
     pages.filter(
       (p) => p.slugs[0] === "lol" && p.slugs[1] === slug && p.slugs.length > 2,
     ).length;
-  const totalGuides = pages.filter(
-    (p) => p.slugs[0] === "lol" && p.slugs.length > 2,
-  ).length;
+  const totalGuides = countGuides("lol");
 
   return (
     <>
