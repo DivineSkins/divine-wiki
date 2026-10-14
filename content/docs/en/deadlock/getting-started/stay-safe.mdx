@@ -7,7 +7,7 @@ patch: "6779"
 
 <LevelPill level="beginner" />
 
-Read this page before you install or make your first mod. It covers what mods can change, which mods we never cover, and how to avoid malware. The install steps live in [Install mods with Deadlock Mod Manager](/docs/deadlock/getting-started/install-with-mod-manager) and [Install mods by hand](/docs/deadlock/getting-started/install-by-hand).
+Read this before you install or make your first mod. It shows which mods cross the line and how to avoid malware.
 
 ## What you need
 
@@ -16,44 +16,37 @@ Read this page before you install or make your first mod. It covers what mods ca
 
 ## How mods work in a match
 
-Mods are client-side. They change files on your PC only.
+Mods are client-side. You see a skin on every player who uses that hero, enemies included. Other players see the normal game.
 
-You see a skin on every player who uses that hero, enemies included. Nobody else sees your mods. Other players see the normal game.
-
-This means a skin can give you an advantage by accident. A bright skin on an enemy hero makes that enemy easier for you to spot.
+So a skin can give you an advantage by accident: a bright skin makes an enemy easier to spot.
 
 ## What Valve has said
 
-Valve has published no mod policy for Deadlock. Its patch notes and announcements never mention player mods. The game is still an invite-only playtest, and Valve lists mod support as "Unsupported".
+Valve has published no mod policy for Deadlock, so nobody can promise what is allowed. Its update notes never mention player mods, and Valve lists mod support as "Unsupported" in the invite-only playtest. The choice to use mods is yours.
 
-Valve has made changes inside the game, though:
+Valve has changed the game, though:
 
-- Since March 2026, the game can refuse to start matchmaking. This happens when anyone in your party runs the creator tools, or has changed certain parts of `gameinfo.gi`.
+- Since March 2026, matchmaking refuses to start if anyone in your party runs the creator tools or has changed certain parts of `gameinfo.gi`.
 - Since September 2026, the game ignores many visibility settings in `gameinfo.gi`, such as enemy outlines and glow.
 
-As of October 2026, no one has reported a confirmed ban for a cosmetic mod. That is not a promise, and Valve can change its rules at any time. The Steam Subscriber Agreement lets Valve close accounts that use mods for an unfair advantage.
-
-A ban can also hit your friends. Reports from 2024 say that a ban for unfair play also banned every player that account invited to the playtest.
+The Steam Subscriber Agreement lets Valve close accounts that use mods for an unfair advantage. Reports from 2024 say a ban for unfair play also banned every player that account invited to the playtest.
 
 {/* NEEDS HANDS-ON TEST: on publishing day, re-check Steam news for app 1422450, the official forum changelog, and Reddit for any new Valve statement on mods, any confirmed ban for a cosmetic mod, and whether invitee bans still apply (G08). */}
 
 ## Mods you can make
 
-This wiki covers mods that change how your game looks and sounds:
+<img
+  src="/wiki-images/deadlock-getting-started-stay-safe-1.webp"
+  alt="The cosmetic line: we cover skins, own-hero sounds, portraits, icons, and text; we never cover timers, louder enemy sounds, see-through skins, smaller models, or config edits"
+/>
 
-- Hero skins, recolors, and materials.
-- Sounds for your own hero, voice lines, and music.
-- Hero portraits, icons, item art, and menu art.
-- Text, such as item names.
-- Packing, installing, and publishing your mod.
+This wiki covers mods that change how your game looks and sounds, plus packing, installing, and publishing them.
 
-Before you share a mod, ask one question: does it show me anything the normal game hides? If the answer is yes, it crosses the line.
-
-Check your skin from the enemy's point of view too. A skin that glows or turns very dark can make that hero easier to spot.
+Before you share a mod, ask: does it show me anything the normal game hides? If yes, it crosses the line. Check your skin from the enemy's side too. A skin that glows or turns very dark is easier to spot.
 
 ## Mods we never cover
 
-These mods give you an advantage over players without them. GameBanana's Deadlock rules ban many of them, and players see them as unfair. This wiki will never explain, link, or show them.
+These mods give you an advantage over players without them. GameBanana's Deadlock rules ban many of them. This wiki will never explain, link, or show them.
 
 | Type                   | Examples                                                                                                                                                                                        |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -63,7 +56,7 @@ These mods give you an advantage over players without them. GameBanana's Deadloc
 | Size and game data     | Smaller, thinner, or taller hero models; hitbox changes; camera changes; gameplay data changes                                                                                                  |
 | Config and code tricks | Console variable edits in `gameinfo.gi`, code injection, overlays, "mod menus"                                                                                                                  |
 
-Model size matters in Deadlock. A smaller or thinner hero blocks less of your own screen. A taller one can let you see over cover. Keep every skin the same size as the original.
+Size matters in Deadlock. A smaller or thinner hero blocks less of your screen, and a taller one can see over cover. Keep every skin the same size as the original.
 
 <Callout type="danger" title="Never install advantage mods">
   They can cost you your account, and a ban can also reach the friends you
@@ -72,11 +65,10 @@ Model size matters in Deadlock. A smaller or thinner hero blocks less of your ow
 
 ## Keep your account in good standing
 
-1. Edit only the `SearchPaths` block of `gameinfo.gi`. It is the only part a mod needs.
-2. Leave every other section of that file alone. Changes to `Engine2`, `MaterialSystem2`, `NetworkSystem`, `Particles`, `RenderSystem`, `SceneSystem`, or `WorldRenderer` can block matchmaking for your whole party.
-3. Never paste a "performance" or config `gameinfo.gi` file from the internet. These files change the blocked sections.
-4. Close CSDK 12 and every other creator tool before you queue.
-5. Remove custom map mods before a normal match. Custom maps and gameplay data mods do not work in Valve's matches.
+1. Edit only the `SearchPaths` block of `gameinfo.gi`. It is the only part a mod needs. Changes to other sections can block matchmaking for your whole party.
+2. Never paste a "performance" or config `gameinfo.gi` file from the internet. These files change the blocked sections.
+3. Close CSDK 12 and every other creator tool before you queue.
+4. Remove custom map mods before a normal match. Custom maps and gameplay data mods do not work in Valve's matches.
 
 If the game blocks you, you see this message:
 
@@ -84,25 +76,28 @@ If the game blocks you, you see this message:
 Unable to enter matchmaking while any party member is running Tools-mode, or has unsupported changes to the following sections of their 'gameinfo.gi': Engine2, MaterialSystem2, NetworkSystem, Particles, RenderSystem, SceneSystem, WorldRenderer
 ```
 
-To fix it, close all creator tools. Then run **Verify integrity of game files** in Steam and redo only the `SearchPaths` edit. [Install mods by hand](/docs/deadlock/getting-started/install-by-hand) shows the edit, or let your mod manager redo it.
+To fix it, close all creator tools. Run **Verify integrity of game files** in Steam, then redo only the `SearchPaths` edit, [by hand](/docs/deadlock/getting-started/install-by-hand#edit-gameinfogi) or with your mod manager.
 
-{/* SCREENSHOT: the matchmaking-blocked dialog, triggered by queueing with CSDK 12 open on a test account. File: deadlock-getting-started-stay-safe-1.webp */}
+{/* SCREENSHOT: the matchmaking-blocked dialog, triggered by queueing with CSDK 12 open on a test account. File: deadlock-getting-started-stay-safe-2.webp */}
 
 {/* NEEDS HANDS-ON TEST: whether the matchmaking guard fires every time a guarded section changes (C07). Whether -dev or other launch options affect queueing (G07). */}
 
-The errors guide will cover other crashes and launch problems. {/* LINK LATER: /docs/deadlock/errors/game-crashes */}
+For other crashes and launch errors, see [Crashes, launch errors, and matchmaking blocks](/docs/deadlock/errors/game-crashes).
 
 ## Download safely
 
 ### Know what a real mod looks like
 
-- A Deadlock mod is a `.vpk` file. It usually comes inside a `.zip`, `.rar`, or `.7z` archive, often with a readme.
+- A Deadlock mod is a `.vpk` file, usually inside a `.zip`, `.rar`, or `.7z` archive, often with a readme.
 - A mod never needs an `.exe`, `.dll`, `.bat`, `.ps1`, or `.scr` file. If an archive has one, do not open it. Delete the download.
-- GameBanana scans every upload with antivirus software and shows the result on the file. This is a first check, not a guarantee.
+- GameBanana scans every upload with antivirus software. A file that passed shows a green **CLEAN** tag. This is a first check, not a guarantee.
 
-{/* SCREENSHOT: a clean mod archive open in 7-Zip, showing only pak01_dir.vpk and a readme. File: deadlock-getting-started-stay-safe-2.webp */}
+{/* SCREENSHOT: a clean mod archive open in 7-Zip, showing only pak01_dir.vpk and a readme. File: deadlock-getting-started-stay-safe-3.webp */}
 
-{/* SCREENSHOT: the file panel on a GameBanana mod page, showing the antivirus scan result. File: deadlock-getting-started-stay-safe-3.webp */}
+<img
+  src="/wiki-images/deadlock-getting-started-stay-safe-4.webp"
+  alt="The Files panel on a GameBanana mod page, with a green CLEAN tag next to the file name"
+/>
 
 ### Get tools and mods from official pages
 
@@ -113,24 +108,23 @@ The errors guide will cover other crashes and launch problems. {/* LINK LATER: /
 | CSDK 12              | The [CSDK 12 page](https://deadlockmodding.pages.dev/modding-tools/csdk-12) on Deadlock Modding Notes                           |
 | Mods                 | The [Deadlock section](https://gamebanana.com/games/20948) on GameBanana                                                        |
 
-Some creator tools, like CSDK 12, are shared as Google Drive files with no way to check them. Only use the download link on the tool's community page.
+Some creator tools, like CSDK 12, are shared as Google Drive files with no way to check them. Only use the link on the tool's community page.
 
 ### Watch out for fakes
 
-- `deadlockmodmanager.com` is not the official Deadlock Mod Manager site. It is an unofficial lookalike.
-- GitHub has fake repos named `deadlock-mod-manager-mods`. They copy the real name but hold no real code.
-- GitHub repos that promise a "mod menu", "ESP", or a "Deadlock 2026" toolkit are bait. They are tools for unfair play, or they carry malware. Never download them.
+- `deadlockmodmanager.com` is an unofficial lookalike, not the Deadlock Mod Manager site.
+- GitHub repos named `deadlock-mod-manager-mods` are fakes. They copy the real name but hold no real code.
+- Repos that promise a "mod menu", "ESP", or a "Deadlock 2026" toolkit are bait: tools for unfair play, or malware. Never download them.
 - `steamdb.com` is not SteamDB. The real SteamDB is `steamdb.info`.
 
 ## Respect other creators
 
-- Most Deadlock mods use the CC BY-NC-ND 4.0 license. You must give credit, and you may not sell them or share changed versions.
-- Ask the author before you edit, reupload, or reuse their work.
+- Most Deadlock mods use the CC BY-NC-ND 4.0 license: give credit, never sell, and never share changed versions. Ask the author before you edit, reupload, or reuse their work.
 - Credit everyone whose work you use. GameBanana holds back mods with missing credits.
-- Never sell your mods. Valve's Steam Subscriber Agreement allows only non-commercial use of content made with its tools. GameBanana allows paid early access for 30 days at most, never a full sale.
+- Never sell your mods. Valve allows only non-commercial use of content made with its tools. GameBanana allows paid early access for 30 days at most.
 - Never upload AI-generated art, models, voices, or music to GameBanana's Deadlock section. Its rules ban them.
 
-The publishing guides will explain credits and licenses in detail. {/* LINK LATER: /docs/deadlock/publishing/credits-and-licenses */}
+[Credits, licenses, and permissions](/docs/deadlock/publishing/credits-and-licenses) explains the details.
 
 ## Next steps
 

@@ -7,18 +7,13 @@ patch: "6779"
 
 <LevelPill level="beginner" />
 
-You can install Deadlock mods without a mod manager. You edit one game file, create one folder, and rename your mods. Read [What's allowed and how to stay safe](/docs/deadlock/getting-started/stay-safe) first.
+To install Deadlock mods without a mod manager, you edit one game file, create one folder, and rename your mods. Read [What's allowed and how to stay safe](/docs/deadlock/getting-started/stay-safe) first.
 
 ## When to install by hand
 
-A mod manager does every step on this page for you. For most players, [Deadlock Mod Manager](/docs/deadlock/getting-started/install-with-mod-manager) is the better choice. Install by hand when:
+[Deadlock Mod Manager](/docs/deadlock/getting-started/install-with-mod-manager) does every step on this page for you, so most players should use it. Install by hand to see exactly what changes, to test your own VPK, when a mod's readme says so, or when a manager does not work on your PC.
 
-- You want to see exactly what changes in your game files.
-- You are a creator and want to test your own VPK.
-- A mod's readme tells you not to use a mod manager.
-- A mod manager does not work on your PC.
-
-Pick one method. If you use a mod manager, let it handle `gameinfo.gi` and the `addons` folder. Never run two managers on one install, for example Deadlock Mod Manager and its alternative, Grimoire.
+Pick one method. If you use a mod manager, let it handle `gameinfo.gi` and the `addons` folder. Never run two managers, such as Deadlock Mod Manager and Grimoire, on one install.
 
 ## What you need
 
@@ -29,20 +24,14 @@ Pick one method. If you use a mod manager, let it handle `gameinfo.gi` and the `
 
 ## How it works
 
-Deadlock does not look for mods on its own. A file called `gameinfo.gi` lists the folders the game reads. You add an `addons` folder to that list, above the game's own files. The game then uses your mod files first.
+The file `gameinfo.gi` lists the folders the game reads. You add an `addons` folder to that list, above the game's own files, so your mod files win.
 
-```text
-Deadlock/
-  game/
-    citadel/
-      gameinfo.gi        the file you edit
-      pak01_dir.vpk      Valve's game files (leave these alone)
-      addons/            the folder you create
-        pak01_dir.vpk    your first mod
-        pak02_dir.vpk    your second mod
-```
+<img
+  src="/wiki-images/deadlock-getting-started-install-by-hand-1.webp"
+  alt="Folder tree: Deadlock/game/citadel holds gameinfo.gi and the addons folder with pak01_dir.vpk and pak02_dir.vpk. The game reads citadel/addons before citadel."
+/>
 
-[How Deadlock mods work](/docs/deadlock/basics/how-mods-work) explains this in more detail.
+[How Deadlock mods work](/docs/deadlock/basics/how-mods-work#how-the-game-finds-your-mods) explains this in more detail.
 
 ## Find your Deadlock folder
 
@@ -53,11 +42,11 @@ Deadlock/
 
 Newer Steam versions also have **Properties > Installed Files > Browse**.
 
-The default path on Windows is `C:\Program Files (x86)\Steam\steamapps\common\Deadlock\`. If you installed Deadlock in another Steam library, look in `<Library>\steamapps\common\Deadlock\`.
+The default Windows path is `C:\Program Files (x86)\Steam\steamapps\common\Deadlock\`. In another Steam library, look in `<Library>\steamapps\common\Deadlock\`.
 
-{/* SCREENSHOT: Steam right-click menu on Deadlock, Manage > Browse local files. File: deadlock-getting-started-install-by-hand-1.webp */}
+{/* SCREENSHOT: Steam right-click menu on Deadlock, Manage > Browse local files. File: deadlock-getting-started-install-by-hand-2.webp */}
 
-{/* SCREENSHOT: the game/citadel folder with gameinfo.gi highlighted. File: deadlock-getting-started-install-by-hand-2.webp */}
+{/* SCREENSHOT: the game/citadel folder with gameinfo.gi highlighted. File: deadlock-getting-started-install-by-hand-3.webp */}
 
 <Accordions>
 
@@ -73,7 +62,7 @@ Deadlock runs through Proton on Linux. The game files sit in your normal Steam l
 
 Linux file names are case-sensitive. Name the folder `addons` and your files `pakNN_dir.vpk`, all in lowercase.
 
-We have not tested these steps on a Steam Deck with the current game build yet. A Linux and Steam Deck guide is on the way. {/* LINK LATER: /docs/deadlock/errors/linux-steam-deck */}
+We have not tested these steps on a Steam Deck with the current game build yet. [Linux and Steam Deck](/docs/deadlock/errors/linux-steam-deck) has known problems and fixes.
 
 </Accordion>
 
@@ -128,26 +117,26 @@ Before the edit, Valve's block looks like this. The real file also has a few com
 
 If Windows will not save the file, right-click `gameinfo.gi` and choose **Properties**. Untick **Read-only**, click **OK**, and save again.
 
-{/* SCREENSHOT: gameinfo.gi open in Notepad before the edit. File: deadlock-getting-started-install-by-hand-3.webp */}
+{/* SCREENSHOT: gameinfo.gi open in Notepad before the edit. File: deadlock-getting-started-install-by-hand-4.webp */}
 
-{/* SCREENSHOT: gameinfo.gi open in Notepad after the edit. File: deadlock-getting-started-install-by-hand-4.webp */}
+{/* SCREENSHOT: gameinfo.gi open in Notepad after the edit. File: deadlock-getting-started-install-by-hand-5.webp */}
 
-{/* SCREENSHOT: the gameinfo.gi Properties window with the Read-only box. File: deadlock-getting-started-install-by-hand-5.webp */}
+{/* SCREENSHOT: the gameinfo.gi Properties window with the Read-only box. File: deadlock-getting-started-install-by-hand-6.webp */}
 
 {/* NEEDS HANDS-ON TEST: run this manual edit with the exact block on build 6779, on Windows and on Steam Deck (C01, G01). Check that the game launches, mods load, and localized hero-name art still shows in a non-English UI (C01, C02). Check that a file which already has AddonRoot, OfficialAddonRoot, or AddonConfig lines still works after you replace the block (C03). Check that replacing the whole block, comment lines included, matches what DMM writes (C04). */}
 
 ### What each line does
 
-- `Game citadel/addons` tells the game to read your `addons` folder. It must sit above `Game citadel`, so your mod files win.
-- The `Mod` and `Write` lines stop a crash at launch: `Unable to read default keybinding configuration`.
-- `Game_UILanguage` and `Game_LowViolence` are Valve's own lines. Without them, hero name art can go missing in other languages.
+- `Game citadel/addons` reads your `addons` folder. It must sit above `Game citadel`, so your mod files win.
+- The `Mod` and `Write` lines stop a launch crash: `Unable to read default keybinding configuration`.
+- `Game_UILanguage` and `Game_LowViolence` are Valve's lines. Without them, hero name art can go missing in other languages.
 
 Older guides show lines you should not add:
 
 - `Game_Language`. Valve renamed it to `Game_UILanguage` in the City Never Sleeps update (September 29, 2026).
-- `AddonRoot`, `OfficialAddonRoot`, or an `AddonConfig` block. These come from the creator tools' own config, not the game's.
+- `AddonRoot`, `OfficialAddonRoot`, or an `AddonConfig` block. These come from the creator tools' config, not the game's.
 
-A typo in this block stops the game from starting. If you see `Failed to parse KeyValues` at launch, check that every `{` has a matching `}`.
+A typo stops the game from starting with `Failed to parse KeyValues`. Check that every `{` has a matching `}`.
 
 {/* NEEDS HANDS-ON TEST: with this manual block, replays may save to citadel/addons/replays and fail with citadel_replay_manager_error_partial_decompression_failure (C10). Test before adding a fix to this page. */}
 
@@ -157,11 +146,11 @@ A typo in this block stops the game from starting. If you see `Failed to parse K
 2. Create a new folder.
 3. Name it `addons`, all in lowercase.
 
-Your mods go straight into this folder. The game ignores mods inside subfolders.
+Put mods straight into this folder. The game ignores subfolders.
 
 ## Add a mod
 
-1. Download the mod archive from the [Deadlock section on GameBanana](https://gamebanana.com/games/20948).
+1. Open the mod's page on [GameBanana](https://gamebanana.com/games/20948). Under **Files**, click **Manual Download**.
 2. Open the archive and find the `.vpk` file inside.
 3. Check that the archive holds no `.exe`, `.dll`, `.bat`, `.ps1`, or `.scr` files. A real mod never needs them.
 4. Extract the `.vpk` file.
@@ -170,13 +159,9 @@ Your mods go straight into this folder. The game ignores mods inside subfolders.
 7. Read the mod's readme. Some mods need extra steps.
 8. Start Deadlock and check the mod in the hideout or a bot match.
 
-[What's allowed and how to stay safe](/docs/deadlock/getting-started/stay-safe) explains how to spot a fake download.
-
 ### Mods with more than one file
 
-Big mods can come as a set, such as `pak01_dir.vpk` with `pak01_000.vpk` and `pak01_001.vpk`. Keep the set together. Give every file in the set the same number.
-
-For example, rename `pak03_dir.vpk` and `pak03_000.vpk` to `pak05_dir.vpk` and `pak05_000.vpk`.
+Big mods can come as a set, such as `pak01_dir.vpk` with `pak01_000.vpk` and `pak01_001.vpk`. Give every file in the set the same new number. For example, rename `pak03_dir.vpk` and `pak03_000.vpk` to `pak05_dir.vpk` and `pak05_000.vpk`.
 
 {/* NEEDS HANDS-ON TEST: confirm that renaming only the _dir file of a multi-part set breaks it. */}
 
@@ -190,41 +175,34 @@ For example, rename `pak03_dir.vpk` and `pak03_000.vpk` to `pak05_dir.vpk` and `
 | `cool_skin.vpk` (any other name)               | No            |
 | `addons/my_mod/pak01_dir.vpk` (in a subfolder) | No            |
 
-{/* SCREENSHOT: the addons folder holding pak01_dir.vpk and pak02_dir.vpk. File: deadlock-getting-started-install-by-hand-6.webp */}
+{/* SCREENSHOT: the addons folder holding pak01_dir.vpk and pak02_dir.vpk. File: deadlock-getting-started-install-by-hand-7.webp */}
 
 ## Choose the load order
 
-When two mods change the same file, the lower number wins. `pak01_dir.vpk` beats `pak05_dir.vpk`.
+When two mods change the same file, the lower number wins: `pak01_dir.vpk` beats `pak05_dir.vpk`. Give the mod you care about most the lowest number, and swap numbers if the wrong mod shows in game.
 
-1. Give the mod you care about most the lowest number.
-2. Swap the numbers if the wrong mod shows in game.
-
-Mods that change different files all work, in any order. Skins and sounds for the same hero often clash. You can load up to 99 mods this way.
+Mods that change different files all work, in any order. Skins and sounds for the same hero often clash. You can load up to 99 mods this way. [Load order](/docs/deadlock/basics/how-mods-work#load-order) has the details.
 
 ## After a game update
 
-Steam replaces `gameinfo.gi` whenever an update ships a new copy. This happens about once a month. It also happens when you run **Verify integrity of game files**.
-
-Your mods then stop loading, with no error. Your `addons` folder and its files stay on disk.
+Steam replaces `gameinfo.gi` whenever an update ships a new copy, about once a month, and whenever you run **Verify integrity of game files**. Your mods then stop loading with no error. The `addons` folder stays on disk.
 
 1. Close Deadlock.
 2. Open `game/citadel/gameinfo.gi`. If `citadel/addons` is missing, Steam replaced the file.
-3. Redo the steps in **Edit gameinfo.gi** above, on the new file.
+3. Redo [Edit gameinfo.gi](#edit-gameinfogi) on the new file.
 
 <Callout type="warning" title="Never paste an old backup over a new file">
   The new file may hold other changes from Valve. Always redo the edit on the
   fresh copy.
 </Callout>
 
-Big updates also break some mods, most of all HUD mods. A crash like `FATAL ERROR: Unable to find child '...' in layout file '...'` means an outdated HUD mod. If the game crashes after an update:
+Big updates also break some mods, most of all HUD mods. A crash like `FATAL ERROR: Unable to find child '...' in layout file '...'` means an outdated HUD mod. To find the broken mod:
 
-1. Move all your VPK files out of `addons` into another folder.
-2. Start Deadlock once to check that the game works.
-3. Add the mods back one at a time. Start the game after each one.
-4. Leave out the mod that crashes the game.
-5. Check that mod's GameBanana page for an update.
+1. Move all your VPK files out of `addons` and start the game once.
+2. Add the mods back one at a time, and start the game after each one.
+3. Leave out the mod that crashes the game, and check its GameBanana page for an update.
 
-The errors guides will cover more fixes. {/* LINK LATER: /docs/deadlock/errors/mods-not-loading */} {/* LINK LATER: /docs/deadlock/errors/game-crashes */}
+[Mods not loading](/docs/deadlock/errors/mods-not-loading) and [Crashes, launch errors, and matchmaking blocks](/docs/deadlock/errors/game-crashes) have more fixes.
 
 ## Turn all mods off
 
@@ -233,11 +211,9 @@ To play the normal game but keep your mod files:
 1. Right-click **Deadlock** in your Steam library.
 2. Choose **Properties > Installed Files > Verify integrity of game files**.
 
-Steam restores Valve's `gameinfo.gi`, so the game stops reading `addons`. Your mods stay on disk. To turn them back on, redo the edit.
+Steam restores Valve's `gameinfo.gi`, so the game stops reading `addons`. Redo the edit to turn mods back on. Renaming `addons` to `addons_off` should also work, but we have not tested it on the current build.
 
-You can also rename the `addons` folder to `addons_off`. This should work too, but we have not tested it on the current build yet.
-
-{/* SCREENSHOT: Steam's Verify integrity of game files button. File: deadlock-getting-started-install-by-hand-7.webp */}
+{/* SCREENSHOT: Steam's Verify integrity of game files button. File: deadlock-getting-started-install-by-hand-8.webp */}
 
 {/* NEEDS HANDS-ON TEST: confirm Verify leaves the addons folder untouched. Confirm a missing addons folder causes no error while the Game citadel/addons line is still present. */}
 
@@ -249,7 +225,7 @@ You can also rename the `addons` folder to `addons_off`. This should work too, b
 4. Run **Verify integrity of game files** in Steam. This restores Valve's `gameinfo.gi`.
 5. Delete the empty `addons` folder if you want.
 
-Uninstalling Deadlock from Steam does not delete files you added. Old mods can survive a reinstall and keep crashing the game. Empty the `addons` folder by hand.
+Uninstalling Deadlock does not delete files you added. Old mods can survive a reinstall and keep crashing the game.
 
 ## Common problems
 
@@ -261,14 +237,11 @@ Uninstalling Deadlock from Steam does not delete files you added. Old mods can s
 | Hero name art shows as plain text in other languages           | The `Game_UILanguage` line is missing, or you used the old `Game_Language`. Paste the full block again.                                                                  |
 | `FATAL ERROR: Unable to find child '...'`                      | A HUD mod is outdated. Remove it and wait for an update.                                                                                                                 |
 | `Unable to enter matchmaking while any party member...`        | Someone in your party changed a blocked section or has creator tools open. See [stay safe](/docs/deadlock/getting-started/stay-safe#keep-your-account-in-good-standing). |
-| The file will not save, or `Access is denied`                  | Untick **Read-only** in the file's **Properties**.                                                                                                                       |
-| A mod does not load                                            | Check the name, check that it is not in a subfolder, and check its partner files.                                                                                        |
-| The wrong mod shows                                            | Swap the numbers. The lower number wins.                                                                                                                                 |
 
 ## Next steps
 
-- [How Deadlock mods work](/docs/deadlock/basics/how-mods-work) explains search paths and load order in depth.
-- [Install mods with Deadlock Mod Manager](/docs/deadlock/getting-started/install-with-mod-manager) if you want a manager to do all of this.
+- [How Deadlock mods work](/docs/deadlock/basics/how-mods-work) explains search paths and load order.
+- [Test your mod in game](/docs/deadlock/basics/test-your-mod) if you are testing your own VPK.
 - [Set up your creator tools](/docs/deadlock/getting-started/creator-setup) to start making your own mods.
 
 ## Credits

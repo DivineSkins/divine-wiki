@@ -7,21 +7,21 @@ patch: "6779"
 
 <LevelPill level="beginner" />
 
-A Deadlock mod is a small file that swaps some of the game's files for yours. This page explains how the game finds those files and which one wins. Read it before your first mod. It can save you hours when a mod does nothing.
+A Deadlock mod swaps some of the game's files for yours. This page explains how the game finds those files and which copy wins. Read it before your first mod: it explains most "my mod does nothing" problems.
 
 ## What you need
 
 - Nothing to install. This page explains ideas, not steps.
-- Optional: Source 2 Viewer, to look inside the game files while you read. [Set up your creator tools](/docs/deadlock/getting-started/creator-setup) shows how to install it.
+- Optional: [Source 2 Viewer](/docs/deadlock/tools/source-2-viewer), to look inside the game files while you read.
 
 ## Everything ships in VPK files
 
-Deadlock runs on Valve's Source 2 engine. Inside the game files it is called `citadel`, so you see that name in many folders.
+Deadlock runs on Valve's Source 2 engine. Its internal name is `citadel`, so you see that name in many folders.
 
-The game packs its content into VPK archives:
+The game packs its files into VPK archives:
 
 - `game/citadel/pak01_dir.vpk` is the main index. It lists about 150,000 files.
-- The data sits in numbered chunk files next to it, from `pak01_000.vpk` up to about `pak01_326.vpk`. Open only the `_dir` file. Tools read the chunks with it.
+- The data sits in numbered chunks next to it, from `pak01_000.vpk` to about `pak01_326.vpk`. Open only the `_dir` file. Tools read the chunks through it.
 - `game/core/pak01_dir.vpk` holds shared engine files.
 - Each map is its own VPK in `game/citadel/maps/`.
 
@@ -42,13 +42,13 @@ The main folders inside `pak01_dir.vpk`:
 
 ## Compiled files end in `_c`
 
-Every file inside the VPK is compiled. That means it is saved in a fast binary format the game reads. Compiled file names end in `_c`, like `inferno.vmdl_c`.
+Every file inside the VPK is compiled into a binary format the game reads fast. Compiled names end in `_c`, like `inferno.vmdl_c`.
 
-You never edit a `_c` file directly. The workflow is always:
+You never edit a `_c` file. Instead:
 
 1. Decompile the game file with Source 2 Viewer. You get a source file you can edit.
-2. Edit the source file in an image editor, audio editor, or text editor.
-3. Compile it with CSDK 12. The tools write a new `_c` file.
+2. Edit the source file in an image, audio, or text editor.
+3. Compile it with CSDK 12. It writes a new `_c` file.
 
 | You edit               | The game reads                 | What it is                                       |
 | ---------------------- | ------------------------------ | ------------------------------------------------ |
@@ -60,7 +60,7 @@ You never edit a `_c` file directly. The workflow is always:
 | `.vpcf`                | `.vpcf_c`                      | Particle effect                                  |
 | `.xml`, `.css`, `.js`  | `.vxml_c`, `.vcss_c`, `.vjs_c` | Interface files                                  |
 
-A full list of file types is coming. {/* LINK LATER: /docs/deadlock/basics/file-types */}
+Every other file type is in [Deadlock file types](/docs/deadlock/basics/file-types).
 
 {/* SCREENSHOT: Source 2 Viewer with one file path ending in .vmdl_c selected. File: deadlock-basics-how-mods-work-2.webp */}
 
@@ -68,85 +68,73 @@ A full list of file types is coming. {/* LINK LATER: /docs/deadlock/basics/file-
 
 The game looks up every file by its path. Billy's model, for example, is `models/heroes_wip/punkgoat/punkgoat.vmdl_c`.
 
-If your mod holds a file at exactly that path, with exactly that name, the game uses your file instead. That is the whole trick. It also explains the most common problem: one wrong letter or folder, and the game quietly uses its own file.
-
-Three things follow from this:
+If your mod holds a file at exactly that path and name, the game uses yours instead. One wrong letter or folder, and the game quietly uses its own file. That is the most common reason a mod does nothing.
 
 - Folder names use Valve's codenames, not hero names. Billy is `punkgoat`. Look up every hero in [Hero names and file paths](/docs/deadlock/basics/hero-codenames).
 - A mod holds compiled `_c` files only. A loose `.png` or `.wav` in a mod does nothing.
-- Copy each game path exactly, including every folder.
 
 <Callout type="info" title="Who sees your mod">
   Mods change files on your PC only. You see a skin on every player using that
-  hero, enemies included. Other players see the normal game. That is also why a
-  skin can give an unfair advantage by accident. [What's allowed and how to stay
+  hero, enemies included. Other players see the normal game. That is why a skin
+  can give an unfair advantage by accident. [What's allowed and how to stay
   safe](/docs/deadlock/getting-started/stay-safe) explains where the line is.
 </Callout>
 
 ## How the game finds your mods
 
-The file `game/citadel/gameinfo.gi` tells the game where to look for files. A part of it called `SearchPaths` lists folders in order.
+The file `game/citadel/gameinfo.gi` tells the game where to look. Its `SearchPaths` part lists folders, and the game checks them from top to bottom. It uses the first copy of a file it finds.
 
-- The game checks the folders from top to bottom. It uses the first copy of a file it finds.
-- Valve's own `gameinfo.gi` does not list the `addons` folder. So by default, the game ignores mods.
-- A mod manager, or you by hand, adds the line `Game citadel/addons` above `Game citadel`.
-- When the game reads a folder, it loads every file named `pak01_dir.vpk` to `pak99_dir.vpk` in it. Other names are ignored.
+Valve's own `gameinfo.gi` does not list the `addons` folder, so by default the game ignores mods. A mod manager, or you by hand, adds the line `Game citadel/addons` above `Game citadel`. Then the order is:
 
-With the edit in place, the main folders are checked in this order:
-
-1. `citadel/addons`: your mods.
+1. `citadel/addons`: your mods. The game loads every `pak01_dir.vpk` to `pak99_dir.vpk` here and ignores other names.
 2. `citadel`: the game's own files.
 3. `core`: shared engine files.
 
-Because your mods come first, your files win.
+<img
+  src="/wiki-images/deadlock-basics-how-mods-work-3.webp"
+  alt="The game finds Billy's model in your pak01_dir.vpk first and uses it, then skips another mod's pak05_dir.vpk and the game's own file"
+/>
 
-Every game update and every Steam "Verify integrity of game files" puts back Valve's `gameinfo.gi`. Your mods stay in the folder, but they stop loading until the line is added again. A mod manager does this for you. The exact edit is in [Install mods by hand](/docs/deadlock/getting-started/install-by-hand).
-
-Only ever change the `SearchPaths` part. Edits to other parts of `gameinfo.gi` can block matchmaking.
-
-{/* SCREENSHOT: a simple diagram we draw: citadel/addons checked before citadel, and pak01 checked before pak02 inside addons. File: deadlock-basics-how-mods-work-3.webp */}
+Every game update and every Steam "Verify integrity of game files" puts back Valve's `gameinfo.gi`. Your mods stay in the folder but stop loading until the line is back. A mod manager adds it again for you. The exact edit is in [Install mods by hand](/docs/deadlock/getting-started/install-by-hand). Change only the `SearchPaths` part: edits to other parts of `gameinfo.gi` can block matchmaking.
 
 ## Load order
 
-When you use more than one mod, load order decides what you see.
-
-- Two mods that change different files both work.
+- Mods that change different files all work.
 - Two mods that ship the same file: the lower number wins. `pak01_dir.vpk` beats `pak05_dir.vpk`.
-- Two mods can also break each other if each one changes part of the same shared file. Order does not fix that. Pick one.
-- The game loads up to 99 mod files per folder. Mod managers get around this by adding more folders.
+- Two mods that each change part of the same shared file can break each other. Order does not fix that. Pick one.
+- The game loads up to 99 mod files per folder. Mod managers add more folders to get around this.
 
-So if your mod seems to do nothing, check whether another mod with a lower number changes the same file.
+Mod does nothing? Look for a lower-numbered mod that changes the same file.
 
 ## What a mod must never contain
 
 <Callout type="warning" title="Keep these out of every mod">
-  Gameplay data and skeletons break after patches and can break other players'
+  Gameplay data and skeletons break after updates and can break other players'
   mods too.
 </Callout>
 
-- **Gameplay data (`scripts/*.vdata_c`).** These files hold hero and ability stats. They go stale with every patch. One popular skin shipped hero data and kept a new hero locked after an update. Changing gameplay data is also not a cosmetic mod.
-- **Skeleton files (`.vnmskel_c`).** A shipped skeleton replaces the hero's real one. When Valve changes the rig, animations break for your mod and for other mods of that hero.
-- **Programs.** A mod is a `.vpk` file, often inside a `.zip`, `.rar`, or `.7z`. It never needs an `.exe`, `.dll`, `.bat`, `.ps1`, or `.scr` file.
+- **Gameplay data (`scripts/*.vdata_c`).** Hero and ability stats. One popular skin shipped them and kept a new hero locked after an update. Changing them is also not cosmetic.
+- **Skeletons (`.vnmskel_c`).** Yours replaces the hero's real one. When Valve changes the rig, animations break for every mod of that hero.
+- **Programs.** A mod is a `.vpk`, often inside a `.zip`, `.rar`, or `.7z`. It never needs an `.exe`, `.dll`, `.bat`, `.ps1`, or `.scr` file.
 - **Anything that gives an advantage.** See [What's allowed and how to stay safe](/docs/deadlock/getting-started/stay-safe).
 
-[Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk) has the full list of what goes in and what stays out.
+The full list of what goes in and what stays out is in [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
 
-## Why patches break mods
+## Why updates break mods
 
-Valve updates Deadlock often. Big updates break many mods at once. The "City Never Sleeps" update on 2026-09-29 broke most HUD mods, for example. Common reasons:
+Big updates break many mods at once. The "City Never Sleeps" update on 2026-09-29 broke most HUD mods. Common reasons:
 
-- **Models move.** Abrams moved from `heroes_staging/atlas_detective_v2/` to `heroes_wip/abrams/`. A mod at the old path stops working without any error.
-- **Animations change.** Valve keeps moving heroes to a newer animation system. Replacement models must point to the new files.
-- **Skeletons and cameras change.** Old skins can end up with a camera stuck in the middle of the screen.
+- **Models move.** Abrams moved from `heroes_staging/atlas_detective_v2/` to `heroes_wip/abrams/`. A mod at the old path stops working with no error.
+- **Animations, skeletons, and cameras change.** Valve keeps moving heroes to a newer animation system, so replacement models must point to the new files. Old skins can end up with the camera stuck in the middle of the screen.
 - **Interface layouts change.** Outdated HUD mods can crash the game at launch.
 - **`gameinfo.gi` gets replaced.** Mods stop loading until the addons line is back.
 
-After a big update, check your paths again in [Hero names and file paths](/docs/deadlock/basics/hero-codenames). Then recompile and repack. A full guide to updating your mod is coming. {/* LINK LATER: /docs/deadlock/publishing/update-after-a-patch */}
+To fix a mod, check its paths in [Hero names and file paths](/docs/deadlock/basics/hero-codenames), then recompile and repack. [Update your mod](/docs/deadlock/publishing/update-after-a-patch) walks through it.
 
 ## Next steps
 
 - [Hero names and file paths](/docs/deadlock/basics/hero-codenames): find the exact path for any hero file.
-- [Set up your creator tools](/docs/deadlock/getting-started/creator-setup): install Source 2 Viewer and CSDK 12.
+- [Deadlock file types](/docs/deadlock/basics/file-types): what each file type holds and whether you ship it.
 - [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk): turn your files into a mod.
 
 ## Credits

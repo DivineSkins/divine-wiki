@@ -7,21 +7,17 @@ patch: "6779"
 
 <LevelPill level="beginner" />
 
-A Deadlock mod is one VPK file. It holds your compiled files at the same paths the game uses. This page shows how to build that file, check it, and name it. You need compiled files from a CSDK 12 addon first. [Set up your creator tools](/docs/deadlock/getting-started/creator-setup) explains addons.
+A Deadlock mod is one VPK file with your compiled files at the same paths the game uses. This page shows how to build it, check it, and name it. First you need compiled files from a CSDK 12 addon: see [Set up your creator tools](/docs/deadlock/getting-started/creator-setup).
 
 ## What you need
 
-- Your compiled files. They are in your addon's game folder: `Reduced_CSDK_12/game/citadel_addons/<addon>/`.
-- Source 2 Viewer, dev build or release 20.0 or newer.
-- CSDK 12, only if you use the Workshop Manager method.
+- Your compiled files, in your addon's game folder: `Reduced_CSDK_12/game/citadel_addons/<addon>/`.
+- [Source 2 Viewer](/docs/deadlock/tools/source-2-viewer), dev build or release 20.0 or newer.
+- [CSDK 12](/docs/deadlock/tools/csdk-12), only for the Workshop Manager method.
 
 ## What goes in the VPK, and what stays out
 
-Put in:
-
-- Only the compiled files you changed. Their names end in `_c`.
-- Each file at the same path it has in the game. Example: `models/heroes_staging/synth/materials/pocket_suitcase.vmat_c`.
-- The original file name. If you worked on a model under another name, rename the compiled file back.
+Put in only the compiled files you changed (names end in `_c`), each at its game path and with its original name. If you worked on a model under another name, rename the compiled file back.
 
 Leave out:
 
@@ -29,36 +25,38 @@ Leave out:
 | ------------------------------------------------------------- | ------------------------------------------------------- |
 | Source files: `.vmat`, `.png`, `.psd`, `.wav`, `.mp3`, `.dmx` | The game reads compiled files only.                     |
 | Tool cache files: `cache_*.soc`, `tools_thumbnail_cache.bin`  | The tools make these for themselves.                    |
-| Gameplay data: `scripts/*.vdata_c`                            | It goes stale after patches and changes gameplay.       |
+| Gameplay data: `scripts/*.vdata_c`                            | It goes stale after updates and changes gameplay.       |
 | Skeletons: `.vnmskel_c`                                       | They break the hero's animations, in other mods too.    |
-| Compiled files you did not change                             | They can clash with other mods and break after patches. |
+| Compiled files you did not change                             | They can clash with other mods and break after updates. |
 
 ## Build a staging folder
 
-A staging folder holds a copy of your mod's files, laid out like the game. The example below packs a recolored briefcase for Pocket.
+A staging folder holds a copy of your mod's files, laid out like the game. This example packs a recolored briefcase for Pocket.
 
 1. Create an empty folder with your mod's name, such as `goldcase`.
 2. In the CSDK 12 launcher, right-click your addon and pick **Explore Game Folder**. Always copy from this game folder, never the content folder.
 3. Inside `goldcase`, create the same folders the game uses: `goldcase/models/heroes_staging/synth/materials/`.
-4. Copy only the compiled files you changed into the matching folder.
-5. Check the top level of `goldcase`. It should hold only game folders, such as `models`, `materials`, `sounds`, `soundevents`, `particles`, or `panorama`.
+4. Copy only the compiled files you changed into the matching folder. The top level of `goldcase` should hold only game folders, such as `models` or `sounds`.
 
-A quicker way: copy your whole addon folder out of `game/citadel_addons/`. Then delete every file you did not change.
+Shortcut: copy your whole addon folder out of `game/citadel_addons/`, then delete every file you did not change.
 
-{/* SCREENSHOT: a staging folder tree such as goldcase/models/heroes_staging/synth/materials/ with one compiled material inside. File: deadlock-basics-pack-a-vpk-1.webp */}
+<img
+  src="/wiki-images/deadlock-basics-pack-a-vpk-1.webp"
+  alt="The goldcase staging folder holds models/heroes_staging/synth/materials/pocket_suitcase.vmat_c, so the path inside the VPK starts at models/ and not at goldcase/"
+/>
 
 ## Pack with Source 2 Viewer
 
-We recommend this method for beginners. It works without CSDK 12 open, it shows the paths inside the VPK, and most guides use it.
+Start with this method. It works without CSDK 12 open, shows the paths inside the VPK, and most guides use it.
 
 1. Open Source 2 Viewer.
 2. Click **File > Create VPK from folder**. A new tab named `new.vpk` opens.
 3. Right-click `new.vpk` and pick **Add Existing Folder**.
 4. Select your staging folder, such as `goldcase`. Do not open it. Click **Select Folder**.
 5. If Source 2 Viewer asks to scan dependencies of compiled files, choose **Yes**. Newer builds may not ask. {/* NEEDS HANDS-ON TEST: whether the current dev build still shows the "scan dependencies" prompt, and what each answer does */}
-6. Double-click `new.vpk` to see what is inside. Check the paths as shown in the next section.
+6. Double-click `new.vpk` to see what is inside. Check the paths as shown in [Check what is inside](#check-what-is-inside).
 7. Right-click `new.vpk` and pick **Save VPK to disk**.
-8. Save it as `pakNN_dir.vpk`, for example `pak05_dir.vpk`. The naming rules are below.
+8. Save it with a name like `pak05_dir.vpk`. The naming rules are below.
 
 {/* SCREENSHOT: Source 2 Viewer File menu with Create VPK from folder highlighted. File: deadlock-basics-pack-a-vpk-2.webp */}
 
@@ -68,7 +66,7 @@ We recommend this method for beginners. It works without CSDK 12 open, it shows 
 
 If a file shows up twice in the list, leave both entries alone. One creator deleted the copy and lost the real file. {/* NEEDS HANDS-ON TEST: Source 2 Viewer showing phantom duplicate entries in a new VPK */}
 
-This video shows the same steps for a model swap. The steps are the same for any mod. It was recorded in August 2026, so menus may look a little different.
+Pugzilla shows the same steps in this model swap video from August 2026. They work for any mod, but menus may look a little different now.
 
 <YouTube
   id="9DvLaAYfRxQ"
@@ -78,33 +76,29 @@ This video shows the same steps for a model swap. The steps are the same for any
 
 ## Pack with the CSDK 12 Workshop Manager
 
-Use this method if you prefer to stay in CSDK 12. It borrows a Counter-Strike 2 upload window to build the VPK.
+Use this if you prefer to stay in CSDK 12. It borrows a Counter-Strike 2 upload window to build the VPK.
 
 1. Open the CSDK 12 launcher, select your addon, and click **Launch Tools**.
 2. In the Asset Browser's top bar, click **CS2 Workshop Manager**.
 3. Click **New**. Ignore the other buttons.
 4. Type anything as the name and description. Pick any preview image and any visibility.
 5. Click **Submit**. The submit fails. That is expected.
-6. CSDK 12 still writes a VPK into `game/citadel_addons`. Click **Contents** to see what it packed.
-7. Make sure it holds only the files you changed.
-8. Rename the VPK to `pakNN_dir.vpk`. {/* NEEDS HANDS-ON TEST: the exact folder and file name the Workshop Manager writes on the current CSDK 12 build */}
+6. CSDK 12 still writes a VPK into `game/citadel_addons`. Click **Contents** and check that it holds only the files you changed.
+7. Rename the VPK to `pakNN_dir.vpk`. {/* NEEDS HANDS-ON TEST: the exact folder and file name the Workshop Manager writes on the current CSDK 12 build */}
 
 {/* SCREENSHOT: the CS2 Workshop Manager button in the Asset Browser top bar. File: deadlock-basics-pack-a-vpk-5.webp */}
 
-The CSDK 12 launcher also has a **Create VPK** option on each addon. We have not tested where it saves the file yet, so this guide does not use it. {/* NEEDS HANDS-ON TEST: output location and contents of the launcher's Create VPK option (conflict C25) */}
-
-A full CSDK 12 tool page is coming. {/* LINK LATER: /docs/deadlock/tools/csdk-12 */}
+The CSDK 12 launcher also has a **Create VPK** option on each addon. We have not tested where it saves the file, so this guide does not use it. {/* NEEDS HANDS-ON TEST: output location and contents of the launcher's Create VPK option (conflict C25) */}
 
 ## Check what is inside
 
-Always check a new VPK before you test it.
+Check every new VPK before you test it.
 
 1. Open the VPK in Source 2 Viewer with **File > Open**.
-2. Look at the top-level folders. They must be game folders, such as `models/`, `materials/`, `sounds/`, `soundevents/`, `particles/`, or `panorama/`.
-3. Make sure no path starts with your staging folder name. `goldcase/models/...` is wrong.
-4. Make sure no path skips a level. `heroes_staging/synth/...` without `models/` in front is wrong.
-5. Make sure every file name ends in `_c`.
-6. Compare each path with the same file in the game's `pak01_dir.vpk`. They must match exactly.
+2. Look at the top-level folders. They must be game folders, such as `models/`, `sounds/`, or `panorama/`.
+3. Make sure no path starts with your staging folder name (`goldcase/models/...`) or skips a level (`heroes_staging/...` without `models/` in front).
+4. Make sure every file name ends in `_c`.
+5. Compare each path with the same file in the game's `pak01_dir.vpk`. They must match exactly.
 
 If a path is wrong, fix your staging folder and pack again.
 
@@ -112,18 +106,20 @@ If a path is wrong, fix your staging folder and pack again.
 
 ## Name and number it
 
-The game loads a mod only if the name is exactly right.
+Name the file `pak`, two digits, then `_dir.vpk`, from `pak01_dir.vpk` to `pak99_dir.vpk`. Put it straight into `game/citadel/addons/`. Other names and subfolders do not load.
 
-- Use `pak`, then two digits, then `_dir.vpk`. Valid names run from `pak01_dir.vpk` to `pak99_dir.vpk`.
-- These names do not load: `pak1_dir.vpk`, `pak00_dir.vpk`, `pak100_dir.vpk`, `goldcase.vpk`.
-- Put the file straight into `game/citadel/addons/`. A VPK in a subfolder does not load.
-- The lower number wins when two mods ship the same file. To make your mod win, give it a lower number than the other mod.
+<img
+  src="/wiki-images/deadlock-basics-pack-a-vpk-7.webp"
+  alt="Names from pak01_dir.vpk to pak99_dir.vpk load from the addons folder. pak1_dir.vpk, pak00_dir.vpk, pak100_dir.vpk, goldcase.vpk, and subfolders do not."
+/>
+
+When two mods ship the same file, the lower number wins, so give your mod a lower number to make it win. [How Deadlock mods work](/docs/deadlock/basics/how-mods-work) explains load order.
 
 For test builds, keep one fixed number and overwrite it each time. [Test your mod in game](/docs/deadlock/basics/test-your-mod) explains why.
 
 ## Mods bigger than 2 GB
 
-Most mods are far smaller. Popular full hero skins are about 125 to 280 MB. One VPK from the CS2 Workshop Manager has a 2 GB limit. For bigger mods:
+Popular full hero skins are about 125 to 280 MB, so most mods never get close. One VPK from the CS2 Workshop Manager has a 2 GB limit. For bigger mods:
 
 - Use the **Multichunk Workshop Manager** in CSDK 12. It splits the pack into chunks. {/* NEEDS HANDS-ON TEST: file names the Multichunk Workshop Manager writes */}
 - Or use the command-line version of Source 2 Viewer. Run it in the folder that holds your staging folder:
@@ -132,35 +128,31 @@ Most mods are far smaller. Popular full hero skins are about 125 to 280 MB. One 
 Source2Viewer-CLI -i "goldcase" --vpk_create "pak05_dir.vpk" --vpk_create_chunk_size 100
 ```
 
-This writes the data in 100 MB chunks next to the `_dir` file. Keep every file of the set together, with the same number.
+This writes 100 MB chunks next to the `_dir` file. Keep every file of the set together, with the same number.
 
 ## Combine several mods into one VPK
 
-The game loads up to 99 VPKs per folder. Merging mods is one way to stay under that limit.
+The game loads up to 99 VPKs per folder. Merging mods keeps you under that limit.
 
-- [vpkmerge](https://github.com/Slush97/vpkmerge) by Slush97 merges several VPKs into one, or splits one apart. It is an unofficial community tool and still new. Keep copies of the original files.
-- You can also merge by hand. Open each VPK in Source 2 Viewer, select its top folders, and pick **Export as is** into one shared folder. Then pack that folder as shown above. Pugzilla's [Combining VPKs/Mods Tutorial](https://www.youtube.com/watch?v=hRMLruLyOw4) shows this.
+- [vpkmerge](https://github.com/Slush97/vpkmerge) by Slush97 merges several VPKs into one, or splits one apart. It is an unofficial community tool and still new, so keep copies of the originals. Similar tools are in [Helper tools and scripts](/docs/deadlock/tools/helper-tools).
+- To merge by hand, open each VPK in Source 2 Viewer, select its top folders, and pick **Export as is** into one shared folder. Then pack that folder. Pugzilla's [Combining VPKs/Mods Tutorial](https://www.youtube.com/watch?v=hRMLruLyOw4) shows this.
 
-Before you merge:
-
-- If two mods hold the same file, only one copy survives. Choose which one you want.
-- A mod manager does not recognize a merged VPK. Add it to the manager again as a new mod.
-- Merge other people's mods for your own use only. Most Deadlock mods use a license that does not allow sharing changed copies. {/* LINK LATER: /docs/deadlock/publishing/credits-and-licenses */}
+If two mods hold the same file, only one copy survives, so choose which one you want. A mod manager does not recognize a merged VPK: add it again as a new mod. Merge other people's mods for your own use only. Most Deadlock mods use a license that does not allow sharing changed copies ([Credits, licenses, and permissions](/docs/deadlock/publishing/credits-and-licenses)).
 
 ## Common problems
 
-- **The mod does nothing.** Check the VPK name, the folder it is in, and every path inside it. Also check that you copied `_c` files from the game folder, not the content folder.
-- **A change does not show.** You may have forgotten to recompile. Recompile, copy the new `_c` file, and pack again.
+- **The mod does nothing.** Check the name, the folder, and every path inside the VPK. Copy `_c` files from the game folder, not the content folder.
+- **A change does not show.** Recompile, copy the new `_c` file, and pack again.
 - **Mods stopped loading after a game update.** The update reset `gameinfo.gi`. See [Install mods by hand](/docs/deadlock/getting-started/install-by-hand).
 - **Another mod wins.** Give your mod a lower number.
 - **Source 2 Viewer fails to build the VPK.** Update to the latest dev build.
 
-Full error guides for creators and players are coming. {/* LINK LATER: /docs/deadlock/errors/creator-errors */} {/* LINK LATER: /docs/deadlock/errors/mods-not-loading */}
+More fixes are in [Errors when making mods](/docs/deadlock/errors/creator-errors) and [Mods not loading](/docs/deadlock/errors/mods-not-loading).
 
 ## Next steps
 
 - [Test your mod in game](/docs/deadlock/basics/test-your-mod): load your VPK and check every part of it.
-- [How Deadlock mods work](/docs/deadlock/basics/how-mods-work): why paths and numbers matter.
+- [Publish your mod on GameBanana](/docs/deadlock/publishing/publish-on-gamebanana): share it once it works.
 
 ## Credits
 

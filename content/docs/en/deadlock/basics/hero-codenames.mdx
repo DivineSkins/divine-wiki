@@ -7,27 +7,31 @@ patch: "6779"
 
 <LevelPill level="beginner" />
 
-Deadlock's files do not use the hero names you see in game. They use Valve's internal codenames, and one hero can have several. This page lists the file paths for every hero. To look inside the files yourself, install Source 2 Viewer with [Set up your creator tools](/docs/deadlock/getting-started/creator-setup).
+Deadlock's files use Valve's internal codenames, not the hero names you see in game, and one hero can have several. This page lists the file paths for every hero. To check them yourself, install Source 2 Viewer with [Set up your creator tools](/docs/deadlock/getting-started/creator-setup).
 
 ## What you need
 
-- Source 2 Viewer, to check paths in the game files.
+- [Source 2 Viewer](/docs/deadlock/tools/source-2-viewer), to check paths in the game files.
 - Deadlock, updated to the latest version.
 
 ## Why codenames matter
 
-A mod only replaces a file at the exact same path ([How Deadlock mods work](/docs/deadlock/basics/how-mods-work) explains why). Those paths use codenames. Billy's model, for example, is in `models/heroes_wip/punkgoat/`.
+A mod only replaces a file at the exact same path ([How Deadlock mods work](/docs/deadlock/basics/how-mods-work) explains why), and those paths use codenames. Billy's model is in `models/heroes_wip/punkgoat/`.
 
 - **One hero, several names.** Codenames differ by file type. Lady Geist's model folder is `geist`, her skeleton is `ghost`, and her portraits start with `spectre`.
-- **Names change.** Valve moves and renames files in updates. Old guides often show paths that no longer exist.
+- **Names change.** Valve moves and renames files in updates, so old guides often show paths that no longer exist.
 - **Two hero folders.** Hero models are in `models/heroes_wip/` or `models/heroes_staging/`. Some older docs say `models/heroes/`, but that folder now holds only camera files.
+
+<img
+  src="/wiki-images/deadlock-basics-hero-codenames-1.webp"
+  alt="Lady Geist's files use three codenames: geist for the model and sounds, ghost for the skeleton, and spectre for the portraits"
+/>
 
 ## The hero table
 
 <Callout type="info" title="Checked against build 6779">
   We built this table on 2026-10-14 from Valve's own game files for build 6779
-  (dated 2026-10-13). Paths change with big updates, so check them again after
-  each one.
+  (dated 2026-10-13). Check the paths again after each big update.
 </Callout>
 
 How to read each column:
@@ -85,33 +89,28 @@ How to read each column:
 | Wraith        | `heroes_wip/wraith/wraith`                           | `heroes_wip/wraith/wraith`                           | `wraith`      | `wraith`      | `wraith`      |
 | Yamato        | `heroes_staging/yamato_v2/yamato`                    | `heroes_wip/yamato/yamato`                           | `yamato`      | `yamato`      | `yamato`      |
 
-"Not found" means build 6779 has no such file for that hero. See Violet and Nurse Harrow below.
+"Not found" means build 6779 has no such file for that hero (see Violet and Nurse Harrow below).
 
 ## Heroes with special cases
 
-- **Haze.** Her body model is in `heroes_staging/haze/`. Her knife material is in `models/heroes_wip/haze/materials/`, and her gun material is in `models/heroes_staging/haze_v2/materials/`. Some guides list Haze under `heroes_wip` because of the knife.
+Many rows mix names or folders. Read across the whole row: Ivy (old name `tengu`), Lady Geist, Mo & Krill, Rem, Yamato, Vyper (old name `kali`), and Kelvin and Viscous, who share one skeleton. Extra files the table does not show:
+
+- **Haze.** Her body model is in `heroes_staging/haze/`, her knife material in `models/heroes_wip/haze/materials/`, and her gun material in `models/heroes_staging/haze_v2/materials/`. Some guides list Haze under `heroes_wip` because of the knife.
 - **Pocket.** His model is in `heroes_wip/pocket/`, but his skeleton, portraits, and briefcase use the old name `synth`. The briefcase material is `models/heroes_staging/synth/materials/pocket_suitcase.vmat_c`.
-- **Ivy.** Her model folder is `ivy`. Her skeleton, portraits, and sounds use her old name `tengu`.
-- **Kelvin and Viscous.** They share one skeleton: `heroes_staging/kelvin_v2/maya/kelvin`. Viscous's graph is `viscous_v1`.
-- **Lady Geist.** She has three names. Her model and sounds use `geist`, her skeleton uses `ghost`, and her portraits use `spectre`.
-- **Grey Talon.** His model is `archer`, but his sound file is `orion`. His owl has its own skeleton: `heroes_staging/grey_talon/grey_talon_owl`.
+- **Grey Talon.** His owl has its own skeleton: `heroes_staging/grey_talon/grey_talon_owl`.
 - **Silver.** The wolf form has its own files in `heroes_wip/werewolf/transform/`, with its own skeleton.
 - **Graves.** He has extra rigs in a `shambler` folder inside his `necro` folder.
-- **Mo & Krill.** The model is `digger`, the skeleton is `mo_krill`, and the sound file is `krill`.
-- **Rem.** The model file is `familiar_wip`, but the skeleton is `familiar`.
-- **Yamato.** Her model is in `heroes_staging/yamato_v2/`, but her skeleton is in `heroes_wip/yamato/`.
-- **Vyper.** Her portraits start with `kali`, an old codename.
 - **Wraith.** Her hero data picks material group 1 for her model. Check which materials that group uses before you edit them.
 - **Violet and Nurse Harrow.** Build 6779 has no main animation graph and no sound event file for them under the usual names. They may still use an older animation system. {/* NEEDS HANDS-ON TEST: open Violet's and Nurse Harrow's vmdl_c Data tab in Source 2 Viewer and check which animation graph and sound files they use (gap G05) */}
-- **The newest heroes.** Nurse Harrow, Rat King, Solomon, Deadman Danny, Baba, and Violet arrived with the "City Never Sleeps" update. They unlock through about 2026-10-20. Baba is still marked as in development in build 6779. Expect their paths to change.
+- **The newest heroes.** Nurse Harrow, Rat King, Solomon, Deadman Danny, Baba, and Violet arrived with the "City Never Sleeps" update and become playable through about 2026-10-20. Baba is still marked as in development in build 6779. Expect their paths to change.
 
-Ability effects are in `particles/abilities/<codename>/`, and ability icons in `panorama/images/hud/abilities/<codename>/`. Those folder names can differ again from the table. Check them in Source 2 Viewer.
+Ability effects are in `particles/abilities/<codename>/`, and ability icons in `panorama/images/hud/abilities/<codename>/`. Those folder names can differ again from the table, so check them in Source 2 Viewer.
 
-Hero model swaps need every column of this table. A full guide is coming. {/* LINK LATER: /docs/deadlock/models/hero-model-swap */}
+A hero model swap needs every column of this table. Start with [Hero model swap: overview](/docs/deadlock/models/hero-model-swap).
 
 ## Old names you will still see
 
-Old guides, forum posts, and the game's own data still use older names. These all point to the same heroes:
+Old guides, forum posts, and the game's own data still use these older names:
 
 | Hero       | Older or internal names                 |
 | ---------- | --------------------------------------- |
@@ -130,11 +129,11 @@ Old guides, forum posts, and the game's own data still use older names. These al
 | Vindicta   | `hornet`                                |
 
 - Names that start with `hero_` are the keys in Valve's hero data file, `scripts/heroes.vdata`.
-- Old guides may show old model folders. Abrams was in `heroes_staging/atlas_detective_v2/`, McGinnis in `heroes_staging/engineer/`, and Infernus in `heroes_staging/inferno_v4/`. Mods at those paths no longer work.
+- Old model folders no longer work: Abrams was in `heroes_staging/atlas_detective_v2/`, McGinnis in `heroes_staging/engineer/`, and Infernus in `heroes_staging/inferno_v4/`.
 - A hero can have several folders, such as `haze` and `haze_v2`. Old folders often stay in the game files unused.
 - The game files also list unreleased heroes, such as Raven and Wrecker. Most point to a placeholder model. Ignore them.
 
-## Check paths yourself after a patch
+## Check paths yourself after an update
 
 Do this after every big update, or when a path in this table does not work.
 
@@ -146,11 +145,11 @@ Do this after every big update, or when a path in this table does not work.
 6. Click the **Data** tab. It shows the skeleton and animation graph paths.
 7. Compare what you see with the table. If a path moved, move your mod's files to match.
 
-{/* SCREENSHOT: a hero model's References tab in Source 2 Viewer. File: deadlock-basics-hero-codenames-1.webp */}
+{/* SCREENSHOT: a hero model's References tab in Source 2 Viewer. File: deadlock-basics-hero-codenames-2.webp */}
 
-{/* SCREENSHOT: the Data tab of the same model, showing the skeleton and graph paths. File: deadlock-basics-hero-codenames-2.webp */}
+{/* SCREENSHOT: the Data tab of the same model, showing the skeleton and graph paths. File: deadlock-basics-hero-codenames-3.webp */}
 
-Advanced: [GameTracking-Deadlock](https://github.com/SteamTracking/GameTracking-Deadlock) on GitHub saves Valve's file list and hero data for every build. Its [`heroes.vdata`](https://github.com/SteamTracking/GameTracking-Deadlock/blob/master/game/citadel/pak01_dir/scripts/heroes.vdata) file shows each hero's model path. Its history shows when a model moved.
+Advanced: [GameTracking-Deadlock](https://github.com/SteamTracking/GameTracking-Deadlock) on GitHub saves Valve's file list and hero data for every build. Its [`heroes.vdata`](https://github.com/SteamTracking/GameTracking-Deadlock/blob/master/game/citadel/pak01_dir/scripts/heroes.vdata) file shows each hero's model path, and its history shows when a model moved.
 
 ## Next steps
 

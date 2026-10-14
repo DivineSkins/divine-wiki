@@ -7,23 +7,20 @@ patch: "6779"
 
 <LevelPill level="beginner" />
 
-Recolor part of a hero by changing material values in CSDK 12. You do not paint any images. In this guide you turn Pocket's briefcase into shiny gold. Set up your tools first with [Set up your creator tools](/docs/deadlock/getting-started/creator-setup).
+Recolor part of a hero by changing material values in CSDK 12, without painting any images. In this guide you turn Pocket's briefcase into shiny gold. First set up your tools with [Set up your creator tools](/docs/deadlock/getting-started/creator-setup).
 
 ## What you need
 
-- Deadlock, installed and up to date.
-- Source 2 Viewer and CSDK 12. Install them with [Set up your creator tools](/docs/deadlock/getting-started/creator-setup).
+- [Source 2 Viewer](/docs/deadlock/tools/source-2-viewer) and [CSDK 12](/docs/deadlock/tools/csdk-12).
 - The hero's codename. Pocket's briefcase uses `synth`. Other heroes are in [Hero names and file paths](/docs/deadlock/basics/hero-codenames).
 
 ## What a material is
 
-A material is a small file that tells the game how a surface looks. It names a shader, lists the texture images, and holds values like color, roughness, and metalness. Hero materials use the `pbr.vfx` shader.
-
-The game reads compiled materials, which end in `.vmat_c`. You decompile one, change its values in the Material Editor, and compile it again.
+A material tells the game how a surface looks. It names a shader (`pbr.vfx` for heroes), lists the texture images, and holds values like color, roughness, and metalness. The game reads the compiled `.vmat_c`. You decompile it, change values in the Material Editor, and compile it again. [Hero material settings reference](/docs/deadlock/textures/material-reference) explains every setting.
 
 ## Keep it fair
 
-A recolor changes that hero for you everywhere, enemies included. Nobody else sees it. So a bright skin can make an enemy easier to spot.
+You see a recolor on every copy of that hero, enemies included, so a bright skin can make an enemy easier to spot.
 
 <Callout
   type="danger"
@@ -37,12 +34,17 @@ A recolor changes that hero for you everywhere, enemies included. Nobody else se
 
 ## Quick options
 
-These need no CSDK 12. They give you less control than the full steps.
+These need no CSDK 12 but give you less control. More in [Make mods without installing tools](/docs/deadlock/tools/browser-builders).
 
 - **Mod Foundry in Deadlock Mod Manager.** Open **Settings > Experimental > Mod Foundry**. It recolors a hero's body and weapon and exports a VPK. See the [Mod Foundry docs](https://docs.deadlockmods.app/using-mod-manager/customization).
-- **DeadMod in your browser.** Export a texture image with Source 2 Viewer and recolor it in an image editor. Then [DeadMod](https://redmser.github.io/DeadMod/) builds a VPK from your edited image. This edits images, not material values.
+- **DeadMod in your browser.** Recolor a texture image you exported with Source 2 Viewer. In [DeadMod](https://redmser.github.io/DeadMod/), paste the texture's game path, upload your image, and click **Save mod as VPK**. This edits images, not material values.
 
-{/* NEEDS HANDS-ON TEST: Mod Foundry on DMM v1.1.0 (menu path, output name, result in game). DeadMod on build 6779 (still builds a working VPK, output file name, whether pak01_dir.vpk stays on your PC). */}
+<img
+  src="/wiki-images/deadlock-textures-recolor-a-material-1.webp"
+  alt="DeadMod in the browser, with a file path field, an upload button, the mod file name pak50_dir.vpk, and the Save mod as VPK button"
+/>
+
+{/* NEEDS HANDS-ON TEST: Mod Foundry on DMM v1.1.0 (menu path, output name, result in game). DeadMod on build 6779 (still builds a working VPK, whether the uploaded pak01_dir.vpk stays on your PC). The web page shows the default "Mod file name" pak50_dir.vpk as of 2026-10-14. */}
 
 ## Find the material
 
@@ -51,11 +53,11 @@ These need no CSDK 12. They give you less control than the full steps.
 3. Go to `models/heroes_staging/synth/materials/`.
 4. Find `pocket_suitcase.vmat_c`.
 
-Materials do not always sit next to the model. Pocket's model is in `models/heroes_wip/pocket/`, but the briefcase material is in the `synth` folder. For other heroes, open the hero's model and check its **References** tab for the real material paths.
+Materials do not always sit next to the model: Pocket's model is in `models/heroes_wip/pocket/`, but the briefcase material is in `synth`. For other heroes, open the hero's model and check its **References** tab for the real material paths.
 
 {/* NEEDS HANDS-ON TEST: confirm models/heroes_staging/synth/materials/pocket_suitcase.vmat_c still exists on build 6779. */}
 
-{/* SCREENSHOT: deadlock-textures-recolor-a-material-1.webp, Source 2 Viewer showing pocket_suitcase.vmat_c and its path */}
+{/* SCREENSHOT: deadlock-textures-recolor-a-material-2.webp, Source 2 Viewer showing pocket_suitcase.vmat_c and its path */}
 
 ## Decompile it into your addon
 
@@ -74,13 +76,13 @@ Materials do not always sit next to the model. Pocket's model is in `models/hero
 3. Type `type=material_asset` in the search box to show only materials.
 4. Double-click `pocket_suitcase` to open it in the Material Editor.
 5. Check that the shader at the top is `pbr.vfx`. A decompiled hero material should already use it.
-6. Set the preview model to Pocket: `models/heroes_wip/pocket/pocket.vmdl`. Now you see the briefcase on the hero.
+6. Set the preview model to Pocket, `models/heroes_wip/pocket/pocket.vmdl`, to see the briefcase on the hero.
 
 {/* NEEDS HANDS-ON TEST: the Asset Browser control that limits the view to one addon (one guide says: click the mods counter, then Only next to your addon) and the type=material_asset filter. */}
 
 {/* NEEDS HANDS-ON TEST: the shader shown for a decompiled hero material, and the Material Editor default shader (conflict C41). */}
 
-{/* SCREENSHOT: deadlock-textures-recolor-a-material-2.webp, the Asset Browser showing only the goldcase addon, filtered with type=material_asset */}
+{/* SCREENSHOT: deadlock-textures-recolor-a-material-3.webp, the Asset Browser showing only the goldcase addon, filtered with type=material_asset */}
 
 ## Change the values
 
@@ -89,12 +91,12 @@ Each setting can read from a texture image or use a fixed value. For polished go
 1. Change **Roughness** from texture to **Color**. Pick pure black. This makes the surface smooth and shiny.
 2. Change **Metalness** from texture to **Slider**. Set it to 1.0. This makes the surface look like metal.
 3. Change **Color** to the gold you want. The example uses 255 192 47.
-4. Check the preview. Adjust the values until you like the result.
+4. Check the preview and adjust the values until you like the result.
 5. Press Ctrl+S to save. Close the Material Editor.
 
 {/* NEEDS HANDS-ON TEST: whether "Color" here means switching the color texture to a flat color or setting the color tint. Record the exact control labels. */}
 
-{/* SCREENSHOT: deadlock-textures-recolor-a-material-3.webp, the Material Editor with Color, Roughness and Metalness changed and Pocket in the preview */}
+{/* SCREENSHOT: deadlock-textures-recolor-a-material-4.webp, the Material Editor with Color, Roughness and Metalness changed and Pocket in the preview */}
 
 <Callout type="info" title="Tint instead of replace">
   Materials also have a color tint value (`g_vColorTint1` in the file). It
@@ -107,42 +109,46 @@ Each setting can read from a texture image or use a fixed value. For polished go
 1. In the Asset Browser, right-click the material and choose **Recompile > Full**.
 2. Right-click `goldcase` in the CSDK 12 launcher and choose **Explore Game Folder**.
 3. Open `models/heroes_staging/synth/materials/`. You see the new `pocket_suitcase.vmat_c` and new `.vtex_c` texture files.
-4. Make a new folder for your mod, for example `goldcase_pack`.
-5. Inside it, rebuild the same path: `models/heroes_staging/synth/materials/`.
-6. Copy the new `.vmat_c` and every new `.vtex_c` into it.
+4. Make a staging folder, such as `goldcase_pack`, with the same path inside: `models/heroes_staging/synth/materials/`.
+5. Copy the new `.vmat_c` and every new `.vtex_c` into it.
 
-The new material points to its textures by their compiled names. Those names include a code, like `abrams_coat_color_png_63291cfb.vtex_c`. If you ship the material without its new textures, the game cannot find them.
+The new material points to its textures by their compiled names, which include a code, like `abrams_coat_color_png_63291cfb.vtex_c`. Ship the material without them, and the game cannot find its textures.
+
+<img
+  src="/wiki-images/deadlock-textures-recolor-a-material-5.webp"
+  alt="pocket_suitcase.vmat in the content folder compiles to pocket_suitcase.vmat_c plus new .vtex_c files in the game folder. You copy all of them into goldcase_pack at the same path and pack it as pak05_dir.vpk."
+/>
 
 {/* NEEDS HANDS-ON TEST: which files to ship (conflict C40, gap G03). Test the vmat_c plus new vtex_c set on Pocket's briefcase. Also test what happens if only the vmat_c ships. */}
 
-{/* SCREENSHOT: deadlock-textures-recolor-a-material-4.webp, Asset Browser right-click menu with Recompile > Full on the material */}
+{/* SCREENSHOT: deadlock-textures-recolor-a-material-6.webp, Asset Browser right-click menu with Recompile > Full on the material */}
 
-{/* SCREENSHOT: deadlock-textures-recolor-a-material-5.webp, the addon game folder with the new .vmat_c and .vtex_c files */}
+{/* SCREENSHOT: deadlock-textures-recolor-a-material-7.webp, the addon game folder with the new .vmat_c and .vtex_c files */}
 
 ## Pack and test
 
-1. Pack your mod folder into a VPK. Follow [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
-2. Load the mod and look at Pocket's briefcase in game. Follow [Test your mod in game](/docs/deadlock/basics/test-your-mod).
+1. Pack your staging folder into a VPK with [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
+2. Load the mod and look at Pocket's briefcase in game with [Test your mod in game](/docs/deadlock/basics/test-your-mod).
 
-Always check in game. Source 2 Viewer's preview does not show Deadlock's lighting exactly.
+Always check in game: Source 2 Viewer's preview does not match Deadlock's lighting exactly.
 
-{/* SCREENSHOT: deadlock-textures-recolor-a-material-6.webp, Pocket with the gold briefcase in game */}
+{/* SCREENSHOT: deadlock-textures-recolor-a-material-8.webp, Pocket with the gold briefcase in game */}
 
 ## Common problems
 
-- **Nothing changes in game.** You packed the `.vmat` source file, or you forgot to recompile. Pack the compiled `.vmat_c` from the game folder.
-- **The old look stays.** Your folder path is different from the original. Check every folder name against Source 2 Viewer.
+- **Nothing changes in game.** Recompile, then pack the compiled `.vmat_c` from the game folder, not the `.vmat` source.
+- **The old look stays.** Your folder path differs from the original. Check every folder name in Source 2 Viewer.
 - **Purple checkerboard in the Material Editor.** A texture slot lost its image. Click the magnifier on that slot and pick the image that came with the material.
-- **Checkerboard or missing texture in game.** The new `.vtex_c` files are missing from your VPK. Copy them next to the `.vmat_c` and pack again.
-- **It worked before an update.** Game updates can move hero files. Find the material again and check the path.
+- **Checkerboard or missing texture in game.** Your VPK lacks the new `.vtex_c` files. Copy them next to the `.vmat_c` and pack again.
+- **It worked before an update.** Updates can move hero files. Find the material again and check the path.
+
+More fixes are in [Model and skin problems](/docs/deadlock/errors/model-problems).
 
 ## Next steps
 
-- [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk)
-- [Test your mod in game](/docs/deadlock/basics/test-your-mod)
-- Retexture a hero by painting its images (coming soon)
-
-{/* LINK LATER: /docs/deadlock/textures/retexture */}
+- [Retexture a hero](/docs/deadlock/textures/retexture): paint the hero's images instead of changing values.
+- [Materials for custom models](/docs/deadlock/textures/materials-for-custom-models)
+- [Hero material settings reference](/docs/deadlock/textures/material-reference)
 
 ## Credits
 
