@@ -17,25 +17,44 @@ Deadlock has no Linux version. It runs through Proton, Steam's compatibility lay
 
 ## What you need
 
-- Deadlock, installed through Steam.
-- A file manager. On a Steam Deck, switch to Desktop Mode first.
-- A plain text editor, if you install mods by hand.
-- Optional: a mod manager with a Linux build, such as Deadlock Mod Manager (DMM).
+<Requirements>
+  <Requirement icon="Steam">Deadlock, installed through Steam</Requirement>
+  <Requirement icon="FolderOpen">A file manager</Requirement>
+  <Requirement icon="SteamDeck" note="on a Steam Deck">
+    Desktop Mode
+  </Requirement>
+  <Requirement icon="FileText" note="for hand installs">
+    A plain text editor
+  </Requirement>
+  <Requirement
+    icon="DeadlockModManager"
+    href="/docs/deadlock/tools/mod-managers"
+    note="optional"
+  >
+    A mod manager
+  </Requirement>
+</Requirements>
+
+On a Steam Deck, switch to Desktop Mode first. If you use a mod manager, pick one with a Linux build, such as Deadlock Mod Manager (DMM).
 
 ## Find the game folder
 
-<Tabs items={["Through Steam", "Type the path"]}>
-<Tab value="Through Steam">
+<Tabs defaultValue="through-steam">
+<TabsList>
+<TabsTrigger value="through-steam"><Icon name="Steam" className="size-4" />Through Steam</TabsTrigger>
+<TabsTrigger value="type-the-path"><Icon name="Linux" className="size-4" />Type the path</TabsTrigger>
+</TabsList>
+<TabsContent value="through-steam">
 
 This way works on every system.
 
 1. Open your Steam **Library**.
 2. Right-click **Deadlock**.
-3. Choose **Manage > Browse local files**.
+3. Choose <MenuPath path="Manage > Browse local files" />.
 4. Open `game`, then `citadel`. Your `addons` folder goes here.
 
-</Tab>
-<Tab value="Type the path">
+</TabsContent>
+<TabsContent value="type-the-path">
 
 These are the default Deadlock folders. `~` means your home folder.
 
@@ -47,9 +66,9 @@ These are the default Deadlock folders. `~` means your home folder.
 
 - Native Steam also reaches the same folder through `~/.steam/steam` and `~/.steam/root`.
 - Flatpak Steam can use `.../data/Steam/...` instead of `.../.local/share/Steam/...`.
-- Is Deadlock on a microSD card or another drive? Open Steam's **Settings > Storage** to see every library.
+- Is Deadlock on a microSD card or another drive? Open Steam's <MenuPath path="Settings > Storage" /> to see every library.
 
-</Tab>
+</TabsContent>
 </Tabs>
 
 Proton changes where saves and settings live. It does not move the game files.
@@ -79,8 +98,12 @@ We have not tested whether the game itself, running under Proton, cares about ca
 
 Both big mod managers have Linux builds. Use only one of them. On SteamOS, players use either the DMM Flatpak or the Grimoire Flatpak. Both work for them.
 
-<Tabs items={["Deadlock Mod Manager", "Grimoire"]}>
-<Tab value="Deadlock Mod Manager">
+<Tabs defaultValue="dmm">
+<TabsList>
+<TabsTrigger value="dmm"><Icon name="DeadlockModManager" className="size-4" />Deadlock Mod Manager</TabsTrigger>
+<TabsTrigger value="grimoire"><Icon name="Grimoire" className="size-4" />Grimoire</TabsTrigger>
+</TabsList>
+<TabsContent value="dmm">
 
 **Builds:** Flatpak, AppImage, `.deb`, `.rpm`, an APT repository, the AUR, nixpkgs, and a Gentoo overlay.
 
@@ -93,14 +116,14 @@ The DMM team calls its Linux support "best-effort". Follow its [installation gui
 
 If DMM feels slow on Linux, install its CEF build. It bundles its own browser engine, which runs faster for most people.
 
-</Tab>
-<Tab value="Grimoire">
+</TabsContent>
+<TabsContent value="grimoire">
 
 **Builds:** AppImage, `.deb`, Flatpak, the AUR, an APT repository, and a Nix flake.
 
 Get it from [grimoiremods.com](https://grimoiremods.com) or its [GitHub page](https://github.com/Slush97/grimoire).
 
-</Tab>
+</TabsContent>
 </Tabs>
 
 ### Play from Game Mode on a Steam Deck
@@ -118,7 +141,7 @@ Deadlock should keep loading your mods, because the edit stays in `gameinfo.gi`.
 <Accordions type="multiple">
 <Accordion title="DMM crashes when you pick the game folder" id="dmm-crashes-when-you-pick-the-game-folder">
 
-**What you see:** On a Steam Deck or another Linux PC, you open the folder picker in **Settings > Game**. A dialog flashes, then DMM crashes. DMM may also fail to find the game on its own.
+**What you see:** On a Steam Deck or another Linux PC, you open the folder picker in <MenuPath path="Settings > Game" />. A dialog flashes, then DMM crashes. DMM may also fail to find the game on its own.
 
 **Why:** The Flatpak sandbox cannot see your Steam library.
 
@@ -128,7 +151,7 @@ Deadlock should keep loading your mods, because the edit stays in `gameinfo.gi`.
 1. Quit DMM fully, including its tray icon.
 2. On a Steam Deck, switch to Desktop Mode.
 3. Open Flatseal, a Flatpak permissions app. Select **Deadlock Mod Manager**.
-4. Under **Filesystem > Other files**, add the full path of your Steam library. Add any library on a microSD card too.
+4. Under <MenuPath path="Filesystem > Other files" />, add the full path of your Steam library. Add any library on a microSD card too.
 5. Start DMM and pick the game folder again.
 
 </Tab>
@@ -220,21 +243,26 @@ For anything that needs a compile step, use a Windows PC.
 
 ## Still stuck
 
-<ToolCard
-  name="DMM Troubleshooting Guide"
-  href="https://docs.deadlockmods.app/using-mod-manager/troubleshooting"
->
-  More Linux fixes from the DMM team.
-</ToolCard>
-<ToolCard
-  name="Deadlock Mod Manager problems"
-  href="/docs/deadlock/errors/mod-manager-problems"
->
-  DMM problems on every system.
-</ToolCard>
-<ToolCard name="Mods not loading" href="/docs/deadlock/errors/mods-not-loading">
-  The checks to run when nothing shows in game.
-</ToolCard>
+The DMM team's [Troubleshooting Guide](https://docs.deadlockmods.app/using-mod-manager/troubleshooting) has more Linux fixes.
+
+<CardGrid>
+  <PremiumCard
+    title="Deadlock Mod Manager problems"
+    href="/docs/deadlock/errors/mod-manager-problems"
+    icon={<Icon name="DeadlockModManager" />}
+    level="beginner"
+  >
+    DMM problems on every system.
+  </PremiumCard>
+  <PremiumCard
+    title="Mods not loading"
+    href="/docs/deadlock/errors/mods-not-loading"
+    icon={<Icon name="PackageX" />}
+    level="beginner"
+  >
+    The checks to run when nothing shows in game.
+  </PremiumCard>
+</CardGrid>
 
 ## Credits
 

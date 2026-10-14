@@ -11,15 +11,21 @@ Make tails, hair, coats, and skirts move on your custom hero model. You set up c
 
 ## What you need
 
-<ToolCard
-  name="Blender and BlenderSource2Tools"
-  href="/docs/deadlock/tools/blender-add-ons"
->
-  Blender with a DMX exporter, such as BlenderSource2Tools (Fuji fork).
-</ToolCard>
+<Requirements>
+  <Requirement
+    icon="Blender"
+    href="/docs/deadlock/tools/blender-add-ons"
+    note="+ a DMX exporter"
+  >
+    Blender
+  </Requirement>
+  <Requirement icon="Wrench" href="/docs/deadlock/tools/csdk-12">
+    CSDK 12
+  </Requirement>
+  <Requirement icon="Box">A hero model that compiles in ModelDoc</Requirement>
+</Requirements>
 
-- A hero model that already compiles in ModelDoc.
-- For proxy cloth: a way to copy vertex groups between meshes. Blender's own Data Transfer works. Hoxdolum's proxy cloth video uses the paid Mesh Data Transfer add-on.
+Use a DMX exporter such as BlenderSource2Tools (Fuji fork). For proxy cloth, you also need a way to copy vertex groups between meshes. Blender's own Data Transfer works. Hoxdolum's proxy cloth video uses the Mesh Data Transfer add-on, a free Blender extension.
 
 ## Pick a Blender version
 
@@ -106,7 +112,7 @@ Hoxdolum builds a proxy for a hero's skirt in this video.
 3. Keep it low-poly and single-sided: no thickness and no double faces.
 4. Add a few edge loops where the cloth needs more control, such as the hem.
 5. Keep the proxy as its own object.
-6. Choose **Object > Apply > All Transforms**.
+6. Choose <MenuPath path="Object > Apply > All Transforms" />.
 7. Add an **Armature** modifier that points at the hero armature.
 8. Copy the vertex groups from the real cloth mesh onto the proxy. Use World space and Vertex Groups.
 9. Pose the armature in Pose Mode. Check that the proxy follows.
@@ -144,7 +150,7 @@ The maps must sit on the mesh players see. A donor copy moves them across.
 />
 
 1. Duplicate the proxy. If the copy moves, set its location back to zero. This copy is the donor.
-2. On the donor, open **Data Properties > Vertex Groups**. Lock the four map groups.
+2. On the donor, open <MenuPath path="Data Properties > Vertex Groups" />. Lock the four map groups.
 3. Delete every group that is not locked.
 4. Select the real cloth mesh. Copy the donor's vertex groups onto it, with World space and Vertex Groups.
 5. Check that the four maps are on the real mesh. Then delete the donor.
@@ -225,6 +231,8 @@ Community knowledge on cloth is thin. One Deadlock video covers proxy cloth, and
 <PremiumCard
   title="Hero swap part 3: attachments, camera, and game data"
   href="/docs/deadlock/models/hero-swap-attachments"
+  icon={<Icon name="Camera" />}
+  level="advanced"
 >
   Copy the original hero's attachments, camera previews, and game data, then
   finish with part 4.

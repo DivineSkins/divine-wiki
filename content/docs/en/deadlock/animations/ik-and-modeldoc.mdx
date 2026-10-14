@@ -30,25 +30,28 @@ You see your clip on enemies who play this hero too. Keep attack wind-ups (parry
 
 ## What you need
 
-<ToolCard
-  name="CS2 Workshop Tools"
-  href="/docs/deadlock/tools/cs2-workshop-tools"
->
-  Free with Counter-Strike 2 on Steam. Its ModelDoc has the AnimGraph 2 Clip
-  preview. CSDK 12 lacks it and compiles clips in an older format.
-</ToolCard>
-<ToolCard
-  name="Blender and add-ons"
-  href="/docs/deadlock/tools/blender-add-ons"
->
-  Blender 4.5 or newer with the PulseSrcOps add-on, the one the guide names for
-  DMX animations in Blender 4.5 and newer.
-</ToolCard>
-<ToolCard name="Source 2 Viewer" href="/docs/deadlock/tools/source-2-viewer">
-  The latest dev build.
-</ToolCard>
+<Requirements>
+  <Requirement icon="Steam" href="/docs/deadlock/tools/cs2-workshop-tools">
+    CS2 Workshop Tools
+  </Requirement>
+  <Requirement
+    icon="Blender"
+    href="/docs/deadlock/tools/blender-add-ons"
+    note="4.5 or newer"
+  >
+    Blender and add-ons
+  </Requirement>
+  <Requirement
+    icon="Source2Viewer"
+    href="/docs/deadlock/tools/source-2-viewer"
+    note="latest dev build"
+  >
+    Source 2 Viewer
+  </Requirement>
+  <Requirement icon="Clapperboard">Your baked animation</Requirement>
+</Requirements>
 
-- Your animation, made and baked in Blender as shown in the simple route.
+CS2 Workshop Tools are free with Counter-Strike 2 on Steam. Their ModelDoc has the AnimGraph 2 Clip preview. CSDK 12 lacks it and compiles clips in an older format. In Blender, use the PulseSrcOps add-on, the one the guide names for DMX animations in Blender 4.5 and newer. Make and bake your animation in Blender as shown in the simple route.
 
 {/* NEEDS HANDS-ON TEST: which tools compile clips on build 6779 (conflict C50). Check CS2 Workshop Tools first, then whether CSDK 12 still compiles a working clip for a simple swap. */}
 
@@ -67,7 +70,7 @@ You see your clip on enemies who play this hero too. Keep attack wind-ups (parry
 1. Open the hero's `clips` folder in Source 2 Viewer, the same one you used in the simple route.
 2. Select the clip you will replace and preview it.
 3. In the **Data** section, write down **FPS**, **DURATION**, and **FRAME**.
-4. Open the hero's model and go to **Data > IKChains**. For each chain, write down its name (`m_Name`), its end bone, its bone count, and its target bone.
+4. Open the hero's model and go to <MenuPath path="Data > IKChains" />. For each chain, write down its name (`m_Name`), its end bone, its bone count, and its target bone.
 5. Decompile the original clip. Keep the `.vnmclip`, because you copy events from it later.
 
 {/* NEEDS HANDS-ON TEST: confirm that Data > IKChains shows on the hero's model in the current Source 2 Viewer dev build, and which fields it lists. */}
@@ -96,7 +99,7 @@ To start from the original motion, import the original clip's DMX with PulseSrcO
 2. In its content folder, rebuild the hero's skeleton path, the same path you used in CSDK 12.
 3. Decompile the hero's `.vnmskel` into that folder.
 4. Put your DMX files in a `clips` folder next to it.
-5. Open ModelDoc and choose **Add > Add Simple Animations**. Import your DMX files.
+5. Open ModelDoc and choose <MenuPath path="Add > Add Simple Animations" />. Import your DMX files.
 6. Set each animation's frame count and frame rate to the original values.
 7. Delete any `NMSkeletonList` or `AnimGraph2List` nodes.
 
@@ -109,7 +112,7 @@ If you skip step 7, you get the warning "Found existing (default) AG2 graph. Ign
 
 ### Make the clips
 
-1. Choose **Tools > Make Default Animgraph2**.
+1. Choose <MenuPath path="Tools > Make Default Animgraph2" />.
 2. Pick the hero's `.vnmskel`.
 3. Tick **Convert Anim Sequences to Clips**.
 4. Run it. ModelDoc writes one `.vnmclip` for each animation. It does not make a working graph, and you do not need one.
@@ -225,18 +228,24 @@ This is where community knowledge stops for now. The guide's author has no AnimG
 
 ## Next steps
 
-<ToolCard
-  name="Publish your mod on GameBanana"
-  href="/docs/deadlock/publishing/publish-on-gamebanana"
->
-  Animation mods go in the Animations category.
-</ToolCard>
-<ToolCard
-  name="Update your mod after a game update"
-  href="/docs/deadlock/publishing/update-after-a-patch"
->
-  Keep your clip working after the next game update.
-</ToolCard>
+<CardGrid>
+  <PremiumCard
+    title="Publish your mod on GameBanana"
+    href="/docs/deadlock/publishing/publish-on-gamebanana"
+    icon={<Icon name="GameBanana" />}
+    level="beginner"
+  >
+    Animation mods go in the Animations category.
+  </PremiumCard>
+  <PremiumCard
+    title="Update your mod after a game update"
+    href="/docs/deadlock/publishing/update-after-a-patch"
+    icon={<Icon name="RefreshCw" />}
+    level="intermediate"
+  >
+    Keep your clip working after the next game update.
+  </PremiumCard>
+</CardGrid>
 
 ## Credits
 

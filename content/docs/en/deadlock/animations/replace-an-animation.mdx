@@ -20,33 +20,38 @@ Replace one of a hero's animation clips with your own motion. You make the motio
 
 ## What you need
 
-<ToolCard name="Source 2 Viewer" href="/docs/deadlock/tools/source-2-viewer">
-  The latest dev build. Finds, previews, and decompiles the clip.
-</ToolCard>
-<ToolCard name="CSDK 12" href="/docs/deadlock/tools/csdk-12">
-  Compiles your clip.
-</ToolCard>
-<ToolCard
-  name="CS2 Workshop Tools"
-  href="/docs/deadlock/tools/cs2-workshop-tools"
->
-  In case your clip does not compile right in CSDK 12.
-</ToolCard>
-<ToolCard
-  name="Blender and add-ons"
-  href="/docs/deadlock/tools/blender-add-ons"
->
-  Blender 4.5 or newer, with the PulseSrcOps add-on to export DMX files.
-</ToolCard>
-<ToolCard
-  name="Rokoko add-on"
-  href="https://www.rokoko.com/integrations/blender"
-  badge="Optional"
->
-  Only if you copy motion from another skeleton. It needs a free Rokoko account.
-</ToolCard>
+<Requirements>
+  <Requirement
+    icon="Source2Viewer"
+    href="/docs/deadlock/tools/source-2-viewer"
+    note="latest dev build"
+  >
+    Source 2 Viewer
+  </Requirement>
+  <Requirement icon="Wrench" href="/docs/deadlock/tools/csdk-12">
+    CSDK 12
+  </Requirement>
+  <Requirement icon="Steam" href="/docs/deadlock/tools/cs2-workshop-tools">
+    CS2 Workshop Tools
+  </Requirement>
+  <Requirement
+    icon="Blender"
+    href="/docs/deadlock/tools/blender-add-ons"
+    note="4.5 or newer"
+  >
+    Blender and add-ons
+  </Requirement>
+  <Requirement
+    icon="Shuffle"
+    href="https://www.rokoko.com/integrations/blender"
+    note="optional"
+  >
+    Rokoko add-on
+  </Requirement>
+  <Requirement icon="UserRound">The hero's codename</Requirement>
+</Requirements>
 
-- The hero's codename.
+Source 2 Viewer finds, previews, and decompiles the clip. CSDK 12 compiles it. CS2 Workshop Tools are there in case your clip does not compile right in CSDK 12. Blender needs the PulseSrcOps add-on to export DMX files. You need Rokoko only if you copy motion from another skeleton, and it needs a free Rokoko account.
 
 ## What you can and cannot change
 
@@ -138,7 +143,7 @@ The skeleton is not always next to the model. Pocket's model is in `heroes_wip/p
 
 1. In Source 2 Viewer, right-click the hero's model and choose **Decompile & export**.
 2. Set the type to **glTF**. Save it in a work folder outside your addon.
-3. In Blender, choose **File > Import > glTF 2.0** and pick that file.
+3. In Blender, choose <MenuPath path="File > Import > glTF 2.0" /> and pick that file.
 4. Tick the option that disables bone shapes, then import.
 5. Wait. Older heroes import slowly, because all their animations come along.
 6. Fix the armature's scale and facing. Follow the video at 5:01, then check the result against the original clip.
@@ -157,7 +162,7 @@ You can also import the clip's DMX with PulseSrcOps instead of using glTF. The V
 
 Animate by hand on the hero's armature, or copy motion from another skeleton. Copying motion between skeletons is called retargeting. Here is how with Rokoko:
 
-1. Import your source animation, for example with **File > Import > FBX**.
+1. Import your source animation, for example with <MenuPath path="File > Import > FBX" />.
 2. Rotate and scale it to roughly match the hero.
 3. Select its armature, enter Pose Mode, and press **A**. Then press **Alt+G**, **Alt+R**, and **Alt+S** to clear the pose.
 4. Pose it roughly like the hero. Close is enough.
@@ -232,7 +237,7 @@ Without these constraints, limbs can flip or break in game. Haze needs them, and
 ### Compile
 
 1. In the CSDK 12 launcher, select your addon and click **Launch Tools**.
-2. In the Asset Browser, right-click your `.vnmclip` and choose **Recompile > Full**.
+2. In the Asset Browser, right-click your `.vnmclip` and choose <MenuPath path="Recompile > Full" />.
 3. Right-click your addon in the launcher and choose **Explore Game Folder**.
 4. Open the same path, such as `models/heroes_staging/haze/clips/`. Your `.vnmclip_c` is there.
 
@@ -310,24 +315,32 @@ Updates can break animation mods. Follow Update your mod after a game update, li
 
 ## Next steps
 
-<ToolCard
-  name="Animation clips in ModelDoc"
-  href="/docs/deadlock/animations/ik-and-modeldoc"
->
-  Full control over clips, events, and IK chains.
-</ToolCard>
-<ToolCard
-  name="Publish your mod on GameBanana"
-  href="/docs/deadlock/publishing/publish-on-gamebanana"
->
-  Animation mods go in the Animations category.
-</ToolCard>
-<ToolCard
-  name="Update your mod after a game update"
-  href="/docs/deadlock/publishing/update-after-a-patch"
->
-  Keep it working.
-</ToolCard>
+<CardGrid>
+  <PremiumCard
+    title="Animation clips in ModelDoc"
+    href="/docs/deadlock/animations/ik-and-modeldoc"
+    icon={<Icon name="Bone" />}
+    level="advanced"
+  >
+    Full control over clips, events, and IK chains.
+  </PremiumCard>
+  <PremiumCard
+    title="Publish your mod on GameBanana"
+    href="/docs/deadlock/publishing/publish-on-gamebanana"
+    icon={<Icon name="GameBanana" />}
+    level="beginner"
+  >
+    Animation mods go in the Animations category.
+  </PremiumCard>
+  <PremiumCard
+    title="Update your mod after a game update"
+    href="/docs/deadlock/publishing/update-after-a-patch"
+    icon={<Icon name="RefreshCw" />}
+    level="intermediate"
+  >
+    Keep it working.
+  </PremiumCard>
+</CardGrid>
 
 ## Credits
 

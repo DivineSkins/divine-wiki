@@ -16,16 +16,23 @@ Part 2 of 4. You start with the hero's decompiled `.vmdl` and your DMX files fro
 
 ## What you need
 
-<ToolCard name="CSDK 12" href="/docs/deadlock/tools/csdk-12">
-  ModelDoc builds the model.
-</ToolCard>
-<ToolCard name="Source 2 Viewer" href="/docs/deadlock/tools/source-2-viewer">
-  Shows the original hero, so you can compare.
-</ToolCard>
+<Requirements>
+  <Requirement icon="Wrench" href="/docs/deadlock/tools/csdk-12">
+    CSDK 12
+  </Requirement>
+  <Requirement icon="Source2Viewer" href="/docs/deadlock/tools/source-2-viewer">
+    Source 2 Viewer
+  </Requirement>
+  <Requirement icon="NotepadPlusPlus" note="or VS Code">
+    Notepad++
+  </Requirement>
+  <Requirement icon="Bone" href="/docs/deadlock/models/hero-swap-blender">
+    Your files from part 1
+  </Requirement>
+  <Requirement icon="Palette">Materials for your mesh</Requirement>
+</Requirements>
 
-- Your addon from part 1: the decompiled `viper.vmdl` and your DMX files in its `dmx` folder.
-- A text editor, such as Notepad++ or VS Code.
-- Materials for your mesh. The materials step below shows where to make them.
+ModelDoc in CSDK 12 builds the model. Source 2 Viewer shows the original hero, so you can compare. From part 1 you need your addon: the decompiled `viper.vmdl` and your DMX files in its `dmx` folder. The materials step below shows where to make your materials.
 
 ## Watch the walkthrough
 
@@ -90,12 +97,12 @@ Do this even if your build does not crash. It costs nothing, because part 4 adds
 3. Double-click it to open it in ModelDoc.
 4. Click in the node tree and press Ctrl+A to select every node.
 5. Press Ctrl+C to copy them.
-6. Choose **File > New**.
+6. Choose <MenuPath path="File > New" />.
 7. Click in the new node tree and press Ctrl+V.
 8. Save the new file next to the original as `viper_work.vmdl`.
 9. Close `viper.vmdl`. From now on, edit only `viper_work.vmdl`.
 
-The fresh file avoids skeleton and physics crashes. The work name also protects the original. Part 4 gives the finished model its real name back. For many heroes, **File > Save As** with the work name works too.
+The fresh file avoids skeleton and physics crashes. The work name also protects the original. Part 4 gives the finished model its real name back. For many heroes, <MenuPath path="File > Save As" /> with the work name works too.
 
 {/* NEEDS HANDS-ON TEST: copying every node into a File > New document in the current ModelDoc (select all and paste in the node tree). */}
 
@@ -144,7 +151,7 @@ Bodygroups switch parts of the model on and off. The first choice of the `defaul
 1. In Source 2 Viewer, open the original `.vmdl_c`. Use its **Mesh Group** checkboxes to see which meshes show in each state.
 2. Write down every group name and choice name. Decompiled choice names carry a prefix: keep only the part after `#`, so a choice ending in `#default` becomes `default`.
 3. Delete the old `BodyGroup` nodes. If ModelDoc crashes, close it, delete the `BodyGroupList` block in your text editor instead, and reopen.
-4. Choose **Add > BodyGroup** and give it the exact original name.
+4. Choose <MenuPath path="Add > BodyGroup" /> and give it the exact original name.
 5. Add a **BodyGroupChoice** under it. Rename it from "anonymous" to the original choice name.
 6. Click **+** next to **Meshes** and add the meshes that show in that state.
 7. Leave a choice empty if the original shows nothing in that state.
@@ -161,7 +168,7 @@ Vyper needs little here. Heroes like Pocket have several groups.
 
 ### Set the materials
 
-1. Choose **Add > DefaultMaterialGroup**.
+1. Choose <MenuPath path="Add > DefaultMaterialGroup" />.
 2. Click **Compile**. One slot appears for each material name from Blender.
 3. Fill each slot. To reuse a game material, right-click it in Source 2 Viewer and choose **Copy name**. Paste it and delete the `_c` at the end.
 4. Fill the rest with your own materials. Make them first with [Materials for custom models](/docs/deadlock/textures/materials-for-custom-models).
@@ -177,7 +184,7 @@ A slot is missing? That material ends in `.001` in Blender. Rename it, then expo
 The ragdoll is the body that falls when the hero dies.
 
 1. Open `PhysicsShapeList` and delete the old shapes. Your original `viper.vmdl` still has them if you need one back.
-2. Choose **Add > Biped Ragdoll**. ModelDoc finds the bones by itself.
+2. Choose <MenuPath path="Add > Biped Ragdoll" />. ModelDoc finds the bones by itself.
 3. Set **Surface Property** to `flesh`.
 4. Click **Compile**, then **Simulate All Physics**. Watch the body fall.
 5. Does it fall wrong? Delete the ragdoll, make a new one, and adjust its shapes.
@@ -193,7 +200,7 @@ The ragdoll is the body that falls when the hero dies.
 
 LODs are simpler copies of your mesh. The game shows them when the hero is far away.
 
-1. Choose **Add > LODGroup** and add all your meshes. This is LOD 0.
+1. Choose <MenuPath path="Add > LODGroup" /> and add all your meshes. This is LOD 0.
 2. Duplicate it. Set **Switch Threshold** to `14`, tick **Copy and Simplify**, and set the target triangle percent to `0.5`.
 3. Duplicate it again. Set the threshold to `35` and the target to `0.2`.
 4. Click **Compile**.
@@ -229,6 +236,8 @@ Want moving hair or a coat? Add it now with [Add cloth to a model](/docs/deadloc
 <PremiumCard
   title="Hero swap part 3: attachments, camera, and game data"
   href="/docs/deadlock/models/hero-swap-attachments"
+  icon={<Icon name="Camera" />}
+  level="advanced"
 >
   Copy the original hero's attachments, camera previews, and game data so the
   camera, health bar, and sounds work.

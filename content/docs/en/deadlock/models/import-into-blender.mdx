@@ -11,25 +11,34 @@ Get a Deadlock hero or prop into Blender, cleaned up and ready to edit or use as
 
 ## What you need
 
-<ToolCard name="Source 2 Viewer" href="/docs/deadlock/tools/source-2-viewer">
-  Version 20.0 (August 2026) or newer. Older builds export models differently.
-</ToolCard>
-<ToolCard name="Blender 5.x" href="https://www.blender.org/download/">
-  Its glTF importer is built in.
-</ToolCard>
-<ToolCard
-  name="SourceIO"
-  href="https://github.com/REDxEYE/SourceIO"
-  badge="Route 2 only"
->
-  Blender add-on that reads compiled models.
-</ToolCard>
-<ToolCard
-  name="Hero names and file paths"
-  href="/docs/deadlock/basics/hero-codenames"
->
-  Look up the hero's folder.
-</ToolCard>
+<Requirements>
+  <Requirement
+    icon="Source2Viewer"
+    href="/docs/deadlock/tools/source-2-viewer"
+    note="20.0+"
+  >
+    Source 2 Viewer
+  </Requirement>
+  <Requirement
+    icon="Blender"
+    href="/docs/deadlock/tools/blender-add-ons"
+    note="5.x"
+  >
+    Blender
+  </Requirement>
+  <Requirement
+    icon="Puzzle"
+    href="https://github.com/REDxEYE/SourceIO"
+    note="route 2 only"
+  >
+    SourceIO
+  </Requirement>
+  <Requirement icon="FolderOpen" href="/docs/deadlock/basics/hero-codenames">
+    Hero names and file paths
+  </Requirement>
+</Requirements>
+
+Use Source 2 Viewer 20.0 (August 2026) or newer. Older builds export models differently. Blender's glTF importer is built in. SourceIO is a Blender add-on that reads compiled models. Look up the hero's folder in the hero names list.
 
 This guide uses Vyper as the example: `models/heroes_staging/viper/viper.vmdl_c`. Vyper's model has few special parts, so it is a good first import.
 
@@ -81,7 +90,7 @@ Pugzilla's model swap video shows this route from 3:38.
 ### Import into Blender
 
 1. Open Blender. Select everything in the default scene and delete it.
-2. Choose **File > Import > glTF 2.0 (.glb/.gltf)** and pick your `.gltf` file.
+2. Choose <MenuPath path="File > Import > glTF 2.0 (.glb/.gltf)" /> and pick your `.gltf` file.
 3. In the import options on the right, tick **Disable Bone Shape**. Without it, every bone gets a big sphere shape.
 4. Import the file.
 
@@ -96,8 +105,8 @@ Pugzilla's model swap video shows this route from 3:38.
 2. Delete the animations. Set the Outliner's display mode to **Blender File** and open **Actions**. Select every action, right-click, and choose **Delete**. Blender gets much faster.
 3. Delete the cloth helper bones. Select the armature and press Tab for Edit Mode. Click one bone whose name starts with `$cloth`, press Shift+G, and choose **Prefix**. Press X to delete them all.
 4. Delete their vertex groups too. Select each mesh, open the **Object Data** tab, and remove every group that starts with `$cloth`.
-5. Fix shading seams. Select each mesh, press Tab, and press A. Choose **Mesh > Normals > Reset Vectors**. Then press M, choose **By Distance**, and set the distance to 0.0001.
-6. Put the armature in rest pose. Select it, switch to Pose Mode, press A, and choose **Pose > Clear User Transforms**.
+5. Fix shading seams. Select each mesh, press Tab, and press A. Choose <MenuPath path="Mesh > Normals > Reset Vectors" />. Then press M, choose **By Distance**, and set the distance to 0.0001.
+6. Put the armature in rest pose. Select it, switch to Pose Mode, press A, and choose <MenuPath path="Pose > Clear User Transforms" />.
 
 Source 2 Viewer adds the `$cloth` bones to show cloth. They can crash ModelDoc later, so remove them now.
 
@@ -137,10 +146,10 @@ SourceIO is a free Blender add-on by REDxEYE. It reads compiled `.vmdl_c` files 
 />
 
 1. Download the latest release zip from the [SourceIO releases page](https://github.com/REDxEYE/SourceIO/releases).
-2. In Blender, open **Edit > Preferences > Add-ons**. Open the menu at the top right, choose **Install from Disk**, and pick the zip. Do not unzip it.
+2. In Blender, open <MenuPath path="Edit > Preferences > Add-ons" />. Open the menu at the top right, choose **Install from Disk**, and pick the zip. Do not unzip it.
 3. In Source 2 Viewer, right-click `viper.vmdl_c` and choose **Export as is**. Save it in your work folder. Export the hero's `materials` folder the same way.
 4. In SourceIO's settings, mount Deadlock with **Add new resource**. This lets SourceIO find the textures.
-5. Choose **File > Import > Source Engine Assets**. In the Source 2 list, pick the `.vmdl_c` importer and select your file.
+5. Choose <MenuPath path="File > Import > Source Engine Assets" />. In the Source 2 list, pick the `.vmdl_c` importer and select your file.
 6. In the import options, keep materials on and turn on **mount discovered content**. Set **World Scale** to 1.
 7. Search the Outliner for `lod`. Delete the `lod1`, `lod2`, and `lod3` meshes.
 
@@ -207,25 +216,24 @@ Source 2 Viewer 20.0 changed how glTF exports store axes in August 2026. Check t
 
 ## Next steps
 
-<ToolCard
-  name="Your first model swap: a soul container"
-  href="/docs/deadlock/models/prop-swap"
-  badge="Start here"
->
-  The easiest model swap: one bone, one material.
-</ToolCard>
-<ToolCard
-  name="Hero swap part 1: rig your model in Blender"
-  href="/docs/deadlock/models/hero-swap-blender"
->
-  Fit your character to a hero's skeleton and export DMX.
-</ToolCard>
-<ToolCard
-  name="Blender and add-ons for Deadlock"
-  href="/docs/deadlock/tools/blender-add-ons"
->
-  Which Blender version and add-ons creators use.
-</ToolCard>
+<CardGrid>
+  <PremiumCard
+    title="Your first model swap: a soul container"
+    href="/docs/deadlock/models/prop-swap"
+    icon={<Icon name="Shapes" />}
+    level="intermediate"
+  >
+    Start here. The easiest model swap: one bone, one material.
+  </PremiumCard>
+  <PremiumCard
+    title="Hero swap part 1: rig your model in Blender"
+    href="/docs/deadlock/models/hero-swap-blender"
+    icon={<Icon name="Bone" />}
+    level="advanced"
+  >
+    Fit your character to a hero's skeleton and export DMX.
+  </PremiumCard>
+</CardGrid>
 
 ## Credits
 

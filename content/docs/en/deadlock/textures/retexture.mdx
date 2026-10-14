@@ -11,22 +11,27 @@ Change how part of a hero looks by painting its texture images. Then CSDK 12 reb
 
 ## What you need
 
-<ToolCard name="Source 2 Viewer" href="/docs/deadlock/tools/source-2-viewer">
-  Finds the hero's material and exports its images.
-</ToolCard>
-<ToolCard name="CSDK 12" href="/docs/deadlock/tools/csdk-12">
-  Rebuilds the material with your painted images.
-</ToolCard>
-<ToolCard
-  name="Blender and add-ons"
-  href="/docs/deadlock/tools/blender-add-ons"
-  badge="Optional"
->
-  Shows which part of the image paints which part of the hero.
-</ToolCard>
+<Requirements>
+  <Requirement icon="Source2Viewer" href="/docs/deadlock/tools/source-2-viewer">
+    Source 2 Viewer
+  </Requirement>
+  <Requirement icon="Wrench" href="/docs/deadlock/tools/csdk-12">
+    CSDK 12
+  </Requirement>
+  <Requirement icon="GIMP" note="or Photoshop, Krita">
+    GIMP
+  </Requirement>
+  <Requirement
+    icon="Blender"
+    href="/docs/deadlock/tools/blender-add-ons"
+    note="optional"
+  >
+    Blender
+  </Requirement>
+  <Requirement icon="UserRound">The hero's codename</Requirement>
+</Requirements>
 
-- An image editor that keeps transparency: GIMP, Photoshop, or Krita.
-- The hero's codename.
+Source 2 Viewer finds the hero's material and exports its images. CSDK 12 rebuilds the material with your painted images. Your image editor must keep transparency. Blender shows which part of the image paints which part of the hero.
 
 ## Retexture or recolor?
 
@@ -110,11 +115,11 @@ This step is optional. One image often covers parts you do not expect. On Lady G
 />
 
 1. In Source 2 Viewer, right-click the hero's model (`.vmdl_c`) and choose **Decompile & export**. Pick glTF and save it to a work folder outside your addon.
-2. In Blender, choose **File > Import > glTF 2.0** and open the file.
+2. In Blender, choose <MenuPath path="File > Import > glTF 2.0" /> and open the file.
 3. Delete the extra helper objects, such as the icosphere. Select the large bones and press H to hide them.
 4. Select the hero mesh and press Tab for Edit Mode.
 5. Open the **Material Properties** tab. Click a material and click **Select**.
-6. Right-click and choose **Separate > Selection**. Repeat for each material you want to see on its own.
+6. Right-click and choose <MenuPath path="Separate > Selection" />. Repeat for each material you want to see on its own.
 7. Switch to the **UV Editing** workspace. In the image list, pick that part's texture.
 8. Turn on **UV Sync Selection**. Select faces on the model. Their area lights up on the image.
 
@@ -149,7 +154,7 @@ Sizes must be a power of two, such as 512, 1024, or 2048. Other sizes can fail t
 4. Look at each texture slot. A purple checkerboard means the slot lost its image.
 5. For each checkerboard slot, click the magnifier and pick your PNG for that slot.
 6. Press Ctrl+S to save. Check the result on the hero in the preview.
-7. In the Asset Browser, right-click the material and choose **Recompile > Full**.
+7. In the Asset Browser, right-click the material and choose <MenuPath path="Recompile > Full" />.
 8. Right-click your addon in the launcher and choose **Explore Game Folder**. Open the material's folder. You see a new `.vmat_c` and new `.vtex_c` files.
 
 {/* SCREENSHOT: deadlock-textures-retexture-4.webp, a texture slot in the Material Editor showing the purple checkerboard of a missing image */}
@@ -269,6 +274,8 @@ Your editor dropped the transparency. Export again with transparency kept.
 <PremiumCard
   title="Materials for custom models"
   href="/docs/deadlock/textures/materials-for-custom-models"
+  icon={<Icon name="Layers" />}
+  level="intermediate"
 >
   Build new materials for your own model, with the settings Deadlock heroes
   need.

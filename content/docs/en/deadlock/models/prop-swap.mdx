@@ -11,17 +11,29 @@ Swap the soul container for your own 3D model. It is the easiest model swap: one
 
 ## What you need
 
-<ToolCard name="Source 2 Viewer" href="/docs/deadlock/tools/source-2-viewer">
-  Exports the original soul container.
-</ToolCard>
-<ToolCard name="CSDK 12" href="/docs/deadlock/tools/csdk-12">
-  ModelDoc and the Material Editor build your new model.
-</ToolCard>
+<Requirements>
+  <Requirement icon="Source2Viewer" href="/docs/deadlock/tools/source-2-viewer">
+    Source 2 Viewer
+  </Requirement>
+  <Requirement icon="Wrench" href="/docs/deadlock/tools/csdk-12">
+    CSDK 12
+  </Requirement>
+  <Requirement
+    icon="Blender"
+    href="/docs/deadlock/tools/blender-add-ons"
+    note="any recent version"
+  >
+    Blender
+  </Requirement>
+  <Requirement icon="Box">Your own 3D model</Requirement>
+  <Requirement icon="FileImage" note="normal map optional">
+    Color texture as PNG
+  </Requirement>
+</Requirements>
 
-- Blender, any recent version. You need no add-on, because this guide exports FBX.
-- Your own 3D model, plus its color texture as a PNG. A normal map is optional.
+Source 2 Viewer exports the original soul container. ModelDoc and the Material Editor in CSDK 12 build your new model. Blender needs no add-on, because this guide exports FBX.
 
-Install both tools with [Set up your creator tools](/docs/deadlock/getting-started/creator-setup). If Blender imports are new to you, read [Import a Deadlock model into Blender](/docs/deadlock/models/import-into-blender).
+Install Source 2 Viewer and CSDK 12 with [Set up your creator tools](/docs/deadlock/getting-started/creator-setup). If Blender imports are new to you, read [Import a Deadlock model into Blender](/docs/deadlock/models/import-into-blender).
 
 Use your own design. Models ported from other games, films, or anime carry copyright risk.
 
@@ -79,8 +91,8 @@ Pugzilla recorded it in August 2026, before the City Never Sleeps update. We hav
 ### Fit your model in Blender
 
 1. Open Blender and delete the default scene objects.
-2. Choose **File > Import > glTF 2.0**. Tick **Disable Bone Shape** and import the soul container. You see the container and its one bone.
-3. Import your own model with **File > Import**.
+2. Choose <MenuPath path="File > Import > glTF 2.0" />. Tick **Disable Bone Shape** and import the soul container. You see the container and its one bone.
+3. Import your own model with <MenuPath path="File > Import" />.
 4. Scale and move your model to match the container's size and position.
 5. Delete the original container mesh. Keep the armature.
 6. Click your mesh, then Shift-click the armature. Press Ctrl+P and choose **With Automatic Weights**.
@@ -97,7 +109,7 @@ Pugzilla recorded it in August 2026, before the City Never Sleeps update. We hav
 1. Select your mesh and open the **Material** tab.
 2. Check that every slot has a material assigned.
 3. Give each material a simple name: lowercase letters, no periods, no numbers, no `.001` ending. This guide uses `soulbox`.
-4. Choose **File > Export > FBX** and save it as `soulbox.fbx`.
+4. Choose <MenuPath path="File > Export > FBX" /> and save it as `soulbox.fbx`.
 
 The material name links Blender to your material file later. FBX works for a prop with one bone. Hero swaps export DMX instead.
 
@@ -141,7 +153,7 @@ Keep the original mesh name so the rest of the model still finds it.
 
 ### Make the material
 
-1. In ModelDoc, choose **Add > Default Material Group**. A slot appears with your Blender material name. If the slot has no name, your Blender name is wrong. Rename it, export the FBX again, and compile.
+1. In ModelDoc, choose <MenuPath path="Add > Default Material Group" />. A slot appears with your Blender material name. If the slot has no name, your Blender name is wrong. Rename it, export the FBX again, and compile.
 2. In the Asset Browser, open the **Material Editor**. Click **New**, then save right away into `materials/` as `soulbox.vmat`.
 3. Copy your PNG files into the same `materials` folder. Name them `soulbox_color.png` and `soulbox_normal.png`. These endings help the editor fill the right slots.
 4. Check that the shader is `pbr.vfx`. If it shows another shader, switch it to `pbr.vfx`.
@@ -232,6 +244,8 @@ Updates can move props. Find the soul container in Source 2 Viewer again and che
 <PremiumCard
   title="Hero model swap: overview"
   href="/docs/deadlock/models/hero-model-swap"
+  icon={<Icon name="Route" />}
+  level="advanced"
 >
   Put your own character on a hero. The whole path, the tools, and the rules.
 </PremiumCard>

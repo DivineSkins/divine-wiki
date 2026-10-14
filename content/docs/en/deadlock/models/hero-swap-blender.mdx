@@ -16,28 +16,38 @@ Part 1 of 4. You start with your own character model. You finish with DMX files 
 
 ## What you need
 
-<ToolCard name="Source 2 Viewer" href="/docs/deadlock/tools/source-2-viewer">
-  Version 20.0 or newer. Exports the hero.
-</ToolCard>
-<ToolCard name="CSDK 12" href="/docs/deadlock/tools/csdk-12">
-  With an addon for this skin. Name the addon in lowercase with no spaces.
-</ToolCard>
-<ToolCard
-  name="Blender and BlenderSource2Tools"
-  href="/docs/deadlock/tools/blender-add-ons"
->
-  The add-on (Fuji fork) exports DMX files for ModelDoc.
-</ToolCard>
-<ToolCard
-  name="Mesh Data Transfer"
-  href="https://extensions.blender.org/add-ons/mesh-data-transfer/"
-  badge="Optional"
->
-  Free Blender add-on to copy weights.
-</ToolCard>
+<Requirements>
+  <Requirement
+    icon="Source2Viewer"
+    href="/docs/deadlock/tools/source-2-viewer"
+    note="20.0+"
+  >
+    Source 2 Viewer
+  </Requirement>
+  <Requirement icon="Wrench" href="/docs/deadlock/tools/csdk-12">
+    CSDK 12
+  </Requirement>
+  <Requirement
+    icon="Blender"
+    href="/docs/deadlock/tools/blender-add-ons"
+    note="+ BlenderSource2Tools"
+  >
+    Blender
+  </Requirement>
+  <Requirement
+    icon="Puzzle"
+    href="https://extensions.blender.org/add-ons/mesh-data-transfer/"
+    note="optional"
+  >
+    Mesh Data Transfer
+  </Requirement>
+  <Requirement icon="Shapes" href="/docs/deadlock/models/prop-swap">
+    A finished soul container swap
+  </Requirement>
+  <Requirement icon="UserRound">Your own character mesh</Requirement>
+</Requirements>
 
-- A finished soul container swap. It teaches the same tools on a much smaller model.
-- Your own character mesh. Make it yourself, or get the artist's permission.
+Source 2 Viewer exports the hero. Make an addon for this skin in CSDK 12, named in lowercase with no spaces. The BlenderSource2Tools add-on (Fuji fork) exports DMX files for ModelDoc. Mesh Data Transfer is a free Blender add-on to copy weights. The soul container swap teaches the same tools on a much smaller model. Make the character mesh yourself, or get the artist's permission.
 
 Want hair or a coat that moves? Read [Add cloth to a model](/docs/deadlock/models/cloth) before you start. Cloth work may need an older Blender.
 
@@ -148,7 +158,7 @@ Keep each vertex at four bone weights or fewer. The exporter warns you when a ve
 
 1. Select your mesh.
 2. Switch to Weight Paint mode.
-3. Choose **Weights > Limit Total**. Check that the limit is 4.
+3. Choose <MenuPath path="Weights > Limit Total" />. Check that the limit is 4.
 
 {/* SCREENSHOT: deadlock-models-hero-swap-blender-5.webp, Weight Paint mode with the Weights menu open and Limit Total highlighted */}
 
@@ -196,7 +206,7 @@ Keep these names the same on every export. ModelDoc finds each DMX file by its n
 3. Set the DMX version to **Binary 9** and the model format to **Model 22**, the ModelDoc format.
 4. Set **Export Path** to a `dmx` folder inside the hero folder of your addon: `content/citadel_addons/<addon>/models/heroes_staging/viper/dmx/`.
 5. In **Source Engine Exportables**, untick the animations. Leave only your mesh collections ticked.
-6. Click **Export** and choose **Scene Export**.
+6. Choose <MenuPath path="Export > Scene Export" />.
 7. Read the warnings. Fix missing materials and too many weights. Most other warnings are harmless.
 
 The separate `dmx` folder keeps your files apart from the decompiled ones. Heroes use DMX, not FBX: DMX keeps the scale and supports cloth.
@@ -238,7 +248,7 @@ Give every mesh a material, then export again.
 </Accordion>
 <Accordion title="A warning about more than four weights">
 
-Run **Weights > Limit Total** on that mesh again.
+Run <MenuPath path="Weights > Limit Total" /> on that mesh again.
 
 </Accordion>
 <Accordion title="&quot;Non-uniform scale&quot; warning">
@@ -267,6 +277,8 @@ More fixes are in [Model and skin problems](/docs/deadlock/errors/model-problems
 <PremiumCard
   title="Hero swap part 2: build the model in ModelDoc"
   href="/docs/deadlock/models/hero-swap-modeldoc"
+  icon={<Icon name="Box" />}
+  level="advanced"
 >
   Swap in your DMX meshes and rebuild bodygroups, materials, the ragdoll, and
   LODs.
