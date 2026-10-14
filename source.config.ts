@@ -17,6 +17,8 @@ const frontmatterSchema = z.object({
   icon: z.string().optional(),
   full: z.boolean().optional(),
   category: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+  keywords: z.array(z.string()).optional(),
   authors: z
     .array(
       z.object({
