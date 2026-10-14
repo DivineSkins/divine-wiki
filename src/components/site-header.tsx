@@ -26,7 +26,6 @@ import {
 import { useContributePicker } from "@/components/contribute-picker";
 import { PANEL_BORDER, PANEL_FILL } from "@/components/home/styles";
 import { glowCtaClassName } from "@/components/mdx/GlowCTA";
-import { discordInviteUrl } from "@/lib/config";
 import type { GameEntry } from "@/lib/games";
 import { homePath } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -98,7 +97,6 @@ export function SiteHeader({
   }, []);
 
   const links: NavItem[] = [
-    { label: "Discord", href: discordInviteUrl, external: true },
     { label: "Divine Skins", href: "https://divineskins.gg", external: true },
   ];
 
