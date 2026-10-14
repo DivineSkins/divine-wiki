@@ -1,130 +1,265 @@
 ---
 title: "TextureSwap Fakegear"
-description: "Bu, bin düzenlemeyi içeren oldukça temel bir eğitim."
+description: "Ruby'de doğrudan materyaller ve kalıcı koşullarla kıyafet, giysi, doku ve mesh değişimleri oluştur. Fakegear parçacıklarının birikmesini önle."
 category: "vfx-bins"
+authors:
+  - name: DAKA
+    url: https://github.com/sxrmss
+tags: ["Ruby", "BIN", "materyaller", "dokular", "mesh", "kıyafetler"]
+keywords:
+  - "fakegear"
+  - "doku değiştirme"
+  - "mesh değiştirme"
+  - "kıyafet değiştirme"
+  - "giysi değiştirme"
+  - "texture swap"
+  - "mesh swap"
+  - "outfit swap"
+  - "clothes swap"
+  - "kalıcı kıyafet"
+  - "FPS düşüşü"
 ---
 
-## 1. Static Material'larını Hazırlamak
+<LevelPill level="intermediate" label="Orta" />
 
-Doku mu değiştiriyoruz sandın? Keşke o kadar basit olsaydı.
+Fakegear, yerleşik bir ekipman değiştirme sistemi olmadan dokuları veya görünür mesh'leri değiştirmeni sağlar. Eski yöntem her seçimde uzun ömürlü bir materyal geçersiz kılma parçacığı oluşturuyordu. İşlem tekrarlandıkça çalışan örnekler birikip FPS'yi düşürebiliyordu.
 
-O mesh'in temel dokusuna bağlı mevcut `staticmaterial`'ı kopyalaman gerekiyor. Yuumi'nin vücudu için bu `Orb_Cat_inst`. Skin bin'inde doku adını arayarak bulabilirsin.
+Bu sürüm doğrudan materyalleri ve mesh koşullarını kullanır. Görsel örnek **Sora Master Yi**. Kod parçaları A ve B olmak üzere iki seçenek kullanır; böylece Sora'nın BIN dosyalarını kopyalamadan kendi kostümüne uyarlayabilirsin.
 
-<img src="/wiki-images/1767149443636-vvzsnj.webp" alt="Görsel" width={800} />
+Kore veya Çin League sunucularında özel kostüm kullanma.
 
-Ardından her şeyi kopyalarsın, bir yere yapıştırırsın, isimleri değiştirirsin ve doku dosyanı eklersin. Benim durumumda ad `"mine"` olacak, doku dosyası da öyle.
+## 1. Mesh ve materyallerini bul
 
-<img src="/wiki-images/1767149464084-1r81lr.webp" alt="Görsel" width={500} />
+Kostümünün BIN dosyasını Ruby'de aç. `skinMeshProperties` alanını, bağlantılı animasyon BIN dosyasını ve değiştirmek istediğin her mesh'in kullandığı `StaticMaterialDef` girdisini bul.
 
----
+Ruby'nin altındaki **BIN editor** düğmesine tıkla. Kostüm özellikleri için düzenleyicinin üstündeki **Skin** seçeneğini aç. Alttaki düğmeler, alanları gösteren **Inspector** ile aynı girdiyi metin olarak gösteren **Raw text** arasında geçiş yapar.
 
-## 2. VFX
+Başlangıç kodlarını eklemek için **Raw text**, adları, değerleri ve listeleri değiştirmek için **Inspector** kullan. Kodu her adımda belirtilen nesnenin içine yapıştır ve mevcut alanlarını koru. Yorumlar başka bir kod parçasının nereye ekleneceğini gösterir; kaydetmeden önce bu yerleri doldur.
 
-Bu kod parçasına ihtiyacın olacak. Her şeyi tek yerde tutmak için staticmaterial'ının yakınına yapıştırmanı öneririm.
+Bu örnek adları geçtikleri her yerde değiştir:
+
+| Örnek                        | Yerine yazılacak değer                                     |
+| ------------------------------ | ------------------------------------------------ |
+| `SwapChoice_A`, `SwapChoice_B` | 2. adımda ekleyeceğin seçim işaretçilerinin adları     |
+| `Outfit_A`, `Outfit_B`         | SKN dosyandaki gerçek alt mesh adları                    |
+| `MySkin/Materials/Outfit`      | Kopyaladığın materyal için benzersiz bir BIN girdi adı |
+| `assets/myskin/outfit_b.tex`   | Yeni doku dosyanın yolu             |
+| `Diffuse_Texture`              | Materyalinin sampler adı                     |
+
+Sora'da `KH1_outfit` ve `KH3_outfits` ayrı kıyafet mesh'leridir. Limit ve diğer KH2 biçimleri aynı kıyafet geometrisini paylaşır ve yalnızca dokusunu değiştirir.
+
+## 2. İfadeden seçim sinyali gönder
+
+İfade bittikten sonra seçimin korunması için mesh düzenleyicinde her seçenek adına küçük, saydam bir işaretçi alt mesh ekle. Adlarını `SwapChoice_A` ve `SwapChoice_B` yap, ağırlıklarını mevcut bir merkez kemiğe ata ve geçerli, normalize edilmiş ağırlıklarla dışa aktar.
+
+İki işaretçiyi de varsayılan olarak görünür bırak. Saydam materyalleri onları ekranda gizler, ancak koşul sürücüleri görünürlüklerini okumaya devam eder. Bunları `initialSubmeshToHide` içine koyma.
+
+Animasyon BIN dosyanda A'yı seçen atomik animasyon dalını bul. Bu dalın `mEventDataMap` alanında yalnızca kıyafet için kullanılan `ParticleEventData` girdisini şununla değiştir:
 
 ```py
-"Hide" = VfxSystemDefinitionData {
-    timeBeforeFirstEmission: f32 = 1
-    complexEmitterDefinitionData: list[pointer] = {
-        VfxEmitterDefinitionData {
-            rate: embed = ValueFloat {
-                constantValue: f32 = 1
+0xa947e23c = SubmeshVisibilityEventData {
+    mShowSubmeshList: list[hash] = { "SwapChoice_A" }
+    mHideSubmeshList: list[hash] = { "SwapChoice_B" }
+}
+```
+
+**Mevcut olay anahtarını ve seçim karesini koru**. `0xa947e23c`, Sora örneğinin anahtarıdır; her yere eklemen gereken bir anahtar değildir. B dalında iki işaretçi adını ters çevir. Diğer animasyon, yetenek, üsse dönüş ve ses olaylarını koru.
+
+Sora'da CTRL+4 dört animasyon dalı arasından seçim yapar. Yalnızca ortak `Laugh` durumunu değil, ilgili dalı bul. Birden fazla dal `joke.anm` kullandığından dosya adı tek başına seçimi belirtmez.
+
+Şampiyonun zaten uygun bir ekipman veya güçlendirme durumu sağlıyorsa koşul girdisi olarak onu kullan. İşaretçiler, kendi belleğine ihtiyaç duyan ifade tabanlı seçimler içindir.
+
+## 3. Seçimi hatırla
+
+İfade bittiğinde işaretçiler varsayılan görünürlüklerine döner. Seçilen kıyafeti korumak için A'nın seçilmesinden beri geçen süreyi B'nin seçilmesinden beri geçen süreyle karşılaştır.
+
+Bu, **A koşulunun** tamamıdır. Sonraki adımlarda mesh koşuluna veya doku seçeneğine yapıştırmak için hazır tut:
+
+```py
+OwnerCondition: pointer = FloatComparisonMaterialDriver {
+    mOperator: u32 = 3
+    mValueA: pointer = LerpMaterialDriver {
+        mBoolDriver: pointer = AllTrueMaterialDriver {
+            mDrivers: list[pointer] = {
+                SubmeshVisibilityBoolDriver {
+                    Submeshes: list[hash] = { "SwapChoice_A" }
+                    VISIBLE: bool = true
+                }
+                SubmeshVisibilityBoolDriver {
+                    Submeshes: list[hash] = { "SwapChoice_B" }
+                    VISIBLE: bool = false
+                }
             }
-            particleLifetime: embed = ValueFloat {
-                constantValue: f32 = 1e+14
+        }
+        mOnValue: f32 = 0
+        mOffValue: f32 = 1000000000
+        mTurnOnTimeSec: f32 = 0
+        mTurnOffTimeSec: f32 = 1000000000
+        mUseBrokenOldInterpolation: bool = false
+    }
+    mValueB: pointer = LerpMaterialDriver {
+        mBoolDriver: pointer = AllTrueMaterialDriver {
+            mDrivers: list[pointer] = {
+                SubmeshVisibilityBoolDriver {
+                    Submeshes: list[hash] = { "SwapChoice_A" }
+                    VISIBLE: bool = false
+                }
+                SubmeshVisibilityBoolDriver {
+                    Submeshes: list[hash] = { "SwapChoice_B" }
+                    VISIBLE: bool = true
+                }
             }
-            isSingleParticle: flag = true
-            emitterName: string = "Override"
-            meshRenderFlags: u8 = 0
-            materialOverrideDefinitions: list[embed] = {
-                VfxMaterialOverrideDefinitionData {
-                    priority: i32 = 1
-                    subMeshName: option[string] = {
-                        "Yourmaterialnamefrommaya"
-                    }
-                    material: link = "Characters/urchamp/Skins/urskin/Materials/urstaticmaterial"
-                    transitionSample: f32 = 1
+        }
+        mOnValue: f32 = 0
+        mOffValue: f32 = 1000000000
+        mTurnOnTimeSec: f32 = 0
+        mTurnOffTimeSec: f32 = 1000000000
+        mUseBrokenOldInterpolation: bool = false
+    }
+}
+```
+
+`mOperator = 3`, küçüktür anlamına gelir. A'yı seçmek onun süresini sıfırlar. İfade bittikten sonra bu süre, B seçilene kadar daha küçük kalır. İki işaretçinin de görünür olması yeni seçim olmadığı anlamına gelir.
+
+**B koşulunu** oluşturmak için bu bloğu çoğalt ve tüm `SwapChoice_A` ile `SwapChoice_B` adlarını birbiriyle değiştir. Sayıları ve boolean değerlerini değiştirme.
+
+Daha fazla seçenek için her sinyal kendi işaretçisini göstermeli ve diğerlerinin tümünü gizlemelidir. `mValueA` içinde bu düzenin tamamını kontrol et. `mValueB` içinde, her diğer seçeneğin tam `AllTrueMaterialDriver` düzenini içeren bir `mDrivers: list[pointer]` ile `OneTrueMaterialDriver` kullan. Böylece idle durumu seçim sayılmaz.
+
+Alanlardan düzenlemek için **Inspector** görünümüne geç ve **Find property** alanına `OwnerCondition` yaz. Kıyafet koşulunu, ardından oklarla `mValueA` veya `mValueB` alanını genişlet. Değer girmek için sayı kutusuna tıkla; boolean için anahtarı kullan. `mOperator` değerini `3` yap ve `mUseBrokenOldInterpolation` seçeneğini kapalı bırak.
+
+<img
+  src="/wiki-images/fakegear-modern/ruby-condition-fields.webp"
+  alt="Skin, Find property, mOperator değeri, kapalı interpolasyon anahtarı ve Save vurgulanmış Ruby Skin Inspector görünümü"
+  width={720}
+  style={{ maxWidth: 720 }}
+/>
+
+Çerçeveli kontroller aynı koşulun alan görünümünü gösterir. Girdinin kalanını görmek için aramayı temizle. Değişikliklerin hazır olduğunda **Save** düğmesine tıkla veya **CTRL+S** tuşlarına bas.
+
+## 4. Mesh göster veya gizle
+
+Kostüm BIN dosyanda `SkinCharacterDataProperties.PersistentEffectConditions` alanını bul. Bu girdiyi **mevcut listenin içine** ekle, ardından 3. adımdaki A için tam `OwnerCondition` bloğunu yorumun yerine yapıştır:
+
+```py
+PersistentEffectConditionData {
+    // A için OwnerCondition bloğunu buraya yapıştır.
+    SubmeshesToShow: list2[hash] = { "Outfit_A" }
+    SubmeshesToHide: list2[hash] = { "Outfit_B" }
+}
+```
+
+B koşulunu kullanan, `Outfit_B` gösterip `Outfit_A` gizleyen ikinci bir girdi ekle. Gerektiğinde saç ve silah alt mesh adlarını listelere ekle. Ortak vücut parçalarını listelerin dışında tut ve seçim işaretçilerini asla dahil etme.
+
+`skinMeshProperties.initialSubmeshToHide` içine doğarken gizlenecek parçaları ekle. Bu örnekte `Outfit_B` gizli, A görünür kalsın. Zaten gizli olan üsse dönüş nesnelerini koru. Bu kıyafet koşulları `PersistentVfxs` gerektirmez.
+
+**Inspector** içinde `SubmeshesToShow` veya `SubmeshesToHide` ara ve listeyi genişlet. Mevcut bir adı değer kutusundan düzenle. Ad eklemek için liste satırının **...** menüsünü açıp **Add** seç. Bir öğeyi kaldırmak için o öğenin kendi menüsünü kullan.
+
+<img
+  src="/wiki-images/fakegear-modern/ruby-list-actions.webp"
+  alt="SubmeshesToShow liste menüsü ve Add seçeneği çerçevelenmiş Ruby alan düzenleyicisi"
+  width={720}
+  style={{ maxWidth: 720 }}
+/>
+
+**Add list item** penceresi tür bilgili JSON kullanır. Bir alt mesh hash'i için bunu gir ve `Outfit_A` yerine SKN adını yaz:
+
+```json
+{ "t": "hash", "v": "Outfit_A" }
+```
+
+`t` değerini `hash` olarak bırak, `v` değerini değiştir ve **Add** düğmesine tıkla. Bu işlem listeye bir öğe ekler; **Save** ise BIN dosyasını yazar. Ruby'nin okunabilir adını bilmediği mevcut hash'ler `0x...` biçiminde görünebilir.
+
+<img
+  src="/wiki-images/fakegear-modern/ruby-list-add.webp"
+  alt="Tür bilgili hash değeri ve Add düğmesi vurgulanmış Ruby Add list item penceresi"
+  width={720}
+  style={{ maxWidth: 720 }}
+/>
+
+## 5. Materyali bağla ve dokuyu değiştir
+
+İlgili mesh'in görünür `StaticMaterialDef` girdisini kopyala. Girdi anahtarına ve `name` alanına `MySkin/Materials/Outfit` gibi benzersiz bir değer ver. Shader, sampler, parametre ve render ayarlarını koru.
+
+`skinMeshProperties.materialOverride` içinde eşleşen girdiyi kopyanı gösterecek şekilde düzenle. Yoksa listenin içine bir tane ekle:
+
+```py
+SkinMeshDataProperties_MaterialOverride {
+    submesh: string = "Outfit_A"
+    material: link = "MySkin/Materials/Outfit"
+}
+```
+
+`submesh`, SKN adıyla eşleşmelidir. `material`, kopyalanan BIN girdisinin anahtarıyla eşleşmelidir. Diğer ilgili mesh'ler için de tekrarla.
+
+Bu bağlantıları **Skin > Inspector** içinde de düzenleyebilirsin. `materialOverride` ara, eşleşen alt mesh'i bul ve **Material** seçicisinden kopyalanan materyali seç. Üstteki **Material** sekmesi materyal araçlarını açar; tanımı bağlantılı bir dosyadaysa materyalin kaynak BIN dosyasına geç.
+
+**Aynı mesh** üzerinde iki doku için A'yı sampler'ın normal dokusu olarak bırak. Bu `dynamicMaterial` alanını kopyalanan `StaticMaterialDef` içine ekle:
+
+```py
+dynamicMaterial: pointer = DynamicMaterialDef {
+    textures: list[embed] = {
+        DynamicMaterialTextureSwapDef {
+            name: string = "Diffuse_Texture"
+            Enabled: bool = true
+            options: list[embed] = {
+                DynamicMaterialTextureSwapOption {
+                    // B koşulunu buraya yapıştır ve OwnerCondition adını driver olarak değiştir.
+                    TextureName: file = "assets/myskin/outfit_b.tex"
                 }
             }
         }
     }
-    particleName: string = "Hide"
-    particlePath: string = "Hide"
 }
 ```
 
-```py
-"Show" = VfxSystemDefinitionData {
-    timeBeforeFirstEmission: f32 = 1
-    complexEmitterDefinitionData: list[pointer] = {
-        VfxEmitterDefinitionData {
-            rate: embed = ValueFloat {
-                constantValue: f32 = 1
-            }
-            particleLifetime: embed = ValueFloat {
-                constantValue: f32 = 1e+14
-            }
-            isSingleParticle: flag = true
-            emitterName: string = "Override"
-            meshRenderFlags: u8 = 0
-            materialOverrideDefinitions: list[embed] = {
-                VfxMaterialOverrideDefinitionData {
-                    priority: i32 = 1
-                    subMeshName: option[string] = {
-                        "Yourmaterialnamefrommaya"
-                    }
-                    material: link = "Characters/urchamp/Skins/urskin/Materials/defaultstaticmaterial"
-                    transitionSample: f32 = 1
-                }
-            }
-        }
-    }
-    particleName: string = "Show"
-    particlePath: string = "Show"
-}
-```
+3. adımdaki B koşulunu yorumun yerine yapıştır ve yalnızca ilk alanın adını `OwnerCondition` yerine `driver` yap. Başlangıcı `driver: pointer = FloatComparisonMaterialDriver {` olmalıdır. Sampler adı ile doku yolunu kendininkilerle değiştir. `TextureName` türünü `file` olarak koru.
 
----
+`dynamicMaterial` veya bu sampler için bir doku değişimi zaten varsa yinelenen alan oluşturmak yerine mevcut olana ekle. Yalnızca doku değiştirmek için 4. adımdaki kıyafet mesh koşulları gerekmez.
 
-## 3. Resource Resolver
+<img
+  src="/wiki-images/fakegear-modern/sora-limit-idle.webp"
+  alt="Sora'nın ortak KH2 mesh'inde Limit kıyafetinin daireyle gösterildiği Ruby önizlemesi"
+  width={1200}
+/>
 
-`ResourceResolver` içinde de şuna ihtiyacın olacak:
+Sora'nın daire içindeki Limit kıyafeti, ortak geometri üzerinde doku değişimi kullanır.
 
-```py
-"Hide" = "Hide"
-"Show" = "Show"
-```
+<img
+  src="/wiki-images/fakegear-modern/sora-oathkeeper-idle.webp"
+  alt="Sora'nın Oathkeeper silahının daireyle gösterildiği Ruby önizlemesi"
+  width={1200}
+/>
 
----
+Oathkeeper kendi mesh'ini gerektirir. Diğer silahların gizli olduğunu kontrol et.
 
-## 4. Animasyon Bin
+## 6. Ruby'de kontrol et
 
-Bundan sonra animasyon bin'ine ihtiyacın var. Toggle olarak kullanmak istediğin animasyonu bul ve bu kod parçalarını şöyle yapıştır:
+**Conditions** menüsünü aç ve çerçeveli **Submesh swaps** ile **Material conditions** seçeneklerini etkinleştir. Eski sürümlerde ikinci seçeneğin adı **Material params**. Tek tek koşulları zorlayan kutuları işaretleme.
 
-<img src="/wiki-images/1767149506632-k9q8d.webp" alt="Görsel" width={700} />
+<img
+  src="/wiki-images/fakegear-modern/sora-ruby-conditions.webp"
+  alt="Submesh swaps ve Material conditions kontrollerinin etkin ve çerçeveli olduğu Ruby Conditions menüsü"
+  width={1200}
+/>
 
-```py
-"Hide" = ParticleEventData {
-    mEffectKey: hash = "Hide"
-    mParticleEventDataPairList: list[embed] = {
-        ParticleEventDataPair {}
-    }
-    mIsLoop: bool = false
-    mIsKillEvent: bool = false
-}
-```
+**Animation** içinde seçim dalını oynat, sonra BIN dosyasını yeniden açmadan idle seç. Kıyafetin korunduğunu ve tüm işaretçilerin **Submeshes** içinde varsayılan görünürlüklerine döndüğünü kontrol et.
 
-```py
-"Show" = ParticleEventData {
-    mEffectKey: hash = "Show"
-    mParticleEventDataPairList: list[embed] = {
-        ParticleEventDataPair {}
-    }
-    mIsLoop: bool = false
-    mIsKillEvent: bool = false
-}
-```
+<img
+  src="/wiki-images/fakegear-modern/sora-kh3-idle.webp"
+  alt="Idle1'in çerçeveyle, korunan KH3 kıyafetinin daireyle gösterildiği Ruby önizlemesi"
+  width={1200}
+/>
 
----
+Çerçeve `Idle1` durumunu, daire ise Sora'nın korunan KH3 kıyafetini gösterir. Bir seçimi tekrarla, ardından başka birini seç. Yalnızca tek kıyafet etkin olmalıdır.
 
-> ✅ Bundan sonra, her şeyi doğru yapıp doğru şekilde değiştirdiysen sorun yaşamazsın!
+Seçim belleği, bu güncellemeyle Ruby'ye eklenen skaler Lerp geçmişi desteğini gerektirir. BIN dosyasını yeniden açmak veya düzenlemek önizleme durumunu sıfırlar. Ruby görünümü kontrol eder; kalıcılık ve FPS hâlâ League içinde test edilmelidir.
+
+## 7. Eski yolu kaldır ve test et
+
+Yalnızca kıyafet için kullanılan eski VFX tanımlarını ve kullanılmayan resolver eşlemelerini kaldır. Kalan kıyafet parçacığı oluşturmaları için her seçim dalını kontrol et. Normal yetenek ve üsse dönüş efektlerini koru; kostüm değişikliklerini modunun değiştirdiği her kostüm BIN dosyasına uygula.
+
+Yeni bir oyun testi başlat:
+
+- Bir kıyafet seç, ifadeyi bitir, hareket et, saldır ve yetenek kullan. Başka bir seçim yapılana kadar kıyafet korunmalıdır.
+- Aynı konum ve kamera görünümünde seçimleri 30-50 kez tekrarla. İlk doku yükleme takılmasını devam eden düşüşten ayırarak önceki ve sonraki FPS değerlerini karşılaştır.
+- Kesilen ifadeleri, üsse dönüşü, ölümü, yeniden doğmayı ve çalı görünürlüğünü kontrol et; sıfırlanma, eksik parça veya çift silah olup olmadığına bak.

@@ -1,130 +1,265 @@
 ---
 title: "TextureSwap Fakegear"
-description: "Dość podstawowy poradnik z edycją binu."
+description: "Twórz zmiany strojów, ubrań, tekstur i siatek w Ruby za pomocą bezpośrednich materiałów i trwałych warunków, bez gromadzenia cząsteczek fakegear."
 category: "vfx-bins"
+authors:
+  - name: DAKA
+    url: https://github.com/sxrmss
+tags: ["Ruby", "BIN", "materiały", "tekstury", "siatki", "stroje"]
+keywords:
+  - "fakegear"
+  - "zmiana tekstury"
+  - "zmiana siatki"
+  - "zmiana stroju"
+  - "zmiana ubrań"
+  - "texture swap"
+  - "mesh swap"
+  - "outfit swap"
+  - "clothes swap"
+  - "trwały strój"
+  - "spadki FPS"
 ---
 
-## 1. Przygotuj swoje static materials
+<LevelPill level="intermediate" label="Średni" />
 
-Myślałeś, że po prostu podmieniamy tekstury? Chciałbym, żeby to było takie proste.
+Fakegear pozwala zmieniać tekstury lub widoczne siatki bez natywnego przełącznika wyposażenia. Stara metoda przy każdym wyborze tworzyła długowieczną cząsteczkę nadpisującą materiał. Powtarzanie tej czynności mogło gromadzić kolejne instancje i stopniowo obniżać FPS.
 
-Musisz skopiować istniejący `staticmaterial` powiązany z bazową teksturą tego mesha. Dla ciała Yuumi to `Orb_Cat_inst`. Znajdziesz go, szukając nazwy tekstury w binie skina.
+Ta wersja używa bezpośrednich materiałów i warunków siatki. Przykładem na obrazach jest **Sora Master Yi**. Fragmenty kodu obejmują dwa warianty, A i B, aby można było dostosować je do własnej skórki bez kopiowania BIN-ów Sory.
 
-<img src="/wiki-images/1767149443636-vvzsnj.webp" alt="Obraz" width={800} />
+Nie używaj niestandardowych skórek na koreańskich ani chińskich serwerach League.
 
-Potem kopiujesz całość, wklejasz gdzieś, zmieniasz nazwy i dorzucasz swój plik tekstury. U mnie nazwa będzie `"mine"`, tak samo jak plik tekstury.
+## 1. Znajdź swoje siatki i materiały
 
-<img src="/wiki-images/1767149464084-1r81lr.webp" alt="Obraz" width={500} />
+Otwórz BIN swojej skórki w Ruby. Znajdź `skinMeshProperties`, powiązany BIN animacji oraz `StaticMaterialDef` używany przez każdą siatkę, którą chcesz zmienić.
 
----
+Kliknij **BIN editor** na dole Ruby. Aby edytować właściwości skórki, wybierz **Skin** na górze edytora. Dolne przyciski przełączają między **Inspector**, czyli polami, a **Raw text**, czyli tym samym wpisem w formie tekstu.
 
-## 2. VFX
+Użyj **Raw text**, aby wstawić początkowe fragmenty kodu, a następnie **Inspector**, aby zmieniać nazwy, wartości i listy. Wklejaj do obiektów wskazanych w danym kroku i zachowuj ich istniejące pola. Komentarze wskazują miejsca na kolejny fragment; uzupełnij je przed zapisaniem.
 
-Będzie ci potrzebny ten fragment kodu. Polecam wkleić go blisko swojego staticmaterial, żeby mieć wszystko w jednym miejscu.
+Zastąp te przykładowe nazwy wszędzie, gdzie występują:
+
+| Przykład                        | Zastąp przez                                     |
+| ------------------------------ | ------------------------------------------------ |
+| `SwapChoice_A`, `SwapChoice_B` | Nazwy znaczników wyboru dodawanych w kroku 2     |
+| `Outfit_A`, `Outfit_B`         | Rzeczywiste nazwy podsiatek w twoim SKN                    |
+| `MySkin/Materials/Outfit`      | Unikalną nazwę wpisu BIN dla skopiowanego materiału |
+| `assets/myskin/outfit_b.tex`   | Ścieżkę do tekstury zastępczej             |
+| `Diffuse_Texture`              | Nazwę samplera twojego materiału                     |
+
+W przypadku Sory `KH1_outfit` i `KH3_outfits` to osobne siatki strojów. Limit i pozostałe formy KH2 współdzielą geometrię ubrań i zmieniają tylko jej teksturę.
+
+## 2. Przekaż wybór z emotki
+
+Aby wybór pozostał po zakończeniu emotki, dodaj w edytorze siatki po jednej maleńkiej, przezroczystej podsiatce znacznika na wariant. Nazwij je `SwapChoice_A` i `SwapChoice_B`, przypisz ich wagi do istniejącej kości centralnej i wyeksportuj z poprawnymi, znormalizowanymi wagami.
+
+Domyślnie pozostaw oba znaczniki widoczne. Przezroczysty materiał ukrywa je na ekranie, ale sterowniki warunków nadal odczytują ich widoczność. Nie dodawaj ich do `initialSubmeshToHide`.
+
+W BIN-ie animacji znajdź atomową gałąź animacji wybierającą A. W jej `mEventDataMap` zastąp `ParticleEventData` odpowiadające wyłącznie za strój następującym wpisem:
 
 ```py
-"Hide" = VfxSystemDefinitionData {
-    timeBeforeFirstEmission: f32 = 1
-    complexEmitterDefinitionData: list[pointer] = {
-        VfxEmitterDefinitionData {
-            rate: embed = ValueFloat {
-                constantValue: f32 = 1
+0xa947e23c = SubmeshVisibilityEventData {
+    mShowSubmeshList: list[hash] = { "SwapChoice_A" }
+    mHideSubmeshList: list[hash] = { "SwapChoice_B" }
+}
+```
+
+Zachowaj **istniejący klucz zdarzenia i klatkę wyboru**. `0xa947e23c` to klucz z przykładu Sory, a nie klucz do dodania w każdym miejscu. Dla gałęzi B zamień miejscami dwie nazwy znaczników. Zachowaj pozostałe zdarzenia animacji, umiejętności, powrotu i dźwięku.
+
+U Sory CTRL+4 wybiera spośród czterech gałęzi animacji. Znajdź konkretną gałąź, nie tylko wspólny stan `Laugh`. Kilka gałęzi używa `joke.anm`, więc sama nazwa pliku nie określa wariantu.
+
+Jeśli twój bohater udostępnia już odpowiedni stan wyposażenia lub wzmocnienia, użyj go jako wejścia warunku. Znaczniki służą wyborom przez emotkę, które potrzebują własnej pamięci.
+
+## 3. Zapamiętaj wybór
+
+Po zakończeniu emotki znaczniki wracają do domyślnej widoczności. Aby zachować wybrany strój, porównaj czas od wybrania A z czasem od wybrania B.
+
+To kompletny **warunek A**. Przygotuj go do wklejenia w warunku siatki lub opcji tekstury w kolejnych krokach:
+
+```py
+OwnerCondition: pointer = FloatComparisonMaterialDriver {
+    mOperator: u32 = 3
+    mValueA: pointer = LerpMaterialDriver {
+        mBoolDriver: pointer = AllTrueMaterialDriver {
+            mDrivers: list[pointer] = {
+                SubmeshVisibilityBoolDriver {
+                    Submeshes: list[hash] = { "SwapChoice_A" }
+                    VISIBLE: bool = true
+                }
+                SubmeshVisibilityBoolDriver {
+                    Submeshes: list[hash] = { "SwapChoice_B" }
+                    VISIBLE: bool = false
+                }
             }
-            particleLifetime: embed = ValueFloat {
-                constantValue: f32 = 1e+14
+        }
+        mOnValue: f32 = 0
+        mOffValue: f32 = 1000000000
+        mTurnOnTimeSec: f32 = 0
+        mTurnOffTimeSec: f32 = 1000000000
+        mUseBrokenOldInterpolation: bool = false
+    }
+    mValueB: pointer = LerpMaterialDriver {
+        mBoolDriver: pointer = AllTrueMaterialDriver {
+            mDrivers: list[pointer] = {
+                SubmeshVisibilityBoolDriver {
+                    Submeshes: list[hash] = { "SwapChoice_A" }
+                    VISIBLE: bool = false
+                }
+                SubmeshVisibilityBoolDriver {
+                    Submeshes: list[hash] = { "SwapChoice_B" }
+                    VISIBLE: bool = true
+                }
             }
-            isSingleParticle: flag = true
-            emitterName: string = "Override"
-            meshRenderFlags: u8 = 0
-            materialOverrideDefinitions: list[embed] = {
-                VfxMaterialOverrideDefinitionData {
-                    priority: i32 = 1
-                    subMeshName: option[string] = {
-                        "Yourmaterialnamefrommaya"
-                    }
-                    material: link = "Characters/urchamp/Skins/urskin/Materials/urstaticmaterial"
-                    transitionSample: f32 = 1
+        }
+        mOnValue: f32 = 0
+        mOffValue: f32 = 1000000000
+        mTurnOnTimeSec: f32 = 0
+        mTurnOffTimeSec: f32 = 1000000000
+        mUseBrokenOldInterpolation: bool = false
+    }
+}
+```
+
+`mOperator = 3` oznacza mniejsze niż. Wybranie A zeruje czas od jego wyboru. Po emotce ten czas pozostaje mniejszy, dopóki nie zostanie wybrane B. Oba znaczniki widoczne oznaczają brak nowego wyboru.
+
+Aby utworzyć **warunek B**, skopiuj ten blok i zamień wszystkie nazwy `SwapChoice_A` z `SwapChoice_B`. Pozostaw liczby i wartości logiczne bez zmian.
+
+Dla większej liczby wariantów każdy sygnał musi pokazywać własny znacznik i ukrywać wszystkie pozostałe. W `mValueA` sprawdzaj cały ten układ. W `mValueB` użyj `OneTrueMaterialDriver` z `mDrivers: list[pointer]` zawierającym pełny układ `AllTrueMaterialDriver` każdego innego wariantu. Dzięki temu idle nie zostanie uznane za wybór.
+
+Aby edytować pola, przejdź do **Inspector** i wpisz `OwnerCondition` w **Find property**. Rozwiń warunek stroju, a następnie strzałkami `mValueA` lub `mValueB`. Kliknij pole liczbowe, aby wpisać wartość; dla wartości logicznej użyj przełącznika. Ustaw `mOperator` na `3` i pozostaw `mUseBrokenOldInterpolation` wyłączone.
+
+<img
+  src="/wiki-images/fakegear-modern/ruby-condition-fields.webp"
+  alt="Ruby Skin Inspector z wyróżnionymi Skin, Find property, wartością mOperator, wyłączonym przełącznikiem interpolacji i Save"
+  width={720}
+  style={{ maxWidth: 720 }}
+/>
+
+Obramowane elementy pokazują pola tego samego warunku. Wyczyść wyszukiwanie, aby zobaczyć resztę wpisu. Gdy zmiany będą gotowe, kliknij **Save** lub naciśnij **CTRL+S**.
+
+## 4. Pokaż lub ukryj siatki
+
+W BIN-ie skórki znajdź `SkinCharacterDataProperties.PersistentEffectConditions`. Dodaj ten wpis **wewnątrz istniejącej listy**, a w miejscu komentarza wklej pełny blok `OwnerCondition` dla A z kroku 3:
+
+```py
+PersistentEffectConditionData {
+    // Wklej tutaj blok OwnerCondition dla A.
+    SubmeshesToShow: list2[hash] = { "Outfit_A" }
+    SubmeshesToHide: list2[hash] = { "Outfit_B" }
+}
+```
+
+Dodaj drugi wpis z warunkiem B, pokazujący `Outfit_B` i ukrywający `Outfit_A`. W razie potrzeby dodaj do list nazwy podsiatek włosów i broni. Wspólne części ciała pozostaw poza listami i nigdy nie dodawaj znaczników wyboru.
+
+W `skinMeshProperties.initialSubmeshToHide` dodaj części ukryte przy pojawieniu się postaci. W tym przykładzie ukryj `Outfit_B`, a A pozostaw widoczne. Zachowaj już ukryte obiekty powrotu. Te warunki stroju nie potrzebują `PersistentVfxs`.
+
+W **Inspector** wyszukaj `SubmeshesToShow` lub `SubmeshesToHide` i rozwiń listę. Edytuj istniejącą nazwę w polu wartości. Aby dodać nazwę, otwórz menu **...** w wierszu listy i wybierz **Add**. Menu pojedynczego elementu służy do usunięcia tego elementu.
+
+<img
+  src="/wiki-images/fakegear-modern/ruby-list-actions.webp"
+  alt="Edytor pól Ruby z obramowanym menu listy SubmeshesToShow i opcją Add"
+  width={720}
+  style={{ maxWidth: 720 }}
+/>
+
+Okno **Add list item** używa JSON-a z informacją o typie. Dla hasha podsiatki wpisz to i zastąp `Outfit_A` nazwą ze swojego SKN:
+
+```json
+{ "t": "hash", "v": "Outfit_A" }
+```
+
+Pozostaw `t` jako `hash`, zmień `v` i kliknij **Add**. To dodaje jeden element listy; **Save** zapisuje BIN. Istniejące hashe mogą wyświetlać się jako `0x...`, jeśli Ruby nie zna ich czytelnej nazwy.
+
+<img
+  src="/wiki-images/fakegear-modern/ruby-list-add.webp"
+  alt="Okno Add list item w Ruby z wyróżnioną typowaną wartością hasha i przyciskiem Add"
+  width={720}
+  style={{ maxWidth: 720 }}
+/>
+
+## 5. Przypisz materiał i zmień teksturę
+
+Skopiuj widoczny wpis `StaticMaterialDef` odpowiedniej siatki. Nadaj kluczowi wpisu i polu `name` unikalną wartość, np. `MySkin/Materials/Outfit`. Zachowaj shader, samplery, parametry i ustawienia renderowania.
+
+W `skinMeshProperties.materialOverride` zmień odpowiedni wpis, aby wskazywał twoją kopię. Jeśli go nie ma, dodaj nowy wewnątrz tej listy:
+
+```py
+SkinMeshDataProperties_MaterialOverride {
+    submesh: string = "Outfit_A"
+    material: link = "MySkin/Materials/Outfit"
+}
+```
+
+`submesh` musi odpowiadać nazwie w SKN. `material` musi odpowiadać kluczowi skopiowanego wpisu BIN. Powtórz to dla pozostałych zmienianych siatek.
+
+Te przypisania możesz też edytować w **Skin > Inspector**. Wyszukaj `materialOverride`, znajdź odpowiednią podsiatkę i wybierz skopiowany materiał w jej selektorze **Material**. Zakładka **Material** u góry otwiera narzędzia materiałów; przejdź do źródłowego BIN-u materiału, jeśli jego definicja jest w powiązanym pliku.
+
+Dla dwóch tekstur na **tej samej siatce** pozostaw A jako zwykłą teksturę samplera. Dodaj to pole `dynamicMaterial` wewnątrz skopiowanego `StaticMaterialDef`:
+
+```py
+dynamicMaterial: pointer = DynamicMaterialDef {
+    textures: list[embed] = {
+        DynamicMaterialTextureSwapDef {
+            name: string = "Diffuse_Texture"
+            Enabled: bool = true
+            options: list[embed] = {
+                DynamicMaterialTextureSwapOption {
+                    // Wklej tutaj warunek B, zmieniając OwnerCondition na driver.
+                    TextureName: file = "assets/myskin/outfit_b.tex"
                 }
             }
         }
     }
-    particleName: string = "Hide"
-    particlePath: string = "Hide"
 }
 ```
 
-```py
-"Show" = VfxSystemDefinitionData {
-    timeBeforeFirstEmission: f32 = 1
-    complexEmitterDefinitionData: list[pointer] = {
-        VfxEmitterDefinitionData {
-            rate: embed = ValueFloat {
-                constantValue: f32 = 1
-            }
-            particleLifetime: embed = ValueFloat {
-                constantValue: f32 = 1e+14
-            }
-            isSingleParticle: flag = true
-            emitterName: string = "Override"
-            meshRenderFlags: u8 = 0
-            materialOverrideDefinitions: list[embed] = {
-                VfxMaterialOverrideDefinitionData {
-                    priority: i32 = 1
-                    subMeshName: option[string] = {
-                        "Yourmaterialnamefrommaya"
-                    }
-                    material: link = "Characters/urchamp/Skins/urskin/Materials/defaultstaticmaterial"
-                    transitionSample: f32 = 1
-                }
-            }
-        }
-    }
-    particleName: string = "Show"
-    particlePath: string = "Show"
-}
-```
+Wklej warunek B z kroku 3 w miejscu komentarza i zmień tylko nazwę jego pierwszego pola z `OwnerCondition` na `driver`. Początek powinien brzmieć `driver: pointer = FloatComparisonMaterialDriver {`. Zastąp nazwę samplera i ścieżkę tekstury własnymi. Zachowaj typ `file` dla `TextureName`.
 
----
+Jeśli `dynamicMaterial` lub zamiana dla tego samplera już istnieje, uzupełnij ją zamiast tworzyć zduplikowane pole. Zmiany samej tekstury nie potrzebują warunków siatek strojów z kroku 4.
 
-## 3. Resource Resolver
+<img
+  src="/wiki-images/fakegear-modern/sora-limit-idle.webp"
+  alt="Podgląd Ruby z zakreślonym ubraniem Limit na wspólnej siatce KH2 Sory"
+  width={1200}
+/>
 
-Potrzebujesz też tego w `ResourceResolver`:
+Zakreślone ubranie Limit Sory używa zamiany tekstury na wspólnej geometrii.
 
-```py
-"Hide" = "Hide"
-"Show" = "Show"
-```
+<img
+  src="/wiki-images/fakegear-modern/sora-oathkeeper-idle.webp"
+  alt="Podgląd Ruby z zakreśloną bronią Oathkeeper Sory"
+  width={1200}
+/>
 
----
+Oathkeeper potrzebuje osobnej siatki. Sprawdź, czy pozostałe bronie są ukryte.
 
-## 4. Bin animacji
+## 6. Sprawdź w Ruby
 
-Potem czas na bin animacji. Znajdź animację, której chcesz użyć jako przełącznika, i wklej te fragmenty kodu w ten sposób:
+Otwórz **Conditions** i włącz obramowane opcje **Submesh swaps** oraz **Material conditions**. W starszych wersjach druga nazywa się **Material params**. Pozostaw niezaznaczone pola wymuszające poszczególne warunki.
 
-<img src="/wiki-images/1767149506632-k9q8d.webp" alt="Obraz" width={700} />
+<img
+  src="/wiki-images/fakegear-modern/sora-ruby-conditions.webp"
+  alt="Menu Conditions w Ruby z obramowanymi, włączonymi opcjami Submesh swaps i Material conditions"
+  width={1200}
+/>
 
-```py
-"Hide" = ParticleEventData {
-    mEffectKey: hash = "Hide"
-    mParticleEventDataPairList: list[embed] = {
-        ParticleEventDataPair {}
-    }
-    mIsLoop: bool = false
-    mIsKillEvent: bool = false
-}
-```
+Odtwórz gałąź wyboru w **Animation**, a następnie wybierz idle bez ponownego otwierania BIN-u. Sprawdź, czy strój pozostaje, a wszystkie znaczniki wracają do domyślnej widoczności w **Submeshes**.
 
-```py
-"Show" = ParticleEventData {
-    mEffectKey: hash = "Show"
-    mParticleEventDataPairList: list[embed] = {
-        ParticleEventDataPair {}
-    }
-    mIsLoop: bool = false
-    mIsKillEvent: bool = false
-}
-```
+<img
+  src="/wiki-images/fakegear-modern/sora-kh3-idle.webp"
+  alt="Podgląd Ruby z obramowanym Idle1 i zakreślonym zachowanym strojem KH3"
+  width={1200}
+/>
 
----
+Ramka wskazuje `Idle1`, a okrąg zachowany strój KH3 Sory. Powtórz wybór, a potem wybierz inny wariant. Tylko jeden strój powinien być aktywny.
 
-> ✅ Po tym wszystko powinno działać, jeśli zrobiłeś wszystko dobrze i poprawnie wszystko podmieniłeś!
+Pamięć wyboru wymaga obsługi historii skalarnego Lerp w Ruby dodanej w tej aktualizacji. Ponowne otwarcie lub edycja BIN-u resetuje stan podglądu. Ruby sprawdza wygląd; trwałość wyboru i FPS nadal trzeba przetestować w League.
+
+## 7. Usuń starą ścieżkę i przetestuj
+
+Usuń stare definicje VFX dotyczące wyłącznie strojów oraz nieużywane mapowania resolvera. Sprawdź wszystkie gałęzie wyboru pod kątem pozostałych zdarzeń tworzących cząsteczki strojów. Zachowaj zwykłe efekty umiejętności i powrotu, a zmiany skórki zastosuj do każdego BIN-u skórki zastępowanego przez mod.
+
+Rozpocznij nowy test w grze:
+
+- Wybierz strój, zakończ emotkę, poruszaj się, atakuj i używaj umiejętności. Strój powinien pozostać do kolejnego wyboru.
+- Powtórz wybory 30-50 razy w tym samym miejscu i z tym samym ustawieniem kamery. Porównaj FPS przed i po, oddzielając pierwsze przycięcie podczas ładowania tekstur od ciągłego spadku.
+- Sprawdź przerwane emotki, powrót, śmierć, odrodzenie i widoczność w krzakach pod kątem resetów, brakujących części lub podwójnej broni.
