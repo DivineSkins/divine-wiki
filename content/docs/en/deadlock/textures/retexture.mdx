@@ -1,0 +1,210 @@
+---
+title: "Retexture a hero"
+description: "Paint over a hero's textures, rebuild the material in CSDK 12, and ship the compiled files. Includes a Blender trick to find each part of the image."
+category: "textures"
+patch: "6779"
+---
+
+<LevelPill level="intermediate" />
+
+Change how part of a hero looks by painting its texture images. Then CSDK 12 rebuilds the material, and you pack the compiled files. Do [Recolor with material values](/docs/deadlock/textures/recolor-a-material) first. It covers the Material Editor basics this page builds on.
+
+## What you need
+
+- Source 2 Viewer and CSDK 12, set up with [Set up your creator tools](/docs/deadlock/getting-started/creator-setup).
+- An image editor that keeps transparency: GIMP, Photoshop, or Krita.
+- Optional: Blender, to see which part of the image is which. See [Blender and add-ons for Deadlock](/docs/deadlock/tools/blender-add-ons).
+- The hero's codename from [Hero names and file paths](/docs/deadlock/basics/hero-codenames).
+
+## Retexture or recolor?
+
+A recolor changes material values, such as color, roughness, and metalness. You paint nothing. A retexture changes the images themselves, so you can add patterns, details, and several colors. For one new color or a metal finish, use [Recolor with material values](/docs/deadlock/textures/recolor-a-material).
+
+## Keep it fair
+
+You see your retexture on every player using that hero, enemies included. Nobody else sees it.
+
+<Callout
+  type="danger"
+  title="No glowing, bright, see-through, or very dark skins"
+>
+  Keep the hero about as bright and as easy to see as the original. Do not paint
+  a hero glowing, much brighter, near-transparent, or very dark. Do not remove
+  outlines or a hero's stealth look. Read [What's allowed and how to stay
+  safe](/docs/deadlock/getting-started/stay-safe).
+</Callout>
+
+## Quick option: DeadMod
+
+DeadMod builds a texture mod in your browser. You do not need CSDK 12. It puts your edited image at the texture's exact game path.
+
+<img
+  src="/wiki-images/deadlock-textures-retexture-1.webp"
+  alt="The DeadMod page with the Upload VPK button, the file path and Choose file fields, the mod file name pak50_dir.vpk, and the Save mod as VPK button"
+/>
+
+1. In Source 2 Viewer, find the texture (`.vtex_c`) you want to change.
+2. Right-click it and choose **Decompile & export**. Save it as a PNG.
+3. Paint over the PNG. Keep its size and transparency.
+4. Open [DeadMod](https://redmser.github.io/DeadMod/).
+5. Add the texture's game path. Type it in the file path box. Or click **Upload VPK**, pick the game's `pak01_dir.vpk`, and search for the file.
+6. Click **Choose file** and pick your edited PNG.
+7. Check **Mod file name** (it starts as `pak50_dir.vpk`), then click **Save mod as VPK**.
+8. Test it with [Test your mod in game](/docs/deadlock/basics/test-your-mod).
+
+DeadMod's author shows the whole flow in [DeadMod: Make new Deadlock texture mods in minutes](https://www.youtube.com/watch?v=i_tVma2wukk). More browser tools are in [Make mods without installing tools](/docs/deadlock/tools/browser-builders).
+
+{/* NEEDS HANDS-ON TEST: DeadMod on build 6779. Check that the VPK works in game, and whether pak01_dir.vpk stays on your PC when you click Upload VPK (the author says it runs in the browser). */}
+
+## Watch the walkthrough
+
+This video by Pugzilla recolors Lady Geist's clothes from start to finish.
+
+<YouTube
+  id="0wpCgfL4gVc"
+  title="Deadlock hero texture replacement tutorial by Pugzilla"
+/>
+
+<Callout type="info" title="This video uses an older interface">
+  The video is from October 2025. The CSDK 12 launcher looks different now. At
+  the end, it ships one renamed texture. That is route B in [Which files to
+  ship](#which-files-to-ship).
+</Callout>
+
+## Find the material and its images
+
+1. Open Source 2 Viewer.
+2. Open `Deadlock/game/citadel/pak01_dir.vpk`.
+3. Find the hero's model in `models/heroes_wip/` or `models/heroes_staging/`.
+4. Open the model and check its **References** tab. It lists the materials (`.vmat`) the model uses.
+5. Open the material for the part you want to change. Write down its full path.
+6. Find the material's color texture: a `.vtex_c` file with `color` in its name. Double-click it and note its size, such as 2048 x 2048. Your image must keep that size.
+
+{/* NEEDS HANDS-ON TEST: texture sizes for a few heroes on build 6779 (hero bodies look like 2048 x 2048 from file sizes, weapons 512 x 512 on Abrams). */}
+
+## Decompile it into your addon
+
+1. In the CSDK 12 launcher, create a new addon. Name it in lowercase with no spaces, such as `myretexture`.
+2. Right-click the addon and choose **Explore Content Folder**.
+3. Inside it, rebuild the material's folder path.
+4. In Source 2 Viewer, right-click the material (`.vmat_c`) and choose **Decompile & export**.
+5. Save it into the folder you made in step 3.
+
+You get the `.vmat` file and its images as PNG files. Paint only the color image, the one with `color` in its name. The normal, roughness, and mask images hold shape and shine data. Leave them alone. [Hero material settings reference](/docs/deadlock/textures/material-reference) explains each one.
+
+{/* NEEDS HANDS-ON TEST: where Decompile & export writes the PNG inputs of a hero material (next to the .vmat or sorted by path), and their exact names. */}
+
+{/* SCREENSHOT: deadlock-textures-retexture-2.webp, the addon materials folder with the decompiled .vmat and its PNG set (color, normal, roughness) */}
+
+## Find which part of the image is which
+
+One image often covers parts you do not expect. On Lady Geist, the head image also covers an arm, and the clothes image covers the legs. Blender shows you which area paints which part.
+
+<YouTube
+  id="dy4OhS0Kf9o"
+  title="Finding specific parts of materials for retextures by Pugzilla"
+/>
+
+1. In Source 2 Viewer, right-click the hero's model (`.vmdl_c`) and choose **Decompile & export**. Pick glTF and save it to a work folder outside your addon.
+2. In Blender, choose **File > Import > glTF 2.0** and open the file.
+3. Delete the extra helper objects, such as the icosphere. Select the large bones and press H to hide them.
+4. Select the hero mesh and press Tab for Edit Mode.
+5. Open the **Material Properties** tab. Click a material and click **Select**.
+6. Right-click and choose **Separate > Selection**. Repeat for each material you want to see on its own.
+7. Switch to the **UV Editing** workspace. In the image list, pick that part's texture.
+8. Turn on **UV Sync Selection**. Select faces on the model. Their area lights up on the image.
+
+Use what you see as a map. In your image editor, cut that area onto its own layer. Areas that never light up are unused, so paint there does not show in game.
+
+Blender is only for looking here. It does not change the files you ship.
+
+{/* SCREENSHOT: deadlock-textures-retexture-3.webp, the Blender UV Editing workspace with faces selected on the hero and their area lit up on the texture */}
+
+## Paint the image
+
+1. Open the color PNG in your image editor.
+2. Paint your changes. Keep the image at its exact size.
+3. Keep any transparency. In GIMP, tick **Save color values from transparent pixels** when you export, or see-through areas turn black.
+4. Save the result over the decompiled color PNG, with the same name.
+
+Exported game textures lose a little quality with each save. Keep a layered file (`.xcf` or `.psd`) and export a fresh PNG from it each time.
+
+Sizes must be a power of two, such as 512, 1024, or 2048. Other sizes can fail to compile or look blurry.
+
+## Rebuild the material
+
+1. In the CSDK 12 launcher, select your addon and click **Launch Tools**.
+2. In the Asset Browser, find your material. Double-click it to open the Material Editor. [Recolor with material values](/docs/deadlock/textures/recolor-a-material) shows how to filter the list.
+3. Check that the shader at the top is `pbr.vfx`.
+4. Look at each texture slot. A purple checkerboard means the slot lost its image.
+5. For each checkerboard slot, click the magnifier and pick your PNG for that slot.
+6. Press Ctrl+S to save. Check the result on the hero in the preview.
+7. In the Asset Browser, right-click the material and choose **Recompile > Full**.
+8. Right-click your addon in the launcher and choose **Explore Game Folder**. Open the material's folder. You see a new `.vmat_c` and new `.vtex_c` files.
+
+{/* SCREENSHOT: deadlock-textures-retexture-4.webp, a texture slot in the Material Editor showing the purple checkerboard of a missing image */}
+
+{/* SCREENSHOT: deadlock-textures-retexture-5.webp, the magnifier button on a Material Editor texture slot with the file picker open */}
+
+{/* NEEDS HANDS-ON TEST: the shader shown for a decompiled hero material on build 6779 (conflict C41). */}
+
+## Which files to ship
+
+Each compiled texture has a code in its name, such as `abrams_coat_color_png_63291cfb.vtex_c`. Your compile makes a new code. So you have two ways to ship your work.
+
+<img
+  src="/wiki-images/deadlock-textures-retexture-6.webp"
+  alt="Diagram: route A ships the new material and all its new textures; route B ships one compiled texture renamed to the game's exact name"
+/>
+
+### Route A: the material and its textures
+
+1. Make a staging folder, such as `myretexture_pack`.
+2. Inside it, rebuild the material's folder path.
+3. Copy the new `.vmat_c` and every new `.vtex_c` from the addon's game folder into it.
+
+The new material points to its textures by their new names. If one is missing, the game shows a checkerboard.
+
+### Route B: one renamed texture
+
+1. In Source 2 Viewer, find the game's original color texture for this material. Write down its full name, with the code.
+2. Make a staging folder and rebuild the texture's folder path inside it.
+3. Copy only your compiled color `.vtex_c` into it.
+4. Rename it to the original's exact name.
+
+The game's own material then loads your texture. When an update changes the code in the name, your mod stops working. Rename it again to the new name.
+
+{/* NEEDS HANDS-ON TEST: test both routes on one hero material on build 6779 (conflict C40, gap G03). Pick the default route from the result. */}
+
+## Pack and test
+
+1. Pack your staging folder with [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
+2. Load it and look at your hero from every side. Follow [Test your mod in game](/docs/deadlock/basics/test-your-mod).
+
+Always check in game. The preview in Source 2 Viewer does not show Deadlock's lighting exactly.
+
+## Common problems
+
+- **Checkerboard or missing texture in game.** Route A is missing a new `.vtex_c`. Copy all of them next to the `.vmat_c` and pack again.
+- **Nothing changes in game.** You packed source files (`.png`, `.vmat`), or copied from the content folder. Pack compiled files from the game folder.
+- **The old look stays.** Your folder path or file name differs from the original. Check every letter in Source 2 Viewer.
+- **It worked before an update.** For route B, the code in the texture name changed. Find the new name and rename your file.
+- **Blurry or failed compile.** Your image changed size, or its size is not a power of two.
+- **Black areas where the hero was see-through.** Your editor dropped the transparency. Export again with transparency kept.
+
+## Next steps
+
+- [Materials for custom models](/docs/deadlock/textures/materials-for-custom-models)
+- [Hero material settings reference](/docs/deadlock/textures/material-reference)
+- [Make mods without installing tools](/docs/deadlock/tools/browser-builders)
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Video:** [(Read Desc) Deadlock - Hero Texture Replacement Tutorial](https://www.youtube.com/watch?v=0wpCgfL4gVc) by Pugzilla.
+- **Video:** [Deadlock - Finding Specific Parts of Materials For Retextures](https://www.youtube.com/watch?v=dy4OhS0Kf9o) by Pugzilla.
+- **Video:** [DeadMod: Make new Deadlock texture mods in minutes](https://www.youtube.com/watch?v=i_tVma2wukk) by Red Mser.
+- **Guide:** [Neutral's General Guide for Modding Deadlock (Models, Textures, Sounds)](https://docs.google.com/document/d/1p3_Q3HXRLmQOWnBvkUa5BljGmHVvW33UjBqEz-WRk24/edit) by Neutraldrift.
+- **Docs:** [Format Support and Export Fidelity](https://s2v.app/ValveResourceFormat/guides/format-support.html) from the Source 2 Viewer docs.
+- **Data:** [GameTracking-Deadlock](https://github.com/SteamTracking/GameTracking-Deadlock) by SteamTracking, for texture names and shader settings.

@@ -1,0 +1,173 @@
+---
+title: "Restyle a HUD element"
+description: "Move or restyle one part of the HUD by editing its Panorama CSS, then compile and pack it, without adding information the game hides."
+category: "ui"
+patch: "6779"
+---
+
+<LevelPill level="advanced" />
+
+Move or restyle one part of the HUD, such as the kill feed. You decompile the game's stylesheet, change one rule, compile it with CSDK 12, and pack it. Make an [image mod](/docs/deadlock/ui/portraits-and-icons) first, so you know the compile and pack steps.
+
+<Callout type="warning" title="Updates break HUD mods">
+  The City Never Sleeps update (September 29, 2026) broke most HUD mods. Expect
+  layout and style mods to break again after every big update. Plan to redo
+  yours each time.
+</Callout>
+
+## What you need
+
+- Source 2 Viewer and CSDK 12. Install them with [Set up your creator tools](/docs/deadlock/getting-started/creator-setup).
+- A text editor, such as Notepad++ or VS Code.
+- One finished mod, so you know how to [pack](/docs/deadlock/basics/pack-a-vpk) and [test](/docs/deadlock/basics/test-your-mod) it.
+
+## What you can change
+
+HUD mods only change your screen. That also makes it easy to cross the line, so check your idea first.
+
+| Fine                                         | Never                                                |
+| -------------------------------------------- | ---------------------------------------------------- |
+| Move a panel, such as the kill feed          | Timers of any kind                                   |
+| Change a panel's colors, borders, or spacing | Health numbers, cooldowns, or soul trackers          |
+| Use a font the HUD already uses              | Ranks, stats, or missing-enemy alerts                |
+| Turn off menu animations                     | Bigger, brighter, or glowing objective icons         |
+|                                              | Removed scope overlays or screen effects             |
+|                                              | Anything that pulls match data from outside the game |
+
+<Callout type="danger" title="Never add information the game hides">
+  Panorama can read game state. That is how timer and tracker mods work, and
+  this wiki never covers them. If your change shows anything the normal HUD does
+  not, it crosses the line. Read [What's allowed and how to stay
+  safe](/docs/deadlock/getting-started/stay-safe).
+</Callout>
+
+## How HUD files work
+
+Deadlock's HUD and menus use Valve's Panorama UI system. Layout lives in XML files and style lives in CSS files. The game only reads the compiled versions:
+
+| You edit | The game reads | Folder             |
+| -------- | -------------- | ------------------ |
+| `.css`   | `.vcss_c`      | `panorama/styles/` |
+| `.xml`   | `.vxml_c`      | `panorama/layout/` |
+
+Most restyles need one CSS file. Edit the XML only when a panel must move to another place in the layout.
+
+Panorama CSS is close to web CSS, but not the same. Valve's [Panorama page](https://developer.valvesoftware.com/wiki/Panorama) links the full property list, written for Dota 2 and CS:GO.
+
+<img
+  src="/wiki-images/deadlock-ui-restyle-hud-1.webp"
+  alt="Five steps of a HUD restyle: find the .vcss_c file, decompile it, edit the rule, compile it with CSDK 12, then pack and test at the same path. After every big update, start again."
+/>
+
+## Find the file
+
+1. Open Source 2 Viewer.
+2. Open `Deadlock/game/citadel/pak01_dir.vpk`.
+3. Go to `panorama/styles/`. File names say what they style. The kill feed is `hud_data_feed.vcss_c`. The escape menu is `hud_escape_menu.vcss_c`.
+4. Pick the one file that styles the part you want to change.
+5. Write down its full path.
+
+{/* NEEDS HANDS-ON TEST: confirm hud_data_feed.vcss_c and hud_escape_menu.vcss_c exist on build 6779 and still style the kill feed and the escape menu after City Never Sleeps. */}
+
+## Decompile it
+
+1. Right-click the file and choose **Decompile & export**.
+2. Save the `.css` outside your addon. This is your untouched copy. You need it after the next update.
+3. Make a second copy. You edit this one.
+
+Source 2 Viewer also has a command-line version. After each update, one command pulls a fresh copy of the file:
+
+```text
+Source2Viewer-CLI -i "<Deadlock>/game/citadel/pak01_dir.vpk" -d -o <output folder> -f panorama/styles/hud_data_feed.vcss_c
+```
+
+{/* SCREENSHOT: deadlock-ui-restyle-hud-2.webp, the decompiled hud_data_feed.css open in a text editor, with the rule for the kill feed position visible */}
+
+## Edit only what you need
+
+1. Open your editing copy in a text editor.
+2. Find the rule for the panel you want to change.
+3. Change the values inside that rule.
+4. Keep every panel ID and class name as it is. The game finds panels by these names.
+5. Save the file.
+
+Change the rule itself. Do not add a second rule for the same panel at the end of the file. One creator reports that compiled Panorama keeps the first value it reads, so a rule at the bottom may do nothing.
+
+Fonts: use a font family the HUD already uses. For example, one mod switches the ammo counter to `numericOracle`, a font the HUD uses elsewhere. Nobody has documented how to add new font files.
+
+{/* NEEDS HANDS-ON TEST: how compiled Panorama handles overrides (conflict C45). Compare a change made inside the original rule, the same change as a new rule at the end of the file, and a same-name CSS file that @imports the base styles. */}
+
+## Set up the addon
+
+1. Click **Create New Addon** in the CSDK 12 launcher. Use a lowercase name with no spaces, for example `killfeedmove`.
+2. Right-click the addon and choose **Explore Content Folder**.
+3. Rebuild the original path inside it: `panorama/styles/`.
+4. Put your edited file there with its original name.
+
+```text
+content/citadel_addons/killfeedmove/panorama/styles/hud_data_feed.css
+```
+
+## Compile
+
+1. Select your addon and click **Launch Tools**.
+2. Find `hud_data_feed` in the Asset Browser.
+3. Right-click it and choose **Recompile > Full**.
+4. Close the tools.
+5. Right-click your addon and choose **Explore Game Folder**. Open `panorama/styles/`. Your `hud_data_feed.vcss_c` is there.
+
+{/* NEEDS HANDS-ON TEST: which CSDK 12 binary compiles Panorama CSS. The CSDK 12 page says bin_server can compile Panorama, and bin_server needs the full game files. Test the default bin first, then record the error if it fails. */}
+
+## Pack and test
+
+1. Make a staging folder with the same path: `panorama/styles/`.
+2. Copy only your compiled `hud_data_feed.vcss_c` into it. Ship only files you changed.
+3. Pack the folder. Follow [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
+4. Close Deadlock fully. Leaving a match and joining again does not load a new HUD build.
+5. Start the game and check the panel. Follow [Test your mod in game](/docs/deadlock/basics/test-your-mod).
+
+{/* SCREENSHOT: deadlock-ui-restyle-hud-3.webp, the kill feed in its new position during a private match, with no other HUD mods loaded */}
+
+{/* NEEDS HANDS-ON TEST: one creator reloads the HUD without restarting by launching with -dev -tools and running panorama_reload_layout. Tools mode blocks matchmaking, so document it only if it works, with a warning to restart normally before queueing. */}
+
+## Redo it after every update
+
+Big updates change HUD files. Your old file then replaces Valve's new one. At best your change disappears. At worst the game will not start.
+
+1. Remove your HUD mod before you play after a big update.
+2. Decompile the new version of the file.
+3. Compare it with your untouched copy. Look for renamed panels and classes.
+4. Make your change again on the new file.
+5. Compile, pack, and test again.
+
+Write down every line you change. If you use Git, save your change as a `.patch` file and apply it to each new version. The Linux tool deadlock-modbox builds its HUD mods this way. [Update your mod after a patch](/docs/deadlock/publishing/update-after-a-patch) covers the rest of the update routine.
+
+## Clashes with other HUD mods
+
+- Two mods that ship the same file cannot both work. The lower pak number wins, and the other mod may break.
+- Whole-HUD packs replace dozens of files. They usually ask you to remove every other HUD mod.
+- A mod that changes one file clashes least. Keep yours to one file when you can.
+
+## Common problems
+
+- **The game stops at launch with `FATAL ERROR: Unable to find child '...' in layout file '...'`.** An outdated HUD mod is loaded after an update. Remove it, then rebuild it on the new file.
+- **Your change does not show.** Edit the original rule instead of adding a new one. Close the game fully, then test again.
+- **A setting or button is missing from a menu.** A mod ships an old copy of a whole screen. Ship only the files you changed, rebuilt on the current version.
+- **Another mod wins.** Both mods ship the same file. Change the pak numbers or remove one mod.
+
+The community has not worked out everything yet. Nobody has published which HUD files City Never Sleeps changed, how to add new fonts, or exactly how compiled Panorama handles CSS overrides.
+
+## Next steps
+
+- [Update your mod after a patch](/docs/deadlock/publishing/update-after-a-patch)
+- [Replace portraits, icons, and item art](/docs/deadlock/ui/portraits-and-icons)
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Panorama](https://developer.valvesoftware.com/wiki/Panorama) on the Valve Developer Community.
+- **Code:** [deadlock-modbox](https://github.com/rszyma/deadlock-modbox) by rszyma, for the decompile command and the `.patch` file workflow.
+- **Mod:** [Kill Feed Position](https://gamebanana.com/mods/722732) by test_json, a one-file restyle.
+- **News:** [City Never Sleeps Update](https://gamebanana.com/news/21995) by TheLastFriendly on GameBanana.
+- **Tool:** [Source 2 Viewer](https://s2v.app/) by the ValveResourceFormat team.

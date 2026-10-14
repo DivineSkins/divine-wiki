@@ -1,0 +1,196 @@
+---
+title: "Mods not loading"
+description: "Mods not showing up in game? Check gameinfo.gi, the addons folder, file names, and load order, one step at a time."
+category: "errors"
+patch: "6779"
+---
+
+<LevelPill level="beginner" />
+
+The game starts, but your mods do not show. Work through the checks below in order. Most of the time the cause is a game update or a file name. This page works for mods you installed [by hand](/docs/deadlock/getting-started/install-by-hand) or with [Deadlock Mod Manager](/docs/deadlock/getting-started/install-with-mod-manager).
+
+Does the game crash instead? Go to [Crashes, launch errors, and matchmaking blocks](/docs/deadlock/errors/game-crashes).
+
+## What you need
+
+- Your Deadlock folder. In Steam, right-click **Deadlock** and choose **Manage > Browse local files**.
+- A plain text editor, such as Notepad.
+- Optional: Source 2 Viewer, to look inside a mod. [Set up your creator tools](/docs/deadlock/getting-started/creator-setup) shows how to install it.
+
+## Quick checklist
+
+Close Deadlock and your mod manager first. Then check:
+
+1. `game/citadel/gameinfo.gi` still has the line `Game citadel/addons`.
+2. Every mod sits straight inside `game/citadel/addons/`, not in a subfolder.
+3. Every mod is named `pak01_dir.vpk` to `pak99_dir.vpk`, with two digits.
+4. No two mods share a number.
+5. No mod with a lower number changes the same files.
+6. In a mod manager, the mod is switched on.
+
+The sections below explain each check.
+
+## The addons line is gone
+
+**You see:** your mods worked yesterday. Today nothing loads, and there is no error.
+
+**Cause:** a game update replaced `gameinfo.gi`. Steam also replaces it when you run **Verify integrity of game files**. Your mods are still in `addons`, but the game no longer reads that folder. Valve ships a new `gameinfo.gi` about once a month, so expect this after most updates.
+
+**Fix:**
+
+1. Close Deadlock.
+2. Open `game/citadel/gameinfo.gi` in a text editor.
+3. Look for this line inside the `SearchPaths` block:
+
+   ```text
+   Game				citadel/addons
+   ```
+
+4. If it is missing, redo the edit on the new file. Follow [Edit gameinfo.gi](/docs/deadlock/getting-started/install-by-hand#edit-gameinfogi). Never paste an old backup over the new file.
+
+With Deadlock Mod Manager, click **Launch Modded** instead. It writes the line again for you.
+
+## Your gameinfo.gi block is old
+
+**You see:** mods load only partly after you pasted a block from an older guide. Or hero name art shows as plain text when you play in another language.
+
+**Cause:** Valve changed its `SearchPaths` lines in the City Never Sleeps update on 2026-09-29. Older guides still show the old `Game_Language` line, which is now `Game_UILanguage`.
+
+**Fix:**
+
+1. Paste the current block from [Install mods by hand](/docs/deadlock/getting-started/install-by-hand#edit-gameinfogi).
+2. If a mod manager wrote the file, update the manager to its latest version. Then launch through it again.
+
+## Wrong file name or number
+
+**You see:** one mod never shows, but your other mods work.
+
+**Cause:** the game only loads files named `pak01_dir.vpk` to `pak99_dir.vpk`. Any other name is ignored without an error.
+
+<img
+  src="/wiki-images/deadlock-errors-mods-not-loading-1.webp"
+  alt="Folder tree of game/citadel/addons. pak01_dir.vpk and pak02_dir.vpk load. pak3, pak00, pak100, cool_skin.vpk, and a VPK inside a subfolder are ignored."
+/>
+
+**Fix:**
+
+1. Rename the mod to a free number from `pak01` to `pak99`. Always use two digits.
+2. Check for two downloads with the same name. Mod authors often ship `pak01_dir.vpk` by default. Give each mod its own number.
+3. If a mod comes as a set, such as `pak01_dir.vpk` with `pak01_000.vpk`, give every file in the set the same new number.
+
+{/* NEEDS HANDS-ON TEST: multi-part sets. Confirm that renaming only the _dir file of a set breaks it, and that a renamed set (pak05_dir.vpk + pak05_000.vpk) loads on build 6779. */}
+
+## Wrong folder
+
+**You see:** no mod loads at all, even though `gameinfo.gi` has the addons line.
+
+**Cause:** the mods are not straight inside `game/citadel/addons/`. Two common reasons:
+
+- You extracted the archive into its own folder, so the mod sits at `addons/cool_skin/pak01_dir.vpk`.
+- The `addons` folder is missing. Some mod managers do not create it.
+
+**Fix:**
+
+1. Open `game/citadel/`.
+2. If there is no `addons` folder, create one. Name it `addons`, all in lowercase.
+3. Move every `.vpk` file straight into `addons`.
+4. Delete the empty subfolders.
+
+On Linux and Steam Deck, folder and file names are case-sensitive. See [Linux and Steam Deck](/docs/deadlock/errors/linux-steam-deck).
+
+## Two mods change the same file
+
+**You see:** a mod loads, but another mod's version shows instead. Or one mod seems to cancel another.
+
+**Cause:** when two mods ship the same file, the lower number wins. `pak01_dir.vpk` beats `pak05_dir.vpk`. Skins and sounds for the same hero clash most often.
+
+**Fix:**
+
+1. Decide which mod you want to see.
+2. Give it a lower number than the other mod. Swap the two numbers if needed.
+3. If the two mods still break each other, keep only one. Mods that each change part of the same file can clash in any order.
+
+Some mods come in several versions, such as color variants. Install only one version. They change the same files.
+
+To see which files a mod changes, open it in Source 2 Viewer with **File > Open**. Compare its paths with your other mods.
+
+In Deadlock Mod Manager, use **Change Mods Order** instead of renaming files. DMM also warns you when two mods change the same hero.
+
+## More than 99 mods
+
+**You see:** your newest mods do not load. You have a lot of mods.
+
+**Cause:** the game reads at most 99 mods per folder, `pak01` to `pak99`. `pak100_dir.vpk` and higher are ignored.
+
+**Fix:** pick one:
+
+- Remove mods you no longer use.
+- Merge several mods into one VPK. See [Combine several mods into one VPK](/docs/deadlock/basics/pack-a-vpk#combine-several-mods-into-one-vpk).
+- Use a mod manager that adds extra mod folders, each with its own 99 slots. Grimoire does this, and so does Deadlock Mod Manager's newer V2 build.
+
+{/* NEEDS HANDS-ON TEST: whether the current stable DMM (v1.1.0) already spills past 99 mods into addons2, addons3, or only the V2 nightly does. */}
+
+## One mod broke after an update
+
+**You see:** one skin or HUD mod stopped working after a game update. Your other mods still load.
+
+**Cause:** Valve moved or changed the files that mod replaces. A mod at an old path does nothing, with no error.
+
+**Fix:**
+
+1. Check the mod's GameBanana page for an update. Authors often tag fixed versions with the update's name, such as "CNS fix".
+2. Remove the mod until the author updates it.
+
+If the game crashes after an update, see [Crashes, launch errors, and matchmaking blocks](/docs/deadlock/errors/game-crashes).
+
+## Mod manager problems
+
+- **New mods stay off.** Mods arrive switched off. Turn each one on in the manager's mod list.
+- **Mods imported while Deadlock was running stay off.** Close the game, then switch them on.
+- **Hand-installed mods block the manager's mods.** Old mods you copied in by hand can share numbers with the manager's mods. Remove them from `addons` and add them again through the manager, so it numbers them.
+- **Some big mods tell you not to use a manager.** Follow the author's readme and install that mod [by hand](/docs/deadlock/getting-started/install-by-hand).
+- **Mods vanish or load twice.** Two mod managers are installed. Keep one and uninstall the other.
+
+More fixes are in [Deadlock Mod Manager problems](/docs/deadlock/errors/mod-manager-problems).
+
+This short video by SNIPZTEA covers duplicate numbers, a missing `addons` folder, and mods that are not switched on.
+
+<YouTube
+  id="3B91ImKySIM"
+  title="Deadlock Mod Manager install and troubleshooting tips by SNIPZTEA"
+  start={72}
+/>
+
+<Callout type="info" title="This video uses an older interface">
+  It was made in October 2025, before the City Never Sleeps update. Deadlock Mod
+  Manager looks different now. Get it from
+  [deadlockmods.app](https://deadlockmods.app).
+</Callout>
+
+## Still stuck: test half your mods
+
+If every check passes and a mod still does not show, another mod may be in the way. Find it by halves.
+
+1. Close Deadlock.
+2. Move half of your VPKs out of `addons` into a folder on your desktop. Keep the mod you are testing.
+3. Start the game and check the mod.
+4. If it shows now, the blocker is in the half you moved. If not, it is in the half you kept.
+5. Keep halving that group until one mod is left.
+
+With Deadlock Mod Manager, switch mods off in the app instead of moving files.
+
+## Next steps
+
+- [Crashes, launch errors, and matchmaking blocks](/docs/deadlock/errors/game-crashes) if the game will not start.
+- [Deadlock Mod Manager problems](/docs/deadlock/errors/mod-manager-problems) for app errors.
+- [Install mods by hand](/docs/deadlock/getting-started/install-by-hand) to redo the setup from scratch.
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Video:** [How to Install Mods On Deadlock The EASIEST Way (Mod Manager)](https://www.youtube.com/watch?v=3B91ImKySIM) by SNIPZTEA.
+- **Guide:** [Installing Mods](https://deadlockmodding.pages.dev/installing-mods) from Deadlock Modding Notes.
+- **Guide:** [Troubleshooting Guide](https://docs.deadlockmods.app/using-mod-manager/troubleshooting) and [Mods Library and Files](https://docs.deadlockmods.app/using-mod-manager/library) from the Deadlock Mod Manager docs.
+- **Q&A:** [Files error](https://gamebanana.com/questions/102035) on GameBanana, answered by TheLastFriendly.
+- **Code:** [Mount localized UI assets when mods are enabled](https://github.com/deadlock-mod-manager/deadlock-mod-manager/pull/779) by the Deadlock Mod Manager contributors, which explains the `Game_UILanguage` change.

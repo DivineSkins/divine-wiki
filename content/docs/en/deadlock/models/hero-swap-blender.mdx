@@ -1,0 +1,191 @@
+---
+title: "Hero swap part 1: rig your model in Blender"
+description: "Fit your character to a Deadlock hero's skeleton in Blender, transfer and fix the weights, and export DMX files for ModelDoc."
+category: "models"
+patch: "6779"
+---
+
+<LevelPill level="advanced" />
+
+Part 1 of 4. You start with your own character model. You finish with DMX files in your CSDK 12 addon, rigged to the hero's own skeleton. Read [Hero model swap: overview](/docs/deadlock/models/hero-model-swap) first.
+
+<img
+  src="/wiki-images/deadlock-models-hero-swap-blender-1.webp"
+  alt="The four parts of a hero model swap, with part 1, rig in Blender, highlighted"
+/>
+
+## What you need
+
+- A finished [soul container swap](/docs/deadlock/models/prop-swap). It teaches the same tools on a much smaller model.
+- Source 2 Viewer, version 20.0 or newer, and CSDK 12 with an addon for this skin. Name the addon in lowercase with no spaces. See [Set up your creator tools](/docs/deadlock/getting-started/creator-setup).
+- Blender with the BlenderSource2Tools add-on (Fuji fork). See [Blender and add-ons for Deadlock](/docs/deadlock/tools/blender-add-ons).
+- Your own character mesh. Make it yourself, or get the artist's permission.
+- Optional: the free [Mesh Data Transfer](https://extensions.blender.org/add-ons/mesh-data-transfer/) add-on, to copy weights.
+
+Want hair or a coat that moves? Read [Add cloth to a model](/docs/deadlock/models/cloth) before you start. Cloth work may need an older Blender.
+
+{/* NEEDS HANDS-ON TEST: BlenderSource2Tools 3.3.1_2f on Blender 5.2 (its author tested it on 5.0 only). */}
+
+## Watch the walkthrough
+
+Pugzilla's video covers the Blender setup from 3:38 and the DMX export from 20:37.
+
+<YouTube
+  id="piEYFbFYmVM"
+  title="Blender setup and DMX export, from General Model Swap Steps by Pugzilla"
+  start={218}
+/>
+
+<Callout type="info" title="This video uses an older interface">
+  It was recorded in March 2026, before Source 2 Viewer 20.0. Read the video
+  description: it lists fixes found after recording. Where this page differs,
+  follow this page.
+</Callout>
+
+## Export the hero
+
+Use the hero you picked in the overview. This guide uses Vyper, whose model sits at `models/heroes_staging/viper/viper.vmdl_c`. Other heroes are in [Hero names and file paths](/docs/deadlock/basics/hero-codenames).
+
+You need the hero twice: as a model file for ModelDoc, and as a glTF for Blender.
+
+1. Open Source 2 Viewer and open `Deadlock/game/citadel/pak01_dir.vpk`.
+2. Go to `models/heroes_staging/viper/`.
+3. Right-click `viper.vmdl_c` and choose **Decompile & export**.
+4. Pick the model format (`.vmdl`). Save it into your addon at the same path: `content/citadel_addons/<addon>/models/heroes_staging/viper/`.
+5. Export the glTF as [Import a Deadlock model into Blender](/docs/deadlock/models/import-into-blender) shows. Save it in a work folder outside your addon.
+
+Step 4 writes a `.vmdl` file plus DMX files for the hero's meshes. Part 2 opens that `.vmdl`.
+
+{/* NEEDS HANDS-ON TEST: the format choice for a .vmdl decompile in the current Source 2 Viewer save dialog. */}
+
+## Load the hero in Blender
+
+1. Import and clean the glTF with [Import a Deadlock model into Blender](/docs/deadlock/models/import-into-blender). Follow route 1 up to and including **Fix size and facing**.
+2. Check the result. The hero faces +X, has no animations and no `$cloth` bones, and the armature is in rest pose.
+3. Scale the hero to Source 2 size. Select the armature and every mesh, press S, type `39.37`, and press Enter.
+4. Press Ctrl+A and choose **All Transforms**.
+5. Save the `.blend` file.
+
+Step 3 turns meters into inches, the unit the Source 2 tools use. Do it once, here. Then you fit your character at the final size.
+
+{/* NEEDS HANDS-ON TEST: whether the 39.37 scale step is still needed with Source 2 Viewer 20.0+ glTF exports, and whether the bone rescale numbers apply (conflict C32). This page does not print a bone scale number on purpose. */}
+
+**Doing the dry run?** The overview suggests one full run with the unchanged hero first. Skip to [Sort meshes into collections](#sort-meshes-into-collections), export the hero's own meshes, and follow parts 2 to 4. Come back here once the plain hero works in game.
+
+## Fit your model to the hero
+
+<Callout type="danger" title="Keep the hero's size and shape">
+  Do not make the hero smaller, thinner, or harder to see. You also see your
+  skin on enemies who play this hero. Its size changes how easy they are to see
+  and aim at. Players treat that as an unfair mod. See [What's allowed and how
+  to stay safe](/docs/deadlock/getting-started/stay-safe).
+</Callout>
+
+1. Import your character into the same Blender file.
+2. Delete your character's own armature. Your mesh uses the hero's skeleton from now on.
+3. Move and scale your mesh until it lines up with the hero's body: head, shoulders, elbows, hips, and knees.
+4. Keep the overall height and width close to the hero's.
+5. Select your mesh, press Ctrl+A, and choose **All Transforms**.
+
+**Never edit the hero's bones.** Do not move, rename, or delete them. The game plays the hero's animations on those exact bones. You may add new bones for cloth chains, such as a tail or long hair.
+
+{/* SCREENSHOT: deadlock-models-hero-swap-blender-2.webp, the hero armature and an original test mesh lined up in Blender, front view */}
+
+## Rig your mesh to the skeleton
+
+1. Select your mesh, then Shift-click the hero's armature.
+2. Press Ctrl+P and choose **Armature Deform**.
+3. Copy the weights from the hero's body mesh to your mesh. Use Blender's **Data Transfer** modifier, or the Mesh Data Transfer add-on.
+4. Switch to Pose Mode and rotate a few bones. Your mesh should follow them.
+5. Fix the bad spots with weight painting. Strange bending in game almost always comes from weights.
+6. Move the hero's original meshes into a separate collection. You do not export them.
+
+Rigid parts, such as a helmet or an armor plate, should follow one bone only. In Edit Mode, select the part's vertices, pick that bone's vertex group, and click **Assign**. Weight small accessories to the nearest bone.
+
+{/* SCREENSHOT: deadlock-models-hero-swap-blender-3.webp, the Ctrl+P parent menu with Armature Deform highlighted */}
+
+{/* SCREENSHOT: deadlock-models-hero-swap-blender-4.webp, a Data Transfer modifier on the new mesh with the hero's body mesh as the source and vertex groups selected */}
+
+{/* NEEDS HANDS-ON TEST: the Data Transfer modifier settings that work best for hero weights (the notes give the tool, not the settings). */}
+
+## Limit weights to 4 per vertex
+
+Keep each vertex at four bone weights or fewer. The exporter warns you when a vertex has more.
+
+1. Select your mesh.
+2. Switch to Weight Paint mode.
+3. Choose **Weights > Limit Total**. Check that the limit is 4.
+
+{/* SCREENSHOT: deadlock-models-hero-swap-blender-5.webp, Weight Paint mode with the Weights menu open and Limit Total highlighted */}
+
+## Sort meshes into collections
+
+The exporter writes one DMX file per collection. In ModelDoc, each DMX file becomes one mesh.
+
+1. Make one collection for each mesh the original hero has. Vyper has a body and a gun, so make `viper` and `gun`.
+2. Put your meshes into the matching collection.
+3. Put the armature in the body collection.
+4. Move everything else out of these collections: the hero's old meshes, reference objects, and lights.
+
+Keep these names the same on every export. ModelDoc finds each DMX file by its name.
+
+<img
+  src="/wiki-images/deadlock-models-hero-swap-blender-6.webp"
+  alt="Diagram: the Blender collections viper and gun export as viper.dmx and gun.dmx, which become ModelDoc meshes named viper and gun, the same names as the original"
+/>
+
+{/* SCREENSHOT: deadlock-models-hero-swap-blender-7.webp, the Outliner with the viper and gun collections and the Source Engine Exportables list with animations unticked */}
+
+## Check before you export
+
+- Every mesh is parented to the armature and weighted to at least one bone.
+- No name ends in `.001`. Check meshes, materials, and vertex groups.
+- Every face has a material. Use short, plain material names. Part 2 matches them by name.
+- All transforms are applied.
+- The armature is in rest pose.
+- The file has exactly one armature.
+- No `$cloth` bones are left.
+
+## Export DMX
+
+1. Open **Scene Properties** and find the **Source Engine Export** panel.
+2. Set **Export Format** to **DMX**.
+3. Set the DMX version to **Binary 9** and the model format to **Model 22**, the ModelDoc format.
+4. Set **Export Path** to a `dmx` folder inside the hero folder of your addon: `content/citadel_addons/<addon>/models/heroes_staging/viper/dmx/`.
+5. In **Source Engine Exportables**, untick the animations. Leave only your mesh collections ticked.
+6. Click **Export** and choose **Scene Export**.
+7. Read the warnings. Fix missing materials and too many weights. Most other warnings are harmless.
+
+The separate `dmx` folder keeps your files apart from the decompiled ones. Heroes use DMX, not FBX: DMX keeps the scale and supports cloth.
+
+{/* SCREENSHOT: deadlock-models-hero-swap-blender-8.webp, the Source Engine Export panel with DMX, Binary 9, Model 22, and the export path filled in */}
+
+{/* NEEDS HANDS-ON TEST: exact labels in the Source Engine Export panel of BlenderSource2Tools 3.3.1_2f, and whether the "non-uniform scale" warning disappears once all transforms are applied. */}
+
+## Common problems
+
+- **"Faces don't have a material."** Give every mesh a material, then export again.
+- **A warning about more than four weights.** Run **Weights > Limit Total** on that mesh again.
+- **"Non-uniform scale" warning.** Apply all transforms on the armature and every mesh. Pugzilla skips this warning in his demo but calls it important.
+- **The export writes nothing and shows no clear error.** One guide says the armature then needs an action in the Dope Sheet. This may differ on current versions.
+- **The mesh is tiny or turned in ModelDoc.** The size or facing fix was skipped. Fix it in Blender and export again.
+
+{/* NEEDS HANDS-ON TEST: the "armature needs an action" note from Neutraldrift's guide (one source). */}
+
+More fixes are in [Model and skin problems](/docs/deadlock/errors/model-problems).
+
+## Next steps
+
+- [Hero swap part 2: build the model in ModelDoc](/docs/deadlock/models/hero-swap-modeldoc)
+- [Add cloth to a model](/docs/deadlock/models/cloth)
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Video:** [(Read Desc) Deadlock - General Model Swap Steps](https://www.youtube.com/watch?v=piEYFbFYmVM) by Pugzilla.
+- **Video:** [Bat Drifter from Start to Finish: Part 1 - Make it exist first, make it pretty later](https://www.youtube.com/watch?v=IL3ywMmK090) by Basilisken.
+- **Guide:** [From Start to Finish (Fuji's Asset Replacement Guide)](https://docs.google.com/document/d/10Be28UBdeN13R_-NO5PqYI7SiCyklldGK_JkZQUqAAg/edit) by Fuji.
+- **Guide:** [How to Model Replace for Dummies + Blender Steps](https://gamebanana.com/tuts/19683) by Axelliax.
+- **Guide:** [Neutral's General Guide for Modding Deadlock (Models, Textures, Sounds)](https://docs.google.com/document/d/1p3_Q3HXRLmQOWnBvkUa5BljGmHVvW33UjBqEz-WRk24/edit) by Neutraldrift.
+- **Tool:** [BlenderSource2Tools](https://github.com/FellOffFuji/BlenderSource2Tools) by FellOffFuji.

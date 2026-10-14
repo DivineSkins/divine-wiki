@@ -1,0 +1,171 @@
+---
+title: "Replace voice lines"
+description: "Find a hero's voice lines through the game's talker files, replace one line or a whole voice with your own recordings, and keep subtitles in mind."
+category: "sounds"
+patch: "6779"
+---
+
+<LevelPill level="intermediate" />
+
+Replace one voice line, or a hero's whole voice, with your own recordings. The compile and pack steps are the same as for any sound. This page shows how to find the right line, build a full voice pack, and handle subtitles. Make your first sound mod with [Replace a sound](/docs/deadlock/sounds/replace-a-sound) before you start.
+
+## What you need
+
+- Source 2 Viewer and CSDK 12, set up with [Set up your creator tools](/docs/deadlock/getting-started/creator-setup).
+- One finished sound mod, so you know the Billy Audio Template steps from [Replace a sound](/docs/deadlock/sounds/replace-a-sound).
+- Your recordings. Use your own voice, or a voice actor who agreed. GameBanana's Deadlock section does not accept AI-generated content.
+- An audio editor, such as Audacity.
+- The hero's codename from [Hero names and file paths](/docs/deadlock/basics/hero-codenames).
+
+## How the game picks a voice line
+
+<img
+  src="/wiki-images/deadlock-sounds-voice-lines-1.webp"
+  alt="Diagram: a game event triggers a talker rule, the rule picks a soundevent, and the soundevent names the sound file you replace"
+/>
+
+Voice lines go through one more step than other sounds. A talker rule (a `.vrr` file) decides which line fits the moment. The rule fires a soundevent, and the soundevent names the sound file.
+
+You only replace the sound file. The rule and the soundevent stay the same, so your line plays at the same moments as the original.
+
+## Where voice files live
+
+Voice lines are most of the game's sounds: about 77,800 of 89,800 files. They all sit under `sounds/vo/` in `game/citadel/pak01_dir.vpk`.
+
+| Folder                                           | Who speaks                                     |
+| ------------------------------------------------ | ---------------------------------------------- |
+| `sounds/vo/<codename>/`                          | One hero. Each has about 1,500 to 2,000 lines. |
+| `sounds/vo/announcer/female_patron/`             | The Patron announcer, female voice.            |
+| `sounds/vo/announcer/male_patron/`               | The Patron announcer, male voice.              |
+| `sounds/vo/shopkeeper/`                          | The shopkeeper.                                |
+| `sounds/vo/spirit_jar/`, `sounds/vo/newscaster/` | Other speaking characters.                     |
+
+Hero folders use codenames, not hero names. Look the codename up in [Hero names and file paths](/docs/deadlock/basics/hero-codenames), then check the folder name in Source 2 Viewer.
+
+The soundevents for voice lines are in `soundevents/vo/generated_vo_hero_<codename>.vsndevts_c`. The talker rules are in `scripts/talker/generated_response_rules_hero_<codename>.vrr_c`.
+
+## Keep it fair
+
+Mods only change your own game. But you hear your voice lines whenever anyone plays that hero, enemies included.
+
+<Callout type="danger" title="No louder lines and no objective callouts">
+  Keep each line about as loud and as long as the original. Never make an
+  enemy's ultimate or warning lines easier to hear. Never make announcer packs
+  that call out objective spawns or timers. Read [What's allowed and how to stay
+  safe](/docs/deadlock/getting-started/stay-safe).
+</Callout>
+
+## Find a line
+
+Pick the way that fits what you know.
+
+### Listen in Source 2 Viewer
+
+1. Open Source 2 Viewer.
+2. Open `Deadlock/game/citadel/pak01_dir.vpk`.
+3. Go to `sounds/vo/<codename>/`.
+4. Double-click a file to play it.
+5. Write down the full path and file name when you find your line.
+
+{/* SCREENSHOT: deadlock-sounds-voice-lines-2.webp, Source 2 Viewer open at sounds/vo/<codename>/ with one voice line selected */}
+
+### Catch it in game
+
+1. Start a private match. [Test your mod in game](/docs/deadlock/basics/test-your-mod) shows how.
+2. Open the console and type `snd_showstart 1`.
+3. Play until the hero says the line.
+4. Read the path the console prints for that line.
+
+### Follow the talker rule
+
+Use this when you know the moment, but not the file.
+
+1. In Source 2 Viewer, open `scripts/talker/generated_response_rules_hero_<codename>.vrr_c`.
+2. Find the rule for the moment you want. Note the soundevent name it plays.
+3. Open `soundevents/vo/generated_vo_hero_<codename>.vsndevts_c`.
+4. Search for that soundevent name.
+5. Read its `vsnd_files` entry. That is the path of the sound file.
+
+If the entry lists several files, the game picks one of them each time. Replace all of them to change that moment every time.
+
+{/* NEEDS HANDS-ON TEST: open a hero's talker .vrr_c in Source 2 Viewer on build 6779. Record how a rule shows the soundevent it plays, and confirm the generated_vo_hero_<codename>.vsndevts_c names. */}
+
+{/* SCREENSHOT: deadlock-sounds-voice-lines-3.webp, a decompiled talker rule in Source 2 Viewer with the soundevent name visible */}
+
+## Replace one line
+
+These steps follow [Replace a sound](/docs/deadlock/sounds/replace-a-sound). Go there for the details of each step.
+
+1. In the CSDK 12 launcher, duplicate **Billy Audio Template**. Name the copy in lowercase with no spaces, such as `myvoice`.
+2. Delete the Billy sound files in the copy.
+3. In the addon's content folder, rebuild the line's folder path, such as `sounds/vo/<codename>/`.
+4. Open the original line next to your recording in Audacity. Trim yours to about the same length and loudness.
+5. Export it as `.wav` or `.mp3`. Give it the original name in lowercase. Only the ending changes.
+6. Launch the tools. In the Asset Browser, right-click your file and choose **Recompile > Full**.
+7. Copy the compiled `.vsnd_c` from the addon's game folder into a staging folder, at the same path.
+8. Pack it with [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
+9. Check it with [Test your mod in game](/docs/deadlock/basics/test-your-mod).
+
+You do not need the template's `soundevents` folder. Leave it out of your VPK.
+
+## Make a full voice pack
+
+A full pack is the same steps, many times over. You do not need every line. Lines you skip keep the original voice.
+
+1. In Source 2 Viewer, right-click the hero's `sounds/vo/<codename>/` folder and choose **Decompile & export**.
+2. Save it to a work folder outside your addon. Use it to listen to each line and copy its name.
+3. Record your lines. Start with the ones you hear most often.
+4. Name each file exactly like the line it replaces, in lowercase.
+5. Put all your files in the addon at `sounds/vo/<codename>/`.
+6. In the Asset Browser, select all your new files at once. Right-click and choose **Recompile > Full**.
+7. Copy every compiled `.vsnd_c` into your staging folder, then pack and test.
+
+Big `.wav` packs make huge VPKs. An `encoding.txt` file can compress them to mp3 when you compile. [Loop and compress sounds](/docs/deadlock/sounds/looping-and-compression) shows how. If your VPK still goes over 2 GB, see [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
+
+## Subtitles
+
+Subtitles come from text files, not from the sound. If your new line says different words, the subtitle still shows the old text.
+
+Voice line text is in two places:
+
+- `game/citadel/resource/closecaption_english.txt`
+- `game/citadel/resource/localization/citadel_generated_vo/`
+
+Search both for the old words of your line. Edit the text where you find it. [Change item names and other text](/docs/deadlock/ui/change-text) shows how to edit and ship text files.
+
+{/* NEEDS HANDS-ON TEST: which file the in-game subtitles read on build 6779 (closecaption_english.txt or citadel_generated_vo), and whether a voice swap needs a caption edit at all (gaps G06, G09). */}
+
+{/* SCREENSHOT: deadlock-sounds-voice-lines-4.webp, an in-game subtitle line on screen while a hero speaks */}
+
+## Announcer lines
+
+The Patron announcer has a female and a male voice. Its files sit in `sounds/vo/announcer/female_patron/` and `sounds/vo/announcer/male_patron/`. File names say what each line is about, like `patron_female_ally_<hero>_killing_streak_01.vsnd_c`.
+
+You replace them like any other line. Keep the same lines at the same moments.
+
+No guide covers Patron swaps yet, so test yours well. The game also has language folders, such as `citadel_french`. If you play in another language, your result may differ.
+
+{/* NEEDS HANDS-ON TEST: replace one Patron line by path on build 6779, in English and in one other game language. Check whether citadel_<language> folders hold their own announcer files that load before mods. */}
+
+## Common problems
+
+- **The old line still plays.** Your path or file name differs from the original. Check every letter in Source 2 Viewer.
+- **The old line plays some of the time.** The soundevent lists several files for that moment. Replace each of them.
+- **The subtitle shows the old words.** Edit the subtitle text. See [Subtitles](#subtitles).
+- **Your VPK is huge.** Compress the pack with `encoding.txt`. See [Loop and compress sounds](/docs/deadlock/sounds/looping-and-compression).
+- **Lines broke after an update.** Game updates change sounds. The "City Never Sleeps" update (2026-09-29) changed many. Find each line again and check its path.
+
+## Next steps
+
+- [Play random sounds with soundevents](/docs/deadlock/sounds/random-sounds)
+- [Change item names and other text](/docs/deadlock/ui/change-text)
+- [Loop and compress sounds](/docs/deadlock/sounds/looping-and-compression)
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Replacing Sounds](https://deadlockmodding.pages.dev/modding-guides/replacing-sounds) from Deadlock Modding Notes.
+- **Video:** [(Read Desc) Deadlock - Sound Replacement Tutorial](https://www.youtube.com/watch?v=okoHFajJHB0) by Pugzilla.
+- **Data:** [GameTracking-Deadlock](https://github.com/SteamTracking/GameTracking-Deadlock) by SteamTracking, for the voice, talker, and subtitle file paths.
+- **Tool:** [Source 2 Viewer](https://s2v.app/) by the ValveResourceFormat team.

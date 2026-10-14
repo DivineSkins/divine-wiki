@@ -1,0 +1,192 @@
+---
+title: "Recolor ability effects"
+description: "Find the particle files an ability uses, change their colors in the Particle Editor or a batch color tool, and pack them as a mod that stays as readable."
+category: "particles"
+patch: "6779"
+---
+
+<LevelPill level="intermediate" />
+
+Give an ability's effects new colors. You find the particle files the ability uses, recolor them in CSDK 12, and pack them as a mod. Set up your tools first with [Set up your creator tools](/docs/deadlock/getting-started/creator-setup).
+
+## What you need
+
+- Source 2 Viewer and CSDK 12, set up with [Set up your creator tools](/docs/deadlock/getting-started/creator-setup).
+- The developer console, turned on as shown in [Test your mod in game](/docs/deadlock/basics/test-your-mod).
+- Optional: vpcf-editor, to change many colors at once.
+- The hero's folder name for effects. See the note on ability effects in [Hero names and file paths](/docs/deadlock/basics/hero-codenames).
+
+## Keep it as readable as the original
+
+You see your recolor on every player using that hero, enemies included. Nobody else sees it. So a recolor can give you an advantage by accident.
+
+<img
+  src="/wiki-images/deadlock-particles-recolor-ability-effects-1.webp"
+  alt="Four swatches: the original orange effect, an OK purple recolor with the same size and brightness, a not OK version that is much brighter and bigger, and a not OK version that is nearly see-through"
+/>
+
+<Callout type="danger" title="Change the color, nothing else">
+  Keep the same brightness, size, and shape as the original. Never make an
+  effect glow, brighter, bigger, fainter, or see-through. Never recolor team
+  colored effects so enemies stand out. Read [What's allowed and how to stay
+  safe](/docs/deadlock/getting-started/stay-safe).
+</Callout>
+
+A simple test: change the hue in the color picker. Keep the brightness and saturation close to the original values.
+
+## How particle files work
+
+An effect is a particle system: a `.vpcf` text file, compiled to `.vpcf_c`. Ability effects live in `particles/abilities/<codename>/`. That is about 10,500 files.
+
+A particle system is a list of functions. Some create particles, some change them over time, and some draw them. It can also start child effects. Color can sit in several of these places at once:
+
+- Functions with "color" in their name, such as **Color Random**.
+- The system's **Base Properties**.
+- The **Renderer** functions.
+- Child effects, which have their own colors.
+
+Miss one, and part of the effect keeps its old color.
+
+## Watch the walkthrough
+
+This video by Pugzilla recolors Lady Geist's Life Drain to purple.
+
+<YouTube
+  id="Otm4C5FyDg8"
+  title="Deadlock particle color change tutorial by Pugzilla"
+/>
+
+<Callout type="info" title="This video uses an older interface">
+  The video is from October 2025. The CSDK 12 launcher looks different now. The
+  color tool it shows is the old one. Its description now points to vpcf-editor,
+  and has the header fix shown below.
+</Callout>
+
+## Find the particles an ability uses
+
+A hero's folder holds many effects the game never uses. Find the exact files first.
+
+1. Start a private match with your hero. [Test your mod in game](/docs/deadlock/basics/test-your-mod) shows how.
+2. Press **F7** to open the console.
+3. Use the ability. While its effect still plays, run `dumpparticlelist` in the console.
+4. Find the ability's entries in the list. Lady Geist's Life Drain used six: drain, beam, debuff, debuff ring, start player, and start target.
+5. Copy the names into a text file.
+6. Close the game.
+
+{/* NEEDS HANDS-ON TEST: whether dumpparticlelist works on a normal private map or needs sv_cheats or a server flag, and how to time it while an effect plays (gap G07). */}
+
+{/* SCREENSHOT: deadlock-particles-recolor-ability-effects-2.webp, the console with dumpparticlelist output listing one ability's particles */}
+
+## Decompile them into your addon
+
+1. In the CSDK 12 launcher, create a new addon. Name it in lowercase with no spaces, such as `purpledrain`.
+2. Right-click it and choose **Explore Content Folder**.
+3. Create the folders `particles/abilities/<codename>/` inside it.
+4. In Source 2 Viewer, open `game/citadel/pak01_dir.vpk` and go to `particles/abilities/<codename>/`.
+5. Right-click each particle from your list and choose **Decompile & export**.
+6. Save each one into the folder from step 3.
+
+Folder names here can differ from the hero's other files. Lady Geist's model folder is `geist`, but her effects were in `ghost` in late 2025. Check the folder in Source 2 Viewer.
+
+{/* SCREENSHOT: deadlock-particles-recolor-ability-effects-3.webp, Source 2 Viewer open at particles/abilities/<codename>/ with the ability's particles */}
+
+## Fix the header on newer particles
+
+Some newer particles do not open in the tools. Their first line names a format the tools do not know. Open each `.vpcf` in a text editor and check the first line.
+
+If it looks like this:
+
+```text
+<!-- kv3 encoding:text:version{e21c7f3c-8a33-41c5-9977-a76d3a32aa0d} format:vrfunknown:version{c95f3434-dfef-4a35-9913-024beddb416a} -->
+```
+
+Replace that whole line with this one:
+
+```text
+<!-- kv3 encoding:text:version{e21c7f3c-8a33-41c5-9977-a76d3a32aa0d} format:vpcf61:version{39d3ce1d-9442-4407-9b78-8317145b1732} -->
+```
+
+Notepad++ can do this for every file at once with **Search > Find in Files** and **Replace in Files**.
+
+This fix comes from late 2025. The format line may differ on the current build. If your files still do not open, ask in the community channels listed in [Find mods, guides, and help](/docs/deadlock/getting-started/where-to-get-help).
+
+{/* NEEDS HANDS-ON TEST: whether decompiled particles on build 6779 still need this header fix, and whether vpcf61 and its version code are still right after the City Never Sleeps update (gap G11). */}
+
+## Change the colors
+
+### In the Particle Editor
+
+1. In the CSDK 12 launcher, select your addon and click **Launch Tools**.
+2. In the Asset Browser, search for a particle from your list. Click it once to preview it.
+3. Double-click it to open the Particle Editor.
+4. Check every function with "color" in its name, the **Base Properties**, and the **Renderer**.
+5. Change each color. Change the hue and keep the brightness.
+6. Check the **Children** list. If a child effect is in your list, open it and recolor it too.
+7. Press Ctrl+S to save. Watch the preview in the Asset Browser.
+8. Repeat for each particle until the whole effect has your colors.
+
+If the preview does not change, the color comes from another function. Keep looking.
+
+{/* SCREENSHOT: deadlock-particles-recolor-ability-effects-4.webp, the Particle Editor with a color function selected and its color property visible */}
+
+{/* SCREENSHOT: deadlock-particles-recolor-ability-effects-5.webp, the Particle Editor with a Renderer function selected and its color properties visible */}
+
+### Many files at once: vpcf-editor
+
+[vpcf-editor](https://github.com/yousv/vpcf-editor) is an unofficial community tool. It opens a folder of `.vpcf` files and lists every color in them. Its shared colors view finds one color across many files and changes them all together. It saves backups before it writes.
+
+1. Open vpcf-editor and pick the folder you decompiled into.
+2. Change the colors you want. Keep the brightness close to the original.
+3. Save.
+4. Preview the result in the Asset Browser.
+
+Its README says MIT license, but the repository has no license file.
+
+{/* NEEDS HANDS-ON TEST: vpcf-editor's current button labels, its backups folder, and that the files it saves still compile in CSDK 12. */}
+
+## Compile and pack
+
+1. In the Asset Browser, select every particle you changed.
+2. Right-click and choose **Recompile > Full**.
+3. Right-click your addon in the launcher and choose **Explore Game Folder**.
+4. Copy the `particles` folder from there into a new staging folder. This keeps the right path.
+5. Pack the staging folder with [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
+6. Load it and use the ability. Follow the Particles tab in [Test your mod in game](/docs/deadlock/basics/test-your-mod).
+
+Compare your effect with the original. It should be as easy to see, no more and no less.
+
+{/* SCREENSHOT: deadlock-particles-recolor-ability-effects-6.webp, the same ability in game before and after the recolor, side by side */}
+
+## When a color will not change
+
+- **Another color source.** Check every function, the Base Properties, and the Renderer again.
+- **A child effect.** Open the **Children** list. The color may come from a child file you have not recolored.
+- **The wrong file.** The file is not one the ability uses. Run `dumpparticlelist` again.
+- **A color in a texture.** Some effects take color from a texture image, not from a value. Changing values will not help there.
+- **Team colors.** Some effects may change color by team. Nobody has documented yet how a recolor affects them. Check your effect on allies and enemies if you can.
+
+{/* NEEDS HANDS-ON TEST: which ability effects take their color from textures under materials/particle/, and how recolors of team-colored effects behave for allies and enemies (gap G11). */}
+
+## Common problems
+
+- **The Asset Browser or Particle Editor crashes on preview.** Some projected effects crash the `bin` tools. Pick `bin_tools` in the CSDK 12 launcher for previews. Switch back for other work.
+- **A file does not show in the tools.** It needs the header fix above.
+- **Nothing changes in game.** You copied from the content folder, or a path differs from the original. Copy compiled files from the game folder.
+- **The effect broke after an update.** Updates can rename or replace particles. Run `dumpparticlelist` again and redo the changed files.
+
+## Next steps
+
+- [Make a new particle effect](/docs/deadlock/particles/make-an-effect)
+- [Test your mod in game](/docs/deadlock/basics/test-your-mod)
+- [What's allowed and how to stay safe](/docs/deadlock/getting-started/stay-safe)
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Video:** [(New Tool) Deadlock - Particle Color Change Tutorial](https://www.youtube.com/watch?v=Otm4C5FyDg8) by Pugzilla.
+- **Guide:** [Simple Particle Recolor Tutorial](https://gamebanana.com/tuts/19597) by TheLastFriendly.
+- **Tool:** [vpcf-editor](https://github.com/yousv/vpcf-editor) by yousv.
+- **Docs:** [Particle Editor (Source 2)](<https://developer.valvesoftware.com/wiki/Particle_Editor_(Source_2)>) from the Valve Developer Community.
+- **Data:** [GameTracking-Deadlock](https://github.com/SteamTracking/GameTracking-Deadlock) by SteamTracking, for the particle folders.
+- **Tool:** [Source 2 Viewer](https://s2v.app/) by the ValveResourceFormat team.

@@ -1,0 +1,134 @@
+---
+title: "Helper tools and scripts"
+description: "Optional tools for advanced creators: a build script, VPK merging, an AnimGraph 2 helper, and a tracker that shows what each game update changed."
+category: "tools"
+patch: "6779"
+---
+
+<LevelPill level="advanced" />
+
+You can make every Deadlock mod with [Source 2 Viewer](/docs/deadlock/tools/source-2-viewer) and [CSDK 12](/docs/deadlock/tools/csdk-12). The tools on this page save time once you know the basics. Learn to [pack a VPK by hand](/docs/deadlock/basics/pack-a-vpk) first, so you can tell when a helper gets something wrong.
+
+<Callout type="info" title="Community tools, unofficial">
+  Every tool here is free, has public source code, and comes from a named
+  community author. Valve does not make or support any of them. They are small
+  projects, so back up your work before you run them.
+</Callout>
+
+{/* NEEDS HANDS-ON TEST: every tool on this page on build 6779. None was run for this page. */}
+
+## What you need
+
+- [CSDK 12](/docs/deadlock/tools/csdk-12) and [Source 2 Viewer](/docs/deadlock/tools/source-2-viewer), set up and working.
+- A mod you can already compile and pack by hand.
+
+## At a glance
+
+| Tool                  | What it does                                              | Runs on               | License    |
+| --------------------- | --------------------------------------------------------- | --------------------- | ---------- |
+| DeadPacker            | Compiles, packs, copies, and restarts the game in one run | Windows               | MIT        |
+| vpkmerge              | Merges several VPKs into one, or splits one apart         | Windows, macOS, Linux | MIT        |
+| DeadlockTools         | Adds AnimGraph 2 references to a compiled hero model      | Windows, Linux        | MIT        |
+| GameTracking-Deadlock | Shows which game files each update changed                | Your browser (GitHub) | Not stated |
+
+## Build automation: DeadPacker
+
+<ToolCard
+  name="DeadPacker"
+  href="https://github.com/Artemon121/DeadPacker"
+  badge="Community tool, unofficial"
+>
+  One run compiles your addon, packs it, copies it to the game, and restarts
+  Deadlock. By Artemon121.
+</ToolCard>
+
+You write a short `.toml` file that lists the steps, then drag it onto `DeadPacker.exe`. The steps are `compile`, `pack`, `copy`, `close_deadlock`, and `launch_deadlock`. The `pack` step takes an `exclude` list, so leave out cache files such as `cache_*.soc` and `tools_thumbnail_cache.bin`.
+
+It is best for a fast test loop. Each run replaces your test build in `addons` and opens the game again.
+
+- The last release is from November 2025. Check that the compiler path in your `.toml` points to your CSDK 12 folder.
+- Some older guides pair DeadPacker with CSDK 10. Use CSDK 12 instead.
+- Its example file starts Deadlock with developer launch options and a private map. Use them for testing only. Then follow [Before you queue again](/docs/deadlock/basics/test-your-mod#before-you-queue-again).
+
+{/* NEEDS HANDS-ON TEST: whether -dev and the other launch options in DeadPacker's example config affect matchmaking (G07). */}
+
+## Merge VPKs: vpkmerge
+
+<ToolCard
+  name="vpkmerge"
+  href="https://github.com/Slush97/vpkmerge"
+  badge="Community tool, unofficial"
+>
+  Merges several VPKs into one, or splits one apart. App and command line. By
+  Slush97, who also makes Grimoire.
+</ToolCard>
+
+Use it when you hit the 99-VPK limit, or when you want to ship a mod as one file. Grimoire has the same merge built in.
+
+- Its author calls the app version very early. Keep copies of the VPKs you merge.
+- It has other features too. This page covers merging only.
+- Read the rules in [Combine several mods into one VPK](/docs/deadlock/basics/pack-a-vpk#combine-several-mods-into-one-vpk) before you merge. That section also shows how to merge by hand with Source 2 Viewer.
+
+## AnimGraph 2 helper: DeadlockTools
+
+<ToolCard
+  name="DeadlockTools"
+  href="https://github.com/dotryen/DeadlockTools"
+  badge="Community tool, unofficial"
+>
+  A command line tool for compiled hero models. By dotryen.
+</ToolCard>
+
+A hero model must point to the hero's AnimGraph 2 (AG2) skeleton and graphs. CSDK 12 cannot compile those references. Most guides use [CS2 Workshop Tools](/docs/deadlock/tools/cs2-workshop-tools) for that last compile. DeadlockTools is the other route:
+
+- `add ag2` writes the AG2 references into a `.vmdl_c` you already compiled in CSDK 12.
+- `fix unitstatus` fixes a CSDK 12 bug in the unit status data. That data sets things like the health bar height.
+
+Its author warns that the file-writing features are experimental, and that files can double in size. The last release is from April 2026, before the City Never Sleeps update. Test the result in game before you publish.
+
+{/* NEEDS HANDS-ON TEST: whether a model patched with DeadlockTools add ag2 loads and animates on build 6779 (C28). */}
+
+## See what an update changed: GameTracking-Deadlock
+
+<ToolCard
+  name="GameTracking-Deadlock"
+  href="https://github.com/SteamTracking/GameTracking-Deadlock"
+  badge="Community project"
+>
+  A bot saves Deadlock's file lists and game data after every update. Run by
+  SteamTracking, the team behind SteamDB.
+</ToolCard>
+
+In the commit list, each title starts with the game build number. Open the history of a file to see which updates touched it. Then you know which of your mods to check.
+
+<img
+  src="/wiki-images/deadlock-tools-helper-tools-1.webp"
+  alt="GameTracking-Deadlock on GitHub showing the commit history of gameinfo.gi, with builds 6779, 6711, and 6652"
+/>
+
+It mirrors Valve's game files. Use it to read what changed, never as a source of files for your mod. [Update your mod after a patch](/docs/deadlock/publishing/update-after-a-patch) shows the full check.
+
+## Tools we leave out
+
+We only list tools that pass all of these checks. Anything else stays off this wiki, however popular:
+
+- Public source code. Some tools are shared only as Discord files.
+- No changes that shrink, remove, or hide parts of a model. A smaller or missing part can give a player an unfair advantage. See [What's allowed](/docs/deadlock/getting-started/stay-safe).
+- No repacks of Valve's tools on file-sharing sites, other than CSDK 12.
+- No unfair-advantage features, no malware, and no lookalikes of real tools.
+- A track record. Brand-new tools join the list once people use them.
+
+## Next steps
+
+- [Tools overview](/docs/deadlock/tools): every tool and how they fit together.
+- [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk): the manual way these helpers speed up.
+- [Hero swap part 4: add AnimGraph 2 and compile](/docs/deadlock/models/hero-swap-compile): where the AG2 step fits.
+
+## Credits
+
+This page lists the work of these creators. Check out their original tools.
+
+- **Tool:** [DeadPacker](https://github.com/Artemon121/DeadPacker) by Artemon121.
+- **Tool:** [vpkmerge](https://github.com/Slush97/vpkmerge) by Slush97.
+- **Tool:** [DeadlockTools](https://github.com/dotryen/DeadlockTools) by dotryen.
+- **Tool:** [GameTracking-Deadlock](https://github.com/SteamTracking/GameTracking-Deadlock) by SteamTracking.

@@ -1,0 +1,158 @@
+---
+title: "Materials for custom models"
+description: "Create materials for a custom hero model with the settings Deadlock needs: stylized lighting, status effects, outlines, and transparency."
+category: "textures"
+patch: "6779"
+---
+
+<LevelPill level="intermediate" />
+
+Make new materials for your own model so it looks like it belongs in Deadlock. You build them in CSDK 12's Material Editor and assign them in ModelDoc. Your model should already open in ModelDoc: see [Your first model swap](/docs/deadlock/models/prop-swap) or [Hero swap part 2](/docs/deadlock/models/hero-swap-modeldoc).
+
+## What you need
+
+- [CSDK 12](/docs/deadlock/tools/csdk-12) with your model's addon.
+- Your textures as PNG files. Use power-of-two sizes, such as 1024 x 1024 or 2048 x 2048.
+- The material names you used in Blender.
+
+## How the names connect
+
+Each material in Blender becomes a slot in ModelDoc's **Default Material Group**. Each slot points to one `.vmat` file. Keep the same name the whole way through. Use short, plain names like `body` or `hair`. A name with `.001` at the end leaves the slot blank.
+
+<img
+  src="/wiki-images/deadlock-textures-materials-for-custom-models-1.webp"
+  alt="Diagram: the Blender material body becomes the ModelDoc slot body, which points to materials/body.vmat using pbr.vfx, which compiles to body.vmat_c plus its vtex_c textures"
+/>
+
+Pugzilla shows the materials part of a hero swap from 23:17 in this video. It was recorded in March 2026, so menus may look a little different.
+
+<YouTube
+  id="piEYFbFYmVM"
+  title="Meshes and materials, from General Model Swap Steps by Pugzilla"
+  start={1397}
+/>
+
+## Make a new material
+
+1. Launch the tools for your addon. In the Asset Browser, click **Material Editor**.
+2. Choose **File > New**.
+3. Choose **File > Save As** right away. Save into the `materials` folder next to your model, with the Blender material name. For example: `body.vmat`.
+4. Check the shader at the top. It must be `pbr.vfx`, the shader every Deadlock hero uses. If it shows another one, switch it to `pbr.vfx`.
+
+The game's own config names a different default shader for new materials, so check this on every new file.
+
+{/* NEEDS HANDS-ON TEST: the shader a brand new material starts on in CSDK 12's Material Editor (pbr.vfx or environment_texture_set, conflict C41). */}
+
+{/* SCREENSHOT: deadlock-textures-materials-for-custom-models-2.webp, the Material Editor File menu with New, and the shader field set to pbr.vfx */}
+
+## Add your textures
+
+Copy your PNG files into the same `materials` folder. Give each one the ending its slot expects:
+
+| Slot              | File ending | What it controls                 |
+| ----------------- | ----------- | -------------------------------- |
+| Color             | `_color`    | The base colors of your model    |
+| Normal            | `_normal`   | Small surface detail, like folds |
+| Roughness         | `_rough`    | How matte or shiny each part is  |
+| Ambient occlusion | `_ao`       | Soft shadows in creases          |
+| Metalness         | `_metal`    | Which parts look like metal      |
+
+The file picker filters by these endings. If a file does not show up, rename it, or switch the picker's filter to **All images**.
+
+1. Set **Color** to your `_color` image.
+2. Set **Normal** to your `_normal` image, if you have one.
+3. No roughness map? Click **Change to color** next to Roughness and pick pure white. White is fully matte. The gray default looks like shiny plastic.
+4. Look at the shadow side of your model. Deadlock's lighting gives the shadow side its own color input. By default it uses your color image. If the shadows look wrong, Pugzilla sets that input to a flat color.
+
+{/* NEEDS HANDS-ON TEST: the Material Editor label for the NPR transmissive (shadow) color input, and whether Change to color is the current label. */}
+
+{/* SCREENSHOT: deadlock-textures-materials-for-custom-models-3.webp, the texture picker with the filter switched to All images */}
+
+## Turn on the required settings
+
+Tick both of these on every material:
+
+| Setting                      | What it does                                                            | If you skip it                            |
+| ---------------------------- | ----------------------------------------------------------------------- | ----------------------------------------- |
+| **Use NPR Lighting**         | Turns on Deadlock's stylized lighting: rim light and banded shading     | Your model is lit unlike every other hero |
+| **Use Status Effects Proxy** | Lets status effects draw over your model, like Veil Walker or ultimates | Those effects are missing on your skin    |
+
+Use Status Effects Proxy only works with Use NPR Lighting on.
+
+{/* SCREENSHOT: deadlock-textures-materials-for-custom-models-4.webp, the Material Editor feature checkboxes with Use NPR Lighting and Use Status Effects Proxy ticked */}
+
+## Optional settings
+
+<Callout type="danger" title="Glow and see-through settings change visibility">
+  Your skin shows on every player who picks that hero, enemies included. Never
+  make a hero glow, go bright, turn near-transparent, or go very dark. Never
+  turn off the outline. These make a hero easier or harder to spot. Read [What's
+  allowed and how to stay safe](/docs/deadlock/getting-started/stay-safe).
+</Callout>
+
+| Setting                 | Use it for                                      | Notes                                           |
+| ----------------------- | ----------------------------------------------- | ----------------------------------------------- |
+| **Solid Color Outline** | A flat colored outline. Needs Use NPR Lighting. | Pugzilla and Axelliax tick it on every material |
+| **Alpha Test**          | Cut-out shapes, like hair cards or lace         | Never cut away large parts of the body          |
+| **Translucent**         | See-through parts, like a glass visor           | Never on the whole body                         |
+| **Self Illumination**   | Small lit details, like eyes or a screen        | Never make the hero glow                        |
+
+**Write Depth Before Alpha Blending** is a special case. Guides tick it on every material to stop bald patches and see-through curves when a hero fades out. But the shader only allows it with Translucent on, so we do not know yet what it does on a normal material. Leave it off unless your material is translucent.
+
+{/* NEEDS HANDS-ON TEST: what Write Depth Before Alpha Blending does on an opaque material, and whether the fading artifacts need it (conflict C39). */}
+
+The [hero material settings reference](/docs/deadlock/textures/material-reference) lists every other setting.
+
+## Assign it in ModelDoc
+
+1. Save the material and close the Material Editor.
+2. Open your model in ModelDoc.
+3. If there is no **DefaultMaterialGroup** node, choose **Add > Default Material Group**. You see one slot per Blender material.
+4. Click the browse button on a slot. Pugzilla calls it **open local browser**. Find your material and double-click it.
+5. Repeat for every slot.
+6. Click **Compile**. A red mesh means a slot still has no material.
+
+{/* SCREENSHOT: deadlock-textures-materials-for-custom-models-5.webp, ModelDoc's DefaultMaterialGroup with each slot pointing to a vmat in the addon's materials folder */}
+
+## Reuse the hero's own materials
+
+Your new model can use materials that already ship with the game. Pugzilla's method:
+
+1. Find the material in Source 2 Viewer.
+2. Right-click it and choose **Copy name**.
+3. Paste it into the slot in ModelDoc. Delete the `_c` at the end.
+4. Click **Compile**.
+
+{/* NEEDS HANDS-ON TEST: the Copy name method on build 6779, and whether the mod still finds the stock material in game without shipping a copy. */}
+
+To edit a hero's materials instead, decompile the hero's whole `materials` folder into your addon at the same path. Then work on them like in [Retexture a hero](/docs/deadlock/textures/retexture).
+
+## Ship the right files
+
+Ship the compiled `.vmat_c` and every new `.vtex_c` from your addon's game folder, at the same paths. Compiled textures get a code in their name, like `body_color_png_63291cfb.vtex_c`. The material points to that exact name, so a material without its textures shows the error checkerboard in game. Then follow [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
+
+## Common problems
+
+- **Shiny plastic look.** Set Roughness to pure white.
+- **Veil Walker and other effects are missing on your skin.** Tick Use Status Effects Proxy.
+- **Purple or black checkerboard in the editor.** A texture path broke. Click the magnifier on that slot and pick the image again.
+- **A texture is missing from the picker.** Rename it with the slot's ending, or switch the filter to **All images**.
+- **A slot in ModelDoc has no name.** The Blender material name ends in `.001` or similar. Rename it, export again, and compile.
+- **Red mesh in ModelDoc.** A slot has no material yet.
+- **It looks different in game.** Source 2 Viewer's preview does not match Deadlock's lighting yet. Always check in game.
+
+## Next steps
+
+- [Hero swap part 2: build the model in ModelDoc](/docs/deadlock/models/hero-swap-modeldoc)
+- [Retexture a hero](/docs/deadlock/textures/retexture)
+- [Hero material settings reference](/docs/deadlock/textures/material-reference)
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Video:** [(Read Desc) Deadlock - General Model Swap Steps](https://www.youtube.com/watch?v=piEYFbFYmVM) by Pugzilla.
+- **Video:** [Deadlock - Soul Container Model Swaps](https://www.youtube.com/watch?v=9DvLaAYfRxQ) by Pugzilla.
+- **Guide:** [From Start to Finish (Fuji's Asset Replacement Guide)](https://docs.google.com/document/d/10Be28UBdeN13R_-NO5PqYI7SiCyklldGK_JkZQUqAAg/edit) by Fuji.
+- **Guide:** [How to Model Replace for Dummies + Blender Steps](https://gamebanana.com/tuts/19683) by Axelliax.
+- **Data:** [GameTracking-Deadlock](https://github.com/SteamTracking/GameTracking-Deadlock) by SteamTracking, for the hero shader's settings and texture slots.

@@ -1,0 +1,159 @@
+---
+title: "Hero select, shop, and end screen poses"
+description: "Turn your hero and change the lighting on the hero select, shop, and end of match screens by editing their small scene maps in Hammer."
+category: "models"
+patch: "6779"
+---
+
+<LevelPill level="advanced" />
+
+Turn your hero and change the lighting on the hero select, shop, and end of match screens. Each screen is a small map for each hero. You edit it in Hammer, compile it, and pack it with your skin. Learn [CSDK 12](/docs/deadlock/tools/csdk-12) first.
+
+<Callout type="warning" title="Untested on the current build">
+  This page comes from one video made in March 2026, before the City Never
+  Sleeps update. We have not tested it on the current build. Folder names and
+  the compiler steps may differ.
+</Callout>
+
+## What you can change
+
+- Move the lights and change their color.
+- Turn the hero to any angle.
+
+That is the light edit the video teaches. A brand new pose needs a new model placed in the scene. We have no tested steps for that yet.
+
+These screens are menus, not the match map, so these edits give no advantage.
+
+## What you need
+
+- CSDK 12 with Hammer. Hammer may need the full game files. See [CSDK 12](/docs/deadlock/tools/csdk-12).
+- The GUI Map Compiler. It ships in the reduced CSDK 12 folder as `GUIMapCompiler/CS2MapCompiler.exe`.
+- Source 2 Viewer.
+- The hero's codename. Find it in [Hero names and file paths](/docs/deadlock/basics/hero-codenames).
+- Optional: the hero's compiled models and materials in CSDK 12, so Hammer shows textures. Pugzilla's [Compiled Models In CSDK](https://www.youtube.com/watch?v=d2JGLiH2CAY) video shows how.
+
+{/* NEEDS HANDS-ON TEST: whether Hammer opens these maps in the reduced CSDK 12 without the full game files (gap G13). The CSDK 12 page lists Hammer as needing them. One Reddit answer says to open Hammer under the bin binary because the others crash. */}
+
+## How these screens work
+
+Each folder in `game/citadel/maps/ui/` holds one small map VPK per hero:
+
+| Folder                    | Screen                      |
+| ------------------------- | --------------------------- |
+| `hero_prefabs/`           | Hero select                 |
+| `hero_shop/`              | The scene behind the shop   |
+| `hero_postgame_portrait/` | End of match, with the MVPs |
+
+The game's hero data names these maps for each hero. For example, the Infernus shop scene is `maps/ui/hero_shop/inferno_shop.vmap`.
+
+<img
+  src="/wiki-images/deadlock-models-menu-scenes-1.webp"
+  alt="Left: the three menu map folders and their screens. Right: a folder tree of a finished mod, where pak05_dir.vpk holds maps/ui/hero_prefabs/doorman.vpk, a map VPK made by the compiler, next to the skin's models and materials folders."
+/>
+
+{/* NEEDS HANDS-ON TEST: confirm the three folder names on build 6779. The game's file list says hero_postgame_portrait; the video says hero_post_game_portrait. Also check which screen uses hero_select.vpk and hero_roster.vpk in the same folder, and the team reveal map named in heroes.vdata. */}
+
+## Watch the walkthrough
+
+Pugzilla edits Doorman's hero select scene in this video.
+
+<YouTube
+  id="g5Yw0PbF1qU"
+  title="Lightweight map changes for hero select, shop, and postgame by Pugzilla"
+/>
+
+## Set up the addon
+
+1. Click **Create New Addon** in the CSDK 12 launcher. Name it in lowercase with no spaces, for example `doormanmenus`.
+2. Right-click the addon and choose **Explore Content Folder**.
+3. Create the folder `maps/ui/hero_prefabs/`. Make one folder like this for each screen you edit.
+4. Do not add a folder for the hero inside it.
+
+## Decompile the hero's scene
+
+1. Open Source 2 Viewer.
+2. Open `Deadlock/game/citadel/maps/ui/hero_prefabs/`.
+3. Double-click your hero's VPK, for example `doorman.vpk`.
+4. Right-click the `.vmap` inside and choose **Decompile & export**. Leave every other file alone.
+5. In the save dialog, remove `_d` from the end of the name. `doorman_d` becomes `doorman`.
+6. Save it into your addon's `maps/ui/hero_prefabs/` folder.
+7. Check the folder. You should see the `.vmap` and a world nodes folder.
+
+## Edit the scene in Hammer
+
+1. In the CSDK 12 launcher, select your addon and click **Launch Tools**.
+2. In the Asset Browser, open **Filter** and click **Mod** twice. Your `.vmap` shows at the top.
+3. Double-click the `.vmap` to open it in Hammer.
+4. Find the camera entity. It sets what the screen shows.
+5. Find the barn lights. They light the hero.
+6. Select a light. In the **direct light** section, click the color bar and pick a color.
+7. Look for a light environment entity. If the map has one, it may light the hero too. Change it as well.
+8. Switch the viewport from **Full Bright** to **3D All Lighting** to see your lighting.
+9. Drag the lights to move them.
+10. Select the hero. Rotate it to face the camera, or to any angle you like.
+11. Press Ctrl+S to save. Close Hammer.
+
+{/* SCREENSHOT: deadlock-models-menu-scenes-2.webp, a hero select map open in Hammer with the camera entity and the barn lights visible */}
+
+## Compile the map
+
+1. In the Asset Browser, right-click the map and open its folder. Copy the folder path.
+2. Open your reduced CSDK 12 folder. Go into `GUIMapCompiler` and run `CS2MapCompiler.exe`.
+3. Click **open vmap**. Paste the path and pick your `.vmap`.
+4. Click **change output** and pick your desktop.
+5. Set **custom path** to the Deadlock option.
+6. Leave the other settings alone and click **compile**.
+7. Open the output. It is a folder named after your addon, with `maps/ui/hero_prefabs/doorman.vpk` inside.
+8. Drag the inner `maps` folder out. Delete the empty wrapper folder.
+
+{/* NEEDS HANDS-ON TEST: the GUI Map Compiler labels (open vmap, change output, custom path, compile) and which folder and option "custom path" needs. The video browses toward the Deadlock game/bin folder; the audio is unclear. */}
+
+## Pack it with your skin
+
+The compiled map is a VPK. It goes inside your mod's VPK, at the same path.
+
+1. Make a staging folder. Put the `maps` folder in it, so the path reads `maps/ui/hero_prefabs/doorman.vpk`.
+2. Shipping a skin too? Put the `maps` folder in the skin's staging folder, next to `models` and `materials`.
+3. Pack the staging folder. Follow [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
+4. Open the finished VPK in Source 2 Viewer. Check that the inner VPK sits at `maps/ui/hero_prefabs/`.
+
+If another mod ships the same hero's scene, only one of them shows. The lower pak number wins.
+
+## Test each screen
+
+1. Close CSDK 12. Deadlock does not start while the tools are open.
+2. Start Deadlock.
+3. Open hero select and look at your hero.
+4. Check the shop and the end of match screen too, if you edited them.
+
+{/* SCREENSHOT: deadlock-models-menu-scenes-3.webp, the hero select screen with the turned hero and the new light colors, on the default hero or an original skin */}
+
+## If your skin does not show on these screens
+
+Some heroes may use separate models on menu screens. One October 2026 skin also replaced a model with `picker` in its name. If your skin shows in matches but not on hero select, look in the hero's model folder for a file with `picker` in its name.
+
+{/* NEEDS HANDS-ON TEST: which heroes have separate picker models for menu screens, and whether a skin must replace them (gap G13). */}
+
+## Common problems
+
+- **The map does not show in the Asset Browser.** Click **Mod** in the filter. Check that the file sits in `maps/ui/hero_prefabs/`, with no hero folder.
+- **Hammer shows no textures.** The hero's compiled models and materials are not in your CSDK 12. See the companion video above.
+- **Your lighting does not show in Hammer.** Switch from **Full Bright** to **3D All Lighting**.
+- **The game shows the old scene.** Check the inner VPK path. Remove any other mod that ships the same scene.
+- **Deadlock will not start.** Close CSDK 12 first.
+
+Only one video covers these screens. Nobody has published tested steps for custom poses or for the team reveal screen.
+
+## Next steps
+
+- [Hero model swap: overview](/docs/deadlock/models/hero-model-swap)
+- [CSDK 12](/docs/deadlock/tools/csdk-12)
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Video:** [Deadlock - Lightweight Map Changes (Hero Select, Shop, Postgame)](https://www.youtube.com/watch?v=g5Yw0PbF1qU) by Pugzilla.
+- **Video:** [Deadlock - Compiled Models In CSDK](https://www.youtube.com/watch?v=d2JGLiH2CAY) by Pugzilla.
+- **Data:** [GameTracking-Deadlock](https://github.com/SteamTracking/GameTracking-Deadlock) by SteamTracking, for the map folders and hero data.
+- **Guide:** [CSDK 12](https://deadlockmodding.pages.dev/modding-tools/csdk-12) from Deadlock Modding Notes.

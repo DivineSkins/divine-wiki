@@ -1,0 +1,179 @@
+---
+title: "Your first model swap: a soul container"
+description: "Replace the soul container with your own 3D model. The easiest model swap: one bone, one material, no animation setup."
+category: "models"
+patch: "6779"
+---
+
+<LevelPill level="intermediate" />
+
+Swap the soul container for your own 3D model. It is the easiest model swap: one bone, one material, and nothing to animate. Set up Source 2 Viewer and CSDK 12 first with [Set up your creator tools](/docs/deadlock/getting-started/creator-setup). If Blender imports are new to you, read [Import a Deadlock model into Blender](/docs/deadlock/models/import-into-blender).
+
+## What you need
+
+- Source 2 Viewer and CSDK 12. Install them with [Set up your creator tools](/docs/deadlock/getting-started/creator-setup).
+- Blender, any recent version. You need no add-on, because this guide exports FBX.
+- Your own 3D model, plus its color texture as a PNG. A normal map is optional.
+
+Use your own design. Models ported from other games, films, or anime carry copyright risk.
+
+## Why start with a prop
+
+- The soul container has one bone and one material. There is no skeleton work, no attachments, and no CS2 Workshop Tools step.
+- You learn ModelDoc and the Material Editor, which every hero swap uses.
+- It is the most popular model swap. In October 2026, 311 of the 545 mods in GameBanana's Model Replacement section replaced the soul container.
+
+<img
+  src="/wiki-images/deadlock-models-prop-swap-1.webp"
+  alt="Diagram of the five steps: export from Source 2 Viewer, fit in Blender, swap the mesh in ModelDoc, make the material, then pack and test in the hideout"
+/>
+
+## Keep it fair
+
+<Callout type="danger" title="Same size, same shape, no glow">
+  Model size and shape are part of the fair-play line. A smaller, thinner, or
+  taller model changes how easy it is to spot, and that is an advantage. Keep
+  your container close to the original size and shape, and do not make it glow.
+  Read [What's allowed and how to stay
+  safe](/docs/deadlock/getting-started/stay-safe).
+</Callout>
+
+## Watch the walkthrough
+
+Pugzilla's video follows the same steps as this guide.
+
+<YouTube id="9DvLaAYfRxQ" title="Soul Container Model Swaps by Pugzilla" />
+
+Pugzilla recorded it in August 2026, before the City Never Sleeps update. We have not tested these steps on the current update yet, so menus may look different.
+
+{/* NEEDS HANDS-ON TEST: run this whole page on build 6779 as the model smoke test (gap G04): export, FBX swap, material, compile, pack, and the container showing in the hideout. */}
+
+## Export the original
+
+1. Make an empty work folder, for example `soulbox_work`.
+2. Open Source 2 Viewer and open `Deadlock/game/citadel/pak01_dir.vpk`.
+3. Go to `models/props/gameplay/soul_container/`. This is the path from the video. If it moved, look through `models/props/`.
+4. Right-click the soul container's `.vmdl_c` and choose **Decompile & export**.
+5. Change **Save as type** to glTF. Save it into your work folder.
+
+{/* NEEDS HANDS-ON TEST: the exact soul container folder and file name on build 6779 (the video only says "props, gameplay, soul container" aloud). */}
+
+{/* SCREENSHOT: deadlock-models-prop-swap-2.webp, Source 2 Viewer open at the soul container folder with the model selected */}
+
+## Fit your model in Blender
+
+1. Open Blender and delete the default scene objects.
+2. Choose **File > Import > glTF 2.0**. Tick **Disable Bone Shape** and import the soul container. You see the container and its one bone.
+3. Import your own model with **File > Import**.
+4. Scale and move your model to match the container's size and position.
+5. Delete the original container mesh. Keep the armature.
+6. Click your mesh, then Shift-click the armature. Press Ctrl+P and choose **With Automatic Weights**.
+7. Test it. Select the armature, switch to Pose Mode, and move the bone. Your mesh should follow. Press Ctrl+Z to undo the move.
+8. Save the `.blend` file.
+
+{/* SCREENSHOT: deadlock-models-prop-swap-3.webp, Blender with an original replacement mesh next to the container's single bone, parented with automatic weights */}
+
+### Name the material and export
+
+1. Select your mesh and open the **Material** tab.
+2. Check that every slot has a material assigned.
+3. Give each material a simple name: lowercase letters, no periods, no numbers, no `.001` ending. This guide uses `soulbox`.
+4. Choose **File > Export > FBX** and save it as `soulbox.fbx`.
+
+The material name links Blender to your material file later. FBX works for a prop with one bone. Hero swaps export DMX instead.
+
+## Set up the addon
+
+1. Open the CSDK 12 launcher and click **Create New Addon**. Name it `soulbox`, in lowercase with no spaces.
+2. Right-click the addon and choose **Explore Content Folder**.
+3. Inside it, rebuild the game path: `models/props/gameplay/soul_container/`. Make a `materials` folder inside that folder.
+4. In Source 2 Viewer, right-click the soul container's `.vmdl_c` again. Choose **Decompile & export**, keep the model type, and save into the folder from step 3.
+5. Check the folder. It now holds a `.vmdl` file and its `.dmx` mesh.
+6. Copy `soulbox.fbx` into the same folder.
+
+<img
+  src="/wiki-images/deadlock-models-prop-swap-4.webp"
+  alt="Folder trees: the content folder holds the decompiled vmdl, the old dmx, soulbox.fbx and a materials folder; the game folder holds the compiled vmdl_c, vmat_c and vtex_c files you pack"
+/>
+
+## Swap the mesh in ModelDoc
+
+1. In the launcher, select `soulbox` and click **Launch Tools**. The Asset Browser opens.
+2. Double-click the soul container model. ModelDoc opens.
+3. Click the star next to **Add** and choose **Add Meshes**. Pick `soulbox.fbx`.
+4. Under **RenderMeshList**, click the original `.dmx` mesh and copy its name.
+5. Delete the original mesh. Paste the name onto your new FBX mesh.
+6. Click **Compile**. Your model replaces the container in the preview.
+
+Keep the original mesh name so the rest of the model still finds it.
+
+{/* NEEDS HANDS-ON TEST: the "star" button next to Add and the Add Meshes label in the current CSDK 12 ModelDoc. */}
+
+{/* SCREENSHOT: deadlock-models-prop-swap-5.webp, ModelDoc's RenderMeshList with soulbox.fbx renamed to the original mesh name */}
+
+## Make the material
+
+1. In ModelDoc, choose **Add > Default Material Group**. A slot appears with your Blender material name. If the slot has no name, your Blender name is wrong. Rename it, export the FBX again, and compile.
+2. In the Asset Browser, open the **Material Editor**. Click **New**, then save right away into `materials/` as `soulbox.vmat`.
+3. Copy your PNG files into the same `materials` folder. Name them `soulbox_color.png` and `soulbox_normal.png`. These endings help the editor fill the right slots.
+4. Check that the shader is `pbr.vfx`. If it shows another shader, switch it to `pbr.vfx`.
+5. Tick **Use NPR Lighting** and **Use Status Effects Proxy**.
+6. Set **Color** to `soulbox_color.png`.
+7. Change **Roughness** to a color and pick pure white. White means no shine. The gray default looks like plastic.
+8. Save and close the Material Editor.
+9. In ModelDoc, click the browse button on the `soulbox` slot. The video calls it **open local browser**. Pick `soulbox` and click **Compile**.
+
+[Materials for custom models](/docs/deadlock/textures/materials-for-custom-models) explains every setting.
+
+{/* NEEDS HANDS-ON TEST: the Material Editor default shader for a new material (conflict C41). */}
+
+{/* NEEDS HANDS-ON TEST: the video also ticks Write Depth Before Alpha Blending. The shader only allows it with Translucent on (conflict C39), so it is left out until tested. */}
+
+{/* SCREENSHOT: deadlock-models-prop-swap-6.webp, the Material Editor with Use NPR Lighting and Use Status Effects Proxy ticked and Roughness set to white */}
+
+## Compile, pack, and test
+
+1. Close ModelDoc. In the Asset Browser, right-click the model and recompile it.
+2. In the launcher, right-click `soulbox` and choose **Explore Game Folder**.
+3. Open `models/props/gameplay/soul_container/`. You see the compiled `.vmdl_c` and a `materials` folder with `.vmat_c` and `.vtex_c` files.
+4. Copy the whole `soulbox` game folder somewhere else. In the copy, delete everything except `models`.
+5. Pack the copy into a VPK. Follow [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
+6. Load the mod and type `map dl_hideout` in the console. [Test your mod in game](/docs/deadlock/basics/test-your-mod) shows how.
+7. Go to the practice range. Break boxes until a soul container appears.
+
+Pack only compiled files. Leave out the `.dmx`, `.fbx`, `.vmdl`, `.vmat`, and PNG files.
+
+{/* NEEDS HANDS-ON TEST: the Asset Browser recompile label for a model (the video says "recompile shallow"). */}
+
+{/* SCREENSHOT: deadlock-models-prop-swap-7.webp, the new soul container in the hideout practice range */}
+
+## Other props you can swap
+
+GameBanana's Model Replacement section also has Hideout, Breakables, Spirit Urn, and NPC categories. The same steps work for any model that does not animate. Models with animations, like NPCs and heroes, need more work. For heroes, start with [Hero model swap: overview](/docs/deadlock/models/hero-model-swap).
+
+The fair-play rule applies to every prop. Objectives like the Spirit Urn must stay as easy to see as the original, never easier or harder.
+
+## Common problems
+
+- **The old container still shows.** Your folder path or file name differs from the game. Compare every folder name with Source 2 Viewer.
+- **A slot in the Default Material Group has no name.** Your Blender material name has a period, a number, or `.001`. Rename it, export the FBX again, and compile.
+- **The model is red in ModelDoc.** It has no material yet. Add the Default Material Group and pick your material.
+- **The model looks shiny or plastic.** Set Roughness to pure white.
+- **A texture is missing in game.** The `.vtex_c` files are not in your VPK. Copy the whole compiled `materials` folder.
+- **The size or position is wrong.** Fix it in Blender, export the FBX again, and compile.
+- **It worked before an update.** Updates can move props. Find the soul container in Source 2 Viewer again and check the path.
+
+## Next steps
+
+- [Import a Deadlock model into Blender](/docs/deadlock/models/import-into-blender)
+- [Materials for custom models](/docs/deadlock/textures/materials-for-custom-models)
+- [Hero model swap: overview](/docs/deadlock/models/hero-model-swap)
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Video:** [Deadlock - Soul Container Model Swaps](https://www.youtube.com/watch?v=9DvLaAYfRxQ) by Pugzilla.
+- **Video:** [(Read Desc) Deadlock - General Model Swap Steps](https://www.youtube.com/watch?v=piEYFbFYmVM) by Pugzilla.
+- **Guide:** [CSDK 12](https://deadlockmodding.pages.dev/modding-tools/csdk-12) from Deadlock Modding Notes.
+- **Tool:** [Source 2 Viewer](https://s2v.app/) by the ValveResourceFormat team.

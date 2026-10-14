@@ -1,0 +1,161 @@
+---
+title: "Make a new particle effect"
+description: "Build a new effect in the Particle Editor and use it in place of an existing one. For creators who already know particle recolors."
+category: "particles"
+patch: "6779"
+---
+
+<LevelPill level="advanced" />
+
+Build your own particle effect in CSDK 12's Particle Editor, then show it in place of an effect the game already plays. Do [Recolor ability effects](/docs/deadlock/particles/recolor-ability-effects) first. This page assumes you can decompile, compile, and pack a particle.
+
+## What you need
+
+- CSDK 12 and Source 2 Viewer. Install them with [Set up your creator tools](/docs/deadlock/getting-started/creator-setup).
+- One finished particle recolor.
+- The path of the game effect you want to replace. [Recolor ability effects](/docs/deadlock/particles/recolor-ability-effects) shows how to find it with `dumpparticlelist`.
+
+## Keep it fair
+
+You see your effect every time any player triggers it, enemies included. Players read these effects to dodge and react.
+
+<Callout type="danger" title="Never hide or shrink an effect">
+  Keep your effect about as big, as bright, and as long as the original. Never
+  replace an effect with nothing, make it smaller, or make it fade early. Never
+  make it harder to read in a fight. Read [What's allowed and how to stay
+  safe](/docs/deadlock/getting-started/stay-safe).
+</Callout>
+
+Your effect must also work without game data changes. If it only works with an edited `scripts/*.vdata_c` file, it is a gameplay mod. The method on this page changes particle files only.
+
+## Watch the walkthrough
+
+Basilisken builds a burst from scratch and puts it on a weapon. The video is long and improvised, and some fixes happen off-mic. It was made before the September 2026 update, so its game file paths may be out of date. This page follows the same steps in order.
+
+<YouTube
+  id="ZP6dPMS5KEA"
+  title="Making a particle burst from scratch by Basilisken"
+/>
+
+## How a particle system works
+
+A particle effect is a `.vpcf` file. It holds a list of functions that run from top to bottom. Initializers set a value once, when a particle spawns. Anything that changes over time needs an operator.
+
+<img
+  src="/wiki-images/deadlock-particles-make-an-effect-1.webp"
+  alt="The four kinds of particle functions: the emitter decides when and how many, initializers run once at spawn, operators run every frame, and renderers draw each particle. Base properties and children sit below."
+/>
+
+## Plan the effect
+
+Decide three things before you open the editor:
+
+1. **Which effect it replaces.** Pick one effect the game already plays. Your effect plays in its place.
+2. **The size and length to match.** Preview the original in Source 2 Viewer. Note how big it is and how long it lasts.
+3. **The parts.** Build each part as its own file, then join them as children. This page builds a burst from three parts: sparks, a flash, and a ring.
+
+## Build the sparks
+
+Node names below follow the video. If a name differs in your build, search the add menu for a close match.
+
+1. In the CSDK 12 launcher, select your addon and click **Launch Tools**.
+2. Open the Particle Editor from the tools bar (the fire icon). Create a new particle system.
+3. Save it right away inside your addon, for example as `particles/my_effects/burst_sparks.vpcf`. The preview stays empty until you save.
+4. Set the emitter to **instantaneous**. It spawns every particle at once, which suits a burst. A **continuous** emitter spawns them over time.
+5. Lower the emit count to about 20.
+6. Add the initializer **Position Within Sphere**. Its distance sets the size of the sphere. Set speed min to 100 and max to 200, so particles fly out evenly.
+7. Add the renderer **Sprite Render**. It draws each particle as a flat card with a soft dot.
+8. Add the operator **Lifespan Decay**. Without it you get the warning "system will not end on stop", and particles never clear.
+9. Add an **Init Float** initializer. Change its output from radius to **life duration** and set it to 2 seconds.
+10. Add the operator **Movement Basic** so particles move. Set its drag between 3 and 8, so they shoot out and then slow down.
+11. In the sprite renderer, pick a sparkle texture from the built-in list.
+12. Add the initializer **Color Random** for the start color. Add the operator **Color Fade** to fade to a second color near the end of life.
+
+{/* NEEDS HANDS-ON TEST: exact function names in the CSDK 12 Particle Editor (the video speaks them, it does not show all of them up close), the fire icon, and that a new system saves into the addon content folder. */}
+
+{/* SCREENSHOT: deadlock-particles-make-an-effect-3.webp, the Particle Editor function list for burst_sparks with the emitter, initializers, operators, and renderer visible */}
+
+## Shape it over time
+
+- **Random sizes:** click the value-type button next to the radius and choose **random uniform**. Set a range such as 5 to 10.
+- **Grow or shrink:** add the operator **Radius Scale** with a start and an end scale. The radius you set at spawn is the base size, and this operator multiplies it.
+- **Curves:** for size or fade over a particle's life, use a float node with the input **particle age** (0 to 1). Switch it to a curve and Shift+click to add points.
+- **Keep random sizes:** if a curve wipes out your random radius, change its **set value method** to **scale initial value**.
+- **Layers:** duplicate the sprite renderer and give the copy another texture.
+
+## Add a flash and a ring as children
+
+1. Save a copy of the sparks file as `burst_flash.vpcf`.
+2. In the copy, remove the movement functions and set the spawn distance to 0. The flash now sits in the center.
+3. Pick a flare texture.
+4. If the texture shows a black box, change the sprite's blend mode from alpha blend to **additive**.
+5. Add a fast fade with an alpha curve, so the flash does not linger.
+6. Save another copy as `burst_ring.vpcf`. Pick a ring texture. Animate its radius with a curve, so it grows and fades.
+7. Open `burst_sparks.vpcf` and add the flash and the ring under **Children**. All three now play together.
+
+A color set in **Base Properties** blends on top of the color functions. Check there if the colors look wrong.
+
+## Preview and tune
+
+1. Restart the effect in the preview after each change.
+2. Compare it with the original effect. Match the size, the brightness, and the length.
+3. Save all three files.
+
+{/* SCREENSHOT: deadlock-particles-make-an-effect-4.webp, the finished burst (sparks, flash, and ring) playing in the Particle Editor preview */}
+
+## Use it in place of a game effect
+
+The game asks for each effect by its path. A brand new path would need a game data change. Instead, you edit a copy of the original effect so it plays yours as a child.
+
+<img
+  src="/wiki-images/deadlock-particles-make-an-effect-2.webp"
+  alt="Folder tree of the finished VPK: a copy of the game effect at its original path in particles/weapon_fx, plus the three new burst files in particles/my_effects. The game loads the copy, and the copy plays the new effect as a child."
+/>
+
+1. Find the game effect you want to replace. Weapon effects, such as muzzle flashes, live in `particles/weapon_fx/`.
+2. Decompile it into your addon at the exact same path.
+3. If it will not open in the tools, fix its header line. [Recolor ability effects](/docs/deadlock/particles/recolor-ability-effects) shows how.
+4. Open it in the Particle Editor. Add `burst_sparks.vpcf` under **Children**. Your file can stay in its own folder.
+5. Turn off the original functions, so only your effect shows.
+6. Scale your effect to the original's size.
+7. Remove any fixed direction from your effect's speed. The point an effect attaches to has its own axes, so "up" in your file can point sideways in game.
+8. Save the file.
+
+Your effect stays where it spawns. Making it follow a moving weapon needs control point functions, and no Deadlock guide covers them yet.
+
+{/* NEEDS HANDS-ON TEST: the full replacement on build 6779 with one weapon effect in particles/weapon_fx/. Confirm that turning off the original functions works, that no vdata change is needed, and record the exact example file. The video used a Doorman weapon effect before City Never Sleeps. */}
+
+## Compile, pack, and test
+
+1. In the Asset Browser, select your three files and the edited game effect.
+2. Right-click and choose **Recompile > Full**.
+3. Open your addon's game folder. Copy the `particles` folder into a staging folder, so the paths stay the same.
+4. Remove any compiled file you did not make or change.
+5. Built-in textures are already in the game. If you made your own texture, add its compiled `.vtex_c` at its path too.
+6. Pack the staging folder. Follow [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
+7. Play the hero or weapon that uses the effect. Follow [Test your mod in game](/docs/deadlock/basics/test-your-mod).
+
+## Common problems
+
+- **The warning "system will not end on stop".** Add the **Lifespan Decay** operator.
+- **The preview is empty.** Save the file first.
+- **Particles do not move or never disappear.** Add **Movement Basic** and set a life duration.
+- **Black boxes around the sprites.** Set the blend mode to additive.
+- **Random sizes are ignored.** Set the curve's set value method to **scale initial value**.
+- **The effect points the wrong way in game.** Remove fixed directions. The attachment point has its own axes.
+- **The tools crash when you preview an effect.** Some projected effects crash the `bin` binary. Switch to `bin_tools` for the preview.
+
+Only one Deadlock tutorial builds an effect from scratch. Nobody has documented how to make an effect follow a moving attachment, how team colors work on a new effect, or which effects City Never Sleeps moved.
+
+## Next steps
+
+- [Recolor ability effects](/docs/deadlock/particles/recolor-ability-effects)
+- [Test your mod in game](/docs/deadlock/basics/test-your-mod)
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Video:** [How to: Particles - Making a VFX burst (Deadlock)](https://www.youtube.com/watch?v=ZP6dPMS5KEA) by Basilisken.
+- **Guide:** [Particle Editor (Source 2)](https://developer.valvesoftware.com/wiki/Particle_Editor_%28Source_2%29) on the Valve Developer Community.
+- **Guide:** [Simple Particle Recolor Tutorial](https://gamebanana.com/tuts/19597) by TheLastFriendly.

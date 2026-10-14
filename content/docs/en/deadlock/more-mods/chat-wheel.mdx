@@ -1,0 +1,112 @@
+---
+title: "Custom chat wheel"
+description: "Build custom chat wheel menus with ChatLane and install them as a mod, plus the crash to watch for after game updates."
+category: "more-mods"
+patch: "6779"
+---
+
+<LevelPill level="intermediate" />
+
+Build your own chat wheel menus with ChatLane and install them as a mod. ChatLane can also add voice commands that the normal game doesn't let you bind. Set up mod loading first with [Deadlock Mod Manager](/docs/deadlock/getting-started/install-with-mod-manager) or [by hand](/docs/deadlock/getting-started/install-by-hand).
+
+<Callout type="info" title="Not tested on the current build">
+  ChatLane's last update came before the City Never Sleeps update of 2026-09-29.
+  It may not match the current game. We have not tested these steps on build
+  6779 yet.
+</Callout>
+
+## What you need
+
+- A Windows PC. On Linux, ChatLane runs through Wine.
+- [ChatLane](https://github.com/RedMser/ChatLane) by RedMser. It is free and open source (MIT license).
+- Deadlock set up to load mods.
+
+## What ChatLane does
+
+ChatLane is a community tool with a window you click through and a command-line version. It edits the game's chat wheel script file for you. Then it saves the result as an addon VPK.
+
+The chat wheel's data lives in these game files:
+
+- `scripts/ping_wheel_messages.vdata_c`
+- `scripts/ping_wheel_message_types.vdata_c`
+- `soundevents/chat_wheel.vsndevts_c`
+
+Keep your wheel text free of slurs and harassment.
+
+## Get ChatLane
+
+1. Open [ChatLane on GitHub](https://github.com/RedMser/ChatLane).
+2. Under **Releases** on the right, click the newest release.
+3. Download the program from that release page.
+4. If it comes as a zip, unzip it into its own folder.
+
+<img
+  src="/wiki-images/deadlock-more-mods-chat-wheel-1.webp"
+  alt="ChatLane's GitHub page, with the Releases section at the bottom right"
+/>
+
+{/* NEEDS HANDS-ON TEST: the release file names, and whether ChatLane needs a .NET runtime installed first */}
+
+## Build a wheel
+
+ChatLane's README on GitHub shows its exact buttons. If a label here differs, follow the README. The flow is:
+
+1. Start ChatLane.
+2. Choose the messages and voice commands you want on each part of the wheel.
+3. Save your wheel as an addon VPK.
+
+{/* SCREENSHOT: deadlock-more-mods-chat-wheel-2.webp, ChatLane's window with a custom wheel open */}
+
+{/* NEEDS HANDS-ON TEST: the whole build flow on build 6779: how to start ChatLane, the button labels, where it saves the VPK, and what file name it gives it */}
+
+## Install the VPK
+
+1. Close Deadlock.
+2. Give the VPK a free mod name, such as `pak10_dir.vpk`. The rules are in [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
+3. Put it in `game/citadel/addons/`. [Install mods by hand](/docs/deadlock/getting-started/install-by-hand) shows where that is.
+4. Start Deadlock and open the chat wheel.
+5. Check that every custom menu shows and each message works.
+
+{/* SCREENSHOT: deadlock-more-mods-chat-wheel-3.webp, the custom chat wheel open in game */}
+
+{/* NEEDS HANDS-ON TEST: whether ChatLane names and places the VPK itself; which files the VPK holds (if it ships scripts/ping_wheel_messages.vdata_c, check that an old copy does not break the wheel after an update); how custom menus get bound to keys */}
+
+## After a game update
+
+<Callout
+  type="warning"
+  title="A custom wheel can crash the game after an update"
+>
+  Updates often replace `gameinfo.gi`, so your mods stop loading. If that
+  happens, opening the chat wheel or the settings can crash the game. This lasts
+  until you load your mods again or unbind your custom menus.
+</Callout>
+
+<img
+  src="/wiki-images/deadlock-more-mods-chat-wheel-4.webp"
+  alt="Four steps: an update replaces gameinfo.gi, your wheel VPK stops loading, opening the wheel or settings can crash the game, and the fix is to load your mods again or unbind your custom menus"
+/>
+
+After each update, before you open the chat wheel or the settings:
+
+1. Close Deadlock.
+2. Load your mods again. In Deadlock Mod Manager, click **Launch Modded**. By hand, redo the `gameinfo.gi` edit from [Install mods by hand](/docs/deadlock/getting-started/install-by-hand).
+3. Start the game and open the chat wheel.
+4. If it still crashes, check [ChatLane on GitHub](https://github.com/RedMser/ChatLane) for a new release and build your wheel again.
+
+To stop using your wheel, unbind your custom menus in the game first. Then remove the VPK from `addons`.
+
+{/* NEEDS HANDS-ON TEST: how to unbind custom menus (in game or in ChatLane), and whether removing the VPK without unbinding crashes the game */}
+
+## Next steps
+
+- [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk)
+- [Install mods by hand](/docs/deadlock/getting-started/install-by-hand)
+- [Custom mouse cursors](/docs/deadlock/more-mods/cursors)
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original tools.
+
+- **Tool:** [ChatLane](https://github.com/RedMser/ChatLane) by RedMser.
+- **Data:** [GameTracking-Deadlock](https://github.com/SteamTracking/GameTracking-Deadlock) by SteamTracking, for the chat wheel file paths.

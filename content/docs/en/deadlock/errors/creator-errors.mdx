@@ -1,0 +1,139 @@
+---
+title: "Errors when making mods"
+description: "Fix common CSDK 12, Source 2 Viewer, compile, packing, sound, and UI image errors, and find out why a change never shows up in game."
+category: "errors"
+patch: "6779"
+---
+
+<LevelPill level="intermediate" />
+
+Fixes for errors you hit while making a mod: CSDK 12 problems, failed compiles, packing mistakes, and changes that never show in game. Model and skin errors have their own page: [Model and skin problems](/docs/deadlock/errors/model-problems).
+
+## What you need
+
+- CSDK 12 and Source 2 Viewer, set up as in [Set up your creator tools](/docs/deadlock/getting-started/creator-setup).
+- Your addon's content folder and game folder. Right-click the addon in the CSDK 12 launcher to open them.
+
+## CSDK 12 will not start, or your addon is missing
+
+- **The tools do not open.** Start Steam first. CSDK 12 needs it running.
+- **The tools fail to start or crash from your Desktop or Documents folder.** OneDrive often syncs those folders, and that breaks CSDK 12. Move the `Reduced_CSDK_12` folder to a short path, such as `C:\Reduced_CSDK_12`.
+- **Your addon is missing from the launcher.** Its name has a capital letter, a space, or a special character. Rename the folder in both `content/citadel_addons/` and `game/citadel_addons/`, all lowercase with no spaces. Then click **Refresh addons list**.
+- **You cannot find the launcher.** It is `csdkcfg.exe` in your `Reduced_CSDK_12` folder. Older CSDK 12 downloads used a different file. Check the [CSDK 12 page](/docs/deadlock/tools/csdk-12) for the current one.
+- **`bin_server` will not start.** It needs the optional full game files. Switch the binary picker back to `bin`.
+
+{/* NEEDS HANDS-ON TEST: the launcher exe name in the current CSDK 12 zip (conflict C22). Older guides open game\bin\win64\Deadlock_with_tools.exe, the "Project8 CFG Tool". */}
+
+{/* SCREENSHOT: deadlock-errors-creator-errors-1.webp, the CSDK 12 launcher addon list, with File Explorer next to it showing a content folder named MyMod that does not appear in the list */}
+
+## The tools crash
+
+- **A crash when you preview some particle effects.** The `bin` binary crashes on some projected particles. Switch the binary picker to `bin_tools` for that preview. Switch back afterwards, because `bin_tools` crashes on some model compiles.
+- **ModelDoc crashes, or a decompiled model will not open.** See [Model and skin problems](/docs/deadlock/errors/model-problems).
+
+## Compile errors
+
+Compile errors show in VConsole, the console window that opens when you launch the tools. Read it after each compile.
+
+{/* SCREENSHOT: deadlock-errors-creator-errors-2.webp, VConsole showing a compile error for a file in our own test addon */}
+
+- **Nothing compiles.** Check that the file sits inside your addon's content folder, at the same path it has in the game. Then right-click it in the Asset Browser and choose **Recompile > Full**.
+- **A `.vpdi` file will not compile.** The CS2 Workshop Tools cannot compile `.vpdi` files. Use an `image_compiler.vdata` file instead. [Replace portraits, icons, and item art](/docs/deadlock/ui/portraits-and-icons) shows how.
+- **`image_compiler.vdata` fails.** Check that every line names a real image file, ending included. One older guide compiles it with the `bin_server` binary, which needs the full game files.
+- **A texture at an odd size causes trouble.** The compiler makes smaller copies of each texture, called mipmaps. They expect sizes like 512, 1024, or 2048. Use those sizes.
+
+{/* NEEDS HANDS-ON TEST: which CSDK 12 binary compiles image_compiler.vdata without the full game files (conflict C44). Test the default bin first. */}
+
+## Your change does not show in game
+
+This is the most common creator problem. Your edit has to survive five steps, and each one has a usual mistake.
+
+<img
+  src="/wiki-images/deadlock-errors-creator-errors-3.webp"
+  alt="Five steps from source file to game: content folder, Recompile > Full, copy from the game folder, pack one VPK, load from citadel/addons. Each step shows its usual mistake."
+/>
+
+Check these in order:
+
+1. **Recompile.** Right-click the file in the Asset Browser and choose **Recompile > Full**. Saving the source file is not enough.
+2. **Copy from the game folder.** Your mod needs the compiled `_c` file from `game/citadel_addons/<addon>/`. The content folder holds source files, which the game ignores. A `.vmat` in a mod does nothing. A `.vmat_c` works.
+3. **Match the path.** The path inside your VPK must match the game's path letter for letter. Compare it with `pak01_dir.vpk` in Source 2 Viewer.
+4. **Keep the original name.** The game only loads a file with the original name. If you worked under another name, rename the compiled file back.
+5. **Ship the textures too.** A recompiled material points to new texture files with a hash in the name, such as `abrams_coat_color_png_63291cfb.vtex_c`. Pack the new `.vtex_c` files next to the `.vmat_c`.
+6. **Check the VPK.** Name it `pakNN_dir.vpk` and put it straight into `game/citadel/addons/`. A mod with a lower number that changes the same file wins. [Mods not loading](/docs/deadlock/errors/mods-not-loading) covers the rest of the player-side checks.
+
+## Packing problems
+
+- **Source 2 Viewer fails to build the VPK.** Update to the latest dev build from [s2v.app](https://s2v.app/). Older releases had VPK building errors.
+- **Paths in the VPK start at the wrong folder.** Every path must start at a game folder, such as `models/` or `sounds/`. It must not start at your staging folder's name, or halfway down at `heroes_wip/`. Fix your staging folder and pack again.
+- **Source 2 Viewer shows the same file twice in your new VPK.** One creator reports these are phantom copies, and deleting one deleted the real file. Leave them alone.
+- **The CS2 Workshop Manager says Submit failed.** That is expected. It still writes the VPK. See [Pack with the CSDK 12 Workshop Manager](/docs/deadlock/basics/pack-a-vpk#pack-with-the-csdk-12-workshop-manager).
+- **A VPK over 2 GB fails.** One VPK from the CS2 Workshop Manager is limited to 2 GB. See [Mods bigger than 2 GB](/docs/deadlock/basics/pack-a-vpk#mods-bigger-than-2-gb).
+
+{/* NEEDS HANDS-ON TEST: Source 2 Viewer's phantom duplicate entries in a new VPK (one source, Adamtheboss9's sound video). */}
+
+## Material and texture problems
+
+- **Purple checkerboard in the Material Editor.** A texture slot lost its image, often after you moved files. Click the magnifier on each texture slot, pick the image that came with the material, and save.
+- **Checkerboard or missing texture in game.** The new `.vtex_c` files are missing from your VPK. Pack them with the `.vmat_c`.
+- **Black squares or odd shading in Source 2 Viewer.** The viewer's Deadlock shading is still a work in progress. Check the material in game before you change anything.
+- **A red model in ModelDoc or the CS2 tools.** See [Model and skin problems](/docs/deadlock/errors/model-problems).
+
+{/* SCREENSHOT: deadlock-errors-creator-errors-4.webp, the purple checkerboard in the Material Editor on a material from our own test addon, with the magnifier button on a texture slot visible */}
+
+## Sound problems
+
+- **The game plays the old sound.** Your path or file name differs from the original. Compare every letter with Source 2 Viewer.
+- **Nothing changes.** You copied the source audio from the content folder. Copy the `.vsnd_c` from the game folder.
+- **Another sound mod wins.** The lower pak number wins. Two mods that each replace a hero's whole soundevents file also clash, and only one can win.
+- **The sound is too quiet or plays too high.** One creator traced this to outdated tools and to hero soundevents that raise the pitch. Use the current Reduced CSDK 12. Then open the hero's file in `soundevents/hero/` and look for a pitch value on that sound before you change your audio.
+- **Loop points are ignored.** Loops need `.wav` source files and `lame_enc.dll` in the CSDK 12 `bin` folder. This comes from one guide written before the latest update. See [Loop and compress sounds](/docs/deadlock/sounds/looping-and-compression).
+
+{/* NEEDS HANDS-ON TEST: the "pitched up 25%" claim (conflict C48); check the pitch value in a decompiled hero .vsndevts. Also the loop method (conflict C46). */}
+
+## UI image problems
+
+- **The image is stretched, cropped, or blurry.** Its size does not match the original. Check the width and height in Source 2 Viewer and remake it. Keep a transparent background.
+- **The game shows the old image.** The compiled name differs from the original. Older guides rename `_png.vtex_c` files to the original `_psd.vtex_c` name.
+- **Another hero's icons changed too.** You left the template's sample images in your addon. Delete them and pack again.
+
+{/* NEEDS HANDS-ON TEST: the _png to _psd rename rule on build 6779 (conflict C42). */}
+
+## Particle problems
+
+- **The color does not change, or changes only partly.** The effect has more than one color source. Change every property with "color" in its name, plus the renderer settings. Check the effect's Children list too, because child effects have their own colors.
+- **You recolored the wrong file.** Many effects in a hero's folder are not used. Type `dumpparticlelist` in the console during a private match to list the effects in use. [Test your mod in game](/docs/deadlock/basics/test-your-mod) shows how to open the console.
+- **A newer particle does not open in the Particle Editor.** One video fix: open the `.vpcf` in a text editor and change its first line. We have not tested it on the current build.
+
+The first line changes from this:
+
+```text
+<!-- kv3 encoding:text:version{e21c7f3c-8a33-41c5-9977-a76d3a32aa0d} format:vrfunknown:version{c95f3434-dfef-4a35-9913-024beddb416a} -->
+```
+
+To this:
+
+```text
+<!-- kv3 encoding:text:version{e21c7f3c-8a33-41c5-9977-a76d3a32aa0d} format:vpcf61:version{39d3ce1d-9442-4407-9b78-8317145b1732} -->
+```
+
+{/* NEEDS HANDS-ON TEST: the vpcf61 header fix after City Never Sleeps (gap G11), and whether dumpparticlelist needs sv_cheats (gap G07). */}
+
+## Next steps
+
+- [Model and skin problems](/docs/deadlock/errors/model-problems) for T-poses, camera, and health bar errors.
+- [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk) to check your packing steps.
+- [CSDK 12](/docs/deadlock/tools/csdk-12) for the binaries and launcher options.
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [CSDK 12](https://deadlockmodding.pages.dev/modding-tools/csdk-12), [Compiling UI Textures](https://deadlockmodding.pages.dev/modding-guides/compiling-ui-vtex), and [Replacing Sounds](https://deadlockmodding.pages.dev/modding-guides/replacing-sounds) from Deadlock Modding Notes.
+- **Guide:** [How I Make Shiny Metal Materials](https://gamebanana.com/tuts/19611) by ShockHub.
+- **Guide:** [Neutral's General Guide for Modding Deadlock](https://docs.google.com/document/d/1p3_Q3HXRLmQOWnBvkUa5BljGmHVvW33UjBqEz-WRk24/edit) by Neutraldrift.
+- **Guide:** [How to Image Replacement for Dummies](https://gamebanana.com/tuts/19641) by Axelliax.
+- **Guide:** [Simple Particle Recolor Tutorial](https://gamebanana.com/tuts/19597) by TheLastFriendly.
+- **Video:** [How to Make Custom Sound Mods in Deadlock | Random Audio & Sound Switches](https://www.youtube.com/watch?v=wKuH6TKnMuE) by Adamtheboss9.
+- **Video:** [(New Tool) Deadlock - Particle Color Change Tutorial](https://www.youtube.com/watch?v=Otm4C5FyDg8) by Pugzilla.
+- **Q&A:** [Need help with Melee hitsounds issue](https://gamebanana.com/questions/100961) on GameBanana, answered by lunanemic.

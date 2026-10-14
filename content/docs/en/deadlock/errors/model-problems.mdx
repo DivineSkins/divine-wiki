@@ -1,0 +1,200 @@
+---
+title: "Model and skin problems"
+description: "Fix skins that T-pose, center the camera, put the health bar at the feet, show red or purple checkerboards, or lose sounds."
+category: "errors"
+patch: "6779"
+---
+
+<LevelPill level="intermediate" />
+
+Fixes for custom hero models that look or act wrong, in ModelDoc or in game. Find your symptom below. Each fix points back to the step in the [hero model swap](/docs/deadlock/models/hero-model-swap) guides that solves it.
+
+<img
+  src="/wiki-images/deadlock-errors-model-problems-1.webp"
+  alt="Diagram: symptoms sorted by hero swap part. Part 1 Blender: bending, floating weapon, tiny or turned mesh. Part 2 ModelDoc: crashes, solid red mesh, missing material slot. Part 3 attachments: centered camera, health bar at the feet, missing sounds. Part 4 AnimGraph 2: A-pose or T-pose, hero does not turn, broken LODs. After a game update: export the original again and redo parts 3 and 4."
+/>
+
+## What you need
+
+- Source 2 Viewer, to compare your model with the original hero.
+- CSDK 12 and your skin's addon.
+- A text editor, such as Notepad++ or VS Code.
+- The in-game console. [Test your mod in game](/docs/deadlock/basics/test-your-mod) shows how to turn it on.
+
+## First checks
+
+1. Remove other mods for the same hero. When two mods ship the same file, the lower pak number wins.
+2. Check your model's path and file name against Source 2 Viewer, letter by letter.
+3. Open the console with F7 and read the errors that name your files.
+
+## The hero stands in an A-pose or T-pose
+
+The hero does not animate, or does not turn with the camera. Your model is missing its links to the hero's animations.
+
+1. Open the original hero's `.vmdl_c` in Source 2 Viewer and go to the **Data** tab.
+2. Compare the skeleton and graph paths with the three nodes in your model.
+3. Fix any wrong path in CS2 Workshop Tools and compile there.
+4. Pack again and test.
+
+The full steps are in [part 4](/docs/deadlock/models/hero-swap-compile#add-the-skeleton-and-graph-references). Other causes:
+
+- **You compiled the final model in CSDK 12.** It cannot compile these links. Do the last compile in CS2 Workshop Tools.
+- **Your VPK contains a `.vnmskel_c`.** A shipped skeleton replaces the game's and can freeze the hero. Remove it.
+- **Your hero is Violet or Nurse Harrow.** They may still use AnimGraph 1. See [part 4](/docs/deadlock/models/hero-swap-compile#heroes-that-may-still-use-animgraph-1).
+
+{/* SCREENSHOT: deadlock-errors-model-problems-2.webp, an original test skin standing in an A-pose in the hideout */}
+
+## The camera sits in the middle of the screen
+
+The camera sits inside the hero or in the screen center. The console often fills with green text that names an attachment. A camera attachment in your model has different values from the original.
+
+Common causes:
+
+- You decompiled the hero with a Source 2 Viewer build from before 2026-08-04. Those builds saved attachment angles with small errors.
+- Your reference copy of the original was overwritten by your own compiled model.
+- The skin was made before Valve's camera update and lacks the newer camera attachments.
+
+To fix it:
+
+1. Open the console with F7. Note the attachment the green text names.
+2. Export a fresh reference copy of the original hero, as in [part 3](/docs/deadlock/models/hero-swap-attachments#make-a-reference-copy-of-the-original).
+3. Copy **Relative Origin** and **Relative Angles** for all eleven camera attachments.
+4. Check the pivots. Their angles should read `-90`, not `-89.97`.
+5. Copy the camera preview FOVs from the original's Data tab.
+6. Compile in CS2 Workshop Tools, pack again, and test.
+
+Never fix the camera by changing `CitadelCameraSettings_t` or the FOV values. Copy the original values only. Different values are an unfair mod.
+
+{/* SCREENSHOT: deadlock-errors-model-problems-3.webp, the camera stuck in the middle of the screen on an original test skin */}
+
+{/* SCREENSHOT: deadlock-errors-model-problems-4.webp, the console (F7) with green text naming a broken camera attachment */}
+
+## The health bar sits at the feet
+
+Pugzilla shows this fix from 53:21.
+
+<YouTube
+  id="piEYFbFYmVM"
+  title="Health bar fix, from General Model Swap Steps by Pugzilla"
+  start={3201}
+/>
+
+1. In Source 2 Viewer, decompile the original hero's `.vmdl_c` as `.vmdl` into a new, empty folder.
+2. Open that file and your work `.vmdl` in your text editor.
+3. Search both files for `CitadelUnitStatusSettings_t`.
+4. Replace your block with the original block.
+5. Save, then reload your model in ModelDoc.
+6. Compile in CS2 Workshop Tools, pack again, and test.
+
+Another route: the DeadlockTools community tool has a `fix unitstatus` command for a CSDK 12 bug in this block. It is unofficial and we have not tested it. See [Helper tools and scripts](/docs/deadlock/tools/helper-tools).
+
+{/* SCREENSHOT: deadlock-errors-model-problems-5.webp, the fixed health bar floating above an original test skin's head */}
+
+## Some hero sounds are missing
+
+Your model lacks a game data block.
+
+- **Ability or voice sounds are missing:** copy `CitadelTaggedSoundSettings_t` from the original.
+- **Footsteps are missing:** copy the feet nodes from the original.
+
+Use the text editor method from [part 3](/docs/deadlock/models/hero-swap-attachments#copy-a-block-with-a-text-editor). Then compile in CS2 Workshop Tools and pack again.
+
+{/* NEEDS HANDS-ON TEST: which sounds go missing without CitadelTaggedSoundSettings_t (one source, Fuji's guide). */}
+
+## The mesh is solid red, or shows checkerboards
+
+| What you see                       | Where                     | Fix                                                                      |
+| ---------------------------------- | ------------------------- | ------------------------------------------------------------------------ |
+| A solid red mesh                   | CSDK 12's ModelDoc        | Add a `DefaultMaterialGroup` and fill its slots                          |
+| Red checkerboards                  | CS2 Workshop Tools        | Nothing. CS2's shaders differ. Your materials come from CSDK 12          |
+| A purple checkerboard              | Material Editor           | Click the magnifier on each texture slot, pick the image again, and save |
+| Black squares                      | Source 2 Viewer's preview | Check in game. The preview can be wrong                                  |
+| A missing or unnamed material slot | ModelDoc                  | A Blender material ends in `.001`. Rename it, then export again          |
+
+Material steps are in [Materials for custom models](/docs/deadlock/textures/materials-for-custom-models).
+
+## The mesh bends or stretches strangely
+
+This almost always comes from weights.
+
+1. Open your `.blend` file.
+2. Fix the bad area with weight painting.
+3. Run **Weights > Limit Total** with a limit of 4.
+4. Export the DMX files again and recompile.
+
+Did you fix the mesh size with ModelDoc's import scale? That can also stretch the mesh against the skeleton. Fix the size in Blender instead. See [part 1](/docs/deadlock/models/hero-swap-blender#rig-your-mesh-to-the-skeleton).
+
+## The hero looks bald or see-through when it fades
+
+Some abilities and items make heroes fade or turn see-through. A custom model can then look bald, or show its insides.
+
+Three guides fix this with the material option **Write Depth Before Alpha Blending**. Valve's shader data says that option only works with **Translucent** on, so it may do nothing on a solid material. We have not confirmed which is right.
+
+Haze also needs extra material groups for her invisibility.
+
+{/* NEEDS HANDS-ON TEST: whether Write Depth Before Alpha Blending fixes fade artifacts on opaque hero materials (conflict C39). Do not tell readers to tick it until tested. */}
+
+## Limbs flip or point the wrong way
+
+- **After a custom animation:** the animation lacks IK chains or the right IK names. See [Replace an animation](/docs/deadlock/animations/replace-an-animation).
+- **Right after a Blender import:** an import option changed the bone orientation. Import again with it off.
+
+## The weapon floats or sits between the legs
+
+The weapon mesh is not parented to the armature.
+
+1. Select the weapon mesh, then the armature.
+2. Press Ctrl+P and choose **Armature Deform**.
+3. Give the weapon weights, like the rest of your mesh.
+4. Export again and check it during an animation.
+
+In the rest pose, a gun between the legs can be normal. Check it while the hero moves.
+
+## ModelDoc crashes
+
+| When it crashes                                | Fix                                                                                                                                                |
+| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| When you open a decompiled hero                | Delete the `NmSkeletonList` and `AnimGraph2List` blocks first. See [part 2](/docs/deadlock/models/hero-swap-modeldoc#remove-the-animgraph-2-lines) |
+| When you touch a node in italics with a symbol | Leave those nodes alone. Delete them in a text editor, or paste your working nodes into a new document                                             |
+| When you delete decompiled bodygroups          | Delete the `BodyGroupList` block in a text editor instead                                                                                          |
+| After a bad edit                               | Undo the edit in a text editor. Delete the model's compiled file in your addon's `game` folder, then reopen                                        |
+| After an import                                | Check for `.001` material names and DMX scales below 1                                                                                             |
+
+More crash fixes from Fuji's guide:
+
+- Delete bones with `_cloth_` in their names from the `Skeleton` node.
+- Delete "hull" shapes from `PhysicsShapeList`.
+- If your CSDK 12 launcher has a **Fix Models** box, tick it. If it is greyed out, start the tools from the `bin` or `bin_tools` folder.
+
+Basilisken shows the italic nodes and his clean-file fix [from 55:18](https://www.youtube.com/watch?v=IL3ywMmK090&t=3318s). For crashes outside ModelDoc, see [Errors when making mods](/docs/deadlock/errors/creator-errors).
+
+{/* NEEDS HANDS-ON TEST: the Fix Models box and the tools exe it depends on (conflict C22); the _cloth_ bone and hull shape fixes (one source). */}
+
+## The model broke after a game update
+
+Valve sometimes moves a hero's model to a new folder. It can also change the skeleton, camera setup, or animation graph. Your skin then stops loading or breaks.
+
+1. Check the hero's current path in [Hero names and file paths](/docs/deadlock/basics/hero-codenames) or in Source 2 Viewer.
+2. Export the original hero again from the new build.
+3. Redo the attachments and game data with [part 3](/docs/deadlock/models/hero-swap-attachments).
+4. Redo the AnimGraph 2 links with [part 4](/docs/deadlock/models/hero-swap-compile).
+5. Check that your VPK holds no `.vnmskel_c` and nothing from `scripts/`.
+
+[Update your mod after a patch](/docs/deadlock/publishing/update-after-a-patch) has the full routine.
+
+## Next steps
+
+- [Hero swap part 1: rig your model in Blender](/docs/deadlock/models/hero-swap-blender)
+- [Hero swap part 3: attachments, camera, and game data](/docs/deadlock/models/hero-swap-attachments)
+- [Errors when making mods](/docs/deadlock/errors/creator-errors)
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Video:** [(Read Desc) Deadlock - General Model Swap Steps](https://www.youtube.com/watch?v=piEYFbFYmVM) by Pugzilla.
+- **Video:** [Bat Drifter from Start to Finish: Part 1 - Make it exist first, make it pretty later](https://www.youtube.com/watch?v=IL3ywMmK090) by Basilisken.
+- **Guide:** [From Start to Finish (Fuji's Asset Replacement Guide)](https://docs.google.com/document/d/10Be28UBdeN13R_-NO5PqYI7SiCyklldGK_JkZQUqAAg/edit) by Fuji.
+- **Guide:** [Neutral's General Guide for Modding Deadlock (Models, Textures, Sounds)](https://docs.google.com/document/d/1p3_Q3HXRLmQOWnBvkUa5BljGmHVvW33UjBqEz-WRk24/edit) by Neutraldrift.
+- **Guide:** [How to Model Replace for Dummies + Blender Steps](https://gamebanana.com/tuts/19683) by Axelliax.
+- **Guide:** [Custom animation VmClip guide](https://deadlockmodding.pages.dev/modding-guides/Custom-animation-VmClip-guide) from Deadlock Modding Notes.

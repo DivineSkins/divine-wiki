@@ -1,0 +1,131 @@
+---
+title: "Blender and add-ons for Deadlock"
+description: "Which Blender version and add-ons Deadlock creators use: BlenderSource2Tools for DMX export, SourceIO for imports, PulseSrcOps for animation."
+category: "tools"
+patch: "6779"
+---
+
+<LevelPill level="intermediate" />
+
+You need Blender only for model and animation work. Sounds, recolors, and icons do not use it. This page lists the Blender version and add-ons Deadlock creators use, and the job each one does. The model swap steps are in [Hero model swap: overview](/docs/deadlock/models/hero-model-swap).
+
+## What you need
+
+- [Blender](https://www.blender.org/download/), free from blender.org.
+- [Source 2 Viewer](/docs/deadlock/tools/source-2-viewer), to export the models you import.
+- [CSDK 12](/docs/deadlock/tools/csdk-12), which compiles the DMX files you export.
+
+## Which add-on does what
+
+<img
+  src="/wiki-images/deadlock-tools-blender-add-ons-1.webp"
+  alt="Model workflow in five stages: export from Source 2 Viewer, import with the built-in glTF importer, SourceIO, or PulseSrcOps, edit in Blender, export DMX with BlenderSource2Tools or PulseSrcOps, compile in ModelDoc in CSDK 12"
+/>
+
+| Tool                            | Job                                                              | Blender version                | License              |
+| ------------------------------- | ---------------------------------------------------------------- | ------------------------------ | -------------------- |
+| Built-in glTF importer          | Imports Source 2 Viewer glTF exports. The default route.         | Ships with Blender             | Free                 |
+| BlenderSource2Tools (Fuji fork) | Exports DMX for ModelDoc. Every model guide uses it.             | 4.4 and newer, tested on 5.0   | Fork of a GPL add-on |
+| SourceIO                        | Imports compiled models, materials, and maps from the game       | 4.5 and newer (5.0 from 5.5.4) | MIT                  |
+| PulseSrcOps                     | Imports and exports DMX, with animations, cloth, and jigglebones | 4.5 and newer                  | GPL-3.0              |
+| Mesh Data Transfer              | Copies weights and shape keys between meshes                     | 4.2 and newer                  | GPL-3.0              |
+
+All of them are free.
+
+## Which Blender version
+
+- The current Blender is 5.2.2 LTS, from 2026-09-15.
+- Fuji's guide, by the BlenderSource2Tools maintainer, uses Blender 5.0. Use a 5.x version for new projects.
+- Nobody has tested BlenderSource2Tools on 5.2 yet. If its export fails there, try 5.0.
+- For cloth, Pugzilla recommends Blender 4.2 with the Fuji fork. On Blender 4.1 to 4.3.2, install BlenderSource2Tools tag `3.3.1_2c`.
+- Ignore older tutorials that tell you to use Blender 2.93 for cloth. That advice is from 2024.
+
+{/* NEEDS HANDS-ON TEST: BlenderSource2Tools 3.3.1_2f on Blender 5.2.2 LTS, and cloth float maps on 5.x vs 4.2 (conflict C35) */}
+
+## Install an add-on
+
+1. Download the add-on's zip from its release page.
+2. In Blender, open **Edit > Preferences > Add-ons**.
+3. Open the dropdown menu and choose **Install from Disk**.
+4. Pick the zip. Blender installs the add-on and turns it on.
+
+{/* SCREENSHOT: deadlock-tools-blender-add-ons-2.webp, Blender Preferences > Add-ons with BlenderSource2Tools installed and turned on */}
+
+<Callout type="warning" title="Turn on one Source Tools add-on at a time">
+  BlenderSource2Tools, PulseSrcOps, and the original Blender Source Tools share
+  setting names, so they clash. Turn the others off before you turn one on.
+</Callout>
+
+## BlenderSource2Tools (Fuji fork)
+
+The DMX exporter that every Deadlock model guide uses. FellOffFuji's fork adds what Source 2 needs: cloth vertex maps, bone axis fixes, and model scaling.
+
+- **Get it:** the [releases page](https://github.com/FellOffFuji/BlenderSource2Tools/releases) on GitHub. Under **Assets**, download the `io_scene_valvesource2` zip, not **Source code**.
+- **Latest:** 3.3.1_2f, from 2025-12-07. It fixed animation import after a Source 2 Viewer DMX change, plus animation and vertex color export.
+- **Export settings the guides use:** open **Scene Properties > Source Engine Export**. Set the DMX version to **Binary 9** and **Model 22 (ModelDoc)**. Set the export path to your addon's content folder.
+- **Back up your work.** Its readme calls it experimental and warns it may corrupt `.blend` files.
+
+<img
+  src="/wiki-images/deadlock-tools-blender-add-ons-3.webp"
+  alt="The BlenderSource2Tools releases page on GitHub, showing release 3.3.1(2f) for Blender 4.4+ and the io_scene_valvesource2 zip under Assets"
+/>
+
+{/* SCREENSHOT: deadlock-tools-blender-add-ons-4.webp, Scene Properties > Source Engine Export with Binary 9 and Model 22 (ModelDoc) selected */}
+
+## SourceIO
+
+An importer by REDxEYE. It reads compiled game files (`.vmdl_c`, materials, textures, and maps) without a glTF export first. It does not export.
+
+- **Get it:** [SourceIO on GitHub](https://github.com/REDxEYE/SourceIO). Use release 5.5.4 or newer for Blender 5.x.
+- **Import:** **File > Import > Source Engine Assets**, then the Source 2 model importer.
+- **After import:** delete the extra detail levels (`lod1`, `lod2`, `lod3`). SourceIO brings them all in at once, so the model flickers.
+- **Missing parts:** it can skip parts colored by vertex color only, such as hair, eyes, and faces. If parts come in white or missing, use the glTF route instead.
+
+Neutraldrift's video shows the full SourceIO import, including the mount and scale settings:
+
+<YouTube
+  id="_pt01FGNQyM"
+  title="Import Deadlock models into Blender with SourceIO and Source 2 Viewer, by Neutraldrift"
+/>
+
+{/* NEEDS HANDS-ON TEST: where SourceIO's "Add new resource" mount panel is in the current release, which Deadlock path to add, and whether World Scale 1 still gives 1:1 scale */}
+
+{/* SCREENSHOT: deadlock-tools-blender-add-ons-5.webp, the File > Import > Source Engine Assets menu with the Source 2 row open */}
+
+## PulseSrcOps
+
+A character-focused fork of Blender Source Tools by ToppiOfficial. It imports DMX files that Source 2 Viewer decompiles, including animations. It also exports cloth proxies, jigglebones, hitboxes, and attachments, and it updates itself.
+
+- **Get it:** [PulseSrcOps on GitHub](https://github.com/ToppiOfficial/PulseSrcOps). Version 2.5.0 came out on 2026-10-06.
+- **Use it for:** animation work. The Deadlock Modding Notes animation guide names it as the tool that imports DMX animations into Blender 4.5 and newer.
+- **For plain model exports,** stay with BlenderSource2Tools until someone tests PulseSrcOps exports in ModelDoc.
+
+{/* NEEDS HANDS-ON TEST: whether PulseSrcOps DMX exports compile the same as BlenderSource2Tools exports in ModelDoc */}
+
+## Mesh Data Transfer
+
+Copies vertex groups (weights), shape keys, and UVs from one mesh to another, even when their shapes differ. Model guides use it to move a hero's weights onto a new model.
+
+- **Get it:** [Mesh Data Transfer](https://extensions.blender.org/add-ons/mesh-data-transfer/) on Blender Extensions, free. Some guides link an older Gumroad version. Use the Blender Extensions version instead.
+
+## Skip these
+
+- **The original Blender Source Tools** by Artfunkel. The Deadlock forks build on it, but it lacks their Source 2 fixes.
+- **Two Source Tools add-ons at once.** See the warning above.
+
+## Next steps
+
+- [Import a Deadlock model into Blender](/docs/deadlock/models/import-into-blender)
+- [Hero swap part 1: rig your model in Blender](/docs/deadlock/models/hero-swap-blender)
+- [Replace an animation](/docs/deadlock/animations/replace-an-animation)
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Video:** [How To import Deadlock Models into Blender with Source IO and Souce2viewer](https://www.youtube.com/watch?v=_pt01FGNQyM) by Neutraldrift.
+- **Video:** [(Read Desc) Deadlock - General Model Swap Steps](https://www.youtube.com/watch?v=piEYFbFYmVM) by Pugzilla.
+- **Guide:** [From Start to Finish (Fuji's Asset Replacement Guide)](https://docs.google.com/document/d/10Be28UBdeN13R_-NO5PqYI7SiCyklldGK_JkZQUqAAg/edit) by Fuji (FellOffFuji).
+- **Guide:** [Neutral's General Guide for Modding Deadlock](https://docs.google.com/document/d/1p3_Q3HXRLmQOWnBvkUa5BljGmHVvW33UjBqEz-WRk24/edit) by Neutraldrift.
+- **Guide:** [Custom animation VmClip guide](https://deadlockmodding.pages.dev/modding-guides/Custom-animation-VmClip-guide) from Deadlock Modding Notes.
+- **Tools:** [BlenderSource2Tools](https://github.com/FellOffFuji/BlenderSource2Tools) by FellOffFuji, [SourceIO](https://github.com/REDxEYE/SourceIO) by REDxEYE, [PulseSrcOps](https://github.com/ToppiOfficial/PulseSrcOps) by ToppiOfficial, and [Mesh Data Transfer](https://extensions.blender.org/add-ons/mesh-data-transfer/) by Maurizio Memoli.

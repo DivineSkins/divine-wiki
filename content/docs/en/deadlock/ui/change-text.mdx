@@ -1,0 +1,146 @@
+---
+title: "Change item names and other text"
+description: "Rename items, heroes, and abilities, or fix subtitles, by editing Deadlock's localization text files. A text editor is all you need to start."
+category: "ui"
+patch: "6779"
+---
+
+<LevelPill level="beginner" />
+
+Every word the game shows comes from plain text files. Edit one to rename an item or a hero, or to fix a subtitle. You only need a text editor to try it. To share your change, pack the file into a VPK with Source 2 Viewer.
+
+## What you need
+
+- Deadlock, installed and up to date.
+- A text editor. Notepad works. Notepad++ can also search many files at once.
+- Source 2 Viewer, only if you pack your change into a VPK. See [Set up your creator tools](/docs/deadlock/getting-started/creator-setup).
+
+## Where the text lives
+
+All text sits in `Deadlock/game/citadel/resource/localization/`. Each folder there holds one file per language, named like `citadel_gc_mod_names_english.txt`.
+
+| Folder                  | What it holds                                   |
+| ----------------------- | ----------------------------------------------- |
+| `citadel_gc_mod_names`  | Item names and their shop search words          |
+| `citadel_gc_hero_names` | Hero names                                      |
+| `citadel_generated_vo`  | Voice line text                                 |
+| `citadel_main`          | General game text, such as matchmaking messages |
+
+Other folders: `citadel_attributes`, `citadel_gc`, `citadel_heroes`, `citadel_mods`, `citadel_patch_notes`, and `citadel_vdata`. Search them when you cannot find a text in the folders above.
+
+Each line has a key on the left and the text on the right:
+
+```text
+"upgrade_close_range"    "Close Quarters"
+```
+
+Never change the key. Change only the text in the second pair of quotes.
+
+## Two ways to ship a change
+
+<img
+  src="/wiki-images/deadlock-ui-change-text-1.webp"
+  alt="Diagram: editing the game's own text file is a quick test that updates undo; shipping a copy of the file in a VPK keeps it in the addons folder and lets you share it"
+/>
+
+Edit the game's own file to try a change. Ship a copy in a VPK when you want it to last or to share it.
+
+## Find the text you want
+
+1. Open Notepad++.
+2. Choose **Search > Find in Files**.
+3. Set **Directory** to the `localization` folder.
+4. Set **Filters** to `*_english.txt`, or the ending for your game language.
+5. Type the text as you see it in game and click **Find All**.
+
+The results show the file and the key that hold your text.
+
+## Rename an item
+
+This example renames Close Quarters.
+
+1. In Steam, right-click Deadlock and choose **Manage > Browse local files**.
+2. Open `game/citadel/resource/localization/citadel_gc_mod_names/`.
+3. Copy `citadel_gc_mod_names_english.txt` to another folder as a backup.
+4. Open the file in your text editor.
+5. Search for the item's key: `"upgrade_close_range"`.
+6. Change only the text in the second pair of quotes.
+7. Find the matching `"upgrade_close_range_search"` key. Change its text too. This is what you type to find the item in the shop.
+8. Save the file and start the game.
+9. Open the shop and look for your new name. Search for it too.
+
+Each item has these two keys: `upgrade_<name>` for the name, and `upgrade_<name>_search` for the shop search words. If you play in another language, edit the file for that language instead.
+
+{/* NEEDS HANDS-ON TEST: confirm the upgrade_close_range and upgrade_close_range_search keys in citadel_gc_mod_names_english.txt on build 6779. */}
+
+{/* SCREENSHOT: deadlock-ui-change-text-2.webp, the resource/localization/citadel_gc_mod_names/ folder in Windows Explorer */}
+
+{/* SCREENSHOT: deadlock-ui-change-text-3.webp, citadel_gc_mod_names_english.txt open in a text editor at upgrade_close_range */}
+
+{/* SCREENSHOT: deadlock-ui-change-text-4.webp, the renamed item in the shop */}
+
+## Make it last: ship it in a VPK
+
+Game updates and Steam's **Verify integrity of game files** put the original file back. Your edit is gone. A copy in a VPK stays in your addons folder.
+
+1. Make a staging folder, such as `itemnames`.
+2. Inside it, rebuild the path: `resource/localization/citadel_gc_mod_names/`.
+3. Copy your edited `citadel_gc_mod_names_english.txt` into it. Text files ship as they are, with no compile step.
+4. Put the original file back in the game folder, from your backup. Now you test the VPK, not the loose file.
+5. Pack the folder with [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
+6. Load it and check the shop. Follow [Test your mod in game](/docs/deadlock/basics/test-your-mod).
+
+One popular mod ships these text files inside its VPK, so this should work. Nobody has confirmed it on build 6779 yet.
+
+Your VPK replaces the whole file. After an update adds items or changes text, your old copy hides those changes. After each update, copy the new file from the game and redo your edits.
+
+{/* NEEDS HANDS-ON TEST: ship an edited citadel_gc_mod_names_english.txt in an addon VPK on build 6779 and confirm it overrides the loose file (gap G09). */}
+
+## Rename a hero
+
+Hero names are in `citadel_gc_hero_names/citadel_gc_hero_names_english.txt`. Edit them the same way as items.
+
+Hero cards show the hero's name as art, not text. That art is a compiled image in `panorama/images/heroes/hero_names/`, with a normal and a `_localized` version per hero. Your text change does not touch it. Changing the art needs CSDK 12, and this guide does not cover it.
+
+## Subtitles and captions
+
+Voice line text is in two places:
+
+- `game/citadel/resource/localization/citadel_generated_vo/`
+- `game/citadel/resource/closecaption_english.txt`
+
+Search both for the line you want to fix. Edit it where you find it. Then test it in game. If you replaced a voice line, update its subtitle to match. [Replace voice lines](/docs/deadlock/sounds/voice-lines) covers the sound side.
+
+{/* NEEDS HANDS-ON TEST: which of the two files the in-game subtitles read on build 6779, and whether closecaption_english.txt loads from an addon VPK. */}
+
+## Translations
+
+To translate the game, edit the files for one language, line by line. Keep every key and every quote. Change only the text.
+
+A full translation is a big job. Keep your work in a separate folder, so a game update or a Verify cannot overwrite it. Ship it as a VPK, as shown above.
+
+## Keep it fair
+
+Text mods change words, not what you know. Do not use them to add information the game hides, such as timers or enemy stats. Read [What's allowed and how to stay safe](/docs/deadlock/getting-started/stay-safe).
+
+## Common problems
+
+- **Your change is gone after an update.** The update replaced the loose file. Edit it again, or ship it in a VPK.
+- **Text shows as a code, like `#menu_news`.** A text file is broken or out of date. Restore your backup, or verify the game files. If your VPK holds an old copy, copy the new file and redo your edits.
+- **The shop search does not find the new name.** You changed only the name. Edit the `_search` key too.
+- **The hero's name art still shows the old name.** That is an image, not text. See [Rename a hero](#rename-a-hero).
+- **Nothing changed.** You edited a file for another language, or a quote mark is missing. Check that every line still has both pairs of quotes.
+
+## Next steps
+
+- [Replace portraits, icons, and item art](/docs/deadlock/ui/portraits-and-icons)
+- [Replace voice lines](/docs/deadlock/sounds/voice-lines)
+- [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk)
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Changing item names](https://gamebanana.com/tuts/20143) by MilesRubi.
+- **Mod:** [Unstoppable - Stop mods breaking](https://gamebanana.com/mods/657724) by mack.wtf, which ships these text files inside its VPK.
+- **Data:** [GameTracking-Deadlock](https://github.com/SteamTracking/GameTracking-Deadlock) by SteamTracking, for the localization and caption file paths.

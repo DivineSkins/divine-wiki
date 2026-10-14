@@ -1,0 +1,204 @@
+---
+title: "Crashes, launch errors, and matchmaking blocks"
+description: "Fix Deadlock crashes after an update, KV3 and KeyValues errors, Panorama errors from old HUD mods, and the matchmaking gameinfo.gi block."
+category: "errors"
+patch: "6779"
+---
+
+<LevelPill level="beginner" />
+
+Deadlock crashes, shows a `FATAL ERROR`, or will not let you queue. Start with the first check: it tells you whether a mod or the game is at fault. Then find your error below. Each section shows the exact error text, so you can search this page with **Ctrl+F**.
+
+Mods do nothing, but the game runs fine? Go to [Mods not loading](/docs/deadlock/errors/mods-not-loading).
+
+## What you need
+
+- Your Deadlock folder. In Steam, right-click **Deadlock** and choose **Manage > Browse local files**.
+- Optional: Source 2 Viewer, to look inside mod files. [Set up your creator tools](/docs/deadlock/getting-started/creator-setup) shows how to install it.
+
+## First: is it a mod or the game?
+
+<img
+  src="/wiki-images/deadlock-errors-game-crashes-1.webp"
+  alt="Flow chart: back up the addons folder, move every VPK out, start Deadlock. If it still crashes, verify game files. If it starts, add mods back one at a time until the crash returns."
+/>
+
+1. Close Deadlock and your mod manager.
+2. Copy `game/citadel/addons` to your desktop as a backup.
+3. Open `addons` and move every `.vpk` file out of it. Touch only files inside `addons`. The `.vpk` files directly in `citadel` belong to the game.
+4. Start Deadlock.
+5. Still crashes? The game is at fault, not a mod. In Steam, right-click **Deadlock** and choose **Properties > Installed Files > Verify integrity of game files**. Wait for it to finish.
+6. Starts fine? A mod is at fault. Put your mods back one at a time, and start the game after each one.
+7. When the crash comes back, the last mod you added caused it. Leave it out and check its GameBanana page for an update.
+
+With many mods, put back half at a time instead. Keep halving the group that crashes until one mod is left.
+
+With Deadlock Mod Manager, click **Disable all mods** instead of moving files. Then switch mods back on one at a time.
+
+Verify also resets `gameinfo.gi`. Before you put mods back, redo the [addons line](/docs/deadlock/getting-started/install-by-hand#edit-gameinfogi), or click **Launch Modded** in your manager.
+
+Reinstalling Deadlock does not help. Steam leaves the `addons` folder on disk, so old mods keep crashing the game. Empty `addons` by hand.
+
+### Watch the fix
+
+This short video by KitsuneGuide shows the same check, made right after the City Never Sleeps update.
+
+<YouTube id="cm6y7mZS0iA" title="Deadlock fatal error fix by KitsuneGuide" />
+
+## "Unable to find child" at launch
+
+**You see:** the game closes at the Valve logo with an error like this:
+
+```text
+FATAL ERROR: Unable to find child 'ParryCooldownBorder' in layout file 'panorama\layout\ability_hud_elements\element_gun.xml'
+```
+
+The names in quotes change. `Unable to find child` and `layout file` stay the same.
+
+{/* SCREENSHOT: deadlock-errors-game-crashes-2.webp, the FATAL ERROR dialog from an outdated HUD file. Reproduce it with an old HUD VPK of our own making, not a third-party HUD pack. */}
+
+**Cause:** an outdated HUD mod. Big updates change the game's interface files, and a HUD mod made for the old files no longer fits. Outdated HUD mods such as QOL Lock and Top Bar Plus are the most common cause. Other interface errors at launch, such as top bar errors, have the same cause.
+
+**Fix:**
+
+1. Remove your HUD mods from `addons`, or switch them off in your manager.
+2. Start the game to check that it works.
+3. Check each HUD mod's page for an update. Install the new version when it is out.
+
+After a big update, such as City Never Sleeps on 2026-09-29, most HUD mods break at once. Mod authors need time to catch up.
+
+## "Error parsing KV3 data"
+
+**You see:**
+
+```text
+FATAL ERROR: Error parsing KV3 data in 'scripts/abilities.vdata' for entity subclass ...
+```
+
+**Cause:** a mod ships an old copy of a gameplay data file. The file named in the error, here `scripts/abilities.vdata`, no longer matches the game.
+
+**Fix:**
+
+1. Note the file path in the error.
+2. Open each of your mods in Source 2 Viewer with **File > Open**.
+3. Find the mod that holds that file. Inside the VPK its name ends in `_c`, such as `scripts/abilities.vdata_c`.
+4. Remove that mod.
+
+With many mods, the half-and-half test in [the first check](#first-is-it-a-mod-or-the-game) is faster.
+
+{/* SCREENSHOT: deadlock-errors-game-crashes-3.webp, Source 2 Viewer showing a mod VPK of our own that contains scripts/abilities.vdata_c */}
+
+Old gameplay data can also cause quieter problems. A new hero can stay locked, or hero stats can stay at old values. Cosmetic mods should never contain `scripts/` files. Creators, see [What a mod must never contain](/docs/deadlock/basics/how-mods-work#what-a-mod-must-never-contain).
+
+## "Failed to parse KeyValues"
+
+**You see:** the game will not start, with one of these messages:
+
+```text
+Application unable to load gameinfo.gi file from directory "citadel"
+Failed to parse KeyValues
+```
+
+**Cause:** a typo in your `gameinfo.gi` edit. Usually a `{` or `}` is missing.
+
+**Fix:**
+
+1. Run **Verify integrity of game files** in Steam. This puts back Valve's clean file.
+2. Redo the edit with the full block from [Install mods by hand](/docs/deadlock/getting-started/install-by-hand#edit-gameinfogi). Replace only the lines of the `SearchPaths` block.
+3. Check that every `{` has a matching `}`.
+
+## "Unable to read default keybinding configuration"
+
+**You see:** the game crashes at launch with this message:
+
+```text
+Unable to read default keybinding configuration
+```
+
+**Cause:** your `SearchPaths` block has the addons line but is missing the `Mod` and `Write` lines.
+
+**Fix:**
+
+1. Paste the full block from [Install mods by hand](/docs/deadlock/getting-started/install-by-hand#edit-gameinfogi).
+2. If a mod manager wrote the block, update the manager to its latest version. Then launch through it again.
+
+## Matchmaking is blocked
+
+**You see:** you try to queue and get this message:
+
+```text
+Unable to enter matchmaking while any party member is running Tools-mode, or has unsupported changes to the following sections of their 'gameinfo.gi': Engine2, MaterialSystem2, NetworkSystem, Particles, RenderSystem, SceneSystem, WorldRenderer
+```
+
+{/* SCREENSHOT: deadlock-errors-game-crashes-4.webp, the matchmaking-blocked dialog, triggered by queueing with CSDK 12 open on a test account (same shot as deadlock-getting-started-stay-safe-1.webp) */}
+
+**Cause:** someone in your party has creator tools open, or changed one of those parts of `gameinfo.gi`. "Performance" config files from the internet change these parts. The `SearchPaths` edit for mods is not on this list.
+
+**Fix:** every party member checks:
+
+1. Close CSDK 12 and every other creator tool.
+2. Run **Verify integrity of game files** in Steam.
+3. Redo only the addons line. Follow [Install mods by hand](/docs/deadlock/getting-started/install-by-hand#edit-gameinfogi), or click **Launch Modded** in your mod manager.
+4. Queue again.
+
+Custom maps also do not work in Valve matches. Before you queue, move the custom map files you added out of `game/citadel/maps/`. Leave Valve's own maps there. In Deadlock Mod Manager, use **Disable Map Mods & Launch**.
+
+[What's allowed and how to stay safe](/docs/deadlock/getting-started/stay-safe#keep-your-account-in-good-standing) explains these rules.
+
+## Replays fail to save or play
+
+**You see:** a replay error such as one of these:
+
+```text
+citadel_replay_manager_error_partial_decompression_failure
+citadel_replay_manager_error_existing_partial
+```
+
+**Cause:** with mods on, the game saves replays in `citadel/addons/replays` instead of its normal replay folder.
+
+**Fix:** Deadlock Mod Manager links the two replay folders for you, so this mostly affects hand-edited installs. We have not tested a fix for hand-edited installs on the current build yet.
+
+{/* NEEDS HANDS-ON TEST: replays with a hand-edited gameinfo.gi on build 6779 (conflict C10). A December 2025 Steam guide fixes it by creating game/citadel/replays and deleting the broken .dem.partial files in citadel/addons/replays. Test that fix, and test that DMM's replay symlink works, before adding steps here. */}
+
+## Menu text shows #menu_news
+
+**You see:** menu labels show code names that start with `#`, such as `#menu_seasonal_2025` or `#menu_news`.
+
+**Cause:** the game's text files are damaged or out of date, or an old mod replaces them.
+
+**Fix:**
+
+1. Remove mods that change text or menus.
+2. Run **Verify integrity of game files** in Steam.
+
+This fix comes from a guide written in December 2025. It may differ on the current build.
+
+{/* NEEDS HANDS-ON TEST: the menu text fix on build 6779. The same guide also suggests deleting game/citadel/resource/localization and verifying again if one verify does not help. */}
+
+## It crashes with no mods at all
+
+If the game crashes even with an empty `addons` folder, a game file may be damaged.
+
+1. Run **Verify integrity of game files** in Steam.
+2. Check that `addons` is really empty, including subfolders.
+3. Check for extra mod folders a manager made in `game/citadel/`, such as `addons2`. Empty those too.
+
+If it still crashes, mods are not the cause. [Find mods, guides, and help](/docs/deadlock/getting-started/where-to-get-help) lists places to ask.
+
+## Next steps
+
+- [Mods not loading](/docs/deadlock/errors/mods-not-loading) if the game runs but your mods do not show.
+- [Update your mod after a patch](/docs/deadlock/publishing/update-after-a-patch) if you made the mod that broke.
+- [What's allowed and how to stay safe](/docs/deadlock/getting-started/stay-safe) for the matchmaking rules.
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Video:** [Deadlock Fatal Error Fix](https://www.youtube.com/watch?v=cm6y7mZS0iA) by KitsuneGuide.
+- **Q&A:** [GoldenIdol Error? (solved)](https://gamebanana.com/questions/105202) on GameBanana, answered by TheLastFriendly.
+- **Thread:** [Are mods & the Mod Manager completely broken for anybody else?](https://www.reddit.com/r/DeadlockTheGame/comments/1wtvxin/) by b1ueFPS on Reddit.
+- **Guide:** [Installing Mods](https://deadlockmodding.pages.dev/installing-mods) from Deadlock Modding Notes.
+- **Code:** [Grimoire source code](https://github.com/Slush97/grimoire/blob/main/electron/main/services/gameinfoSearchPaths.ts) by Slush97, which explains the keybinding crash.
+- **Guides:** [Replay errors fix guide](https://steamcommunity.com/sharedfiles/filedetails/?id=3616486535) and [Menu text fix guide](https://steamcommunity.com/sharedfiles/filedetails/?id=3624849883) by meno on Steam.
+- **Data:** [GameTracking-Deadlock](https://github.com/SteamTracking/GameTracking-Deadlock) by SteamTracking, for Valve's exact matchmaking message.

@@ -1,0 +1,131 @@
+---
+title: "Make mods without installing tools"
+description: "Build simple sound, icon, and texture mods in your browser with Deadlock Forge and DeadMod. A fast first mod, with clear limits."
+category: "tools"
+patch: "6779"
+---
+
+<LevelPill level="beginner" />
+
+Two websites build simple mods for you: Deadlock Forge and DeadMod. You give them your sound or image, and they give you a ready VPK file. You do not need CSDK 12. Set up mods in your game first with [Deadlock Mod Manager](/docs/deadlock/getting-started/install-with-mod-manager) or [by hand](/docs/deadlock/getting-started/install-by-hand), so you can test the result.
+
+## What you need
+
+- A web browser.
+- Your own sound or image. Use files you made or have permission to use.
+- For DeadMod only: [Source 2 Viewer](/docs/deadlock/tools/source-2-viewer) and an image editor that keeps transparency, such as GIMP, Krita, or Photoshop.
+
+## When a builder is enough
+
+| You want to                                                    | Use                                                                 |
+| -------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Replace one sound: an ability, a voice line, music, a UI click | Sound Forge on Deadlock Forge                                       |
+| Replace shop item art                                          | Item Forge on Deadlock Forge                                        |
+| Replace a hero portrait, ability icon, or minimap dot          | Texture Forge on Deadlock Forge                                     |
+| Recolor or repaint a hero texture                              | DeadMod                                                             |
+| Change a model, material values, particles, or the HUD         | The full tools. Start with [CSDK 12](/docs/deadlock/tools/csdk-12). |
+
+Both sites are unofficial community tools. Neither one is a mod host: they build your file, and you install it yourself.
+
+<Callout type="danger" title="Fast tools, same rules">
+  Do not make enemy sounds louder, longer, or clearer. Do not make icons,
+  minimap dots, or hero textures brighter, glowing, see-through, or very dark.
+  These change what you can see or hear in a fight. Read [What's allowed and how
+  to stay safe](/docs/deadlock/getting-started/stay-safe).
+</Callout>
+
+## Deadlock Forge
+
+[Deadlock Forge](https://deadlockforge.net/) by Sirsyorrz has three builders:
+
+- **Sound Forge** replaces a sound. It takes mp3, wav, ogg, or flac, and lets you trim the sound and set its volume.
+- **Item Forge** replaces shop item art. It takes png, jpg, or webp.
+- **Texture Forge** replaces hero portraits, ability icons, item art, and minimap dots. It takes png, jpg, or webp.
+
+<img
+  src="/wiki-images/deadlock-tools-browser-builders-1.webp"
+  alt="The Deadlock Forge home page with three cards: Sound Forge, Item Forge, and Texture Forge, each with an Open link"
+/>
+
+To build a sound mod:
+
+1. Open [Sound Forge](https://deadlockforge.net/sound/).
+2. Filter by category or hero, or search by file name. Click the play button to listen.
+3. Click the sound you want to replace.
+4. Drop in your audio file. Trim it and set the volume close to the original.
+5. Click **Forge VPK** and download the file.
+6. Name the file like `pak05_dir.vpk` if it has another name. The rules are in [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
+
+Item Forge and Texture Forge work the same way: pick the image, upload yours, and download the VPK. [Replace portraits, icons, and item art](/docs/deadlock/ui/portraits-and-icons) covers which image is which.
+
+{/* SCREENSHOT: deadlock-tools-browser-builders-2.webp, Sound Forge with one sound picked, an audio file loaded, and the Forge VPK button visible */}
+
+{/* NEEDS HANDS-ON TEST: all three forges on build 6779. Check the Forge VPK label, the downloaded file name, whether Sound Forge also changes the hero's soundevents file, and that the result works in game. */}
+
+## DeadMod
+
+[DeadMod](https://redmser.github.io/DeadMod/) by RedMser builds texture mods. It does not come with the game's images. You export the original texture with Source 2 Viewer, edit it, and DeadMod packs it. It supports textures only for now.
+
+1. In Source 2 Viewer, find the texture. A model's **References** tab lists its materials. Open a material to see which textures it uses.
+2. Right-click the texture, choose **Decompile & export**, and save it as PNG.
+3. Edit the PNG. Keep the same size.
+4. Keep the transparency. When you export the PNG in GIMP, tick **Save color values from transparent pixels**, or see-through areas turn black.
+5. Open DeadMod. Click **Upload VPK** and pick the game's `pak01_dir.vpk`. DeadMod then lists the game's files so you can search them.
+6. Click a file to add it. Or click **+ Add asset** and paste its path. To copy a path, right-click the file in Source 2 Viewer and choose **Copy name**.
+7. Click **Choose file** next to the path and pick your edited PNG.
+8. Check **Mod file name**. It starts as `pak50_dir.vpk`.
+9. Click **Save mod as VPK**.
+
+<img
+  src="/wiki-images/deadlock-tools-browser-builders-3.webp"
+  alt="The DeadMod page with Upload VPK on the left, and on the right a file path row with Choose file, the Mod file name box set to pak50_dir.vpk, and Save mod as VPK"
+/>
+
+{/* NEEDS HANDS-ON TEST: DeadMod on build 6779. Check that the VPK works in game, and whether pak01_dir.vpk is read in the browser or sent to a server. */}
+
+RedMser's video shows the whole process, from Source 2 Viewer to the result in game:
+
+<YouTube
+  id="i_tVma2wukk"
+  title="DeadMod: make Deadlock texture mods in minutes, by RedMser"
+/>
+
+## Mod Foundry in Deadlock Mod Manager
+
+Already use Deadlock Mod Manager? Its experimental Mod Foundry recolors a hero's body and weapon, swaps hero cards and sounds, and exports a VPK. Open **Settings > Experimental > Mod Foundry**. The [Mod Foundry docs](https://docs.deadlockmods.app/using-mod-manager/customization) explain the options.
+
+The fairness rules above apply here too.
+
+{/* SCREENSHOT: deadlock-tools-browser-builders-4.webp, Deadlock Mod Manager with Mod Foundry open on a hero */}
+
+{/* NEEDS HANDS-ON TEST: Mod Foundry on DMM v1.1.0 (menu path, output file name, result in game) */}
+
+## Limits of builders
+
+- They only change files they know about. Deadlock Forge works from its own list. DeadMod swaps textures only.
+- They cannot change models, material values, particles, or HUD layouts.
+- Sound Forge swaps one sound file. For random sounds or soundevent edits, see [Play random sounds with soundevents](/docs/deadlock/sounds/random-sounds).
+- You do not choose what goes into the VPK. Open it in Source 2 Viewer to check, as shown in [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
+- Game updates can move or rename files. If your mod stops working after an update, build it again.
+
+## Check the result in game
+
+1. Install the VPK with [Deadlock Mod Manager](/docs/deadlock/getting-started/install-with-mod-manager) or [by hand](/docs/deadlock/getting-started/install-by-hand).
+2. Load a private map and look for your change. [Test your mod in game](/docs/deadlock/basics/test-your-mod) shows how.
+3. Nothing changed? Work through [Mods not loading](/docs/deadlock/errors/mods-not-loading).
+
+## Next steps
+
+- [Replace a sound](/docs/deadlock/sounds/replace-a-sound)
+- [Replace portraits, icons, and item art](/docs/deadlock/ui/portraits-and-icons)
+- [Retexture a hero](/docs/deadlock/textures/retexture)
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Video:** [DeadMod: Make new Deadlock texture mods in minutes](https://www.youtube.com/watch?v=i_tVma2wukk) by RedMser.
+- **Video:** [How to Make Custom Sound Mods in Deadlock / Random Audio & Sound Switches](https://www.youtube.com/watch?v=wKuH6TKnMuE) by Adamtheboss9.
+- **Tool:** [Deadlock Forge](https://deadlockforge.net/) by Sirsyorrz. Also on GameBanana as [DeadlockForge - web based modding tool](https://gamebanana.com/tools/23606).
+- **Tool:** [DeadMod](https://redmser.github.io/DeadMod/) by RedMser.
+- **Docs:** [Customization (Mod Foundry)](https://docs.deadlockmods.app/using-mod-manager/customization) from the Deadlock Mod Manager docs.

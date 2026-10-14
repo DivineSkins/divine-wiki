@@ -1,0 +1,203 @@
+---
+title: "Loop and compress sounds"
+description: "Set loop points for looping ability sounds and shrink large sound mods with an encoding.txt file in your CSDK 12 addon."
+category: "sounds"
+patch: "6779"
+---
+
+<LevelPill level="intermediate" />
+
+Some ability sounds loop while the ability is active. This page shows how to set loop points with an `encoding.txt` file, how to make a big sound mod smaller, and what decides how long a loop plays. Make a one-shot sound mod first with [Replace a sound](/docs/deadlock/sounds/replace-a-sound).
+
+<Callout type="info" title="Not tested on the current build">
+  These steps come from community notes written before the September 2026
+  update. We have not tested them on build 6779 yet. They may work differently
+  now.
+</Callout>
+
+{/* NEEDS HANDS-ON TEST: this whole page (conflict C46, gap G06). Loop points via encoding.txt, the lame_enc.dll requirement, the compress block, one encoding.txt in sounds/ covering the addon, and the soundevent duration key. */}
+
+## What you need
+
+- A CSDK 12 sound addon with your sound at the right path. [Replace a sound](/docs/deadlock/sounds/replace-a-sound) shows how to build it.
+- Your audio as a `.wav` file.
+- An audio editor, such as Audacity.
+- A plain text editor, such as Notepad++.
+
+## Which sounds loop
+
+Some sounds play once, like a gunshot. Others repeat for as long as an ability is active, like an ultimate or a channel. Many looping sounds have `lp` in their name, such as `forge_rocket_barrage_air_raid_lp`.
+
+Two separate settings control a looping sound:
+
+<img
+  src="/wiki-images/deadlock-sounds-looping-and-compression-1.webp"
+  alt="Two settings: loop points in encoding.txt decide which part of the sound repeats, and the duration in the soundevent decides how long the game plays it"
+/>
+
+- **Loop points** decide which part of your audio repeats. You set them in `encoding.txt`.
+- **Duration** decides how long the game plays the sound. Some loops have it set in the hero's soundevents file.
+
+<Callout type="danger" title="Keep loops fair">
+  Keep a looping sound as loud as the original. Never make an enemy ability
+  sound louder, clearer, or longer than the ability itself. Read [What's allowed
+  and how to stay safe](/docs/deadlock/getting-started/stay-safe).
+</Callout>
+
+## Use WAV for loops
+
+Loop points only work with `.wav` source files. MP3 is fine for sounds that play once.
+
+1. Export your audio as `.wav` from your audio editor.
+2. Give it the exact name of the original sound. Only the ending changes, for example `example_sound_lp.wav`.
+3. Save it at the original path in your addon's content folder.
+4. Delete any `.mp3` copy with the same name from that folder, so only the `.wav` is left.
+
+## Check for lame_enc.dll
+
+Looping also needs a file called `lame_enc.dll` in CSDK 12's `bin` files.
+
+1. Open your CSDK 12 folder.
+2. Search it for `lame_enc.dll`.
+3. If the search finds nothing, ask in the Deadlock Modding Discord. Never download a `.dll` from a random website.
+
+{/* SCREENSHOT: deadlock-sounds-looping-and-compression-2.webp, the CSDK 12 bin folder with lame_enc.dll highlighted */}
+
+{/* NEEDS HANDS-ON TEST: whether the current Reduced CSDK 12 zip already ships lame_enc.dll, and in which bin subfolder. */}
+
+## Find the loop points
+
+1. Open your `.wav` in your audio editor.
+2. Select the part that should repeat.
+3. Write down the start and end of the selection, in seconds.
+4. Play the jump from the end back to the start. If you hear a click, move the points a little and try again.
+
+You can use sample numbers instead of seconds. They are more exact, but they depend on your file's sample rate.
+
+### Older method: LoopAuditioneer
+
+LoopAuditioneer is a free tool that finds loop points and writes them into the `.wav` file itself. Pugzilla's video shows it from 7:08. The community guide now uses `encoding.txt` instead, and we have not tested whether loop points inside the `.wav` still work.
+
+<YouTube
+  id="okoHFajJHB0"
+  start={428}
+  title="Looping a sound with LoopAuditioneer, from the Deadlock sound replacement tutorial by Pugzilla"
+/>
+
+The video was made before the September 2026 update. The CSDK 12 launcher looks different now.
+
+## Add loop points with encoding.txt
+
+1. Open the folder in your addon's content folder that holds your `.wav`. For example: `content/citadel_addons/mysound/sounds/abilities/<codename>/`.
+2. Turn on file name extensions in File Explorer.
+3. Create a new text file in that folder named `encoding.txt`. Check that it does not end in `.txt.txt`.
+4. Copy the `encoding.txt` template from the [Replacing Sounds](https://deadlockmodding.pages.dev/modding-guides/replacing-sounds) guide into your file. Its first line starts with `<!-- kv3`. Keep that line exactly as it is.
+5. Under `files`, keep one block per looping sound. Delete the other example blocks.
+6. Set `fileName` to your `.wav` file name.
+7. Set `loop_start_time` and `loop_end_time` to your loop points, in seconds.
+8. Save the file.
+
+Below the first line, your file should look like this:
+
+```text
+{
+	compress =
+	{
+		format = "mp3"
+		minbitrate = 128
+		maxbitrate = 320
+		vbr = 1
+	}
+	files =
+	[
+		{
+			fileName = "example_sound_lp.wav"
+			loop =
+			{
+				loop_start_time = 0.5
+				loop_end_time = 6.25
+			}
+		},
+	]
+}
+```
+
+To use sample numbers, swap the two loop lines for these:
+
+```text
+				loop_start_sample = 22050
+				loop_end_sample = 275625
+```
+
+<img
+  src="/wiki-images/deadlock-sounds-looping-and-compression-3.webp"
+  alt="Addon folder tree: an encoding.txt with loop points sits next to the looping .wav file, and an optional encoding.txt with only a compress block sits in the sounds folder"
+/>
+
+{/* SCREENSHOT: deadlock-sounds-looping-and-compression-4.webp, a finished encoding.txt open in Notepad++ next to the .wav in the addon content folder */}
+
+Now compile:
+
+1. Launch the CSDK 12 tools for your addon.
+2. In the Asset Browser, right-click your sound and choose **Recompile > Full**.
+3. Pack the compiled `.vsnd_c` and test it. Follow [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk) and [Test your mod in game](/docs/deadlock/basics/test-your-mod).
+
+While the CSDK 12 tools are open, saving `encoding.txt` also recompiles the sounds it lists. This makes it quick to try new loop points.
+
+## Compress big sound mods
+
+WAV files are large, so a pack of them makes a huge VPK. The `compress` block makes CSDK 12 compile the sounds as MP3 instead.
+
+```text
+	compress =
+	{
+		format = "mp3"
+		minbitrate = 128
+		maxbitrate = 320
+		vbr = 1
+	}
+```
+
+- `format` sets the compressed format.
+- `minbitrate` and `maxbitrate` set the quality range. Higher means better sound and bigger files.
+- `vbr = 1` lets the bitrate change with the sound.
+
+In the community guide, one sound shrank from 19.7 MB to 1.97 MB and kept its loop points.
+
+To compress every sound in your addon, put one `encoding.txt` in the addon's `sounds` folder, with only the `compress` block inside the outer braces. The community guide says this should work, but we have not tested it. If a folder also has its own `encoding.txt` with loop points, add the `compress` block to that file too.
+
+## Make a loop play long enough
+
+Some looping ability sounds have a set duration in the hero's soundevents file. Mo & Krill's burrow loop is one example. If your audio is longer than that duration, the game restarts it before it ends.
+
+1. Copy the hero's soundevents file into your addon and edit it. [Play random sounds with soundevents](/docs/deadlock/sounds/random-sounds) shows how.
+2. Find the event for your looping sound.
+3. Raise its duration so your audio fits. Raise it only as far as your audio needs.
+4. Compile the soundevents file and your sound, then pack both.
+
+{/* NEEDS HANDS-ON TEST: the exact key that holds the loop duration in a decompiled hero .vsndevts, and whether raising it can make the sound outlast the ability. */}
+
+## Common problems
+
+- **The loop points do nothing.** Your source is an `.mp3`, `lame_enc.dll` is missing, or `fileName` does not match your `.wav` name exactly.
+- **The compile fails after you add encoding.txt.** Check that the first `<!-- kv3` line is intact and that every `{`, `}`, `[`, and `]` has a partner.
+- **The loop restarts too early.** The soundevent's duration is shorter than your audio. See [Make a loop play long enough](#make-a-loop-play-long-enough).
+- **You hear a click where the loop starts again.** Move the loop points a little, then save `encoding.txt` again.
+- **A loop keeps playing in the tools after you close the preview.** One creator saw this and ignored it. It happens only in the tools.
+- **The VPK is huge.** Add the `compress` block.
+
+## Next steps
+
+- [Play random sounds with soundevents](/docs/deadlock/sounds/random-sounds)
+- [Replace voice lines](/docs/deadlock/sounds/voice-lines)
+- [Errors when making mods](/docs/deadlock/errors/creator-errors)
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Replacing Sounds](https://deadlockmodding.pages.dev/modding-guides/replacing-sounds) from Deadlock Modding Notes.
+- **Video:** [(Read Desc) Deadlock - Sound Replacement Tutorial](https://www.youtube.com/watch?v=okoHFajJHB0) by Pugzilla.
+- **Video:** [How to Make Custom Sound Mods in Deadlock | Random Audio & Sound Switches](https://www.youtube.com/watch?v=wKuH6TKnMuE) by Adamtheboss9.
+- **Guide:** [Neutral's General Guide for Modding Deadlock](https://docs.google.com/document/d/1p3_Q3HXRLmQOWnBvkUa5BljGmHVvW33UjBqEz-WRk24/edit) by Neutraldrift.
+- **Tool:** [LoopAuditioneer](https://loopauditioneer.sourceforge.io) on SourceForge.

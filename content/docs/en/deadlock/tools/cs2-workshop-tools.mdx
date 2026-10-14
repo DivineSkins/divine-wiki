@@ -1,0 +1,126 @@
+---
+title: "CS2 Workshop Tools for hero models"
+description: "Why hero model swaps need Counter-Strike 2's free Workshop Tools, how to get them on Steam, and how to move files between them and CSDK 12."
+category: "tools"
+patch: "6779"
+---
+
+<LevelPill level="advanced" />
+
+Counter-Strike 2 Workshop Tools are Valve's free creator tools for CS2. Deadlock creators use them for one job: the final compile of a hero model. You only need them for a [hero model swap](/docs/deadlock/models/hero-model-swap) and some [animation work](/docs/deadlock/animations/replace-an-animation). Set up [CSDK 12](/docs/deadlock/tools/csdk-12) first.
+
+## What you need
+
+- A Windows PC. The tools run on Windows only.
+- A Steam account with Counter-Strike 2 in your library. CS2 is free.
+- A hero model addon in [CSDK 12](/docs/deadlock/tools/csdk-12), built up to the final compile.
+- [Source 2 Viewer](/docs/deadlock/tools/source-2-viewer), to read values from the original model.
+
+## Why CSDK 12 is not enough
+
+Almost every Deadlock hero animates with AnimGraph 2 (AG2). Your hero model must point to the hero's original AG2 skeleton and animation graphs. Without these references, the hero stands in an A-pose or does not turn with the camera.
+
+CSDK 12 cannot compile these references into a model. CS2 Workshop Tools can. So you build the model in CSDK 12, then do the last compile in CS2.
+
+<img
+  src="/wiki-images/deadlock-tools-cs2-workshop-tools-1.webp"
+  alt="Diagram: build the model in CSDK 12, add AnimGraph 2 in CS2 Workshop Tools, mix both outputs in a staging folder, then pack one VPK"
+/>
+
+The Deadlock Modding Notes animation guide also uses CS2 tools for animation clips. CSDK 12 has no AG2 Clip Viewer, and it writes clips in an older format.
+
+{/* NEEDS HANDS-ON TEST: whether CSDK 12 or CS2 Workshop Tools should compile animation clips on build 6779 (C50). */}
+
+<Callout type="info" title="Valve's tools, made for CS2">
+  Valve made these tools for Counter-Strike 2, not for Deadlock. Deadlock has no
+  official SDK, and Valve does not support Deadlock mods.
+</Callout>
+
+## Get the tools from Steam
+
+1. Add [Counter-Strike 2](https://store.steampowered.com/app/730/CounterStrike_2/) to your Steam library.
+2. Install Counter-Strike 2 Workshop Tools. Valve's [Workshop Tools page](https://developer.valvesoftware.com/wiki/Counter-Strike_2_Workshop_Tools) has the install steps.
+3. Start Counter-Strike 2 Workshop Tools from your Steam library.
+
+Neutral's guide says CS2 does not need to be fully downloaded for the tools to start. This may differ on your PC.
+
+{/* NEEDS HANDS-ON TEST: whether CS2 must be fully downloaded for the Workshop Tools to launch, and the exact Steam labels for installing and launching them (tools.md open question). */}
+
+{/* SCREENSHOT: deadlock-tools-cs2-workshop-tools-2.webp, the Steam library with Counter-Strike 2 selected and the option to launch the Workshop Tools */}
+
+Some guides link a repack called CSwin64 instead. It is a copy of Valve's tools on Google Drive from an unknown uploader, so we do not link it. Use the official tools from Steam.
+
+{/* NEEDS HANDS-ON TEST: that the official CS2 Workshop Tools give the same result as CSwin64 for the AG2 compile (C29). */}
+
+## Move your model into a CS2 addon
+
+CS2 Workshop Tools keep their addons inside your Counter-Strike 2 install folder. Like CSDK 12, each addon has two folders:
+
+| Folder                         | What goes there                          |
+| ------------------------------ | ---------------------------------------- |
+| `content/csgo_addons/<addon>/` | Source files you copy in from CSDK 12    |
+| `game/csgo_addons/<addon>/`    | Compiled files, including your `.vmdl_c` |
+
+1. Close CSDK 12.
+2. Start CS2 Workshop Tools and create a new addon. Give it the same name as your CSDK 12 addon.
+3. Open your CSDK 12 content folder: `Reduced_CSDK_12/content/citadel_addons/<addon>/`.
+4. Copy its `models` folder into the CS2 addon's content folder. Keep the same folder structure.
+5. Launch the tools for your CS2 addon.
+6. Open your hero's `.vmdl` in ModelDoc.
+
+{/* SCREENSHOT: deadlock-tools-cs2-workshop-tools-3.webp, File Explorer showing the copied models folder inside content/csgo_addons/<addon> */}
+
+In ModelDoc you add the AG2 skeleton and graph references, then compile. [Hero swap part 4](/docs/deadlock/models/hero-swap-compile) lists the nodes and where to find each value.
+
+## Take only the model back
+
+CS2 does not have Deadlock's shaders, so it cannot build your materials. Your mod mixes files from both tools.
+
+1. Compile the model in CS2 Workshop Tools.
+2. Open the CS2 addon's game folder: `game/csgo_addons/<addon>/`.
+3. Copy only the compiled `.vmdl_c`.
+4. Build your staging folder from CSDK 12's game folder, as in [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk#build-a-staging-folder).
+5. Delete the CSDK 12 `.vmdl_c` in the staging folder.
+6. Paste the `.vmdl_c` from CS2 in its place. Check that it has the original model's file name, as Source 2 Viewer shows it.
+7. Pack the staging folder.
+
+## Red checkerboards are normal
+
+CS2 Workshop Tools show Deadlock materials as red checkerboards. CS2's shaders differ from Deadlock's. You may also see an error when you open the model. Ignore both, and compile your materials and textures in CSDK 12 only.
+
+{/* SCREENSHOT: deadlock-tools-cs2-workshop-tools-4.webp, a hero model open in CS2 ModelDoc with red checkerboard materials. Use original art only. */}
+
+## Other ways
+
+- **DeadlockTools** (community tool, unofficial) writes the AG2 references into a model you already compiled in CSDK 12. Then you skip CS2 entirely. Its author warns that its file-writing features are experimental. See [Helper tools and scripts](/docs/deadlock/tools/helper-tools).
+- **Dota 2 Workshop Tools** are named in some guides as another option. No guide we found shows the steps, so this wiki uses CS2.
+
+{/* NEEDS HANDS-ON TEST: whether the CS2 step is still required after City Never Sleeps, and whether a DeadlockTools model loads in game (C28). */}
+
+## Common problems
+
+| Problem                                   | Fix                                                                                                                                |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| The hero A-poses or does not turn in game | The AG2 references are missing. Compile the final model in CS2, as in [Hero swap part 4](/docs/deadlock/models/hero-swap-compile). |
+| Materials are red checkerboards in CS2    | This is normal. Take only the `.vmdl_c` from CS2.                                                                                  |
+| LODs break after the CS2 compile          | Pugzilla's fix: export your DMX files from Blender straight into the CS2 addon's content folder. Then compile again.               |
+| Anything else wrong with the model        | See [Model and skin problems](/docs/deadlock/errors/model-problems).                                                               |
+
+{/* NEEDS HANDS-ON TEST: the LOD fix comes from one source (Pugzilla's video description, March 2026). */}
+
+## Next steps
+
+- [Hero swap part 4: add AnimGraph 2 and compile](/docs/deadlock/models/hero-swap-compile) uses these tools step by step.
+- [Replace an animation](/docs/deadlock/animations/replace-an-animation) covers clips.
+- [Helper tools and scripts](/docs/deadlock/tools/helper-tools) lists DeadlockTools and other helpers.
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Neutral's General Guide for Modding Deadlock](https://docs.google.com/document/d/1p3_Q3HXRLmQOWnBvkUa5BljGmHVvW33UjBqEz-WRk24/edit) by Neutraldrift.
+- **Guide:** [How to Model Replace for Dummies + Blender Steps](https://gamebanana.com/tuts/19683) by Axelliax.
+- **Video:** [(Read Desc) Deadlock - General Model Swap Steps](https://www.youtube.com/watch?v=piEYFbFYmVM) by Pugzilla.
+- **Guide:** [Custom animation VmClip guide](https://deadlockmodding.pages.dev/modding-guides/Custom-animation-VmClip-guide) from Deadlock Modding Notes.
+- **Tool:** [Counter-Strike 2 Workshop Tools](https://developer.valvesoftware.com/wiki/Counter-Strike_2_Workshop_Tools) by Valve.
+- **Tool:** [DeadlockTools](https://github.com/dotryen/DeadlockTools) by dotryen.

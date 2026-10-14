@@ -1,0 +1,209 @@
+---
+title: "Hero swap part 3: attachments, camera, and game data"
+description: "Copy every attachment, camera preview, and game data block from the original hero so the camera, health bar, and sounds still work."
+category: "models"
+patch: "6779"
+---
+
+<LevelPill level="advanced" />
+
+Part 3 of 4. You start with `viper_work.vmdl`, which compiles in CSDK 12 after [part 2](/docs/deadlock/models/hero-swap-modeldoc). You finish with the original hero's attachments, camera previews, and game data in your model. Then the camera, health bar, and sounds work. The whole path is in [Hero model swap: overview](/docs/deadlock/models/hero-model-swap).
+
+<img
+  src="/wiki-images/deadlock-models-hero-swap-attachments-1.webp"
+  alt="The four parts of a hero model swap, with part 3, attachments, highlighted"
+/>
+
+## What you need
+
+- Your work model from part 2, open in CSDK 12's ModelDoc.
+- Source 2 Viewer 20.0 or newer, or a dev build from 2026-08-04 or later.
+- A text editor, such as Notepad++ or VS Code.
+
+## Watch the walkthrough
+
+Basilisken fixes the camera and FOV from 1:14:44. Pugzilla covers attachments [from 34:31](https://www.youtube.com/watch?v=piEYFbFYmVM&t=2071s) and the health bar [from 53:21](https://www.youtube.com/watch?v=piEYFbFYmVM&t=3201s).
+
+<YouTube
+  id="IL3ywMmK090"
+  title="Camera and FOV fix, from Bat Drifter from Start to Finish by Basilisken"
+  start={4484}
+/>
+
+<Callout type="info" title="This video uses an older interface">
+  Both videos predate the Source 2 Viewer fix of August 2026, so they copy every
+  value by hand. With a current build, you mostly check values.
+</Callout>
+
+## Why attachments matter
+
+Attachments are named points on the skeleton. The game hangs things on them: the camera, gun aim, muzzle flash, ability effects, the health bar, the portrait camera, ziplines, and foot placement. Game data blocks hold the rest, such as camera offsets, health bar height, and sound settings.
+
+Wrong values put the camera in the middle of the screen. They can also drop the health bar to the feet or mute hero sounds.
+
+## The rule for this part
+
+Every value in this part comes from the original hero. You copy values. You never invent or tune them.
+
+| What                                                   | What you do                                               |
+| ------------------------------------------------------ | --------------------------------------------------------- |
+| Attachment positions and angles                        | Copy them from the original                               |
+| Camera preview FOV values                              | Use the original hero's values                            |
+| `CitadelCameraSettings_t` (camera offsets and heights) | Keep the original values. Never change them               |
+| Hitboxes (`HitboxSetList`)                             | Keep the original sets. Never edit, scale, or delete them |
+| Every other game data block                            | Copy it from the original                                 |
+
+<Callout type="danger" title="Camera values and hitboxes are off limits">
+  A different camera offset, height, or FOV gives you a wider or higher view
+  than other players. Changed hitboxes change what you see when you aim. Both
+  are unfair mods, and this wiki never covers them. CSDK 12 compiles the
+  original hitbox sets fine, so there is no reason to touch them.
+</Callout>
+
+## Check your Source 2 Viewer version
+
+Source 2 Viewer builds from before 2026-08-04 decompiled attachments with small errors. A pivot angle of `-90` came out as `-89.972`. That small error puts the camera in the middle of the screen.
+
+- **You decompiled with 20.0 or newer, or a dev build from 2026-08-04 or later:** your values should already match. Check them below.
+- **You decompiled with an older build:** copy every camera attachment value by hand, as shown below.
+
+Quick check: select `standing_pivot` in your model. Its angles should be whole numbers like `-90`, not `-89.97`.
+
+## Make a reference copy of the original
+
+The compiled original keeps the exact values. Put a copy where CSDK 12 can open it.
+
+1. In Source 2 Viewer, right-click the hero's `.vmdl_c` and choose **Export as is**.
+2. Save it into CSDK 12's own game folder, at the same path: `Reduced_CSDK_12/game/citadel/models/heroes_staging/viper/`.
+3. In the CSDK 12 Asset Browser, open that `viper.vmdl_c`.
+4. Place it next to your work model, so you can read both.
+
+Never let your own compiled model overwrite this copy. A replaced reference is a common cause of the centered camera. Your `viper_work` file name keeps them apart.
+
+Pugzilla's short video [Compiled Models In CSDK](https://www.youtube.com/watch?v=d2JGLiH2CAY) exports every hero this way. It takes 4 to 5 GB and slows CSDK 12 down, so one hero is enough here.
+
+## Copy attachment positions and angles
+
+<img
+  src="/wiki-images/deadlock-models-hero-swap-attachments-2.webp"
+  alt="Diagram: the eleven camera attachments in four groups. Pivots: standing_pivot and crouching_pivot. Near and far: near_00 to near_02 and far_00 to far_02, preview FOV 90 on most heroes. Gun aim: gunaim_00 to gunaim_02, preview FOV set to the hero's own value."
+/>
+
+1. Open `AttachmentList` in both models.
+2. Select `standing_pivot` in each model and compare **Relative Origin** and **Relative Angles**.
+3. Copy the reference values wherever yours differ.
+4. Repeat for `crouching_pivot`, `near_00` to `near_02`, `far_00` to `far_02`, and `gunaim_00` to `gunaim_02`.
+5. Check that the other attachments are all there too, such as `aim`, `ability_cast`, `muzzle_fx`, `head_fx`, `healthbar`, `portrait_camera`, and `zipline`.
+6. Click **Compile**.
+
+Never delete or move an attachment. If one is missing, copy it from the reference.
+
+{/* SCREENSHOT: deadlock-models-hero-swap-attachments-3.webp, the reference model and viper_work side by side in ModelDoc with standing_pivot selected in both AttachmentLists */}
+
+## Add camera previews
+
+Each camera attachment needs a preview with the right field of view (FOV).
+
+1. In Source 2 Viewer, open the original `.vmdl_c` and go to the **Data** tab.
+2. Find `AttachmentCameraData`. Note the FOV it lists for each camera attachment.
+3. In ModelDoc, select `standing_pivot` through `gunaim_02`.
+4. Right-click them and choose **Add Attachment Preview**.
+5. Set the FOV to `90` and the screen size to `1920` by `1080`.
+6. Select the three `gunaim_` attachments. Set their FOV to the hero's own value from step 2.
+7. Click **Compile**.
+
+The gun aim FOV differs per hero. The guides show 42 for Vyper, 50 for Billy, and 55 for Drifter. Use the number in your hero's Data tab.
+
+{/* NEEDS HANDS-ON TEST: the right-click label (Pugzilla's video and the notes differ slightly), and whether the two pivots need a preview at all (Basilisken adds previews only to near, far, and gun aim). Check the gun aim FOV values on build 6779. */}
+
+{/* SCREENSHOT: deadlock-models-hero-swap-attachments-4.webp, Source 2 Viewer's Data tab on the original viper.vmdl_c with AttachmentCameraData expanded */}
+
+{/* SCREENSHOT: deadlock-models-hero-swap-attachments-5.webp, the attachment preview settings in ModelDoc with FOV 90 and 1920 by 1080 */}
+
+## Add the camera prefab
+
+Fuji's guide adds ready-made camera data from CSDK 12. This step comes from one guide and may differ on the current build.
+
+1. Open `content/citadel/models/prefabs/camera_attachmentdata/` in your CSDK 12 folder.
+2. Find `camera_attachmentdata_<hero>.vmdl_prefab` for your hero.
+3. Add a prefab node to your model that points to this file.
+4. Right-click the prefab node and choose **Flatten Prefab**.
+5. Click **Compile**.
+
+The folder is missing? Update CSDK 12. Older guides set this camera data in CS2 Workshop Tools instead.
+
+{/* NEEDS HANDS-ON TEST: camera prefab vs the CS2 bake (conflict C30). Check which codename the prefab file uses, how to add a prefab node, whether flattening duplicates attachments you already have, and whether the prefab makes the manual previews above unnecessary. */}
+
+{/* SCREENSHOT: deadlock-models-hero-swap-attachments-6.webp, the camera prefab node before and after Flatten Prefab */}
+
+## Copy the game data
+
+`GameDataList` holds Deadlock's own settings for the hero. Source 2 Viewer has written these blocks into decompiled models since version 17.0, so yours should be there already.
+
+| Block                                | What it controls                                         |
+| ------------------------------------ | -------------------------------------------------------- |
+| `CCitadelHeroModelGameData_t`        | Hero select and shop animation graphs, ambient particles |
+| `CitadelCameraSettings_t`            | Camera offsets and heights. Never change it              |
+| `CitadelUnitStatusSettings_t`        | Health bar height                                        |
+| `CitadelTaggedSoundSettings_t`       | Hero sounds. Without it, some sounds go missing          |
+| `CitadelMuzzleSettings_t`            | Muzzle flash                                             |
+| `CitadelEventIDToBodyGroupMapping_t` | Game events that switch bodygroups                       |
+| `CitadelModelParticleSettings_t`     | Particles on the model                                   |
+| `CitadelModelDamageNumberSettings_t` | Damage numbers                                           |
+| Feet nodes                           | Footstep sounds                                          |
+
+1. Open `GameDataList` in your model.
+2. Compare each block with the original's **Data** tab in Source 2 Viewer.
+3. Copy every value that differs.
+4. Add any block that is missing. Use the text editor method below.
+5. Click **Compile**.
+
+Some heroes have extra blocks, for example for a pet or a second rig. Copy those too.
+
+{/* NEEDS HANDS-ON TEST: which game data blocks each hero needs on build 6779 (gap G05), especially heroes with extra rigs such as Grey Talon, Graves, and Silver. */}
+
+{/* SCREENSHOT: deadlock-models-hero-swap-attachments-7.webp, the GameDataList in ModelDoc with its GenericGameData blocks */}
+
+### Copy a block with a text editor
+
+Use this for any block that is missing or wrong. The health bar block is the usual one.
+
+1. In Source 2 Viewer, decompile the original hero's `.vmdl_c` as `.vmdl` into a new, empty folder.
+2. Open that file and your `viper_work.vmdl` in your text editor.
+3. Search both files for the block name, such as `CitadelUnitStatusSettings_t`.
+4. Replace your block with the original block. If yours is missing, paste the original next to the other game data blocks.
+5. Save your file.
+6. Go back to ModelDoc. It warns that the file changed outside the editor. Reload it.
+7. Click **Compile**.
+
+{/* NEEDS HANDS-ON TEST: the exact "modified externally" prompt in ModelDoc. */}
+
+## Check your work
+
+1. Click **Compile** and fix any errors.
+2. Count the attachments in your model and in the reference. The numbers should match.
+3. Keep the reference copy. You need it again after game updates.
+
+You cannot check the camera in game yet. Part 4 adds the animations, then you test the camera, aiming, health bar, and sounds.
+
+## Common problems
+
+- **The camera sits in the middle of the screen.** A camera attachment value differs from the original. See [Model and skin problems](/docs/deadlock/errors/model-problems#the-camera-sits-in-the-middle-of-the-screen).
+- **The health bar sits at the feet.** Copy `CitadelUnitStatusSettings_t` with the text editor method above.
+- **Some hero sounds are missing.** Copy `CitadelTaggedSoundSettings_t` and the feet nodes the same way.
+
+## Next steps
+
+- [Hero swap part 4: add AnimGraph 2 and compile](/docs/deadlock/models/hero-swap-compile)
+- [Model and skin problems](/docs/deadlock/errors/model-problems)
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Video:** [Bat Drifter from Start to Finish: Part 1 - Make it exist first, make it pretty later](https://www.youtube.com/watch?v=IL3ywMmK090) by Basilisken.
+- **Video:** [(Read Desc) Deadlock - General Model Swap Steps](https://www.youtube.com/watch?v=piEYFbFYmVM) by Pugzilla.
+- **Video:** [Deadlock - Compiled Models In CSDK](https://www.youtube.com/watch?v=d2JGLiH2CAY) by Pugzilla.
+- **Guide:** [From Start to Finish (Fuji's Asset Replacement Guide)](https://docs.google.com/document/d/10Be28UBdeN13R_-NO5PqYI7SiCyklldGK_JkZQUqAAg/edit) by Fuji.
+- **Guide:** [How to Model Replace for Dummies + Blender Steps](https://gamebanana.com/tuts/19683) by Axelliax.
+- **Tool:** [Source 2 Viewer](https://s2v.app/) by the ValveResourceFormat team.

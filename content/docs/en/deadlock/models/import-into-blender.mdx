@@ -1,0 +1,157 @@
+---
+title: "Import a Deadlock model into Blender"
+description: "Export a hero or prop from Source 2 Viewer and open it in Blender at the right size and facing, ready to edit or use as a reference."
+category: "models"
+patch: "6779"
+---
+
+<LevelPill level="intermediate" />
+
+Get a Deadlock hero or prop into Blender, cleaned up and ready to edit or use as a size reference. Every model swap starts here. Install Source 2 Viewer first with [Set up your creator tools](/docs/deadlock/getting-started/creator-setup).
+
+## What you need
+
+- [Source 2 Viewer](/docs/deadlock/tools/source-2-viewer), version 20.0 (August 2026) or newer. Older builds export models differently.
+- [Blender](https://www.blender.org/download/) 5.x. Its glTF importer is built in.
+- For route 2 only: the [SourceIO](https://github.com/REDxEYE/SourceIO) add-on.
+- The hero's folder. Look it up in [Hero names and file paths](/docs/deadlock/basics/hero-codenames).
+
+This guide uses Vyper as the example: `models/heroes_staging/viper/viper.vmdl_c`. Vyper's model has few special parts, so it is a good first import.
+
+## Pick a route
+
+Use glTF for anything you will edit and send back to the game. Use SourceIO when you only want a quick look or a reference.
+
+<img
+  src="/wiki-images/deadlock-models-import-into-blender-1.webp"
+  alt="Diagram: route 1 exports glTF from Source 2 Viewer into Blender's glTF importer; route 2 exports the compiled model as is into the SourceIO add-on"
+/>
+
+## Route 1: glTF
+
+Pugzilla's model swap video shows this route from 3:38.
+
+<YouTube
+  id="piEYFbFYmVM"
+  title="glTF import and Blender setup, from General Model Swap Steps by Pugzilla"
+  start={218}
+/>
+
+<Callout type="info" title="This video uses an older interface">
+  Pugzilla recorded it in March 2026, before Source 2 Viewer 20.0 changed how
+  glTF exports store axes. The bone resize and rotate steps may not match what
+  you see. Follow the steps below.
+</Callout>
+
+### Export from Source 2 Viewer
+
+1. Make an empty work folder outside your CSDK 12 addon, for example `C:\modwork\vyper`.
+2. Open Source 2 Viewer and open `Deadlock/game/citadel/pak01_dir.vpk`.
+3. Go to `models/heroes_staging/viper/`.
+4. Right-click `viper.vmdl_c` and choose **Decompile & export**.
+5. Set **Save as type** to glTF. Pick `.gltf`, not `.glb`. A `.glb` file stops at 2 GB.
+6. Save into your work folder. Large heroes take a while.
+
+{/* SCREENSHOT: deadlock-models-import-into-blender-2.webp, Source 2 Viewer's Decompile & export save dialog with Save as type set to glTF on viper.vmdl_c */}
+
+{/* NEEDS HANDS-ON TEST: the exact save dialog options for models in the current Source 2 Viewer (gltf vs glb entries, and whether exporting materials is a separate toggle). */}
+
+### Import into Blender
+
+1. Open Blender. Select everything in the default scene and delete it.
+2. Choose **File > Import > glTF 2.0 (.glb/.gltf)** and pick your `.gltf` file.
+3. In the import options on the right, tick **Disable Bone Shape**. Without it, every bone gets a big sphere shape.
+4. Import the file.
+
+{/* SCREENSHOT: deadlock-models-import-into-blender-3.webp, Blender's glTF import panel with Disable Bone Shape ticked */}
+
+### Clean up
+
+1. In the Outliner, delete `glTF_not_exported` and any `Icosphere` object.
+2. Delete the animations. Set the Outliner's display mode to **Blender File** and open **Actions**. Select every action, right-click, and choose **Delete**. Blender gets much faster.
+3. Delete the cloth helper bones. Select the armature and press Tab for Edit Mode. Click one bone whose name starts with `$cloth`, press Shift+G, and choose **Prefix**. Press X to delete them all.
+4. Delete their vertex groups too. Select each mesh, open the **Object Data** tab, and remove every group that starts with `$cloth`.
+5. Fix shading seams. Select each mesh, press Tab, and press A. Choose **Mesh > Normals > Reset Vectors**. Then press M, choose **By Distance**, and set the distance to 0.0001.
+6. Put the armature in rest pose. Select it, switch to Pose Mode, press A, and choose **Pose > Clear User Transforms**.
+
+Source 2 Viewer adds the `$cloth` bones to show cloth. They can crash ModelDoc later, so remove them now.
+
+{/* SCREENSHOT: deadlock-models-import-into-blender-4.webp, the Outliner right after import with glTF_not_exported and the Icosphere object visible */}
+
+{/* SCREENSHOT: deadlock-models-import-into-blender-5.webp, Edit Mode on the armature with Shift+G Select Similar open and Prefix highlighted on a $cloth bone */}
+
+### Fix size and facing
+
+glTF stores sizes in meters. The Source 2 tools work in inches. One meter is 39.37 inches.
+
+1. Check the bones. If they look huge next to the mesh, shrink only the bones. Select the armature, press Tab, and press A. Set **Transform Orientation** to **Local** and **Pivot Point** to **Individual Origins**. Press S and scale down until the bones fit inside the body. Press Tab to leave Edit Mode.
+2. Check the facing. Press numpad 7 for Top view. The hero should face +X, the red axis. If not, rotate the armature around Z until it does. Older guides rotate it 90 degrees.
+3. Select the armature and meshes. Press Ctrl+A and choose **All Transforms**.
+4. Save the `.blend` file.
+
+{/* NEEDS HANDS-ON TEST: with Source 2 Viewer 20.0 or newer, are the bones still oversized after a glTF import with Disable Bone Shape, and does the hero already face +X? Guides disagree on the bone scale number (conflict C32); do not print one until tested. */}
+
+{/* SCREENSHOT: deadlock-models-import-into-blender-6.webp, the Vyper armature before and after the bone size fix, seen from the top with the X axis visible */}
+
+If you will export DMX for ModelDoc, there is one more step. Right before export, scale the armature by 39.37 and apply all transforms again. [Hero swap part 1](/docs/deadlock/models/hero-swap-blender) walks through it. The [soul container swap](/docs/deadlock/models/prop-swap) exports FBX and skips this step.
+
+## Route 2: SourceIO
+
+SourceIO is a free Blender add-on by REDxEYE. It reads compiled `.vmdl_c` files directly. Neutraldrift shows the whole route in this video from September 2026.
+
+<YouTube
+  id="_pt01FGNQyM"
+  title="Import Deadlock models into Blender with SourceIO by Neutraldrift"
+/>
+
+1. Download the latest release zip from the [SourceIO releases page](https://github.com/REDxEYE/SourceIO/releases).
+2. In Blender, open **Edit > Preferences > Add-ons**. Open the menu at the top right, choose **Install from Disk**, and pick the zip. Do not unzip it.
+3. In Source 2 Viewer, right-click `viper.vmdl_c` and choose **Export as is**. Save it in your work folder. Export the hero's `materials` folder the same way.
+4. In SourceIO's settings, mount Deadlock with **Add new resource**. This lets SourceIO find the textures.
+5. Choose **File > Import > Source Engine Assets**. In the Source 2 list, pick the `.vmdl_c` importer and select your file.
+6. In the import options, keep materials on and turn on **mount discovered content**. Set **World Scale** to 1.
+7. Search the Outliner for `lod`. Delete the `lod1`, `lod2`, and `lod3` meshes.
+
+{/* NEEDS HANDS-ON TEST: whether Neutraldrift's video uses Export as is or Decompile & export for the vmdl_c and materials; where the "Add new resource" mount panel lives and which folder to add (Deadlock root or game/citadel); the exact import option labels in SourceIO 5.5.4. */}
+
+{/* SCREENSHOT: deadlock-models-import-into-blender-7.webp, SourceIO's vmdl_c import options with materials on, mount discovered content on, and World Scale 1 */}
+
+At World Scale 1, the model comes in at game size. Neutraldrift uses it so you can export later without the 39.37 step.
+
+SourceIO can miss parts that only use vertex color, such as white hair, eyes, or a face. If that happens, use the glTF route for that hero.
+
+## What the export leaves out
+
+- **Lower LODs.** glTF only has the most detailed version (LOD0). You build the lower LODs later in ModelDoc.
+- **Hitboxes.** glTF does not export them. They stay in the decompiled `.vmdl` that ModelDoc uses, and you never change them.
+- **Cloth motion.** Cloth bones come in stiff. You set up cloth again with [Add cloth to a model](/docs/deadlock/models/cloth).
+- **Animations to work with.** You deleted them in the clean-up. Hero animations live in the hero's `clips` folder. For animation work, see [Replace an animation](/docs/deadlock/animations/replace-an-animation).
+- **Exact shading.** Materials come in as a close match, not the real thing. Always check your work in game.
+
+## Common problems
+
+- **The model twists after you export it.** Deadlock bones look turned 90 degrees in Blender, because Valve's artists build in Maya. That is normal. If you turned on an import option that changes bone orientation, import again with it off.
+- **Giant spheres on every bone.** You missed **Disable Bone Shape**. Import again with it ticked, or delete the `Icosphere` object.
+- **The mesh flickers (SourceIO).** Every LOD imported at once. Delete the `lod1` to `lod3` meshes.
+- **Textures are missing (SourceIO).** Mount the game with **Add new resource** and turn on **mount discovered content**.
+- **Hair, eyes, or face come in white (SourceIO).** Those parts use vertex color. Use the glTF route.
+- **Blender is slow.** Delete the actions. Heroes come with a long list of animations.
+- **Your steps don't match an older video.** Source 2 Viewer 20.0 changed how glTF exports store axes in August 2026. Check the size and facing yourself.
+
+## Next steps
+
+- [Your first model swap: a soul container](/docs/deadlock/models/prop-swap)
+- [Hero swap part 1: rig your model in Blender](/docs/deadlock/models/hero-swap-blender)
+- [Blender and add-ons for Deadlock](/docs/deadlock/tools/blender-add-ons)
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Video:** [(Read Desc) Deadlock - General Model Swap Steps](https://www.youtube.com/watch?v=piEYFbFYmVM) by Pugzilla.
+- **Video:** [How To import Deadlock Models into Blender with Source IO and Souce2viewer](https://www.youtube.com/watch?v=_pt01FGNQyM) by Neutraldrift.
+- **Guide:** [From Start to Finish (Fuji's Asset Replacement Guide)](https://docs.google.com/document/d/10Be28UBdeN13R_-NO5PqYI7SiCyklldGK_JkZQUqAAg/edit) by Fuji.
+- **Guide:** [Neutral's General Guide for Modding Deadlock (Models, Textures, Sounds)](https://docs.google.com/document/d/1p3_Q3HXRLmQOWnBvkUa5BljGmHVvW33UjBqEz-WRk24/edit) by Neutraldrift.
+- **Guide:** [Importing GLTF format models to blender](https://deadlockmodding.pages.dev/modding-guides/importing-gltf-format-models-to-blender) from Deadlock Modding Notes.
+- **Docs:** [Format Support and Export Fidelity](https://s2v.app/ValveResourceFormat/guides/format-support.html) by the ValveResourceFormat team.
+- **Tool:** [SourceIO](https://github.com/REDxEYE/SourceIO) by REDxEYE.

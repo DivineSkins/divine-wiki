@@ -1,0 +1,182 @@
+---
+title: "Add cloth to a model"
+description: "Make hair, coats, and skirts move on your custom model with cloth chains or a proxy cloth mesh, set up in Blender and ModelDoc."
+category: "models"
+patch: "6779"
+---
+
+<LevelPill level="advanced" />
+
+Make tails, hair, coats, and skirts move on your custom hero model. You set up cloth in Blender and ModelDoc while you build the model. Finish [Hero swap part 1](/docs/deadlock/models/hero-swap-blender) and [part 2](/docs/deadlock/models/hero-swap-modeldoc) first.
+
+## What you need
+
+- A hero model that already compiles in ModelDoc. See [Hero swap part 2: build the model in ModelDoc](/docs/deadlock/models/hero-swap-modeldoc).
+- Blender with a DMX exporter, such as BlenderSource2Tools (Fuji fork). See [Blender and add-ons for Deadlock](/docs/deadlock/tools/blender-add-ons).
+- For proxy cloth: a way to copy vertex groups between meshes. Blender's own Data Transfer works. Hoxdolum's proxy cloth video uses the paid Mesh Data Transfer add-on.
+
+## Pick a Blender version
+
+Sources disagree on the best Blender version for cloth:
+
+- Pugzilla's March 2026 model swap video recommends Blender 4.2 for cloth.
+- Hoxdolum's 2024 cloth video says newer Blender versions cap the collision radius map at 1.
+- The current Fuji fork supports Blender 4.4 and newer. For Blender 4.1 to 4.3.2, its notes point to the older release `3.3.1_2c`.
+
+Use Blender 4.2 with Fuji fork `3.3.1_2c` for cloth until newer versions are tested.
+
+{/* NEEDS HANDS-ON TEST: Blender version for cloth (conflict C35). Paint a collision radius above 1 on Blender 4.2 with BlenderSource2Tools 3.3.1_2c, on Blender 5.x with 3.3.1_2f, and on Blender 4.5+ with PulseSrcOps. Record which ones export the value. */}
+
+## Cloth chains or proxy cloth
+
+<img
+  src="/wiki-images/deadlock-models-cloth-1.webp"
+  alt="Two cloth methods side by side. A cloth chain is a line of new bones, such as a tail, set up with one Cloth Chain node. Proxy cloth is a simple single-sided mesh with four painted maps that moves a detailed skirt or coat."
+/>
+
+- **Cloth chain:** a line of new bones that swings. Use it for tails, ropes, and single strands of hair.
+- **Proxy cloth:** a simple, low-poly mesh that moves a detailed one. Use it for skirts, coats, and capes.
+
+## Before you start
+
+- Never move, rename, or delete the hero's own bones. Adding new bones for cloth is fine.
+- Keep the cloth close to the hero's outline. A huge cape or a wide skirt changes the hero's size on screen, and size changes are off limits.
+- Source 2 Viewer only roughly rebuilds cloth when it decompiles a model. Use the original model's cloth nodes as a reference, not as finished settings.
+- Save a copy of your `.blend` file before each export.
+
+## Add a cloth chain
+
+Basilisken adds a cloth chain to a tail in this video, from 51:49.
+
+<YouTube
+  id="IL3ywMmK090"
+  start={3109}
+  title="Adding a cloth chain to a custom hero model by Basilisken"
+/>
+
+In Blender:
+
+1. Select the hero armature and go to Edit Mode.
+2. Add new bones in a line, starting from the hero bone the cloth hangs from. For a tail, the video starts at the pelvis.
+3. Connect each bone to the one before it. The video names the last bone `end`.
+4. Weight the cloth part of your mesh to the new bones. For a quick start, parent it with **With Automatic Weights**.
+5. Export the DMX the same way as in [part 1](/docs/deadlock/models/hero-swap-blender).
+
+In ModelDoc:
+
+1. Load the new bones. In the video, the author deletes the **Skeleton** node and adds a new skeleton from the DMX, then compiles.
+2. Add a **Cloth Chain** node. Pick the first bone of the chain.
+3. Turn on the simulation preview. Then turn on **wobble preview**, so the chain keeps moving while you orbit the camera.
+4. Set **Twist Relax** to 1, so the bones do not twist.
+5. Raise **Goal Strength** to about 7 to make the chain less floppy. Then lower it bone by bone toward the tip.
+6. Compile.
+
+{/* NEEDS HANDS-ON TEST: whether a skeleton rebuilt from the DMX keeps every original bone, hitbox, and attachment working on build 6779, and whether the last bone must be named "end". */}
+
+{/* SCREENSHOT: deadlock-models-cloth-3.webp, ModelDoc's Cloth Chain node on a tail, with Twist Relax and Goal Strength visible */}
+
+## Build a proxy cloth mesh
+
+Hoxdolum builds a proxy for a hero's skirt in this video.
+
+<YouTube id="lSA_YRMlyFk" title="Source 2 proxy cloth tutorial by Hoxdolum" />
+
+<Callout type="info" title="This video is from 2024">
+  The ModelDoc cloth steps are likely unchanged. Its Blender version advice is
+  out of date, so follow the version advice above.
+</Callout>
+
+### Make the proxy
+
+1. Add a new mesh at the world origin. For a skirt, the video starts from a cylinder with 32 vertices.
+2. Switch to Wireframe view. Shape the mesh roughly over the cloth.
+3. Keep it low-poly and single-sided: no thickness and no double faces.
+4. Add a few edge loops where the cloth needs more control, such as the hem.
+5. Keep the proxy as its own object.
+6. Choose **Object > Apply > All Transforms**.
+7. Add an **Armature** modifier that points at the hero armature.
+8. Copy the vertex groups from the real cloth mesh onto the proxy. Use World space and Vertex Groups.
+9. Pose the armature in Pose Mode. Check that the proxy follows.
+
+### Paint the four maps
+
+1. In the **Source Engine Export** panel, set DMX to **Binary 9** and **Model 22**. The float map options appear.
+2. Add the four maps in the table below.
+3. Paint each map in Weight Paint mode. The Gradient tool works well: Linear for a smooth fade, Radial for one spot.
+
+| Map              | What it controls                         | How to paint it                                                   |
+| ---------------- | ---------------------------------------- | ----------------------------------------------------------------- |
+| Cloth enable     | Which parts move as cloth                | Red parts simulate. Blue parts stay fixed.                        |
+| Goal strength    | How closely the cloth follows the motion | Works the other way: high values hold the cloth to the animation. |
+| Collision radius | Size of the collision spheres            | Most at the bottom, near the legs. Little at the top.             |
+| Ground collision | Contact with the ground                  | Leave it at one flat value.                                       |
+
+{/* NEEDS HANDS-ON TEST: the exact float map names in the exporter (the video's captions are rough; "ground collision" is a guess from audio). */}
+
+### Copy the maps onto the real mesh
+
+The maps must sit on the mesh players see. A donor copy moves them across.
+
+<img
+  src="/wiki-images/deadlock-models-cloth-2.webp"
+  alt="Five steps: paint four maps on the proxy, duplicate it as a donor and keep only the maps, copy them onto the real skirt, export DMX with Binary 9 and Model 22, then add the proxy node, Add bones to render mesh, and Cloth Params in ModelDoc."
+/>
+
+1. Duplicate the proxy. If the copy moves, set its location back to zero. This copy is the donor.
+2. On the donor, open **Data Properties > Vertex Groups**. Lock the four map groups.
+3. Delete every group that is not locked.
+4. Select the real cloth mesh. Copy the donor's vertex groups onto it, with World space and Vertex Groups.
+5. Check that the four maps are on the real mesh. Then delete the donor.
+6. If the exporter asks for a material, give the mesh one. If it asks for an action, create one in the Dope Sheet.
+7. Export. You can ignore warnings about vertices.
+
+### Set it up in ModelDoc
+
+1. Add a cloth proxy mesh node. Point it at the proxy's DMX file.
+2. On that node, run **add bones to render mesh**. Without this step, the proxy does not move the real mesh.
+3. Add a **Cloth Params** node. Leave it at its defaults for now. It affects every cloth part on the model, including hair and chains.
+4. Turn on the simulation preview and play a walk.
+
+{/* NEEDS HANDS-ON TEST: the exact node names in the ModelDoc Add menu (cloth proxy mesh node, add bones to render mesh, Cloth Params) in CSDK 12. */}
+
+{/* SCREENSHOT: deadlock-models-cloth-4.webp, a proxy mesh in Blender with the collision radius map painted heavy at the bottom */}
+
+## Fix clipping and stretching
+
+- **The cloth clips through the legs.** The collision spheres are too small. Paint more collision radius near the bottom.
+- **The radius will not go above 1.** This is the Blender version limit from the 2024 video. That author repainted the map in Blender 2.93, with values up to 5. Move the proxy between Blender versions as a DMX file, never by copy and paste.
+- **The cloth stretches.** Fix the proxy's weights first. Change Cloth Params last, in small steps.
+
+## Test in ModelDoc and in game
+
+1. Preview a walk and a turn in ModelDoc. Check every cloth part, not only the new one.
+2. Compile.
+3. Finish the model with [part 3](/docs/deadlock/models/hero-swap-attachments) and [part 4](/docs/deadlock/models/hero-swap-compile).
+4. Pack and test in game. Walk, jump, and turn fast. Follow [Test your mod in game](/docs/deadlock/basics/test-your-mod).
+
+{/* SCREENSHOT: deadlock-models-cloth-5.webp, the finished model in a private match with the cloth moving, using an original design */}
+
+## Common problems
+
+- **The proxy does nothing.** Run **add bones to render mesh** on the proxy node.
+- **A chain twists.** Set **Twist Relax** to 1.
+- **A chain is too floppy.** Raise **Goal Strength**.
+- **Hair broke after you changed Cloth Params.** Cloth Params affects the whole model. Undo the change and adjust weights instead.
+- **ModelDoc crashes when you open the model.** Delete the `_cloth_` bones that came from the decompile.
+- **Weights vanished after you moved a mesh between Blender versions.** Export DMX from one version and import it in the other.
+
+Community knowledge on cloth is thin. One Deadlock video covers proxy cloth, and it is from 2024. Nobody has published cloth settings for each hero.
+
+## Next steps
+
+- [Hero swap part 3: attachments, camera, and game data](/docs/deadlock/models/hero-swap-attachments)
+- [Model and skin problems](/docs/deadlock/errors/model-problems)
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Video:** [Bat Drifter from Start to Finish: Part 1 - Make it exist first, make it pretty later](https://www.youtube.com/watch?v=IL3ywMmK090) by Basilisken.
+- **Video:** [Source 2 proxy cloth tutorial](https://www.youtube.com/watch?v=lSA_YRMlyFk) by Hoxdolum.
+- **Video:** [(Read Desc) Deadlock - General Model Swap Steps](https://www.youtube.com/watch?v=piEYFbFYmVM) by Pugzilla.
+- **Tool:** [BlenderSource2Tools](https://github.com/FellOffFuji/BlenderSource2Tools) by FellOffFuji.
