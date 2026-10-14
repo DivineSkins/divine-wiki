@@ -3,6 +3,8 @@ import { createFromSource } from "fumadocs-core/search/server";
 import { searchPath } from "fumadocs-core/breadcrumb";
 import { i18n } from "@/lib/i18n";
 import { createPlaceholderTranslator } from "@/lib/tree-localization";
+import { withSearchKeywords } from "@/lib/search-keywords";
+import type { StructuredData } from "fumadocs-core/mdx-plugins/remark-structure";
 
 // Prerender one index per locale. scripts/export-search.mjs publishes these
 // responses as versioned static files after next build. Production clients
@@ -72,6 +74,8 @@ const server = createFromSource(source, {
     const data = page.data as {
       title?: string;
       description?: string;
+      keywords?: string[];
+      tags?: string[];
       structuredData?: unknown;
       load?: () => Promise<{ structuredData: unknown }>;
     };
@@ -88,7 +92,11 @@ const server = createFromSource(source, {
       description: data.description,
       url: page.url,
       id: page.url,
-      structuredData: structuredData as never,
+      structuredData: withSearchKeywords(
+        structuredData as StructuredData,
+        data.keywords,
+        data.tags,
+      ),
       breadcrumbs: localizedBreadcrumbs(page.locale ?? "en", page.url),
     };
   },

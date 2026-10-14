@@ -3,7 +3,6 @@ import { defineI18nUI } from "fumadocs-ui/i18n";
 import { i18n } from "@/lib/i18n";
 import englishTranslations from "@/../messages/en.json";
 import {
-  Manrope,
   Poppins,
   Inter,
   JetBrains_Mono,
@@ -11,6 +10,7 @@ import {
   Lora,
   Atkinson_Hyperlegible,
 } from "next/font/google";
+import localFont from "next/font/local";
 import type { Metadata } from "next";
 import { baseUrl } from "@/lib/config";
 import { baseOpenGraph, baseTwitter, llmAlternateTypes } from "@/lib/seo";
@@ -23,10 +23,11 @@ import StaticSearchDialog from "@/components/search-dialog";
 import { ApplyAppearance } from "@/components/apply-appearance";
 import { IconGradients } from "@/components/icon-gradients";
 
-const manrope = Manrope({
-  subsets: ["latin"],
+const manrope = localFont({
+  src: "../fonts/manrope/Manrope-Variable.woff2",
   variable: "--font-manrope",
-  weight: ["400", "600", "700", "800"],
+  weight: "200 800",
+  display: "swap",
 });
 
 const poppins = Poppins({

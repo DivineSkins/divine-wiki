@@ -1,130 +1,265 @@
 ---
 title: "TextureSwap Fakegear"
-description: "Đây là một bài hướng dẫn khá cơ bản về chỉnh sửa bin."
+description: "Tạo cách đổi bộ đồ, quần áo, texture và mesh trong Ruby bằng material trực tiếp và điều kiện duy trì, không tích tụ particle fakegear."
 category: "vfx-bins"
+authors:
+  - name: DAKA
+    url: https://github.com/sxrmss
+tags: ["Ruby", "BIN", "material", "texture", "mesh", "trang phục"]
+keywords:
+  - "fakegear"
+  - "đổi texture"
+  - "đổi mesh"
+  - "đổi trang phục"
+  - "đổi quần áo"
+  - "texture swap"
+  - "mesh swap"
+  - "outfit swap"
+  - "clothes swap"
+  - "giữ trang phục"
+  - "tụt FPS"
 ---
 
-## 1. Chuẩn bị Static Material
+<LevelPill level="intermediate" label="Trung bình" />
 
-Bạn tưởng tụi mình chỉ đổi texture thôi à? Ước gì đơn giản vậy.
+Fakegear cho phép đổi texture hoặc mesh đang hiển thị mà không cần cơ chế đổi trang bị có sẵn. Cách cũ tạo một particle ghi đè material có thời gian tồn tại rất dài mỗi lần chọn. Lặp lại thao tác có thể khiến các instance tích tụ và làm FPS giảm dần.
 
-Bạn cần copy `staticmaterial` có sẵn gắn với texture gốc của mesh đó. Với thân của Yuumi, nó là `Orb_Cat_inst`. Bạn tìm được bằng cách search tên texture trong file bin của skin.
+Phiên bản này dùng material trực tiếp và điều kiện cho mesh. **Sora Master Yi** là ví dụ minh họa. Các đoạn mã dùng hai lựa chọn A và B để bạn áp dụng cho skin của mình mà không phải sao chép các BIN của Sora.
 
-<img src="/wiki-images/1767149443636-vvzsnj.webp" alt="Tìm static material trong bin của skin" width={800} />
+Không dùng skin tùy chỉnh trên máy chủ League Hàn Quốc hoặc Trung Quốc.
 
-Sau đó, copy toàn bộ, dán ra chỗ khác, đổi tên các thứ, rồi thêm file texture của bạn vào. Trong ví dụ của mình, tên sẽ là `"mine"`, file texture cũng vậy.
+## 1. Tìm mesh và material
 
-<img src="/wiki-images/1767149464084-1r81lr.webp" alt="Static material đã đổi tên với texture mới" width={500} />
+Mở BIN của skin trong Ruby. Tìm `skinMeshProperties`, BIN animation được liên kết và `StaticMaterialDef` mà từng mesh cần sửa đang dùng.
 
----
+Nhấn **BIN editor** ở cuối cửa sổ Ruby. Để sửa thuộc tính skin, chọn **Skin** ở đầu trình chỉnh sửa. Các nút phía dưới chuyển giữa **Inspector** để sửa trường và **Raw text** để xem cùng entry dưới dạng văn bản.
 
-## 2. VFX
+Dùng **Raw text** để chèn các đoạn mã ban đầu, sau đó dùng **Inspector** để sửa tên, giá trị và danh sách. Dán vào bên trong object được chỉ rõ ở từng bước và giữ các trường hiện có. Chú thích đánh dấu chỗ cần chèn đoạn mã khác; điền đầy đủ trước khi lưu.
 
-Bạn sẽ cần đoạn code này. Mình khuyên bạn dán nó gần staticmaterial để mọi thứ nằm chung một chỗ.
+Thay các tên ví dụ này ở mọi chỗ chúng xuất hiện:
+
+| Ví dụ                        | Thay bằng                                     |
+| ------------------------------ | ------------------------------------------------ |
+| `SwapChoice_A`, `SwapChoice_B` | Tên các mesh đánh dấu lựa chọn mà bạn thêm ở bước 2     |
+| `Outfit_A`, `Outfit_B`         | Tên submesh thực tế trong SKN của bạn                    |
+| `MySkin/Materials/Outfit`      | Tên entry BIN riêng cho material đã sao chép |
+| `assets/myskin/outfit_b.tex`   | Đường dẫn đến texture thay thế             |
+| `Diffuse_Texture`              | Tên sampler của material                     |
+
+Với Sora, `KH1_outfit` và `KH3_outfits` là các mesh trang phục riêng. Limit và các dạng KH2 khác dùng chung hình học quần áo và chỉ đổi texture của nó.
+
+## 2. Gửi tín hiệu lựa chọn từ biểu cảm
+
+Để giữ lựa chọn sau khi biểu cảm kết thúc, thêm một submesh đánh dấu nhỏ và trong suốt cho mỗi lựa chọn trong trình chỉnh sửa mesh. Đặt tên là `SwapChoice_A` và `SwapChoice_B`, gán trọng số cho một xương trung tâm có sẵn rồi xuất với trọng số hợp lệ, đã chuẩn hóa.
+
+Để cả hai mesh đánh dấu hiển thị theo mặc định. Material trong suốt che chúng trên màn hình, nhưng driver điều kiện vẫn đọc trạng thái hiển thị. Đừng đưa chúng vào `initialSubmeshToHide`.
+
+Trong BIN animation, tìm nhánh animation atomic chọn A. Trong `mEventDataMap` của nhánh đó, thay `ParticleEventData` chỉ dùng cho trang phục bằng:
 
 ```py
-"Hide" = VfxSystemDefinitionData {
-    timeBeforeFirstEmission: f32 = 1
-    complexEmitterDefinitionData: list[pointer] = {
-        VfxEmitterDefinitionData {
-            rate: embed = ValueFloat {
-                constantValue: f32 = 1
+0xa947e23c = SubmeshVisibilityEventData {
+    mShowSubmeshList: list[hash] = { "SwapChoice_A" }
+    mHideSubmeshList: list[hash] = { "SwapChoice_B" }
+}
+```
+
+Giữ **khóa event và frame lựa chọn hiện có của bạn**. `0xa947e23c` là khóa trong ví dụ Sora, không phải khóa cần thêm vào mọi nơi. Với nhánh B, đảo hai tên mesh đánh dấu. Giữ các event animation, kỹ năng, biến về và âm thanh khác.
+
+Với Sora, CTRL+4 chọn giữa bốn nhánh animation. Tìm nhánh cụ thể, không chỉ trạng thái `Laugh` dùng chung. Nhiều nhánh dùng `joke.anm`, nên chỉ tên file chưa đủ để xác định lựa chọn.
+
+Nếu tướng đã có trạng thái trang bị hoặc buff phù hợp, hãy dùng trạng thái đó làm đầu vào điều kiện. Mesh đánh dấu dành cho lựa chọn bằng biểu cảm cần cơ chế ghi nhớ riêng.
+
+## 3. Ghi nhớ lựa chọn
+
+Các mesh đánh dấu trở về trạng thái hiển thị mặc định khi biểu cảm kết thúc. Để giữ bộ đồ đã chọn, so sánh thời gian từ lúc chọn A với thời gian từ lúc chọn B.
+
+Đây là **điều kiện A** đầy đủ. Giữ sẵn để dán vào điều kiện mesh hoặc tùy chọn texture ở các bước sau:
+
+```py
+OwnerCondition: pointer = FloatComparisonMaterialDriver {
+    mOperator: u32 = 3
+    mValueA: pointer = LerpMaterialDriver {
+        mBoolDriver: pointer = AllTrueMaterialDriver {
+            mDrivers: list[pointer] = {
+                SubmeshVisibilityBoolDriver {
+                    Submeshes: list[hash] = { "SwapChoice_A" }
+                    VISIBLE: bool = true
+                }
+                SubmeshVisibilityBoolDriver {
+                    Submeshes: list[hash] = { "SwapChoice_B" }
+                    VISIBLE: bool = false
+                }
             }
-            particleLifetime: embed = ValueFloat {
-                constantValue: f32 = 1e+14
+        }
+        mOnValue: f32 = 0
+        mOffValue: f32 = 1000000000
+        mTurnOnTimeSec: f32 = 0
+        mTurnOffTimeSec: f32 = 1000000000
+        mUseBrokenOldInterpolation: bool = false
+    }
+    mValueB: pointer = LerpMaterialDriver {
+        mBoolDriver: pointer = AllTrueMaterialDriver {
+            mDrivers: list[pointer] = {
+                SubmeshVisibilityBoolDriver {
+                    Submeshes: list[hash] = { "SwapChoice_A" }
+                    VISIBLE: bool = false
+                }
+                SubmeshVisibilityBoolDriver {
+                    Submeshes: list[hash] = { "SwapChoice_B" }
+                    VISIBLE: bool = true
+                }
             }
-            isSingleParticle: flag = true
-            emitterName: string = "Override"
-            meshRenderFlags: u8 = 0
-            materialOverrideDefinitions: list[embed] = {
-                VfxMaterialOverrideDefinitionData {
-                    priority: i32 = 1
-                    subMeshName: option[string] = {
-                        "Yourmaterialnamefrommaya"
-                    }
-                    material: link = "Characters/urchamp/Skins/urskin/Materials/urstaticmaterial"
-                    transitionSample: f32 = 1
+        }
+        mOnValue: f32 = 0
+        mOffValue: f32 = 1000000000
+        mTurnOnTimeSec: f32 = 0
+        mTurnOffTimeSec: f32 = 1000000000
+        mUseBrokenOldInterpolation: bool = false
+    }
+}
+```
+
+`mOperator = 3` nghĩa là nhỏ hơn. Chọn A đặt thời gian của nó về không. Sau biểu cảm, thời gian này vẫn nhỏ hơn cho đến khi chọn B. Cả hai mesh đánh dấu hiển thị nghĩa là không có lựa chọn mới.
+
+Để tạo **điều kiện B**, sao chép khối này rồi đổi chỗ mọi tên `SwapChoice_A` và `SwapChoice_B`. Giữ nguyên các số và giá trị boolean.
+
+Nếu có nhiều lựa chọn hơn, mỗi tín hiệu phải hiện mesh đánh dấu của chính nó và ẩn tất cả mesh đánh dấu còn lại. Trong `mValueA`, kiểm tra toàn bộ mẫu này. Trong `mValueB`, dùng `OneTrueMaterialDriver` với `mDrivers: list[pointer]` chứa mẫu `AllTrueMaterialDriver` đầy đủ của từng lựa chọn khác. Cách này tránh tính idle là một lựa chọn.
+
+Để sửa qua các trường, chuyển sang **Inspector** rồi nhập `OwnerCondition` vào **Find property**. Mở rộng điều kiện trang phục, sau đó mở `mValueA` hoặc `mValueB` bằng mũi tên. Nhấn ô số để nhập giá trị và dùng công tắc cho boolean. Đặt `mOperator` thành `3` và để `mUseBrokenOldInterpolation` tắt.
+
+<img
+  src="/wiki-images/fakegear-modern/ruby-condition-fields.webp"
+  alt="Skin Inspector của Ruby với Skin, Find property, giá trị mOperator, công tắc nội suy đang tắt và Save được đánh dấu"
+  width={720}
+  style={{ maxWidth: 720 }}
+/>
+
+Các ô được đánh dấu là giao diện trường của cùng điều kiện. Xóa nội dung tìm kiếm để xem phần còn lại của entry. Nhấn **Save** hoặc **CTRL+S** khi đã sửa xong.
+
+## 4. Hiện hoặc ẩn mesh
+
+Trong BIN skin, tìm `SkinCharacterDataProperties.PersistentEffectConditions`. Thêm entry này **vào trong danh sách hiện có**, rồi dán khối `OwnerCondition` đầy đủ của A ở bước 3 vào chỗ chú thích:
+
+```py
+PersistentEffectConditionData {
+    // Dán khối OwnerCondition của A vào đây.
+    SubmeshesToShow: list2[hash] = { "Outfit_A" }
+    SubmeshesToHide: list2[hash] = { "Outfit_B" }
+}
+```
+
+Thêm entry thứ hai dùng điều kiện B, hiện `Outfit_B` và ẩn `Outfit_A`. Thêm tên submesh tóc và vũ khí vào danh sách nếu cần. Để các phần cơ thể dùng chung ngoài danh sách và tuyệt đối không thêm các mesh đánh dấu lựa chọn.
+
+Trong `skinMeshProperties.initialSubmeshToHide`, thêm các phần cần ẩn khi nhân vật xuất hiện. Với ví dụ này, ẩn `Outfit_B` và để A hiển thị. Giữ các đạo cụ biến về đã được ẩn sẵn. Các điều kiện trang phục này không cần `PersistentVfxs`.
+
+Trong **Inspector**, tìm `SubmeshesToShow` hoặc `SubmeshesToHide` và mở rộng danh sách. Sửa tên hiện có trong ô giá trị. Để thêm tên, mở menu **...** ở dòng danh sách và chọn **Add**. Dùng menu của từng mục để xóa mục đó.
+
+<img
+  src="/wiki-images/fakegear-modern/ruby-list-actions.webp"
+  alt="Trình sửa trường của Ruby với menu danh sách SubmeshesToShow và tùy chọn Add được đóng khung"
+  width={720}
+  style={{ maxWidth: 720 }}
+/>
+
+Hộp thoại **Add list item** dùng JSON có thông tin kiểu. Với hash submesh, nhập đoạn này và thay `Outfit_A` bằng tên trong SKN của bạn:
+
+```json
+{ "t": "hash", "v": "Outfit_A" }
+```
+
+Giữ `t` là `hash`, sửa `v` rồi nhấn **Add**. Thao tác này thêm một mục vào danh sách; **Save** mới ghi BIN ra file. Các hash hiện có có thể hiển thị dạng `0x...` nếu Ruby không biết tên có thể đọc được của chúng.
+
+<img
+  src="/wiki-images/fakegear-modern/ruby-list-add.webp"
+  alt="Hộp thoại Add list item của Ruby với giá trị hash có kiểu và nút Add được đánh dấu"
+  width={720}
+  style={{ maxWidth: 720 }}
+/>
+
+## 5. Gán material và đổi texture
+
+Sao chép entry `StaticMaterialDef` đang hiển thị của mesh cần sửa. Đặt khóa entry và trường `name` thành một giá trị riêng như `MySkin/Materials/Outfit`. Giữ shader, sampler, tham số và thiết lập render.
+
+Trong `skinMeshProperties.materialOverride`, sửa entry tương ứng để trỏ đến bản sao. Nếu chưa có, thêm một entry vào bên trong danh sách đó:
+
+```py
+SkinMeshDataProperties_MaterialOverride {
+    submesh: string = "Outfit_A"
+    material: link = "MySkin/Materials/Outfit"
+}
+```
+
+`submesh` phải khớp với tên trong SKN. `material` phải khớp với khóa entry BIN đã sao chép. Lặp lại với các mesh cần sửa khác.
+
+Bạn cũng có thể sửa các liên kết này trong **Skin > Inspector**. Tìm `materialOverride`, tìm submesh tương ứng rồi chọn material đã sao chép ở ô chọn **Material**. Tab **Material** phía trên mở công cụ material; chuyển sang BIN nguồn của material nếu định nghĩa nằm trong file liên kết.
+
+Với hai texture trên **cùng một mesh**, giữ A làm texture mặc định của sampler. Thêm trường `dynamicMaterial` này vào bên trong `StaticMaterialDef` đã sao chép:
+
+```py
+dynamicMaterial: pointer = DynamicMaterialDef {
+    textures: list[embed] = {
+        DynamicMaterialTextureSwapDef {
+            name: string = "Diffuse_Texture"
+            Enabled: bool = true
+            options: list[embed] = {
+                DynamicMaterialTextureSwapOption {
+                    // Dán điều kiện B vào đây và đổi tên OwnerCondition thành driver.
+                    TextureName: file = "assets/myskin/outfit_b.tex"
                 }
             }
         }
     }
-    particleName: string = "Hide"
-    particlePath: string = "Hide"
 }
 ```
 
-```py
-"Show" = VfxSystemDefinitionData {
-    timeBeforeFirstEmission: f32 = 1
-    complexEmitterDefinitionData: list[pointer] = {
-        VfxEmitterDefinitionData {
-            rate: embed = ValueFloat {
-                constantValue: f32 = 1
-            }
-            particleLifetime: embed = ValueFloat {
-                constantValue: f32 = 1e+14
-            }
-            isSingleParticle: flag = true
-            emitterName: string = "Override"
-            meshRenderFlags: u8 = 0
-            materialOverrideDefinitions: list[embed] = {
-                VfxMaterialOverrideDefinitionData {
-                    priority: i32 = 1
-                    subMeshName: option[string] = {
-                        "Yourmaterialnamefrommaya"
-                    }
-                    material: link = "Characters/urchamp/Skins/urskin/Materials/defaultstaticmaterial"
-                    transitionSample: f32 = 1
-                }
-            }
-        }
-    }
-    particleName: string = "Show"
-    particlePath: string = "Show"
-}
-```
+Dán điều kiện B từ bước 3 vào chỗ chú thích rồi chỉ đổi tên trường đầu tiên từ `OwnerCondition` thành `driver`. Nó phải bắt đầu bằng `driver: pointer = FloatComparisonMaterialDriver {`. Thay tên sampler và đường dẫn texture bằng giá trị của bạn. Giữ kiểu `file` cho `TextureName`.
 
----
+Nếu đã có `dynamicMaterial` hoặc cơ chế đổi texture cho sampler đó, hãy thêm vào phần hiện có thay vì tạo trường trùng lặp. Nếu chỉ đổi texture, bạn không cần các điều kiện mesh trang phục ở bước 4.
 
-## 3. Resource Resolver
+<img
+  src="/wiki-images/fakegear-modern/sora-limit-idle.webp"
+  alt="Bản xem trước trong Ruby với bộ đồ Limit được khoanh trên mesh KH2 dùng chung của Sora"
+  width={1200}
+/>
 
-Bạn cũng cần thêm cái này vào `ResourceResolver`:
+Bộ đồ Limit được khoanh của Sora dùng cách đổi texture trên hình học dùng chung.
 
-```py
-"Hide" = "Hide"
-"Show" = "Show"
-```
+<img
+  src="/wiki-images/fakegear-modern/sora-oathkeeper-idle.webp"
+  alt="Bản xem trước trong Ruby với vũ khí Oathkeeper của Sora được khoanh"
+  width={1200}
+/>
 
----
+Oathkeeper cần mesh riêng. Kiểm tra rằng các vũ khí khác đã được ẩn.
 
-## 4. Animation Bin
+## 6. Kiểm tra trong Ruby
 
-Sau đó, bạn cần file animation bin. Tìm animation bạn muốn dùng làm nút bật/tắt rồi dán các đoạn code như thế này:
+Mở **Conditions** rồi bật hai tùy chọn được đánh dấu là **Submesh swaps** và **Material conditions**. Bản cũ gọi tùy chọn thứ hai là **Material params**. Để trống các ô ép bật từng điều kiện riêng lẻ.
 
-<img src="/wiki-images/1767149506632-k9q8d.webp" alt="Dán code particle event vào animation bin" width={700} />
+<img
+  src="/wiki-images/fakegear-modern/sora-ruby-conditions.webp"
+  alt="Menu Conditions của Ruby với Submesh swaps và Material conditions đang bật được đóng khung"
+  width={1200}
+/>
 
-```py
-"Hide" = ParticleEventData {
-    mEffectKey: hash = "Hide"
-    mParticleEventDataPairList: list[embed] = {
-        ParticleEventDataPair {}
-    }
-    mIsLoop: bool = false
-    mIsKillEvent: bool = false
-}
-```
+Phát nhánh lựa chọn trong **Animation**, rồi chọn idle mà không mở lại BIN. Kiểm tra bộ đồ vẫn được giữ và tất cả mesh đánh dấu trở về trạng thái hiển thị mặc định trong **Submeshes**.
 
-```py
-"Show" = ParticleEventData {
-    mEffectKey: hash = "Show"
-    mParticleEventDataPairList: list[embed] = {
-        ParticleEventDataPair {}
-    }
-    mIsLoop: bool = false
-    mIsKillEvent: bool = false
-}
-```
+<img
+  src="/wiki-images/fakegear-modern/sora-kh3-idle.webp"
+  alt="Bản xem trước trong Ruby với Idle1 được đóng khung và bộ đồ KH3 được giữ lại được khoanh"
+  width={1200}
+/>
 
----
+Khung đánh dấu `Idle1`; vòng tròn đánh dấu bộ đồ KH3 được giữ lại của Sora. Lặp lại một lựa chọn rồi chọn lựa chọn khác. Chỉ một bộ đồ được kích hoạt.
 
-> ✅ Xong bước này là bạn ổn rồi, miễn là làm đúng hết và thay đúng mọi thứ!
+Cơ chế ghi nhớ lựa chọn cần hỗ trợ lịch sử Lerp vô hướng của Ruby được thêm trong bản cập nhật này. Mở lại hoặc sửa BIN sẽ đặt lại trạng thái xem trước. Ruby kiểm tra hình ảnh; khả năng giữ lựa chọn và FPS vẫn cần được kiểm tra trong League.
+
+## 7. Xóa cách cũ và kiểm tra
+
+Xóa các định nghĩa VFX cũ chỉ dùng cho trang phục và các ánh xạ resolver không còn dùng. Kiểm tra mọi nhánh lựa chọn xem còn event tạo particle trang phục hay không. Giữ hiệu ứng kỹ năng và biến về thông thường, rồi áp dụng thay đổi cho mọi BIN skin mà mod thay thế.
+
+Bắt đầu một lượt kiểm tra mới trong game:
+
+- Chọn một bộ đồ, hoàn thành biểu cảm, di chuyển, đánh thường và dùng kỹ năng. Bộ đồ phải được giữ cho đến khi có lựa chọn khác.
+- Lặp lại lựa chọn 30-50 lần ở cùng vị trí và góc camera. So sánh FPS trước và sau, phân biệt khựng hình khi tải texture lần đầu với tình trạng giảm liên tục.
+- Kiểm tra biểu cảm bị ngắt, biến về, chết, hồi sinh và hiển thị trong bụi để tìm trường hợp đặt lại, thiếu bộ phận hoặc vũ khí bị nhân đôi.

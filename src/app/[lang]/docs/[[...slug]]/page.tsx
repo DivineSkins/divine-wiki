@@ -176,7 +176,9 @@ export async function generateMetadata(
       ]
     : [{ url: imageUrl, width: 1200, height: 630 }];
   const twitterImages = isLandingTarget ? [LANDING_OG_IMAGE] : [imageUrl];
-  const pageKeywords = (page.data as any).keywords || [];
+  const pageKeywords = [
+    ...new Set([...(page.data.keywords ?? []), ...(page.data.tags ?? [])]),
+  ];
   const globalKeywords = [
     "league of legends",
     "lol custom skins",
