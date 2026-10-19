@@ -22,6 +22,7 @@ import {
 import StaticSearchDialog from "@/components/search-dialog";
 import { ApplyAppearance } from "@/components/apply-appearance";
 import { IconGradients } from "@/components/icon-gradients";
+import { Analytics } from "@/components/analytics";
 
 const manrope = localFont({
   src: "../fonts/manrope/Manrope-Variable.woff2",
@@ -162,6 +163,7 @@ export default async function RootLayout({
             locale remount resets <html>'s attributes (see the component's
             doc comment). */}
         <ApplyAppearance />
+        <Analytics />
         <RootProvider
           i18n={provider(lang)}
           search={{ SearchDialog: StaticSearchDialog }}

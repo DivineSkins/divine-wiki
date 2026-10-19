@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { TrackNotFound } from "@/components/analytics";
 import "./global.css";
 
 /**
@@ -7,9 +8,11 @@ import "./global.css";
  * has no <html>/<body> wrapper and the framework throws "Missing <html> and
  * <body> tags in the root layout."
  *
- * This page is the branded shell for unmatched URLs. We keep it dependency-
- * free (no fonts, no i18n provider, no client components) so it can render
- * even when downstream layouts haven't loaded.
+ * This page is the branded shell for unmatched URLs. We keep it nearly
+ * dependency-free (no fonts, no i18n provider) so it can render even when
+ * downstream layouts haven't loaded. The one client component,
+ * TrackNotFound, only records the 404: most broken links land here, not in
+ * [lang]/not-found.tsx, which only notFound() calls reach.
  */
 export default function RootNotFound() {
   return (
@@ -37,6 +40,7 @@ export default function RootNotFound() {
               "radial-gradient(ellipse at top, rgba(120,60,181,0.20), transparent 60%)",
           }}
         >
+          <TrackNotFound />
           <p
             style={{
               fontSize: 12,
