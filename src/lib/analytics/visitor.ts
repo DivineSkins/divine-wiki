@@ -33,16 +33,28 @@ const EXPIRY_GRACE_SECONDS = 600;
 let cached:
   { day: string; salt: string; key: CryptoKey; readAt: number } | undefined;
 
-export async function visitorId(
+export function visitorId(
   store: SaltStore,
   ip: string,
   ua: string,
+): Promise<string> {
+  return dailyHash(store, `${ip}|${ua}`);
+}
+
+/**
+ * HMAC of `message` with today's salt, truncated to 64 bits. Use it whenever
+ * something has to be keyed by an IP: the result can't be reversed, and it
+ * changes when the day does.
+ */
+export async function dailyHash(
+  store: SaltStore,
+  message: string,
 ): Promise<string> {
   const key = await dailyKey(store, utcDay(Date.now()));
   const signature = await crypto.subtle.sign(
     "HMAC",
     key,
-    new TextEncoder().encode(`${ip}|${ua}`),
+    new TextEncoder().encode(message),
   );
   return Array.from(new Uint8Array(signature, 0, 8), (b) =>
     b.toString(16).padStart(2, "0"),

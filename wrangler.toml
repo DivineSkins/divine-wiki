@@ -27,3 +27,11 @@ dataset = "wiki_events"
 [[kv_namespaces]]
 binding = "ANALYTICS_SALTS"
 id = "afdf12c3a55c49b6b8e36a7c78b6d1c4"
+
+# Max analytics events per IP per minute, per Cloudflare location. A reader
+# sends a few a minute; this stops one source from flooding the numbers.
+# namespace_id is any account-unique number; nothing else uses 1001.
+[[ratelimits]]
+name = "ANALYTICS_LIMITER"
+namespace_id = "1001"
+simple = { limit = 60, period = 60 }

@@ -1,6 +1,7 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { i18n } from "@/lib/i18n";
 import { analyticsEventSchema, type AnalyticsEvent } from "./schema";
+import { withinDailyLimit } from "./limits";
 import { visitorId, type SaltStore } from "./visitor";
 
 /*
@@ -31,10 +32,10 @@ import { visitorId, type SaltStore } from "./visitor";
  *   index1              visitor hash (sampling key)
  */
 
-// Minimal shape of the Analytics Engine binding. Declared locally because the
+// Minimal shapes of the bindings used here. Declared locally because the
 // wrangler-generated cloudflare-env.d.ts is git-ignored: its
-// AnalyticsEngineDataset type doesn't exist on the fresh checkout Workers
-// Builds type-checks.
+// AnalyticsEngineDataset / RateLimit types don't exist on the fresh checkout
+// Workers Builds type-checks.
 interface EventDataset {
   writeDataPoint(point: {
     indexes?: string[];
@@ -43,9 +44,14 @@ interface EventDataset {
   }): void;
 }
 
+interface RateLimiter {
+  limit(options: { key: string }): Promise<{ success: boolean }>;
+}
+
 interface AnalyticsEnv {
   WIKI_ANALYTICS?: EventDataset;
   ANALYTICS_SALTS?: SaltStore;
+  ANALYTICS_LIMITER?: RateLimiter;
 }
 
 const MAX_BODY_BYTES = 4096;
@@ -80,6 +86,10 @@ export async function recordEvent(request: Request): Promise<void> {
   const ua = request.headers.get("user-agent") ?? "";
   if (!ua || BOT_UA.test(ua)) return;
 
+  const { env, country } = getContext();
+  const ip = request.headers.get("cf-connecting-ip");
+  if (!(await withinRateLimit(env.ANALYTICS_LIMITER, ip))) return;
+
   if (Number(request.headers.get("content-length")) > MAX_BODY_BYTES) return;
   const body = await request.text();
   if (body.length > MAX_BODY_BYTES) return;
@@ -93,8 +103,9 @@ export async function recordEvent(request: Request): Promise<void> {
   const parsed = analyticsEventSchema.safeParse(json);
   if (!parsed.success) return;
 
-  const { env, country } = getContext();
-  const ip = request.headers.get("cf-connecting-ip");
+  const ownHost = host.replace(/:\d+$/, "");
+  if (!(await withinDailyLimit(env.ANALYTICS_SALTS, ip, ownHost))) return;
+
   let visitor = "";
   if (env.ANALYTICS_SALTS && ip) {
     try {
@@ -105,7 +116,7 @@ export async function recordEvent(request: Request): Promise<void> {
     }
   }
   const point = toDataPoint(parsed.data, {
-    host: host.replace(/:\d+$/, ""),
+    host: ownHost,
     country: request.headers.get("cf-ipcountry") ?? country ?? "",
     ua,
     visitor,
@@ -115,6 +126,24 @@ export async function recordEvent(request: Request): Promise<void> {
     env.WIKI_ANALYTICS.writeDataPoint(point);
   } else if (process.env.NODE_ENV === "development") {
     console.log("[analytics]", JSON.stringify(point.blobs), point.doubles);
+  }
+}
+
+/**
+ * Caps events per IP per minute (limit and period live in wrangler.toml, per
+ * Cloudflare location; the daily cap is in ./limits.ts). A reader sends a few events a minute, so this only stops one
+ * source from flooding the numbers. Fails open if the limiter errors.
+ */
+async function withinRateLimit(
+  limiter: RateLimiter | undefined,
+  ip: string | null,
+): Promise<boolean> {
+  if (!limiter || !ip) return true;
+  try {
+    return (await limiter.limit({ key: ip })).success;
+  } catch (error) {
+    console.error("[analytics] rate limiter failed", error);
+    return true;
   }
 }
 

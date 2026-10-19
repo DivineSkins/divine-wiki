@@ -31,68 +31,7 @@ export function Analytics() {
 
   useEffect(() => {
     if (!analyticsEnabled()) return;
-    const path = normalizePath(pathname);
-    const pageId = newPageId();
-
-    if (landed || isRevisit()) {
-      track({ event: "pageview", path, pageId, entry: false });
-    } else {
-      const referrer = externalReferrer();
-      track({
-        event: "pageview",
-        path,
-        pageId,
-        entry: referrer !== null,
-        referrer: referrer || undefined,
-        source: landingSource(),
-      });
-    }
-    landed = true;
-
-    let visibleSince: number | null =
-      document.visibilityState === "visible" ? performance.now() : null;
-    let activeMs = 0;
-    let maxScroll = scrollDepth();
-    let scrollQueued = false;
-
-    const onScroll = () => {
-      if (scrollQueued) return;
-      scrollQueued = true;
-      requestAnimationFrame(() => {
-        scrollQueued = false;
-        maxScroll = Math.max(maxScroll, scrollDepth());
-      });
-    };
-    // Runs when the tab is hidden, the page unloads, or the route changes.
-    // Hidden then unload fires twice; the second call has nothing to send.
-    const flush = () => {
-      if (visibleSince !== null) {
-        activeMs += performance.now() - visibleSince;
-        visibleSince = null;
-      }
-      const seconds = Math.min(
-        Math.round(activeMs / 1000),
-        MAX_ENGAGED_SECONDS,
-      );
-      activeMs = 0;
-      if (seconds > 0) {
-        track({ event: "engage", path, pageId, seconds, scroll: maxScroll });
-      }
-    };
-    const onVisibility = () => {
-      if (document.visibilityState === "hidden") flush();
-      else visibleSince = performance.now();
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    document.addEventListener("visibilitychange", onVisibility);
-    window.addEventListener("pagehide", flush);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      document.removeEventListener("visibilitychange", onVisibility);
-      window.removeEventListener("pagehide", flush);
-      flush();
-    };
+    return whenShown(() => trackPage(normalizePath(pathname)));
   }, [pathname]);
 
   useEffect(() => {
@@ -131,12 +70,103 @@ export function Analytics() {
   return null;
 }
 
+/**
+ * Sends the pageview, then watches engaged time and scroll depth until the
+ * returned cleanup runs (route change or unmount).
+ */
+function trackPage(path: string): () => void {
+  const pageId = newPageId();
+
+  if (landed || isRevisit()) {
+    track({ event: "pageview", path, pageId, entry: false });
+  } else {
+    const referrer = externalReferrer();
+    track({
+      event: "pageview",
+      path,
+      pageId,
+      entry: referrer !== null,
+      referrer: referrer || undefined,
+      source: landingSource(),
+    });
+  }
+  landed = true;
+
+  let visibleSince: number | null =
+    document.visibilityState === "visible" ? performance.now() : null;
+  let activeMs = 0;
+  let maxScroll = scrollDepth();
+  let scrollQueued = false;
+
+  const onScroll = () => {
+    if (scrollQueued) return;
+    scrollQueued = true;
+    requestAnimationFrame(() => {
+      scrollQueued = false;
+      maxScroll = Math.max(maxScroll, scrollDepth());
+    });
+  };
+  // Runs when the tab is hidden, the page unloads, or the route changes.
+  // Hidden then unload fires twice; the second call has nothing to send.
+  const flush = () => {
+    if (visibleSince !== null) {
+      activeMs += performance.now() - visibleSince;
+      visibleSince = null;
+    }
+    const seconds = Math.min(Math.round(activeMs / 1000), MAX_ENGAGED_SECONDS);
+    activeMs = 0;
+    if (seconds > 0) {
+      track({ event: "engage", path, pageId, seconds, scroll: maxScroll });
+    }
+  };
+  const onVisibility = () => {
+    if (document.visibilityState === "hidden") flush();
+    else visibleSince = performance.now();
+  };
+
+  window.addEventListener("scroll", onScroll, { passive: true });
+  document.addEventListener("visibilitychange", onVisibility);
+  window.addEventListener("pagehide", flush);
+  return () => {
+    window.removeEventListener("scroll", onScroll);
+    document.removeEventListener("visibilitychange", onVisibility);
+    window.removeEventListener("pagehide", flush);
+    flush();
+  };
+}
+
+type DocumentWithPrerender = Document & { prerendering?: boolean };
+
+/**
+ * Runs `start` now, or once the page is shown if Chrome is prerendering it.
+ * Chrome prerenders pages a reader is likely to open next (e.g. from the
+ * address bar), and those that are never opened mustn't count as views.
+ */
+function whenShown(start: () => (() => void) | void): () => void {
+  if (!(document as DocumentWithPrerender).prerendering) {
+    return start() ?? (() => {});
+  }
+  let stop: (() => void) | void;
+  const onShown = () => {
+    stop = start();
+  };
+  document.addEventListener("prerenderingchange", onShown, { once: true });
+  return () => {
+    document.removeEventListener("prerenderingchange", onShown);
+    stop?.();
+  };
+}
+
 /** Records the current path as a 404. Render it from not-found pages. */
 export function TrackNotFound() {
   const pathname = usePathname();
-  useEffect(() => {
-    track({ event: "notfound", path: normalizePath(pathname) });
-  }, [pathname]);
+  useEffect(
+    () =>
+      whenShown(() => {
+        track({ event: "notfound", path: normalizePath(pathname) });
+      }),
+    [pathname],
+  );
   return null;
 }
 
