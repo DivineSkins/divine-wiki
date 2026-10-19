@@ -15,6 +15,7 @@ import {
   type SharedProps,
 } from "fumadocs-ui/components/dialog/search";
 import { version } from "@/lib/search-version.json";
+import { useTrackSearch } from "@/components/analytics";
 
 // Orama rejects locale codes ("fr-FR") — it wants language names. Keep in
 // sync with the localeMap in src/app/api/search/[locale]/route.ts so the client
@@ -56,6 +57,15 @@ export default function StaticSearchDialog(props: SharedProps) {
         language: ORAMA_LANGUAGES[locale ?? "en"] ?? "english",
       }),
   });
+  // Results are reported as matching pages: heading and text hits on the
+  // same page share its URL up to the #anchor.
+  useTrackSearch(
+    search,
+    query.isLoading || query.data === "empty" || !query.data
+      ? null
+      : new Set(query.data.map((result) => result.url.split("#")[0])).size,
+    props.open,
+  );
 
   return (
     <SearchDialog

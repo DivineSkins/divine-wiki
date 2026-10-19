@@ -2,10 +2,12 @@ import Link from "next/link";
 import { DiscordLogo } from "@/components/brand-logos";
 import { GlowCTA } from "@/components/mdx/GlowCTA";
 import { discordInviteUrl } from "@/lib/config";
+import { TrackNotFound } from "@/components/analytics";
 
 export default function NotFound() {
   return (
     <main className="relative flex min-h-[70vh] flex-1 flex-col items-center justify-center px-6 py-24 text-center">
+      <TrackNotFound />
       <div
         className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,rgba(120,60,181,0.2),transparent_60%)]"
         aria-hidden
