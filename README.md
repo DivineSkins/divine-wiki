@@ -36,6 +36,10 @@ OpenNext serves those prerendered responses from its static-assets cache;
 guide updates require a new deployment. This configuration does not support
 runtime cache writes or on-demand revalidation.
 
+Worker source-map uploads are disabled in `wrangler.toml`. The generated MDX
+source maps exceed Cloudflare's 60 MiB encoded limit. Runtime stack traces
+therefore refer to compiled code until the maps can be reduced and re-enabled.
+
 The build exports one search index per locale to
 `public/search/<content-hash>/<locale>.json`. Search downloads that static
 file and runs queries in the browser. The hash includes content and search
