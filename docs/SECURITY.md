@@ -34,7 +34,9 @@ Three overrides keep transitive dependencies on patched releases while upstream 
 
 - `@node-minify/core` uses `glob` 10.5.0 or newer within version 10.
 - `brace-expansion` version 1 uses 1.1.21 or newer within version 1.
-- `miniflare` uses `undici` 7.30.1 or newer within version 7.
+- `undici` version 7 uses 7.30.1 or newer, including Miniflare's dependency.
+
+Use version-scoped overrides for pinned transitive packages. Nested overrides can fail lockfile validation with npm 10 even when npm 11 installs the same lockfile successfully.
 
 Remove an override once its upstream dependency resolves to a patched version without it. Re-run the audit, tests, and Cloudflare build after changing these overrides.
 
