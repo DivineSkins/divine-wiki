@@ -1,0 +1,244 @@
+---
+title: "Make animated particle flipbooks"
+description: "Turn your own image frames into an animated particle texture with MKS and VTEX files, preview it in CSDK 12, and pack the compiled effect."
+category: "particles"
+patch: "6779"
+---
+
+<LevelPill level="advanced" />
+
+A flipbook is a texture that plays a sequence of image frames. Make one for a particle effect, such as a spark or a puff of smoke.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Wrench" href="/docs/deadlock/tools/csdk-12">
+    CSDK 12
+  </Requirement>
+  <Requirement icon="FileImage">Your own image frames</Requirement>
+  <Requirement icon="FileCode">A text editor</Requirement>
+  <Requirement icon="Sparkles" href="/docs/deadlock/particles/make-an-effect">
+    A working particle effect
+  </Requirement>
+</Requirements>
+
+Start with an effect you can already compile and preview. This guide adds an animated texture to its sprite renderer.
+
+<Callout type="info" title="Check the result on your game version">
+  The source guide is from December 2025, with follow-up notes through May 2026.
+  These steps have not been tested after the September 2026 update. Tool labels
+  and playback settings may differ.
+</Callout>
+
+## How the files connect
+
+Your `.mks` lists the frames in order. Your `.vtex` points to that list. CSDK 12 builds a `.vtex_c` for the game.
+
+<img
+  src="/wiki-images/deadlock-particles-flipbooks-1.webp"
+  alt="Image frames feed into an MKS frame list, then a VTEX texture definition, then a compiled VTEX_C used by the particle."
+  width={1200}
+  height={360}
+/>
+
+## Make the flipbook
+
+<Steps>
+<Step>
+
+### Prepare your frames
+
+1. Export three PNG frames at the same size, such as 128 x 128 pixels.
+2. Keep transparency where your effect needs it.
+3. Name the frames `frame_00.png`, `frame_01.png`, and `frame_02.png`.
+4. Create `materials/particles/my_flipbook/` inside your addon's content folder.
+5. Put the frames in that folder.
+
+Start small. Many large frames make a large texture. Add more frames after the three-frame example works.
+
+<Files>
+  <Folder name="content/citadel_addons/my_effect" defaultOpen>
+    <Folder name="materials/particles/my_flipbook" defaultOpen>
+      <File name="frame_00.png" />
+      <File name="frame_01.png" />
+      <File name="frame_02.png" />
+      <File name="my_flipbook.mks" />
+      <File name="my_flipbook.vtex" />
+    </Folder>
+  </Folder>
+</Files>
+
+The next two stages create the text files shown in the tree.
+
+</Step>
+<Step>
+
+### Write the frame list
+
+1. Create `my_flipbook.mks` beside the frames.
+2. Paste this list into it.
+3. Save the file.
+
+```text
+sequence 0
+LOOP
+frame frame_00.png 1
+frame frame_01.png 1
+frame frame_02.png 1
+```
+
+`sequence 0` names the sequence. `LOOP` makes it repeat. Each `frame` line names an image beside the `.mks` file.
+
+Keep the final `1` on each frame line. The source thread does not establish reliable timing changes through that value.
+
+</Step>
+<Step>
+
+### Write the texture definition
+
+1. Create `my_flipbook.vtex` beside the `.mks` file.
+2. Paste this texture definition into it.
+3. Save the file.
+
+```text
+<!-- dmx encoding keyvalues2_noids 1 format vtex 1 -->
+"CDmeVtex"
+{
+    "m_inputTextureArray" "element_array"
+    [
+        "CDmeInputTexture"
+        {
+            "m_name" "string" "InputTexture0"
+            "m_fileName" "string" "materials/particles/my_flipbook/my_flipbook.mks"
+            "m_colorSpace" "string" "srgb"
+            "m_typeString" "string" "2D"
+            "m_imageProcessorArray" "element_array"
+            [
+                "CDmeImageProcessor"
+                {
+                    "m_algorithm" "string" "None"
+                    "m_stringArg" "string" ""
+                    "m_vFloat4Arg" "vector4" "0 0 0 0"
+                }
+            ]
+        }
+    ]
+    "m_outputTypeString" "string" "2D"
+    "m_outputFormat" "string" "DXT5"
+    "m_outputClearColor" "vector4" "0 0 0 0"
+    "m_nOutputMinDimension" "int" "0"
+    "m_nOutputMaxDimension" "int" "0"
+    "m_textureOutputChannelArray" "element_array"
+    [
+        "CDmeTextureOutputChannel"
+        {
+            "m_inputTextureArray" "string_array" [ "InputTexture0" ]
+            "m_srcChannels" "string" "rgba"
+            "m_dstChannels" "string" "rgba"
+            "m_mipAlgorithm" "CDmeImageProcessor"
+            {
+                "m_algorithm" "string" "Box"
+                "m_stringArg" "string" ""
+                "m_vFloat4Arg" "vector4" "0 0 0 0"
+            }
+            "m_outputColorSpace" "string" "srgb"
+        }
+    ]
+    "m_vClamp" "vector3" "0 0 0"
+    "m_bNoLod" "bool" "0"
+}
+```
+
+The `m_fileName` path starts inside your addon's content folder. Keep `materials/` at the start. Do not add a drive letter or `content/citadel_addons/`.
+
+If you chose another folder, change that path to match your `.mks` file.
+
+{/* NEEDS HANDS-ON TEST: compile this three-frame definition in current CSDK 12. Confirm the content-relative MKS path, DXT5 alpha, and generated VTEX_C path. */}
+
+</Step>
+<Step>
+
+### Preview the texture
+
+1. Launch your addon in CSDK 12.
+2. Find `my_flipbook.vtex` in the Asset Browser.
+3. Open its preview and check the frame order.
+4. Right-click the texture and choose <MenuPath path="Recompile > Full" /> if it has not built.
+
+The tools may compile the texture automatically when they discover it. An animated preview does not mean source files belong in your mod.
+
+{/* SCREENSHOT: deadlock-particles-flipbooks-2.webp, the three-frame texture preview in CSDK 12 using original spark artwork */}
+
+</Step>
+<Step>
+
+### Use it in your particle
+
+1. Open your working effect in the Particle Editor.
+2. Select its sprite renderer.
+3. Pick `materials/particles/my_flipbook/my_flipbook.vtex` as its texture.
+4. Restart the effect preview.
+5. Adjust the renderer's animation speed if the frames play too slowly or quickly.
+6. Save the effect and recompile it.
+
+Playback depends on the renderer settings too. Leave the `.mks` frame values alone while you test those settings.
+
+{/* NEEDS HANDS-ON TEST: the sprite texture picker and animation speed label in CSDK 12. Confirm sequence 0 playback, looping, and any frame blending defaults. */}
+
+</Step>
+</Steps>
+
+## Pack and test
+
+1. Open your addon's game folder.
+2. Copy your compiled particle files into a staging folder, keeping their paths.
+3. Copy `materials/particles/my_flipbook/my_flipbook.vtex_c` into the same staging folder.
+4. Pack the folder with [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
+5. Check the effect in a private session with [Test your mod in game](/docs/deadlock/basics/test-your-mod).
+
+Leave the PNG frames, `.mks`, and `.vtex` source files out of the VPK.
+
+Keep the effect as readable as the original. Match its size, brightness, and duration. Do not use blank frames to hide an ability cue.
+
+## Common problems
+
+<Accordions>
+<Accordion title="The texture shows pink checkerboards">
+
+Check `m_fileName` in the `.vtex`. Then check every frame name in the `.mks`. All paths must match real files.
+
+</Accordion>
+<Accordion title="The files do not appear in the Asset Browser">
+
+Check that the files are in the addon's content folder. Check for hidden `.txt` endings. Restart the tools if the files still do not appear.
+
+</Accordion>
+<Accordion title="The particle shows only one frame">
+
+Check the sprite renderer's animation settings. Confirm that you selected the flipbook texture, rather than one PNG frame.
+
+</Accordion>
+<Accordion title="The preview works, but the texture is missing in game">
+
+Pack the compiled `.vtex_c` at the same path your particle references. Source files and editor previews cannot replace it.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<PremiumCard
+  title="Recolor ability effects"
+  href="/docs/deadlock/particles/recolor-ability-effects"
+  icon={<Icon name="Paintbrush" />}
+  level="intermediate"
+>
+  Match your flipbook to the rest of an ability's effects.
+</PremiumCard>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide and templates:** [How to: Flipbooks](https://discord.com/channels/1255127939989766184/1450099381503262751) by BasiLiskeN, with playback notes from Cupid.
+- **Docs:** [Format Support and Export Fidelity](https://s2v.app/ValveResourceFormat/guides/format-support.html) by the ValveResourceFormat team, for sprite-sheet export support.

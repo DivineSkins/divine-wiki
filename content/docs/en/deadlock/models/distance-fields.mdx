@@ -1,0 +1,202 @@
+---
+title: "Add distance fields to a custom model"
+description: "Build distance fields from your custom model's render mesh in ModelDoc, attach them to the right bones, and check them during animation."
+category: "models"
+patch: "6779"
+---
+
+<LevelPill level="advanced" />
+
+A distance field represents the space around a model's surface. Deadlock can use it for lighting effects, including ambient occlusion. Build fields for your custom mesh and make them follow its bones.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Wrench" href="/docs/deadlock/tools/csdk-12">
+    CSDK 12
+  </Requirement>
+  <Requirement icon="Box" href="/docs/deadlock/models/hero-swap-modeldoc">
+    A working ModelDoc model
+  </Requirement>
+  <Requirement icon="Copy">A copy of your model source</Requirement>
+</Requirements>
+
+Finish the render meshes and skeleton before adding fields. Keep your original `.vmdl` so you can compare the result.
+
+<Callout type="info" title="Check tool support first">
+  The source thread is from December 2024, with setup details added in September
+  2025. These steps have not been tested after the September 2026 update.
+  Distance-field nodes and preview options may differ between tool versions.
+</Callout>
+
+## How the fields follow the model
+
+ModelDoc builds the field from a render mesh. A parent bone moves that field when the model animates.
+
+The **DistanceField** node holds the bone settings. Its **DistanceFieldFromRender** child selects the mesh used to generate the field.
+
+<img
+  src="/wiki-images/deadlock-models-distance-fields-1.webp"
+  alt="A render mesh generates a distance field. Its parent bone moves the field, and an animation preview checks that it stays aligned."
+  width={1200}
+  height={360}
+/>
+
+One field may not follow an entire bending character correctly. The source guide uses several fields to cover the model's main bones.
+
+## Check whether the nodes are available
+
+1. Open your working `.vmdl` in ModelDoc.
+2. Open **Add** and search for `DistanceField`.
+3. Check for **DistanceFieldFromRender**.
+
+If the node is available, continue to the next section. You do not need to change a configuration file.
+
+<Accordions>
+<Accordion title="DistanceFieldFromRender is missing">
+
+The source guide enables `distancefield` in the tools' `ModelDoc` feature list.
+
+<Callout type="warning" title="Edit the tools' configuration only">
+  Leave the installed Deadlock game's `gameinfo.gi` unchanged. This setting is
+  for your separate creator tools. Back up the tools' configuration before
+  editing it.
+</Callout>
+
+1. Close ModelDoc and the Asset Browser.
+2. Find the `gameinfo.gi` used by your separate CSDK 12 tools.
+3. Save a backup outside the tools folder.
+4. Find the `ModelDoc` block and its `features` string.
+5. Append `;distancefield` if `distancefield` is not already in that list.
+6. Keep every existing feature in the string.
+7. Save the file and restart the tools.
+8. Search the **Add** menu again.
+
+The older CS2 route uses `game/csgo_core/gameinfo.gi` in its tools installation. Use the configuration for the tools you actually launch.
+
+If your tools have no matching block, stop here. Do not paste a whole configuration from an older guide.
+
+{/* NEEDS HANDS-ON TEST: locate the active CSDK 12 ModelDoc features block and check whether distancefield is already enabled. Confirm that appending it exposes the nodes without other edits. */}
+
+</Accordion>
+</Accordions>
+
+## Build the fields
+
+<Steps>
+<Step>
+
+### Add a field from the render mesh
+
+1. Add a **DistanceField** node through ModelDoc's **Add** menu.
+2. Give it a name that identifies the body part it covers.
+3. Add a **DistanceFieldFromRender** child under that field.
+4. Select the render mesh for that part in the child's mesh selection.
+5. Select the parent **DistanceField** node.
+6. Set **Parent Bone** to the bone that part follows.
+7. Select the matching bones under **Bone Influence Filter**.
+
+The September 2025 correction uses the parent bone as the filter in most cases. Start with one part and inspect it before adding more.
+
+| Setting                                | What to check                                        |
+| -------------------------------------- | ---------------------------------------------------- |
+| DistanceFieldFromRender mesh selection | Uses your custom render mesh, not a missing old mesh |
+| DistanceField: Parent Bone             | Names a real bone in the model's skeleton            |
+| DistanceField: Bone Influence Filter   | Includes the bones for the part this field covers    |
+
+{/* NEEDS HANDS-ON TEST: confirm the DistanceFieldFromRender hierarchy, mesh selection label, Parent Bone, and Bone Influence Filter controls in CSDK 12. */}
+
+{/* SCREENSHOT: deadlock-models-distance-fields-2.webp, a field on an original model with the parent bone and influence filter visible */}
+
+</Step>
+<Step>
+
+### Preview the field
+
+1. Compile your model.
+2. Enable a distance-field graphics option if your tools require it.
+3. Switch the ModelDoc visualization to **Ambient Occlusion - Distance Fields**.
+4. Inspect the part you added.
+5. Check that the field follows the visible mesh.
+
+This view helps you check coverage. It is not a preview of the final game lighting.
+
+{/* NEEDS HANDS-ON TEST: verify the visualization label and required graphics setting in current CSDK 12. The original thread does not name a specific graphics option. */}
+
+</Step>
+<Step>
+
+### Check it during animation
+
+1. Play a walk or another animation already available in your model preview.
+2. Watch the field while its parent bone moves.
+3. Check whether it stays aligned as the mesh bends.
+4. Correct the parent bone or influence filter if it follows the wrong part.
+5. Add more fields for other parts that need coverage.
+6. Repeat the animation check for each field.
+
+If your preview cannot play the hero's animations, check the finished model in game before sharing it.
+
+Do not move the hero's original bones to line up a field. Change the field setup instead.
+
+</Step>
+</Steps>
+
+## Compile and check in game
+
+1. Save your `.vmdl`.
+2. Compile the updated model.
+3. Finish the hero model through [Add AnimGraph 2 and compile](/docs/deadlock/models/hero-swap-compile).
+4. Pack the compiled model and its required materials.
+5. Check it in a private session with [Test your mod in game](/docs/deadlock/basics/test-your-mod).
+6. Compare a still pose, a walk, and a turn under the same lighting.
+
+Keep your original material settings, hitboxes, attachments, and hero size. This step adds lighting data to your mesh.
+
+The source thread uses `mat_show_distance_field` for an in-game debug view. Check whether your private session supports it before relying on that view.
+
+{/* NEEDS HANDS-ON TEST: confirm field data survives the final CS2 compile. Check mat_show_distance_field availability and restore normal visualization after testing. */}
+
+## Common problems
+
+<Accordions>
+<Accordion title="The field stays still while the model moves">
+
+Check **Parent Bone** and the **Bone Influence Filter**. Recompile and play the same animation again.
+
+</Accordion>
+<Accordion title="The field covers the wrong part of the model">
+
+Check the selected render mesh and bone filter. Split coverage across more fields if one field cannot follow the bending mesh.
+
+</Accordion>
+<Accordion title="The visualization shows no change">
+
+Check that the model compiled and that a distance-field graphics option is enabled. A normal shaded preview may hide the difference.
+
+</Accordion>
+<Accordion title="The tools stopped opening after a configuration edit">
+
+Close the tools and restore your tools configuration backup. Check that you edited the separate tools installation, not Deadlock's game configuration.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<PremiumCard
+  title="Materials for custom models"
+  href="/docs/deadlock/textures/materials-for-custom-models"
+  icon={<Icon name="Layers" />}
+  level="intermediate"
+>
+  Check the material settings your model needs for Deadlock's lighting and
+  effects.
+</PremiumCard>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [ModelDoc: How to add DistanceFields to your models](https://discord.com/channels/1255127939989766184/1316540222481104896) by dirtkiller23.
+- **Setup notes:** [Parent bones, influence filters, and visualization](https://discord.com/channels/1255127939989766184/1316540222481104896/1422645586322133002) by Darkblade909 in the same thread.

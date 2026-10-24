@@ -1,0 +1,231 @@
+---
+title: "Add jiggle bones to a model"
+description: "Add small secondary movement to your custom model with two extra bones, painted weights, and a JiggleBone node in ModelDoc."
+category: "models"
+patch: "6779"
+---
+
+<LevelPill level="advanced" />
+
+Jiggle bones add a small bounce to part of a model when the hero moves. Set up extra bones in Blender, then control their movement in ModelDoc.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Blender" href="/docs/deadlock/tools/blender-add-ons">
+    Blender and an exporter
+  </Requirement>
+  <Requirement icon="Wrench" href="/docs/deadlock/tools/csdk-12">
+    CSDK 12
+  </Requirement>
+  <Requirement icon="Box" href="/docs/deadlock/models/hero-swap-modeldoc">
+    A working ModelDoc model
+  </Requirement>
+</Requirements>
+
+Finish your mesh, materials, and basic weights first. Save copies of your `.blend` and `.vmdl` before changing the skeleton.
+
+<Callout type="info" title="Check the result on your game version">
+  Reed's guide includes corrections through July 2026. This workflow has not
+  been tested after the September 2026 update. Check both the tools and the
+  finished mod before sharing it.
+</Callout>
+
+## Pick the movement you need
+
+| Method       | Use it for                                        |
+| ------------ | ------------------------------------------------- |
+| Jiggle bones | A small part that bounces around one root         |
+| Cloth chains | A tail, rope, or strand with several moving bones |
+| Proxy cloth  | A wider surface, such as a skirt or coat          |
+
+The [cloth guide](/docs/deadlock/models/cloth) covers the other two methods.
+
+Keep the movement close to the original hero's outline. Leave the hero's hitboxes, camera settings, and existing bones unchanged.
+
+## Build the bone pair
+
+<img
+  src="/wiki-images/deadlock-models-jiggle-bones-1.webp"
+  alt="A fixed hero bone supports a new base bone whose local X-axis points toward a child bone at the moving tip."
+  width={1200}
+  height={360}
+/>
+
+<Steps>
+<Step>
+
+### Add the bones in Blender
+
+1. Select the hero's armature.
+2. Enter Edit Mode.
+3. Add a base bone near the center of the part you want to move.
+4. Parent it to the hero bone that part follows.
+5. Add a child bone near the moving tip.
+6. Parent the child to your new base bone.
+7. Name them `jiggle_base` and `jiggle_tip`.
+
+Use different names for each pair if you add more than one.
+
+</Step>
+<Step>
+
+### Check the base bone's axes
+
+1. Open the armature's **Object Data Properties**.
+2. Expand **Viewport Display** and turn on **Axes**.
+3. Adjust the new base bone's direction and roll so its local X-axis points toward the child.
+4. Leave the hero's original bones alone.
+
+Blender draws a bone along its Y-axis. Reed's setup needs the base bone's local X-axis to point toward the jiggle tip.
+
+Check the axis lines, not only the bone's shape.
+
+{/* NEEDS HANDS-ON TEST: verify the base bone's local X-axis after export with the selected BlenderSource2Tools version. Confirm that ModelDoc's jiggle gizmo points toward the child. */}
+
+{/* SCREENSHOT: deadlock-models-jiggle-bones-2.webp, an original accessory rig in Blender with the base bone axes shown */}
+
+</Step>
+<Step>
+
+### Paint the weights
+
+1. Select the mesh and enter Weight Paint mode.
+2. Keep the fixed edge weighted to its original hero bone.
+3. Paint the moving area onto the two new bone groups.
+4. Give the base group more weight than the tip group.
+5. Blend the weights into the fixed area.
+6. Normalize the weights.
+7. Pose the bones and check for sharp bends or loose vertices.
+
+Reed's example splits one area's weight across three bones:
+
+| Bone                     | Example weight |
+| ------------------------ | -------------- |
+| Original supporting bone | 0.5            |
+| New base bone            | 0.3            |
+| New tip bone             | 0.2            |
+
+These values describe one example, not every vertex. Keep more weight on the original bone where the mesh should stay still.
+
+</Step>
+<Step>
+
+### Load the updated skeleton
+
+1. Export the weighted mesh and armature using your model's existing export workflow.
+2. Open the `.vmdl` in ModelDoc.
+3. Check that the skeleton contains both new bone names.
+4. Reimport the skeleton if the names or positions are missing.
+5. Check the original bone names and hierarchy against your saved copy.
+6. Compile the model.
+
+Reed's July correction uses the skeleton node to reimport an updated FBX. Updating the render mesh alone may leave old skeleton data.
+
+Do not replace the hero's AnimGraph 2 skeleton with a custom compiled skeleton.
+
+{/* NEEDS HANDS-ON TEST: confirm the skeleton reimport controls for DMX and FBX in CSDK 12. Check that new bones update without changing original attachments, hitboxes, or the AG2 references. */}
+
+</Step>
+<Step>
+
+### Add the JiggleBone node
+
+1. Open ModelDoc's **Add** menu and search for `JiggleBone`.
+2. Add one node for your new bone pair.
+3. Set **Jiggle Root Bone** to `jiggle_base`.
+4. Set **Jiggle Type** to **Rigid**, as in Reed's example.
+5. Place **Point 1** at the child bone's location in the model preview.
+6. Check that the jiggle gizmo points toward the moving tip.
+7. Turn on the cloth simulation preview.
+
+The point coordinates depend on your bone positions. Do not copy another model's coordinates.
+
+{/* NEEDS HANDS-ON TEST: confirm the Add menu spelling, Point 1 coordinate space, and simulation preview controls in CSDK 12. */}
+
+{/* SCREENSHOT: deadlock-models-jiggle-bones-3.webp, ModelDoc's JiggleBone node with the root and Point 1 aligned on an original accessory */}
+
+</Step>
+</Steps>
+
+## Tune the movement
+
+Start with the node's defaults. Change one setting at a time and preview a walk or turn.
+
+<ParameterList
+  parameters={[
+    { name: "Angle Limit", description: "Limits how far the part can tilt." },
+    {
+      name: "Min / Max Yaw",
+      description: "Limits movement around the yaw axis.",
+    },
+    {
+      name: "Min / Max Pitch",
+      description: "Limits movement around the pitch axis.",
+    },
+    {
+      name: "Base Stiffness",
+      description: "Controls how strongly the base springs back.",
+    },
+    {
+      name: "Base Damping",
+      description: "Reduces repeated bouncing at the base.",
+    },
+  ]}
+/>
+
+Use small movements first. Reed's settings fit one model and are not a preset for every mesh.
+
+## Compile and test
+
+1. Save your `.vmdl`.
+2. Compile the model.
+3. Follow [Add AnimGraph 2 and compile](/docs/deadlock/models/hero-swap-compile) to finish the hero model.
+4. Pack your mod and test it in a private session.
+5. Walk, jump, and turn in both directions.
+6. Check the fixed edge, the moving tip, and nearby clothing for clipping.
+
+The simulation preview can misbehave even when the compiled mod moves correctly. Check in game before changing all your weights.
+
+## Common problems
+
+<Accordions>
+<Accordion title="The movement points into the model">
+
+Check the base bone's local X-axis. It should point toward the child. Fix the new bone in Blender, export again, and update the skeleton.
+
+</Accordion>
+<Accordion title="The mesh stretches after an export">
+
+Check that ModelDoc has the latest bone positions. Then check that the mesh's vertex group names match those bones.
+
+</Accordion>
+<Accordion title="The newest jiggle bone jitters in the preview">
+
+The thread reports an inconsistent ModelDoc preview bug. Check the compiled mod before treating it as a weight problem.
+
+{/* NEEDS HANDS-ON TEST: reproduce the last-added JiggleBone preview issue in current CSDK 12. Do not recommend the thread's temporary dummy-node workaround without testing it. */}
+
+</Accordion>
+<Accordion title="The part swings too far">
+
+Lower its angle limits. Adjust stiffness and damping in small steps. Check that too much mesh weight has not moved onto the tip.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<PremiumCard
+  title="Model and skin problems"
+  href="/docs/deadlock/errors/model-problems"
+  icon={<Icon name="TriangleAlert" />}
+>
+  Fix other model problems, including strange bending and missing animations.
+</PremiumCard>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide and corrections:** [Jiggle bones for fleshy parts](https://discord.com/channels/1255127939989766184/1378899824769765478) by Reed, including the axis and skeleton notes from 2026.

@@ -1,0 +1,229 @@
+---
+title: "Replace hideout portraits and graffiti"
+description: "Put your own artwork in the hideout's portrait frames or wall graffiti, keep the layout and transparency, and pack the replacement textures."
+category: "textures"
+patch: "6779"
+---
+
+<LevelPill level="intermediate" />
+
+Replace the hideout's framed portraits or wall graffiti with your own art. You change textures, so the map's layout stays the same.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Source2Viewer" href="/docs/deadlock/tools/source-2-viewer">
+    Source 2 Viewer
+  </Requirement>
+  <Requirement icon="Wrench" href="/docs/deadlock/tools/csdk-12">
+    CSDK 12
+  </Requirement>
+  <Requirement icon="GIMP" note="or Photoshop, Photopea">
+    An image editor
+  </Requirement>
+  <Requirement icon="FileImage">Your own artwork</Requirement>
+</Requirements>
+
+Use art you made or have permission to share. For small portraits, get Cupid's layered templates from the source thread in Credits.
+
+<Callout type="info" title="Check the paths before you start">
+  These guides are from October and November 2025. Their texture names and
+  layouts may differ after game updates. Check the current files in Source 2
+  Viewer before using the examples below.
+</Callout>
+
+## Find the current textures
+
+1. Open `Deadlock/game/citadel/pak01_dir.vpk` in Source 2 Viewer.
+2. Search for `hideout_portraits` for the small portrait sheet.
+3. Search for `hideout_portrait_large` for the large portrait and its glow mask.
+4. Search for `warlock_graff01` for the graffiti from the source tutorial.
+5. Open each texture you plan to replace.
+6. Record its full path, width, and height.
+7. Export a PNG with **Decompile & export** as a placement reference.
+
+These are the source guides' paths. The code at the end of a texture name can change.
+
+| Artwork                  | Example game path                                                               |
+| ------------------------ | ------------------------------------------------------------------------------- |
+| Small portraits          | `models/hideout/materials/hideout_portraits_color_psd_52e10adb.vtex_c`          |
+| Large portrait           | `models/hideout/materials/hideout_portrait_large_color_psd_bc05d6c1.vtex_c`     |
+| Large portrait glow mask | `models/hideout/materials/hideout_portrait_large_selfillum_psd_e2306db2.vtex_c` |
+| Wall graffiti            | `materials/overlays/graff/hideout/warlock_graff01_psd_398ebb4c.vtex_c`          |
+
+{/* NEEDS HANDS-ON TEST: confirm all four paths and texture dimensions in the installed game. Check the portrait atlas layout and that the graffiti still uses this material. */}
+
+## Prepare your artwork
+
+Pick the artwork you want to replace. You can make each change on its own.
+
+<Tabs items={["Small portraits", "Large portrait", "Wall graffiti"]}>
+<Tab value="Small portraits">
+
+The small portraits share one texture sheet. Each frame on the wall shows a different part of that sheet.
+
+1. Compare Cupid's template with the current texture you exported.
+2. Open the matching PSD template, or its PNG version.
+3. Put your artwork on separate layers over the portrait tiles.
+4. Cover every tile you want to replace, including its white template border.
+5. Rotate the artwork for tiles marked with underlined numbers.
+6. Keep the rest of the sheet filled with the portraits you want to retain.
+7. Export a PNG at the current texture's dimensions.
+
+The source template marks blue 4, green 3, and blue 7 as rotated tiles. Compare them with the current sheet before painting.
+
+Cupid includes normal-size and 4x templates. Start with the normal-size version to keep the file small.
+
+{/* SCREENSHOT: deadlock-textures-hideout-art-2.webp, an original portrait atlas with rotated tiles marked and the result in the hideout */}
+
+</Tab>
+<Tab value="Large portrait">
+
+The large portrait uses a separate color texture and a self-illumination mask. The mask controls which parts glow.
+
+1. Create artwork at the current portrait texture's dimensions.
+2. Keep a layered copy before adjusting its proportions.
+3. Compare the image with the portrait frame in game.
+4. Adjust the crop and proportions if the frame stretches your art.
+5. Export the color image as PNG.
+
+Cupid's example uses 512 x 1024 pixels. It stretches the artwork to 130% of its height before cropping to compensate for the frame's UVs.
+
+That correction belongs to the 2025 model. Try it on a copy if the current frame still stretches your art.
+
+For the original layout, a thin strip from the image's left edge appears on the right. Keep fine details away from those edges.
+
+Leave the original glow mask unchanged for your first test. If you edit it later, it is a mask, not another color image. Cupid's guide uses its red channel.
+
+The template ZIP's readme swaps the color and glow-mask filenames. Use the current material references to identify them.
+
+{/* NEEDS HANDS-ON TEST: check the current large portrait's UV stretch and edge wrap. Confirm the selfillum texture channel before documenting a mask-editing workflow. */}
+
+</Tab>
+<Tab value="Wall graffiti">
+
+The graffiti needs transparency around the art. Its placement on the wall can tilt or crop your image.
+
+1. Open the exported graffiti PNG in your image editor.
+2. Keep its canvas size.
+3. Place your own artwork on a separate layer.
+4. Preserve transparent areas around the artwork.
+5. Keep important details below the top edge.
+6. Export the result as PNG with transparency.
+
+The source tutorial uses an alpha mask in Photopea. Keep the layered file so you can adjust the tilt after testing.
+
+Large designs may overlap the nearby green graffiti by the staircase. Adjust your artwork rather than changing the map.
+
+{/* NEEDS HANDS-ON TEST: confirm alpha preservation through the selected texture compiler and check the wall crop, tilt, and nearby decal overlap. */}
+
+</Tab>
+</Tabs>
+
+## Compile and pack
+
+<img
+  src="/wiki-images/deadlock-textures-hideout-art-1.webp"
+  alt="Compile your PNG, copy the compiled VTEX_C into a staging folder, then match the original texture's exact path and name."
+  width={1200}
+  height={360}
+/>
+
+<Steps>
+<Step>
+
+### Compile the images
+
+Compile your PNGs with the image template workflow in [Replace portraits, icons, and item art](/docs/deadlock/ui/portraits-and-icons#duplicate-the-image-template).
+
+1. Add each image to your duplicate of `hero_image_template`.
+2. Replace the sample entries in `image_compiler.vdata` with your image paths.
+3. Compile `image_compiler` in the Asset Browser.
+4. Find your new `.vtex_c` files in the addon's game folder.
+
+The template's source folder does not decide where you pack the result. The current game texture's path does.
+
+{/* NEEDS HANDS-ON TEST: compile a hideout atlas and transparent graffiti with the current image template. Confirm alpha and dimensions; the original graffiti tutorial used VPDI rather than VDATA. */}
+
+</Step>
+<Step>
+
+### Match the game paths
+
+1. Create a staging folder outside your addon.
+2. Rebuild each original texture's folder path inside it.
+3. Copy your compiled texture into that folder.
+4. Rename it to the exact current name you recorded in Source 2 Viewer.
+5. Leave out the image template's sample files and `image_compiler.vdata_c`.
+
+For the source guide's small portraits, the staging folder looks like this:
+
+<Files>
+  <Folder name="hideout_art_pack" defaultOpen>
+    <Folder name="models/hideout/materials" defaultOpen>
+      <File name="hideout_portraits_color_psd_52e10adb.vtex_c" />
+    </Folder>
+  </Folder>
+</Files>
+
+Use the current filename if it differs. Put graffiti under `materials/overlays/graff/hideout/`, rather than the portrait folder.
+
+</Step>
+<Step>
+
+### Check the result in the hideout
+
+1. Pack your staging folder with [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
+2. Load the mod in a private hideout session with [Test your mod in game](/docs/deadlock/basics/test-your-mod).
+3. Check every portrait tile, including the rotated ones.
+4. Inspect the large portrait for stretching and edge wrap.
+5. Check the graffiti's transparency and wall placement.
+
+Change the art, recompile, and repack until the placement fits.
+
+</Step>
+</Steps>
+
+## Common problems
+
+<Accordions>
+<Accordion title="The old artwork still shows">
+
+Compare the compiled texture's path and filename with the current game file. Remove other mods that replace the same texture.
+
+</Accordion>
+<Accordion title="A few small portraits are sideways">
+
+Those tiles are rotated on the texture sheet. Rotate their artwork to match the template and test again.
+
+</Accordion>
+<Accordion title="The graffiti has a solid box around it">
+
+Check the PNG's alpha channel. Then check that the compile kept transparency. A transparent editor background alone does not prove the exported file has alpha.
+
+</Accordion>
+<Accordion title="The mod stopped working after an update">
+
+Find the texture again in Source 2 Viewer. Check both its name and its layout before renaming your compiled file.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<PremiumCard
+  title="Retexture a hero"
+  href="/docs/deadlock/textures/retexture"
+  icon={<Icon name="Brush" />}
+  level="intermediate"
+>
+  Paint a hero's textures and rebuild the material that uses them.
+</PremiumCard>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide and templates:** [Hideout portrait replacement template](https://discord.com/channels/1255127939989766184/1430791621858951248) by Cupid.
+- **Guide:** [Hideout graffiti replacement tutorial](https://discord.com/channels/1255127939989766184/1435997872981016619) by Weatherpaintergirl.
+- **Guide:** [Compiling UI Textures](https://deadlockmodding.pages.dev/modding-guides/compiling-ui-vtex) from Deadlock Modding Notes.
