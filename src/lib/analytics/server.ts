@@ -3,6 +3,12 @@ import { i18n } from "@/lib/i18n";
 import { analyticsEventSchema, type AnalyticsEvent } from "./schema";
 import { withinDailyLimit } from "./limits";
 import { visitorId, type SaltStore } from "./visitor";
+import {
+  isSameOrigin,
+  readEventBody,
+  withinRateLimit,
+  type RateLimiter,
+} from "./intake";
 
 /*
  * Cookieless first-party analytics, stored in Workers Analytics Engine
@@ -44,17 +50,11 @@ interface EventDataset {
   }): void;
 }
 
-interface RateLimiter {
-  limit(options: { key: string }): Promise<{ success: boolean }>;
-}
-
 interface AnalyticsEnv {
   WIKI_ANALYTICS?: EventDataset;
   ANALYTICS_SALTS?: SaltStore;
   ANALYTICS_LIMITER?: RateLimiter;
 }
-
-const MAX_BODY_BYTES = 4096;
 
 // Clients that run JS but aren't people: crawlers, link previewers, headless
 // browsers, HTTP libraries.
@@ -80,19 +80,25 @@ function getContext(): { env: AnalyticsEnv; country?: string } {
  * client never needs a reason, and the endpoint always answers 204.
  */
 export async function recordEvent(request: Request): Promise<void> {
-  const host = request.headers.get("host") ?? "";
-  if (!isSameOrigin(request.headers, host)) return;
+  if (!isSameOrigin(request)) return;
+  const host = new URL(request.url).hostname;
 
   const ua = request.headers.get("user-agent") ?? "";
   if (!ua || BOT_UA.test(ua)) return;
 
   const { env, country } = getContext();
   const ip = request.headers.get("cf-connecting-ip");
-  if (!(await withinRateLimit(env.ANALYTICS_LIMITER, ip))) return;
+  if (
+    !(await withinRateLimit(
+      env.ANALYTICS_LIMITER,
+      ip,
+      process.env.NODE_ENV === "development",
+    ))
+  )
+    return;
 
-  if (Number(request.headers.get("content-length")) > MAX_BODY_BYTES) return;
-  const body = await request.text();
-  if (body.length > MAX_BODY_BYTES) return;
+  const body = await readEventBody(request);
+  if (body === null) return;
 
   let json: unknown;
   try {
@@ -103,7 +109,7 @@ export async function recordEvent(request: Request): Promise<void> {
   const parsed = analyticsEventSchema.safeParse(json);
   if (!parsed.success) return;
 
-  const ownHost = host.replace(/:\d+$/, "");
+  const ownHost = host;
   if (!(await withinDailyLimit(env.ANALYTICS_SALTS, ip, ownHost))) return;
 
   let visitor = "";
@@ -126,36 +132,6 @@ export async function recordEvent(request: Request): Promise<void> {
     env.WIKI_ANALYTICS.writeDataPoint(point);
   } else if (process.env.NODE_ENV === "development") {
     console.log("[analytics]", JSON.stringify(point.blobs), point.doubles);
-  }
-}
-
-/**
- * Caps events per IP per minute (limit and period live in wrangler.toml, per
- * Cloudflare location; the daily cap is in ./limits.ts). A reader sends a few events a minute, so this only stops one
- * source from flooding the numbers. Fails open if the limiter errors.
- */
-async function withinRateLimit(
-  limiter: RateLimiter | undefined,
-  ip: string | null,
-): Promise<boolean> {
-  if (!limiter || !ip) return true;
-  try {
-    return (await limiter.limit({ key: ip })).success;
-  } catch (error) {
-    console.error("[analytics] rate limiter failed", error);
-    return true;
-  }
-}
-
-// Browsers send Origin on POST, including sendBeacon. Some privacy-hardened
-// setups strip it; Sec-Fetch-Site still vouches for same-origin there.
-function isSameOrigin(headers: Headers, host: string): boolean {
-  const origin = headers.get("origin");
-  if (!origin) return headers.get("sec-fetch-site") === "same-origin";
-  try {
-    return new URL(origin).host === host;
-  } catch {
-    return false;
   }
 }
 
