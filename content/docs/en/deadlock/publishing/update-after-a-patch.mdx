@@ -1,6 +1,11 @@
 ---
-title: "Update your mod after a game update"
-description: "Find what a Deadlock update changed, rebuild your mod on the new game files, test it, and post the new version from Divine's Creator Panel."
+title: "Fix your mod after a game update"
+description: "Did a Deadlock update break your mod? Find what changed, rebuild it on the new game files, test it, and post the fix from Divine's Creator Panel."
+keywords:
+  - deadlock mods broken after update
+  - fix deadlock mods after update
+  - deadlock update broke mods
+  - deadlock mod camera broken
 category: "publishing"
 patch: "6779"
 ---
@@ -10,6 +15,13 @@ patch: "6779"
 Updates break mods. The City Never Sleeps update (2026-09-29) broke most HUD mods at once, plus some model mods and many animation mods. This page shows how to find what changed, rebuild your mod, and post the fix. [How Deadlock mods work](/docs/deadlock/basics/how-mods-work) explains why updates break things.
 
 Players know this happens, so take the time you need.
+
+<Callout type="info" title="Playing mods, not making them?">
+  If no mods load after an update, Steam reset `gameinfo.gi`. Redo the [install
+  edit](/docs/deadlock/getting-started/install-by-hand#after-a-game-update) or
+  let your mod manager fix it. If one mod breaks your camera or your hero, turn
+  that mod off and wait for its creator to post an update.
+</Callout>
 
 ## What you need
 
@@ -44,15 +56,15 @@ Lost your addon and source files? Open your old VPK in Source 2 Viewer and decom
 
 Your mod ships a full copy of every file it replaces. If Valve changes that file, your old copy hides the new version. If Valve moves it, your copy sits at a path the game no longer reads.
 
-| What Valve changed          | What players see                                    | What you do                                         |
-| --------------------------- | --------------------------------------------------- | --------------------------------------------------- |
-| A model moved folders       | The normal hero shows up, with no error             | Move your files to the new path                     |
-| Animation system            | The hero A-poses or has no animations               | Rebuild on a fresh copy of the current model        |
-| Skeleton                    | Broken animations, also in other mods for that hero | Remove any `.vnmskel_c` from your mod               |
-| Camera attachments          | The camera sits in the middle of the screen         | Copy every attachment from the current model        |
-| HUD layout                  | A broken HUD, or the game crashes at launch         | Redo your change on the new HUD file                |
-| Hero data                   | New heroes stay locked, or stats stay at old values | Remove every `scripts/*.vdata_c` file from your mod |
-| `gameinfo.gi` (player side) | No mods load at all                                 | Redo the install edit, or let a mod manager do it   |
+| What Valve changed          | What players see                                    | What you do                                                                                                                      |
+| --------------------------- | --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| A model moved folders       | The normal hero shows up, with no error             | Move your files to the new path                                                                                                  |
+| Animation system            | The hero A-poses or has no animations               | Rebuild on a fresh copy of the current model                                                                                     |
+| Skeleton                    | Broken animations, also in other mods for that hero | Remove any `.vnmskel_c` from your mod                                                                                            |
+| Camera attachments          | The camera sits in the middle of the screen         | [Copy every attachment](/docs/deadlock/errors/model-problems#the-camera-sits-in-the-middle-of-the-screen) from the current model |
+| HUD layout                  | A broken HUD, or the game crashes at launch         | Redo your change on the new HUD file                                                                                             |
+| Hero data                   | New heroes stay locked, or stats stay at old values | Remove every `scripts/*.vdata_c` file from your mod                                                                              |
+| `gameinfo.gi` (player side) | No mods load at all                                 | Redo the install edit, or let a mod manager do it                                                                                |
 
 Cosmetic mods should never ship `scripts/*.vdata_c` files or a skeleton in the first place.
 

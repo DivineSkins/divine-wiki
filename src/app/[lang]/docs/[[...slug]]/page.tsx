@@ -11,7 +11,8 @@ import type { Metadata } from "next";
 import { createRelativeLink } from "fumadocs-ui/mdx";
 import { localizeHref } from "@/lib/localize-href";
 import Link from "next/link";
-import { i18n, ogLanguageBlacklist } from "@/lib/i18n";
+import { homePath, i18n, ogLanguageBlacklist } from "@/lib/i18n";
+import { baseUrl } from "@/lib/config";
 import {
   baseOpenGraph,
   baseTwitter,
@@ -20,6 +21,7 @@ import {
   LANDING_OG_WIDTH,
   LANDING_OG_HEIGHT,
   SITE_NAME,
+  docsTitle,
 } from "@/lib/seo";
 import { Separator } from "@/components/ui/separator";
 import { DocsLanding } from "@/components/home/docs-landing";
@@ -28,6 +30,30 @@ import { DocsBanner } from "../docs-banner";
 import { DocsFooter } from "@/components/docs-footer";
 import { findNeighbour } from "fumadocs-core/page-tree";
 import { localizePageTree } from "@/lib/tree-localization";
+
+// BreadcrumbList for Google, so results show "Divine Skins Wiki > ... > page"
+// instead of a raw URL: the homepage, then every parent folder that has its
+// own page, then this page. Parents resolve like the page itself does, so an
+// English fallback page lists English parents.
+function breadcrumbJsonLd(slugs: string[], lang: string) {
+  const crumbs = slugs.flatMap((_, i) => {
+    const prefix = slugs.slice(0, i + 1);
+    const crumb = source.getPage(prefix, lang) ?? source.getPage(prefix, "en");
+    return crumb ? [{ name: crumb.data.title, url: crumb.url }] : [];
+  });
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [{ name: SITE_NAME, url: homePath(lang) }, ...crumbs].map(
+      (crumb, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: crumb.name,
+        item: `${baseUrl}${crumb.url}`,
+      }),
+    ),
+  };
+}
 
 export default async function Page(
   props: PageProps<"/[lang]/docs/[[...slug]]">,
@@ -86,6 +112,14 @@ export default async function Page(
       tableOfContent={{ style: "clerk", footer: <DocsBanner /> }}
       full={page.data.full}
     >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            breadcrumbJsonLd(page.slugs, params.lang),
+          ).replace(/</g, "\\u003c"),
+        }}
+      />
       <DocsTitle className="divine-doc-title">{page.data.title}</DocsTitle>
       <DocsDescription className="divine-doc-description mb-0">
         {page.data.description}
@@ -157,6 +191,7 @@ export async function generateMetadata(
   if (!page) notFound();
 
   const slug = params.slug || [];
+  const title = { absolute: docsTitle(page.data.title, slug[0]) };
   const imageUrl = `/api/og/docs/${params.lang}${slug.length > 0 ? "/" + slug.join("/") : ""}`;
 
   // The LoL guides index (slug ["lol"]) was the site's landing page before
@@ -220,14 +255,14 @@ export async function generateMetadata(
   // those scripts), but the landing target's static banner is always safe.
   if (ogLanguageBlacklist.includes(params.lang) && !isLandingTarget)
     return {
-      title: page.data.title,
+      title,
       description: page.data.description,
       keywords: [...globalKeywords, ...pageKeywords],
       alternates,
     };
 
   return {
-    title: page.data.title,
+    title,
     description: page.data.description,
     keywords: [...globalKeywords, ...pageKeywords],
     alternates,

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Generates src/git-info.json with the current branch + short commit hash.
-// Pure Node — reads from .git/ directly, no shell invocation, no external PM.
+// Pure Node: reads .git/ directly, no shell. (The page-dates step below runs git.)
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { resolve, dirname } from "node:path";
@@ -179,6 +179,47 @@ try {
 } catch (err) {
   console.warn("Could not generate games-index.json:", err.message);
   writeFileSync(GAMES_OUT, "{}\n");
+}
+
+// --- Last-commit date per content file, for the sitemap's <lastmod> -------
+// The one step here that runs git (no shell). Keys are paths relative to
+// content/docs ("en/lol/tools/index.mdx"). A shallow clone only knows its
+// newest commit, so every file would get that commit's date: write {} there,
+// and when git is missing, so the sitemap leaves lastmod out instead of
+// sending wrong dates.
+
+import { execFileSync } from "node:child_process";
+
+const DATES_OUT = resolve("src/lib/page-dates.json");
+
+function buildPageDates() {
+  if (!existsSync(resolve(".git")) || existsSync(resolve(".git/shallow"))) {
+    return {};
+  }
+  const log = execFileSync(
+    "git",
+    ["log", "--format=%x00%cI", "--name-only", "--", "content/docs"],
+    { encoding: "utf-8", maxBuffer: 256 * 1024 * 1024 },
+  );
+  const dates = {};
+  let date = "";
+  for (const line of log.split("\n")) {
+    if (line.startsWith("\0")) date = line.slice(1);
+    else if (line.startsWith("content/docs/") && line.endsWith(".mdx")) {
+      // Newest commit comes first, so the first date seen per file wins.
+      dates[line.slice("content/docs/".length)] ??= date;
+    }
+  }
+  return dates;
+}
+
+try {
+  const dates = buildPageDates();
+  writeFileSync(DATES_OUT, JSON.stringify(dates) + "\n");
+  console.log(`page-dates.json generated: ${Object.keys(dates).length} files`);
+} catch (err) {
+  console.warn("Could not generate page-dates.json:", err.message);
+  writeFileSync(DATES_OUT, "{}\n");
 }
 
 // Hash search inputs, including uncommitted edits and builds without .git.

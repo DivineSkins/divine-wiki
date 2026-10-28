@@ -9,6 +9,25 @@ import type { Metadata } from "next";
 
 export const SITE_NAME = "Divine Skins Wiki";
 
+// Search results show the <title> on its own, so a bare guide title like
+// "Flint" or "Mod managers compared" doesn't say which game it's for. Docs
+// pages append the game and the site name, skipping whichever the title
+// already carries. Keyed by the first slug segment (the game segment).
+const GAME_TITLE_SUFFIX: Record<string, { label: string; mentioned: RegExp }> =
+  {
+    lol: { label: "LoL Modding", mentioned: /\b(lol|league)\b/i },
+    deadlock: { label: "Deadlock Modding", mentioned: /\bdeadlock\b/i },
+  };
+
+export function docsTitle(title: string, game?: string): string {
+  if (title.includes(SITE_NAME)) return title;
+  const suffix = game ? GAME_TITLE_SUFFIX[game] : undefined;
+  const parts = [title];
+  if (suffix && !suffix.mentioned.test(title)) parts.push(suffix.label);
+  parts.push(SITE_NAME);
+  return parts.join(" | ");
+}
+
 // Default social card. We reuse the dynamic OG route (the docs index card)
 // instead of a static og.png: it's already branded and prod-hardened, always
 // resolves (the en index page exists), and there's no binary asset to keep in
