@@ -2,8 +2,9 @@
 # Next.js redirects() in next.config.mjs stay for local dev + as a fallback.
 
 # `/` is the English homepage, served by a rewrite in next.config.mjs.
-/docs /en/docs 302
-/docs/* /en/docs/:splat 302
+# Permanent, so Google indexes the /en/docs URL instead of the bare /docs one.
+/docs /en/docs 301
+/docs/* /en/docs/:splat 301
 
 # Legacy URLs from the old site (/wiki/..., /en/guided/...) still get hits from
 # old links (2026-10). First match wins, so specific rules go above the splat.
@@ -35,6 +36,9 @@
 # Content Rules, and the screenshot tips moved into the upload guide.
 /:lang/docs/deadlock/publishing/credits-and-licenses /:lang/docs/deadlock/publishing/publish-on-divine 301
 /:lang/docs/deadlock/publishing/showcase             /:lang/docs/deadlock/publishing/publish-on-divine 301
+
+# Guessed Deadlock URL that keeps getting 404 hits (2026-10). The page never existed.
+/:lang/docs/deadlock/tools/blender /:lang/docs/deadlock/tools/blender-add-ons 301
 
 # Game-segment migration (2026-05-19): old per-category URLs now live under /lol/.
 # Keep these redirects until external traffic to the old shape has decayed.

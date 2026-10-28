@@ -76,12 +76,12 @@ const config = {
       {
         source: "/docs/:path*",
         destination: "/en/docs/:path*",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/docs",
         destination: "/en/docs",
-        permanent: false,
+        permanent: true,
       },
       {
         source: `/:lang(${locale})/contribute`,
