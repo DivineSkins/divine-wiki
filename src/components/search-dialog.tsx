@@ -16,6 +16,7 @@ import {
 } from "fumadocs-ui/components/dialog/search";
 import { version } from "@/lib/search-version.json";
 import { useTrackSearch } from "@/components/analytics";
+import { useMessages } from "@/lib/hooks/useMessages";
 
 // Orama rejects locale codes ("fr-FR") — it wants language names. Keep in
 // sync with the localeMap in src/app/api/search/[locale]/route.ts so the client
@@ -32,6 +33,28 @@ const ORAMA_LANGUAGES: Record<string, string> = {
   // built with.
   "vi-VN": "english",
 };
+
+// Most searches that find nothing are champion or hero names: players looking
+// for a skin, not a guide. Point them at the Divine site. Rendered as an
+// element (not called) so the hook inside runs as its own component.
+function NoResults() {
+  const { misc } = useMessages();
+  return (
+    <div className="text-fd-muted-foreground py-12 text-center text-sm">
+      <p>{misc.searchNoResults}</p>
+      <p className="mt-2">
+        {misc.searchSkinsPrompt}{" "}
+        <a
+          href="https://divineskins.gg/"
+          className="text-fd-primary font-medium hover:underline"
+        >
+          {misc.searchSkinsLink}
+        </a>
+      </p>
+    </div>
+  );
+}
+const renderNoResults = () => <NoResults />;
 
 /**
  * Static search dialog: downloads the current locale's exported index once
@@ -81,7 +104,10 @@ export default function StaticSearchDialog(props: SharedProps) {
           <SearchDialogInput />
           <SearchDialogClose />
         </SearchDialogHeader>
-        <SearchDialogList items={query.data !== "empty" ? query.data : null} />
+        <SearchDialogList
+          items={query.data !== "empty" ? query.data : null}
+          Empty={renderNoResults}
+        />
       </SearchDialogContent>
     </SearchDialog>
   );
