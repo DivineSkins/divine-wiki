@@ -183,24 +183,49 @@ try {
 
 // --- Last-commit date per content file, for the sitemap's <lastmod> -------
 // The one step here that runs git (no shell). Keys are paths relative to
-// content/docs ("en/lol/tools/index.mdx"). A shallow clone only knows its
-// newest commit, so every file would get that commit's date: write {} there,
-// and when git is missing, so the sitemap leaves lastmod out instead of
-// sending wrong dates.
+// content/docs ("en/lol/tools/index.mdx").
+//
+// Cloudflare's build clones one commit deep, and a shallow clone would give
+// every file that one commit's date. So a shallow clone first fetches the
+// rest of the history without file contents (commits and trees only: about
+// 6 MB and a second in Oct 2026). If that fails, or git is missing, this
+// writes {} and the sitemap leaves lastmod out instead of sending wrong dates.
 
 import { execFileSync } from "node:child_process";
 
 const DATES_OUT = resolve("src/lib/page-dates.json");
 
+const git = (args, options = {}) =>
+  execFileSync("git", args, {
+    encoding: "utf-8",
+    maxBuffer: 256 * 1024 * 1024,
+    ...options,
+  });
+const isShallow = () =>
+  git(["rev-parse", "--is-shallow-repository"]).trim() === "true";
+
 function buildPageDates() {
-  if (!existsSync(resolve(".git")) || existsSync(resolve(".git/shallow"))) {
-    return {};
+  if (isShallow()) {
+    try {
+      git(["fetch", "--quiet", "--unshallow", "--filter=blob:none"], {
+        stdio: "ignore",
+        timeout: 120_000,
+      });
+    } catch (err) {
+      console.warn("Could not fetch git history for page dates:", err.message);
+    }
+    if (isShallow()) return {};
   }
-  const log = execFileSync(
-    "git",
-    ["log", "--format=%x00%cI", "--name-only", "--", "content/docs"],
-    { encoding: "utf-8", maxBuffer: 256 * 1024 * 1024 },
-  );
+  // --no-renames: rename detection would compare file contents, which the
+  // fetch above leaves out.
+  const log = git([
+    "log",
+    "--no-renames",
+    "--format=%x00%cI",
+    "--name-only",
+    "--",
+    "content/docs",
+  ]);
   const dates = {};
   let date = "";
   for (const line of log.split("\n")) {
