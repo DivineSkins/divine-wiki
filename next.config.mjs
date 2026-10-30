@@ -104,9 +104,10 @@ const config = {
         destination: "/en/docs/lol/contributing",
         permanent: true,
       },
-      // The contribute picker's "Manual on GitHub" card links to the
-      // game-agnostic /:lang/docs/contributing, but the page lives under the
-      // lol segment. public/_redirects handles this on Cloudflare; mirror it
+      // The contributing guides are shared by every game and only have
+      // per-game URLs (/:lang/docs/<game>/contributing, see SHARED_SECTIONS
+      // in src/lib/source.ts). Game-agnostic links land on the default
+      // game's copy. public/_redirects handles this on Cloudflare; mirrored
       // here so it also works in local dev (otherwise the link 404s locally).
       {
         source: `/:lang(${locale})/docs/contributing`,

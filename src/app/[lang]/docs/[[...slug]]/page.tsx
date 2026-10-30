@@ -1,4 +1,9 @@
-import { source } from "@/lib/source";
+import {
+  canonicalSlugs,
+  contentPath,
+  sharedSectionHref,
+  source,
+} from "@/lib/source";
 import {
   DocsBody,
   DocsDescription,
@@ -12,7 +17,7 @@ import { createRelativeLink } from "fumadocs-ui/mdx";
 import { localizeHref } from "@/lib/localize-href";
 import Link from "next/link";
 import { homePath, i18n, ogLanguageBlacklist } from "@/lib/i18n";
-import { baseUrl } from "@/lib/config";
+import { baseUrl, githubRepoUrl } from "@/lib/config";
 import {
   baseOpenGraph,
   baseTwitter,
@@ -90,9 +95,16 @@ export default async function Page(
   // Relative links resolve against the page (locale-aware via source);
   // absolute internal links get the locale prefixed here, otherwise the
   // edge redirect `/docs/* → /en/docs/*` dumps readers back to English.
+  // Links to a shared section (/docs/contributing/...) stay in this game.
   const RelativeLink = createRelativeLink(source, page);
   const MDXLink = (props: React.ComponentProps<"a">) => (
-    <RelativeLink {...props} href={localizeHref(props.href, params.lang)} />
+    <RelativeLink
+      {...props}
+      href={localizeHref(
+        sharedSectionHref(props.href, page.slugs[0]),
+        params.lang,
+      )}
+    />
   );
 
   // Previous / next guides for the footer cards, from the same localized
@@ -116,6 +128,19 @@ export default async function Page(
     title: page.data.title,
     url: `${baseUrl}${page.url}`,
   };
+
+  // The visual editor saves guides into a game's own category folders
+  // (content/docs/en/<game>/<category>/), so shared sections, which live
+  // outside any game, open GitHub's editor on the English file instead.
+  const file = contentPath(page.path);
+  const editLink =
+    file === page.path
+      ? { href: `/${params.lang}/draft?edit=${page.slugs.join("/")}` }
+      : {
+          href: `${githubRepoUrl}/edit/main/content/docs/${file.replace(/^[^/]+\//, "en/")}`,
+          target: "_blank",
+          rel: "noopener noreferrer",
+        };
 
   return (
     <DocsPage
@@ -197,7 +222,7 @@ export default async function Page(
           className="mt-12"
           action={
             <Link
-              href={`/${params.lang}/draft?edit=${page.slugs.join("/")}`}
+              {...editLink}
               className="not-prose divine-press light:bg-fd-accent light:text-fd-foreground inline-flex h-10 items-center justify-center rounded-full bg-white/10 px-5 text-sm font-bold text-white hover:bg-white/20 focus-visible:ring-1 focus-visible:ring-[rgba(120,60,181,0.5)] focus-visible:outline-none"
             >
               {ui.misc.editOnGithub}
@@ -272,16 +297,23 @@ export async function generateMetadata(
   // locales fall back to English at render time, so listing them would point
   // Google at English content under a non-English URL. `canonical` is the
   // resolved page's own URL, so en-fallback views consolidate to the en URL.
+  // A shared section's copy in another game points at the default game's
+  // copy (canonicalSlugs), so search engines index it once.
+  const indexed = canonicalSlugs(slug);
   const languages: Record<string, string> = {};
   for (const locale of i18n.languages) {
-    const localized = source.getPage(slug, locale);
+    const localized = source.getPage(indexed, locale);
     if (localized) languages[locale] = localized.url;
   }
-  const englishPage = source.getPage(slug, "en");
+  const englishPage = source.getPage(indexed, "en");
   if (englishPage) languages["x-default"] = englishPage.url;
+  const indexedPage =
+    indexed === slug
+      ? page
+      : (source.getPage(indexed, params.lang) ?? englishPage ?? page);
 
   const alternates = {
-    canonical: page.url,
+    canonical: indexedPage.url,
     languages,
     types: llmAlternateTypes,
   };

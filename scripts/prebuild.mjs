@@ -153,6 +153,9 @@ function buildGamesIndex() {
     const folders = readdirSync(gameDir).filter((entry) =>
       statSync(resolve(gameDir, entry)).isDirectory(),
     );
+    // Segments without category folders (the shared contributing section)
+    // aren't games.
+    if (folders.length === 0) continue;
     let pages = [];
     try {
       pages = JSON.parse(

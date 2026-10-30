@@ -407,7 +407,7 @@ export function DraftEditor({
         <div className="ml-auto flex items-center gap-2.5">
           {/* Help links — new tab so an open draft is never navigated away. */}
           <Link
-            href={`/${lang}/docs/lol/contributing`}
+            href={`/${lang}/docs/${game}/contributing`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-divine-text-muted hover:text-divine-text hidden items-center gap-1.5 text-xs font-medium transition-colors md:flex"
@@ -416,7 +416,7 @@ export function DraftEditor({
             {d.contributingGuide}
           </Link>
           <Link
-            href={`/${lang}/docs/lol/contributing/components`}
+            href={`/${lang}/docs/${game}/contributing/components`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-divine-text-muted hover:text-divine-text hidden items-center gap-1.5 text-xs font-medium transition-colors md:flex"
@@ -623,7 +623,7 @@ export function DraftEditor({
               onInsert={handleInsert}
               onUploadImage={addImages}
               docsHref={(anchor) =>
-                `/${lang}/docs/lol/contributing/components#${anchor}`
+                `/${lang}/docs/${game}/contributing/components#${anchor}`
               }
             />
             <div className="min-h-0 flex-1 overflow-hidden">

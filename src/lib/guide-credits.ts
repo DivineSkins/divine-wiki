@@ -3,6 +3,7 @@
 import pageCredits from "@/lib/page-credits.json";
 import pageDates from "@/lib/page-dates.json";
 import { githubRepoUrl } from "@/lib/config";
+import { contentPath } from "@/lib/source";
 import {
   githubAvatar,
   writersFromFrontmatter,
@@ -51,7 +52,9 @@ const samePerson = (a: CreditPerson, b: CreditPerson) =>
  * page is the same guide. The date and history link are the page's own file.
  */
 export function getGuideCredits(page: GuidePage) {
-  const englishPath = page.path.replace(/^[^/]+\//, "en/");
+  // Keyed by file: shared sections are one file shown in every game.
+  const file = contentPath(page.path);
+  const englishPath = file.replace(/^[^/]+\//, "en/");
   const record = credits.pages[englishPath];
   const creator = record?.creator ? person(record.creator) : null;
   const named = writersFromFrontmatter(page.data.credits, page.data.authors);
@@ -72,7 +75,7 @@ export function getGuideCredits(page: GuidePage) {
   return {
     writers,
     contributors,
-    updated: dates[page.path] ?? null,
-    historyUrl: `${githubRepoUrl}/commits/main/content/docs/${page.path}`,
+    updated: dates[file] ?? null,
+    historyUrl: `${githubRepoUrl}/commits/main/content/docs/${file}`,
   };
 }

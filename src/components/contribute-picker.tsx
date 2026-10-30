@@ -173,7 +173,7 @@ function PickerDialog({ onClose }: { onClose: () => void }) {
               </PremiumCard>
               <PremiumCard
                 title={p.manualGithubTitle}
-                href={`/${lang}/docs/contributing`}
+                href={`/${lang}/docs/${game.slug}/contributing`}
                 icon={<GitHubLogo className="h-5 w-5" />}
               >
                 {p.manualGithubBody}
