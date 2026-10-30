@@ -187,10 +187,10 @@ html[data-font] {
 .dark {
   color-scheme: dark;
 
-  /* Divine tokens — re-declared here (not just in @theme/:root) so a
-     forced-dark subtree (the /draft editor wraps itself in `.dark`) keeps
-     dark values even when the site theme sets `.light` on <html>. Var lookup
-     walks up the DOM: the nearer `.dark` ancestor wins over html.light. */
+  /* Divine tokens — re-declared here (not just in @theme/:root) so any
+     forced-dark subtree (an element with `.dark` inside html.light) keeps
+     dark values. Var lookup walks up the DOM: the nearer `.dark` ancestor
+     wins over html.light. */
   --color-divine-void: #0b0a0f;
   --color-divine-surface: #15141c;
   --color-divine-elevated: #1c1c1c;
@@ -1394,9 +1394,6 @@ html[data-font] {
    are @utility classes emitted in the utilities layer, and an
    unlayered rule overrides any layered one. The escaped
    `.hover\:` selector catches Tailwind's variant-prefixed form.
-   Note: unlike the `:not(.minimal)` guards above, these resets
-   also reach the /draft editor's forced-dark subtree — fine while
-   no draft-previewable MDX component uses these utilities.
    ────────────────────────────────────────────────────────────── */
 .minimal .divine-glow,
 .minimal .divine-glow-hover,

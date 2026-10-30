@@ -24,7 +24,7 @@ import {
   type SettingsLabels,
 } from "@/components/appearance-settings";
 import { useContributePicker } from "@/components/contribute-picker";
-import { PANEL_BORDER, PANEL_FILL } from "@/components/home/styles";
+import { NAV_LINK, PANEL_BORDER, PANEL_FILL } from "@/components/home/styles";
 import { glowCtaClassName } from "@/components/mdx/GlowCTA";
 import type { GameEntry } from "@/lib/games";
 import { homePath } from "@/lib/i18n";
@@ -45,11 +45,6 @@ const ICON_BUTTON =
   "text-divine-text inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-[rgba(37,34,47,0.46)] transition-colors duration-200 hover:bg-[rgba(37,34,47,0.7)] " +
   "light:bg-black/5 light:hover:bg-black/10 " +
   "outline-none focus-visible:ring-1 focus-visible:ring-[#C084FC] data-[state=open]:bg-[rgba(37,34,47,0.7)]";
-
-// Text links: muted, brighten on hover with a faint pill behind them. The
-// site never underlines nav items.
-const NAV_LINK =
-  "text-divine-text-muted hover:text-divine-text inline-flex items-center gap-1 rounded-full px-3.5 py-2 text-sm font-semibold no-underline transition-colors duration-200 hover:bg-white/5 light:hover:bg-black/5";
 
 const MENU_ITEM =
   "text-divine-text-muted hover:text-divine-text flex w-full items-center justify-between gap-3 rounded-lg px-2.5 py-2 text-left text-sm font-medium no-underline transition-colors hover:bg-white/5 light:hover:bg-black/5";

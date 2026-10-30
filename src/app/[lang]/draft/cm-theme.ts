@@ -3,100 +3,109 @@ import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { tags as t } from "@lezer/highlight";
 import type { Extension } from "@codemirror/state";
 
+// Theme-aware colors: the editor follows the site theme, so every color is
+// a design-system variable. `--editor-accent` is set on the editor wrapper
+// (code-editor.tsx): lilac in dark, the amber text tone in light, grey under
+// Minimal (its tokens are already neutral).
+const TEXT = "var(--color-divine-text)";
+const MUTED = "var(--color-divine-text-muted)";
+const ACCENT = "var(--editor-accent)";
+const FAINT =
+  "color-mix(in srgb, var(--color-divine-text-muted) 65%, transparent)";
+const PRIMARY_TINT = (percent: number) =>
+  `color-mix(in srgb, var(--color-divine-primary) ${percent}%, transparent)`;
+
 /**
- * Divine Skins CodeMirror theme. The editor card supplies the background
- * surface, so the editor itself stays transparent and only paints text,
- * caret, selection, and gutters with design-system tokens. Syntax colors:
- * structure in purple (headings, JSX tags), literals in gold (strings,
- * inline code), prose in primary text — same hierarchy as rendered docs.
+ * Divine Skins CodeMirror theme. The pane supplies the surface, so the
+ * editor stays transparent and only paints text, caret, selection, and
+ * gutters. Syntax colors follow the Muted Stage: structure (headings, JSX
+ * tags, links) in the accent, everything else in the two text tiers, and no
+ * gold (the site's code blocks are plain text too).
  */
 export const divineEditorTheme: Extension = [
-  EditorView.theme(
-    {
-      "&": {
-        backgroundColor: "transparent",
-        color: "#e4e4e7",
-        fontSize: "13.5px",
-        height: "100%",
-      },
-      ".cm-scroller": {
-        fontFamily: "var(--font-jetbrains-mono), ui-monospace, monospace",
-        lineHeight: "1.75",
-      },
-      ".cm-content": {
-        padding: "16px 0 48px",
-        caretColor: "#c084fc",
-      },
-      ".cm-line": { padding: "0 16px" },
-      "&.cm-focused": { outline: "none" },
-      ".cm-cursor, .cm-dropCursor": { borderLeftColor: "#c084fc" },
-      "&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, .cm-selectionBackground":
-        {
-          backgroundColor: "rgba(120, 60, 181, 0.32)",
-        },
-      ".cm-content ::selection": {
-        backgroundColor: "rgba(120, 60, 181, 0.32)",
-      },
-      ".cm-activeLine": { backgroundColor: "rgba(255, 255, 255, 0.025)" },
-      ".cm-gutters": {
-        backgroundColor: "transparent",
-        color: "#4d4b5a",
-        border: "none",
-        paddingLeft: "8px",
-      },
-      ".cm-activeLineGutter": {
-        backgroundColor: "transparent",
-        color: "#8b8d98",
-      },
-      ".cm-placeholder": { color: "#8b8d98" },
-      // @-mention autocomplete dropdown (mention-extension.ts).
-      ".cm-tooltip": {
-        backgroundColor: "#111016",
-        border: "1px solid rgba(120, 60, 181, 0.35)",
-        borderRadius: "8px",
-        color: "#e4e4e7",
-        boxShadow: "0 12px 32px rgba(0, 0, 0, 0.55)",
-        overflow: "hidden",
-      },
-      ".cm-tooltip.cm-tooltip-autocomplete > ul": {
-        fontFamily: "var(--font-inter), system-ui, sans-serif",
-        fontSize: "12.5px",
-      },
-      ".cm-tooltip.cm-tooltip-autocomplete > ul > li": {
-        padding: "5px 10px",
-      },
-      ".cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected]": {
-        backgroundColor: "rgba(120, 60, 181, 0.28)",
-        color: "#e4e4e7",
-      },
-      ".cm-completionMatchedText": {
-        color: "#c084fc",
-        textDecoration: "none",
-        fontWeight: "600",
-      },
+  EditorView.theme({
+    "&": {
+      backgroundColor: "transparent",
+      color: TEXT,
+      fontSize: "13.5px",
+      height: "100%",
     },
-    { dark: true },
-  ),
+    ".cm-scroller": {
+      fontFamily: "var(--font-mono)",
+      lineHeight: "1.75",
+    },
+    ".cm-content": {
+      padding: "16px 0 48px",
+      caretColor: ACCENT,
+    },
+    ".cm-line": { padding: "0 16px" },
+    "&.cm-focused": { outline: "none" },
+    ".cm-cursor, .cm-dropCursor": { borderLeftColor: ACCENT },
+    "&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, .cm-selectionBackground":
+      { backgroundColor: PRIMARY_TINT(30) },
+    ".cm-content ::selection": { backgroundColor: PRIMARY_TINT(30) },
+    ".cm-activeLine": {
+      backgroundColor:
+        "color-mix(in srgb, var(--color-divine-text) 3%, transparent)",
+    },
+    ".cm-gutters": {
+      backgroundColor: "transparent",
+      color: FAINT,
+      border: "none",
+      paddingLeft: "8px",
+    },
+    ".cm-activeLineGutter": { backgroundColor: "transparent", color: MUTED },
+    ".cm-placeholder": { color: MUTED },
+    // @-mention autocomplete dropdown (mention-extension.ts): the panel
+    // recipe, rows like the site's menu rows.
+    ".cm-tooltip": {
+      backgroundColor: "var(--color-fd-card)",
+      border: "1px solid var(--color-fd-border)",
+      borderRadius: "12px",
+      color: TEXT,
+      boxShadow: "0 12px 40px -8px rgba(0, 0, 0, 0.6)",
+      overflow: "hidden",
+    },
+    ".cm-tooltip.cm-tooltip-autocomplete > ul": {
+      fontFamily: "var(--font-body)",
+      fontSize: "13px",
+      padding: "4px",
+    },
+    ".cm-tooltip.cm-tooltip-autocomplete > ul > li": {
+      padding: "6px 10px",
+      borderRadius: "8px",
+    },
+    ".cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected]": {
+      backgroundColor: PRIMARY_TINT(22),
+      color: TEXT,
+    },
+    ".cm-completionMatchedText": {
+      color: ACCENT,
+      textDecoration: "none",
+      fontWeight: "700",
+    },
+    ".cm-completionDetail": { color: MUTED, fontStyle: "normal" },
+  }),
   syntaxHighlighting(
     HighlightStyle.define([
-      { tag: t.heading, color: "#c084fc", fontWeight: "700" },
-      { tag: t.strong, color: "#ffffff", fontWeight: "700" },
+      { tag: t.heading, color: ACCENT, fontWeight: "700" },
+      { tag: t.strong, color: TEXT, fontWeight: "700" },
       { tag: t.emphasis, fontStyle: "italic" },
       { tag: t.strikethrough, textDecoration: "line-through" },
-      { tag: t.link, color: "#b472ff" },
-      { tag: t.url, color: "#8b8d98" },
-      { tag: t.monospace, color: "#ecb96a" },
-      { tag: t.quote, color: "#8b8d98", fontStyle: "italic" },
-      { tag: t.contentSeparator, color: "#544f66" },
+      { tag: t.link, color: ACCENT },
+      { tag: t.url, color: MUTED },
+      { tag: t.monospace, color: TEXT },
+      { tag: t.quote, color: MUTED, fontStyle: "italic" },
+      { tag: t.contentSeparator, color: FAINT },
       // Markdown punctuation marks (#, *, >, ```) recede so prose reads clean.
-      { tag: t.processingInstruction, color: "#6f6c80" },
-      { tag: t.meta, color: "#6f6c80" },
+      { tag: t.processingInstruction, color: FAINT },
+      { tag: t.meta, color: FAINT },
       // JSX component snippets.
-      { tag: [t.angleBracket, t.bracket], color: "#6f6c80" },
-      { tag: t.tagName, color: "#c084fc" },
-      { tag: t.attributeName, color: "#a78bfa" },
-      { tag: [t.string, t.attributeValue], color: "#ecb96a" },
-      { tag: t.comment, color: "#544f66", fontStyle: "italic" },
+      { tag: [t.angleBracket, t.bracket], color: FAINT },
+      { tag: t.tagName, color: ACCENT },
+      { tag: t.attributeName, color: MUTED },
+      { tag: [t.string, t.attributeValue], color: TEXT },
+      { tag: t.comment, color: FAINT, fontStyle: "italic" },
     ]),
   ),
 ];
