@@ -1,0 +1,103 @@
+---
+title: "The .fantome format (old)"
+description: "What a .fantome League mod file is, why it's the old format, and three ways to convert one to .modpkg in Celestial."
+keywords:
+  - convert fantome to modpkg
+  - fantome file
+  - fantome deprecated
+category: "mod-format"
+---
+
+<LevelPill level="beginner" />
+
+<Callout type="warning" title="Old format">
+  `.fantome` is the old League mod format. It's here so old mods keep working:
+  Celestial still installs them, and Divine still serves the ones already
+  uploaded. Don't make new mods in it. Divine takes new uploads and updates as
+  `.modpkg` only.
+</Callout>
+
+## What a .fantome is
+
+A `.fantome` is a ZIP file with a different name. It comes from the old Fantome mod manager. Inside:
+
+<Files>
+  <Folder name="MyMod.fantome" defaultOpen>
+    <Folder name="META" defaultOpen>
+      <File name="info.json: name, author, version, description" />
+      <File name="image.png (optional)" />
+    </Folder>
+    <Folder name="WAD" defaultOpen>
+      <Folder name="Aatrox.wad.client">
+        <File name="your champion files" />
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+
+## Why it's the old format
+
+- **One author, four fields.** No roles, license, tags or readme in the format itself.
+- **No real layers.** Variants like chromas need extra rules that not every tool reads.
+- **Three ways to store the same files.** Loose folders, packed WADs, or the old `RAW` folder. Tools have to guess.
+- **Lost file names.** A packed WAD inside a `.fantome` keeps only hashes of your paths. Your custom file names can be gone for good. [Which format to choose](/docs/lol/mod-format/which-format-to-choose) explains why.
+- **Slower installs.** The launcher has to unzip and repack the files.
+
+## Convert a .fantome to .modpkg
+
+Pick the way that fits. All three keep the original file.
+
+<Tabs items={["Creator Hub", "Library", "File Explorer"]}>
+<Tab value="Creator Hub">
+
+Use this one if you want to fix the mod's info or add layers before you export. Windows only.
+
+1. Open **Creator Hub** in Celestial.
+2. Drag the `.fantome` onto Creator Hub.
+3. Right-click the new card and click **Edit Info**. Fill in the version, authors and license.
+4. Right-click the card again. Under **Export**, click **Modpkg**, then **Export**.
+
+[Set up a mod project](/docs/lol/mod-format/mod-project) and [Export and install a .modpkg](/docs/lol/mod-format/modpkg) have each step with pictures.
+
+</Tab>
+<Tab value="Library">
+
+Use this one for a mod you already installed.
+
+1. Open the **Library** in Celestial.
+2. Right-click the mod's card.
+3. Click **Export .modpkg** and pick where to save the file.
+
+<img
+  src="/wiki-images/lol-mod-format-5.webp"
+  width={300}
+  alt="A Library card's right-click menu with Export .modpkg marked 1 and Open in Creator Hub marked 2"
+/>
+
+**Open in Creator Hub** shows for `.modpkg` mods only. For a `.fantome`, use the Creator Hub tab.
+
+</Tab>
+<Tab value="File Explorer">
+
+Celestial adds a menu to Windows File Explorer. It converts without opening Celestial.
+
+1. Right-click the `.fantome` file in File Explorer. On Windows 11, click **Show more options** first.
+2. Under **Celestial**, click **Convert to .modpkg**.
+
+The `.modpkg` appears next to the original file.
+
+</Tab>
+</Tabs>
+
+Converting can't bring back file names a packed WAD already lost. If you still have your project folder, export from that instead.
+
+## Next steps
+
+<PremiumCard
+  title="Publish your mod on Divine"
+  href="/docs/lol/publishing/publish-on-divine"
+  icon={<Icon name="Upload" />}
+  level="beginner"
+>
+  Upload the new .modpkg.
+</PremiumCard>
