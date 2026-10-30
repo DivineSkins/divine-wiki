@@ -46,11 +46,10 @@ const config = {
         ],
       },
       {
-        // The static search index export (one route per locale). The client
-        // always requests it with a `?v=<commit>` cache-buster, so each
-        // deployed version can be cached forever — browsers re-download only
-        // when a deploy changes the URL.
-        source: "/api/search/:locale",
+        // The search index routes (one per locale and game). Production
+        // serves them as static files under /search/<hash>/ (public/_headers);
+        // the route only changes with a deploy, so it can be cached forever.
+        source: "/api/search/:locale/:game",
         headers: [
           {
             key: "Cache-Control",

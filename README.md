@@ -40,11 +40,13 @@ Worker source-map uploads are disabled in `wrangler.toml`. The generated MDX
 source maps exceed Cloudflare's 60 MiB encoded limit. Runtime stack traces
 therefore refer to compiled code until the maps can be reduced and re-enabled.
 
-The build exports one search index per locale to
-`public/search/<content-hash>/<locale>.json`. Search downloads that static
-file and runs queries in the browser. The hash includes content and search
-configuration, so changed inputs produce a new URL. These generated files
-are ignored by Git. Development still uses `/api/search/<locale>`.
+The build exports one search index per locale and game to
+`public/search/<content-hash>/<locale>/<game>.json`. Search covers one game
+at a time: it starts in the game of the page being read, downloads that
+game's static file, and runs queries in the browser. The dialog footer
+switches games. The hash includes content and search configuration, so
+changed inputs produce a new URL. These generated files are ignored by Git.
+Development uses `/api/search/<locale>/<game>`.
 
 The `IMAGES` binding in `wrangler.toml` enables Next.js image resizing on
 Cloudflare. Prebuild scans local media and supplies missing dimensions to

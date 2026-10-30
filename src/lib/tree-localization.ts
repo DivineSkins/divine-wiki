@@ -8,7 +8,7 @@ import * as path from "path";
  * Returns a function resolving `{meta.x.title}`-style placeholders against
  * messages/<lang>.json, falling back to English, then to the raw text.
  * Shared by the page tree localization below and the search index build
- * (src/app/api/search/[locale]/route.ts), so sidebar names and search
+ * (src/app/api/search/[locale]/[game]/route.ts), so sidebar names and search
  * result breadcrumbs always resolve the same way.
  */
 export function createPlaceholderTranslator(
