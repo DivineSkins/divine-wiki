@@ -1,18 +1,25 @@
 ---
 title: "Który format wybrać"
-description: "Wybierz .modpkg lub .fantome z niespakowanymi folderami WAD, aby zachować własne ścieżki podczas migracji Riotu na hashe file."
-category: "tools"
+description: "Eksportuj każdy nowy mod do League of Legends jako .modpkg. Stary format .fantome zostaje tylko po to, żeby stare mody dalej działały. Tu wyjaśniamy dlaczego i co się dzieje z nazwami twoich plików."
+keywords:
+  - modpkg czy fantome
+  - format moda league
+  - utracone własne ścieżki hashe
+category: "mod-format"
 ---
 
-**Wybierz `.modpkg`, jeśli obsługuje go twój menedżer skinów.** Jeśli potrzebujesz `.fantome`, umieść w nim **niespakowane foldery `.wad.client`**.
+<LevelPill level="beginner" />
 
-Obie opcje zachowują czytelne ścieżki plików. Dzięki temu narzędzia mogą później otwierać, edytować, naprawiać i przepathować mod.
+**Każdy nowy mod rób jako `.modpkg`.** To jedyny format, w jakim Divine przyjmuje nowe uploady i aktualizacje modów do League, i to właśnie eksportuje Creator Hub w Celestial.
 
-| Pakiet | Co wybrać |
-| --- | --- |
-| `.modpkg` | Zalecany, gdy jest obsługiwany. Przechowuje ścieżki razem z plikami pakietu. |
-| `.fantome` z niespakowanymi folderami `.wad.client` | Zalecany dla Fantome. Zachowuje osobne pliki i ich ścieżki. |
-| `.fantome` ze spakowanymi plikami `.wad.client` | Unikaj przy nowych eksportach. Bez zapisanej tabeli hashy własne ścieżki mogą być niemożliwe do odzyskania. |
+`.fantome` to stary format. Nadal jest obsługiwany, żeby stare mody dalej działały: Celestial wciąż je instaluje, a mody, które już są na Divine jako `.fantome`, dalej da się pobierać. Nie zaczynaj w nim nowej roboty. Żeby zaktualizować starego moda w `.fantome`, [przekonwertuj go](/docs/lol/mod-format/fantome) i wrzuć `.modpkg` jako nowe wydanie.
+
+| Format     | Do czego                                                                      |
+| ---------- | ----------------------------------------------------------------------------- |
+| `.modpkg`  | Każdy nowy mod i każda aktualizacja. Trzyma ścieżki plików razem z plikami.   |
+| `.fantome` | Nic nowego. Stare mody działają w nim do swojej następnej aktualizacji.       |
+
+`.modpkg` trzyma też czytelne ścieżki zasobów razem z twoimi plikami. Dzięki temu narzędzia mogą później otworzyć twojego moda ponownie, edytować go, zrobić repath i go naprawić. Reszta tej strony wyjaśnia, dlaczego to ważne.
 
 ## Dlaczego to teraz ważne
 
@@ -58,57 +65,20 @@ Może to uniemożliwić odnajdywanie tekstur, śledzenie odwołań i poprawny re
   oznacza, że samego WAD-a nie można otworzyć.
 </Callout>
 
-## Jak spakować Fantome
+## Eksportuj z projektu
 
-Zachowaj każdy `.wad.client` jako **folder z osobnymi plikami moda** w `WAD/`.
-Przykładowa struktura wewnątrz archiwum `.fantome`:
-
-```text
-MySkin.fantome
-├── META/
-│   └── info.json
-└── WAD/
-    └── Ahri.wad.client/
-        ├── assets/
-        │   └── my_custom_skin/
-        │       └── textures/
-        │           └── body.tex
-        └── data/
-            └── characters/
-                └── ahri/
-                    └── skins/
-                        └── skin0.bin
-```
-
-`Ahri.wad.client/` jest folderem. Pojedynczy spakowany plik WAD nie zachowuje takiej listy katalogów.
-„Raw” oznacza osobne pliki wewnątrz pakietu. Zewnętrzny `.fantome` nadal może używać kompresji ZIP.
-
-Eksporter Fantome w [Flint](/docs/lol/tools/modding-apps/flint) tworzy taką strukturę folderów.
-[Hematite](/docs/lol/tools/modding-apps/hematite) również zapisuje naprawione WAD-y jako niespakowane foldery, aby zachować rozpoznane ścieżki.
-Zachowaj tę strukturę podczas pakowania wyniku.
-
-## Kiedy wybrać Modpkg
-
-Wybierz `.modpkg`, jeśli obsługuje go docelowy menedżer. Eksporter Flinta dołącza ścieżki pakowanych zasobów.
-Narzędzia mogą używać tych nazw bez polegania wyłącznie na społecznościowej bazie hashy.
-
-Eksportuj z oryginalnego projektu, dopóki czytelne ścieżki nadal istnieją.
-Konwersja starego spakowanego WAD-a do `.modpkg` nie odtworzy utraconych nazw.
+Eksportuj ze swojego [projektu moda](/docs/lol/mod-format/mod-project), dopóki czytelne ścieżki nadal istnieją. Konwersja starego spakowanego WAD-a do `.modpkg` nie przywróci własnych nazw, które już przepadły.
 
 ## Przed udostępnieniem
 
-1. Wyeksportuj `.modpkg` lub `.fantome` z niespakowanymi folderami WAD.
-2. Otwórz pakiet ponownie i sprawdź, czy twoje własne ścieżki są czytelne.
-3. Zachowaj wygenerowane tabele hashy i metadane ścieżek razem z pakietem.
-4. Przetestuj eksport w docelowym menedżerze skinów i w grze.
-5. Zachowaj oryginalny folder projektu na przyszłe aktualizacje.
+1. Wyeksportuj `.modpkg` z Creator Hub. [Wyeksportuj i zainstaluj .modpkg](/docs/lol/mod-format/modpkg) pokazuje, jak.
+2. Otwórz wyeksportowany plik ponownie i sprawdź, czy twoje własne ścieżki zasobów są nadal czytelne.
+3. Przetestuj go w grze przez Celestial.
+4. Zachowaj folder projektu na przyszłe aktualizacje.
 
-Osadzone tabele hashy i metadane ścieżek BIN-ów pomagają zgodnym narzędziom rozpoznawać własne odwołania.
-Zachowaj je, ale nie zakładaj, że każde narzędzie pozostawi je podczas zapisu.
-Żaden z zalecanych formatów nie zastępuje kopii zapasowej projektu źródłowego.
+`.modpkg` nie zastępuje kopii zapasowej projektu.
 
 ## Źródła
 
-- [Kod eksportu Flinta](https://github.com/RitoShark/Flint/blob/main/src-tauri/src/commands/import_export/export.rs): foldery Fantome i ścieżki Modpkg.
 - [Kod unhashingu Quartz](https://github.com/RitoShark/Quartz/blob/main/src-tauri/crates/quartz-lib/src/bin/jade/unhasher.rs): wyszukiwanie wartości `file`, `hash` i `link` w słowniku.
 - [Hematite](https://github.com/RitoShark/Hematite): naprawa modów i przetwarzanie WAD-ów.

@@ -1,18 +1,26 @@
 ---
 title: "Nên chọn định dạng nào"
-description: "Chọn .modpkg hoặc .fantome chứa thư mục WAD chưa đóng gói để giữ đường dẫn tùy chỉnh khi Riot chuyển tham chiếu string sang hash file."
-category: "tools"
+description: "Xuất mọi mod League of Legends mới dưới dạng .modpkg. Định dạng .fantome cũ chỉ được giữ lại để các mod cũ vẫn chạy. Đây là lý do, và chuyện gì xảy ra với tên tệp của bạn."
+keywords:
+  - modpkg or fantome
+  - league mod format
+  - custom paths lost hashes
+  - modpkg hay fantome
+category: "mod-format"
 ---
 
-**Chọn `.modpkg` nếu trình quản lý skin của bạn hỗ trợ.** Nếu cần `.fantome`, hãy dùng **thư mục `.wad.client` chưa đóng gói** bên trong.
+<LevelPill level="beginner" />
 
-Cả hai cách đều giữ đường dẫn tệp có thể đọc được. Nhờ đó, công cụ có thể mở lại, chỉnh sửa, repath và sửa mod sau này.
+**Làm mọi mod mới thành `.modpkg`.** Đây là định dạng duy nhất Divine nhận cho mod League mới tải lên và bản cập nhật, và cũng là định dạng mà Creator Hub của Celestial xuất ra.
 
-| Gói | Nên chọn gì |
-| --- | --- |
-| `.modpkg` | Khuyên dùng nếu được hỗ trợ. Lưu đường dẫn cùng với các tệp trong gói. |
-| `.fantome` chứa thư mục `.wad.client` chưa đóng gói | Khuyên dùng cho Fantome. Giữ các tệp riêng lẻ và đường dẫn thư mục. |
-| `.fantome` chứa tệp `.wad.client` đã đóng gói | Tránh dùng cho bản xuất mới. Đường dẫn tùy chỉnh có thể không khôi phục được nếu thiếu bảng hash đã lưu. |
+`.fantome` là định dạng cũ. Nó vẫn được hỗ trợ để các mod cũ tiếp tục chạy: Celestial vẫn cài được, và các mod đã có trên Divine dưới dạng `.fantome` vẫn tải về được. Đừng bắt đầu làm gì mới bằng nó. Muốn cập nhật một mod `.fantome` cũ, hãy [chuyển nó sang](/docs/lol/mod-format/fantome) rồi đăng tệp `.modpkg` dưới dạng một bản phát hành mới.
+
+| Định dạng  | Dùng cho                                                                          |
+| ---------- | --------------------------------------------------------------------------------- |
+| `.modpkg`  | Mọi mod mới và mọi bản cập nhật. Giữ đường dẫn tệp đi kèm với các tệp của bạn.   |
+| `.fantome` | Không dùng cho gì mới. Các mod cũ vẫn chạy với nó cho tới bản cập nhật tiếp theo. |
+
+Tệp `.modpkg` còn giữ đường dẫn tài nguyên đọc được đi kèm với các tệp của bạn. Nhờ đó, công cụ có thể mở lại, chỉnh sửa, repath và sửa mod sau này. Phần còn lại của trang này giải thích vì sao điều đó quan trọng.
 
 ## Vì sao điều này quan trọng lúc này
 
@@ -58,57 +66,20 @@ Nếu không lưu ánh xạ, các tệp tùy chỉnh có thể được trích x
   không có nghĩa là không thể mở WAD.
 </Callout>
 
-## Cách đóng gói Fantome
+## Xuất từ dự án của bạn
 
-Giữ mỗi `.wad.client` dưới dạng **thư mục chứa các tệp mod riêng lẻ** bên trong `WAD/`.
-Ví dụ cấu trúc bên trong tệp `.fantome`:
-
-```text
-MySkin.fantome
-├── META/
-│   └── info.json
-└── WAD/
-    └── Ahri.wad.client/
-        ├── assets/
-        │   └── my_custom_skin/
-        │       └── textures/
-        │           └── body.tex
-        └── data/
-            └── characters/
-                └── ahri/
-                    └── skins/
-                        └── skin0.bin
-```
-
-`Ahri.wad.client/` ở đây là thư mục. Một tệp WAD đã đóng gói không giữ danh sách thư mục này.
-“Raw” nghĩa là các tệp nằm riêng trong gói. Tệp `.fantome` bên ngoài vẫn có thể dùng nén ZIP.
-
-Trình xuất Fantome của [Flint](/docs/lol/tools/modding-apps/flint) tạo cấu trúc thư mục này.
-[Hematite](/docs/lol/tools/modding-apps/hematite) cũng ghi WAD đã sửa thành thư mục chưa đóng gói để giữ đường dẫn đã phân giải.
-Giữ cấu trúc đó khi đóng gói kết quả.
-
-## Khi nào nên chọn Modpkg
-
-Chọn `.modpkg` nếu trình quản lý đích hỗ trợ. Flint đưa đường dẫn tài nguyên vào gói khi xuất.
-Công cụ có thể dùng các tên này mà không chỉ phụ thuộc vào cơ sở dữ liệu hash cộng đồng.
-
-Xuất từ dự án gốc khi đường dẫn đọc được vẫn còn.
-Chuyển WAD cũ đã đóng gói sang `.modpkg` không thể tạo lại tên tùy chỉnh đã mất.
+Xuất từ [dự án mod](/docs/lol/mod-format/mod-project) của bạn khi đường dẫn đọc được vẫn còn. Chuyển một WAD cũ đã đóng gói sang `.modpkg` không thể mang lại những tên tùy chỉnh đã mất.
 
 ## Trước khi chia sẻ
 
-1. Xuất thành `.modpkg` hoặc `.fantome` chứa thư mục WAD chưa đóng gói.
-2. Mở lại gói và kiểm tra đường dẫn tùy chỉnh vẫn đọc được.
-3. Giữ bảng hash được tạo và siêu dữ liệu đường dẫn cùng với gói.
-4. Kiểm tra bản xuất trong trình quản lý skin đích và trong game.
-5. Giữ thư mục dự án gốc cho các bản cập nhật sau.
+1. Xuất tệp `.modpkg` từ Creator Hub. Bài [Xuất và cài file .modpkg](/docs/lol/mod-format/modpkg) chỉ cách làm.
+2. Mở lại tệp đã xuất và kiểm tra đường dẫn tài nguyên tùy chỉnh vẫn đọc được.
+3. Test trong game bằng Celestial.
+4. Giữ thư mục dự án cho các bản cập nhật sau.
 
-Bảng hash nhúng và siêu dữ liệu đường dẫn BIN có thể giúp công cụ tương thích phân giải tham chiếu tùy chỉnh.
-Hãy giữ chúng, nhưng đừng cho rằng mọi công cụ đều giữ lại khi lưu.
-Cả hai định dạng được khuyên dùng đều không thay thế bản sao lưu dự án gốc.
+Tệp `.modpkg` không thay thế bản sao lưu dự án của bạn.
 
 ## Nguồn tham khảo
 
-- [Mã xuất của Flint](https://github.com/RitoShark/Flint/blob/main/src-tauri/src/commands/import_export/export.rs): cấu trúc thư mục Fantome và đường dẫn Modpkg.
 - [Mã unhash của Quartz](https://github.com/RitoShark/Quartz/blob/main/src-tauri/crates/quartz-lib/src/bin/jade/unhasher.rs): tra cứu `file`, `hash` và `link` trong từ điển.
 - [Hematite](https://github.com/RitoShark/Hematite): sửa mod và xử lý WAD.

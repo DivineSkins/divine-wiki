@@ -1,0 +1,110 @@
+---
+title: "Katman ekle"
+description: "Chroma'ları ve varyantları tek bir League of Legends modunun içinde sun: Celestial'ın Katman Yöneticisi'nde katman ekle, önceliklerini ayarla ve oyuncuların onları açıp kapatmasına izin ver."
+keywords:
+  - modpkg katmanları
+  - league mod chroma tek dosya
+  - celestial katman yöneticisi
+category: "mod-format"
+---
+
+<LevelPill level="beginner" />
+
+Katmanlar, tek bir modun içinde oyuncuların açıp kapattığı dosya gruplarıdır. Onları chroma'lar, bir skin'in alternatif sürümleri ya da özel partiküller gibi isteğe bağlı ekstralar için kullan. Divine'da bir League modu tek bir `.modpkg` dosyasıdır, bu yüzden her varyant ikinci bir yükleme yerine bir katmana girer.
+
+## Katmanlar nasıl çalışır
+
+- **`base`** modunun ana dosyalarıdır. Her modda vardır ve her zaman açıktır.
+- **Diğer her katman** sadece o varyantın değiştirdiği dosyaları, `base` içindekiyle aynı yollarda tutar.
+- **Öncelik**, iki katman aynı dosyayı değiştirdiğinde hangisinin kazanacağını belirler. Yüksek olan kazanır. `base` her zaman 0'dır.
+- **Aynı öncelik**, katmanların birbirinin alternatifi olduğu anlamına gelir, iki chroma gibi. Oyuncular bunlardan yalnızca birini açmalı.
+
+İki yaygın düzen. Oyuncunun birini seçtiği **chroma'lar**:
+
+| Katman | Öncelik | İçinde ne var |
+| --- | --- | --- |
+| `base` | 0 | Skin |
+| `chroma-red` | 1 | Kırmızı dokular |
+| `chroma-blue` | 1 | Mavi dokular |
+
+Oyuncuların üst üste açtığı **isteğe bağlı ekler**:
+
+| Katman | Öncelik | İçinde ne var |
+| --- | --- | --- |
+| `base` | 0 | Skin |
+| `particles` | 1 | Özel VFX |
+| `hd-textures` | 2 | Daha büyük dokular |
+
+Oyuncuların aynı anda tek bir katman görmesini mi istiyorsun? **Edit Info**'yu aç ve **Aynı anda tek katman** seçeneğini aç. O zaman bir katmanı açmak onu diğerlerinin üstüne eklemek yerine ona geçer.
+
+## Katman ekle
+
+Modun önce Creator Hub'da olmalı. Nasıl yapılacağını [Mod projesi kur](/docs/lol/mod-format/mod-project) gösteriyor.
+
+<Steps>
+<Step>
+
+### Varyantın dosyalarını hazırla
+
+Her varyant için, mod klasörün gibi `assets` ve `data` içeren bir klasör yap. İçine sadece varyantın değiştirdiği dosyaları koy, örneğin bir chroma'nın yeniden renklendirilmiş dokularını. Yolları ve prefix'i `base` ile aynı tut.
+
+</Step>
+<Step>
+
+### Katman Yöneticisi'ni aç
+
+Creator Hub'da modun kartına sağ tıkla ve **Layers**'a tıkla.
+
+<img
+  src="/wiki-images/lol-mod-format-2.webp"
+  width={560}
+  alt="Aatrox.wad.client için base katmanını gösteren Katman Yöneticisi, Adla katman ekle butonu daire içinde"
+/>
+
+</Step>
+<Step>
+
+### Katmanı ekle
+
+1. **Adla katman ekle**'ye tıkla ve `chroma-red` gibi bir ad yaz. Küçük harf, rakam ve `-` kullan.
+2. Oklarla **Öncelik** değerini ayarla.
+3. **Gözat**'a tıkla ve varyantın klasörünü seç. Birden fazla klasör seçersen hepsi tek bir katmanda birleşir.
+
+**Hızlı içe aktar** ad adımını atlar: bir klasör seçtirir ve katmana o klasörün adını verir.
+
+</Step>
+<Step>
+
+### Listeyi kontrol et
+
+Her katman kendi WAD dosyalarını ve önceliğini gösterir. **alternatif** işaretli katmanlar aynı önceliği paylaşır. Önceliği oklarla değiştir ya da **Katmanı yeniden adlandır** ve **Katmanı kaldır** seçeneklerini kullan.
+
+</Step>
+</Steps>
+
+## Oyuncular ne görür
+
+Oyuncular modunu Celestial ile kurar. Modun kartındaki katman rozeti kaç katmanın açık olduğunu gösterir ve başta yalnızca `base` açıktır. Rozete tıklayınca katmanlar açılıp kapanır.
+
+Kendin kontrol etmek için [.modpkg dosyasını export et](/docs/lol/mod-format/modpkg), Kütüphane'ne kur ve her katmanı tek tek aç.
+
+## Sonraki adımlar
+
+<CardGrid>
+  <PremiumCard
+    title=".modpkg export et ve kur"
+    href="/docs/lol/mod-format/modpkg"
+    icon={<Icon name="Package" />}
+    level="beginner"
+  >
+    Base katmanı ve diğer her katmanı tek bir dosyaya paketle.
+  </PremiumCard>
+  <PremiumCard
+    title="Modunu Divine'da yayınla"
+    href="/docs/lol/publishing/publish-on-divine"
+    icon={<Icon name="Upload" />}
+    level="beginner"
+  >
+    Dosyayı Creator Panel'den yükle.
+  </PremiumCard>
+</CardGrid>

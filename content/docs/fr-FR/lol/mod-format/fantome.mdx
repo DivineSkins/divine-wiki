@@ -1,0 +1,103 @@
+---
+title: "Le format .fantome (ancien)"
+description: "Ce qu'est un fichier de mod League .fantome, pourquoi c'est l'ancien format, et trois façons de le convertir en .modpkg dans Celestial."
+keywords:
+  - convertir fantome en modpkg
+  - fichier fantome
+  - fantome obsolète
+category: "mod-format"
+---
+
+<LevelPill level="beginner" />
+
+<Callout type="warning" title="Ancien format">
+  `.fantome` est l'ancien format de mod League. Il reste là pour que les anciens
+  mods continuent de marcher : Celestial les installe toujours, et Divine sert
+  toujours ceux déjà uploadés. Ne crée pas de nouveaux mods dans ce format.
+  Divine n'accepte les nouveaux uploads et les mises à jour qu'en `.modpkg`.
+</Callout>
+
+## Ce qu'est un .fantome
+
+Un `.fantome`, c'est un fichier ZIP avec un autre nom. Il vient de l'ancien gestionnaire de mods Fantome. Dedans :
+
+<Files>
+  <Folder name="MyMod.fantome" defaultOpen>
+    <Folder name="META" defaultOpen>
+      <File name="info.json : nom, auteur, version, description" />
+      <File name="image.png (optionnel)" />
+    </Folder>
+    <Folder name="WAD" defaultOpen>
+      <Folder name="Aatrox.wad.client">
+        <File name="les fichiers de ton champion" />
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+
+## Pourquoi c'est l'ancien format
+
+- **Un seul auteur, quatre champs.** Pas de rôles, de licence, de tags ni de readme dans le format lui-même.
+- **Pas de vraies couches.** Les variantes comme les chromas demandent des règles en plus que tous les outils ne lisent pas.
+- **Trois façons de stocker les mêmes fichiers.** Des dossiers séparés, des WAD packés ou l'ancien dossier `RAW`. Les outils doivent deviner.
+- **Des noms de fichiers perdus.** Un WAD packé dans un `.fantome` ne garde que les hashes de tes chemins. Tes noms de fichiers personnalisés peuvent disparaître pour de bon. [Quel format choisir](/docs/lol/mod-format/which-format-to-choose) explique pourquoi.
+- **Des installations plus lentes.** Le launcher doit dézipper puis repacker les fichiers.
+
+## Convertir un .fantome en .modpkg
+
+Choisis la méthode qui te va. Les trois gardent le fichier d'origine.
+
+<Tabs items={["Creator Hub", "Library", "File Explorer"]}>
+<Tab value="Creator Hub">
+
+Prends celle-ci si tu veux corriger les infos du mod ou ajouter des couches avant d'exporter. Windows uniquement.
+
+1. Ouvre le **Hub Créateur** dans Celestial.
+2. Glisse le `.fantome` sur le Creator Hub.
+3. Fais un clic droit sur la nouvelle carte et clique sur **Edit Info**. Remplis la version, les auteurs et la licence.
+4. Refais un clic droit sur la carte. Sous **Export**, clique sur **Modpkg**, puis sur **Export**.
+
+[Configure un projet de mod](/docs/lol/mod-format/mod-project) et [Exporte et installe un .modpkg](/docs/lol/mod-format/modpkg) montrent chaque étape en images.
+
+</Tab>
+<Tab value="Library">
+
+Prends celle-ci pour un mod que tu as déjà installé.
+
+1. Ouvre la **Bibliothèque** dans Celestial.
+2. Fais un clic droit sur la carte du mod.
+3. Clique sur **Export .modpkg** et choisis où enregistrer le fichier.
+
+<img
+  src="/wiki-images/lol-mod-format-5.webp"
+  width={300}
+  alt="Le menu du clic droit d'une carte de la Bibliothèque, avec Export .modpkg marqué 1 et Ouvrir dans le Creator Hub marqué 2"
+/>
+
+**Ouvrir dans le Creator Hub** n'apparaît que pour les mods `.modpkg`. Pour un `.fantome`, passe par l'onglet Creator Hub.
+
+</Tab>
+<Tab value="File Explorer">
+
+Celestial ajoute un menu à l'Explorateur de fichiers de Windows. Il convertit sans ouvrir Celestial.
+
+1. Fais un clic droit sur le fichier `.fantome` dans l'Explorateur de fichiers. Sous Windows 11, clique d'abord sur **Afficher d'autres options**.
+2. Sous **Celestial**, clique sur **Convert to .modpkg**.
+
+Le `.modpkg` apparaît à côté du fichier d'origine.
+
+</Tab>
+</Tabs>
+
+La conversion ne peut pas faire revenir des noms de fichiers qu'un WAD packé a déjà perdus. Si tu as encore ton dossier de projet, exporte plutôt depuis celui-ci.
+
+## Et ensuite
+
+<PremiumCard
+  title="Publie ton mod sur Divine"
+  href="/docs/lol/publishing/publish-on-divine"
+  icon={<Icon name="Upload" />}
+  level="beginner"
+>
+  Uploade le nouveau .modpkg.
+</PremiumCard>

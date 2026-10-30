@@ -1,0 +1,94 @@
+---
+title: "Định dạng mod"
+description: "File mà một mod League of Legends được đóng gói vào: .modpkg là định dạng hiện tại, .fantome là định dạng cũ. Mỗi loại chứa gì, Divine nhận loại nào và Celestial xử lý cả hai ra sao."
+keywords:
+  - modpkg
+  - fantome vs modpkg
+  - league mod file format
+  - định dạng mod league
+category: "mod-format"
+---
+
+<LevelPill level="beginner" />
+
+Một mod League hoàn chỉnh là một file duy nhất mà người chơi cài vào. Phần này giải thích về file đó, chứ không dạy cách làm skin. Muốn làm skin, hãy bắt đầu với [bài hướng dẫn đầy đủ](/docs/lol/getting-started/walkthrough).
+
+Có hai định dạng:
+
+| Định dạng  | Trạng thái     | Dùng cho                                                                                             |
+| ---------- | -------------- | ---------------------------------------------------------------------------------------------------- |
+| `.modpkg`  | **Hiện tại**   | Mọi mod mới và mọi bản cập nhật. Divine chỉ nhận mod League tải lên dưới dạng `.modpkg`.              |
+| `.fantome` | Cũ             | Chỉ dành cho mod cũ. Celestial vẫn cài được, và chỉ cần một cú bấm là chuyển sang `.modpkg`.         |
+
+Hãy làm mọi mod mới thành `.modpkg`. Các mod cũ đã có trên Divine dưới dạng `.fantome` vẫn chạy và vẫn tải về được, nhưng bản cập nhật tiếp theo của chúng phải là `.modpkg`.
+
+## Bên trong một file .modpkg có gì
+
+Một file `.modpkg` gói các file game của mod cùng với mọi thứ mà launcher cần để hiển thị và cài nó:
+
+<Files>
+  <Folder name="MyMod.modpkg" defaultOpen>
+    <File name="thông tin mod: tên, phiên bản, tác giả, giấy phép, thẻ" />
+    <File name="thumbnail, readme và nội dung giấy phép" />
+    <Folder name="layers" defaultOpen>
+      <Folder name="base">
+        <File name="Aatrox.wad.client: các file tướng của bạn" />
+      </Folder>
+      <Folder name="chroma-red (tùy chọn)">
+        <File name="các file mà biến thể này thay đổi" />
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+
+- **Thông tin mod** là tên, phiên bản, tác giả và giấy phép mà Celestial hiển thị trong Thư viện.
+- **Lớp** (layer) chứa các biến thể của mod, như chroma, để người chơi bật hoặc tắt. Mod nào cũng có lớp `base`.
+- **Tên file đi kèm theo file.** Sau này các công cụ có thể mở lại mod và vẫn đọc được các đường dẫn tùy chỉnh của bạn. Bài [Nên chọn định dạng nào](/docs/lol/mod-format/which-format-to-choose) giải thích vì sao điều này lúc này lại quan trọng.
+
+Celestial chỉ xuất ra `.modpkg`. Nó không bao giờ tạo file `.fantome`.
+
+## Hướng dẫn
+
+<CardGrid>
+  <PremiumCard
+    title="Nên chọn định dạng nào"
+    href="/docs/lol/mod-format/which-format-to-choose"
+    icon={<Icon name="FileQuestion" />}
+    level="beginner"
+    featured
+  >
+    Vì sao mọi mod mới nên là .modpkg, và chuyện gì xảy ra với tên file.
+  </PremiumCard>
+  <PremiumCard
+    title="Dựng một dự án mod"
+    href="/docs/lol/mod-format/mod-project"
+    icon={<Icon name="FolderOpen" />}
+    level="beginner"
+  >
+    Thêm file của bạn vào Creator Hub và điền thông tin mod.
+  </PremiumCard>
+  <PremiumCard
+    title="Thêm lớp"
+    href="/docs/lol/mod-format/layers"
+    icon={<Icon name="Layers" />}
+    level="beginner"
+  >
+    Gói chroma và các biến thể vào chung một mod.
+  </PremiumCard>
+  <PremiumCard
+    title="Xuất và cài file .modpkg"
+    href="/docs/lol/mod-format/modpkg"
+    icon={<Icon name="Package" />}
+    level="beginner"
+  >
+    Đóng gói dự án thành một file, rồi cài thử để kiểm tra.
+  </PremiumCard>
+  <PremiumCard
+    title="Định dạng .fantome (cũ)"
+    href="/docs/lol/mod-format/fantome"
+    icon={<Icon name="Archive" />}
+    level="beginner"
+  >
+    .fantome là gì, vì sao nó là định dạng cũ, và ba cách để chuyển đổi.
+  </PremiumCard>
+</CardGrid>
