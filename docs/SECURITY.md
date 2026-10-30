@@ -3,7 +3,7 @@
 ## Reporting a vulnerability
 
 Use GitHub's **Report a vulnerability** button on this repo's Security tab,
-or email `security@divineskins.gg`. Include:
+or email `hi@divineskins.gg`. Include:
 
 - What you found
 - How to reproduce it

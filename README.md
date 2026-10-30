@@ -1,20 +1,22 @@
 # Divine Skins Wiki
 
-Community-written guides for making custom skins for League of Legends. Live at https://wiki.divineskins.gg.
+Community-written modding guides for every game Divine Skins supports. Live at https://wiki.divineskins.gg.
 
 ## Who this is for
 
-Creators who use Maya, Blender, and VFX tools to build custom LoL skins. End-users who only install skins should ask in Discord — the wiki is for makers.
+Creators who build mods. Players who only want to install mods should ask in [Discord](https://discord.gg/divineskins). The wiki is for makers.
 
 ## Contribute
 
 Three ways, pick what fits you:
 
-- **In-browser editor** — go to [wiki.divineskins.gg/en/draft](https://wiki.divineskins.gg/en/draft). Write your guide with a live preview, hit submit, the editor forks the repo and opens a PR for you.
-- **Edit on GitHub** — on any guide, click "Edit on GitHub" at the bottom. GitHub's web editor opens. Make a change, open a PR. No clone, no install.
-- **Fork and PR** on GitHub. For devs. See [CONTRIBUTING.md](./docs/CONTRIBUTING.md).
+- **In-browser editor**: go to [wiki.divineskins.gg/en/draft](https://wiki.divineskins.gg/en/draft). Write your guide with a live preview, then hit **Contribute**. The editor walks you through forking the repo and opening a PR.
+- **Edit on GitHub**: on any guide, click **Edit on GitHub** at the bottom. GitHub's web editor opens. Make a change, open a PR. No clone, no install.
+- **Fork and PR**: for developers. See [CONTRIBUTING.md](./docs/CONTRIBUTING.md).
 
-Full walkthrough: [wiki.divineskins.gg/en/docs/lol/contributing](https://wiki.divineskins.gg/en/docs/lol/contributing).
+Full walkthrough: [wiki.divineskins.gg/contribute](https://wiki.divineskins.gg/contribute).
+
+Found a security issue? See [SECURITY.md](./docs/SECURITY.md).
 
 ## Local dev
 
@@ -75,19 +77,16 @@ update references in every locale. Keep app icons in their required formats.
 
 ## Content layout
 
-Guides live in `content/docs/en/lol/<category>/*.mdx`. `lol/` is a "game segment" so future games (Valorant, etc.) can sit alongside it. Each category has a `meta.json` that controls sidebar order.
+Guides live in `content/docs/en/<game>/<category>/*.mdx`, one folder per game:
 
-The nine LoL categories:
+- `lol/`: League of Legends
+- `deadlock/`: Deadlock
 
-- `guided-walkthrough`
-- `tools`
-- `maya`
-- `blender`
-- `animations`
-- `vfx-bins`
-- `assets-library`
-- `errors`
-- `contributing`
+A folder counts as a game only if it is listed in `GAMES` (`src/lib/games.ts`). Each game and each category has a `meta.json` that controls sidebar order.
+
+The contributing guides are written once in `content/docs/en/contributing/` and appear in every game's sidebar.
+
+Translations in `content/docs/<locale>/` come from Crowdin. Don't edit them by hand.
 
 ## Stack
 
@@ -116,5 +115,5 @@ terms.
 ## Disclaimer
 
 This is an unofficial community project. It is not affiliated with or
-endorsed by Riot Games. League of Legends and all related trademarks and
-game content are property of Riot Games, Inc.
+endorsed by Riot Games, Valve, or any other game publisher. All game names,
+trademarks, and game content are property of their respective owners.
