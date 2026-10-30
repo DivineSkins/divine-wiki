@@ -14,13 +14,14 @@ import {
   ArrowLeftIcon,
   ChevronRightIcon,
   HourglassIcon,
-  PencilIcon,
   PencilLine,
+  PlusIcon,
   XIcon,
 } from "lucide-react";
 import { GitHubLogo } from "@/components/brand-logos";
 import { useMessages } from "@/lib/hooks/useMessages";
 import { PremiumCard } from "@/components/mdx/PremiumCard";
+import { glowCtaClassName } from "@/components/mdx/GlowCTA";
 import { acceptsGuides, GAMES, type Game } from "@/lib/games";
 import { cn } from "@/lib/utils";
 
@@ -272,9 +273,10 @@ function GameOption({
 }
 
 /**
- * Nav-bar trigger. Renders an icon+text button styled to sit next to the
- * other Fumadocs nav links. Fumadocs renders this as a `type: "custom"` item
- * (or the fallback route imports it).
+ * Docs sidebar trigger ("Add a guide"): the homepage header's "Write a
+ * guide" button (`solid`, `md`) at full width. The sidebar's placement,
+ * divider and collapsed-rail styling live in global.css
+ * (`.divine-sidebar-contribute`).
  */
 export function ContributeButton({ className }: { className?: string }) {
   const messages = useMessages();
@@ -283,13 +285,14 @@ export function ContributeButton({ className }: { className?: string }) {
     <button
       type="button"
       onClick={open}
-      className={cn(
-        "text-fd-muted-foreground hover:text-fd-accent-foreground inline-flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors",
-        className,
-      )}
+      className={cn(glowCtaClassName("solid", "md"), "w-full", className)}
     >
-      <PencilIcon className="h-4 w-4" />
-      <span>{messages.nav.contribute}</span>
+      {/* The plus sits inside the label so "+ Add a guide" centers as one
+          unit. The collapsed rail hides the text and keeps the plus. */}
+      <span className="inline-flex items-center gap-1.5">
+        <PlusIcon className="size-3.5" strokeWidth={2.75} />
+        {messages.nav.addGuide}
+      </span>
     </button>
   );
 }

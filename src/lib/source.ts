@@ -10,9 +10,10 @@ import { resolveIcon } from "@/components/icon";
  * Folders in content/docs/<locale>/ that every game shares: written once,
  * shown inside each game (/docs/lol/contributing, /docs/deadlock/contributing)
  * so readers keep their game's sidebar. A game lists the folder in its
- * meta.json `pages` like one of its own categories.
+ * meta.json `pages` like one of its own categories. In the sidebar they sit
+ * below the Add a guide button (src/app/[lang]/docs/layout.tsx).
  */
-const SHARED_SECTIONS = ["contributing"];
+export const SHARED_SECTIONS = ["contributing"];
 
 const isGame = (slug: string | undefined) =>
   GAMES.some((game) => game.slug === slug);

@@ -1,6 +1,6 @@
 import { DocsLayout } from "fumadocs-ui/layouts/docs";
 import type * as PageTree from "fumadocs-core/page-tree";
-import { source } from "@/lib/source";
+import { SHARED_SECTIONS, source } from "@/lib/source";
 import { baseOptions } from "@/lib/layout.shared";
 import { localizePageTree } from "@/lib/tree-localization";
 import { getMessages } from "@/lib/locale";
@@ -14,12 +14,18 @@ import {
   githubRepoUrl,
 } from "@/lib/config";
 
+/** A shared section's folder (contributing), by the last segment of its id. */
+const isSharedSection = (node: PageTree.Node) =>
+  node.type === "folder" &&
+  SHARED_SECTIONS.includes(node.$id?.split("/").at(-1) ?? "");
+
 /**
- * Appends the Contribute sentinel node after the last item of every list the
- * sidebar can render: the top level, and the children of each `root: true`
- * folder (game segments) — fumadocs swaps the visible tree to the active
- * root's children, so the sentinel has to exist in both places. The sidebar's
- * Separator renderer turns it into the Contribute button
+ * Adds the Add a guide sentinel node to every list the sidebar can render:
+ * the top level, and the children of each `root: true` folder (game
+ * segments) — fumadocs swaps the visible tree to the active root's children,
+ * so the sentinel has to exist in both places. It goes after the game's own
+ * categories and above the shared sections (contributing), which sit under
+ * the button. The sidebar's Separator renderer turns it into the button
  * (see src/components/sidebar-contribute.tsx).
  */
 function appendContributeNode(root: PageTree.Root): PageTree.Root {
@@ -27,18 +33,23 @@ function appendContributeNode(root: PageTree.Root): PageTree.Root {
     type: "separator",
     $id: contributeSidebarNodeId,
   };
+  const withSentinel = (nodes: PageTree.Node[]) => [
+    ...nodes.filter((node) => !isSharedSection(node)),
+    sentinel,
+    ...nodes.filter(isSharedSection),
+  ];
   const mapNodes = (nodes: PageTree.Node[]): PageTree.Node[] =>
     nodes.map((node) =>
       node.type === "folder"
         ? {
             ...node,
             children: node.root
-              ? [...mapNodes(node.children), sentinel]
+              ? withSentinel(mapNodes(node.children))
               : mapNodes(node.children),
           }
         : node,
     );
-  return { ...root, children: [...mapNodes(root.children), sentinel] };
+  return { ...root, children: withSentinel(mapNodes(root.children)) };
 }
 
 export default async function Layout({

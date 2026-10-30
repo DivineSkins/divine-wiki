@@ -1830,12 +1830,9 @@ figure.shiki button[aria-label^="Copy"] {
   #nd-sidebar button[aria-label="Choose a language"] {
     padding-inline-start: 0.6875rem;
   }
-  /* Logo and the Contribute row onto the 32px icon column. */
+  /* Logo onto the 32px icon column. */
   #nd-sidebar > div:first-child > div:first-child > a {
     margin-inline-start: 4px;
-  }
-  #nd-sidebar .divine-sidebar-contribute {
-    padding-inline-start: 0.75rem;
   }
   #nd-sidebar button[aria-label="Choose a language"] > svg:first-child {
     width: 1rem;
@@ -1924,9 +1921,13 @@ figure.shiki button[aria-label^="Copy"] {
     & button[aria-label="Choose a language"] > :not(:first-child),
     & :is(a, button)[data-active] > svg.lucide-chevron-down,
     & [id^="radix-"][data-state],
-    & [data-radix-scroll-area-viewport] p,
-    & .divine-sidebar-contribute > span {
+    & [data-radix-scroll-area-viewport] p {
       display: none;
+    }
+    /* Add a guide: the label's text is already hidden by font-size 0;
+       drop its gap so the plus sits dead center. */
+    & .divine-sidebar-contribute > span {
+      gap: 0;
     }
 
     /* Footer: language, then the link and settings icons stacked. */
@@ -1954,24 +1955,15 @@ figure.shiki button[aria-label^="Copy"] {
   }
 }
 
-/* Contribute (sidebar, after the last section) — the same row recipe as
-   the nav links (px-3 py-2, 10px gap, 14px, 8px radius, 1px transparent
-   border so its pencil lands on the icon column), set apart from the
-   sections by a #25222F hairline. */
+/* Add a guide (sidebar, after the game's categories, above the shared
+   Contributing section): a full-width GlowCTA `solid` pill, set apart from
+   the categories by a #25222F hairline. No 44px CTA bloom here: the sidebar
+   viewport clips it into hard edges, and the sidebar isn't the page's hero
+   (Surgical Glow); the inset top highlight stays. */
 #nd-sidebar .divine-sidebar-contribute {
   position: relative;
-  display: flex;
-  width: 100%;
-  gap: 0.625rem;
-  margin-top: 1.5rem;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  font-size: 14px;
-  line-height: 1.375;
-  transition:
-    color 200ms,
-    background-color 200ms;
+  flex-shrink: 0;
+  margin-block: 1.5rem 0.75rem;
 }
 #nd-sidebar .divine-sidebar-contribute::before {
   content: "";
@@ -1983,18 +1975,10 @@ figure.shiki button[aria-label^="Copy"] {
   background: var(--color-fd-border);
 }
 .dark:not(.minimal) #nd-sidebar .divine-sidebar-contribute {
-  color: #8b8d98;
-}
-.dark:not(.minimal) #nd-sidebar .divine-sidebar-contribute:hover {
-  background: rgba(25, 23, 34, 0.6);
-  color: #e4e4e7;
+  box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.35);
 }
 .dark:not(.minimal) #nd-sidebar .divine-sidebar-contribute::before {
   background: #25222f;
-}
-#nd-sidebar .divine-sidebar-contribute svg {
-  width: 1rem;
-  height: 1rem;
 }
 
 /* Rail label chip (src/components/sidebar-rail-tooltip.tsx) — fades in
@@ -2014,7 +1998,7 @@ figure.shiki button[aria-label^="Copy"] {
   }
 }
 
-/* Sidebar dividers — all three (under the header, above Contribute,
+/* Sidebar dividers — all three (under the header, above Add a guide,
    above the footer) are the same #25222F hairline inset to the 12px
    content edges; in the collapsed rail each spans exactly the 36px item
    column, aligned under the icons. */
@@ -2043,7 +2027,7 @@ figure.shiki button[aria-label^="Copy"] {
   }
 }
 
-/* The Contribute row is 2px narrower than the item column; stretch its
+/* The Add a guide button is 2px narrower than the item column; stretch its
    divider to the same span as the other two. */
 #nd-sidebar .divine-sidebar-contribute::before {
   left: 0 !important;
