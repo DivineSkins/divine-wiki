@@ -41,6 +41,7 @@ import { scanForLinks, applySuggestion } from "@/lib/draft/scan-links";
 import { PreviewPane, type PreviewStatus } from "./preview-pane";
 import { Toolbar } from "./toolbar";
 import { Handoff } from "./handoff";
+import { RewriteMenu } from "./rewrite-menu";
 import matter from "gray-matter";
 import { rawSourceUrl, editFileUrl } from "@/lib/draft/github";
 import {
@@ -460,9 +461,18 @@ export function DraftEditor({
             <Blocks className="size-4" />
             {d.components}
           </Link>
+          <span className="ml-1 sm:ml-2">
+            <RewriteMenu
+              game={game}
+              gameName={gameInfo?.name ?? game}
+              title={title}
+              description={description}
+              body={body}
+            />
+          </span>
           <button
             type="button"
-            className={cn(pillClassName("solid"), "ml-1 sm:ml-2")}
+            className={cn(pillClassName("solid"), "ml-1.5 sm:ml-2")}
             disabled={!canContribute}
             onClick={handleContribute}
           >

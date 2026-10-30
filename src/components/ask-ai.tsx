@@ -1,17 +1,10 @@
-import type { ComponentType } from "react";
 import { Sparkles } from "lucide-react";
-import {
-  ClaudeLogo,
-  GeminiLogo,
-  GrokLogo,
-  OpenAILogo,
-  PerplexityLogo,
-} from "@/components/brand-logos";
 import {
   PANEL_BORDER,
   PANEL_FILL,
   TOOLTIP_CHIP,
 } from "@/components/home/styles";
+import { ASSISTANTS } from "@/lib/ai-assistants";
 import { getMessages } from "@/lib/locale";
 import { cn } from "@/lib/utils";
 
@@ -30,48 +23,9 @@ import { cn } from "@/lib/utils";
  *
  * Plain links and CSS tooltips, so no client JS. The analytics click
  * listener logs each click as an outbound event (host + path only, never the
- * prompt), which shows which assistants readers pick. The Cloudflare WAF
- * rule "Let AI assistants read the wiki" lets these assistants' fetchers
- * through bot detection; add a new assistant's user agent there too.
+ * prompt), which shows which assistants readers pick. The assistant list
+ * lives in src/lib/ai-assistants.ts.
  */
-
-interface Provider {
-  name: string;
-  Logo: ComponentType<{ className?: string }>;
-  /** Chat URL with the prompt prefilled. `q` is already URI-encoded. */
-  href: (q: string) => string;
-}
-
-const PROVIDERS: Provider[] = [
-  {
-    name: "ChatGPT",
-    Logo: OpenAILogo,
-    // `hints=search` turns on web search, so it opens the link.
-    href: (q) => `https://chatgpt.com/?hints=search&q=${q}`,
-  },
-  {
-    name: "Claude",
-    Logo: ClaudeLogo,
-    href: (q) => `https://claude.ai/new?q=${q}`,
-  },
-  {
-    // Gemini's own app takes no prefilled prompt; Google's AI Mode (also
-    // Gemini) does, via `udm=50`.
-    name: "Google AI Mode",
-    Logo: GeminiLogo,
-    href: (q) => `https://www.google.com/search?udm=50&q=${q}`,
-  },
-  {
-    name: "Perplexity",
-    Logo: PerplexityLogo,
-    href: (q) => `https://www.perplexity.ai/search/new?q=${q}`,
-  },
-  {
-    name: "Grok",
-    Logo: GrokLogo,
-    href: (q) => `https://grok.com/?q=${q}`,
-  },
-];
 
 // The header's icon-circle recipe (site-header.tsx ICON_BUTTON), with the
 // logo muted at rest so five brand marks don't compete with the page.
@@ -105,7 +59,7 @@ export function AskAI({ variant, lang, title, url, className }: AskAIProps) {
         variant === "rail" ? "justify-between" : "flex-wrap",
       )}
     >
-      {PROVIDERS.map(({ name, Logo, href }, i) => (
+      {ASSISTANTS.map(({ name, Logo, href }, i) => (
         <li key={name}>
           <a
             href={href(q)}
@@ -125,7 +79,7 @@ export function AskAI({ variant, lang, title, url, className }: AskAIProps) {
                 // the panel.
                 i === 0
                   ? "left-0"
-                  : i === PROVIDERS.length - 1
+                  : i === ASSISTANTS.length - 1
                     ? "right-0"
                     : "left-1/2 -translate-x-1/2",
               )}

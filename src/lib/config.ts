@@ -9,6 +9,11 @@ export const baseUrl =
     ? "https://wiki.divineskins.gg"
     : "http://localhost:3000");
 
+// The live wiki, for links that leave the browser (prompts handed to AI
+// assistants): they must reach the real site even in dev, where baseUrl is
+// localhost.
+export const liveUrl = "https://wiki.divineskins.gg";
+
 export const divineApiUrl =
   process.env.NEXT_PUBLIC_DIVINE_API_URL || "https://api.divineskins.gg";
 
