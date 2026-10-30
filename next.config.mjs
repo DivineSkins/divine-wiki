@@ -141,6 +141,16 @@ const config = {
   // without the <ViewTransition> component, so we can't use it yet. Re-enable
   // when upgrading to a Canary/experimental React build.
   cacheComponents: false,
+  experimental: {
+    // Next 16 keeps a Turbopack cache in .next/cache between builds, and
+    // Cloudflare Workers Builds restores that folder before every build.
+    // Turbopack then served a stale src/app/global.css: prod got the old
+    // hand-written rules (the sidebar "Add a guide" button as a grey row)
+    // while Tailwind's classes, scanned from disk, were current. Reproduced
+    // locally by building the old commit, then the new one on its cache.
+    // Production builds compile from source every time; dev keeps its cache.
+    turbopackFileSystemCacheForBuild: false,
+  },
 };
 
 export default withMDX(config);
