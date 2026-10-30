@@ -18,17 +18,17 @@ export const componentSnippets: ComponentSnippet[] = [
     id: "callout",
     label: "Callout",
     blurb:
-      "A colored box for warnings, tips, and the KR/CN safety note. Use danger for real risk.",
+      "A colored box for tips and warnings. Use danger for a real risk, like an unfair mod.",
     snippet:
       '<Callout type="info" title="Title here">\n  Body text here.\n</Callout>\n',
     preview:
-      '<Callout type="danger" title="Don\'t use custom skins in Korea or China">\n  The anti-cheat there blocks all mods. Accounts get banned.\n</Callout>',
+      '<Callout type="warning" title="Make a copy first">\n  Saving over the original file cannot be undone.\n</Callout>',
     docsAnchor: "callout",
   },
   {
     id: "tabs",
     label: "Tabs",
-    blurb: "Alternative paths - OS-specific steps, tool-specific workflows.",
+    blurb: "Two or more ways to do the same thing: per system or per tool.",
     snippet:
       '<Tabs items={["Windows", "macOS"]}>\n  <Tab value="Windows">\n    Windows steps here.\n  </Tab>\n  <Tab value="macOS">\n    macOS steps here.\n  </Tab>\n</Tabs>\n',
     preview:
@@ -42,13 +42,13 @@ export const componentSnippets: ComponentSnippet[] = [
     snippet:
       '<Accordions>\n  <Accordion title="Question here">\n    Answer here.\n  </Accordion>\n</Accordions>\n',
     preview:
-      '<Accordions>\n  <Accordion title="Is this safe?">\n    Yes, outside Korea and China.\n  </Accordion>\n</Accordions>',
+      '<Accordions>\n  <Accordion title="Do I need Maya to make a skin?">\n    No. Blender works for the full workflow.\n  </Accordion>\n</Accordions>',
     docsAnchor: "accordion",
   },
   {
     id: "image",
     label: "Image",
-    blurb: "A screenshot. alt text is required - CI and reviewers enforce it.",
+    blurb: "A screenshot. alt text is required. Reviewers check it.",
     snippet:
       '<img src="/wiki-images/your-screenshot.png" alt="Short description of the image" />\n',
     preview:
@@ -76,11 +76,11 @@ export const componentSnippets: ComponentSnippet[] = [
   {
     id: "toolcard",
     label: "ToolCard",
-    blurb: "A single tool row - name, link, one-line description.",
+    blurb: "A tool row: logo, name, link, one line. For tools, not guides.",
     snippet:
-      '<ToolCard name="Tool name" href="/docs/tools/slug">\n  One-line description of the tool.\n</ToolCard>\n',
+      '<ToolCard name="Tool name" href="/docs/..." icon={<Icon name="Wrench" />}>\n  One-line description of the tool.\n</ToolCard>\n',
     preview:
-      '<ToolCard name="Flint" href="/docs/tools/flint" badge="Recommended">\n  All-in-one skin creation tool.\n</ToolCard>',
+      '<ToolCard name="Flint" href="/docs/lol/tools/modding-apps/flint" badge="Recommended" icon={<Icon name="Flint" />}>\n  All-in-one skin creation tool.\n</ToolCard>',
     docsAnchor: "toolcard",
   },
   {
@@ -105,18 +105,18 @@ export const componentSnippets: ComponentSnippet[] = [
   {
     id: "premiumcard",
     label: "PremiumCard",
-    blurb: "A prominent gradient card for a featured link.",
+    blurb: "A link card for a guide or a section. Group several in a CardGrid.",
     snippet:
-      '<PremiumCard title="Card title" href="/docs/category/slug">\n  Supporting description.\n</PremiumCard>\n',
+      '<PremiumCard title="Card title" href="/docs/..." icon={<Icon name="Compass" />} level="beginner">\n  One line on what it covers.\n</PremiumCard>\n',
     preview:
-      '<PremiumCard title="Guided walkthrough" href="/docs/guided-walkthrough">\n  Start here if you are new.\n</PremiumCard>',
+      '<PremiumCard title="Getting started" href="/docs/lol/getting-started" icon={<Icon name="Compass" />}>\n  Start here if you are new.\n</PremiumCard>',
     docsAnchor: "premiumcard",
     overflow: true,
   },
   {
     id: "glowcta",
     label: "GlowCTA",
-    blurb: "A glowing call-to-action button. Use sparingly - one per page.",
+    blurb: "A glowing call-to-action button. One per page at most.",
     snippet: '<GlowCTA href="/docs/category/slug">Button label</GlowCTA>\n',
     preview: '<GlowCTA href="/docs">Browse the guides</GlowCTA>',
     docsAnchor: "glowcta",
@@ -127,7 +127,7 @@ export const componentSnippets: ComponentSnippet[] = [
     label: "YouTube",
     blurb: "An embedded YouTube video. Pass the video id, not the full URL.",
     snippet: '<YouTube id="VIDEO_ID" title="What the video shows" />\n',
-    preview: '<YouTube id="dQw4w9WgXcQ" title="Example video" />',
+    preview: '<YouTube id="xqB84ga55hI" title="Custom skin walkthrough" />',
     docsAnchor: "youtube",
     overflow: true,
   },
