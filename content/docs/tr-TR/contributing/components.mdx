@@ -1,61 +1,302 @@
 ---
 title: Bileşenler
-description: Bir rehberde kullanabileceğin her bileşen. Her biri canlı gösterildi, kopyalanacak koduyla birlikte.
+description: Bir rehberde kullanabileceğin her bileşen, ne zaman kullanılacağı ve kopyalayacağın kod. Her biri canlı gösteriliyor.
 ---
 
-Wiki'nin, herhangi bir rehbere ekleyebileceğin küçük bir bileşen seti var.
-Draft editörünün araç çubuğu onları senin için ekler. Bu sayfa tam
-referans. Her bölüm önce bileşeni, sonra onu oluşturan kodu gösterir.
+Bileşenler bir rehberin yapı taşlarıdır: kartlar, adımlar, ipuçları, videolar
+ve daha fazlası. Görsel editörün araç çubuğu onları senin için ekler. Bu sayfa
+her birini canlı gösterir, ne zaman kullanılacağını söyler ve kopyalayacağın
+kodu verir.
 
-## Callout
+## Hangi bileşen ne için [#which-component-to-use]
 
-Uyarılar, ipuçları ve Kore/Çin güvenlik notu için renkli bir kutu. Gerçek
-risk için `type="danger"`, ipuçları için `info`, "bu ters gidebilir" için
-`warning` ve onay için `success` kullan.
+Her bileşenin tek bir görevi var. Neye benzediğine göre değil, neyi
+gösterdiğine göre seç.
 
-<Callout type="info" title="İpucu">
-  Aracı zaten kurduysan bu adımı atlayabilirsin.
-</Callout>
+| Göstermek istediğin                                      | Kullan                                                              |
+| -------------------------------------------------------- | ------------------------------------------------------------------- |
+| Rehberin ne kadar zor olduğu                             | [LevelPill](#levelpill)                                             |
+| Okuyucunun başlamadan önce neye ihtiyacı olduğu          | [Requirements](#requirements)                                       |
+| Bir aracın kendi sayfasının en üstündeki özet            | [ToolHeader](#toolheader)                                           |
+| Birkaç aşaması olan bir iş                               | [Steps](#steps)                                                     |
+| Bir adımın içindeki menü yolu                            | [MenuPath](#menupath)                                               |
+| Aynı işi yapmanın iki ya da daha fazla yolu              | [Tabs](#tabs)                                                       |
+| Dosyaların nereye gittiği                                | [Files](#files)                                                     |
+| Bir ipucu, bir uyarı ya da bir adil oyun kuralı          | [Callout](#callout)                                                 |
+| Bir ekran görüntüsü                                      | [Görsel](#image)                                                    |
+| Hareket eden bir şeyin kısa, sessiz klibi                | [Video](#video)                                                     |
+| Sesli, tam bir eğitim videosu                            | [YouTube](#youtube)                                                 |
+| Kopyalanacak metin: kod, BIN değerleri, yollar, komutlar | [Kod bloğu](#code-block)                                            |
+| Birkaç sütunda karşılaştırılacak bilgiler                | [Tablo](#table)                                                     |
+| Açıklamalı adlar (ayarlar, seçenekler)                   | [ParameterList](#parameterlist) ya da bir [tablo](#table)           |
+| Sorunlar ve çözümleri, SSS'ler, isteğe bağlı detaylar    | [Accordion](#accordion)                                             |
+| Okuyucunun ilk açması gereken tek sayfa                  | `featured` ile bir [PremiumCard](#premiumcard)                      |
+| Aralarından seçim yapılacak rehberler ya da bölümler     | [PremiumCard](#premiumcard)'lardan oluşan bir [CardGrid](#cardgrid) |
+| Bir araç listesi ya da birkaç araç arasında bir seçim    | Aracın logosuyla [ToolCard](#toolcard) satırları                    |
+| Sayfanın istediği tek eylem                              | [GlowCTA](#glowcta)                                                 |
+| Bir logo ya da küçük bir simge                           | [Icon](#icon)                                                       |
 
-<Callout type="warning" title="Dikkat">
-  Orijinal dosyanın üzerine kaydetmek geri alınamaz. Önce bir kopya al.
-</Callout>
+## Bir rehberin yapısı [#how-a-guide-fits-together]
 
-<Callout type="danger" title="Kore veya Çin'de özel skin kullanma">
-  Oradaki anti-cheat tüm modları engeller. Hesaplar banlanır.
-</Callout>
-
-<Callout type="success" title="Tamam">
-  Skin hazır olduğunda yeşil bir onay işareti belirir.
-</Callout>
+Çoğu rehber aynı sırayı izler. Başlangıç noktan olarak bunu kopyala:
 
 ```mdx
-<Callout type="danger" title="Don't use custom skins in Korea or China">
-  The anti-cheat there blocks all mods. Accounts get banned.
-</Callout>
+<LevelPill level="beginner" />
+
+One or two sentences on what the reader will make.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Flint" href="/docs/lol/tools/modding-apps/flint">
+    Flint
+  </Requirement>
+</Requirements>
+
+## Make the change
+
+<Steps>
+<Step>
+
+### First stage
+
+1. Do this.
+2. Then do this.
+
+</Step>
+</Steps>
+
+## Common problems
+
+<Accordions type="multiple">
+  <Accordion title="The game crashes when it loads" id="crash-on-load">
+    What to do about it.
+  </Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="The next guide"
+    href="/docs/lol/getting-started/walkthrough"
+    icon={<Icon name="Compass" />}
+    level="beginner"
+  >
+    One line on what it covers.
+  </PremiumCard>
+</CardGrid>
+```
+
+Diğer sayfa türleri:
+
+- **Bir aracın kendi sayfası** bir [ToolHeader](#toolheader) ile başlar.
+  Sonra aracın ne yaptığını, nasıl kurulduğunu ve nasıl kullanıldığını
+  anlatır.
+- **Bir kategorinin başlangıç sayfası** kısa bir girişle açılır. Ardından
+  her rehber için bir [PremiumCard](#premiumcard) içeren bir
+  [CardGrid](#cardgrid) gelir. Her karta bir `level` ver.
+- **Bir hata sayfası** çoğunlukla [Accordions](#accordion)'dan oluşur. Her
+  sorun bir satırdır ve her satırın bir `id`'si olur.
+
+## Her sayfa için kurallar [#rules-for-every-page]
+
+- **ToolCard'ı yalnızca araçlar için kullan.** Rehberler PremiumCard'lara
+  girer.
+- **Her sayfaya bir kez link ver.** Bir kart zaten bir sayfayı gösteriyorsa,
+  metinde ona tekrar link verme.
+- **Kartın içine link koyma.** Bir ToolCard ya da PremiumCard zaten bir
+  link. İçine koyduğun ikinci bir link sayfayı bozar. Diğer sayfanın adını
+  bunun yerine düz metin olarak yaz.
+- **Sayfa başına en fazla bir `featured` kart ve bir GlowCTA.** Her şey öne
+  çıkarsa hiçbir şey öne çıkmaz.
+- **Prop değerlerini İngilizce bırak.** `type`, `level`, `icon`, `id`,
+  `href` ve `value` her dilde aynı kalır. Yalnızca okuyucunun gördüğü metni
+  çevir: `title`, `badge`, `alt`, `note` ve etiketler.
+- **Bir bileşenle Markdown metni arasında boş bir satır bırak.** Boş satır
+  olmazsa sayfa build sırasında hata verebilir.
+
+## LevelPill
+
+Rehberin ne kadar zor olduğu. Her yeni rehbere bir tane koy: başlığın hemen
+altına, ilk cümleden önce.
+
+<LevelPill level="beginner" /> <LevelPill level="intermediate" />
+<LevelPill level="advanced" />
+
+```mdx
+<LevelPill level="beginner" />
+```
+
+Seviyeyi konuya göre değil, yapacağın işe göre seç:
+
+- `beginner`: 3D iş yok. Kurma, paketleme, basit değişimler ve yeniden
+  renklendirmeler.
+- `intermediate`: bir 3D uygulamada ya da bir modlama aracında düzenleme
+  yaparsın, mesela bir doku değişimi ya da bir ses değişimi.
+- `advanced`: çok sayıda araç ve adım, mesela tam bir model değişimi,
+  rigging ya da yeni bir efekt.
+
+Metni değiştirmek için isteğe bağlı `label` prop'unu kullan:
+`<LevelPill level="advanced" label="Expert" />`.
+
+## Requirements
+
+"Neye ihtiyacın var" listesi, küçük etiketler halinde. Sayfanın üst
+kısmına, ilk adımdan önce koy. Her araca kendi logosunu ve sayfasına giden
+bir link ver. Hesap ya da dosya gibi araç olmayan şeyler düz etiket olarak
+girer.
+
+<Requirements>
+  <Requirement icon="Flint" href="/docs/lol/tools/modding-apps/flint">
+    Flint
+  </Requirement>
+  <Requirement icon="GIMP" note="or Photoshop">
+    GIMP
+  </Requirement>
+  <Requirement icon="FileImage">Your texture as a PNG</Requirement>
+</Requirements>
+
+```mdx
+<Requirements>
+  <Requirement icon="Flint" href="/docs/lol/tools/modding-apps/flint">
+    Flint
+  </Requirement>
+  <Requirement icon="GIMP" note="or Photoshop">
+    GIMP
+  </Requirement>
+  <Requirement icon="FileImage">Your texture as a PNG</Requirement>
+</Requirements>
+```
+
+Her `<Requirement>` için prop'lar:
+
+- `icon` isteğe bağlı. Bir [Icon](#icon) adı alır.
+- `href` isteğe bağlı. Verirsen etiket bir linke dönüşür. Dış linkler yeni
+  sekmede açılır.
+- `note` isteğe bağlı. `or Photoshop` ya da `latest patch` gibi kısa, gri
+  bir yan not ekler.
+
+Her etiketi kısa tut. Uzun notları etiketlerin altına bir cümle olarak yaz.
+
+## ToolHeader
+
+Bir aracın kendi sayfasının en üstündeki özet: logosu, ne yaptığı, kısa
+bilgiler ve indirme butonu. Başlığın hemen altında bir kez kullan.
+Rehberlerde kullanma. Bir rehberden bir aracı göstermek için
+[ToolCard](#toolcard) kullan.
+
+<ToolHeader
+  name="Flint"
+  icon="Flint"
+  badge="Recommended"
+  facts={["Free", "Windows"]}
+  primary={{
+    label: "Download",
+    href: "https://github.com/RitoShark/Flint/releases",
+  }}
+>
+  All-in-one modding app. Extract, preview, edit, and pack in one window.
+</ToolHeader>
+
+```mdx
+<ToolHeader
+  name="Flint"
+  icon="Flint"
+  badge="Recommended"
+  facts={["Free", "Windows"]}
+  primary={{
+    label: "Download",
+    href: "https://github.com/RitoShark/Flint/releases",
+  }}
+  links={[{ label: "GitHub", href: "https://github.com/RitoShark/Flint" }]}
+>
+  All-in-one modding app.
+</ToolHeader>
 ```
 
 Prop'lar:
 
-- `type`, `info`, `warning`, `danger` ya da `success` olur. Varsayılan `info`.
-- `title` opsiyonel. Her türün bir varsayılan başlığı var.
+- `name` zorunlu. `icon` bir [Icon](#icon) adı alır.
+- `badge` isteğe bağlı: `Recommended`, `Unofficial`, `Legacy` gibi.
+- `facts` kısa bir liste: fiyat, lisans, platformlar, sürüm.
+- `primary` ana indirme butonu. `links`, GitHub ya da dokümantasyon gibi
+  daha küçük butonlar ekler.
 
-Ayrıca bir sayfa içinde zorluk işaretlemek için üç seviye türü var:
-`lvl_beginner`, `lvl_intermediate` ve `lvl_advanced`. Bir rehberin en
-üstündeki küçük bir zorluk rozeti için bunun yerine [LevelPill](#levelpill)
-kullan.
+## Steps
+
+Uzun bir iş için numaralı aşamalar. Her aşamaya bir `###` başlığı ver. Bir
+aşamanın içinde, küçük adımlar için normal numaralı bir liste kullan.
+`<Step>`'ten sonra ve `</Step>`'ten önce boş bir satır bırak.
+
+İşin iki ya da daha fazla aşaması varsa Steps kullan. Kısa bir iş için
+numaralı bir liste yeterli.
+
+<Steps>
+<Step>
+
+### Find the file
+
+Open the game files and note the path.
+
+</Step>
+<Step>
+
+### Edit and compile it
+
+Change the file, then compile it.
+
+</Step>
+</Steps>
+
+```mdx
+<Steps>
+<Step>
+
+### Find the file
+
+Open the game files and note the path.
+
+</Step>
+<Step>
+
+### Edit and compile it
+
+Change the file, then compile it.
+
+</Step>
+</Steps>
+```
+
+## MenuPath
+
+Bir adımın içindeki menü yolu. Her menü öğesini bir tuş gibi gösterir,
+aralarında oklarla. Aracın kendi etiketlerini, aynı büyük ve küçük harflerle
+kullan. Öğeleri `>` ile ayır.
+
+1. Right-click the file and choose <MenuPath path="Recompile > Full" />.
+
+```mdx
+1. Right-click the file and choose <MenuPath path="Recompile > Full" />.
+```
+
+Menüler ve ayar yolları için kullan. Tek bir buton için bunun yerine
+**kalın** metin kullan.
 
 ## Tabs
 
-Alternatif yollar. İşletim sistemine özel adımlar veya araca özel
-workflow'lar için tab kullan. Her `<Tabs>` bir kapanış `</Tabs>` ister ve
-her `<Tab>` bir kapanış `</Tab>` ister.
+Aynı işi yapmanın iki ya da daha fazla yolu. Farklı işletim sistemleri,
+farklı araçlar ya da tam ve hızlı bir yol için sekme kullan. Her sekme tek
+başına işe yaramalı, çünkü okuyucu yalnızca birini görür.
+
+Her `<Tabs>` bir kapanış `</Tabs>` ister, her `<Tab>` de bir kapanış
+`</Tab>`. Her `value`, `items` içindekilerden biriyle birebir aynı olmalı.
 
 <Tabs items={["Windows", "macOS"]}>
 
-<Tab value="Windows">Windows adımları burada.</Tab>
+<Tab value="Windows">Windows steps here.</Tab>
 
-<Tab value="macOS">macOS adımları burada.</Tab>
+<Tab value="macOS">macOS steps here.</Tab>
 
 </Tabs>
 
@@ -66,9 +307,290 @@ her `<Tab>` bir kapanış `</Tab>` ister.
 </Tabs>
 ```
 
+### Logolu sekmeler [#tabs-with-logos]
+
+Her sekmede bir logo göstermek için sekme satırını kendin yaz.
+`defaultValue`, ilk açılan sekmeyi seçer.
+
+<Tabs defaultValue="maya">
+<TabsList>
+<TabsTrigger value="maya"><Icon name="Maya" className="size-4" />Maya</TabsTrigger>
+<TabsTrigger value="blender"><Icon name="Blender" className="size-4" />Blender</TabsTrigger>
+</TabsList>
+<TabsContent value="maya">
+
+Maya steps here.
+
+</TabsContent>
+<TabsContent value="blender">
+
+Blender steps here.
+
+</TabsContent>
+</Tabs>
+
+```mdx
+<Tabs defaultValue="maya">
+<TabsList>
+<TabsTrigger value="maya"><Icon name="Maya" className="size-4" />Maya</TabsTrigger>
+<TabsTrigger value="blender"><Icon name="Blender" className="size-4" />Blender</TabsTrigger>
+</TabsList>
+<TabsContent value="maya">
+
+Maya steps here.
+
+</TabsContent>
+<TabsContent value="blender">
+
+Blender steps here.
+
+</TabsContent>
+</Tabs>
+```
+
+## Files
+
+Bir klasör ağacı. Dosyaların nereye gittiğini ya da bir modun içinde ne
+olduğunu göstermek için kullan. Açık başlaması gereken klasörlere
+`defaultOpen` ekle. Bir `File` adının sonuna, iki noktadan sonra kısa bir
+not ekleyebilirsin.
+
+<Files>
+  <Folder name="game" defaultOpen>
+    <Folder name="citadel" defaultOpen>
+      <File name="gameinfo.gi" />
+      <Folder name="addons" defaultOpen>
+        <File name="pak01_dir.vpk: your mod" />
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+
+```mdx
+<Files>
+  <Folder name="game" defaultOpen>
+    <Folder name="citadel" defaultOpen>
+      <File name="gameinfo.gi" />
+      <Folder name="addons" defaultOpen>
+        <File name="pak01_dir.vpk: your mod" />
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+```
+
+## Callout
+
+Metnin arasında öne çıkan renkli bir kutu. Okuyucunun kaçırmaması gereken
+şeyler için kullan. Çoğu rehbere en fazla bir ya da iki tane yeter. Türü,
+okuyucu onu atlarsa ne olacağına göre seç:
+
+- `info` bir ipucu ya da işe yarar bir bilgi için. Mor bir kutu.
+- `warning` ters gidebilecek bir şey için, mesela boşa giden emek ya da bir
+  güncellemeden sonra bozulan bir mod. Sarı bir kutu.
+- `danger` gerçek bir risk için, mesela haksız avantaj sağlayan bir mod.
+  Kırmızı bir kutu.
+- `success` bir onay için, mesela işe yaradığında okuyucunun ne görmesi
+  gerektiği. Yeşil bir kutu.
+
+<Callout type="info" title="İpucu">
+  Aracı zaten kurduysan bu adımı atlayabilirsin.
+</Callout>
+
+<Callout type="warning" title="Make a copy first">
+  Saving over the original file cannot be undone.
+</Callout>
+
+<Callout type="danger" title="Adil olsun">
+  Bir skin, rakiplerini daha kolay görmeni ya da duymanı sağlamamalı.
+</Callout>
+
+<Callout type="success" title="Tamam">
+  Skin hazır olduğunda yeşil bir onay işareti belirir.
+</Callout>
+
+```mdx
+<Callout type="warning" title="Make a copy first">
+  Saving over the original file cannot be undone.
+</Callout>
+```
+
+Prop'lar:
+
+- `type`, `info`, `warning`, `danger` ya da `success` olur. Varsayılan
+  `info`.
+- `title` isteğe bağlı. Her türün varsayılan bir başlığı var. Asıl noktayı
+  söyleyen kısa bir başlık en iyisi.
+
+Ayrıca üç seviye türü var: `lvl_beginner`, `lvl_intermediate` ve
+`lvl_advanced`. Bunların yerine [LevelPill](#levelpill) kullan. O, bütün
+bir rehberin seviyesini işaretler.
+
+## Görsel [#image]
+
+Bir ekran görüntüsü. `alt` metni zorunlu. Wiki sorumluları onsuz görselleri
+reddeder. Dosyaları 500 KB altında tut ve `public/wiki-images/` içine koy.
+Okuyucular herhangi bir görsele tıklayıp yakınlaştırabilir. Görsel editörde
+**Görsel yükle** butonu onu senin için ekler.
+
+<img
+  src="/wiki-images/1767019072359-dfx5or.webp"
+  alt="LtMAO, maya sekmesi açık, lemon3d kurulum adımlarını gösteriyor"
+/>
+
+```mdx
+<img
+  src="/wiki-images/your-screenshot.png"
+  alt="Short description of the image"
+/>
+```
+
+`alt` metnini görseli göremeyen biri için yaz. Neyi gösterdiğini ve içinde
+neyin önemli olduğunu söyle, mesela "FBX seçili haldeki Export penceresi".
+
+## Video
+
+Döngüde oynayan kısa, sessiz bir klip. Hareket eden bir şeyi göstermek için
+kullan: bir efekt, bir animasyon ya da çalışırken bir araç. Yalnızca
+ekrandayken oynar. GIF yerine bunu kullan, çok daha hızlı yüklenir. Sesli
+bir eğitim videosu için [YouTube](#youtube) kullan.
+
+<Video
+  src="/wiki-videos/deadlock-flipbooks-smoke.webm"
+  poster="/wiki-images/deadlock-flipbooks-smoke-poster.webp"
+  width={514}
+  height={446}
+  alt="Editörde iki partikül sprite'ı üzerinde bir duman flipbook'u oynuyor."
+/>
+
+```mdx
+<Video
+  src="/wiki-videos/your-clip.webm"
+  poster="/wiki-images/your-clip-poster.webp"
+  width={640}
+  height={360}
+  alt="What the clip shows"
+/>
+```
+
+Prop'lar:
+
+- `src`, `poster`, `width` ve `height` zorunlu. `width` ve `height`,
+  klibin piksel cinsinden boyutu.
+- `.webm` klibi `public/wiki-videos/` içine koy. Poster'ı, yani klip
+  oynamadan önce görünen sabit kareyi, `public/wiki-images/` içine koy.
+- `alt` klibi anlatır, tıpkı bir görselin alt metni gibi.
+- `original` isteğe bağlı. Kaynağa link verir, mesela orijinal GIF'e ya da
+  klibin geldiği gönderiye.
+
+Klipleri birkaç saniyelik tut. Görsel editör klip yükleyemez, o yüzden
+dosyaları pull request'ine kendin ekle.
+
+## YouTube
+
+Gömülü bir YouTube videosu. Tam bir eğitim için kullan. Tam URL'yi değil,
+video id'sini yaz. id, `watch?v=` ya da `youtu.be/`'den sonraki kısım.
+
+<YouTube
+  id="xqB84ga55hI"
+  title="League of Legends için özel skin walkthrough'u"
+/>
+
+```mdx
+<YouTube id="xqB84ga55hI" title="What the video shows" />
+```
+
+Prop'lar:
+
+- `id` zorunlu.
+- `title`, videoyu ekran okuyucular için anlatır. Yapımcının adını da yaz,
+  mesela "Pugzilla'nın doku değişimi eğitimi".
+- `start` isteğe bağlı. Oynatmayı o saniyeden başlatır.
+- `list` isteğe bağlı. Bir oynatma listesi id'si alır.
+
+Kısayol: düz bir YouTube linkini kendi satırına yapıştır, wiki onu senin
+için bir gömüye dönüştürür.
+
+Video, aracın şu anki sürümünden eski mi? Altına bir `info`
+[Callout](#callout) ekle. Şimdi neyin farklı göründüğünü yaz.
+
+## Kod bloğu [#code-block]
+
+Ters tırnaklarla çevrili bir kod bloğu. Okuyucunun kopyalayacağı her şey
+için kullan: kod, BIN değerleri, dosya yolları ve komutlar. Okuyucular bir
+kopyalama butonu görür. Renkli görünsün diye açılış tırnaklarının hemen
+arkasına bir dil yaz. Bloğun başlığında o dil görünür.
+
+```bash
+npm run dev
+```
+
+````mdx
+```bash
+npm run dev
+```
+````
+
+Yaygın diller: komutlar için `bash`, script'ler için `python`, yollar ve düz
+çıktı için `text`. League BIN metninin kendine ait bir dili yok. Onu iyi
+renklendiren `rust`'ı kullan ve başlıkta BIN yazsın diye `title="BIN"` ekle.
+
+```rust title="BIN"
+birthColor: embed = ValueColor {
+    constantValue: vec4 = { 1, 0.7059, 0, 1 }
+}
+```
+
+````mdx
+```rust title="BIN"
+birthColor: embed = ValueColor {
+    constantValue: vec4 = { 1, 0.7059, 0, 1 }
+}
+```
+````
+
+## Tablo [#table]
+
+Bir Markdown tablosu. Birkaç şeyi yan yana karşılaştırmak için kullan.
+Telefonda okunsun diye üç ya da dört sütunla sınırlı tut.
+
+| Column A | Column B |
+| -------- | -------- |
+| Value    | Value    |
+
+```mdx
+| Column A | Column B |
+| -------- | -------- |
+| Value    | Value    |
+```
+
+## ParameterList
+
+Adlardan ve ne işe yaradıklarından oluşan iki sütunlu bir liste. Ayarlar,
+başlatma seçenekleri ve komut bayrakları için kullan. Üç ya da daha fazla
+sütun için bir [tablo](#table) kullan.
+
+<ParameterList
+  parameters={[
+    { name: "champion", description: "The champion the skin belongs to." },
+    { name: "skin_id", description: "The numeric id of the base skin." },
+  ]}
+/>
+
+```mdx
+<ParameterList
+  parameters={[
+    { name: "champion", description: "The champion the skin belongs to." },
+    { name: "skin_id", description: "The numeric id of the base skin." },
+  ]}
+/>
+```
+
 ## Accordion
 
-Katlanabilir bölümler. SSS'ler ve opsiyonel detaylar için iyi.
+Açılıp kapanan satırlar. Sorunlar ve çözümleri, SSS'ler ve isteğe bağlı
+detaylar için kullan. Okuyucu yalnızca ihtiyacı olan satırı açar. Herkesin
+ihtiyacı olan adımları bir accordion'un içine saklama.
 
 <Accordions>
 
@@ -89,64 +611,119 @@ Katlanabilir bölümler. SSS'ler ve opsiyonel detaylar için iyi.
 </Accordions>
 ```
 
-## Görsel
-
-Bir ekran görüntüsü. `alt` metni zorunlu. Wiki sorumluları onsuz görselleri
-reddeder. Dosyaları 500 KB altında tut ve `public/wiki-images/` içine koy.
-Okuyucular herhangi bir görsele yakınlaştırmak için tıklayabilir.
-
-<img
-  src="/wiki-images/1767019072359-dfx5or.webp"
-  alt="LtMAO, maya sekmesi açık, lemon3d kurulum adımlarını gösteriyor"
-/>
+Hata sayfalarında her satıra bir `id` ver. Böylece satırın kendi linki
+olur: `#game-crashes` linkini açan okuyucu doğrudan o satıra gelir ve satır
+açık olur. Yanında bir link kopyalama butonu belirir, böylece yardım edenler
+çözümü Discord'da paylaşabilir. Okuyucu aynı anda birkaç satır açabilsin
+diye `type="multiple"` ekle.
 
 ```mdx
-<img
-  src="/wiki-images/your-screenshot.png"
-  alt="Short description of the image"
-/>
+<Accordions type="multiple">
+  <Accordion title="The game crashes when it loads" id="game-crashes">
+    What to do about it.
+  </Accordion>
+</Accordions>
 ```
 
-## Kod bloğu
+Her `title`'ı sorunun kendisi olarak, okuyucunun kendi kelimeleriyle yaz.
+Linkler çalışmaya devam etsin diye `id`'yi her dilde aynı tut.
 
-Çitle sınırlanmış bir kod bloğu. Vurgu için açılış çitinden sonra bir dil
-ekle.
+## PremiumCard
 
-```bash
-npm run dev
-```
+Bir rehbere ya da bir bölüme giden bir kart. En önemli sonraki sayfa için
+`featured` ile tek bir tane kullan. Birkaç seçenek sunmak içinse bir
+[CardGrid](#cardgrid) içinde birkaç tane kullan.
 
-````mdx
-```bash
-npm run dev
-```
-````
-
-## Tablo
-
-Bir Markdown tablosu. Mobilde okunsun diye birkaç sütunla sınırlı tut.
-
-| Sütun A | Sütun B |
-| ------- | ------- |
-| Değer   | Değer   |
+<PremiumCard
+  title="Getting started"
+  href="/docs/lol/getting-started"
+  icon={<Icon name="Compass" />}
+  featured
+>
+  Start here if you are new. One path from empty folder to finished skin.
+</PremiumCard>
 
 ```mdx
-| Column A | Column B |
-| -------- | -------- |
-| Value    | Value    |
+<PremiumCard
+  title="Getting started"
+  href="/docs/lol/getting-started"
+  icon={<Icon name="Compass" />}
+  featured
+>
+  Start here if you are new.
+</PremiumCard>
 ```
+
+Prop'lar:
+
+- `title` ve `href` zorunlu.
+- `icon` isteğe bağlı: `icon={<Icon name="Compass" />}`.
+- `featured` mor bir çerçeve ekler. Sayfa başına en fazla bir kez kullan.
+- `level` küçük bir zorluk etiketi ekler: `beginner`, `intermediate` ya da
+  `advanced`. Bir rehbere giden her karta ekle.
+
+İçindeki metni kısa, tek bir satır tut. İçine link koyma.
+
+## CardGrid
+
+Yan yana PremiumCard'lar. Bir kategorinin bölümleri için ya da bir rehberin
+sonundaki "Sonraki adımlar" kısmında iki üç gerçek seçenek için kullan.
+
+<CardGrid>
+  <PremiumCard
+    title="Maya"
+    href="/docs/lol/maya"
+    icon={<Icon name="Maya" />}
+    level="intermediate"
+  >
+    Rigging, skinning, and exporting for League.
+  </PremiumCard>
+  <PremiumCard
+    title="Blender"
+    href="/docs/lol/blender"
+    icon={<Icon name="Blender" />}
+    level="intermediate"
+  >
+    The same workflow in Blender.
+  </PremiumCard>
+</CardGrid>
+
+```mdx
+<CardGrid>
+  <PremiumCard
+    title="Maya"
+    href="/docs/lol/maya"
+    icon={<Icon name="Maya" />}
+    level="intermediate"
+  >
+    Rigging, skinning, and exporting for League.
+  </PremiumCard>
+  <PremiumCard
+    title="Blender"
+    href="/docs/lol/blender"
+    icon={<Icon name="Blender" />}
+    level="intermediate"
+  >
+    The same workflow in Blender.
+  </PremiumCard>
+</CardGrid>
+```
+
+`cols={3}`, geniş ekranlarda her satıra üç dar kart sığdırır.
 
 ## ToolCard
 
-Bir ad, bir link ve tek satırlık açıklaması olan tek bir araç satırı. Araç
-liste sayfalarında kullan.
+Adı, linki ve tek satırlık açıklaması olan tek bir araç satırı. Araç liste
+sayfalarında kullan. Bir rehberin içinde, okuyucu birkaç araçtan birini
+seçecekse birkaç ToolCard kullan.
 
 <ToolCard
   name="Flint"
   href="/docs/lol/tools/modding-apps/flint"
-  badge="Önerilen"
+  badge="Recommended"
+  icon={<Icon name="Flint" />}
 >
-  Hepsi bir arada skin oluşturma aracı.
+  All-in-one skin creation tool.
 </ToolCard>
 
 ```mdx
@@ -154,6 +731,7 @@ liste sayfalarında kullan.
   name="Flint"
   href="/docs/lol/tools/modding-apps/flint"
   badge="Recommended"
+  icon={<Icon name="Flint" />}
 >
   All-in-one skin creation tool.
 </ToolCard>
@@ -162,64 +740,22 @@ liste sayfalarında kullan.
 Prop'lar:
 
 - `name` ve `href` zorunlu. Dış linkler yeni sekmede açılır.
-- `badge` opsiyonel. Sağda küçük bir pill olarak görünür.
-
-## LevelPill
-
-Bir zorluk işareti. Bir rehberin en üstüne, başlığın hemen altına koy.
-`level`, `beginner`, `intermediate` ya da `advanced` olur.
-
-<LevelPill level="beginner" /> <LevelPill level="intermediate" />
-<LevelPill level="advanced" />
-
-```mdx
-<LevelPill level="beginner" />
-```
-
-Metni değiştirmek için opsiyonel `label` prop'unu kullan:
-`<LevelPill level="advanced" label="Expert" />`.
-
-## ParameterList
-
-Referans sayfaları için iki sütunlu ad/açıklama tablosu.
-
-<ParameterList
-  parameters={[
-    { name: "champion", description: "Skin'in ait olduğu şampiyon." },
-    { name: "skin_id", description: "Temel skin'in sayısal id'si." },
-  ]}
-/>
-
-```mdx
-<ParameterList
-  parameters={[
-    { name: "champion", description: "The champion the skin belongs to." },
-    { name: "skin_id", description: "The numeric id of the base skin." },
-  ]}
-/>
-```
-
-## PremiumCard
-
-Öne çıkan tek bir link için gradyan kenarlıklı belirgin bir kart. Okuyucuyu
-en önemli sonraki sayfaya yönlendirmek için kullan.
-
-<PremiumCard title="Getting started" href="/docs/lol/getting-started">
-  Start here if you are new. One path from empty folder to finished skin.
-</PremiumCard>
-
-```mdx
-<PremiumCard title="Getting started" href="/docs/lol/getting-started">
-  Start here if you are new.
-</PremiumCard>
-```
+- `badge` isteğe bağlı. Sağda küçük bir pill olarak görünür. Bir ya da iki
+  kelimeyle sınırlı tut: `Recommended`, `Free`, `Unofficial`, `Legacy`.
+- `icon` isteğe bağlı. Aracın logosunu ver: `icon={<Icon name="Flint" />}`.
+  Elimizdeki logolar için [Icon](#icon) bölümüne bak.
+- Yalnızca araçlar için kullan. Rehberler için [PremiumCard](#premiumcard)
+  kullan.
+- Açıklamaya link koyma. Diğer araçların adını bunun yerine `code` içinde
+  yaz.
 
 ## GlowCTA
 
 Parlayan bir eylem çağrısı butonu. Okuyucunun yapmasını istediğin tek eylem
-için kullan. Sayfa başına en fazla bir tane.
+için kullan, mesela bir indirme ya da bir sonraki büyük adım. Sayfa başına
+en fazla bir tane. Normal bir link için Markdown linki kullan.
 
-<GlowCTA href="/docs/lol">Rehberlere göz at</GlowCTA>
+<GlowCTA href="/docs/lol">Browse the guides</GlowCTA>
 
 ```mdx
 <GlowCTA href="/docs/lol">Browse the guides</GlowCTA>
@@ -227,45 +763,33 @@ için kullan. Sayfa başına en fazla bir tane.
 
 Prop'lar:
 
-- `variant`, `primary` (mor parıltı, varsayılan), `solid`, `secondary`
-  ya da `ghost` olur.
+- `variant`, `primary` (mor parıltı, varsayılan), `solid`, `secondary` ya
+  da `ghost` olur. Bir primary butonun yanındaki diğer buton için
+  `secondary` kullan.
 - `size`, `md` (varsayılan) ya da `lg` olur.
-
-## YouTube
-
-Gömülü bir YouTube videosu. Tam URL'yi değil, video id'sini geç. id,
-`watch?v=` ya da `youtu.be/`'den sonraki kısım.
-
-<YouTube
-  id="xqB84ga55hI"
-  title="League of Legends için özel skin walkthrough'u"
-/>
-
-```mdx
-<YouTube id="xqB84ga55hI" title="What the video shows" />
-```
-
-Prop'lar:
-
-- `id` zorunlu.
-- `title`, videoyu ekran okuyucular için tanımlar.
-- `start` opsiyonel. Oynatmayı o saniyede başlatır.
-
-Kısayol: kendi satırına düz bir YouTube linki yapıştır, wiki senin için onu
-bir gömüye dönüştürür.
 
 ## Icon
 
 Satır içi bir simge. Herhangi bir [Lucide simge adını](https://lucide.dev/icons/)
-ya da marka adlarından birini kullan: `Maya`, `Blender`, `Discord`,
-`LeagueOfLegends`.
+ya da aşağıdaki logolardan birini kullan. Aynı adlar ToolHeader ve
+Requirement'ın `icon` prop'unda ve `icon={<Icon name="..." />}` içinde de
+çalışır.
+
+| Grup              | Adlar                                                                                          |
+| ----------------- | ---------------------------------------------------------------------------------------------- |
+| Oyunlar           | `LeagueOfLegends`, `Deadlock`                                                                  |
+| League araçları   | `Flint`, `Jade`, `Quartz`, `Ruby`, `LtMAO`                                                     |
+| Deadlock araçları | `Source2Viewer`, `DeadlockModManager`, `Grimoire`                                              |
+| Uygulamalar       | `Maya`, `Blender`, `GIMP`, `Audacity`, `Wwise`, `NotepadPlusPlus`                              |
+| Platformlar       | `Steam`, `Valve`, `SteamDeck`, `Linux`, `GameBanana`, `GitHub`, `Discord`, `YouTube`, `Reddit` |
 
 <Icon name="Wrench" /> <Icon name="Sparkles" /> <Icon name="Blender" />
-<Icon name="Discord" />
+<Icon name="Discord" /> <Icon name="Flint" /> <Icon name="Source2Viewer" />
 
 ```mdx
 <Icon name="Wrench" />
 ```
 
-Boyutu değiştirmek için opsiyonel `className` prop'unu kullan, örneğin
-`className="size-4"`.
+Varsa aracın logosunu kullan. Yoksa konuya uyan bir Lucide simgesi seç,
+mesela rigging için `Bone` ya da sesler için `Music`. Boyutu değiştirmek
+için isteğe bağlı `className` prop'unu kullan, örneğin `className="size-4"`.

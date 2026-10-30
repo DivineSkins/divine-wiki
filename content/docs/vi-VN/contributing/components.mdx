@@ -1,55 +1,294 @@
 ---
 title: Các component
-description: Mọi component bạn dùng được trong một hướng dẫn. Mỗi cái đều hiển thị trực tiếp, kèm code để sao chép.
+description: Mọi component bạn dùng được trong một hướng dẫn, khi nào nên dùng từng cái, và code để sao chép. Mỗi cái đều hiển thị trực tiếp.
 ---
 
-Wiki có một bộ nhỏ các component mà bạn thả vào bất kỳ hướng dẫn nào.
-Thanh công cụ của trình chỉnh sửa nháp sẽ chèn chúng cho bạn. Trang này là
-bản tham khảo đầy đủ. Mỗi phần cho thấy component trước, rồi tới code
-tạo ra nó.
+Component là những viên gạch tạo nên một hướng dẫn: thẻ, các bước, mẹo,
+video và nhiều thứ khác. Thanh công cụ của trình chỉnh sửa nháp sẽ chèn chúng
+cho bạn. Trang này cho bạn xem trực tiếp từng cái, nói khi nào nên dùng nó, và
+đưa bạn code để sao chép.
 
-## Callout
+## Nên dùng component nào [#which-component-to-use]
 
-Một hộp có màu cho cảnh báo, mẹo và ghi chú an toàn về Hàn Quốc/Trung Quốc. Dùng
-`type="danger"` cho rủi ro thật, `info` cho mẹo, `warning` cho "chỗ này có thể
-hỏng", và `success` cho xác nhận.
+Mỗi component có một việc riêng. Chọn theo thứ bạn muốn cho người đọc thấy,
+không phải theo vẻ ngoài của nó.
 
-<Callout type="info" title="Mẹo">
-  Bạn có thể bỏ qua bước này nếu đã cài công cụ rồi.
-</Callout>
+| Bạn muốn cho thấy                                   | Dùng                                                       |
+| --------------------------------------------------- | ---------------------------------------------------------- |
+| Hướng dẫn khó cỡ nào                                | [LevelPill](#levelpill)                                    |
+| Người đọc cần gì trước khi bắt đầu                  | [Requirements](#requirements)                              |
+| Phần tóm tắt ở đầu trang riêng của một công cụ      | [ToolHeader](#toolheader)                                  |
+| Một việc có nhiều giai đoạn                         | [Steps](#steps)                                            |
+| Một đường dẫn menu bên trong một bước               | [MenuPath](#menupath)                                      |
+| Hai cách trở lên để làm cùng một việc               | [Tabs](#tabs)                                              |
+| File nằm ở đâu                                      | [Files](#files)                                            |
+| Một mẹo, một cảnh báo hoặc một quy tắc chơi đẹp     | [Callout](#callout)                                        |
+| Một ảnh chụp màn hình                               | [Hình ảnh](#image)                                         |
+| Một clip ngắn, không tiếng, về thứ đang chuyển động | [Video](#video)                                            |
+| Một bài hướng dẫn đầy đủ có tiếng                   | [YouTube](#youtube)                                        |
+| Chữ để sao chép: code, giá trị BIN, đường dẫn, lệnh | [Khối code](#code-block)                                   |
+| Thông tin cần so sánh trong vài cột                 | [Bảng](#table)                                             |
+| Tên kèm mô tả (thiết lập, tùy chọn)                 | [ParameterList](#parameterlist) hoặc một [bảng](#table)    |
+| Lỗi và cách sửa, FAQ, chi tiết tùy chọn             | [Accordion](#accordion)                                    |
+| Trang duy nhất người đọc nên mở trước tiên          | [PremiumCard](#premiumcard) có `featured`                  |
+| Một nhóm hướng dẫn hoặc mục để chọn                 | [CardGrid](#cardgrid) chứa các [PremiumCard](#premiumcard) |
+| Một danh sách công cụ, hoặc chọn giữa vài công cụ   | Các dòng [ToolCard](#toolcard), kèm logo của công cụ       |
+| Một hành động duy nhất mà trang muốn người đọc làm  | [GlowCTA](#glowcta)                                        |
+| Một logo hoặc một biểu tượng nhỏ                    | [Icon](#icon)                                              |
 
-<Callout type="warning" title="Lưu ý">
-  Ghi đè lên file gốc thì không thể hoàn tác. Tạo một bản sao trước đã.
-</Callout>
+## Bố cục của một hướng dẫn [#how-a-guide-fits-together]
 
-<Callout type="danger" title="Don't use custom skins in Korea or China">
-  The anti-cheat there blocks all mods. Accounts get banned.
-</Callout>
-
-<Callout type="success" title="Xong">
-  Một dấu tích màu xanh hiện ra khi bộ skin đã sẵn sàng.
-</Callout>
+Hầu hết hướng dẫn đi theo cùng một thứ tự. Sao chép phần này làm điểm khởi
+đầu:
 
 ```mdx
-<Callout type="danger" title="Don't use custom skins in Korea or China">
-  The anti-cheat there blocks all mods. Accounts get banned.
-</Callout>
+<LevelPill level="beginner" />
+
+One or two sentences on what the reader will make.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Flint" href="/docs/lol/tools/modding-apps/flint">
+    Flint
+  </Requirement>
+</Requirements>
+
+## Make the change
+
+<Steps>
+<Step>
+
+### First stage
+
+1. Do this.
+2. Then do this.
+
+</Step>
+</Steps>
+
+## Common problems
+
+<Accordions type="multiple">
+  <Accordion title="The game crashes when it loads" id="crash-on-load">
+    What to do about it.
+  </Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="The next guide"
+    href="/docs/lol/getting-started/walkthrough"
+    icon={<Icon name="Compass" />}
+    level="beginner"
+  >
+    One line on what it covers.
+  </PremiumCard>
+</CardGrid>
+```
+
+Các kiểu trang khác:
+
+- **Trang riêng của một công cụ** mở đầu bằng một [ToolHeader](#toolheader).
+  Sau đó nó nói công cụ làm gì, cách cài và cách dùng.
+- **Trang đầu của một danh mục** có một đoạn giới thiệu ngắn, rồi tới một
+  [CardGrid](#cardgrid) với một [PremiumCard](#premiumcard) cho mỗi hướng dẫn.
+  Cho mỗi thẻ một `level`.
+- **Một trang lỗi** chủ yếu là [Accordions](#accordion), mỗi lỗi một hàng,
+  hàng nào cũng có `id`.
+
+## Quy tắc cho mọi trang [#rules-for-every-page]
+
+- **Chỉ dùng ToolCard cho công cụ.** Hướng dẫn thì đặt trong PremiumCard.
+- **Chỉ liên kết tới mỗi trang một lần.** Nếu một thẻ đã trỏ tới một trang,
+  đừng liên kết tới trang đó lần nữa trong phần chữ.
+- **Không đặt liên kết bên trong thẻ.** ToolCard hay PremiumCard vốn đã là một
+  liên kết. Thêm liên kết thứ hai bên trong sẽ làm hỏng trang. Thay vào đó,
+  ghi tên trang kia bằng chữ thường.
+- **Mỗi trang có tối đa một thẻ `featured` và một GlowCTA.** Cái gì cũng nổi
+  bật thì chẳng còn gì nổi bật nữa.
+- **Giữ giá trị prop bằng tiếng Anh.** `type`, `level`, `icon`, `id`, `href`
+  và `value` giữ nguyên trong mọi ngôn ngữ. Chỉ dịch chữ mà người đọc thấy:
+  `title`, `badge`, `alt`, `note` và các nhãn.
+- **Để một dòng trống giữa component và chữ Markdown.** Thiếu dòng trống đó,
+  trang có thể không build được.
+
+## LevelPill
+
+Hướng dẫn khó cỡ nào. Đặt một cái trên mọi hướng dẫn mới, ngay dưới tiêu đề,
+trước câu đầu tiên.
+
+<LevelPill level="beginner" /> <LevelPill level="intermediate" />
+<LevelPill level="advanced" />
+
+```mdx
+<LevelPill level="beginner" />
+```
+
+Chọn độ khó theo khối lượng công việc, không theo chủ đề:
+
+- `beginner`: không làm 3D. Cài đặt, đóng gói, thay thế đơn giản và đổi màu.
+- `intermediate`: bạn chỉnh trong một app 3D hoặc một công cụ làm mod, như làm
+  lại texture hoặc đổi âm thanh.
+- `advanced`: nhiều công cụ và nhiều bước, như thay toàn bộ mô hình, rigging
+  hoặc làm một hiệu ứng mới.
+
+Dùng prop tùy chọn `label` để đổi chữ:
+`<LevelPill level="advanced" label="Expert" />`.
+
+## Requirements
+
+Danh sách "Bạn cần gì", dưới dạng các chip. Đặt nó gần đầu trang, trước bước
+đầu tiên. Cho mỗi công cụ logo của nó và một liên kết tới trang của nó. Những
+thứ không phải công cụ, như một tài khoản hay một file, thì để thành chip
+thường.
+
+<Requirements>
+  <Requirement icon="Flint" href="/docs/lol/tools/modding-apps/flint">
+    Flint
+  </Requirement>
+  <Requirement icon="GIMP" note="or Photoshop">
+    GIMP
+  </Requirement>
+  <Requirement icon="FileImage">Your texture as a PNG</Requirement>
+</Requirements>
+
+```mdx
+<Requirements>
+  <Requirement icon="Flint" href="/docs/lol/tools/modding-apps/flint">
+    Flint
+  </Requirement>
+  <Requirement icon="GIMP" note="or Photoshop">
+    GIMP
+  </Requirement>
+  <Requirement icon="FileImage">Your texture as a PNG</Requirement>
+</Requirements>
+```
+
+Props của mỗi `<Requirement>`:
+
+- `icon` là tùy chọn. Nó nhận một tên [Icon](#icon).
+- `href` là tùy chọn. Có nó, chip sẽ thành một liên kết. Liên kết ngoài mở
+  trong tab mới.
+- `note` là tùy chọn. Nó thêm một ghi chú nhỏ màu xám, như `or Photoshop` hoặc
+  `latest patch`.
+
+Giữ mỗi nhãn thật ngắn. Ghi chú dài hơn thì viết thành một câu dưới các chip.
+
+## ToolHeader
+
+Phần tóm tắt ở đầu trang riêng của một công cụ: logo, công dụng, vài thông tin
+ngắn và nút tải về. Dùng nó một lần, ngay dưới tiêu đề. Đừng dùng nó trong
+hướng dẫn. Muốn trỏ tới một công cụ từ hướng dẫn, hãy dùng một
+[ToolCard](#toolcard).
+
+<ToolHeader
+  name="Flint"
+  icon="Flint"
+  badge="Recommended"
+  facts={["Free", "Windows"]}
+  primary={{
+    label: "Download",
+    href: "https://github.com/RitoShark/Flint/releases",
+  }}
+>
+  All-in-one modding app. Extract, preview, edit, and pack in one window.
+</ToolHeader>
+
+```mdx
+<ToolHeader
+  name="Flint"
+  icon="Flint"
+  badge="Recommended"
+  facts={["Free", "Windows"]}
+  primary={{
+    label: "Download",
+    href: "https://github.com/RitoShark/Flint/releases",
+  }}
+  links={[{ label: "GitHub", href: "https://github.com/RitoShark/Flint" }]}
+>
+  All-in-one modding app.
+</ToolHeader>
 ```
 
 Props:
 
-- `type` là `info`, `warning`, `danger` hoặc `success`. Mặc định là `info`.
-- `title` là tùy chọn. Mỗi loại có một tiêu đề mặc định.
+- `name` là bắt buộc. `icon` nhận một tên [Icon](#icon).
+- `badge` là tùy chọn: `Recommended`, `Unofficial`, `Legacy`, v.v.
+- `facts` là một danh sách ngắn: giá, giấy phép, nền tảng, phiên bản.
+- `primary` là nút tải chính. `links` thêm các nút nhỏ hơn, như GitHub hoặc
+  tài liệu.
 
-Cũng có ba loại level để đánh dấu độ khó bên trong một trang:
-`lvl_beginner`, `lvl_intermediate` và `lvl_advanced`. Nếu muốn một huy hiệu độ
-khó nhỏ ở đầu hướng dẫn, hãy dùng [LevelPill](#levelpill) thay vào đó.
+## Steps
+
+Các giai đoạn có đánh số cho một việc dài. Cho mỗi giai đoạn một tiêu đề
+`###`. Bên trong một giai đoạn, dùng danh sách đánh số bình thường cho các
+bước nhỏ. Để một dòng trống sau `<Step>` và trước `</Step>`.
+
+Dùng Steps khi việc có từ hai giai đoạn trở lên. Với việc ngắn, một danh sách
+đánh số là đủ.
+
+<Steps>
+<Step>
+
+### Find the file
+
+Open the game files and note the path.
+
+</Step>
+<Step>
+
+### Edit and compile it
+
+Change the file, then compile it.
+
+</Step>
+</Steps>
+
+```mdx
+<Steps>
+<Step>
+
+### Find the file
+
+Open the game files and note the path.
+
+</Step>
+<Step>
+
+### Edit and compile it
+
+Change the file, then compile it.
+
+</Step>
+</Steps>
+```
+
+## MenuPath
+
+Một đường dẫn menu bên trong một bước. Nó hiện mỗi mục menu như một phím, có
+mũi tên ở giữa. Dùng đúng nhãn của công cụ, giữ nguyên chữ hoa chữ thường.
+Ngăn cách các mục bằng `>`.
+
+1. Right-click the file and choose <MenuPath path="Recompile > Full" />.
+
+```mdx
+1. Right-click the file and choose <MenuPath path="Recompile > Full" />.
+```
+
+Dùng nó cho menu và đường dẫn trong phần thiết lập. Với một nút đơn lẻ, hãy
+dùng chữ **đậm**.
 
 ## Tabs
 
-Các lộ trình thay thế nhau. Dùng tab cho các bước theo hệ điều hành hoặc quy
-trình theo công cụ. Mỗi `<Tabs>` cần một `</Tabs>` đóng lại, và mỗi
-`<Tab>` cần một `</Tab>`.
+Hai cách trở lên để làm cùng một việc. Dùng tab cho các hệ điều hành khác
+nhau, các công cụ khác nhau, hoặc một lộ trình đầy đủ và một lộ trình nhanh.
+Mỗi tab phải tự đứng được một mình, vì người đọc chỉ thấy một tab.
+
+Mỗi `<Tabs>` cần một `</Tabs>` đóng lại, và mỗi `<Tab>` cần một `</Tab>`. Mỗi
+`value` phải khớp chính xác với một trong các `items`.
 
 <Tabs items={["Windows", "macOS"]}>
 
@@ -66,9 +305,287 @@ trình theo công cụ. Mỗi `<Tabs>` cần một `</Tabs>` đóng lại, và m
 </Tabs>
 ```
 
+### Tabs có logo [#tabs-with-logos]
+
+Muốn hiện logo trên mỗi tab, bạn tự viết hàng tab. `defaultValue` chọn tab
+được mở sẵn.
+
+<Tabs defaultValue="maya">
+<TabsList>
+<TabsTrigger value="maya"><Icon name="Maya" className="size-4" />Maya</TabsTrigger>
+<TabsTrigger value="blender"><Icon name="Blender" className="size-4" />Blender</TabsTrigger>
+</TabsList>
+<TabsContent value="maya">
+
+Maya steps here.
+
+</TabsContent>
+<TabsContent value="blender">
+
+Blender steps here.
+
+</TabsContent>
+</Tabs>
+
+```mdx
+<Tabs defaultValue="maya">
+<TabsList>
+<TabsTrigger value="maya"><Icon name="Maya" className="size-4" />Maya</TabsTrigger>
+<TabsTrigger value="blender"><Icon name="Blender" className="size-4" />Blender</TabsTrigger>
+</TabsList>
+<TabsContent value="maya">
+
+Maya steps here.
+
+</TabsContent>
+<TabsContent value="blender">
+
+Blender steps here.
+
+</TabsContent>
+</Tabs>
+```
+
+## Files
+
+Một cây thư mục. Dùng nó để cho thấy file đặt ở đâu, hoặc bên trong một mod có
+gì. Thêm `defaultOpen` cho những thư mục cần mở sẵn. Tên một `File` có thể kết
+thúc bằng một ghi chú ngắn sau dấu hai chấm.
+
+<Files>
+  <Folder name="game" defaultOpen>
+    <Folder name="citadel" defaultOpen>
+      <File name="gameinfo.gi" />
+      <Folder name="addons" defaultOpen>
+        <File name="pak01_dir.vpk: your mod" />
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+
+```mdx
+<Files>
+  <Folder name="game" defaultOpen>
+    <Folder name="citadel" defaultOpen>
+      <File name="gameinfo.gi" />
+      <Folder name="addons" defaultOpen>
+        <File name="pak01_dir.vpk: your mod" />
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+```
+
+## Callout
+
+Một hộp có màu, nổi bật hẳn so với phần chữ. Dùng nó cho những thứ người đọc
+không được bỏ lỡ. Hầu hết hướng dẫn chỉ cần một hoặc hai cái là nhiều nhất.
+Chọn loại theo chuyện sẽ xảy ra nếu người đọc bỏ qua nó:
+
+- `info` cho một mẹo hoặc thông tin hữu ích. Hộp màu tím.
+- `warning` cho thứ có thể hỏng, như mất công đã làm hoặc mod bị hỏng sau một
+  bản cập nhật. Hộp màu vàng.
+- `danger` cho rủi ro thật, như một mod tạo lợi thế không công bằng. Hộp màu
+  đỏ.
+- `success` cho lời xác nhận, như thứ người đọc sẽ thấy khi mọi thứ đã chạy.
+  Hộp màu xanh lá.
+
+<Callout type="info" title="Mẹo">
+  Bạn có thể bỏ qua bước này nếu đã cài công cụ rồi.
+</Callout>
+
+<Callout type="warning" title="Make a copy first">
+  Saving over the original file cannot be undone.
+</Callout>
+
+<Callout type="danger" title="Chơi đẹp">
+  Một bộ skin không được giúp bạn dễ nhìn thấy hay dễ nghe thấy kẻ địch hơn.
+</Callout>
+
+<Callout type="success" title="Xong">
+  Một dấu tích màu xanh hiện ra khi bộ skin đã sẵn sàng.
+</Callout>
+
+```mdx
+<Callout type="warning" title="Make a copy first">
+  Saving over the original file cannot be undone.
+</Callout>
+```
+
+Props:
+
+- `type` là `info`, `warning`, `danger` hoặc `success`. Mặc định là `info`.
+- `title` là tùy chọn. Mỗi loại có một tiêu đề mặc định. Một tiêu đề ngắn nói
+  thẳng ý chính là tốt nhất.
+
+Cũng có ba loại level: `lvl_beginner`, `lvl_intermediate` và `lvl_advanced`.
+Hãy dùng [LevelPill](#levelpill) thay vào đó. Nó đánh dấu độ khó của cả một
+hướng dẫn.
+
+## Hình ảnh [#image]
+
+Một ảnh chụp màn hình. `alt` text là bắt buộc. Người duyệt sẽ từ chối ảnh
+thiếu nó. Giữ file dưới 500 KB và đặt vào `public/wiki-images/`. Người đọc có
+thể nhấn vào bất kỳ ảnh nào để phóng to. Trong trình chỉnh sửa nháp, nút
+**Tải ảnh lên** sẽ thêm ảnh cho bạn.
+
+<img
+  src="/wiki-images/1767019072359-dfx5or.webp"
+  alt="LtMAO với tab maya đang mở, hiển thị các bước cài lemon3d"
+/>
+
+```mdx
+<img
+  src="/wiki-images/your-screenshot.png"
+  alt="Short description of the image"
+/>
+```
+
+Viết `alt` text cho người không nhìn thấy ảnh. Nói ảnh cho thấy gì và điều gì
+quan trọng trong đó, như "Cửa sổ Export với FBX đang được chọn".
+
+## Video
+
+Một clip ngắn, không tiếng, phát lặp lại. Dùng nó để cho thấy thứ gì đó chuyển
+động: một hiệu ứng, một animation, hoặc một công cụ đang chạy. Clip chỉ phát
+khi nó đang nằm trên màn hình. Dùng nó thay cho GIF, vì nó tải nhanh hơn nhiều.
+Với bài hướng dẫn có tiếng, hãy dùng [YouTube](#youtube).
+
+<Video
+  src="/wiki-videos/deadlock-flipbooks-smoke.webm"
+  poster="/wiki-images/deadlock-flipbooks-smoke-poster.webp"
+  width={514}
+  height={446}
+  alt="Một flipbook khói phát trên hai sprite particle trong trình chỉnh sửa."
+/>
+
+```mdx
+<Video
+  src="/wiki-videos/your-clip.webm"
+  poster="/wiki-images/your-clip-poster.webp"
+  width={640}
+  height={360}
+  alt="What the clip shows"
+/>
+```
+
+Props:
+
+- `src`, `poster`, `width` và `height` là bắt buộc. `width` và `height` là kích
+  thước của clip, tính bằng pixel.
+- Đặt clip `.webm` vào `public/wiki-videos/`. Đặt poster, tức khung hình tĩnh
+  hiện ra trước khi clip phát, vào `public/wiki-images/`.
+- `alt` mô tả clip, giống alt text của ảnh.
+- `original` là tùy chọn. Nó liên kết tới nguồn, như GIF gốc hoặc bài đăng mà
+  clip được lấy từ đó.
+
+Giữ clip dài vài giây thôi. Trình chỉnh sửa nháp không tải clip lên được, nên
+bạn tự thêm các file vào pull request của mình.
+
+## YouTube
+
+Một video YouTube được nhúng. Dùng nó cho một bài hướng dẫn đầy đủ. Truyền id
+của video, không phải cả URL. Id là phần sau `watch?v=` hoặc `youtu.be/`.
+
+<YouTube
+  id="xqB84ga55hI"
+  title="Hướng dẫn làm skin tùy chỉnh cho Liên Minh Huyền Thoại"
+/>
+
+```mdx
+<YouTube id="xqB84ga55hI" title="What the video shows" />
+```
+
+Props:
+
+- `id` là bắt buộc.
+- `title` mô tả video cho trình đọc màn hình. Ghi cả tên người làm video, như
+  "Hướng dẫn thay texture của Pugzilla".
+- `start` là tùy chọn. Nó bắt đầu phát ở giây đó.
+- `list` là tùy chọn. Nó nhận một id playlist.
+
+Lối tắt: dán một liên kết YouTube thường trên một dòng riêng và wiki sẽ biến
+nó thành một video nhúng cho bạn.
+
+Video cũ hơn phiên bản hiện tại của công cụ? Thêm một [Callout](#callout)
+`info` bên dưới nó. Nói rõ bây giờ có gì trông khác đi.
+
+## Khối code [#code-block]
+
+Một khối code dạng fence. Dùng nó cho mọi thứ người đọc cần sao chép: code,
+giá trị BIN, đường dẫn file và lệnh. Người đọc sẽ có nút sao chép. Thêm một
+ngôn ngữ sau fence mở đầu để có màu. Phần đầu khối hiện tên ngôn ngữ đó.
+
+```bash
+npm run dev
+```
+
+````mdx
+```bash
+npm run dev
+```
+````
+
+Các ngôn ngữ hay dùng: `bash` cho lệnh, `python` cho script, và `text` cho
+đường dẫn và output thường. Text BIN của League không có ngôn ngữ riêng. Dùng
+`rust`, vì nó tô màu BIN đẹp, và thêm `title="BIN"` để phần đầu khối ghi BIN.
+
+```rust title="BIN"
+birthColor: embed = ValueColor {
+    constantValue: vec4 = { 1, 0.7059, 0, 1 }
+}
+```
+
+````mdx
+```rust title="BIN"
+birthColor: embed = ValueColor {
+    constantValue: vec4 = { 1, 0.7059, 0, 1 }
+}
+```
+````
+
+## Bảng [#table]
+
+Một bảng Markdown. Dùng nó để so sánh vài thứ cạnh nhau. Giữ ba hoặc bốn cột
+thôi để nó đọc được trên điện thoại.
+
+| Column A | Column B |
+| -------- | -------- |
+| Value    | Value    |
+
+```mdx
+| Column A | Column B |
+| -------- | -------- |
+| Value    | Value    |
+```
+
+## ParameterList
+
+Một danh sách hai cột: tên và công dụng của nó. Dùng nó cho thiết lập, tùy
+chọn khởi chạy và flag dòng lệnh. Với ba cột trở lên, hãy dùng một
+[bảng](#table).
+
+<ParameterList
+  parameters={[
+    { name: "champion", description: "The champion the skin belongs to." },
+    { name: "skin_id", description: "The numeric id of the base skin." },
+  ]}
+/>
+
+```mdx
+<ParameterList
+  parameters={[
+    { name: "champion", description: "The champion the skin belongs to." },
+    { name: "skin_id", description: "The numeric id of the base skin." },
+  ]}
+/>
+```
+
 ## Accordion
 
-Các phần có thể thu gọn. Hợp cho FAQ và chi tiết tùy chọn.
+Các hàng thu gọn được. Dùng chúng cho lỗi và cách sửa, FAQ, và chi tiết tùy
+chọn. Người đọc chỉ mở hàng họ cần. Đừng giấu trong accordion những bước mà ai
+cũng cần.
 
 <Accordions>
 
@@ -89,62 +606,116 @@ Các phần có thể thu gọn. Hợp cho FAQ và chi tiết tùy chọn.
 </Accordions>
 ```
 
-## Hình ảnh
-
-Một ảnh chụp màn hình. `alt` text là bắt buộc. Người duyệt sẽ từ chối ảnh
-thiếu nó. Giữ file dưới 500 KB và đặt vào `public/wiki-images/`.
-Người đọc có thể nhấn vào bất kỳ ảnh nào để phóng to.
-
-<img
-  src="/wiki-images/1767019072359-dfx5or.webp"
-  alt="LtMAO với tab maya đang mở, hiển thị các bước cài lemon3d"
-/>
+Trên trang lỗi, cho mỗi hàng một `id`. Hàng đó sẽ có liên kết riêng: người đọc
+mở `#game-crashes` sẽ tới thẳng hàng đó, đã mở sẵn. Một nút sao chép liên kết
+hiện bên cạnh nó, để người giúp đỡ chia sẻ cách sửa trên Discord. Thêm
+`type="multiple"` để người đọc mở được nhiều hàng cùng lúc.
 
 ```mdx
-<img
-  src="/wiki-images/your-screenshot.png"
-  alt="Short description of the image"
-/>
+<Accordions type="multiple">
+  <Accordion title="The game crashes when it loads" id="game-crashes">
+    What to do about it.
+  </Accordion>
+</Accordions>
 ```
 
-## Khối code
+Viết mỗi `title` thành chính vấn đề, bằng lời của người đọc. Giữ `id` giống
+nhau trong mọi ngôn ngữ, để liên kết vẫn hoạt động.
 
-Một khối code được rào bằng dấu fence. Thêm một ngôn ngữ sau fence mở đầu để
-tô sáng cú pháp.
+## PremiumCard
 
-```bash
-npm run dev
-```
+Một thẻ liên kết tới một hướng dẫn hoặc một mục. Dùng một thẻ có `featured` cho
+trang tiếp theo quan trọng nhất, hoặc vài thẻ trong một [CardGrid](#cardgrid)
+cho một nhóm lựa chọn.
 
-````mdx
-```bash
-npm run dev
-```
-````
-
-## Bảng
-
-Một bảng Markdown. Giữ vài cột thôi để nó đọc được trên điện thoại.
-
-| Column A | Column B |
-| -------- | -------- |
-| Value    | Value    |
+<PremiumCard
+  title="Getting started"
+  href="/docs/lol/getting-started"
+  icon={<Icon name="Compass" />}
+  featured
+>
+  Start here if you are new. One path from empty folder to finished skin.
+</PremiumCard>
 
 ```mdx
-| Column A | Column B |
-| -------- | -------- |
-| Value    | Value    |
+<PremiumCard
+  title="Getting started"
+  href="/docs/lol/getting-started"
+  icon={<Icon name="Compass" />}
+  featured
+>
+  Start here if you are new.
+</PremiumCard>
 ```
+
+Props:
+
+- `title` và `href` là bắt buộc.
+- `icon` là tùy chọn: `icon={<Icon name="Compass" />}`.
+- `featured` thêm một khung màu tím. Dùng nó nhiều nhất một lần mỗi trang.
+- `level` thêm một nhãn độ khó nhỏ: `beginner`, `intermediate` hoặc
+  `advanced`. Thêm nó vào mọi thẻ trỏ tới một hướng dẫn.
+
+Giữ chữ bên trong chỉ một dòng ngắn. Đừng đặt liên kết trong đó.
+
+## CardGrid
+
+Các PremiumCard đặt cạnh nhau. Dùng nó cho các mục của một danh mục, hoặc cho
+hai, ba lựa chọn thật sự trong "Bước tiếp theo" ở cuối hướng dẫn.
+
+<CardGrid>
+  <PremiumCard
+    title="Maya"
+    href="/docs/lol/maya"
+    icon={<Icon name="Maya" />}
+    level="intermediate"
+  >
+    Rigging, skinning, and exporting for League.
+  </PremiumCard>
+  <PremiumCard
+    title="Blender"
+    href="/docs/lol/blender"
+    icon={<Icon name="Blender" />}
+    level="intermediate"
+  >
+    The same workflow in Blender.
+  </PremiumCard>
+</CardGrid>
+
+```mdx
+<CardGrid>
+  <PremiumCard
+    title="Maya"
+    href="/docs/lol/maya"
+    icon={<Icon name="Maya" />}
+    level="intermediate"
+  >
+    Rigging, skinning, and exporting for League.
+  </PremiumCard>
+  <PremiumCard
+    title="Blender"
+    href="/docs/lol/blender"
+    icon={<Icon name="Blender" />}
+    level="intermediate"
+  >
+    The same workflow in Blender.
+  </PremiumCard>
+</CardGrid>
+```
+
+`cols={3}` xếp ba thẻ hẹp trên mỗi hàng khi màn hình rộng.
 
 ## ToolCard
 
 Một dòng công cụ với tên, một liên kết và một dòng mô tả. Dùng nó trên các
-trang danh sách công cụ.
+trang danh sách công cụ. Bên trong hướng dẫn, dùng vài ToolCard khi người đọc
+cần chọn một công cụ trong số nhiều cái.
 
 <ToolCard
   name="Flint"
   href="/docs/lol/tools/modding-apps/flint"
   badge="Recommended"
+  icon={<Icon name="Flint" />}
 >
   All-in-one skin creation tool.
 </ToolCard>
@@ -154,6 +725,7 @@ trang danh sách công cụ.
   name="Flint"
   href="/docs/lol/tools/modding-apps/flint"
   badge="Recommended"
+  icon={<Icon name="Flint" />}
 >
   All-in-one skin creation tool.
 </ToolCard>
@@ -162,62 +734,19 @@ trang danh sách công cụ.
 Props:
 
 - `name` và `href` là bắt buộc. Liên kết ngoài mở trong tab mới.
-- `badge` là tùy chọn. Nó hiện dưới dạng một huy hiệu nhỏ ở bên phải.
-
-## LevelPill
-
-Một dấu đánh độ khó. Đặt nó ở đầu hướng dẫn, ngay dưới tiêu đề. `level` là
-`beginner`, `intermediate` hoặc `advanced`.
-
-<LevelPill level="beginner" /> <LevelPill level="intermediate" />
-<LevelPill level="advanced" />
-
-```mdx
-<LevelPill level="beginner" />
-```
-
-Dùng prop tùy chọn `label` để đổi chữ:
-`<LevelPill level="advanced" label="Expert" />`.
-
-## ParameterList
-
-Một bảng hai cột tên/mô tả cho các trang tham khảo.
-
-<ParameterList
-  parameters={[
-    { name: "champion", description: "The champion the skin belongs to." },
-    { name: "skin_id", description: "The numeric id of the base skin." },
-  ]}
-/>
-
-```mdx
-<ParameterList
-  parameters={[
-    { name: "champion", description: "The champion the skin belongs to." },
-    { name: "skin_id", description: "The numeric id of the base skin." },
-  ]}
-/>
-```
-
-## PremiumCard
-
-Một thẻ nổi bật với viền gradient cho một liên kết được làm nổi. Dùng nó để
-chỉ người đọc tới trang tiếp theo quan trọng nhất.
-
-<PremiumCard title="Getting started" href="/docs/lol/getting-started">
-  Start here if you are new. One path from empty folder to finished skin.
-</PremiumCard>
-
-```mdx
-<PremiumCard title="Getting started" href="/docs/lol/getting-started">
-  Start here if you are new.
-</PremiumCard>
-```
+- `badge` là tùy chọn. Nó hiện dưới dạng một huy hiệu nhỏ ở bên phải. Giữ nó
+  một hoặc hai chữ: `Recommended`, `Free`, `Unofficial`, `Legacy`.
+- `icon` là tùy chọn. Truyền logo của công cụ: `icon={<Icon name="Flint" />}`.
+  Xem [Icon](#icon) để biết tụi mình có những logo nào.
+- Chỉ dùng nó cho công cụ. Với hướng dẫn, hãy dùng [PremiumCard](#premiumcard).
+- Đừng đặt liên kết trong phần mô tả. Thay vào đó, ghi tên công cụ khác trong
+  `code`.
 
 ## GlowCTA
 
 Một nút kêu gọi hành động phát sáng. Dùng nó cho một hành động duy nhất bạn
-muốn người đọc thực hiện. Nhiều nhất một cái mỗi trang.
+muốn người đọc làm, như tải về hoặc bước lớn tiếp theo. Nhiều nhất một cái mỗi
+trang. Với liên kết bình thường, hãy dùng liên kết Markdown.
 
 <GlowCTA href="/docs/lol">Browse the guides</GlowCTA>
 
@@ -227,45 +756,31 @@ muốn người đọc thực hiện. Nhiều nhất một cái mỗi trang.
 
 Props:
 
-- `variant` là `primary` (phát sáng tím, mặc định), `solid`, `secondary`
-  hoặc `ghost`.
+- `variant` là `primary` (phát sáng tím, mặc định), `solid`, `secondary` hoặc
+  `ghost`. Cạnh một nút primary, dùng `secondary` cho nút còn lại.
 - `size` là `md` (mặc định) hoặc `lg`.
-
-## YouTube
-
-Một video YouTube được nhúng. Truyền id của video, không phải cả URL. Id
-là phần sau `watch?v=` hoặc `youtu.be/`.
-
-<YouTube
-  id="xqB84ga55hI"
-  title="Hướng dẫn làm skin tùy chỉnh cho Liên Minh Huyền Thoại"
-/>
-
-```mdx
-<YouTube id="xqB84ga55hI" title="What the video shows" />
-```
-
-Props:
-
-- `id` là bắt buộc.
-- `title` mô tả video cho trình đọc màn hình.
-- `start` là tùy chọn. Nó bắt đầu phát ở giây đó.
-
-Lối tắt: dán một liên kết YouTube thường trên một dòng riêng và wiki sẽ biến
-nó thành một video nhúng cho bạn.
 
 ## Icon
 
 Một biểu tượng nội dòng. Dùng bất kỳ [tên icon Lucide nào](https://lucide.dev/icons/),
-hoặc một trong các tên thương hiệu: `Maya`, `Blender`, `Discord`,
-`LeagueOfLegends`.
+hoặc một trong các logo bên dưới. Các tên này cũng dùng được cho prop `icon`
+của ToolHeader và Requirement, và bên trong `icon={<Icon name="..." />}`.
+
+| Nhóm             | Tên                                                                                            |
+| ---------------- | ---------------------------------------------------------------------------------------------- |
+| Game             | `LeagueOfLegends`, `Deadlock`                                                                  |
+| Công cụ League   | `Flint`, `Jade`, `Quartz`, `Ruby`, `LtMAO`                                                     |
+| Công cụ Deadlock | `Source2Viewer`, `DeadlockModManager`, `Grimoire`                                              |
+| App              | `Maya`, `Blender`, `GIMP`, `Audacity`, `Wwise`, `NotepadPlusPlus`                              |
+| Nền tảng         | `Steam`, `Valve`, `SteamDeck`, `Linux`, `GameBanana`, `GitHub`, `Discord`, `YouTube`, `Reddit` |
 
 <Icon name="Wrench" /> <Icon name="Sparkles" /> <Icon name="Blender" />
-<Icon name="Discord" />
+<Icon name="Discord" /> <Icon name="Flint" /> <Icon name="Source2Viewer" />
 
 ```mdx
 <Icon name="Wrench" />
 ```
 
-Dùng prop tùy chọn `className` để đổi kích thước, ví dụ
-`className="size-4"`.
+Dùng logo của công cụ nếu có. Nếu không, chọn một icon Lucide hợp với chủ đề,
+như `Bone` cho rigging hoặc `Music` cho âm thanh. Dùng prop tùy chọn
+`className` để đổi kích thước, ví dụ `className="size-4"`.

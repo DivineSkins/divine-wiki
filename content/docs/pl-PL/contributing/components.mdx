@@ -1,62 +1,303 @@
 ---
-title: Components
-description: Każdy komponent, którego możesz użyć w poradniku. Każdy pokazany na żywo, z kodem do skopiowania.
+title: Komponenty
+description: Każdy komponent, którego możesz użyć w poradniku, kiedy go użyć i kod do skopiowania. Każdy pokazany na żywo.
 ---
 
-Wiki ma mały zestaw komponentów, które możesz wrzucić do dowolnego
-poradnika. Pasek narzędzi edytora draftów wstawia je za ciebie. Ta strona
-to pełna referencja. Każda sekcja pokazuje najpierw komponent, potem kod,
-który go tworzy.
+Komponenty to klocki, z których składasz poradnik: karty, kroki, wskazówki,
+filmy i nie tylko. Pasek narzędzi edytora draftów wstawia je za ciebie. Na
+tej stronie zobaczysz każdy z nich na żywo, dowiesz się, kiedy go użyć, i
+skopiujesz jego kod.
 
-## Callout
+## Którego komponentu użyć [#which-component-to-use]
 
-Kolorowe pole na ostrzeżenia, wskazówki i notkę o bezpieczeństwie w
-Korei/Chinach. Użyj `type="danger"` przy realnym ryzyku, `info` przy
-wskazówkach, `warning` przy "to może pójść źle", a `success` przy
-potwierdzeniu.
+Każdy komponent ma jedno zadanie. Wybieraj według tego, co pokazujesz, a
+nie według wyglądu.
 
-<Callout type="info" title="Wskazówka">
-  Możesz pominąć ten krok, jeśli narzędzie jest już zainstalowane.
-</Callout>
+| Chcesz pokazać                                            | Wybierz                                                     |
+| --------------------------------------------------------- | ----------------------------------------------------------- |
+| Jak trudny jest poradnik                                  | [LevelPill](#levelpill)                                     |
+| Czego czytelnik potrzebuje, zanim zacznie                 | [Requirements](#requirements)                               |
+| Podsumowanie na górze strony narzędzia                    | [ToolHeader](#toolheader)                                   |
+| Zadanie z kilkoma etapami                                 | [Steps](#steps)                                             |
+| Ścieżkę w menu w środku kroku                             | [MenuPath](#menupath)                                       |
+| Dwa albo więcej sposobów na to samo                       | [Tabs](#tabs)                                               |
+| Gdzie trafiają pliki                                      | [Files](#files)                                             |
+| Wskazówkę, ostrzeżenie albo zasadę fair play              | [Callout](#callout)                                         |
+| Screenshot                                                | [Obrazek](#image)                                           |
+| Krótki, niemy klip z czymś w ruchu                        | [Video](#video)                                             |
+| Pełny tutorial z dźwiękiem                                | [YouTube](#youtube)                                         |
+| Tekst do skopiowania: kod, wartości BIN, ścieżki, komendy | [Blok kodu](#code-block)                                    |
+| Fakty do porównania w kilku kolumnach                     | [Tabelę](#table)                                            |
+| Nazwy z opisami (ustawienia, opcje)                       | [ParameterList](#parameterlist) albo [tabelę](#table)       |
+| Problemy i rozwiązania, FAQ, dodatkowe szczegóły          | [Accordion](#accordion)                                     |
+| Jedną stronę, którą czytelnik ma otworzyć najpierw        | [PremiumCard](#premiumcard) z `featured`                    |
+| Zestaw poradników albo sekcji do wyboru                   | [CardGrid](#cardgrid) z kartami [PremiumCard](#premiumcard) |
+| Listę narzędzi albo wybór spośród kilku narzędzi          | Wiersze [ToolCard](#toolcard) z logo narzędzia              |
+| Jedną akcję, o którą prosi strona                         | [GlowCTA](#glowcta)                                         |
+| Logo albo małą ikonę                                      | [Icon](#icon)                                               |
 
-<Callout type="warning" title="Uwaga">
-  Zapisu na oryginalnym pliku nie da się cofnąć. Najpierw zrób kopię.
-</Callout>
+## Jak składa się poradnik [#how-a-guide-fits-together]
 
-<Callout type="danger" title="Nie używaj własnych skinów w Korei ani Chinach">
-  Tamtejszy anti-cheat blokuje wszystkie mody. Konta dostają bany.
-</Callout>
-
-<Callout type="success" title="Gotowe">
-  Zielony ptaszek pojawia się, gdy skin jest gotowy.
-</Callout>
+Większość poradników ma tę samą kolejność. Skopiuj ten szablon na start:
 
 ```mdx
-<Callout type="danger" title="Don't use custom skins in Korea or China">
-  The anti-cheat there blocks all mods. Accounts get banned.
-</Callout>
+<LevelPill level="beginner" />
+
+One or two sentences on what the reader will make.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Flint" href="/docs/lol/tools/modding-apps/flint">
+    Flint
+  </Requirement>
+</Requirements>
+
+## Make the change
+
+<Steps>
+<Step>
+
+### First stage
+
+1. Do this.
+2. Then do this.
+
+</Step>
+</Steps>
+
+## Common problems
+
+<Accordions type="multiple">
+  <Accordion title="The game crashes when it loads" id="crash-on-load">
+    What to do about it.
+  </Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="The next guide"
+    href="/docs/lol/getting-started/walkthrough"
+    icon={<Icon name="Compass" />}
+    level="beginner"
+  >
+    One line on what it covers.
+  </PremiumCard>
+</CardGrid>
+```
+
+Inne rodzaje stron:
+
+- **Strona narzędzia** zaczyna się od [ToolHeader](#toolheader). Potem
+  opisuje, co narzędzie robi, jak je zainstalować i jak go używać.
+- **Strona startowa kategorii** ma krótkie wprowadzenie, a pod nim
+  [CardGrid](#cardgrid) z jedną kartą [PremiumCard](#premiumcard) na każdy
+  poradnik. Daj każdej karcie `level`.
+- **Strona z błędami** to głównie [Accordions](#accordion), jeden wiersz na
+  jeden problem, każdy z własnym `id`.
+
+## Zasady dla każdej strony [#rules-for-every-page]
+
+- **ToolCard tylko do narzędzi.** Poradniki trafiają do kart PremiumCard.
+- **Linkuj każdą stronę raz.** Jeśli karta już prowadzi do jakiejś strony,
+  nie linkuj jej drugi raz w tekście.
+- **Żadnych linków w kartach.** ToolCard i PremiumCard same są linkiem.
+  Drugi link w środku psuje stronę. Nazwę tamtej strony wpisz zwykłym
+  tekstem.
+- **Najwyżej jedna karta `featured` i jeden GlowCTA na stronę.** Jeśli
+  wszystko się wyróżnia, nic się nie wyróżnia.
+- **Wartości propsów zostaw po angielsku.** `type`, `level`, `icon`, `id`,
+  `href` i `value` są takie same w każdym języku. Tłumacz tylko tekst, który
+  widzi czytelnik: `title`, `badge`, `alt`, `note` i etykiety.
+- **Zostaw pustą linię między komponentem a tekstem w Markdownie.** Bez niej
+  strona może się nie zbudować.
+
+## LevelPill
+
+Pokazuje, jak trudny jest poradnik. Wstaw go do każdego nowego poradnika,
+tuż pod tytułem, przed pierwszym zdaniem.
+
+<LevelPill level="beginner" /> <LevelPill level="intermediate" />
+<LevelPill level="advanced" />
+
+```mdx
+<LevelPill level="beginner" />
+```
+
+Poziom wybieraj według pracy, a nie tematu:
+
+- `beginner`: bez pracy w 3D. Instalowanie, pakowanie, proste podmiany i
+  zmiany kolorów.
+- `intermediate`: edytujesz coś w aplikacji 3D albo w narzędziu do
+  moddingu, na przykład przy podmianie tekstury albo dźwięku.
+- `advanced`: dużo narzędzi i kroków, na przykład pełna podmiana modelu,
+  rigging albo nowy efekt.
+
+Użyj opcjonalnego propa `label`, żeby zmienić tekst:
+`<LevelPill level="advanced" label="Expert" />`.
+
+## Requirements
+
+Lista „Czego potrzebujesz” w formie plakietek. Wstaw ją blisko góry, przed
+pierwszym krokiem. Każdemu narzędziu daj jego logo i link do jego strony.
+Rzeczy, które nie są narzędziami, jak konto albo plik, dodaj jako zwykłe
+plakietki.
+
+<Requirements>
+  <Requirement icon="Flint" href="/docs/lol/tools/modding-apps/flint">
+    Flint
+  </Requirement>
+  <Requirement icon="GIMP" note="or Photoshop">
+    GIMP
+  </Requirement>
+  <Requirement icon="FileImage">Your texture as a PNG</Requirement>
+</Requirements>
+
+```mdx
+<Requirements>
+  <Requirement icon="Flint" href="/docs/lol/tools/modding-apps/flint">
+    Flint
+  </Requirement>
+  <Requirement icon="GIMP" note="or Photoshop">
+    GIMP
+  </Requirement>
+  <Requirement icon="FileImage">Your texture as a PNG</Requirement>
+</Requirements>
+```
+
+Propsy każdego `<Requirement>`:
+
+- `icon` jest opcjonalny. Przyjmuje nazwę z [Icon](#icon).
+- `href` jest opcjonalny. Z nim plakietka staje się linkiem. Linki
+  zewnętrzne otwierają się w nowej karcie.
+- `note` jest opcjonalny. Dodaje krótki szary dopisek, jak `or Photoshop`
+  albo `latest patch`.
+
+Każda etykieta ma być krótka. Dłuższe uwagi napisz w zdaniu pod
+plakietkami.
+
+## ToolHeader
+
+Podsumowanie na górze strony narzędzia: logo, do czego służy, krótkie
+fakty i przycisk pobierania. Użyj go raz, tuż pod tytułem. Nie używaj go w
+poradnikach. Żeby wskazać narzędzie z poziomu poradnika, użyj
+[ToolCard](#toolcard).
+
+<ToolHeader
+  name="Flint"
+  icon="Flint"
+  badge="Recommended"
+  facts={["Free", "Windows"]}
+  primary={{
+    label: "Download",
+    href: "https://github.com/RitoShark/Flint/releases",
+  }}
+>
+  All-in-one modding app. Extract, preview, edit, and pack in one window.
+</ToolHeader>
+
+```mdx
+<ToolHeader
+  name="Flint"
+  icon="Flint"
+  badge="Recommended"
+  facts={["Free", "Windows"]}
+  primary={{
+    label: "Download",
+    href: "https://github.com/RitoShark/Flint/releases",
+  }}
+  links={[{ label: "GitHub", href: "https://github.com/RitoShark/Flint" }]}
+>
+  All-in-one modding app.
+</ToolHeader>
 ```
 
 Propsy:
 
-- `type` to `info`, `warning`, `danger` albo `success`. Domyślnie `info`.
-- `title` jest opcjonalny. Każdy typ ma domyślny tytuł.
+- `name` jest wymagany. `icon` przyjmuje nazwę z [Icon](#icon).
+- `badge` jest opcjonalny: `Recommended`, `Unofficial`, `Legacy` i tak
+  dalej.
+- `facts` to krótka lista: cena, licencja, platformy, wersja.
+- `primary` to główny przycisk pobierania. `links` dodaje mniejsze
+  przyciski, na przykład do GitHuba albo dokumentacji.
 
-Są też trzy typy poziomów do oznaczania trudności wewnątrz strony:
-`lvl_beginner`, `lvl_intermediate` i `lvl_advanced`. Do małej plakietki
-z trudnością na górze poradnika użyj zamiast tego [LevelPill](#levelpill).
+## Steps
+
+Ponumerowane etapy dłuższego zadania. Każdemu etapowi daj nagłówek `###`.
+W środku etapu rozpisz drobne kroki zwykłą listą numerowaną. Zostaw pustą
+linię po `<Step>` i przed `</Step>`.
+
+Użyj Steps, gdy zadanie ma dwa albo więcej etapów. Przy krótkim zadaniu
+wystarczy lista numerowana.
+
+<Steps>
+<Step>
+
+### Find the file
+
+Open the game files and note the path.
+
+</Step>
+<Step>
+
+### Edit and compile it
+
+Change the file, then compile it.
+
+</Step>
+</Steps>
+
+```mdx
+<Steps>
+<Step>
+
+### Find the file
+
+Open the game files and note the path.
+
+</Step>
+<Step>
+
+### Edit and compile it
+
+Change the file, then compile it.
+
+</Step>
+</Steps>
+```
+
+## MenuPath
+
+Ścieżka w menu w środku kroku. Każda pozycja menu wygląda jak klawisz, a
+między nimi stoją strzałki. Wpisz etykiety dokładnie tak, jak w narzędziu,
+z tą samą wielkością liter. Oddzielaj pozycje znakiem `>`.
+
+1. Right-click the file and choose <MenuPath path="Recompile > Full" />.
+
+```mdx
+1. Right-click the file and choose <MenuPath path="Recompile > Full" />.
+```
+
+Używaj go do menu i ścieżek w ustawieniach. Pojedynczy przycisk zapisz
+**pogrubionym** tekstem.
 
 ## Tabs
 
-Alternatywne ścieżki. Użyj zakładek do kroków zależnych od systemu
-operacyjnego albo workflow zależnych od narzędzia. Każdy `<Tabs>`
-potrzebuje zamykającego `</Tabs>`, a każdy `<Tab>` zamykającego `</Tab>`.
+Dwa albo więcej sposobów na to samo. Użyj zakładek do różnych systemów
+operacyjnych, różnych narzędzi albo do pełnej i szybkiej ścieżki. Każda
+zakładka musi działać sama, bo czytelnik widzi tylko jedną.
+
+Każdy `<Tabs>` potrzebuje zamykającego `</Tabs>`, a każdy `<Tab>`
+zamykającego `</Tab>`. Każde `value` musi dokładnie pasować do jednego z
+`items`.
 
 <Tabs items={["Windows", "macOS"]}>
 
-<Tab value="Windows">Kroki dla Windowsa tutaj.</Tab>
+<Tab value="Windows">Windows steps here.</Tab>
 
-<Tab value="macOS">Kroki dla macOS tutaj.</Tab>
+<Tab value="macOS">macOS steps here.</Tab>
 
 </Tabs>
 
@@ -67,9 +308,290 @@ potrzebuje zamykającego `</Tabs>`, a każdy `<Tab>` zamykającego `</Tab>`.
 </Tabs>
 ```
 
+### Zakładki z logo [#tabs-with-logos]
+
+Żeby pokazać logo na każdej zakładce, napisz rząd zakładek sam.
+`defaultValue` wybiera zakładkę, która otwiera się jako pierwsza.
+
+<Tabs defaultValue="maya">
+<TabsList>
+<TabsTrigger value="maya"><Icon name="Maya" className="size-4" />Maya</TabsTrigger>
+<TabsTrigger value="blender"><Icon name="Blender" className="size-4" />Blender</TabsTrigger>
+</TabsList>
+<TabsContent value="maya">
+
+Maya steps here.
+
+</TabsContent>
+<TabsContent value="blender">
+
+Blender steps here.
+
+</TabsContent>
+</Tabs>
+
+```mdx
+<Tabs defaultValue="maya">
+<TabsList>
+<TabsTrigger value="maya"><Icon name="Maya" className="size-4" />Maya</TabsTrigger>
+<TabsTrigger value="blender"><Icon name="Blender" className="size-4" />Blender</TabsTrigger>
+</TabsList>
+<TabsContent value="maya">
+
+Maya steps here.
+
+</TabsContent>
+<TabsContent value="blender">
+
+Blender steps here.
+
+</TabsContent>
+</Tabs>
+```
+
+## Files
+
+Drzewo folderów. Pokaż nim, gdzie trafiają pliki albo co siedzi w środku
+moda. Dodaj `defaultOpen` do folderów, które mają być od razu otwarte.
+Nazwa w `File` może kończyć się krótką notką po dwukropku.
+
+<Files>
+  <Folder name="game" defaultOpen>
+    <Folder name="citadel" defaultOpen>
+      <File name="gameinfo.gi" />
+      <Folder name="addons" defaultOpen>
+        <File name="pak01_dir.vpk: your mod" />
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+
+```mdx
+<Files>
+  <Folder name="game" defaultOpen>
+    <Folder name="citadel" defaultOpen>
+      <File name="gameinfo.gi" />
+      <Folder name="addons" defaultOpen>
+        <File name="pak01_dir.vpk: your mod" />
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+```
+
+## Callout
+
+Kolorowe pole, które odcina się od tekstu. Używaj go do rzeczy, których
+czytelnik nie może przegapić. Większości poradników wystarczą najwyżej
+jedno albo dwa. Typ wybierz według tego, co się stanie, gdy czytelnik je
+pominie:
+
+- `info` na wskazówkę albo przydatny kontekst. Fioletowe pole.
+- `warning` na coś, co może pójść źle, jak stracona praca albo mod, który
+  psuje się po aktualizacji. Żółte pole.
+- `danger` na realne ryzyko, jak mod, który daje nieuczciwą przewagę.
+  Czerwone pole.
+- `success` na potwierdzenie, na przykład co czytelnik powinien zobaczyć,
+  gdy wszystko zadziała. Zielone pole.
+
+<Callout type="info" title="Wskazówka">
+  Możesz pominąć ten krok, jeśli narzędzie jest już zainstalowane.
+</Callout>
+
+<Callout type="warning" title="Make a copy first">
+  Saving over the original file cannot be undone.
+</Callout>
+
+<Callout type="danger" title="Graj fair">
+  Skin nie może sprawiać, że przeciwników łatwiej zobaczyć albo usłyszeć.
+</Callout>
+
+<Callout type="success" title="Gotowe">
+  Zielony ptaszek pojawia się, gdy skin jest gotowy.
+</Callout>
+
+```mdx
+<Callout type="warning" title="Make a copy first">
+  Saving over the original file cannot be undone.
+</Callout>
+```
+
+Propsy:
+
+- `type` to `info`, `warning`, `danger` albo `success`. Domyślnie `info`.
+- `title` jest opcjonalny. Każdy typ ma domyślny tytuł. Najlepiej działa
+  krótki tytuł, który od razu mówi, o co chodzi.
+
+Są też trzy typy poziomów: `lvl_beginner`, `lvl_intermediate` i
+`lvl_advanced`. Zamiast nich użyj [LevelPill](#levelpill). Oznacza on
+poziom całego poradnika.
+
+## Obrazek [#image]
+
+Screenshot. Tekst `alt` jest wymagany. Opiekunowie odrzucają obrazki bez
+niego. Trzymaj pliki poniżej 500 KB i wrzucaj je do `public/wiki-images/`.
+Czytelnik może kliknąć każdy obrazek, żeby go powiększyć. W edytorze
+draftów przycisk **Wgraj obrazek** dodaje go za ciebie.
+
+<img
+  src="/wiki-images/1767019072359-dfx5or.webp"
+  alt="LtMAO z otwartą zakładką maya i krokami instalacji lemon3d"
+/>
+
+```mdx
+<img
+  src="/wiki-images/your-screenshot.png"
+  alt="Short description of the image"
+/>
+```
+
+Pisz tekst `alt` dla kogoś, kto nie widzi obrazka. Napisz, co pokazuje i
+co jest na nim ważne, na przykład „Okno Export z zaznaczonym FBX”.
+
+## Video
+
+Krótki, niemy klip, który odtwarza się w pętli. Pokaż nim coś, co się
+rusza: efekt, animację albo narzędzie w akcji. Gra tylko wtedy, gdy jest
+na ekranie. Używaj go zamiast GIF-a. Ładuje się dużo szybciej. Do
+tutoriala z dźwiękiem użyj [YouTube](#youtube).
+
+<Video
+  src="/wiki-videos/deadlock-flipbooks-smoke.webm"
+  poster="/wiki-images/deadlock-flipbooks-smoke-poster.webp"
+  width={514}
+  height={446}
+  alt="Flipbook dymu odtwarza się na dwóch sprite'ach cząstek w edytorze."
+/>
+
+```mdx
+<Video
+  src="/wiki-videos/your-clip.webm"
+  poster="/wiki-images/your-clip-poster.webp"
+  width={640}
+  height={360}
+  alt="What the clip shows"
+/>
+```
+
+Propsy:
+
+- `src`, `poster`, `width` i `height` są wymagane. `width` i `height` to
+  rozmiar klipu w pikselach.
+- Klip `.webm` wrzuć do `public/wiki-videos/`. Poster, czyli nieruchomą
+  klatkę widoczną przed startem, wrzuć do `public/wiki-images/`.
+- `alt` opisuje klip, tak jak tekst `alt` obrazka.
+- `original` jest opcjonalny. Linkuje do źródła, na przykład do
+  oryginalnego GIF-a albo posta, z którego pochodzi klip.
+
+Klipy niech trwają kilka sekund. Edytor draftów nie wgrywa klipów, więc
+dodaj pliki do swojego pull requesta sam.
+
+## YouTube
+
+Osadzony film z YouTube. Użyj go do pełnego tutoriala. Podaj id filmu, nie
+pełny URL. Id to część po `watch?v=` albo `youtu.be/`.
+
+<YouTube
+  id="xqB84ga55hI"
+  title="Walkthrough własnego skina do League of Legends"
+/>
+
+```mdx
+<YouTube id="xqB84ga55hI" title="What the video shows" />
+```
+
+Propsy:
+
+- `id` jest wymagany.
+- `title` opisuje film dla czytników ekranu. Podaj też twórcę, na przykład
+  „Tutorial podmiany tekstur od Pugzilli”.
+- `start` jest opcjonalny. Uruchamia odtwarzanie od podanej sekundy.
+- `list` jest opcjonalny. Przyjmuje id playlisty.
+
+Skrót: wklej zwykły link do YouTube w osobnej linii, a wiki sama zamieni go
+w osadzony film.
+
+Film jest starszy niż obecna wersja narzędzia? Dodaj pod nim
+[Callout](#callout) typu `info`. Napisz, co teraz wygląda inaczej.
+
+## Blok kodu [#code-block]
+
+Blok kodu zamknięty między trzema backtickami. Użyj go do wszystkiego, co
+czytelnik kopiuje: kodu, wartości BIN, ścieżek plików i komend. Czytelnik
+dostaje przycisk kopiowania. Dopisz język zaraz za otwierającymi
+backtickami, żeby włączyć kolory. Nagłówek bloku pokazuje ten język.
+
+```bash
+npm run dev
+```
+
+````mdx
+```bash
+npm run dev
+```
+````
+
+Popularne języki: `bash` do komend, `python` do skryptów i `text` do
+ścieżek i zwykłego tekstu z wyniku. Tekst BIN z League nie ma własnego
+języka. Użyj `rust`, który dobrze go koloruje, i dodaj `title="BIN"`,
+żeby nagłówek pokazywał BIN.
+
+```rust title="BIN"
+birthColor: embed = ValueColor {
+    constantValue: vec4 = { 1, 0.7059, 0, 1 }
+}
+```
+
+````mdx
+```rust title="BIN"
+birthColor: embed = ValueColor {
+    constantValue: vec4 = { 1, 0.7059, 0, 1 }
+}
+```
+````
+
+## Tabela [#table]
+
+Tabela w Markdownie. Użyj jej, żeby porównać kilka rzeczy obok siebie.
+Trzymaj się trzech, czterech kolumn, żeby dało się ją czytać na telefonie.
+
+| Column A | Column B |
+| -------- | -------- |
+| Value    | Value    |
+
+```mdx
+| Column A | Column B |
+| -------- | -------- |
+| Value    | Value    |
+```
+
+## ParameterList
+
+Dwukolumnowa lista nazw i tego, co robią. Użyj jej do ustawień, opcji
+uruchamiania i flag komend. Przy trzech albo więcej kolumnach użyj
+[tabeli](#table).
+
+<ParameterList
+  parameters={[
+    { name: "champion", description: "The champion the skin belongs to." },
+    { name: "skin_id", description: "The numeric id of the base skin." },
+  ]}
+/>
+
+```mdx
+<ParameterList
+  parameters={[
+    { name: "champion", description: "The champion the skin belongs to." },
+    { name: "skin_id", description: "The numeric id of the base skin." },
+  ]}
+/>
+```
+
 ## Accordion
 
-Zwijane sekcje. Dobre do FAQ i opcjonalnych szczegółów.
+Zwijane wiersze. Użyj ich do problemów i rozwiązań, FAQ i dodatkowych
+szczegółów. Czytelnik otwiera tylko ten wiersz, którego potrzebuje. Nie
+chowaj w akordeonie kroków, których potrzebuje każdy.
 
 <Accordions>
 
@@ -91,65 +613,120 @@ Zwijane sekcje. Dobre do FAQ i opcjonalnych szczegółów.
 </Accordions>
 ```
 
-## Image
-
-Screenshot. Tekst `alt` jest wymagany. Opiekunowie odrzucają obrazki bez
-niego. Trzymaj pliki poniżej 500 KB i wrzucaj je do `public/wiki-images/`.
-Czytelnicy mogą kliknąć każdy obrazek, żeby go powiększyć.
-
-<img
-  src="/wiki-images/1767019072359-dfx5or.webp"
-  alt="LtMAO z otwartą zakładką maya, pokazujące kroki instalacji lemon3d"
-/>
+Na stronach z błędami daj każdemu wierszowi `id`. Wiersz dostaje wtedy
+własny link: czytelnik, który otworzy `#game-crashes`, trafia prosto na ten
+wiersz, już rozwinięty. Obok pojawia się przycisk kopiowania linku, więc
+osoby, które pomagają innym, mogą podesłać rozwiązanie na Discordzie.
+Dodaj `type="multiple"`, żeby czytelnik mógł otworzyć kilka wierszy naraz.
 
 ```mdx
-<img
-  src="/wiki-images/your-screenshot.png"
-  alt="Short description of the image"
-/>
+<Accordions type="multiple">
+  <Accordion title="The game crashes when it loads" id="game-crashes">
+    What to do about it.
+  </Accordion>
+</Accordions>
 ```
 
-## Code block
+Każdy `title` napisz jako problem, słowami czytelnika. `id` zostaw takie
+samo w każdym języku, żeby linki dalej działały.
 
-Blok kodu w ogrodzeniu. Dodaj język po otwierającym ogrodzeniu, żeby
-włączyć kolorowanie składni.
+## PremiumCard
 
-```bash
-npm run dev
-```
+Karta z linkiem do poradnika albo sekcji. Użyj jednej z `featured` dla
+najważniejszej kolejnej strony albo kilku w [CardGrid](#cardgrid), gdy
+dajesz czytelnikowi wybór.
 
-````mdx
-```bash
-npm run dev
-```
-````
-
-## Table
-
-Tabela w Markdownie. Trzymaj ją przy kilku kolumnach, żeby czytała się na
-telefonie.
-
-| Kolumna A | Kolumna B |
-| --------- | --------- |
-| Wartość   | Wartość   |
+<PremiumCard
+  title="Getting started"
+  href="/docs/lol/getting-started"
+  icon={<Icon name="Compass" />}
+  featured
+>
+  Start here if you are new. One path from empty folder to finished skin.
+</PremiumCard>
 
 ```mdx
-| Column A | Column B |
-| -------- | -------- |
-| Value    | Value    |
+<PremiumCard
+  title="Getting started"
+  href="/docs/lol/getting-started"
+  icon={<Icon name="Compass" />}
+  featured
+>
+  Start here if you are new.
+</PremiumCard>
 ```
+
+Propsy:
+
+- `title` i `href` są wymagane.
+- `icon` jest opcjonalny: `icon={<Icon name="Compass" />}`.
+- `featured` dodaje fioletową ramkę. Używaj go najwyżej raz na stronę.
+- `level` dodaje małą plakietkę z trudnością: `beginner`, `intermediate`
+  albo `advanced`. Dodaj go do każdej karty, która prowadzi do poradnika.
+
+Tekst w środku zmieść w jednej krótkiej linijce. Nie wstawiaj do niego
+linków.
+
+## CardGrid
+
+Karty PremiumCard obok siebie. Użyj go do sekcji kategorii albo do dwóch,
+trzech prawdziwych opcji w „Co dalej” na końcu poradnika.
+
+<CardGrid>
+  <PremiumCard
+    title="Maya"
+    href="/docs/lol/maya"
+    icon={<Icon name="Maya" />}
+    level="intermediate"
+  >
+    Rigging, skinning, and exporting for League.
+  </PremiumCard>
+  <PremiumCard
+    title="Blender"
+    href="/docs/lol/blender"
+    icon={<Icon name="Blender" />}
+    level="intermediate"
+  >
+    The same workflow in Blender.
+  </PremiumCard>
+</CardGrid>
+
+```mdx
+<CardGrid>
+  <PremiumCard
+    title="Maya"
+    href="/docs/lol/maya"
+    icon={<Icon name="Maya" />}
+    level="intermediate"
+  >
+    Rigging, skinning, and exporting for League.
+  </PremiumCard>
+  <PremiumCard
+    title="Blender"
+    href="/docs/lol/blender"
+    icon={<Icon name="Blender" />}
+    level="intermediate"
+  >
+    The same workflow in Blender.
+  </PremiumCard>
+</CardGrid>
+```
+
+`cols={3}` mieści trzy wąskie karty w rzędzie na szerokich ekranach.
 
 ## ToolCard
 
 Pojedynczy wiersz narzędzia z nazwą, linkiem i jednolinijkowym opisem.
-Używaj go na stronach z listami narzędzi.
+Używaj go na stronach z listami narzędzi. W poradniku wstaw kilka ToolCard,
+gdy czytelnik wybiera jedno narzędzie z kilku.
 
 <ToolCard
   name="Flint"
   href="/docs/lol/tools/modding-apps/flint"
-  badge="Polecane"
+  badge="Recommended"
+  icon={<Icon name="Flint" />}
 >
-  Narzędzie do tworzenia skinów, wszystko w jednym.
+  All-in-one skin creation tool.
 </ToolCard>
 
 ```mdx
@@ -157,6 +734,7 @@ Używaj go na stronach z listami narzędzi.
   name="Flint"
   href="/docs/lol/tools/modding-apps/flint"
   badge="Recommended"
+  icon={<Icon name="Flint" />}
 >
   All-in-one skin creation tool.
 </ToolCard>
@@ -164,66 +742,25 @@ Używaj go na stronach z listami narzędzi.
 
 Propsy:
 
-- `name` i `href` są wymagane. Linki zewnętrzne otwierają się w nowej karcie.
+- `name` i `href` są wymagane. Linki zewnętrzne otwierają się w nowej
+  karcie.
 - `badge` jest opcjonalny. Renderuje się jako mała plakietka po prawej.
-
-## LevelPill
-
-Znacznik trudności. Umieść go na górze poradnika, tuż pod tytułem. `level`
-to `beginner`, `intermediate` albo `advanced`.
-
-<LevelPill level="beginner" /> <LevelPill level="intermediate" />
-<LevelPill level="advanced" />
-
-```mdx
-<LevelPill level="beginner" />
-```
-
-Użyj opcjonalnego propa `label`, żeby zmienić tekst:
-`<LevelPill level="advanced" label="Expert" />`.
-
-## ParameterList
-
-Dwukolumnowa tabela nazwa/opis do stron referencyjnych.
-
-<ParameterList
-  parameters={[
-    { name: "champion", description: "Bohater, do którego należy skin." },
-    { name: "skin_id", description: "Numeryczne id bazowego skina." },
-  ]}
-/>
-
-```mdx
-<ParameterList
-  parameters={[
-    { name: "champion", description: "The champion the skin belongs to." },
-    { name: "skin_id", description: "The numeric id of the base skin." },
-  ]}
-/>
-```
-
-## PremiumCard
-
-Wyróżniona karta z gradientową ramką do jednego wyeksponowanego linku.
-Używaj jej, żeby skierować czytelnika na najważniejszą kolejną stronę.
-
-<PremiumCard title="Getting started" href="/docs/lol/getting-started">
-  Zacznij tutaj, jeśli jesteś nowy. Jedna ścieżka od pustego folderu do
-  gotowego skina.
-</PremiumCard>
-
-```mdx
-<PremiumCard title="Getting started" href="/docs/lol/getting-started">
-  Start here if you are new.
-</PremiumCard>
-```
+  Ogranicz go do jednego, dwóch słów: `Recommended`, `Free`, `Unofficial`,
+  `Legacy`.
+- `icon` jest opcjonalny. Podaj logo narzędzia:
+  `icon={<Icon name="Flint" />}`. Listę dostępnych logo znajdziesz w
+  [Icon](#icon).
+- Używaj go tylko do narzędzi. Do poradników użyj
+  [PremiumCard](#premiumcard).
+- Nie wstawiaj linków do opisu. Nazwy innych narzędzi zapisz jako `code`.
 
 ## GlowCTA
 
-Świecący przycisk call-to-action. Używaj go do jednej akcji, którą chcesz,
-żeby czytelnik wykonał. Najwyżej jeden na stronę.
+Świecący przycisk akcji. Użyj go do tej jednej rzeczy, którą czytelnik ma
+zrobić, jak pobranie albo następny duży krok. Najwyżej jeden na stronę. Do
+zwykłego linku użyj linku w Markdownie.
 
-<GlowCTA href="/docs/lol">Przejrzyj poradniki</GlowCTA>
+<GlowCTA href="/docs/lol">Browse the guides</GlowCTA>
 
 ```mdx
 <GlowCTA href="/docs/lol">Browse the guides</GlowCTA>
@@ -232,44 +769,32 @@ Używaj jej, żeby skierować czytelnika na najważniejszą kolejną stronę.
 Propsy:
 
 - `variant` to `primary` (fioletowa poświata, domyślnie), `solid`,
-  `secondary` albo `ghost`.
+  `secondary` albo `ghost`. Obok przycisku `primary` daj drugiemu
+  przyciskowi `secondary`.
 - `size` to `md` (domyślnie) albo `lg`.
-
-## YouTube
-
-Osadzony film z YouTube. Podaj id filmu, nie pełny URL. Id to część po
-`watch?v=` albo `youtu.be/`.
-
-<YouTube
-  id="xqB84ga55hI"
-  title="Walkthrough własnego skina do League of Legends"
-/>
-
-```mdx
-<YouTube id="xqB84ga55hI" title="What the video shows" />
-```
-
-Propsy:
-
-- `id` jest wymagany.
-- `title` opisuje film dla czytników ekranu.
-- `start` jest opcjonalny. Uruchamia odtwarzanie od podanej sekundy.
-
-Skrót: wklej zwykły link do YouTube w osobnej linii, a wiki sama zamieni go
-w osadzony film.
 
 ## Icon
 
 Ikona w linii tekstu. Użyj dowolnej [nazwy ikony Lucide](https://lucide.dev/icons/)
-albo jednej z nazw brandowych: `Maya`, `Blender`, `Discord`,
-`LeagueOfLegends`.
+albo jednego z logo poniżej. Te same nazwy działają w propie `icon` w
+ToolHeader i Requirement oraz w środku `icon={<Icon name="..." />}`.
+
+| Grupa                  | Nazwy                                                                                          |
+| ---------------------- | ---------------------------------------------------------------------------------------------- |
+| Gry                    | `LeagueOfLegends`, `Deadlock`                                                                  |
+| Narzędzia do League    | `Flint`, `Jade`, `Quartz`, `Ruby`, `LtMAO`                                                     |
+| Narzędzia do Deadlocka | `Source2Viewer`, `DeadlockModManager`, `Grimoire`                                              |
+| Aplikacje              | `Maya`, `Blender`, `GIMP`, `Audacity`, `Wwise`, `NotepadPlusPlus`                              |
+| Platformy              | `Steam`, `Valve`, `SteamDeck`, `Linux`, `GameBanana`, `GitHub`, `Discord`, `YouTube`, `Reddit` |
 
 <Icon name="Wrench" /> <Icon name="Sparkles" /> <Icon name="Blender" />
-<Icon name="Discord" />
+<Icon name="Discord" /> <Icon name="Flint" /> <Icon name="Source2Viewer" />
 
 ```mdx
 <Icon name="Wrench" />
 ```
 
-Użyj opcjonalnego propa `className`, żeby zmienić rozmiar, na przykład
+Jeśli narzędzie ma logo, użyj go. Jeśli nie, wybierz ikonę Lucide pasującą
+do tematu, na przykład `Bone` do riggingu albo `Music` do dźwięków. Użyj
+opcjonalnego propa `className`, żeby zmienić rozmiar, na przykład
 `className="size-4"`.

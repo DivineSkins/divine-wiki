@@ -1,274 +1,121 @@
 ---
 title: Components
-description: Every component you can use in a guide. Each one shown live, with the code to copy.
+description: Every component you can use in a guide, when to use each one, and the code to copy. Each one is shown live.
 ---
 
-The wiki has a small set of components you can drop into any guide. The
-draft editor's toolbar inserts them for you. This page is the full
-reference. Each section shows the component first, then the code that
-makes it.
+Components are the building blocks of a guide: cards, steps, tips, videos,
+and more. The draft editor's toolbar inserts them for you. This page shows
+each one live, says when to use it, and gives you the code to copy.
 
 ## Which component to use
 
 Each component has one job. Pick by what you are showing, not by how it
 looks.
 
-| You want to show                             | Use                                                   |
-| -------------------------------------------- | ----------------------------------------------------- |
-| The one page a reader should open first      | [PremiumCard](#premiumcard) with `featured`           |
-| A set of guides or sections to pick from     | [CardGrid](#cardgrid) of [PremiumCards](#premiumcard) |
-| A list of tools                              | [ToolCard](#toolcard) rows, with the tool's logo      |
-| The summary at the top of a tool's own page  | [ToolHeader](#toolheader)                             |
-| What a reader needs before they start        | [Requirements](#requirements)                         |
-| A task with several stages                   | [Steps](#steps)                                       |
-| Two or more ways to do the same thing        | [Tabs](#tabs)                                         |
-| Where files go                               | [Files](#files)                                       |
-| A menu path inside a step                    | [MenuPath](#menupath)                                 |
-| Problems and fixes, FAQs, optional detail    | [Accordion](#accordion)                               |
-| Names with descriptions (settings, commands) | [ParameterList](#parameterlist) or a [table](#table)  |
-| A warning or a tip                           | [Callout](#callout)                                   |
-| The single action a page asks for            | [GlowCTA](#glowcta)                                   |
+| You want to show                                 | Use                                                   |
+| ------------------------------------------------ | ----------------------------------------------------- |
+| How hard the guide is                            | [LevelPill](#levelpill)                               |
+| What the reader needs before they start          | [Requirements](#requirements)                         |
+| The summary at the top of a tool's own page      | [ToolHeader](#toolheader)                             |
+| A task with several stages                       | [Steps](#steps)                                       |
+| A menu path inside a step                        | [MenuPath](#menupath)                                 |
+| Two or more ways to do the same thing            | [Tabs](#tabs)                                         |
+| Where files go                                   | [Files](#files)                                       |
+| A tip, a warning, or a fair-play rule            | [Callout](#callout)                                   |
+| A screenshot                                     | [Image](#image)                                       |
+| A short, silent clip of something moving         | [Video](#video)                                       |
+| A full tutorial with sound                       | [YouTube](#youtube)                                   |
+| Text to copy: code, BIN values, paths, commands  | [Code block](#code-block)                             |
+| Facts to compare in a few columns                | [Table](#table)                                       |
+| Names with descriptions (settings, options)      | [ParameterList](#parameterlist) or a [table](#table)  |
+| Problems and fixes, FAQs, optional detail        | [Accordion](#accordion)                               |
+| The one page a reader should open first          | [PremiumCard](#premiumcard) with `featured`           |
+| A set of guides or sections to pick from         | [CardGrid](#cardgrid) of [PremiumCards](#premiumcard) |
+| A list of tools, or a choice between a few tools | [ToolCard](#toolcard) rows, with the tool's logo      |
+| The single action a page asks for                | [GlowCTA](#glowcta)                                   |
+| A logo or a small icon                           | [Icon](#icon)                                         |
 
-Two rules keep pages readable:
+## How a guide fits together
 
-- **Don't use ToolCard for guides.** It is for tools. Guides go in PremiumCards.
-- **Link each page once.** If a card already points to a page, don't link it again in the text.
-
-## Callout
-
-A colored box for warnings, tips, and the Korea/China safety note. Use
-`type="danger"` for real risk, `info` for tips, `warning` for "this can
-go wrong", and `success` for confirmation.
-
-<Callout type="info" title="Tip">
-  You can skip this step if you already installed the tool.
-</Callout>
-
-<Callout type="warning" title="Heads up">
-  Saving over the original file cannot be undone. Make a copy first.
-</Callout>
-
-<Callout type="danger" title="Don't use custom skins in Korea or China">
-  The anti-cheat there blocks all mods. Accounts get banned.
-</Callout>
-
-<Callout type="success" title="Done">
-  A green checkmark appears when the skin is ready.
-</Callout>
+Most guides follow the same order. Copy this as your starting point:
 
 ```mdx
-<Callout type="danger" title="Don't use custom skins in Korea or China">
-  The anti-cheat there blocks all mods. Accounts get banned.
-</Callout>
-```
+<LevelPill level="beginner" />
 
-Props:
+One or two sentences on what the reader will make.
 
-- `type` is `info`, `warning`, `danger`, or `success`. Defaults to `info`.
-- `title` is optional. Each type has a default title.
+## What you need
 
-There are also three level types for marking difficulty inside a page:
-`lvl_beginner`, `lvl_intermediate`, and `lvl_advanced`. For a small
-difficulty badge at the top of a guide, use [LevelPill](#levelpill)
-instead.
+<Requirements>
+  <Requirement icon="Flint" href="/docs/lol/tools/modding-apps/flint">
+    Flint
+  </Requirement>
+</Requirements>
 
-## Tabs
-
-Alternative paths. Use tabs for operating-system-specific steps or
-tool-specific workflows. Every `<Tabs>` needs a closing `</Tabs>`, and
-every `<Tab>` a closing `</Tab>`.
-
-<Tabs items={["Windows", "macOS"]}>
-
-<Tab value="Windows">Windows steps here.</Tab>
-
-<Tab value="macOS">macOS steps here.</Tab>
-
-</Tabs>
-
-```mdx
-<Tabs items={["Windows", "macOS"]}>
-  <Tab value="Windows">Windows steps here.</Tab>
-  <Tab value="macOS">macOS steps here.</Tab>
-</Tabs>
-```
-
-## Accordion
-
-Collapsible sections. Good for FAQs and optional detail.
-
-<Accordions>
-
-<Accordion title="Do I need Maya to make a skin?">
-  No. Blender works for the full workflow, and many edits need no 3D tool at
-  all.
-</Accordion>
-
-<Accordion title="How big can my mod file be?">
-  There is no hard limit, but keep textures small so the mod loads fast.
-</Accordion>
-
-</Accordions>
-
-```mdx
-<Accordions>
-  <Accordion title="Question here">Answer here.</Accordion>
-</Accordions>
-```
-
-## Steps
-
-Numbered stages for a longer task. Give each stage a `###` heading.
-Inside a stage, use a normal numbered list for the small steps. Leave
-a blank line after `<Step>` and before `</Step>`.
+## Make the change
 
 <Steps>
 <Step>
 
-### Find the file
+### First stage
 
-Open the game files and note the path.
-
-</Step>
-<Step>
-
-### Edit and compile it
-
-Change the file, then compile it.
+1. Do this.
+2. Then do this.
 
 </Step>
 </Steps>
 
-```mdx
-<Steps>
-<Step>
+## Common problems
 
-### Find the file
+<Accordions type="multiple">
+  <Accordion title="The game crashes when it loads" id="crash-on-load">
+    What to do about it.
+  </Accordion>
+</Accordions>
 
-Open the game files and note the path.
+## Next steps
 
-</Step>
-<Step>
-
-### Edit and compile it
-
-Change the file, then compile it.
-
-</Step>
-</Steps>
+<CardGrid>
+  <PremiumCard
+    title="The next guide"
+    href="/docs/lol/getting-started/walkthrough"
+    icon={<Icon name="Compass" />}
+    level="beginner"
+  >
+    One line on what it covers.
+  </PremiumCard>
+</CardGrid>
 ```
 
-## Files
+Other kinds of pages:
 
-A folder tree. Use it to show where files go. Add `defaultOpen` to
-folders that should start open.
+- **A tool's own page** starts with a [ToolHeader](#toolheader). Then it
+  covers what the tool does, how to install it, and how to use it.
+- **A category's start page** has a short intro, then a [CardGrid](#cardgrid)
+  with one [PremiumCard](#premiumcard) per guide. Give each card a `level`.
+- **An errors page** is mostly [Accordions](#accordion), one row per
+  problem, each with an `id`.
 
-<Files>
-  <Folder name="game" defaultOpen>
-    <Folder name="citadel" defaultOpen>
-      <File name="gameinfo.gi" />
-      <Folder name="addons" defaultOpen>
-        <File name="pak01_dir.vpk" />
-      </Folder>
-    </Folder>
-  </Folder>
-</Files>
+## Rules for every page
 
-```mdx
-<Files>
-  <Folder name="game" defaultOpen>
-    <Folder name="citadel" defaultOpen>
-      <File name="gameinfo.gi" />
-      <Folder name="addons" defaultOpen>
-        <File name="pak01_dir.vpk" />
-      </Folder>
-    </Folder>
-  </Folder>
-</Files>
-```
-
-## Image
-
-A screenshot. `alt` text is required. Reviewers reject images without
-it. Keep files under 500 KB and put them in `public/wiki-images/`.
-Readers can click any image to zoom it.
-
-<img
-  src="/wiki-images/1767019072359-dfx5or.webp"
-  alt="LtMAO with the maya tab open, showing the lemon3d install steps"
-/>
-
-```mdx
-<img
-  src="/wiki-images/your-screenshot.png"
-  alt="Short description of the image"
-/>
-```
-
-## Code block
-
-A fenced code block. Add a language after the opening fence for
-highlighting.
-
-```bash
-npm run dev
-```
-
-````mdx
-```bash
-npm run dev
-```
-````
-
-## Table
-
-A Markdown table. Keep it to a few columns so it reads on mobile.
-
-| Column A | Column B |
-| -------- | -------- |
-| Value    | Value    |
-
-```mdx
-| Column A | Column B |
-| -------- | -------- |
-| Value    | Value    |
-```
-
-## ToolCard
-
-A single tool row with a name, a link, and a one-line description. Use
-it on tool list pages.
-
-<ToolCard
-  name="Flint"
-  href="/docs/lol/tools/modding-apps/flint"
-  badge="Recommended"
->
-  All-in-one skin creation tool.
-</ToolCard>
-
-```mdx
-<ToolCard
-  name="Flint"
-  href="/docs/lol/tools/modding-apps/flint"
-  badge="Recommended"
->
-  All-in-one skin creation tool.
-</ToolCard>
-```
-
-Props:
-
-- `name` and `href` are required. External links open in a new tab.
-- `badge` is optional. It renders as a small pill on the right.
-- `icon` is optional. Pass the tool's logo: `icon={<Icon name="Flint" />}`.
-  See [Icon](#icon) for the logos we have.
-- Use it for tools only. For guides, use [PremiumCard](#premiumcard).
+- **Use ToolCard for tools only.** Guides go in PremiumCards.
+- **Link each page once.** If a card already points to a page, don't link
+  it again in the text.
+- **No links inside a card.** A ToolCard or PremiumCard is already a link.
+  A second link inside it breaks the page. Name the other page in plain
+  text instead.
+- **One `featured` card and one GlowCTA per page, at most.** If everything
+  stands out, nothing does.
+- **Keep prop values in English.** `type`, `level`, `icon`, `id`, `href`,
+  and `value` stay the same in every language. Translate only the text
+  readers see: `title`, `badge`, `alt`, `note`, and labels.
+- **Leave a blank line between a component and Markdown text.** Without
+  it, the page can fail to build.
 
 ## LevelPill
 
-A difficulty marker. Put it at the top of a guide, right under the
-title. `level` is `beginner`, `intermediate`, or `advanced`.
+How hard the guide is. Put one on every new guide, right under the title,
+before the first sentence.
 
 <LevelPill level="beginner" /> <LevelPill level="intermediate" />
 <LevelPill level="advanced" />
@@ -277,109 +124,61 @@ title. `level` is `beginner`, `intermediate`, or `advanced`.
 <LevelPill level="beginner" />
 ```
 
+Pick the level by the work, not the topic:
+
+- `beginner`: no 3D work. Installing, packing, simple swaps, and recolors.
+- `intermediate`: you edit in a 3D app or a modding tool, like a retexture
+  or a sound swap.
+- `advanced`: many tools and steps, like a full model swap, rigging, or a
+  new effect.
+
 Use the optional `label` prop to change the text:
 `<LevelPill level="advanced" label="Expert" />`.
 
-## ParameterList
+## Requirements
 
-A two-column name/description table for reference pages.
+The "What you need" list, as chips. Put it near the top, before the first
+step. Give each tool its logo and a link to its page. Things that aren't
+tools, like an account or a file, go in as plain chips.
 
-<ParameterList
-  parameters={[
-    { name: "champion", description: "The champion the skin belongs to." },
-    { name: "skin_id", description: "The numeric id of the base skin." },
-  ]}
-/>
-
-```mdx
-<ParameterList
-  parameters={[
-    { name: "champion", description: "The champion the skin belongs to." },
-    { name: "skin_id", description: "The numeric id of the base skin." },
-  ]}
-/>
-```
-
-## PremiumCard
-
-A card that links to a guide or a section. Use one with `featured` for
-the most important next page, or several in a [CardGrid](#cardgrid) for
-a set of choices.
-
-<PremiumCard
-  title="Getting started"
-  href="/docs/lol/getting-started"
-  icon={<Icon name="Compass" />}
-  featured
->
-  Start here if you are new. One path from empty folder to finished skin.
-</PremiumCard>
+<Requirements>
+  <Requirement icon="Flint" href="/docs/lol/tools/modding-apps/flint">
+    Flint
+  </Requirement>
+  <Requirement icon="GIMP" note="or Photoshop">
+    GIMP
+  </Requirement>
+  <Requirement icon="FileImage">Your texture as a PNG</Requirement>
+</Requirements>
 
 ```mdx
-<PremiumCard
-  title="Getting started"
-  href="/docs/lol/getting-started"
-  icon={<Icon name="Compass" />}
-  featured
->
-  Start here if you are new.
-</PremiumCard>
+<Requirements>
+  <Requirement icon="Flint" href="/docs/lol/tools/modding-apps/flint">
+    Flint
+  </Requirement>
+  <Requirement icon="GIMP" note="or Photoshop">
+    GIMP
+  </Requirement>
+  <Requirement icon="FileImage">Your texture as a PNG</Requirement>
+</Requirements>
 ```
 
-Props:
+Props for each `<Requirement>`:
 
-- `title` and `href` are required.
-- `icon` is optional: `icon={<Icon name="Compass" />}`.
-- `featured` adds a purple frame. Use it once per page at most.
-- `level` adds a small difficulty tag: `beginner`, `intermediate`, or
-  `advanced`.
+- `icon` is optional. It takes an [Icon](#icon) name.
+- `href` is optional. With it, the chip becomes a link. External links open
+  in a new tab.
+- `note` is optional. It adds a short gray aside, like `or Photoshop` or
+  `latest patch`.
 
-## CardGrid
-
-PremiumCards side by side. Use it for the sections of a category, or for
-two or three real choices at the end of a guide.
-
-<CardGrid>
-  <PremiumCard
-    title="Maya"
-    href="/docs/lol/maya"
-    icon={<Icon name="Maya" />}
-    level="intermediate"
-  >
-    Rigging, skinning, and exporting for League.
-  </PremiumCard>
-  <PremiumCard
-    title="Blender"
-    href="/docs/lol/blender"
-    icon={<Icon name="Blender" />}
-    level="intermediate"
-  >
-    The same workflow in Blender.
-  </PremiumCard>
-</CardGrid>
-
-```mdx
-<CardGrid>
-  <PremiumCard title="Maya" href="/docs/lol/maya" icon={<Icon name="Maya" />}>
-    Rigging, skinning, and exporting for League.
-  </PremiumCard>
-  <PremiumCard
-    title="Blender"
-    href="/docs/lol/blender"
-    icon={<Icon name="Blender" />}
-  >
-    The same workflow in Blender.
-  </PremiumCard>
-</CardGrid>
-```
-
-`cols={3}` fits three narrow cards per row on wide screens.
+Keep each label short. Put longer notes in a sentence under the chips.
 
 ## ToolHeader
 
-The summary at the top of a tool's own page: its logo, what it does,
-short facts, and the download button. Use it once, right under the
-title.
+The summary at the top of a tool's own page: its logo, what it does, short
+facts, and the download button. Use it once, right under the title. Don't
+use it in guides. To point to a tool from a guide, use a
+[ToolCard](#toolcard).
 
 <ToolHeader
   name="Flint"
@@ -413,44 +212,61 @@ title.
 Props:
 
 - `name` is required. `icon` takes an [Icon](#icon) name.
+- `badge` is optional: `Recommended`, `Unofficial`, `Legacy`, and so on.
 - `facts` is a short list: price, license, platforms, version.
 - `primary` is the main download. `links` adds smaller buttons, such as
   GitHub or docs.
 
-## Requirements
+## Steps
 
-The "What you need" list, as chips. Give each tool its logo and a link
-to its page. Things that aren't tools (an account, a file) go in as
-plain chips.
+Numbered stages for a longer task. Give each stage a `###` heading.
+Inside a stage, use a normal numbered list for the small steps. Leave a
+blank line after `<Step>` and before `</Step>`.
 
-<Requirements>
-  <Requirement icon="Flint" href="/docs/lol/tools/modding-apps/flint">
-    Flint
-  </Requirement>
-  <Requirement icon="GIMP" note="or Photoshop">
-    GIMP
-  </Requirement>
-  <Requirement icon="FileImage">Your texture as a PNG</Requirement>
-</Requirements>
+Use Steps when the task has two or more stages. For a short task, a
+numbered list is enough.
+
+<Steps>
+<Step>
+
+### Find the file
+
+Open the game files and note the path.
+
+</Step>
+<Step>
+
+### Edit and compile it
+
+Change the file, then compile it.
+
+</Step>
+</Steps>
 
 ```mdx
-<Requirements>
-  <Requirement icon="Flint" href="/docs/lol/tools/modding-apps/flint">
-    Flint
-  </Requirement>
-  <Requirement icon="GIMP" note="or Photoshop">
-    GIMP
-  </Requirement>
-  <Requirement icon="FileImage">Your texture as a PNG</Requirement>
-</Requirements>
-```
+<Steps>
+<Step>
 
-Keep each label short. Put longer notes in a sentence under the chips.
+### Find the file
+
+Open the game files and note the path.
+
+</Step>
+<Step>
+
+### Edit and compile it
+
+Change the file, then compile it.
+
+</Step>
+</Steps>
+```
 
 ## MenuPath
 
 A menu path inside a step. It shows each menu item as a key, with arrows
-between them.
+between them. Use the tool's own labels, in the same case. Separate the
+items with `>`.
 
 1. Right-click the file and choose <MenuPath path="Recompile > Full" />.
 
@@ -458,27 +274,214 @@ between them.
 1. Right-click the file and choose <MenuPath path="Recompile > Full" />.
 ```
 
-## GlowCTA
+Use it for menus and settings paths. For a single button, use **bold**
+text instead.
 
-A glowing call-to-action button. Use it for the one action you want
-the reader to take. One per page at most.
+## Tabs
 
-<GlowCTA href="/docs/lol">Browse the guides</GlowCTA>
+Two or more ways to do the same thing. Use tabs for different operating
+systems, different tools, or a full and a quick path. Each tab must work
+on its own, because readers only see one.
+
+Every `<Tabs>` needs a closing `</Tabs>`, and every `<Tab>` a closing
+`</Tab>`. Each `value` must match one of the `items` exactly.
+
+<Tabs items={["Windows", "macOS"]}>
+
+<Tab value="Windows">Windows steps here.</Tab>
+
+<Tab value="macOS">macOS steps here.</Tab>
+
+</Tabs>
 
 ```mdx
-<GlowCTA href="/docs/lol">Browse the guides</GlowCTA>
+<Tabs items={["Windows", "macOS"]}>
+  <Tab value="Windows">Windows steps here.</Tab>
+  <Tab value="macOS">macOS steps here.</Tab>
+</Tabs>
+```
+
+### Tabs with logos
+
+To show a logo on each tab, write the tab row yourself. `defaultValue`
+picks the tab that opens first.
+
+<Tabs defaultValue="maya">
+<TabsList>
+<TabsTrigger value="maya"><Icon name="Maya" className="size-4" />Maya</TabsTrigger>
+<TabsTrigger value="blender"><Icon name="Blender" className="size-4" />Blender</TabsTrigger>
+</TabsList>
+<TabsContent value="maya">
+
+Maya steps here.
+
+</TabsContent>
+<TabsContent value="blender">
+
+Blender steps here.
+
+</TabsContent>
+</Tabs>
+
+```mdx
+<Tabs defaultValue="maya">
+<TabsList>
+<TabsTrigger value="maya"><Icon name="Maya" className="size-4" />Maya</TabsTrigger>
+<TabsTrigger value="blender"><Icon name="Blender" className="size-4" />Blender</TabsTrigger>
+</TabsList>
+<TabsContent value="maya">
+
+Maya steps here.
+
+</TabsContent>
+<TabsContent value="blender">
+
+Blender steps here.
+
+</TabsContent>
+</Tabs>
+```
+
+## Files
+
+A folder tree. Use it to show where files go, or what is inside a mod.
+Add `defaultOpen` to folders that should start open. A `File` name can
+end with a short note after a colon.
+
+<Files>
+  <Folder name="game" defaultOpen>
+    <Folder name="citadel" defaultOpen>
+      <File name="gameinfo.gi" />
+      <Folder name="addons" defaultOpen>
+        <File name="pak01_dir.vpk: your mod" />
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+
+```mdx
+<Files>
+  <Folder name="game" defaultOpen>
+    <Folder name="citadel" defaultOpen>
+      <File name="gameinfo.gi" />
+      <Folder name="addons" defaultOpen>
+        <File name="pak01_dir.vpk: your mod" />
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+```
+
+## Callout
+
+A colored box that stands out from the text. Use it for things a reader
+must not miss. Most guides need one or two at most. Pick the type by what
+happens if the reader skips it:
+
+- `info` for a tip or useful context. A purple box.
+- `warning` for something that can go wrong, like lost work or a mod that
+  breaks after an update. A yellow box.
+- `danger` for a real risk, like a mod that gives an unfair advantage. A
+  red box.
+- `success` for a confirmation, like what the reader should see when it
+  worked. A green box.
+
+<Callout type="info" title="Tip">
+  You can skip this step if you already installed the tool.
+</Callout>
+
+<Callout type="warning" title="Make a copy first">
+  Saving over the original file cannot be undone.
+</Callout>
+
+<Callout type="danger" title="Keep it fair">
+  A skin must not make enemies easier to see or hear.
+</Callout>
+
+<Callout type="success" title="Done">
+  A green checkmark appears when the skin is ready.
+</Callout>
+
+```mdx
+<Callout type="warning" title="Make a copy first">
+  Saving over the original file cannot be undone.
+</Callout>
 ```
 
 Props:
 
-- `variant` is `primary` (purple glow, default), `solid`, `secondary`,
-  or `ghost`.
-- `size` is `md` (default) or `lg`.
+- `type` is `info`, `warning`, `danger`, or `success`. Defaults to `info`.
+- `title` is optional. Each type has a default title. A short title that
+  says the point works best.
+
+There are also three level types: `lvl_beginner`, `lvl_intermediate`, and
+`lvl_advanced`. Use [LevelPill](#levelpill) instead. It marks the level of
+a whole guide.
+
+## Image
+
+A screenshot. `alt` text is required. Reviewers reject images without it.
+Keep files under 500 KB and put them in `public/wiki-images/`. Readers can
+click any image to zoom it. In the draft editor, the **Upload image**
+button adds it for you.
+
+<img
+  src="/wiki-images/1767019072359-dfx5or.webp"
+  alt="LtMAO with the maya tab open, showing the lemon3d install steps"
+/>
+
+```mdx
+<img
+  src="/wiki-images/your-screenshot.png"
+  alt="Short description of the image"
+/>
+```
+
+Write the `alt` text for someone who can't see the image. Say what it
+shows and what matters in it, like "The Export window with FBX selected".
+
+## Video
+
+A short, silent clip that plays on a loop. Use it to show something that
+moves: an effect, an animation, or a tool in action. It plays only while
+it is on screen. Use it instead of a GIF. It loads much faster. For a
+tutorial with sound, use [YouTube](#youtube).
+
+<Video
+  src="/wiki-videos/deadlock-flipbooks-smoke.webm"
+  poster="/wiki-images/deadlock-flipbooks-smoke-poster.webp"
+  width={514}
+  height={446}
+  alt="A smoke flipbook plays on two particle sprites in the editor."
+/>
+
+```mdx
+<Video
+  src="/wiki-videos/your-clip.webm"
+  poster="/wiki-images/your-clip-poster.webp"
+  width={640}
+  height={360}
+  alt="What the clip shows"
+/>
+```
+
+Props:
+
+- `src`, `poster`, `width`, and `height` are required. `width` and
+  `height` are the clip's size in pixels.
+- Put the `.webm` clip in `public/wiki-videos/`. Put the poster, the still
+  frame shown before it plays, in `public/wiki-images/`.
+- `alt` describes the clip, like the alt text of an image.
+- `original` is optional. It links to the source, like the original GIF
+  or the post it came from.
+
+Keep clips a few seconds long. The draft editor can't upload clips, so add
+the files to your pull request yourself.
 
 ## YouTube
 
-An embedded YouTube video. Pass the video id, not the full URL. The id
-is the part after `watch?v=` or `youtu.be/`.
+An embedded YouTube video. Use it for a full tutorial. Pass the video id,
+not the full URL. The id is the part after `watch?v=` or `youtu.be/`.
 
 <YouTube
   id="xqB84ga55hI"
@@ -492,11 +495,267 @@ is the part after `watch?v=` or `youtu.be/`.
 Props:
 
 - `id` is required.
-- `title` describes the video for screen readers.
+- `title` describes the video for screen readers. Name the creator too,
+  like "Texture swap tutorial by Pugzilla".
 - `start` is optional. It starts playback at that second.
+- `list` is optional. It takes a playlist id.
 
 Shortcut: paste a plain YouTube link on its own line and the wiki turns
 it into an embed for you.
+
+Is the video older than the current version of the tool? Add an `info`
+[Callout](#callout) under it. Say what looks different now.
+
+## Code block
+
+A fenced code block. Use it for anything a reader copies: code, BIN
+values, file paths, and commands. Readers get a copy button. Add a
+language after the opening fence for colors. The header shows the
+language.
+
+```bash
+npm run dev
+```
+
+````mdx
+```bash
+npm run dev
+```
+````
+
+Common languages: `bash` for commands, `python` for scripts, and `text`
+for paths and plain output. League BIN text has no language of its own.
+Use `rust`, which colors it well, and add `title="BIN"` so the header
+reads BIN.
+
+```rust title="BIN"
+birthColor: embed = ValueColor {
+    constantValue: vec4 = { 1, 0.7059, 0, 1 }
+}
+```
+
+````mdx
+```rust title="BIN"
+birthColor: embed = ValueColor {
+    constantValue: vec4 = { 1, 0.7059, 0, 1 }
+}
+```
+````
+
+## Table
+
+A Markdown table. Use it to compare a few things side by side. Keep it to
+three or four columns so it reads on phones.
+
+| Column A | Column B |
+| -------- | -------- |
+| Value    | Value    |
+
+```mdx
+| Column A | Column B |
+| -------- | -------- |
+| Value    | Value    |
+```
+
+## ParameterList
+
+A two-column list of names and what they do. Use it for settings, launch
+options, and command flags. For three or more columns, use a
+[table](#table).
+
+<ParameterList
+  parameters={[
+    { name: "champion", description: "The champion the skin belongs to." },
+    { name: "skin_id", description: "The numeric id of the base skin." },
+  ]}
+/>
+
+```mdx
+<ParameterList
+  parameters={[
+    { name: "champion", description: "The champion the skin belongs to." },
+    { name: "skin_id", description: "The numeric id of the base skin." },
+  ]}
+/>
+```
+
+## Accordion
+
+Collapsible rows. Use them for problems and fixes, FAQs, and optional
+detail. Readers open only the row they need. Don't hide steps everyone
+needs in an accordion.
+
+<Accordions>
+
+<Accordion title="Do I need Maya to make a skin?">
+  No. Blender works for the full workflow, and many edits need no 3D tool at
+  all.
+</Accordion>
+
+<Accordion title="How big can my mod file be?">
+  There is no hard limit, but keep textures small so the mod loads fast.
+</Accordion>
+
+</Accordions>
+
+```mdx
+<Accordions>
+  <Accordion title="Question here">Answer here.</Accordion>
+</Accordions>
+```
+
+On errors pages, give each row an `id`. The row gets its own link: a
+reader who opens `#game-crashes` lands on that row, open. A copy-link
+button appears next to it, so helpers can share the fix in Discord. Add
+`type="multiple"` so readers can open several rows at once.
+
+```mdx
+<Accordions type="multiple">
+  <Accordion title="The game crashes when it loads" id="game-crashes">
+    What to do about it.
+  </Accordion>
+</Accordions>
+```
+
+Write each `title` as the problem, in the reader's words. Keep the `id`
+the same in every language, so links keep working.
+
+## PremiumCard
+
+A card that links to a guide or a section. Use one with `featured` for
+the most important next page, or several in a [CardGrid](#cardgrid) for
+a set of choices.
+
+<PremiumCard
+  title="Getting started"
+  href="/docs/lol/getting-started"
+  icon={<Icon name="Compass" />}
+  featured
+>
+  Start here if you are new. One path from empty folder to finished skin.
+</PremiumCard>
+
+```mdx
+<PremiumCard
+  title="Getting started"
+  href="/docs/lol/getting-started"
+  icon={<Icon name="Compass" />}
+  featured
+>
+  Start here if you are new.
+</PremiumCard>
+```
+
+Props:
+
+- `title` and `href` are required.
+- `icon` is optional: `icon={<Icon name="Compass" />}`.
+- `featured` adds a purple frame. Use it once per page at most.
+- `level` adds a small difficulty tag: `beginner`, `intermediate`, or
+  `advanced`. Add it to every card that points to a guide.
+
+Keep the text inside to one short line. Don't put links in it.
+
+## CardGrid
+
+PremiumCards side by side. Use it for the sections of a category, or for
+two or three real choices in "Next steps" at the end of a guide.
+
+<CardGrid>
+  <PremiumCard
+    title="Maya"
+    href="/docs/lol/maya"
+    icon={<Icon name="Maya" />}
+    level="intermediate"
+  >
+    Rigging, skinning, and exporting for League.
+  </PremiumCard>
+  <PremiumCard
+    title="Blender"
+    href="/docs/lol/blender"
+    icon={<Icon name="Blender" />}
+    level="intermediate"
+  >
+    The same workflow in Blender.
+  </PremiumCard>
+</CardGrid>
+
+```mdx
+<CardGrid>
+  <PremiumCard
+    title="Maya"
+    href="/docs/lol/maya"
+    icon={<Icon name="Maya" />}
+    level="intermediate"
+  >
+    Rigging, skinning, and exporting for League.
+  </PremiumCard>
+  <PremiumCard
+    title="Blender"
+    href="/docs/lol/blender"
+    icon={<Icon name="Blender" />}
+    level="intermediate"
+  >
+    The same workflow in Blender.
+  </PremiumCard>
+</CardGrid>
+```
+
+`cols={3}` fits three narrow cards per row on wide screens.
+
+## ToolCard
+
+A single tool row with a name, a link, and a one-line description. Use it
+on tool list pages. Inside a guide, use a few ToolCards when the reader
+picks one tool out of several.
+
+<ToolCard
+  name="Flint"
+  href="/docs/lol/tools/modding-apps/flint"
+  badge="Recommended"
+  icon={<Icon name="Flint" />}
+>
+  All-in-one skin creation tool.
+</ToolCard>
+
+```mdx
+<ToolCard
+  name="Flint"
+  href="/docs/lol/tools/modding-apps/flint"
+  badge="Recommended"
+  icon={<Icon name="Flint" />}
+>
+  All-in-one skin creation tool.
+</ToolCard>
+```
+
+Props:
+
+- `name` and `href` are required. External links open in a new tab.
+- `badge` is optional. It renders as a small pill on the right. Keep it to
+  one or two words: `Recommended`, `Free`, `Unofficial`, `Legacy`.
+- `icon` is optional. Pass the tool's logo: `icon={<Icon name="Flint" />}`.
+  See [Icon](#icon) for the logos we have.
+- Use it for tools only. For guides, use [PremiumCard](#premiumcard).
+- Don't put links in the description. Name other tools in `code` instead.
+
+## GlowCTA
+
+A glowing call-to-action button. Use it for the one action you want the
+reader to take, like a download or the next big step. One per page at
+most. For a normal link, use a Markdown link.
+
+<GlowCTA href="/docs/lol">Browse the guides</GlowCTA>
+
+```mdx
+<GlowCTA href="/docs/lol">Browse the guides</GlowCTA>
+```
+
+Props:
+
+- `variant` is `primary` (purple glow, default), `solid`, `secondary`,
+  or `ghost`. Next to a primary button, use `secondary` for the other one.
+- `size` is `md` (default) or `lg`.
 
 ## Icon
 
@@ -513,14 +772,13 @@ ToolHeader and Requirement, and inside `icon={<Icon name="..." />}`.
 | Platforms      | `Steam`, `Valve`, `SteamDeck`, `Linux`, `GameBanana`, `GitHub`, `Discord`, `YouTube`, `Reddit` |
 
 <Icon name="Wrench" /> <Icon name="Sparkles" /> <Icon name="Blender" />
-<Icon name="Discord" /> <Icon name="Source2Viewer" /> <Icon name="GameBanana" />
-
-<Icon name="Wrench" /> <Icon name="Sparkles" /> <Icon name="Blender" />
-<Icon name="Discord" />
+<Icon name="Discord" /> <Icon name="Flint" /> <Icon name="Source2Viewer" />
 
 ```mdx
 <Icon name="Wrench" />
 ```
 
-Use the optional `className` prop to change the size, for example
+Use a tool's logo when one exists. Otherwise, pick a Lucide icon that
+matches the topic, like `Bone` for rigging or `Music` for sounds. Use the
+optional `className` prop to change the size, for example
 `className="size-4"`.
