@@ -25,9 +25,13 @@ import {
 } from "@/lib/seo";
 import { Separator } from "@/components/ui/separator";
 import { DocsLanding } from "@/components/home/docs-landing";
-import { PageCredits } from "@/components/page-credits";
+import { GuideCredits } from "@/components/guide-credits";
+import { getGuideCredits } from "@/lib/guide-credits";
+import { getMessages } from "@/lib/locale";
 import { DocsBanner } from "../docs-banner";
 import { DocsFooter } from "@/components/docs-footer";
+import { AskAI } from "@/components/ask-ai";
+import { cn } from "@/lib/utils";
 import { findNeighbour } from "fumadocs-core/page-tree";
 import { localizePageTree } from "@/lib/tree-localization";
 
@@ -74,6 +78,9 @@ export default async function Page(
   if (!page) notFound();
 
   const messages = require(`@/../messages/${params.lang}.json`);
+  // Merged over English, so strings added since a locale's last sync still
+  // render (the raw file above has only what that locale translated).
+  const ui = getMessages(params.lang);
 
   const authors = page.data.authors;
   const loadedPageData = await page.data.load();
@@ -104,12 +111,28 @@ export default async function Page(
     page.url,
   );
 
+  const askAi = {
+    lang: params.lang,
+    title: page.data.title,
+    url: `${baseUrl}${page.url}`,
+  };
+
   return (
     <DocsPage
       toc={loadedPageData.toc}
       footer={{ items: neighbours }}
       slots={{ footer: DocsFooter }}
-      tableOfContent={{ style: "clerk", footer: <DocsBanner /> }}
+      tableOfContent={{
+        style: "clerk",
+        // Pinned to the bottom of the sticky TOC column, so "Ask AI" stays
+        // in view while the reader scrolls (see ask-ai.tsx).
+        footer: (
+          <div className="mt-auto flex flex-col gap-4 pt-4">
+            <AskAI variant="rail" {...askAi} />
+            <DocsBanner lang={params.lang} />
+          </div>
+        ),
+      }}
       full={page.data.full}
     >
       <script
@@ -148,6 +171,14 @@ export default async function Page(
         </div>
       )}
 
+      {/* Below xl the TOC column (and its Ask AI panel) is hidden, and full
+          pages have none, so the links sit under the title instead. */}
+      <AskAI
+        variant="inline"
+        {...askAi}
+        className={cn("mt-5", !page.data.full && "xl:hidden")}
+      />
+
       <Separator className="bg-fd-border mt-8 mb-10" />
 
       <DocsBody>
@@ -156,19 +187,23 @@ export default async function Page(
             a: MDXLink,
           })}
         />
-        <hr className="border-fd-border my-10" />
-        <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
-          <PageCredits
-            credits={page.data.credits}
-            label={messages.misc?.madeBy ?? "Made by"}
-          />
-          <Link
-            href={`/${params.lang}/draft?edit=${page.slugs.join("/")}`}
-            className="not-prose divine-press light:bg-fd-accent light:text-fd-foreground inline-flex h-10 items-center justify-center rounded-full bg-white/10 px-5 text-sm font-bold text-white hover:bg-white/20 focus-visible:ring-1 focus-visible:ring-[rgba(120,60,181,0.5)] focus-visible:outline-none"
-          >
-            {messages.misc?.editOnGithub ?? "Edit on GitHub"}
-          </Link>
-        </div>
+        <GuideCredits
+          {...getGuideCredits(page)}
+          lang={params.lang}
+          labels={{
+            ...ui.credits,
+            lastUpdated: ui.misc.lastUpdated,
+          }}
+          className="mt-12"
+          action={
+            <Link
+              href={`/${params.lang}/draft?edit=${page.slugs.join("/")}`}
+              className="not-prose divine-press light:bg-fd-accent light:text-fd-foreground inline-flex h-10 items-center justify-center rounded-full bg-white/10 px-5 text-sm font-bold text-white hover:bg-white/20 focus-visible:ring-1 focus-visible:ring-[rgba(120,60,181,0.5)] focus-visible:outline-none"
+            >
+              {ui.misc.editOnGithub}
+            </Link>
+          }
+        />
       </DocsBody>
     </DocsPage>
   );

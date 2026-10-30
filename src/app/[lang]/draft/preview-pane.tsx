@@ -1,9 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useParams } from "next/navigation";
 import { MDXRemote, type MDXRemoteSerializeResult } from "next-mdx-remote";
 import { useMessages } from "@/lib/hooks/useMessages";
-import { PageCredits, type PageCreditsData } from "@/components/page-credits";
+import {
+  GuideCredits,
+  writersFromFrontmatter,
+} from "@/components/guide-credits";
 import { type StagedImages } from "@/lib/draft/staged-images";
 import { compilePreview } from "@/lib/draft/compile-preview";
 import { buildPreviewComponents } from "./preview-components";
@@ -18,7 +22,7 @@ interface PreviewPaneProps {
   title?: string;
   description?: string;
   /** Rendered as the credit line below the body, like the published page. */
-  credits?: PageCreditsData;
+  credits?: { discord?: string; github?: string };
   /** Lets the parent surface a live/error indicator in the pane header. */
   onStatusChange?: (status: PreviewStatus) => void;
 }
@@ -34,6 +38,7 @@ export function PreviewPane({
   onStatusChange,
 }: PreviewPaneProps) {
   const messages = useMessages();
+  const lang = useParams()?.lang?.toString() ?? "en";
   const d = messages.draft;
   // The last successful render stays mounted while the next compile is in
   // flight — no "Rendering preview…" flash on every keystroke.
@@ -131,11 +136,13 @@ export function PreviewPane({
         )
       )}
 
-      {/* Credit line — same treatment as the published docs page. */}
-      <PageCredits
-        credits={credits}
-        label={messages.misc.madeBy}
-        className="border-divine-border/60 mt-8 border-t pt-5"
+      {/* Credits row, as on the published page. A draft has no history
+          yet, so it shows only the writer the frontmatter names. */}
+      <GuideCredits
+        writers={writersFromFrontmatter(credits)}
+        lang={lang}
+        labels={{ ...messages.credits, lastUpdated: messages.misc.lastUpdated }}
+        className="mt-8"
       />
     </div>
   );
