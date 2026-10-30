@@ -138,7 +138,7 @@ export function SiteFooter({ lang }: { lang: string }) {
       <div className="relative mx-auto mt-12 w-full max-w-[992px] px-6">
         <div className="border-divine-border/60 flex flex-col gap-2 border-t pt-6 sm:flex-row sm:items-start sm:justify-between sm:gap-8">
           <p className="text-divine-text-muted text-[13px] font-medium">
-            © {new Date().getFullYear()} Divine Studio LLC
+            {t.copyright.replace("{year}", String(new Date().getFullYear()))}
           </p>
           <p className="text-divine-text-muted/70 max-w-md text-xs leading-relaxed sm:text-right">
             {t.disclaimer}
