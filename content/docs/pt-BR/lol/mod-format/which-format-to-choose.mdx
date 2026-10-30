@@ -1,0 +1,84 @@
+---
+title: "Qual formato escolher"
+description: "Exporte todo mod novo de League of Legends como .modpkg. O antigo formato .fantome continua só para os mods antigos seguirem funcionando. Veja por quê, e o que acontece com os nomes dos seus arquivos."
+keywords:
+  - modpkg ou fantome
+  - formato de mod do league
+  - caminhos personalizados perdidos hashes
+category: "mod-format"
+---
+
+<LevelPill level="beginner" />
+
+**Faça todo mod novo em `.modpkg`.** É o único formato que a Divine aceita para uploads e atualizações novas de League, e é o que o Creator Hub do Celestial exporta.
+
+`.fantome` é o formato antigo. Ele continua com suporte para os mods antigos seguirem funcionando: o Celestial ainda instala esses arquivos, e os mods que já estão na Divine em `.fantome` continuam disponíveis para download. Não comece nada novo nele. Para atualizar um mod antigo em `.fantome`, [converta ele](/docs/lol/mod-format/fantome) e publique o `.modpkg` como uma nova versão.
+
+| Formato    | Use para                                                                          |
+| ---------- | --------------------------------------------------------------------------------- |
+| `.modpkg`  | Todo mod novo e toda atualização. Mantém os caminhos dos arquivos junto com eles. |
+| `.fantome` | Nada novo. Os mods antigos continuam funcionando nele até a próxima atualização.  |
+
+Um `.modpkg` também guarda caminhos legíveis junto com os seus arquivos. É isso que permite às ferramentas reabrir, editar, fazer repath e reparar seu mod depois. O resto desta página explica por que isso importa.
+
+## Por que isso importa agora
+
+A Riot está migrando referências a arquivos nos BINs de valores `string` legíveis para valores `file` com hashes.
+Quanto mais referências mudam, menos caminhos legíveis as ferramentas conseguem recuperar do próprio BIN.
+
+Dependendo do editor de texto, esse tipo aparece como `file:` ou `file =`.
+O binário armazena um hash de caminho de 64 bits. O editor mostra o nome legível quando conhece o caminho correspondente.
+
+Antes, uma referência string podia guardar um caminho de textura personalizado diretamente no BIN:
+
+```text
+assets/my_custom_skin/textures/body.tex
+```
+
+Após a conversão para `file`, a referência armazena o hash desse caminho.
+Se nada preservar o nome, a ferramenta não consegue recuperá-lo de forma confiável usando apenas o hash.
+
+Isso se aplica a referências a arquivos. Não significa que todo campo de texto do BIN vira uma referência file.
+
+## Como o unhash funciona
+
+Um WAD empacotado identifica seus arquivos por hashes de caminhos. Ele não mantém um diretório normal com nomes legíveis.
+
+Ferramentas como [Quartz](/docs/lol/tools/modding-apps/quartz) usam uma tabela de consulta:
+
+1. Leia o hash do arquivo.
+2. Procure esse hash em um dicionário de caminhos conhecidos.
+3. Mostre o caminho correspondente, se existir.
+4. Mantenha o hash numérico se o caminho for desconhecido.
+
+**Unhash é uma consulta, não uma reversão do hash.**
+As bases da comunidade cobrem caminhos conhecidos do jogo. Elas não conhecem automaticamente os caminhos que você inventou.
+As ferramentas também podem obter nomes das pastas do projeto, das strings legíveis do BIN e de tabelas incorporadas.
+
+Empacotar um WAD remove os nomes legíveis. Converter strings do BIN em hashes `file` elimina outra fonte desses nomes.
+Sem um mapeamento salvo, os arquivos personalizados podem ser extraídos com nomes hexadecimais.
+Isso pode impedir que ferramentas encontrem texturas, sigam referências ou façam repath corretamente.
+
+<Callout type="warning" title="Carregar o mod é diferente de recuperar nomes">
+  O mod ainda pode funcionar no jogo quando seus hashes correspondem. O problema
+  é recuperar caminhos legíveis para edição e reparos. Um nome desconhecido não
+  significa que o próprio WAD não pode ser aberto.
+</Callout>
+
+## Exporte a partir do seu projeto
+
+Exporte a partir do seu [projeto de mod](/docs/lol/mod-format/mod-project) enquanto os caminhos legíveis ainda existem. Converter um WAD antigo empacotado para `.modpkg` não traz de volta nomes personalizados que já foram perdidos.
+
+## Antes de compartilhar
+
+1. Exporte um `.modpkg` pelo Creator Hub. [Exporte e instale um .modpkg](/docs/lol/mod-format/modpkg) mostra como.
+2. Reabra o arquivo exportado e confira se os caminhos personalizados continuam legíveis.
+3. Teste no jogo com o Celestial.
+4. Guarde a pasta do projeto para futuras atualizações.
+
+Um `.modpkg` não substitui um backup do seu projeto.
+
+## Referências
+
+- [Código de unhash do Quartz](https://github.com/RitoShark/Quartz/blob/main/src-tauri/crates/quartz-lib/src/bin/jade/unhasher.rs): consultas de `file`, `hash` e `link` no dicionário.
+- [Hematite](https://github.com/RitoShark/Hematite): reparo de mods e processamento de WADs.

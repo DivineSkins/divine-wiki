@@ -1,0 +1,103 @@
+---
+title: "O formato .fantome (antigo)"
+description: "O que é um arquivo de mod .fantome de League, por que ele é o formato antigo e três jeitos de converter um para .modpkg no Celestial."
+keywords:
+  - converter fantome para modpkg
+  - arquivo fantome
+  - fantome descontinuado
+category: "mod-format"
+---
+
+<LevelPill level="beginner" />
+
+<Callout type="warning" title="Formato antigo">
+  `.fantome` é o formato antigo de mod de League. Ele continua aqui para os mods
+  antigos seguirem funcionando: o Celestial ainda instala esses arquivos, e a
+  Divine ainda distribui os que já foram enviados. Não crie mods novos nele. A
+  Divine só aceita uploads novos e atualizações em `.modpkg`.
+</Callout>
+
+## O que é um .fantome
+
+Um `.fantome` é um arquivo ZIP com outro nome. Ele vem do antigo gerenciador de mods Fantome. Por dentro:
+
+<Files>
+  <Folder name="MyMod.fantome" defaultOpen>
+    <Folder name="META" defaultOpen>
+      <File name="info.json: nome, autor, versão, descrição" />
+      <File name="image.png (opcional)" />
+    </Folder>
+    <Folder name="WAD" defaultOpen>
+      <Folder name="Aatrox.wad.client">
+        <File name="os arquivos do seu campeão" />
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+
+## Por que ele é o formato antigo
+
+- **Um autor, quatro campos.** O formato em si não tem funções, licença, tags nem readme.
+- **Sem camadas de verdade.** Variantes como chromas precisam de regras extras que nem toda ferramenta lê.
+- **Três jeitos de guardar os mesmos arquivos.** Pastas soltas, WADs empacotados ou a antiga pasta `RAW`. As ferramentas têm que adivinhar.
+- **Nomes de arquivo perdidos.** Um WAD empacotado dentro de um `.fantome` guarda só os hashes dos seus caminhos. Seus nomes de arquivo personalizados podem sumir de vez. [Qual formato escolher](/docs/lol/mod-format/which-format-to-choose) explica por quê.
+- **Instalação mais lenta.** O launcher precisa descompactar e reempacotar os arquivos.
+
+## Converta um .fantome para .modpkg
+
+Escolha o jeito que funciona melhor para você. Os três mantêm o arquivo original.
+
+<Tabs items={["Creator Hub", "Library", "File Explorer"]}>
+<Tab value="Creator Hub">
+
+Use este se quiser corrigir as infos do mod ou adicionar camadas antes de exportar. Só no Windows.
+
+1. Abra o Creator Hub no Celestial pelo ícone **Hub de Criadores**.
+2. Arraste o `.fantome` para o Creator Hub.
+3. Clique com o botão direito no card novo e clique em **Edit Info**. Preencha a versão, os autores e a licença.
+4. Clique com o botão direito no card de novo. Em **Export**, clique em **Modpkg** e depois em **Export**.
+
+[Monte um projeto de mod](/docs/lol/mod-format/mod-project) e [Exporte e instale um .modpkg](/docs/lol/mod-format/modpkg) têm cada passo com imagens.
+
+</Tab>
+<Tab value="Library">
+
+Use este para um mod que você já instalou.
+
+1. Abra a **Biblioteca** no Celestial.
+2. Clique com o botão direito no card do mod.
+3. Clique em **Export .modpkg** e escolha onde salvar o arquivo.
+
+<img
+  src="/wiki-images/lol-mod-format-5.webp"
+  width={300}
+  alt="O menu do botão direito de um card da Biblioteca com Export .modpkg marcado com 1 e Abrir no Creator Hub marcado com 2"
+/>
+
+**Abrir no Creator Hub** só aparece para mods `.modpkg`. Para um `.fantome`, use a aba Creator Hub.
+
+</Tab>
+<Tab value="File Explorer">
+
+O Celestial adiciona um menu no Explorador de Arquivos do Windows. Ele converte sem abrir o Celestial.
+
+1. Clique com o botão direito no arquivo `.fantome` no Explorador de Arquivos. No Windows 11, clique antes em **Mostrar mais opções**.
+2. Em **Celestial**, clique em **Convert to .modpkg**.
+
+O `.modpkg` aparece do lado do arquivo original.
+
+</Tab>
+</Tabs>
+
+Converter não traz de volta nomes de arquivo que um WAD empacotado já perdeu. Se você ainda tem a pasta do projeto, exporte a partir dela.
+
+## Próximos passos
+
+<PremiumCard
+  title="Publique seu mod na Divine"
+  href="/docs/lol/publishing/publish-on-divine"
+  icon={<Icon name="Upload" />}
+  level="beginner"
+>
+  Envie o novo .modpkg.
+</PremiumCard>

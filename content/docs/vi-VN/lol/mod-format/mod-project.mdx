@@ -1,0 +1,138 @@
+---
+title: "Dựng một dự án mod"
+description: "Biến mod League of Legends của bạn thành một dự án trong Creator Hub của Celestial: thêm file, điền thông tin mod, thêm readme, giấy phép và thumbnail, rồi tiếp tục làm việc trong thư mục của chính bạn."
+keywords:
+  - league mod project
+  - celestial creator hub import
+  - mod.config.json
+  - dự án mod league
+category: "mod-format"
+---
+
+<LevelPill level="beginner" />
+
+Dự án mod là mod của bạn trước khi được đóng gói: các file của nó, cộng với thông tin đi kèm như tên, phiên bản và tác giả. Creator Hub của Celestial tự tạo dự án cho bạn khi bạn thêm file vào. Từ đó bạn test, repath và xuất mod. Trong Celestial bản tiếng Việt, Creator Hub hiện có tên là **Trung tâm Sáng tạo**.
+
+<Requirements>
+  <Requirement
+    icon="Download"
+    href="https://divineskins.gg/install-mods"
+    note="Windows"
+  >
+    Celestial
+  </Requirement>
+  <Requirement icon="FolderOpen" note="thư mục, .modpkg hoặc .fantome">
+    File mod của bạn
+  </Requirement>
+</Requirements>
+
+## Một dự án có gì
+
+<Files>
+  <Folder name="my-mod" defaultOpen>
+    <File name="mod.config.json: tên, phiên bản, tác giả, giấy phép, lớp" />
+    <File name="README.md và LICENSE (tùy chọn)" />
+    <File name="thumbnail (tùy chọn)" />
+    <Folder name="content" defaultOpen>
+      <Folder name="base" defaultOpen>
+        <Folder name="Aatrox.wad.client">
+          <File name="các file của bạn, đặt đúng đường dẫn trong game" />
+        </Folder>
+      </Folder>
+      <Folder name="chroma-red (lớp tùy chọn)">
+        <Folder name="Aatrox.wad.client">
+          <File name="chỉ những file mà biến thể này thay đổi" />
+        </Folder>
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+
+- **`mod.config.json`** chứa thông tin của mod. Creator Hub ghi file này khi bạn dùng **Edit Info**, nên bạn không bao giờ phải sửa tay.
+- **`content`** có một thư mục cho mỗi [lớp](/docs/lol/mod-format/layers). Dự án nào cũng có `base`.
+- **`Aatrox.wad.client`** được đặt theo tên file lưu trữ của game mà các file bên trong sẽ đi vào. Creator Hub tự suy ra tên này từ file của bạn.
+
+Mọi thứ trong dự án đều được đưa vào file `.modpkg` khi bạn xuất.
+
+<Steps>
+<Step>
+
+### Thêm mod của bạn vào Creator Hub
+
+Mở **Creator Hub** trong Celestial (biểu tượng **Trung tâm Sáng tạo** ở trên cùng) rồi kéo mod của bạn vào. Creator Hub nhận:
+
+- một thư mục chứa các thư mục `assets` và `data` của mod, như kết quả xuất từ Quartz hoặc Jade
+- một thư mục dự án Flint hoặc Jade
+- một file `.modpkg` hoặc `.fantome`
+
+Nút **Import** trên thanh công cụ dùng để chọn một thư mục. Có file `.modpkg` nằm sẵn trong **Thư viện**? Bấm chuột phải vào nó ở đó rồi bấm **Mở trong Creator Hub**.
+
+Đặt **Tên tác giả** một lần trong **Cài đặt**, rồi **Trung tâm Sáng tạo** (Creator Hub). Celestial sẽ thêm bạn làm tác giả cho mọi mod bạn nhập vào.
+
+</Step>
+<Step>
+
+### Điền thông tin mod
+
+Bấm chuột phải vào thẻ của mod rồi bấm **Edit Info**.
+
+1. Kiểm tra **Tên hiển thị**. Người chơi thấy tên này trong Thư viện.
+2. Kiểm tra **Tên (slug)**: chữ thường, số, `-` và `_`. Nó được dùng để đặt tên cho file xuất ra.
+3. Đặt **Phiên bản**, ví dụ `1.0.0`. Tăng số này mỗi lần bạn đăng bản cập nhật.
+4. Thêm một đoạn **Mô tả** ngắn.
+5. Trong **Tác giả**, ghi tên bạn và tất cả những người đã cùng làm mod. **Thêm tác giả** thêm một dòng, còn **Vai trò** thì không bắt buộc.
+6. Chọn một **Giấy phép**.
+7. Trong **Phân loại**, thêm **Thẻ** và **Tướng**. Mod bản đồ thì thêm **Bản đồ**.
+8. Bấm **Lưu**.
+
+<img
+  src="/wiki-images/lol-mod-format-1.webp"
+  width={560}
+  alt="Cửa sổ chỉnh sửa dự án, ô Phiên bản được đánh số 1 và danh sách Tác giả cùng nút Thêm tác giả được đánh số 2"
+/>
+
+</Step>
+<Step>
+
+### Thêm readme, giấy phép và thumbnail
+
+Cả ba đều không bắt buộc, và cả ba đều đi theo bên trong file `.modpkg`. Bấm chuột phải vào thẻ của mod:
+
+- **Readme** mở trình soạn thảo cho `README.md`. Dùng nó để ghi hướng dẫn cài, phần ghi công hoặc changelog.
+- **Giấy phép** chứa toàn bộ nội dung giấy phép. Ô **Giấy phép** trong **Edit Info** chỉ ghi tên của nó.
+- **Set Image** chọn thumbnail mà người chơi thấy trong Thư viện. **Rm Image** gỡ nó đi.
+
+</Step>
+<Step>
+
+### Tiếp tục làm việc trong thư mục của bạn
+
+Creator Hub giữ một bản sao riêng của mod, gọi là **Lưu trữ**. File của bạn vẫn nằm trong **Thư mục Mod**. **Reload**, **Start Patcher** và **Export** đều chép các thay đổi mới nhất của bạn vào Lưu trữ trước, nên bạn không bao giờ phải nhập lại mod.
+
+- Sửa file trong Thư mục Mod. Những gì bạn sửa trong Lưu trữ sẽ bị thay thế ở lần Reload tiếp theo.
+- Đừng bao giờ xóa Thư mục Mod. Creator Hub đọc file từ đó.
+- Menu chuột phải có **Lưu trữ** và **Thư mục Mod** để mở từng nơi.
+
+</Step>
+</Steps>
+
+## Bước tiếp theo
+
+<CardGrid>
+  <PremiumCard
+    title="Thêm lớp"
+    href="/docs/lol/mod-format/layers"
+    icon={<Icon name="Layers" />}
+    level="beginner"
+  >
+    Gói chroma và các biến thể vào cùng một mod.
+  </PremiumCard>
+  <PremiumCard
+    title="Xuất và cài file .modpkg"
+    href="/docs/lol/mod-format/modpkg"
+    icon={<Icon name="Package" />}
+    level="beginner"
+  >
+    Đóng gói dự án thành file bạn sẽ tải lên.
+  </PremiumCard>
+</CardGrid>

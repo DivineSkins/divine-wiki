@@ -1,0 +1,110 @@
+---
+title: "Ajoute des couches"
+description: "Livre des chromas et des variantes dans un seul mod League of Legends : ajoute des couches dans le Gestionnaire de couches de Celestial, règle leur priorité et laisse les joueurs les activer ou les désactiver."
+keywords:
+  - couches modpkg
+  - chromas mod league un seul fichier
+  - gestionnaire de couches celestial
+category: "mod-format"
+---
+
+<LevelPill level="beginner" />
+
+Les couches sont des groupes de fichiers dans un seul mod, que les joueurs activent ou désactivent. Utilise-les pour des chromas, des versions alternatives d'un skin ou des extras optionnels comme des particules custom. Sur Divine, un mod League est un seul `.modpkg` : chaque variante va donc dans une couche au lieu d'un deuxième upload.
+
+## Comment marchent les couches
+
+- **`base`** contient les fichiers principaux de ton mod. Chaque mod l'a, et elle est toujours active.
+- **Chaque autre couche** contient seulement les fichiers que cette variante modifie, aux mêmes chemins que dans `base`.
+- **La priorité** décide quelle couche l'emporte quand deux couches modifient le même fichier. La plus haute gagne. `base` est toujours à 0.
+- **Même priorité** veut dire que les couches sont des alternatives, comme deux chromas. Les joueurs ne devraient en activer qu'une seule.
+
+Deux configurations courantes. Les **chromas**, où les joueurs en choisissent un :
+
+| Couche | Priorité | Contenu |
+| --- | --- | --- |
+| `base` | 0 | Le skin |
+| `chroma-red` | 1 | Textures rouges |
+| `chroma-blue` | 1 | Textures bleues |
+
+Les **extras optionnels**, que les joueurs empilent :
+
+| Couche | Priorité | Contenu |
+| --- | --- | --- |
+| `base` | 0 | Le skin |
+| `particles` | 1 | VFX custom |
+| `hd-textures` | 2 | Textures plus grandes |
+
+Tu veux que les joueurs voient une seule couche à la fois ? Ouvre **Edit Info** et active **Un seul calque à la fois**. Activer une couche bascule alors dessus au lieu de l'empiler.
+
+## Ajouter une couche
+
+Ton mod doit déjà être dans le Creator Hub. [Configure un projet de mod](/docs/lol/mod-format/mod-project) te montre comment.
+
+<Steps>
+<Step>
+
+### Prépare les fichiers de la variante
+
+Crée un dossier pour chaque variante, organisé comme ton dossier de mod, avec `assets` et `data`. Mets-y seulement les fichiers que la variante modifie, comme les textures recolorées d'un chroma. Garde les mêmes chemins et le même préfixe que dans `base`.
+
+</Step>
+<Step>
+
+### Ouvre le Gestionnaire de couches
+
+Fais un clic droit sur la carte du mod dans le Creator Hub et clique sur **Layers**.
+
+<img
+  src="/wiki-images/lol-mod-format-2.webp"
+  width={560}
+  alt="Le Gestionnaire de couches avec la couche base pour Aatrox.wad.client et le bouton Ajouter une couche nommée entouré"
+/>
+
+</Step>
+<Step>
+
+### Ajoute la couche
+
+1. Clique sur **Ajouter une couche nommée** et tape un nom, comme `chroma-red`. Utilise des lettres minuscules, des chiffres et `-`.
+2. Règle sa **Priorité** avec les flèches.
+3. Clique sur **Parcourir** et choisis le dossier de la variante. Choisis plusieurs dossiers pour les regrouper dans une seule couche.
+
+**Import rapide** saute l'étape du nom : il choisit un dossier et donne son nom à la couche.
+
+</Step>
+<Step>
+
+### Vérifie la liste
+
+Chaque couche affiche ses fichiers WAD et sa priorité. Les couches marquées **alternative** partagent la même priorité. Change une priorité avec les flèches, ou utilise **Renommer la couche** et **Supprimer la couche**.
+
+</Step>
+</Steps>
+
+## Ce que voient les joueurs
+
+Les joueurs installent ton mod avec Celestial. Un badge de couches sur la carte du mod indique combien de couches sont actives, et seule `base` est active au départ. Un clic sur le badge active ou désactive les couches.
+
+Pour vérifier toi-même, [exporte le .modpkg](/docs/lol/mod-format/modpkg), installe-le dans ta Bibliothèque et active chaque couche.
+
+## Et ensuite
+
+<CardGrid>
+  <PremiumCard
+    title="Exporte et installe un .modpkg"
+    href="/docs/lol/mod-format/modpkg"
+    icon={<Icon name="Package" />}
+    level="beginner"
+  >
+    Packe la base et chaque couche dans un seul fichier.
+  </PremiumCard>
+  <PremiumCard
+    title="Publie ton mod sur Divine"
+    href="/docs/lol/publishing/publish-on-divine"
+    icon={<Icon name="Upload" />}
+    level="beginner"
+  >
+    Uploade le fichier depuis le Creator Panel.
+  </PremiumCard>
+</CardGrid>

@@ -1,0 +1,110 @@
+---
+title: "Adicione camadas"
+description: "Coloque chromas e variantes dentro de um único mod de League of Legends: adicione camadas no Gerenciador de camadas do Celestial, defina a prioridade delas e deixe os jogadores ligarem e desligarem cada uma."
+keywords:
+  - camadas modpkg
+  - chromas de mod do league em um arquivo
+  - gerenciador de camadas do celestial
+category: "mod-format"
+---
+
+<LevelPill level="beginner" />
+
+Camadas (layers) são grupos de arquivos dentro de um mod que os jogadores ligam e desligam. Use para chromas, versões alternativas de uma skin ou extras opcionais, como partículas personalizadas. Na Divine, um mod de League é um único `.modpkg`, então cada variante vai em uma camada em vez de virar um segundo upload.
+
+## Como as camadas funcionam
+
+- **`base`** são os arquivos principais do seu mod. Todo mod tem essa camada, e ela fica sempre ligada.
+- **Todas as outras camadas** guardam só os arquivos que aquela variante muda, nos mesmos caminhos da `base`.
+- **A prioridade** decide qual camada ganha quando duas mudam o mesmo arquivo. A maior ganha. A `base` é sempre 0.
+- **Mesma prioridade** quer dizer que as camadas são alternativas, como duas chromas. Os jogadores devem ligar só uma delas.
+
+Duas configurações comuns. **Chromas**, em que o jogador escolhe um:
+
+| Camada | Prioridade | O que tem |
+| --- | --- | --- |
+| `base` | 0 | A skin |
+| `chroma-red` | 1 | Texturas vermelhas |
+| `chroma-blue` | 1 | Texturas azuis |
+
+**Extras opcionais**, que os jogadores empilham:
+
+| Camada | Prioridade | O que tem |
+| --- | --- | --- |
+| `base` | 0 | A skin |
+| `particles` | 1 | VFX personalizado |
+| `hd-textures` | 2 | Texturas maiores |
+
+Quer que os jogadores vejam uma camada por vez? Abra o **Edit Info** e ative **Uma camada por vez**. Aí, ligar uma camada troca para ela em vez de somar com as outras.
+
+## Adicione uma camada
+
+Seu mod já precisa estar no Creator Hub. [Monte um projeto de mod](/docs/lol/mod-format/mod-project) mostra como.
+
+<Steps>
+<Step>
+
+### Prepare os arquivos da variante
+
+Crie uma pasta para cada variante, organizada como a pasta do seu mod, com `assets` e `data`. Coloque só os arquivos que a variante muda, como as texturas recoloridas de uma chroma. Mantenha os mesmos caminhos e o mesmo prefixo da `base`.
+
+</Step>
+<Step>
+
+### Abra o Gerenciador de camadas
+
+Clique com o botão direito no card do mod no Creator Hub e clique em **Layers**.
+
+<img
+  src="/wiki-images/lol-mod-format-2.webp"
+  width={560}
+  alt="O Gerenciador de camadas com a camada base do Aatrox.wad.client e o botão Adicionar camada com nome circulado"
+/>
+
+</Step>
+<Step>
+
+### Adicione a camada
+
+1. Clique em **Adicionar camada com nome** e digite um nome, tipo `chroma-red`. Use letras minúsculas, números e `-`.
+2. Defina a **Prioridade** com as setas.
+3. Clique em **Procurar** e escolha a pasta da variante. Escolha mais de uma pasta para juntar todas em uma camada só.
+
+A **Importação rápida** pula o nome: ela escolhe uma pasta e dá à camada o nome dessa pasta.
+
+</Step>
+<Step>
+
+### Confira a lista
+
+Cada camada mostra os arquivos WAD dela e a prioridade. As camadas marcadas como **alternativa** têm a mesma prioridade. Mude uma prioridade com as setas, ou use **Renomear camada** e **Remover camada**.
+
+</Step>
+</Steps>
+
+## O que os jogadores veem
+
+Os jogadores instalam seu mod com o Celestial. Um selo de camadas no card do mod mostra quantas camadas estão ligadas, e só a `base` começa ligada. Clicar no selo liga e desliga as camadas.
+
+Para testar você mesmo, [exporte o .modpkg](/docs/lol/mod-format/modpkg), instale na sua Biblioteca e ligue cada camada.
+
+## Próximos passos
+
+<CardGrid>
+  <PremiumCard
+    title="Exporte e instale um .modpkg"
+    href="/docs/lol/mod-format/modpkg"
+    icon={<Icon name="Package" />}
+    level="beginner"
+  >
+    Empacote a base e todas as camadas em um único arquivo.
+  </PremiumCard>
+  <PremiumCard
+    title="Publique seu mod na Divine"
+    href="/docs/lol/publishing/publish-on-divine"
+    icon={<Icon name="Upload" />}
+    level="beginner"
+  >
+    Envie o arquivo pelo Creator Panel.
+  </PremiumCard>
+</CardGrid>

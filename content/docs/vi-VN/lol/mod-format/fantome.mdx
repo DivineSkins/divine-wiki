@@ -1,0 +1,104 @@
+---
+title: "Định dạng .fantome (cũ)"
+description: "File mod League .fantome là gì, vì sao nó là định dạng cũ, và ba cách chuyển nó sang .modpkg trong Celestial."
+keywords:
+  - convert fantome to modpkg
+  - fantome file
+  - fantome deprecated
+  - chuyển fantome sang modpkg
+category: "mod-format"
+---
+
+<LevelPill level="beginner" />
+
+<Callout type="warning" title="Định dạng cũ">
+  `.fantome` là định dạng mod League đời cũ. Nó được giữ lại để các mod cũ vẫn
+  chạy: Celestial vẫn cài được, và Divine vẫn cho tải những mod đã đăng từ
+  trước. Đừng làm mod mới bằng định dạng này. Divine chỉ nhận mod mới và bản cập
+  nhật dưới dạng `.modpkg`.
+</Callout>
+
+## .fantome là gì
+
+File `.fantome` thật ra là một file ZIP mang đuôi khác. Nó đến từ trình quản lý mod Fantome đời cũ. Bên trong có:
+
+<Files>
+  <Folder name="MyMod.fantome" defaultOpen>
+    <Folder name="META" defaultOpen>
+      <File name="info.json: tên, tác giả, phiên bản, mô tả" />
+      <File name="image.png (tùy chọn)" />
+    </Folder>
+    <Folder name="WAD" defaultOpen>
+      <Folder name="Aatrox.wad.client">
+        <File name="các file tướng của bạn" />
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+
+## Vì sao nó là định dạng cũ
+
+- **Một tác giả, bốn trường thông tin.** Bản thân định dạng không có vai trò, giấy phép, thẻ hay readme.
+- **Không có lớp thật sự.** Các biến thể như chroma cần thêm quy tắc riêng mà không phải công cụ nào cũng đọc được.
+- **Ba cách lưu cùng một bộ file.** Thư mục rời, WAD đã đóng gói, hoặc thư mục `RAW` đời cũ. Công cụ phải tự đoán.
+- **Mất tên file.** Một WAD đã đóng gói bên trong `.fantome` chỉ giữ lại hash của các đường dẫn. Tên file tùy chỉnh của bạn có thể mất luôn. Bài [Nên chọn định dạng nào](/docs/lol/mod-format/which-format-to-choose) giải thích vì sao.
+- **Cài chậm hơn.** Launcher phải giải nén rồi đóng gói lại các file.
+
+## Chuyển file .fantome sang .modpkg
+
+Chọn cách hợp với bạn. Cả ba cách đều giữ nguyên file gốc.
+
+<Tabs items={["Creator Hub", "Thư viện", "File Explorer"]}>
+<Tab value="Creator Hub">
+
+Dùng cách này nếu bạn muốn sửa thông tin mod hoặc thêm lớp trước khi xuất. Chỉ có trên Windows.
+
+1. Mở **Creator Hub** trong Celestial.
+2. Kéo file `.fantome` thả vào Creator Hub.
+3. Bấm chuột phải vào thẻ mới rồi bấm **Edit Info**. Điền phiên bản, tác giả và giấy phép.
+4. Bấm chuột phải vào thẻ lần nữa. Trong mục **Export**, bấm **Modpkg**, rồi **Export**.
+
+Bài [Dựng một dự án mod](/docs/lol/mod-format/mod-project) và [Xuất và cài file .modpkg](/docs/lol/mod-format/modpkg) có đủ từng bước kèm hình.
+
+</Tab>
+<Tab value="Thư viện">
+
+Dùng cách này cho một mod bạn đã cài.
+
+1. Mở **Thư viện** trong Celestial.
+2. Bấm chuột phải vào thẻ của mod.
+3. Bấm **Export .modpkg** rồi chọn nơi lưu file.
+
+<img
+  src="/wiki-images/lol-mod-format-5.webp"
+  width={300}
+  alt="Menu chuột phải của một thẻ trong Thư viện, Export .modpkg được đánh số 1 và Mở trong Creator Hub được đánh số 2"
+/>
+
+**Mở trong Creator Hub** chỉ hiện với mod `.modpkg`. Với file `.fantome`, hãy dùng tab Creator Hub.
+
+</Tab>
+<Tab value="File Explorer">
+
+Celestial thêm một menu vào File Explorer của Windows. Nó chuyển đổi mà không cần mở Celestial.
+
+1. Bấm chuột phải vào file `.fantome` trong File Explorer. Trên Windows 11, bấm **Show more options** trước.
+2. Trong mục **Celestial**, bấm **Convert to .modpkg**.
+
+File `.modpkg` sẽ xuất hiện ngay cạnh file gốc.
+
+</Tab>
+</Tabs>
+
+Chuyển đổi không thể mang lại những tên file mà WAD đã đóng gói làm mất. Nếu bạn vẫn còn thư mục dự án, hãy xuất từ đó thay vì chuyển đổi.
+
+## Bước tiếp theo
+
+<PremiumCard
+  title="Đăng mod của bạn lên Divine"
+  href="/docs/lol/publishing/publish-on-divine"
+  icon={<Icon name="Upload" />}
+  level="beginner"
+>
+  Tải file .modpkg mới lên.
+</PremiumCard>

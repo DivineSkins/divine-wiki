@@ -1,0 +1,93 @@
+---
+title: "Mod format"
+description: "The file a League of Legends mod ships in: .modpkg is the current format, .fantome is the old one. What each holds, which one Divine takes, and how Celestial handles both."
+keywords:
+  - modpkg
+  - fantome vs modpkg
+  - league mod file format
+category: "mod-format"
+---
+
+<LevelPill level="beginner" />
+
+A finished League mod is one file that players install. This section explains that file, not how to make a skin. For that, start with the [full walkthrough](/docs/lol/getting-started/walkthrough).
+
+There are two formats:
+
+| Format     | Status      | Use it for                                                                                 |
+| ---------- | ----------- | ------------------------------------------------------------------------------------------ |
+| `.modpkg`  | **Current** | Every new mod and every update. Divine takes League uploads as `.modpkg` only.             |
+| `.fantome` | Old         | Older mods only. Celestial still installs them, and converts them to `.modpkg` in a click. |
+
+Make every new mod a `.modpkg`. Old mods already on Divine as `.fantome` keep working and downloading, but their next update has to be a `.modpkg`.
+
+## What's inside a .modpkg
+
+A `.modpkg` packs your mod's game files together with everything a launcher needs to show and install it:
+
+<Files>
+  <Folder name="MyMod.modpkg" defaultOpen>
+    <File name="mod info: name, version, authors, license, tags" />
+    <File name="thumbnail, readme and license text" />
+    <Folder name="layers" defaultOpen>
+      <Folder name="base">
+        <File name="Aatrox.wad.client: your champion files" />
+      </Folder>
+      <Folder name="chroma-red (optional)">
+        <File name="the files this variant changes" />
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+
+- **Mod info** is the name, version, authors and license that Celestial shows in the Library.
+- **Layers** hold variants of your mod, like chromas, that players switch on and off. Every mod has a `base` layer.
+- **File names travel with the files.** Tools can reopen your mod later and still read your custom paths. [Which format to choose](/docs/lol/mod-format/which-format-to-choose) explains why that matters now.
+
+Celestial exports `.modpkg` only. It never writes a `.fantome`.
+
+## Guides
+
+<CardGrid>
+  <PremiumCard
+    title="Which format to choose"
+    href="/docs/lol/mod-format/which-format-to-choose"
+    icon={<Icon name="FileQuestion" />}
+    level="beginner"
+    featured
+  >
+    Why every new mod should be a .modpkg, and what happens to file names.
+  </PremiumCard>
+  <PremiumCard
+    title="Set up a mod project"
+    href="/docs/lol/mod-format/mod-project"
+    icon={<Icon name="FolderOpen" />}
+    level="beginner"
+  >
+    Add your files to Creator Hub and fill in the mod info.
+  </PremiumCard>
+  <PremiumCard
+    title="Add layers"
+    href="/docs/lol/mod-format/layers"
+    icon={<Icon name="Layers" />}
+    level="beginner"
+  >
+    Ship chromas and variants inside one mod.
+  </PremiumCard>
+  <PremiumCard
+    title="Export and install a .modpkg"
+    href="/docs/lol/mod-format/modpkg"
+    icon={<Icon name="Package" />}
+    level="beginner"
+  >
+    Pack the project into one file, and install it to check it.
+  </PremiumCard>
+  <PremiumCard
+    title="The .fantome format (old)"
+    href="/docs/lol/mod-format/fantome"
+    icon={<Icon name="Archive" />}
+    level="beginner"
+  >
+    What a .fantome is, why it's the old format, and three ways to convert one.
+  </PremiumCard>
+</CardGrid>
