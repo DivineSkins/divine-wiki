@@ -23,7 +23,7 @@ import { countGuides } from "@/lib/guide-count";
  *  the English landing copy (fine to fall back for partial locales). */
 const CATEGORIES: { slug: string; icon: ReactNode; desc: string }[] = [
   {
-    slug: "guided-walkthrough",
+    slug: "getting-started",
     icon: <CompassIcon className="size-5" />,
     desc: "Never made a skin? Start here and just follow it top to bottom.",
   },
@@ -67,7 +67,7 @@ const CATEGORIES: { slug: string; icon: ReactNode; desc: string }[] = [
 /** Quick links to the pages people actually open first. */
 const FEATURED = [
   {
-    href: "docs/lol/guided-walkthrough/walkthrough",
+    href: "docs/lol/getting-started/walkthrough",
     label: "Full walkthrough",
   },
   {

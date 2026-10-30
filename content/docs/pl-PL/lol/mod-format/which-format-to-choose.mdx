@@ -1,0 +1,84 @@
+---
+title: "Który format wybrać"
+description: "Eksportuj każdy nowy mod do League of Legends jako .modpkg. Stary format .fantome zostaje tylko po to, żeby stare mody dalej działały. Tu wyjaśniamy dlaczego i co się dzieje z nazwami twoich plików."
+keywords:
+  - modpkg czy fantome
+  - format moda league
+  - utracone własne ścieżki hashe
+category: "mod-format"
+---
+
+<LevelPill level="beginner" />
+
+**Każdy nowy mod rób jako `.modpkg`.** To jedyny format, w jakim Divine przyjmuje nowe uploady i aktualizacje modów do League, i to właśnie eksportuje Creator Hub w Celestial.
+
+`.fantome` to stary format. Nadal jest obsługiwany, żeby stare mody dalej działały: Celestial wciąż je instaluje, a mody, które już są na Divine jako `.fantome`, dalej da się pobierać. Nie zaczynaj w nim nowej roboty. Żeby zaktualizować starego moda w `.fantome`, [przekonwertuj go](/docs/lol/mod-format/fantome) i wrzuć `.modpkg` jako nowe wydanie.
+
+| Format     | Do czego                                                                      |
+| ---------- | ----------------------------------------------------------------------------- |
+| `.modpkg`  | Każdy nowy mod i każda aktualizacja. Trzyma ścieżki plików razem z plikami.   |
+| `.fantome` | Nic nowego. Stare mody działają w nim do swojej następnej aktualizacji.       |
+
+`.modpkg` trzyma też czytelne ścieżki zasobów razem z twoimi plikami. Dzięki temu narzędzia mogą później otworzyć twojego moda ponownie, edytować go, zrobić repath i go naprawić. Reszta tej strony wyjaśnia, dlaczego to ważne.
+
+## Dlaczego to teraz ważne
+
+Riot zmienia odwołania do zasobów w plikach BIN z czytelnych wartości `string` na wartości `file` przechowujące hashe.
+Im więcej odwołań się zmienia, tym mniej czytelnych ścieżek narzędzia mogą odzyskać z samego BIN-a.
+
+Zależnie od edytora tekstowego ten typ może wyglądać jak `file:` lub `file =`.
+Plik binarny przechowuje 64-bitowy hash ścieżki. Edytor pokazuje czytelną nazwę, gdy zna odpowiadającą mu ścieżkę.
+
+Wcześniej odwołanie string mogło przechowywać własną ścieżkę tekstury bezpośrednio w BIN-ie:
+
+```text
+assets/my_custom_skin/textures/body.tex
+```
+
+Po konwersji na `file` odwołanie przechowuje hash tej ścieżki.
+Jeśli nic innego nie zachowa nazwy, narzędzie nie odzyska jej niezawodnie z samego hasha.
+
+Dotyczy to odwołań do zasobów. Nie oznacza, że każde pole tekstowe w BIN-ie staje się odwołaniem do pliku.
+
+## Jak działa unhashing
+
+Spakowany WAD identyfikuje pliki przez hashe ścieżek. Nie zachowuje zwykłego katalogu z czytelnymi nazwami plików.
+
+Narzędzia takie jak [Quartz](/docs/lol/tools/modding-apps/quartz) korzystają z tabeli wyszukiwania:
+
+1. Odczytaj hash pliku.
+2. Wyszukaj go w słowniku znanych ścieżek.
+3. Wyświetl pasującą ścieżkę, jeśli istnieje.
+4. Zachowaj liczbowy hash, jeśli ścieżka jest nieznana.
+
+**Unhashing to wyszukiwanie, a nie odwracanie hasha.**
+Społecznościowe bazy hashy zawierają znane ścieżki gry. Nie znają automatycznie ścieżek wymyślonych dla twojego moda.
+Narzędzia mogą też poznawać nazwy z folderów projektu, czytelnych stringów BIN-a i osadzonych tabel hashy.
+
+Pakowanie WAD-a usuwa czytelne nazwy. Konwersja stringów BIN-a na hashe `file` usuwa kolejne źródło tych nazw.
+Bez zapisanych powiązań pliki mogą zostać wypakowane pod nazwami szesnastkowymi.
+Może to uniemożliwić odnajdywanie tekstur, śledzenie odwołań i poprawny repath zasobów.
+
+<Callout type="warning" title="Wczytanie moda a odzyskanie nazw plików">
+  Mod może nadal działać w grze, jeśli jego hashe pasują. Problem dotyczy odzyskania
+  czytelnych ścieżek do późniejszej edycji i napraw. Nieznana nazwa pliku nie
+  oznacza, że samego WAD-a nie można otworzyć.
+</Callout>
+
+## Eksportuj z projektu
+
+Eksportuj ze swojego [projektu moda](/docs/lol/mod-format/mod-project), dopóki czytelne ścieżki nadal istnieją. Konwersja starego spakowanego WAD-a do `.modpkg` nie przywróci własnych nazw, które już przepadły.
+
+## Przed udostępnieniem
+
+1. Wyeksportuj `.modpkg` z Creator Hub. [Wyeksportuj i zainstaluj .modpkg](/docs/lol/mod-format/modpkg) pokazuje, jak.
+2. Otwórz wyeksportowany plik ponownie i sprawdź, czy twoje własne ścieżki zasobów są nadal czytelne.
+3. Przetestuj go w grze przez Celestial.
+4. Zachowaj folder projektu na przyszłe aktualizacje.
+
+`.modpkg` nie zastępuje kopii zapasowej projektu.
+
+## Źródła
+
+- [Kod unhashingu Quartz](https://github.com/RitoShark/Quartz/blob/main/src-tauri/crates/quartz-lib/src/bin/jade/unhasher.rs): wyszukiwanie wartości `file`, `hash` i `link` w słowniku.
+- [Hematite](https://github.com/RitoShark/Hematite): naprawa modów i przetwarzanie WAD-ów.

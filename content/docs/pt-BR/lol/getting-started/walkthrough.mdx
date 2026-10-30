@@ -1,0 +1,212 @@
+---
+title: "Tutorial completo"
+description: "O guia em vídeo completo para criar uma skin personalizada de League of Legends. Do primeiro install da ferramenta até a publicação do mod."
+category: "getting-started"
+---
+
+> Este guia leva você do primeiro install das ferramentas até uma skin final publicada. Siga as partes em ordem.
+
+<Callout type="info" title="Vídeos podem estar desatualizados">
+  Alguns vídeos abaixo usam ferramentas antigas. Novas ferramentas foram lançadas desde então, e cada uma tem seu próprio guia na seção [Ferramentas](/docs/lol/tools). Os vídeos ainda ajudam a entender o fluxo geral. Para uso diário, prefira as ferramentas mais recentes.
+</Callout>
+
+## Como o pipeline funciona
+
+A criação de skins segue um fluxo único. O [Flint](/docs/lol/tools/modding-apps/flint) cobre quase tudo em uma única interface.
+
+1. **Extrair** os arquivos da skin do jogo, já [com repath](/docs/lol/getting-started/repath-your-mod#boa-prática-comece-já-com-repath).
+2. **Pré-visualizar** modelo, texturas e VFX.
+3. **Editar** o que quiser: modelo, texturas, partículas ou áudio.
+4. **Validar** o mod e corrigir bugs com [Hematite](/docs/lol/tools/modding-apps/hematite).
+5. **Testar** no jogo com o Creator Hub do Celestial.
+6. **Exportar** como `.modpkg`, o arquivo que os jogadores instalam. O [Formato do mod](/docs/lol/mod-format) explica esse arquivo.
+
+Cada parte abaixo corresponde a uma dessas etapas.
+
+## Começando
+
+### Ferramentas necessárias
+
+Comece com estas três. Elas cobrem a maior parte do trabalho:
+
+- **[Flint](/docs/lol/tools/modding-apps/flint)**: extrair, editar, validar e empacotar.
+- **[Jade](/docs/lol/tools/modding-apps/jade)**: editor de BIN.
+- **[Quartz](/docs/lol/tools/modding-apps/quartz)**: VFX e ajustes visuais.
+
+Você também vai querer:
+
+- A visão geral de [Ferramentas](/docs/lol/tools) para todo o resto.
+
+Opcional:
+
+- **[LtMAO](/docs/lol/tools/modding-apps/ltmao)**: ferramenta antiga, usada como fallback para trabalhos em lote e soundbanks completas.
+
+---
+
+## Passo a passo
+
+---
+
+### Parte 1: Flint
+
+Explore os arquivos do jogo e aprenda o básico.
+
+Inclui:
+
+- Exploração de arquivos
+- Fundamentos de modding
+- Configuração do projeto
+
+https://www.youtube.com/watch?v=lUq29txlCCE
+
+---
+
+### Parte 2: Hacksaw
+
+Recolorir efeitos visuais com sistema de paleta. Nenhuma programação necessária.
+
+<Callout type="info" title="Alternativa mais nova: Quartz Paint">
+  O [Quartz](/docs/lol/tools/modding-apps/quartz) tem uma página de Paint para recolorir partículas sem configuração extra. O [guia do Hacksaw](/docs/lol/vfx-bins/hacksaw) ainda funciona, e o vídeo abaixo mostra o passo a passo.
+</Callout>
+
+https://www.youtube.com/watch?v=ZswaStGq7VU&t=1s
+
+---
+
+### Parte 3: Substituir modelo (Maya ou Blender)
+
+Substitua o modelo com Maya ou Blender. Para o Blender, veja o [guia de troca de modelo no Blender](/docs/lol/blender/3d-model-swap).
+
+#### Notas importantes
+
+- **Instale o LoL Maya primeiro**
+- **Não** apague faces, vértices ou arestas depois de vincular a malha
+- Na primeira importação de arquivos `.skn` / `.skl`, use **Importar**, não arrastar e soltar
+- Garanta que **materiais e malhas separados** estejam ativados
+
+https://www.youtube.com/watch?v=xqB84ga55hI&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=3&ab_channel=Frog
+
+Veja a [Lista de erros do Maya](/docs/lol/errors/maya-errors).
+
+---
+
+### Parte 4: Materiais e BIN
+
+Entenda materiais e `.bin`, e como referenciá-los dentro dos arquivos `.bin` usando `MaterialOverride`.
+
+https://www.youtube.com/watch?v=dS-lvovFmVw&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=4&ab_channel=Frog
+
+---
+
+### Parte 5: Matrix e partículas idle
+
+Escala e posicionamento de VFX. Adicione auras idle ou efeitos visuais passivos.
+
+Inclui:
+
+- Como posicionar um sistema de VFX (importante)
+- Código usado neste tutorial
+
+<Callout type="info" title="Você pode editar esses BINs no Jade ou Quartz">
+  Você pode editar BINs no Jade ou Quartz. O vídeo edita o `.bin` manualmente. Você pode fazer as mesmas edições visualmente no [Jade](/docs/lol/tools/modding-apps/jade), ou escalar partículas em lote na página Bineditor do Quartz.
+</Callout>
+
+https://www.youtube.com/watch?v=bUJSVlVHEZM&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=5&ab_channel=Frog
+
+---
+
+### Parte 6: Sistemas de partículas
+
+Eventos de animação e triggers.
+
+Acione efeitos visuais usando:
+
+- Eventos de animação
+- Lógica do jogo (`PersistentEffectConditions`)
+
+https://www.youtube.com/watch?v=T7ALG5M4twQ&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=6&ab_channel=Frog
+
+---
+
+### Parte 7: Som e voiceover
+
+Troca de áudio e efeitos sonoros, como sons de habilidades ou provocações.
+
+<Callout type="info" title="As ferramentas mudaram desde este vídeo">
+  O [Quartz](/docs/lol/tools/modding-apps/quartz) agora lida com áudio `.bnk` e `.wpk` para trabalho leve, como trocar um som. Use o Wwise ou o [LtMAO](/docs/lol/tools/modding-apps/ltmao) só quando precisar reconstruir uma soundbank completa. O vídeo abaixo é mais antigo, mas a ideia é a mesma.
+</Callout>
+
+https://youtu.be/QlJRc4hQNA0?si=w0E0iB6Grcl2n8Ga
+
+---
+
+### Parte 8: Retarget de animações
+
+Importar animações de outros jogos ou campeões (por exemplo, Fortnite) para os rigs do League.
+
+#### Ferramenta
+
+| Ferramenta            | Descrição                                       |
+| --------------------- | ----------------------------------------------- |
+| Fortnite Porting Tool | Porta animações do Fortnite para uso no League  |
+
+https://www.youtube.com/watch?v=jnAXvFzYlb4&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=8&ab_channel=Frog
+
+---
+
+### Parte 9: Materiais do League
+
+Aplique materiais no estilo do League, como **Glow** e **Toon Shader**, nas suas skins personalizadas.
+
+https://www.youtube.com/watch?v=mJDehGDIL00&ab_channel=Frog
+
+---
+
+### Parte 10: Repath e publicação
+
+O vídeo mostra ferramentas antigas nesta parte. Hoje tudo acontece no Creator Hub do Celestial:
+
+**Repath.** Começou sem prefixo? Clique com o botão direito no mod no Creator Hub e clique em **Repath**. [Faça o repath do seu mod](/docs/lol/getting-started/repath-your-mod) tem todos os passos.
+
+**Teste.** Clique no card do mod para ativar, clique em **Start Patcher** e confira em uma partida de treino.
+
+**Exporte.** Clique com o botão direito no mod e exporte um `.modpkg`. [Exporte e instale um .modpkg](/docs/lol/mod-format/modpkg) mostra como.
+
+**Publique.** [Publique seu mod na Divine](/docs/lol/publishing/publish-on-divine) te guia pelo envio.
+
+https://youtu.be/WxdHs9oauP4
+
+---
+
+## Extras
+
+### Bones e física (cabelo, capas, etc.)
+
+Adicione bones e movimento baseado em física à sua skin.
+
+#### Ferramentas necessárias
+
+| Ferramenta    | Descrição                                                            |
+| ------------- | ------------------------------------------------------------------- |
+| Autodesk Maya | Software 3D padrão da indústria para rigging e mapeamento de UV      |
+| Jade          | Edita o `.bin` de física diretamente. Sem converter de ida e volta.  |
+| RitoBin       | Fallback opcional. Converte `.bin` para `.py` e de volta (`ritobin_cli`). |
+
+https://www.youtube.com/watch?v=ejg5IAkEDTY&list=PLf4Ypj4RQ79J5KsyLb6xJcjKVPjlgvB23&index=9&ab_channel=Frog
+
+---
+
+### Exemplo de configuração
+
+```cpp
+rigPoseModifierData: list[pointer] = {
+    ConformToPathRigPoseModifierData {
+        mStartingJointName: hash = 0x41f70632
+        mEndingJointName: hash = 0x3cf6fe53
+        mDefaultMaskName: hash = 0x7136e1bc
+        mMaxBoneAngle: f32 = 45
+        mDampingValue: f32 = 5
+        mFrequency: f32 = 3
+    }
+}
+```

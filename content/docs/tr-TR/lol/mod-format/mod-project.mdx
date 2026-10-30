@@ -1,0 +1,137 @@
+---
+title: "Mod projesi kur"
+description: "League of Legends modunu Celestial'ın Creator Hub'ında bir projeye dönüştür: dosyalarını ekle, mod bilgisini doldur, readme, lisans ve küçük resim ekle ve kendi klasöründe çalışmaya devam et."
+keywords:
+  - league mod projesi
+  - celestial creator hub içe aktarma
+  - mod.config.json
+category: "mod-format"
+---
+
+<LevelPill level="beginner" />
+
+Mod projesi, modunun paketlenmeden önceki hâlidir: dosyaları ve onlarla birlikte giden ad, sürüm ve yazarlar gibi bilgiler. Dosyalarını eklediğinde Celestial'ın Creator Hub'ı projeyi senin için oluşturur. Modu oradan test eder, repath'ler ve export edersin.
+
+<Requirements>
+  <Requirement
+    icon="Download"
+    href="https://divineskins.gg/install-mods"
+    note="Windows"
+  >
+    Celestial
+  </Requirement>
+  <Requirement icon="FolderOpen" note="klasör, .modpkg ya da .fantome">
+    Modunun dosyaları
+  </Requirement>
+</Requirements>
+
+## Projede neler var
+
+<Files>
+  <Folder name="my-mod" defaultOpen>
+    <File name="mod.config.json: ad, sürüm, yazarlar, lisans, katmanlar" />
+    <File name="README.md ve LICENSE (isteğe bağlı)" />
+    <File name="küçük resim (isteğe bağlı)" />
+    <Folder name="content" defaultOpen>
+      <Folder name="base" defaultOpen>
+        <Folder name="Aatrox.wad.client">
+          <File name="dosyaların, oyundaki yollarında" />
+        </Folder>
+      </Folder>
+      <Folder name="chroma-red (isteğe bağlı katman)">
+        <Folder name="Aatrox.wad.client">
+          <File name="yalnızca bu varyantın değiştirdiği dosyalar" />
+        </Folder>
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+
+- **`mod.config.json`** modun bilgisini tutar. **Edit Info**'yu kullandığında Creator Hub onu kendisi yazar, yani elle düzenlemen hiç gerekmez.
+- **`content`** her [katman](/docs/lol/mod-format/layers) için bir klasör içerir. Her projede `base` vardır.
+- **`Aatrox.wad.client`**, dosyalarının gireceği oyun arşivinin adını taşır. Creator Hub bunu dosyalarına bakarak kendisi bulur.
+
+Export ettiğinde projedeki her şey `.modpkg` dosyasına girer.
+
+<Steps>
+<Step>
+
+### Modunu Creator Hub'a ekle
+
+Celestial'da **Creator Hub**'ı aç (Türkçe arayüzde adı **İçerik Merkezi**) ve modunu içine sürükle. Creator Hub şunları kabul eder:
+
+- modunun `assets` ve `data` klasörlerini içeren bir klasör, örneğin Quartz ya da Jade çıktısı
+- bir Flint ya da Jade proje klasörü
+- bir `.modpkg` ya da `.fantome` dosyası
+
+Araç çubuğundaki **Import** bir klasör seçtirir. `.modpkg` zaten Kütüphane'nde mi? Orada ona sağ tıkla ve **Creator Hub'da aç**'a tıkla.
+
+**Ayarlar**'da, **Creator Hub** sekmesinden **İçerik Üretici Adı**'nı bir kez ayarla. Celestial içe aktardığın her modda seni yazar olarak ekler.
+
+</Step>
+<Step>
+
+### Mod bilgini doldur
+
+Modun kartına sağ tıkla ve **Edit Info**'ya tıkla.
+
+1. **Görünen ad** alanını kontrol et. Oyuncular bunu Kütüphane'de görür.
+2. **Ad (slug)** alanını kontrol et: küçük harfler, rakamlar, `-` ve `_`. Export edilen dosyanın adı buradan gelir.
+3. **Sürüm** alanına `1.0.0` gibi bir değer yaz. Her güncelleme yayınladığında bunu yükselt.
+4. Kısa bir **Açıklama** ekle.
+5. **Yazarlar** altına kendini ve modda emeği geçen herkesi yaz. **Yazar ekle** yeni bir satır açar, **Rol** isteğe bağlı.
+6. Bir **Lisans** seç.
+7. **Sınıflandırma** altında **Etiketler** ve **Şampiyonlar** ekle. Harita modları **Haritalar** ekler.
+8. **Kaydet**'e tıkla.
+
+<img
+  src="/wiki-images/lol-mod-format-1.webp"
+  width={560}
+  alt="Projeyi düzenle penceresi: 1 ile işaretli Sürüm alanı ve 2 ile işaretli Yazar ekle butonuyla Yazarlar listesi"
+/>
+
+</Step>
+<Step>
+
+### Readme, lisans ve küçük resim ekle
+
+Üçü de isteğe bağlı ve üçü de `.modpkg` dosyasının içinde taşınır. Modun kartına sağ tıkla:
+
+- **Readme**, `README.md` için bir editör açar. Kurulum notları, emeği geçenler ya da değişiklik günlüğü için kullan.
+- **Lisans**, lisansın tam metnini tutar. **Edit Info** içindeki **Lisans** sadece adını belirtir.
+- **Set Image**, oyuncuların Kütüphane'de gördüğü küçük resmi seçer. **Rm Image** onu kaldırır.
+
+</Step>
+<Step>
+
+### Kendi klasöründe çalışmaya devam et
+
+Creator Hub modunun kendine ait bir kopyasını tutar, buna **Depolama** denir. Senin dosyaların **Mod Klasörü**'nde kalır. **Reload**, **Start Patcher** ve **Export** önce son değişikliklerini Depolama'ya kopyalar, yani modu bir daha içe aktarman gerekmez.
+
+- Dosyalarını Mod Klasörü'nde düzenle. Depolama'da yaptığın değişikliklerin üzerine bir sonraki Reload'da yazılır.
+- Mod Klasörü'nü asla silme. Creator Hub oradan okur.
+- Sağ tık menüsünde ikisini açmak için **Depolama** ve **Mod Klasörü** var.
+
+</Step>
+</Steps>
+
+## Sonraki adımlar
+
+<CardGrid>
+  <PremiumCard
+    title="Katman ekle"
+    href="/docs/lol/mod-format/layers"
+    icon={<Icon name="Layers" />}
+    level="beginner"
+  >
+    Chroma'ları ve varyantları aynı modun içinde sun.
+  </PremiumCard>
+  <PremiumCard
+    title=".modpkg export et ve kur"
+    href="/docs/lol/mod-format/modpkg"
+    icon={<Icon name="Package" />}
+    level="beginner"
+  >
+    Projeyi yükleyeceğin dosyaya paketle.
+  </PremiumCard>
+</CardGrid>

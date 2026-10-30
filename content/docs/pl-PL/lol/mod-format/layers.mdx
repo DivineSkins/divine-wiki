@@ -1,0 +1,110 @@
+---
+title: "Dodaj warstwy"
+description: "Wrzuć chromy i warianty do jednego moda do League of Legends: dodaj warstwy w Menedżerze warstw w Celestial, ustaw ich priorytet i pozwól graczom je włączać i wyłączać."
+keywords:
+  - warstwy modpkg
+  - chromy w jednym pliku moda league
+  - menedżer warstw celestial
+category: "mod-format"
+---
+
+<LevelPill level="beginner" />
+
+Warstwy to grupy plików w jednym modzie, które gracze włączają i wyłączają. Używaj ich do chrom, alternatywnych wersji skina albo opcjonalnych dodatków, jak własne partikle. Na Divine mod do League to jeden `.modpkg`, więc każdy wariant idzie do warstwy, a nie do drugiego uploadu.
+
+## Jak działają warstwy
+
+- **`base`** to główne pliki twojego moda. Ma ją każdy mod i jest zawsze włączona.
+- **Każda inna warstwa** trzyma tylko pliki, które zmienia dany wariant, pod tymi samymi ścieżkami co w `base`.
+- **Priorytet** decyduje, która warstwa wygrywa, gdy dwie zmieniają ten sam plik. Wyższy wygrywa. `base` ma zawsze 0.
+- **Ten sam priorytet** oznacza, że warstwy są alternatywami, jak dwie chromy. Gracze powinni włączyć tylko jedną z nich.
+
+Dwa typowe układy. **Chromy**, z których gracz wybiera jedną:
+
+| Warstwa | Priorytet | Co zawiera |
+| --- | --- | --- |
+| `base` | 0 | Skin |
+| `chroma-red` | 1 | Czerwone tekstury |
+| `chroma-blue` | 1 | Niebieskie tekstury |
+
+**Opcjonalne dodatki**, które gracze nakładają na siebie:
+
+| Warstwa | Priorytet | Co zawiera |
+| --- | --- | --- |
+| `base` | 0 | Skin |
+| `particles` | 1 | Własne VFX |
+| `hd-textures` | 2 | Większe tekstury |
+
+Chcesz, żeby gracze widzieli tylko jedną warstwę naraz? Otwórz **Edit Info** i włącz **Jedna warstwa naraz**. Wtedy włączenie warstwy przełącza na nią, zamiast nakładać ją na pozostałe.
+
+## Dodaj warstwę
+
+Twój mod musi już być w Creator Hub. [Załóż projekt moda](/docs/lol/mod-format/mod-project) pokazuje, jak to zrobić.
+
+<Steps>
+<Step>
+
+### Przygotuj pliki wariantu
+
+Zrób folder na każdy wariant, ułożony tak jak folder twojego moda, z `assets` i `data`. Wrzuć tam tylko pliki, które wariant zmienia, na przykład przekolorowane tekstury chromy. Zachowaj te same ścieżki i prefiks co w `base`.
+
+</Step>
+<Step>
+
+### Otwórz Menedżera warstw
+
+Kliknij prawym przyciskiem kartę moda w Creator Hub i wybierz **Layers**.
+
+<img
+  src="/wiki-images/lol-mod-format-2.webp"
+  width={560}
+  alt="Layer Manager z warstwą base dla Aatrox.wad.client i zakreślonym przyciskiem Add layer with name"
+/>
+
+</Step>
+<Step>
+
+### Dodaj warstwę
+
+1. Kliknij **Dodaj warstwę z nazwą** i wpisz nazwę, na przykład `chroma-red`. Używaj małych liter, cyfr i `-`.
+2. Ustaw jej **Priorytet** strzałkami.
+3. Kliknij **Przeglądaj** i wybierz folder wariantu. Wybierz kilka folderów, żeby połączyć je w jedną warstwę.
+
+**Szybki import** pomija nazwę: wybiera folder i nadaje warstwie jego nazwę.
+
+</Step>
+<Step>
+
+### Sprawdź listę
+
+Każda warstwa pokazuje swoje pliki WAD i priorytet. Warstwy oznaczone jako **alternatywa** mają ten sam priorytet. Priorytet zmienisz strzałkami, a do reszty masz **Zmień nazwę warstwy** i **Usuń warstwę**.
+
+</Step>
+</Steps>
+
+## Co widzą gracze
+
+Gracze instalują twojego moda przez Celestial. Plakietka warstw na karcie moda pokazuje, ile warstw jest włączonych, a na start włączona jest tylko `base`. Kliknięcie plakietki włącza i wyłącza warstwy.
+
+Żeby sprawdzić to samemu, [wyeksportuj .modpkg](/docs/lol/mod-format/modpkg), zainstaluj go w **Bibliotece** i włącz po kolei każdą warstwę.
+
+## Co dalej
+
+<CardGrid>
+  <PremiumCard
+    title="Wyeksportuj i zainstaluj .modpkg"
+    href="/docs/lol/mod-format/modpkg"
+    icon={<Icon name="Package" />}
+    level="beginner"
+  >
+    Spakuj base i każdą warstwę do jednego pliku.
+  </PremiumCard>
+  <PremiumCard
+    title="Opublikuj moda na Divine"
+    href="/docs/lol/publishing/publish-on-divine"
+    icon={<Icon name="Upload" />}
+    level="beginner"
+  >
+    Wrzuć plik przez Creator Panel.
+  </PremiumCard>
+</CardGrid>

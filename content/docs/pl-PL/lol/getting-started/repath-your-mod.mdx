@@ -1,0 +1,323 @@
+---
+title: "Repath moda"
+description: "Zrób repath moda na bohatera do League of Legends w Creator Hub w Celestial albo zacznij od razu z repathem, wyciągając pliki Quartzem, Flintem lub Jade, żeby twój mod nigdy nie gryzł się z innymi."
+keywords:
+  - repath league mod
+  - league mod repath celestial
+  - custom skin conflicts with other mods
+  - partially repathed
+  - repath moda league
+  - konflikt własnego skina z innymi modami
+  - częściowy repath
+category: "getting-started"
+---
+
+<LevelPill level="beginner" />
+
+Repath daje plikom twojego moda ich własny folder, więc twój mod nigdy nie pogryzie się z innym modem na tego samego bohatera. Zrób repath każdego moda na bohatera, zanim wrzucisz go na Divine. Sprawdzanie plików na Divine powie ci, gdy mod na bohatera nie ma repathu.
+
+Najlepszy moment na repath to start pracy nad skinem. Jeśli twój mod jest już gotowy, Celestial zrobi mu repath jednym kliknięciem prawym przyciskiem.
+
+## Co robi repath
+
+Mod na bohatera podmienia pliki w ścieżkach samej gry. Gdy dwa mody zmieniają ten sam plik, nie mogą wygrać oba naraz, więc jeden z nich się sypie. Repath przenosi twoje pliki pod słowo, którego używasz tylko ty. To słowo to **prefiks**:
+
+```text
+assets/characters/aatrox/skins/base/aatrox_base_tx_cm.tex
+assets/daka_aatrox/characters/aatrox/skins/base/aatrox_base_tx_cm.tex
+```
+
+Pliki BIN dostają nowe ścieżki, więc gra dalej wszystko znajduje.
+
+| Typ moda                   | Repath?    |
+| -------------------------- | ---------- |
+| Skiny i chromy bohaterów   | **Tak**    |
+| Mody mapy                  | Nie        |
+| Mody HUD-u i interfejsu    | Nie        |
+| Mody dźwięku               | Nie        |
+
+## Wybierz dobry prefiks
+
+Każde narzędzie pyta o prefiks. Wszędzie trzymaj się tych samych zasad:
+
+- Tylko małe litery, cyfry i `_`. Quartz usuwa `-`.
+- Niech będzie twój: nazwa twórcy plus nazwa moda się sprawdza, na przykład `daka_aatrox`.
+- Nigdy nie używaj nazwy folderu Riotu, takiej jak `characters`, `shared`, `particles` czy `hud`. Celestial uzna wtedy moda za taki bez repathu.
+
+## Dobra praktyka: zacznij od razu z repathem
+
+Gdy zaczynasz nowy skin, wyciągnij pliki bohatera od razu z repathem. Każdy plik, który edytujesz, siedzi wtedy pod twoim prefiksem od pierwszego dnia i na koniec nie musisz robić repathu. Wybierz swój ekstraktor:
+
+<Tabs items={["Quartz", "Flint", "Jade"]}>
+<Tab value="Quartz">
+
+Quartz robi repath tylko przyciskiem **Repath**. Zwykły przycisk **Extract** daje ci pliki w ścieżkach Riotu.
+
+1. Otwórz **Settings**, a potem **External Tools**. Ustaw **League Install Path** i **WAD Extraction Output Path**.
+2. Otwórz **Asset Extractor** w pasku bocznym i wybierz zakładkę **Champions**.
+3. Wybierz bohatera, a potem kliknij kartę skina, nad którym chcesz pracować.
+4. Kliknij **Repath**, nie **Extract**.
+5. Wpisz swój prefiks w **Entry Prefix**. Zostaw włączone **Preserve HUD ability icons**.
+6. Kliknij **Start Repath**.
+
+Quartz zapisuje w folderze wyjściowym folder w stylu `aatrox_skin0_extracted_clean`. Resztę aplikacji opisuje strona [Quartz](/docs/lol/tools/modding-apps/quartz).
+
+</Tab>
+<Tab value="Flint">
+
+Flint sam robi repath każdego nowego projektu skina. Prefiks to twoja nazwa twórcy plus nazwa projektu.
+
+1. Ustaw **Creator name** w **Settings**, potem **Creator**. Bez nazwy twórcy Flint nie robi repathu.
+2. Ustaw swój folder z League w **Settings**, potem **Paths**.
+3. Kliknij **Create Project**, a potem wybierz **Type: Skin**.
+4. Wybierz bohatera i skina, wpisz **Project name** i kliknij **Create project**.
+
+Twoje pliki lądują w `assets/<creator>/<project>/`. Zwykłe **Extract** w WAD Explorerze nie robi repathu. Resztę aplikacji opisuje strona [Flint](/docs/lol/tools/modding-apps/flint).
+
+</Tab>
+<Tab value="Jade">
+
+Te kroki dotyczą Jade 1.x. Jade 2.0 dodaje zakładkę **Create a Mod** z ustawieniem prefiksu.
+
+1. Otwórz **Extract Files** i wybierz **League of Legends** w **Locations**.
+2. Ustaw prefiks w **Extraction settings**, potem **Repath prefix**.
+3. Otwórz `.wad.client` bohatera i kliknij **Extract as skin mod**.
+4. Wybierz skiny i włącz **Repath**. Zostaw włączone **Preserve HUD icons**.
+5. Kliknij **Extract**.
+
+Resztę aplikacji opisuje strona [Jade](/docs/lol/tools/modding-apps/jade).
+
+</Tab>
+</Tabs>
+
+Potem edytuj pliki jak zwykle. Gdy zaimportujesz folder do Creator Hub, jego odznaka powinna już być zielona.
+
+## Repath w Celestial
+
+Zrobiłeś już moda bez prefiksu? Celestial zrobi mu repath. Creator Hub jest w wersji Celestial na Windowsa. W polskim Celestial nazywa się **Strefa twórców**.
+
+<Requirements>
+  <Requirement
+    icon="Download"
+    href="https://divineskins.gg/install-mods"
+    note="Windows"
+  >
+    Celestial
+  </Requirement>
+  <Requirement icon="FolderOpen" note="folder, .modpkg albo .fantome">
+    Twój mod na bohatera
+  </Requirement>
+  <Requirement icon="LeagueOfLegends" note="zainstalowane">
+    League of Legends
+  </Requirement>
+</Requirements>
+
+<Steps>
+<Step>
+
+### Dodaj moda do Creator Hub
+
+1. Otwórz Celestial i kliknij ikonę **Strefa twórców** na górze.
+2. Przeciągnij na Creator Hub folder moda albo plik `.modpkg` lub `.fantome`. Foldery dodasz też przyciskiem **Import**.
+
+Plik `.modpkg` jest już w twojej Bibliotece? Kliknij go tam prawym przyciskiem i wybierz **Otwórz w Creator Hub**.
+
+<img
+  src="/wiki-images/lol-repath-1.webp"
+  alt="Creator Hub w Celestial z ikoną Creator Hub oznaczoną 1 i przyciskiem Import oznaczonym 2, a pod nimi zaimportowany mod Aatrox Wiki Example"
+/>
+
+</Step>
+<Step>
+
+### Sprawdź odznakę
+
+Ikona w prawym górnym rogu karty moda pokazuje stan repathu. Najedź na nią kursorem, żeby go odczytać.
+
+<ParameterList
+  parameters={[
+    {
+      name: "Po repathu (zielona)",
+      description: "Gotowe. Przejdź od razu do testu w grze.",
+    },
+    {
+      name: "Częściowy repath (żółta)",
+      description:
+        "Część plików nadal używa ścieżek samej gry. Zrób repath, żeby dokończyć robotę.",
+    },
+    {
+      name: "Bez repathu (czerwona)",
+      description: "Nic nie ma jeszcze prefiksu. Zrób repath.",
+    },
+  ]}
+/>
+
+<img
+  src="/wiki-images/lol-repath-2.webp"
+  width={480}
+  alt="Obrysowana odznaka repathu na karcie moda z podpowiedzią: Partially repathed, finish repathing to avoid conflicts"
+/>
+
+</Step>
+<Step>
+
+### Otwórz Repath
+
+1. Kliknij prawym przyciskiem kartę moda.
+2. W sekcji **Tools** kliknij **Repath**.
+
+Opcję **Repath** widzisz tylko wtedy, gdy Celestial wie, na którego bohatera jest mod. Działa wyłącznie z modami na bohaterów.
+
+Za pierwszym razem przed oknem Repath Celestial pokaże krótki komunikat. Kliknij **Rozumiem**.
+
+<img
+  src="/wiki-images/lol-repath-3.webp"
+  width={480}
+  alt="Menu moda pod prawym przyciskiem z obrysowaną opcją Repath w sekcji Tools"
+/>
+
+</Step>
+<Step>
+
+### Wybierz skina i wpisz prefiks
+
+1. W **Wybierz ID skinów do repath** wybierz skina, którego zmienia twój mod. Skin 0 to skin bazowy.
+2. Wpisz swój **Prefiks**.
+
+Twój mod zmienia więcej niż jednego skina? Zrób repath jednego skina, a potem otwórz Repath jeszcze raz dla następnego.
+
+<img
+  src="/wiki-images/lol-repath-4.webp"
+  width={480}
+  alt="Okno Repath Mod z wyborem skina ustawionym na Skin 0 oznaczonym 1 i polem Prefix wypełnionym daka_aatrox oznaczonym 2"
+/>
+
+</Step>
+<Step>
+
+### Sprawdź opcje i zaczynaj
+
+Przewiń w dół. Domyślne ustawienia pasują do większości modów:
+
+- **Update to Riot's new asset format** jest wyłączone. Włącz je, jeśli karta moda ostrzega przed starym formatem assetów.
+- **Scal cząsteczki** przenosi twoje pliki VFX do jednego folderu.
+- **Remove redundant base BINs** usuwa pliki BIN, które gra i tak wczytuje ze swoich własnych plików.
+- **Zachowaj ikony umiejętności** zostawia folder `hud/icons2d` bez zmian.
+
+Potem kliknij przycisk **Repath** pod opcjami. Ma w nazwie wybranego skina, na przykład Skin 0.
+
+<img
+  src="/wiki-images/lol-repath-5.webp"
+  width={480}
+  alt="Opcje repathu oznaczone 1, z włączonymi Merge particles, Remove redundant base BINs i Keep ability icons, oraz przycisk Repath oznaczony 2"
+/>
+
+</Step>
+<Step>
+
+### Przeczytaj wynik
+
+Celestial pokazuje, ile BIN-ów i ścieżek zmienił, i jakiego prefiksu użył. Kliknij **Zamknij**.
+
+Może też pokazać dwa rodzaje plików:
+
+- **Możliwe do wyodrębnienia zasoby** to pliki, których używają twoje BIN-y, ale których nie ma w twoim modzie. Kliknij **Wyodrębnij z gry**, żeby je skopiować do moda. Wtedy mod dalej działa, gdy Riot je zmieni.
+- **Nierozwiązane zasoby** nie znalazły się też w grze. Zostają w ścieżkach gry.
+
+<img
+  src="/wiki-images/lol-repath-6.webp"
+  width={480}
+  alt="Wynik repathu: 1 BIN po repathu, 601 zmienionych ścieżek, prefiks daka_aatrox"
+/>
+
+</Step>
+<Step>
+
+### Sprawdź odznakę jeszcze raz
+
+Najedź na odznakę kursorem. Powinna pokazywać **Po repathu**. Nadal żółta? Inny skin albo plik z innego bohatera wciąż potrzebuje prefiksu. Zrób repath jeszcze raz dla tego skina.
+
+<img
+  src="/wiki-images/lol-repath-7.webp"
+  width={480}
+  alt="Obrysowana odznaka, teraz zielona, z podpowiedzią Repathed"
+/>
+
+</Step>
+<Step>
+
+### Przetestuj w grze
+
+1. Wyłącz swoje pozostałe mody.
+2. Kliknij kartę moda w Creator Hub, żeby go włączyć.
+3. Kliknij **Start Patcher**.
+4. Odpal grę treningową i sprawdź model, umiejętności, recall i efekty.
+
+</Step>
+</Steps>
+
+### Cofnij repath
+
+Coś się zepsuło? Kliknij moda prawym przyciskiem i kliknij **Restore**. Przywraca pliki sprzed repathu.
+
+<img
+  src="/wiki-images/lol-repath-8.webp"
+  width={480}
+  alt="Menu pod prawym przyciskiem po repathu, z obrysowaną opcją Restore w sekcji Tools"
+/>
+
+## Typowe problemy
+
+<Accordions>
+<Accordion title="W menu nie ma opcji Repath">
+
+Celestial nie rozpoznał, na którego bohatera jest mod, albo to nie jest mod na bohatera. Repath działa tylko ze skinami bohaterów. Sprawdź, czy twoje pliki leżą w `assets/characters/<champion>/` i `data/characters/<champion>/`.
+
+</Accordion>
+<Accordion title="Odznaka zostaje żółta">
+
+Część plików nadal używa ścieżek samej gry. Zrób repath każdego skina, którego zmienia twój mod, po jednym naraz. Pliki z innych bohaterów, na przykład współdzielone partikle, też się liczą.
+
+</Accordion>
+<Accordion title="Mod po repathu wygląda źle">
+
+Kliknij **Restore**, a potem spróbuj jeszcze raz z wyłączonym **Scal cząsteczki**. Nadal nie działa? Zapytaj na Discordzie, podając nazwę moda i to, co wygląda źle.
+
+</Accordion>
+<Accordion title="Sprawdzanie plików na Divine mówi, że mod nie ma repathu">
+
+Ta uwaga nie blokuje wrzucenia moda. Mówi ci tylko, że mod może gryźć się z innymi modami na tego samego bohatera. Zrób repath tutaj, wyeksportuj nowy `.modpkg` i wrzuć go jeszcze raz.
+
+</Accordion>
+</Accordions>
+
+Masz jeszcze pytania? Wpadnij do nas na [Discorda](https://discord.gg/divineskins). Zawsze ktoś tam jest.
+
+## Inne narzędzia do repathu
+
+<Callout type="info" title="Zarchiwizowane">
+  [League Mod Repather](/docs/lol/tools/modding-apps/league-mod-repather) to
+  stare, samodzielne narzędzie do repathu. Jego poradnik zostaje dla starszych
+  modów, ale teraz repath robi się w Celestial.
+</Callout>
+
+## Co dalej
+
+<CardGrid>
+  <PremiumCard
+    title="Format moda"
+    href="/docs/lol/mod-format"
+    icon={<Icon name="Package" />}
+    level="beginner"
+  >
+    Wyeksportuj moda po repathu jako .modpkg.
+  </PremiumCard>
+  <PremiumCard
+    title="Opublikuj moda na Divine"
+    href="/docs/lol/publishing/publish-on-divine"
+    icon={<Icon name="Upload" />}
+    level="beginner"
+  >
+    Wrzuć go przez Creator Panel.
+  </PremiumCard>
+</CardGrid>
