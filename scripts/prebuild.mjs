@@ -263,9 +263,14 @@ try {
 //   edits BULK or more guides doesn't make anyone a contributor.
 // Bots and AI co-author trailers are skipped. GitHub logins come from noreply
 // emails, or from the GitHub API for other emails (cached in node_modules).
-// Emails never reach the output file.
+// Emails never reach the output files.
+//
+// The same history also gives src/lib/contributors.json, the homepage's
+// thank-you row: everyone with a commit anywhere in the repo, with their
+// commit count. No sweep or import filtering there, a commit is a commit.
 
 const CREDITS_OUT = resolve("src/lib/page-credits.json");
+const CONTRIBUTORS_OUT = resolve("src/lib/contributors.json");
 const LOGIN_CACHE = resolve(
   "node_modules/.cache/divine-wiki/github-logins.json",
 );
@@ -275,10 +280,21 @@ const BULK = 15;
 const BOT =
   /\[bot\]|noreply@anthropic\.com|^claude\b|dependabot|github-actions/i;
 const NOREPLY = /^(?:(\d+)\+)?([^@]+)@users\.noreply\.github\.com$/i;
+// Author name, email and co-authors, for commitPeople().
+const PEOPLE_FORMAT =
+  "%an%x1f%ae%x1f%(trailers:key=Co-authored-by,valueonly,separator=%x1e)";
 
 function parseIdent(text) {
   const m = text.trim().match(/^(.*?)\s*<([^>]+)>$/);
   return m ? { name: m[1], email: m[2] } : null;
+}
+
+/** Author and co-authors of one PEOPLE_FORMAT line, without bots. */
+function commitPeople(name, email, co) {
+  return [
+    { name, email },
+    ...(co ? co.split("\x1e").map(parseIdent).filter(Boolean) : []),
+  ].filter((p) => !BOT.test(p.name) && !BOT.test(p.email));
 }
 
 function readCommits() {
@@ -286,7 +302,7 @@ function readCommits() {
     "log",
     "--reverse",
     "-M100%",
-    "--format=%x00%H%x1f%an%x1f%ae%x1f%(trailers:key=Co-authored-by,valueonly,separator=%x1e)",
+    `--format=%x00%H%x1f${PEOPLE_FORMAT}`,
     "--name-status",
     "--",
     "content/docs",
@@ -297,11 +313,7 @@ function readCommits() {
   for (const line of log.split("\n")) {
     if (line.startsWith("\0")) {
       const [sha, name, email, co] = line.slice(1).split("\x1f");
-      const people = [
-        { name, email },
-        ...(co ? co.split("\x1e").map(parseIdent).filter(Boolean) : []),
-      ].filter((p) => !BOT.test(p.name) && !BOT.test(p.email));
-      commits.push({ sha, people, changes: [] });
+      commits.push({ sha, people: commitPeople(name, email, co), changes: [] });
     } else if (line && commits.length > 0) {
       const [status, ...paths] = line.split("\t");
       if (paths.at(-1)?.endsWith(".mdx")) {
@@ -310,6 +322,14 @@ function readCommits() {
     }
   }
   return commits;
+}
+
+/** The people on every commit in the repo (merges left out), one list each. */
+function readAllCommitPeople() {
+  return git(["log", "--no-merges", `--format=${PEOPLE_FORMAT}`])
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => commitPeople(...line.split("\x1f")));
 }
 
 /** "My Guide.mdx" and "my-guide.mdx" are the same file name. */
@@ -380,43 +400,60 @@ async function resolveLogins(emails) {
   return cache;
 }
 
-async function buildPageCredits() {
-  if (isShallow()) return { people: {}, pages: {} };
-  const commits = readCommits();
+/** GitHub serves 460px avatars unless asked; 128 covers 64px on 2x screens. */
+function sizedAvatar(url) {
+  const u = new URL(url);
+  if (u.hostname === "avatars.githubusercontent.com") {
+    u.searchParams.set("s", "128");
+  }
+  return u.toString();
+}
 
-  const logins = await resolveLogins([
-    ...new Set(
-      commits.flatMap((c) =>
-        c.people
-          .map((p) => p.email.toLowerCase())
-          .filter((e) => !NOREPLY.test(e)),
-      ),
-    ),
-  ]);
-
-  // One entry per person: by GitHub login when known, else by name.
+/**
+ * One entry per person: by GitHub login when known, else by name. `add`
+ * takes a commit identity and returns its key; `finish` names everyone after
+ * the name they commit under most and returns key -> { login, avatar, name }.
+ */
+function peopleTable(logins) {
   const people = {};
   const names = {};
-  const personKey = ({ name, email }) => {
-    const noreply = email.match(NOREPLY);
-    const known = noreply
-      ? {
-          login: noreply[2],
-          avatar: noreply[1]
-            ? `https://avatars.githubusercontent.com/u/${noreply[1]}?v=4`
+  return {
+    add({ name, email }) {
+      const noreply = email.match(NOREPLY);
+      const known = noreply
+        ? {
+            login: noreply[2],
+            avatar: noreply[1]
+              ? `https://avatars.githubusercontent.com/u/${noreply[1]}?v=4`
+              : null,
+          }
+        : logins[email.toLowerCase()];
+      const key = known ? known.login.toLowerCase() : `name:${name}`;
+      people[key] ??= {
+        login: known?.login ?? null,
+        avatar: known?.avatar
+          ? sizedAvatar(known.avatar)
+          : known
+            ? `https://github.com/${known.login}.png?size=96`
             : null,
-        }
-      : logins[email.toLowerCase()];
-    const key = known ? known.login.toLowerCase() : `name:${name}`;
-    people[key] ??= {
-      login: known?.login ?? null,
-      avatar:
-        known?.avatar ??
-        (known ? `https://github.com/${known.login}.png?size=96` : null),
-    };
-    (names[key] ??= {})[name] = (names[key][name] ?? 0) + 1;
-    return key;
+      };
+      (names[key] ??= {})[name] = (names[key][name] ?? 0) + 1;
+      return key;
+    },
+    finish() {
+      for (const [key, counts] of Object.entries(names)) {
+        people[key].name = Object.entries(counts).sort(
+          (a, b) => b[1] - a[1],
+        )[0][0];
+      }
+      return people;
+    },
   };
+}
+
+function buildPageCredits(commits, logins) {
+  const table = peopleTable(logins);
+  const personKey = table.add;
 
   const files = new Map();
   for (const commit of commits) {
@@ -458,9 +495,7 @@ async function buildPageCredits() {
     }
   }
 
-  for (const [key, counts] of Object.entries(names)) {
-    people[key].name = Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
-  }
+  const people = table.finish();
   const pages = {};
   for (const [path, { creator, edits }] of files) {
     if (!path.startsWith("content/docs/")) continue;
@@ -483,16 +518,59 @@ async function buildPageCredits() {
   return { people, pages };
 }
 
-try {
-  const credits = await buildPageCredits();
-  writeFileSync(CREDITS_OUT, JSON.stringify(credits) + "\n");
-  console.log(
-    `page-credits.json generated: ${Object.keys(credits.pages).length} files, ${Object.keys(credits.people).length} people`,
-  );
-} catch (err) {
-  console.warn("Could not generate page-credits.json:", err.message);
-  writeFileSync(CREDITS_OUT, JSON.stringify({ people: {}, pages: {} }) + "\n");
+/**
+ * Everyone with a commit in the repo, most commits first. A commit counts
+ * once per person, even when they are both its author and a co-author.
+ */
+function buildContributors(commits, logins) {
+  const table = peopleTable(logins);
+  const counts = new Map();
+  for (const people of commits) {
+    for (const key of new Set(people.map(table.add))) {
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+  }
+  const people = table.finish();
+  return [...counts]
+    .map(([key, contributions]) => ({ ...people[key], contributions }))
+    .sort(
+      (a, b) =>
+        b.contributions - a.contributions || a.name.localeCompare(b.name),
+    );
 }
+
+async function buildCredits() {
+  if (isShallow()) return null;
+  const contentCommits = readCommits();
+  const allCommits = readAllCommitPeople();
+  const logins = await resolveLogins([
+    ...new Set(
+      [...contentCommits.map((c) => c.people), ...allCommits]
+        .flat()
+        .map((p) => p.email.toLowerCase())
+        .filter((e) => !NOREPLY.test(e)),
+    ),
+  ]);
+  return {
+    pageCredits: buildPageCredits(contentCommits, logins),
+    contributors: buildContributors(allCommits, logins),
+  };
+}
+
+let credits = { pageCredits: { people: {}, pages: {} }, contributors: [] };
+try {
+  credits = (await buildCredits()) ?? credits;
+} catch (err) {
+  console.warn("Could not build page credits and contributors:", err.message);
+}
+writeFileSync(CREDITS_OUT, JSON.stringify(credits.pageCredits) + "\n");
+writeFileSync(CONTRIBUTORS_OUT, JSON.stringify(credits.contributors) + "\n");
+console.log(
+  `page-credits.json generated: ${Object.keys(credits.pageCredits.pages).length} files, ${Object.keys(credits.pageCredits.people).length} people`,
+);
+console.log(
+  `contributors.json generated: ${credits.contributors.length} people`,
+);
 
 // Hash search inputs, including uncommitted edits and builds without .git.
 const searchHash = createHash("sha256");

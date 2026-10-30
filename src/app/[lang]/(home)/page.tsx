@@ -1,5 +1,7 @@
+import { ContributorMarquee } from "@/components/home/contributor-marquee";
 import { GamePicker } from "@/components/home/game-picker";
 import { StarField } from "@/components/home/star-field";
+import { CONTRIBUTORS } from "@/lib/contributors";
 import { listGames } from "@/lib/guide-count";
 import { i18n } from "@/lib/i18n";
 import { getMessages } from "@/lib/locale";
@@ -53,6 +55,26 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
           {t.gamesHeading}
         </h2>
         <GamePicker games={listGames(lang, t)} comingSoon={t.comingSoon} />
+      </section>
+
+      <section
+        aria-labelledby="contributors-heading"
+        className="mx-auto mt-16 mb-8 w-full max-w-[992px] px-6 md:mt-20"
+      >
+        <h2
+          id="contributors-heading"
+          className="text-divine-text font-[family-name:var(--font-hero)] text-lg font-bold tracking-tight md:text-xl"
+        >
+          {t.contributorsHeading}
+        </h2>
+        <p className="text-divine-text-muted mt-1 mb-4 text-sm font-medium">
+          {t.contributorsTagline}
+        </p>
+        <ContributorMarquee
+          contributors={CONTRIBUTORS}
+          lang={lang}
+          countLabel={t.contributionCount}
+        />
       </section>
     </div>
   );

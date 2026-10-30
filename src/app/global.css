@@ -56,6 +56,21 @@
   }
 }
 
+/* Homepage contributors row (src/components/home/contributor-marquee.tsx).
+   Inline so the row's own --marquee-duration applies: a plain @theme
+   variable would resolve it once on :root. Each copy of the row slides its
+   own width plus the gap, which puts the second copy where the first
+   started, so the loop has no seam. */
+@theme inline {
+  --animate-divine-marquee: divine-marquee var(--marquee-duration, 60s) linear
+    infinite;
+  @keyframes divine-marquee {
+    to {
+      transform: translateX(calc(-100% - var(--marquee-gap, 0px)));
+    }
+  }
+}
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
