@@ -67,6 +67,17 @@ const config = {
     // them to dead URLs. Keep this list in sync with src/lib/i18n.ts.
     const locale = "en|fr-FR|tr-TR|pt-BR|pl-PL|vi-VN";
     return [
+      // Every image in public/wiki-images was converted to .webp (2026-07),
+      // but Google Images and old external links still request the original
+      // .png/.jpg/.gif URLs. Send them to the .webp with the same name. This
+      // lives here, not in public/_redirects, because _redirects placeholders
+      // match whole path segments and can't swap a file extension. Missing
+      // assets fall through to the Worker, so this runs on Cloudflare too.
+      {
+        source: "/wiki-images/:path*/:name.:ext(png|jpe?g|gif)",
+        destination: "/wiki-images/:path*/:name.webp",
+        permanent: true,
+      },
       {
         source: `/:lang(${locale})/docs/lol/tools/how-to-make-your-thumbnail-in-flint`,
         destination:
