@@ -20,15 +20,15 @@ const CARD_LINK = cn(
   "focus-visible:ring-divine-accent/50 duration-300 outline-none focus-visible:ring-1",
 );
 // Each copy of the row is at least as wide as the box, so the loop never
-// shows a gap. MarqueeViewport eases the row to a stop on hover and focus.
+// shows a gap. MarqueeViewport moves them and eases them to a stop on hover.
 const TRACK =
-  "motion-safe:animate-divine-marquee flex min-w-full shrink-0 justify-around gap-[var(--marquee-gap)] will-change-transform";
+  "flex min-w-full shrink-0 justify-around gap-[var(--marquee-gap)] [transform:translate3d(var(--marquee-x,0px),0,0)]";
 
 /**
  * The homepage thank-you row: every contributor as a card linking to their
- * GitHub, scrolling left in a loop. A CSS animation: the list is rendered
- * twice and both copies slide one row width, so the second copy takes the
- * first's place. Under reduced motion it holds still and scrolls by hand.
+ * GitHub, scrolling left in a loop. The list is rendered twice, so the second
+ * copy can take the first's place. Under reduced motion it holds still and
+ * scrolls by hand.
  */
 export function ContributorMarquee({
   contributors,
@@ -63,6 +63,7 @@ export function ContributorMarquee({
     // The padding is room for the focus ring, which the clipping box would
     // cut off; the negative margins keep the layout.
     <MarqueeViewport
+      speed={SPEED}
       className={cn(
         "-mx-6 -my-1 flex gap-[var(--marquee-gap)] overflow-hidden py-1",
         "[mask-image:linear-gradient(to_right,transparent,#000_48px,#000_calc(100%_-_48px),transparent)]",
@@ -71,7 +72,6 @@ export function ContributorMarquee({
       style={
         {
           "--marquee-gap": `${GAP}px`,
-          "--marquee-duration": `${(contributors.length * (CARD_WIDTH + GAP)) / SPEED}s`,
         } as CSSProperties
       }
     >
