@@ -1,39 +1,34 @@
 import type { CSSProperties } from "react";
+import { Card } from "@divineskins/ui";
 import type { Contributor } from "@/lib/contributors";
+import { CardLink } from "@/components/ui/links";
 import { cn } from "@/lib/utils";
-import { PANEL_BORDER, PANEL_FILL } from "./styles";
+import { MarqueeViewport } from "./marquee-viewport";
 
 // The site's featured-creators card (CreatorCard in CreatorsPage.tsx): a
-// 180px column of avatar, name and count. Hover is the homepage game card's.
+// 180px column of avatar, name and count on a Card.
 const CARD_WIDTH = 180;
 const GAP = 16;
 /** px per second, the site's MarqueeRow default. */
 const SPEED = 40;
 
-const CARD = cn(
-  "group flex h-full flex-col items-center rounded-xl px-4 pt-5 pb-4 text-center no-underline outline-none",
-  PANEL_BORDER,
-  PANEL_FILL,
-);
+const CARD =
+  "group flex h-full flex-col items-center px-4 pt-5 pb-4 text-center";
+// The fill and rim ease over 300ms; nothing moves, the row is already moving.
 const CARD_LINK = cn(
   CARD,
-  "transition-[border-color,transform,box-shadow] duration-200 hover:-translate-y-1 hover:border-[#25222F]",
-  "hover:shadow-[0_0_32px_-6px_color-mix(in_srgb,var(--color-divine-primary)_65%,transparent)]",
-  "light:hover:border-divine-primary/40",
-  "focus-visible:ring-divine-primary-light focus-visible:ring-2",
+  "focus-visible:ring-divine-accent/50 duration-300 outline-none focus-visible:ring-1",
 );
 // Each copy of the row is at least as wide as the box, so the loop never
-// shows a gap. Hovering or focusing a card stops the row.
-const TRACK = cn(
-  "flex min-w-full shrink-0 justify-around gap-[var(--marquee-gap)]",
-  "motion-safe:animate-divine-marquee group-hover/marquee:[animation-play-state:paused] group-focus-within/marquee:[animation-play-state:paused]",
-);
+// shows a gap. MarqueeViewport eases the row to a stop on hover and focus.
+const TRACK =
+  "motion-safe:animate-divine-marquee flex min-w-full shrink-0 justify-around gap-[var(--marquee-gap)] will-change-transform";
 
 /**
  * The homepage thank-you row: every contributor as a card linking to their
- * GitHub, scrolling left in a loop. Pure CSS: the list is rendered twice and
- * both copies slide one row width, so the second copy takes the first's
- * place. Under reduced motion it holds still and scrolls by hand instead.
+ * GitHub, scrolling left in a loop. A CSS animation: the list is rendered
+ * twice and both copies slide one row width, so the second copy takes the
+ * first's place. Under reduced motion it holds still and scrolls by hand.
  */
 export function ContributorMarquee({
   contributors,
@@ -65,11 +60,11 @@ export function ContributorMarquee({
   ));
 
   return (
-    // The padding is room for the hover lift and glow, which the clipping
-    // box would cut off; the negative margins keep the layout.
-    <div
+    // The padding is room for the focus ring, which the clipping box would
+    // cut off; the negative margins keep the layout.
+    <MarqueeViewport
       className={cn(
-        "group/marquee -mx-6 -my-6 flex gap-[var(--marquee-gap)] overflow-hidden py-6",
+        "-mx-6 -my-1 flex gap-[var(--marquee-gap)] overflow-hidden py-1",
         "[mask-image:linear-gradient(to_right,transparent,#000_48px,#000_calc(100%_-_48px),transparent)]",
         "[scrollbar-width:none] motion-reduce:overflow-x-auto",
       )}
@@ -84,7 +79,7 @@ export function ContributorMarquee({
       <ul aria-hidden inert className={cn(TRACK, "motion-reduce:hidden")}>
         {cards}
       </ul>
-    </div>
+    </MarqueeViewport>
   );
 }
 
@@ -106,12 +101,12 @@ function ContributorCard({
           height={64}
           loading="lazy"
           decoding="async"
-          className="light:bg-black/5 size-16 shrink-0 rounded-full bg-[#25222F] object-cover"
+          className="bg-divine-border-subtle size-16 shrink-0 rounded-full object-cover"
         />
       ) : (
         <span
           aria-hidden
-          className="text-divine-text light:bg-black/5 inline-flex size-16 shrink-0 items-center justify-center rounded-full bg-[#25222F] text-xl font-bold"
+          className="text-divine-text bg-divine-border-subtle inline-flex size-16 shrink-0 items-center justify-center rounded-full text-xl font-bold"
         >
           {person.name.slice(0, 1).toUpperCase()}
         </span>
@@ -120,7 +115,7 @@ function ContributorCard({
         className={cn(
           "text-divine-text mt-3 w-full truncate text-[15px] leading-snug font-bold",
           person.login &&
-            "group-hover:text-divine-primary-light transition-colors duration-200",
+            "group-hover:text-divine-highlight transition-colors duration-300",
         )}
       >
         {person.name}
@@ -133,21 +128,22 @@ function ContributorCard({
       {/* mt-auto pins the count to the bottom, so a card without a login
           line still lines up with its neighbours. */}
       <div className="mt-auto pt-3">
-        <p className="text-divine-text light:border-divine-border light:bg-black/5 rounded-full border border-[#25222F] bg-white/5 px-2.5 py-1 text-xs font-semibold whitespace-nowrap">
+        <p className="text-divine-text border-divine-border-subtle light:bg-black/5 rounded-full border bg-white/5 px-2.5 py-1 text-xs font-semibold whitespace-nowrap">
           {count}
         </p>
       </div>
     </>
   );
-  if (!person.login) return <div className={CARD}>{body}</div>;
+  if (!person.login) {
+    return (
+      <Card padding="none" className={CARD}>
+        {body}
+      </Card>
+    );
+  }
   return (
-    <a
-      href={`https://github.com/${person.login}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={CARD_LINK}
-    >
+    <CardLink href={`https://github.com/${person.login}`} className={CARD_LINK}>
       {body}
-    </a>
+    </CardLink>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { Button } from "@divineskins/ui";
 import { GlowCTA } from "@/components/mdx/GlowCTA";
 
 export default function Error({
@@ -33,16 +34,7 @@ export default function Error({
       </p>
 
       <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-        <button
-          type="button"
-          onClick={reset}
-          className="divine-glow hover:divine-glow-hover inline-flex items-center justify-center gap-2 rounded-[12px] px-7 py-3.5 text-sm font-[var(--font-ui)] font-semibold tracking-wide text-white uppercase transition-shadow duration-500"
-          style={{
-            background: "linear-gradient(90deg, #B472FF 0%, #783CB5 100%)",
-          }}
-        >
-          Try again
-        </button>
+        <Button onClick={reset}>Try again</Button>
         <GlowCTA href="/en/docs" size="lg" variant="ghost">
           Back to docs
         </GlowCTA>

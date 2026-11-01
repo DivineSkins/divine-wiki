@@ -99,7 +99,7 @@ function CreditAvatar({
   ) : (
     <span
       aria-hidden
-      className="text-divine-text light:bg-black/5 inline-flex shrink-0 items-center justify-center rounded-full bg-[#25222F] text-xs font-semibold"
+      className="text-divine-text bg-divine-border-subtle inline-flex shrink-0 items-center justify-center rounded-full text-xs font-semibold"
       style={{ width: size, height: size }}
     >
       {person.name.slice(0, 1).toUpperCase()}
@@ -107,19 +107,18 @@ function CreditAvatar({
   );
 }
 
-const LABEL =
-  "text-[11px] tracking-[0.18em] text-[#8B8D98]/70 uppercase light:text-divine-text-muted";
+const LABEL = "text-[11px] tracking-[0.18em] text-divine-muted/70 uppercase";
 
 // Person chip: avatar and name in one pill, so every name is a link and
 // every row lines up. Hover is the wiki's neutral one (fill steps up, as on
 // sidebar rows and header links), not purple.
 const CHIP =
-  "inline-flex h-8 items-center gap-2 rounded-full border border-[#25222F] bg-white/5 pr-3 pl-1 text-[13px] leading-none font-semibold text-divine-text no-underline " +
-  "light:border-divine-border light:bg-black/5";
+  "inline-flex h-8 items-center gap-2 rounded-full border border-divine-border-subtle bg-white/5 pr-3 pl-1 text-[13px] leading-none font-semibold text-divine-text no-underline " +
+  "light:bg-black/5";
 const CHIP_LINK =
   CHIP +
   " transition-colors duration-200 hover:bg-white/10 light:hover:bg-black/10 " +
-  "outline-none focus-visible:ring-1 focus-visible:ring-[#C084FC]";
+  "outline-none focus-visible:ring-1 focus-visible:ring-divine-accent/50";
 
 function PersonChip({ person }: { person: CreditPerson }) {
   const body = (
@@ -260,8 +259,7 @@ export function GuideCredits({
         <div
           className={cn(
             "flex flex-wrap items-center justify-between gap-x-6 gap-y-3 px-5 py-3.5",
-            people &&
-              "light:border-divine-border [.minimal_&]:border-divine-border border-t border-[#191722]",
+            people && "border-divine-border-faint border-t",
           )}
         >
           {date ? (

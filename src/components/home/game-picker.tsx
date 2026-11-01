@@ -1,30 +1,143 @@
 import Link from "next/link";
-import { BookOpenIcon, HourglassIcon } from "lucide-react";
+import { BookOpenIcon } from "lucide-react";
 import type { GameEntry } from "@/lib/games";
 import { cn } from "@/lib/utils";
-import { PANEL_BORDER, PANEL_FILL } from "./styles";
+import { TiltCard } from "./tilt-card";
 
-// The divineskins.gg game card (src/blog/components/GameCards.tsx on the
-// site): 3:4 box art in a 12px panel frame, name and a meta line centered
-// under it.
-const CARD =
-  "group flex w-[132px] shrink-0 flex-col items-center text-center no-underline outline-none sm:w-[160px] md:w-[176px]";
-const FRAME = cn(
-  "relative aspect-[3/4] w-full overflow-hidden rounded-xl",
-  PANEL_BORDER,
-  PANEL_FILL,
-);
-const NAME = "mt-3 text-sm leading-snug font-bold sm:text-[15px]";
+// The divineskins.gg hero game cards (its PopularGamesRow), with the wiki's
+// guide count where the site shows downloads and mods.
+const ASSETS = "/brand/hero";
+
+const CARD = "flex w-[178px] shrink-0 flex-col items-center gap-2 py-px";
+const FACE =
+  "relative h-[236px] w-[178px] overflow-hidden rounded-xl border border-[#2A2638] light:border-divine-border";
+const NAME =
+  "w-[178px] text-center text-base leading-[normal] font-semibold text-divine-text";
 const META =
-  "text-divine-text-muted mt-1 inline-flex items-center gap-1.5 text-xs font-medium";
+  "flex items-center justify-center gap-1 px-1.5 py-1 text-sm leading-[normal] font-medium text-divine-muted";
 
-/** Empty slots after the real games, so the row reads as "more to come". */
-const PLACEHOLDER_SLOTS = 3;
+/** Each game's art crop inside the card's 1px border, as on the site. */
+const GAME_ART: Record<string, { box: string; img: string }> = {
+  lol: {
+    box: "bottom-[-1.5px] left-0 h-[236px] w-[177px]",
+    img: "left-[0.15%] top-[-0.02%] h-[100.04%] w-[99.69%]",
+  },
+  deadlock: {
+    box: "left-[-3px] top-[calc(50%+0.5px)] h-[236px] w-[180px] -translate-y-1/2",
+    img: "left-[0.33%] top-[-0.21%] h-[100.42%] w-[99.35%]",
+  },
+  "genshin-impact": {
+    box: "bottom-[-1.5px] left-[-1px] h-[237px] w-[178px]",
+    img: "left-[-0.14%] top-0 h-[100.42%] w-[100.28%]",
+  },
+  "wuthering-waves": {
+    box: "bottom-[-1.5px] left-[-1px] h-[237px] w-[178px]",
+    img: "inset-0 size-full object-cover",
+  },
+  "zenless-zone-zero": {
+    box: "bottom-[-1.5px] left-[-1px] h-[237px] w-[178px]",
+    img: "left-[0.01%] top-0 h-[105.43%] w-[99.99%]",
+  },
+};
+
+/** Games the site features that the wiki has no segment for yet. */
+const UPCOMING = [
+  { slug: "genshin-impact", name: "Genshin Impact" },
+  { slug: "wuthering-waves", name: "Wuthering Waves" },
+  { slug: "zenless-zone-zero", name: "Zenless Zone Zero" },
+];
+
+function GameArt({ slug, cover }: { slug: string; cover?: string }) {
+  const art = GAME_ART[slug];
+  // A game added later has no crop here yet: its cover, filling the card.
+  const src = art ? `${ASSETS}/game-${slug}.webp` : cover;
+  return (
+    <div className={cn("absolute", art?.box ?? "inset-0")}>
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element -- small WebP art at its display size; next/image adds nothing here */}
+        <img
+          src={src}
+          alt=""
+          decoding="async"
+          className={cn(
+            "absolute max-w-none",
+            art?.img ?? "inset-0 size-full object-cover",
+          )}
+        />
+      </div>
+    </div>
+  );
+}
+
+/** The art toned down under the page color, with a grey "Coming soon". */
+function ComingSoonCard({
+  slug,
+  name,
+  cover,
+  label,
+  status,
+}: {
+  slug: string;
+  name: string;
+  cover?: string;
+  label: string;
+  status?: string;
+}) {
+  return (
+    <div className={CARD}>
+      <div className={FACE}>
+        <GameArt slug={slug} cover={cover} />
+        <div aria-hidden className="bg-divine-bg/68 absolute inset-0" />
+      </div>
+      <div className="flex flex-col items-center gap-0.5">
+        <p className={cn(NAME, "text-divine-muted")}>
+          {status ?? label}
+          <span className="sr-only">: {name}</span>
+        </p>
+        {/* Keeps the art lined up with the live cards, which have a count. */}
+        <p aria-hidden className={cn(META, "invisible")}>
+          &nbsp;
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function LiveCard({ game, href }: { game: GameEntry; href: string }) {
+  return (
+    <Link
+      href={href}
+      className={cn(CARD, "group rounded-xl no-underline outline-none")}
+    >
+      <TiltCard className="h-[236px] w-[178px] shrink-0" artClassName={FACE}>
+        <GameArt slug={game.slug} cover={game.cover} />
+      </TiltCard>
+      <div className="flex flex-col items-center gap-0.5">
+        <p
+          className={cn(
+            NAME,
+            "group-hover:text-divine-icon-accent group-focus-visible:text-divine-icon-accent transition-colors duration-300",
+          )}
+        >
+          {game.name}
+        </p>
+        <p
+          className={cn(
+            META,
+            "group-hover:text-divine-text group-focus-visible:text-divine-text transition-colors duration-300",
+          )}
+        >
+          <BookOpenIcon className="size-[15px] shrink-0" aria-hidden />
+          {game.status}
+        </p>
+      </div>
+    </Link>
+  );
+}
 
 /**
- * The homepage game row, from `listGames()`. A live game links to its docs
- * segment; one without guides yet shows its art with a "Coming soon" line
- * and no link. Placeholder slots fade out after them.
+ * The homepage game row, from `listGames()`, then the games still to come. A
+ * live game links to its docs segment; the rest show toned-down art.
  */
 export function GamePicker({
   games,
@@ -34,101 +147,37 @@ export function GamePicker({
   comingSoon: string;
 }) {
   return (
-    // The padding is room for the hover lift and glow: the scrolling row
-    // clips anything outside it, and the negative margins keep the layout.
-    <div className="-mx-6 -my-6 [scrollbar-width:none] overflow-x-auto px-6 py-6">
-      <ul className="flex w-max gap-3 sm:gap-4">
+    // The 12px and 8px padding, cancelled by the negative margin, keeps the
+    // hover tilt from being clipped by the scrolling row. Centered through
+    // `mx-auto` on a max-content row, so a row wider than the screen still
+    // scrolls from its first card.
+    <div className="-m-3 flex w-[calc(100%+24px)] [scrollbar-width:none] overflow-x-auto px-2 py-3">
+      <ul className="mx-auto flex w-max items-center gap-[14px]">
         {games.map((game) => (
           <li key={game.slug}>
             {game.href ? (
-              <LiveGameCard game={game} href={game.href} />
+              <LiveCard game={game} href={game.href} />
             ) : (
-              <UpcomingGameCard game={game} />
+              <ComingSoonCard
+                slug={game.slug}
+                name={game.name}
+                cover={game.cover}
+                label={comingSoon}
+                status={game.status}
+              />
             )}
           </li>
         ))}
-        {Array.from({ length: PLACEHOLDER_SLOTS }, (_, i) => (
-          <li
-            key={i}
-            aria-hidden
-            className={cn(
-              CARD,
-              i === 1 && "opacity-70",
-              i === 2 && "opacity-40",
-            )}
-          >
-            <div
-              className={cn(
-                FRAME,
-                "bg-[repeating-linear-gradient(135deg,rgba(255,255,255,0.035)_0_10px,transparent_10px_20px)]",
-                "light:bg-[repeating-linear-gradient(135deg,rgba(0,0,0,0.04)_0_10px,transparent_10px_20px)]",
-              )}
+        {UPCOMING.map((game) => (
+          <li key={game.slug}>
+            <ComingSoonCard
+              slug={game.slug}
+              name={game.name}
+              label={comingSoon}
             />
-            <p className={cn(NAME, "text-divine-text-muted")}>{comingSoon}</p>
           </li>
         ))}
       </ul>
-    </div>
-  );
-}
-
-function LiveGameCard({ game, href }: { game: GameEntry; href: string }) {
-  return (
-    <Link href={href} className={CARD}>
-      <div
-        className={cn(
-          FRAME,
-          "transition-[border-color,transform,box-shadow] duration-200 group-hover:-translate-y-1 group-hover:border-[#25222F]",
-          "group-hover:shadow-[0_0_32px_-6px_color-mix(in_srgb,var(--color-divine-primary)_65%,transparent)]",
-          "light:group-hover:border-divine-primary/40",
-          "group-focus-visible:ring-divine-primary-light group-focus-visible:ring-2",
-        )}
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element -- 36 KB WebP at its display size; next/image adds nothing here */}
-        <img
-          src={game.cover}
-          alt=""
-          width={360}
-          height={480}
-          decoding="async"
-          className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-      </div>
-      <p
-        className={cn(
-          NAME,
-          "text-divine-text group-hover:text-divine-primary-light transition-colors duration-200",
-        )}
-      >
-        {game.name}
-      </p>
-      <p className={META}>
-        <BookOpenIcon className="size-3.5" aria-hidden />
-        {game.status}
-      </p>
-    </Link>
-  );
-}
-
-function UpcomingGameCard({ game }: { game: GameEntry }) {
-  return (
-    <div className={cn(CARD, "cursor-default")}>
-      <div className={FRAME}>
-        {/* eslint-disable-next-line @next/next/no-img-element -- 23 KB WebP at its display size */}
-        <img
-          src={game.cover}
-          alt=""
-          width={360}
-          height={480}
-          decoding="async"
-          className="size-full object-cover opacity-60 saturate-50"
-        />
-      </div>
-      <p className={cn(NAME, "text-divine-text")}>{game.name}</p>
-      <p className={META}>
-        <HourglassIcon className="size-3.5" aria-hidden />
-        {game.status}
-      </p>
     </div>
   );
 }

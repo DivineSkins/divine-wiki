@@ -27,12 +27,11 @@ import { cn } from "@/lib/utils";
  * lives in src/lib/ai-assistants.ts.
  */
 
-// The header's icon-circle recipe (site-header.tsx ICON_BUTTON), with the
-// logo muted at rest so five brand marks don't compete with the page.
+// The header's icon circle (a secondary Button), with the logo muted at rest
+// so five brand marks don't compete with the page.
 const CIRCLE =
-  "group/ai relative inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-[rgba(37,34,47,0.46)] text-divine-text-muted transition-colors duration-200 hover:bg-[rgba(37,34,47,0.7)] hover:text-divine-text " +
-  "light:bg-black/5 light:hover:bg-black/10 " +
-  "outline-none focus-visible:ring-1 focus-visible:ring-[#C084FC] focus-visible:text-divine-text";
+  "group/ai relative inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-white/10 text-divine-text-muted transition-colors duration-200 hover:bg-white/20 hover:text-divine-text " +
+  "outline-none focus-visible:ring-1 focus-visible:ring-divine-accent/50 focus-visible:text-divine-text";
 
 interface AskAIProps {
   variant: "rail" | "inline";
@@ -101,7 +100,7 @@ export function AskAI({ variant, lang, title, url, className }: AskAIProps) {
         <p className="text-divine-text flex items-center gap-1.5 text-[13px] font-semibold">
           <Sparkles
             aria-hidden
-            className="text-divine-primary-light size-3.5 shrink-0"
+            className="text-divine-highlight size-3.5 shrink-0"
           />
           {t.title}
         </p>
@@ -125,7 +124,7 @@ export function AskAI({ variant, lang, title, url, className }: AskAIProps) {
       <p className="text-divine-text-muted flex items-center gap-1.5 text-sm font-medium">
         <Sparkles
           aria-hidden
-          className="text-divine-primary-light size-4 shrink-0"
+          className="text-divine-highlight size-4 shrink-0"
         />
         {t.title}
       </p>

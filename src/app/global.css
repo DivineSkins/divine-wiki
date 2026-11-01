@@ -2,34 +2,22 @@
 @import "fumadocs-ui/css/neutral.css";
 @import "fumadocs-ui/css/preset.css";
 @import "tw-animate-css";
+/* @divineskins/ui, vendored in vendor/: every design token as a divine-* class,
+   and the @source that scans the components' classes. */
+@import "@divineskins/ui/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
 @custom-variant light (&:is(.light *));
 
-/* Divine Skins design system — synced with prod (DivineSkinsWEB-PROD/tailwind.config.js).
-   Three-tier dark depth: void → surface → border. Purple primary with restrained gold. */
+/* Tokens the package doesn't have. Everything else divine-* comes from
+   @divineskins/ui/tailwind.css above. */
 @theme {
   /* Surfaces */
   --color-divine-void: #0b0a0f;
-  --color-divine-surface: #15141c;
   --color-divine-elevated: #1c1c1c;
-  --color-divine-border: #363242;
   --color-divine-popover: #111016;
 
-  /* Brand */
-  --color-divine-primary: #783cb5;
-  --color-divine-primary-light: #c084fc;
-  --color-divine-primary-lilac: #b472ff;
-  --color-divine-secondary: #ecb96a;
-
-  /* Text */
-  --color-divine-text: #e4e4e7;
-  --color-divine-text-muted: #8b8d98;
-
   /* Status */
-  --color-divine-success: #22c55e;
-  --color-divine-error: #ef4444;
-  --color-divine-warning: #facc15;
   --color-divine-info: #5865f2;
 
   /* Fonts */
@@ -37,23 +25,6 @@
   --font-section: var(--font-poppins), system-ui, sans-serif;
   --font-ui: var(--font-inter), system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
-
-  /* Radii */
-  --radius-divine-md: 6px;
-  --radius-divine-lg: 8px;
-  --radius-divine-xl: 12px;
-
-  /* Homepage hero stars (src/components/home/star-field.tsx). */
-  --animate-divine-twinkle: divine-twinkle 5s ease-in-out infinite;
-  @keyframes divine-twinkle {
-    0%,
-    100% {
-      opacity: 0.6;
-    }
-    50% {
-      opacity: 0.1;
-    }
-  }
 }
 
 /* Homepage contributors row (src/components/home/contributor-marquee.tsx).
@@ -172,6 +143,8 @@ html[data-font="system"] {
    one collapses the display-font tokens too. The default (Inter) keeps
    the brand display fonts in Divine. 0-1-1 beats the :root promotions. */
 html[data-font] {
+  /* Package components use font-manrope. */
+  --font-manrope: var(--font-body);
   --font-hero: var(--font-body);
   --font-section: var(--font-body);
   --font-ui: var(--font-body);
@@ -202,6 +175,25 @@ html[data-font] {
   --color-divine-secondary: #ecb96a;
   --color-divine-text: #e4e4e7;
   --color-divine-text-muted: #8b8d98;
+
+  /* @divineskins/ui tokens and theme colors. */
+  --color-divine-bg: #0e0d14;
+  --color-divine-overlay: #0b0a0f;
+  --color-divine-panel: #121119;
+  --color-divine-track: #0f0e15;
+  --color-divine-surface-field: #18171f;
+  --color-divine-surface-raised: #1a1922;
+  --color-divine-tooltip: #18171f;
+  --color-divine-border-subtle: #25222f;
+  --color-divine-border-control: #1f1d29;
+  --color-divine-border-faint: #191722;
+  --color-divine-border-tile: #17161c;
+  --color-divine-muted: #8b8d98;
+  --divine-accent: #783cb5;
+  --divine-accent-hover: #8b4dd4;
+  --divine-highlight: #c084fc;
+  --divine-icon-accent: #ab69ef;
+  --divine-row-tint: rgb(255 255 255 / 0.05);
 
   --background: #0b0a0f;
   --foreground: #e4e4e7;
@@ -259,15 +251,13 @@ html[data-font] {
   --color-fd-overlay: color-mix(in srgb, #0b0a0f 82%, transparent);
 }
 
-/* Light mode — gold becomes the brand accent (replaces purple).
-   Purple drops out almost entirely in light theme: the wiki's purple has
-   poor contrast on white, and our brand has gold sitting unused as a
-   secondary tone — light mode is where it earns its place.
+/* Light mode — the same brand purple as dark.
 
-   Contrast notes:
-   - #8b6914 (deep amber) for link/active text: ~5.0:1 on white, passes WCAG AA.
-   - #ecb96a (brand gold) for borders/fills/large UI accents: too light for
-     body text on white but fine as decorative/interactive surface tint.
+   Contrast on white:
+   - #783cb5 (brand purple) for links, active text and fills: ~6.8:1, and the
+     package's white text on it passes too.
+   - #c084fc (dark mode's lilac) is only ~2.6:1, so light mode's "primary-light"
+     and highlight tokens are the deeper purple.
    - Body text uses near-black (#0b0a0f), muted uses neutral gray. */
 .light {
   color-scheme: light;
@@ -279,14 +269,33 @@ html[data-font] {
   --color-divine-border: #e4e4e7;
   --color-divine-popover: #ffffff;
 
-  /* Divine brand (light mode) — gold replaces purple as the primary accent */
-  --color-divine-primary: #8b6914;
-  --color-divine-primary-light: #ecb96a;
-  --color-divine-primary-lilac: #d9a746;
+  /* Divine brand (light mode) */
+  --color-divine-primary: #783cb5;
+  --color-divine-primary-light: #783cb5;
+  --color-divine-primary-lilac: #8b4dd4;
 
   /* Divine text (light mode) */
   --color-divine-text: #0b0a0f;
   --color-divine-text-muted: #6b6b76;
+
+  /* @divineskins/ui tokens (light mode). */
+  --color-divine-bg: #ffffff;
+  --color-divine-overlay: #0b0a0f;
+  --color-divine-panel: #f7f7fa;
+  --color-divine-track: #f1f1f5;
+  --color-divine-surface-field: #f7f7fa;
+  --color-divine-surface-raised: #f1f1f5;
+  --color-divine-tooltip: #ffffff;
+  --color-divine-border-subtle: #e4e4e7;
+  --color-divine-border-control: #e4e4e7;
+  --color-divine-border-faint: #e4e4e7;
+  --color-divine-border-tile: #e4e4e7;
+  --color-divine-muted: #6b6b76;
+  --divine-accent: #783cb5;
+  --divine-accent-hover: #8b4dd4;
+  --divine-highlight: #783cb5;
+  --divine-icon-accent: #783cb5;
+  --divine-row-tint: rgb(0 0 0 / 0.05);
 
   /* shadcn tokens */
   --background: #ffffff;
@@ -295,29 +304,29 @@ html[data-font] {
   --card-foreground: #0b0a0f;
   --popover: #ffffff;
   --popover-foreground: #0b0a0f;
-  --primary: #8b6914;
+  --primary: #783cb5;
   --primary-foreground: #ffffff;
   --secondary: #f1f1f5;
   --secondary-foreground: #0b0a0f;
   --muted: #f5f5f7;
   --muted-foreground: #6b6b76;
-  --accent: #ecb96a;
+  --accent: #ede4f7;
   --accent-foreground: #0b0a0f;
   --destructive: #dc2626;
   --border: #e4e4e7;
   --input: #e4e4e7;
-  --ring: #ecb96a;
+  --ring: #783cb5;
   --sidebar: #fafafa;
   --sidebar-foreground: #0b0a0f;
-  --sidebar-primary: #8b6914;
+  --sidebar-primary: #783cb5;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #f5f5f7;
   --sidebar-accent-foreground: #0b0a0f;
   --sidebar-border: #e4e4e7;
-  --sidebar-ring: #ecb96a;
+  --sidebar-ring: #783cb5;
 
-  /* Inline code pill text — deep amber pops on the gold-tinted pill. */
-  --prose-code-text: #5b430d;
+  /* Inline code pill text — a deep purple on the pill. */
+  --prose-code-text: #5b2a8c;
   /* Code block bg — light surface so shiki's light-plus tokens stay readable. */
   --prose-code-bg: #f7f7fa;
 
@@ -328,16 +337,16 @@ html[data-font] {
   --color-fd-card-foreground: #0b0a0f;
   --color-fd-popover: #ffffff;
   --color-fd-popover-foreground: #0b0a0f;
-  --color-fd-primary: #8b6914;
+  --color-fd-primary: #783cb5;
   --color-fd-primary-foreground: #ffffff;
   --color-fd-secondary: #f5f5f7;
   --color-fd-secondary-foreground: #0b0a0f;
   --color-fd-muted: #f5f5f7;
   --color-fd-muted-foreground: #6b6b76;
-  --color-fd-accent: color-mix(in srgb, #ecb96a 28%, transparent);
+  --color-fd-accent: color-mix(in srgb, #783cb5 12%, transparent);
   --color-fd-accent-foreground: #0b0a0f;
   --color-fd-border: #e4e4e7;
-  --color-fd-ring: #ecb96a;
+  --color-fd-ring: #783cb5;
   --color-fd-overlay: color-mix(in srgb, #ffffff 82%, transparent);
 }
 
@@ -367,6 +376,25 @@ html[data-font] {
   --color-divine-secondary: hsl(0, 0%, 70%);
   --color-divine-text: hsl(0, 0%, 92%);
   --color-divine-text-muted: hsla(0, 0%, 70%, 0.8);
+
+  /* @divineskins/ui tokens → neutral. Mid gray keeps the package's white
+     text on the accent readable. */
+  --color-divine-bg: hsl(0, 0%, 7%);
+  --color-divine-overlay: hsl(0, 0%, 0%);
+  --color-divine-panel: hsl(0, 0%, 9.8%);
+  --color-divine-track: hsl(0, 0%, 12.9%);
+  --color-divine-surface-field: hsl(0, 0%, 11.6%);
+  --color-divine-surface-raised: hsl(0, 0%, 12.9%);
+  --color-divine-tooltip: hsl(0, 0%, 11.6%);
+  --color-divine-border-subtle: hsla(0, 0%, 40%, 0.2);
+  --color-divine-border-control: hsla(0, 0%, 40%, 0.2);
+  --color-divine-border-faint: hsla(0, 0%, 40%, 0.2);
+  --color-divine-border-tile: hsla(0, 0%, 40%, 0.2);
+  --color-divine-muted: hsla(0, 0%, 70%, 0.8);
+  --divine-accent: hsl(0, 0%, 32%);
+  --divine-accent-hover: hsl(0, 0%, 38%);
+  --divine-highlight: hsl(0, 0%, 92%);
+  --divine-icon-accent: hsl(0, 0%, 92%);
 
   /* shadcn tokens */
   --background: hsl(0, 0%, 7%);
@@ -434,6 +462,24 @@ html[data-font] {
   --color-divine-secondary: hsl(0, 0%, 45%);
   --color-divine-text: hsl(0, 0%, 3.9%);
   --color-divine-text-muted: hsl(0, 0%, 45.1%);
+
+  /* @divineskins/ui tokens → neutral */
+  --color-divine-bg: hsl(0, 0%, 100%);
+  --color-divine-overlay: hsl(0, 0%, 0%);
+  --color-divine-panel: hsl(0, 0%, 97%);
+  --color-divine-track: hsl(0, 0%, 94.7%);
+  --color-divine-surface-field: hsl(0, 0%, 97%);
+  --color-divine-surface-raised: hsl(0, 0%, 94.7%);
+  --color-divine-tooltip: hsl(0, 0%, 98%);
+  --color-divine-border-subtle: hsla(0, 0%, 80%, 0.5);
+  --color-divine-border-control: hsla(0, 0%, 80%, 0.5);
+  --color-divine-border-faint: hsla(0, 0%, 80%, 0.5);
+  --color-divine-border-tile: hsla(0, 0%, 80%, 0.5);
+  --color-divine-muted: hsl(0, 0%, 45.1%);
+  --divine-accent: hsl(0, 0%, 9%);
+  --divine-accent-hover: hsl(0, 0%, 20%);
+  --divine-highlight: hsl(0, 0%, 9%);
+  --divine-icon-accent: hsl(0, 0%, 9%);
 
   /* shadcn tokens */
   --background: hsl(0, 0%, 100%);
@@ -538,26 +584,8 @@ html[data-font] {
   border: 0;
 }
 
-/* Cut-corner panel — sharp, angular "sliced corner" look used on the
-   docs landing boxes. Chamfers the top-left + bottom-right corners.
-   Pair with `rounded-none`. The border on the two cut diagonals is
-   clipped away (that's the intentional "cut"); straight edges keep
-   their border. */
-@utility divine-cut {
-  --cut: 12px;
-  clip-path: polygon(
-    var(--cut) 0,
-    100% 0,
-    100% calc(100% - var(--cut)),
-    calc(100% - var(--cut)) 100%,
-    0 100%,
-    0 var(--cut)
-  );
-}
-
 /* Premium card border — accent hairline via masked pseudo-element.
-   Uses the theme token, not a literal: purple in dark mode, deep amber in
-   light mode (purple borders clash on white — see the .light block notes). */
+   Uses the theme token, not a literal, so it follows the mode. */
 @utility divine-card-gradient-border {
   position: relative;
   isolation: isolate;
@@ -575,20 +603,6 @@ html[data-font] {
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
-}
-
-/* GlowCTA solid fill in the dark Divine style — the home hero CTA:
-   solid #783CB5, brightness-110 on hover, and the CTA bloom (inset top
-   highlight + 44px purple halo), constant across idle and hover.
-   Unlayered so it beats the component's utility classes. */
-.dark:not(.minimal) .divine-cta-solid {
-  background-color: #783cb5;
-  box-shadow:
-    inset 0px 1px 1px 0px rgba(255, 255, 255, 0.35),
-    0px 0px 44px 0px rgba(120, 60, 181, 0.55);
-}
-.dark:not(.minimal) .divine-cta-solid:hover {
-  filter: brightness(1.1);
 }
 
 /* ──────────────────────────────────────────────────────────────
@@ -928,82 +942,65 @@ html[data-font] {
      raised header, zebra rows, purple hover wash, 12px radius.
      `!important` mirrors the rest of the prose rules: the Fumadocs
      typography preset sets table backgrounds that wash out otherwise. */
-  /* Same card language as the code blocks: a header row on the card
-     surface with the site's 11px uppercase eyebrow labels, body rows on
-     the deep panel separated by hairlines (no column rules, no zebra),
-     the first column semibold, and a quiet row hover. */
-  .prose table {
+  /* The package's Table in a Card, for Markdown tables: a panel on a faint
+     rim, 10px letter-spaced muted labels, hairline rows, and a quiet row
+     hover. `:not(.not-prose *)` leaves real package Tables alone. */
+  .prose table:not(.not-prose *) {
     border-collapse: separate;
     border-spacing: 0;
     width: 100%;
     border-radius: 12px;
     overflow: hidden;
-    border: 1px solid var(--color-divine-border) !important;
-    background: var(--color-divine-surface) !important;
+    border: 1px solid var(--color-divine-border-faint) !important;
+    background: var(--color-divine-panel) !important;
     box-shadow: none;
     font-size: 14px !important;
     line-height: 1.55;
   }
-  .prose thead {
-    background: var(--color-divine-elevated) !important;
+  .prose thead:not(.not-prose *) {
+    background: transparent !important;
   }
-  .prose th {
+  .prose th:not(.not-prose *) {
     height: 2.5rem;
     font-family: var(--font-body) !important;
-    font-size: 11px !important;
-    font-weight: 600 !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
     letter-spacing: 0.12em !important;
     text-transform: uppercase;
     text-align: left !important;
     vertical-align: middle;
-    padding: 0 1rem !important;
-    color: var(--color-divine-text-muted) !important;
+    padding: 0 1.25rem !important;
+    color: var(--color-divine-muted) !important;
     /* rgba(0 0 0 / 0) survives Lightning CSS optimization that strips
        `background: transparent`. Without this the th picks up Fumadocs'
        --color-fd-muted background and hides the thead fill. */
     background-color: rgba(0, 0, 0, 0) !important;
     border-inline: 0 !important;
-    border-bottom: 1px solid var(--color-divine-border) !important;
+    border-bottom: 1px solid var(--color-divine-border-faint) !important;
   }
-  .prose td {
-    padding: 0.75rem 1rem !important;
+  .prose td:not(.not-prose *) {
+    padding: 0.75rem 1.25rem !important;
     border-inline: 0 !important;
-    border-bottom: 1px solid var(--color-divine-border) !important;
+    border-bottom: 1px solid var(--color-divine-border-faint) !important;
     color: var(--color-divine-text) !important;
     vertical-align: top;
+    transition: background-color 150ms;
   }
-  .prose td:first-child {
+  .prose td:first-child:not(.not-prose *) {
     font-weight: 600;
   }
-  .prose tbody tr:last-child td {
+  .prose tbody tr:last-child td:not(.not-prose *) {
     border-bottom: 0 !important;
   }
-  .dark:not(.minimal) .prose table {
-    background: #0b0a0f !important;
-    border-color: #191722 !important;
-  }
-  .dark:not(.minimal) .prose thead {
-    background: #121119 !important;
-  }
-  .dark:not(.minimal) .prose th {
-    color: #8b8d98 !important;
-  }
-  .dark:not(.minimal) .prose :is(th, td) {
-    border-color: #191722 !important;
-  }
-  .dark:not(.minimal) .prose td:first-child {
-    color: #f0eff3 !important;
-  }
-  .dark:not(.minimal) .prose tbody tr:hover td {
-    background: #121119 !important;
+  .prose tbody tr:hover td:not(.not-prose *) {
+    background: var(--color-divine-surface-field) !important;
   }
 
   /* FAQ — 1:1 with the divineskins.gg FAQAccordion: every question is its
      own card (#121119 on a #191722 hairline, 12px radius) 12px apart,
      filling #1A1922 on hover and while open (200ms). Question 16px bold,
      answer 14px medium in muted gray, chevron rotating 180° over 250ms.
-     Applies to hand-written <details> FAQs and the fumadocs Accordions
-     (the `divine-faq` wrapper, src/components/mdx/Accordions.tsx). */
+     For hand-written <details> FAQs, matching the Accordions. */
   .prose details {
     margin-block: 0.75rem;
     border: 1px solid var(--color-fd-border);
@@ -1089,70 +1086,6 @@ html[data-font] {
     margin-bottom: 0 !important;
   }
 
-  .divine-faq {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    border: 0 !important;
-    border-radius: 0 !important;
-    background: transparent !important;
-    overflow: visible !important;
-  }
-  .divine-faq > div {
-    border: 1px solid var(--color-fd-border) !important;
-    border-radius: 12px;
-    background: var(--color-fd-card);
-    overflow: hidden;
-    transition: background-color 200ms;
-  }
-  .divine-faq > div:hover,
-  .divine-faq > div[data-state="open"] {
-    background: var(--color-fd-accent);
-  }
-  .dark:not(.minimal) .divine-faq > div {
-    border-color: #191722 !important;
-    background: #121119;
-  }
-  .dark:not(.minimal) .divine-faq > div:hover,
-  .dark:not(.minimal) .divine-faq > div[data-state="open"] {
-    background: #1a1922;
-  }
-  /* `[aria-expanded]` picks the Radix trigger only. The header also holds
-     fumadocs' copy-link button (a plain <button>); without the filter it got
-     the trigger's padding and the chevron rotation, so its "copied" check
-     showed up as a big purple box with a sideways check. */
-  .divine-faq h3 > button[aria-expanded] {
-    font-family: var(--font-body);
-    font-weight: 700;
-    font-size: 1rem;
-    line-height: 1.5rem;
-    color: var(--color-divine-text);
-    padding: 1rem 1.5rem !important;
-  }
-  /* Chevron: on the right, pointing down closed and up open (180° over
-     250ms, as the site). Fumadocs rotates it with the Tailwind v4
-     `rotate` property, hence the rotate overrides. */
-  .divine-faq h3 > button[aria-expanded] > svg {
-    order: 1;
-    margin-left: auto;
-    color: var(--color-divine-text-muted);
-    rotate: 90deg !important;
-    transition: rotate 250ms ease-in-out;
-  }
-  .divine-faq h3 > button[aria-expanded][data-state="open"] > svg {
-    rotate: -90deg !important;
-  }
-  .divine-faq [role="region"] > div {
-    padding: 0 1.5rem 1.25rem !important;
-    color: var(--color-divine-text-muted);
-    font-size: 0.875rem;
-    font-weight: 500;
-    line-height: 1.5rem;
-  }
-  .divine-faq [role="region"] p {
-    color: var(--color-divine-text-muted) !important;
-  }
-
   /* Horizontal rule — the site's hairline divider. */
   .prose hr {
     height: 1px;
@@ -1213,62 +1146,11 @@ html[data-font] {
     bottom: 0;
     left: 1rem;
     height: 1px;
-    background: #25222f;
+    background: var(--color-divine-border-subtle);
   }
 
-  /* Search trigger — the design system input: 8px radius, #121119 fill,
-     #191722 hairline, purple border on hover. */
-  .dark:not(.minimal) #nd-sidebar button[aria-label="Search"],
-  .dark:not(.minimal) #nd-sidebar [data-search-full] {
-    background: #121119 !important;
-    border: 1px solid #191722 !important;
-    border-radius: 8px !important;
-    color: #8b8d98;
-    font-weight: 500;
-  }
-  .dark:not(.minimal) #nd-sidebar button[aria-label="Search"]:hover,
-  .dark:not(.minimal) #nd-sidebar [data-search-full]:hover {
-    border-color: #783cb5 !important;
-    color: #e4e4e7;
-  }
-
-  /* Nav rows. */
-  .dark:not(.minimal) #nd-sidebar a[data-active],
-  .dark:not(.minimal) #nd-sidebar button[data-active] {
-    padding-block: 0.5rem;
-    font-size: 14px;
-    line-height: 1.375;
-    border-radius: 8px;
-    border: 1px solid transparent;
-    color: #8b8d98;
-    transition:
-      color 200ms,
-      background-color 200ms,
-      border-color 200ms;
-  }
-
-  .dark:not(.minimal) #nd-sidebar a[data-active="false"]:hover,
-  .dark:not(.minimal) #nd-sidebar button[data-active="false"]:hover {
-    background: rgba(25, 23, 34, 0.6) !important;
-    color: #e4e4e7 !important;
-  }
-
-  /* Active row — solid purple tint (18%) inside a 35% purple hairline,
-     white semibold label, lilac icon. No gradients. */
-  .dark:not(.minimal) #nd-sidebar a[data-active="true"],
-  .dark:not(.minimal) #nd-sidebar button[data-active="true"] {
-    color: #ffffff !important;
-    background: rgba(120, 60, 181, 0.18) !important;
-    border-color: rgba(120, 60, 181, 0.35) !important;
-    font-weight: 600;
-  }
-  .dark:not(.minimal) #nd-sidebar a[data-active="true"] svg,
-  .dark:not(.minimal) #nd-sidebar button[data-active="true"] svg {
-    color: #c084fc !important;
-  }
-
-  /* The bordered active row replaces fumadocs' side bar on nested items. */
-  .dark:not(.minimal) #nd-sidebar a[data-active="true"]::before {
+  /* The tinted active row replaces fumadocs' side bar on nested items. */
+  :is(#nd-sidebar, #nd-sidebar-mobile) a[data-active="true"]::before {
     display: none !important;
   }
 
@@ -1288,68 +1170,56 @@ html[data-font] {
      the body, add a purple hairline, purple glow, stronger backdrop.
      ────────────────────────────────────────────────────────────── */
 
-  /* Backdrop overlay — solid dark scrim + blur. */
-  .dark:not(.minimal) [data-state="open"][data-slot="overlay"],
-  .dark:not(.minimal)
-    [data-radix-popper-content-wrapper]
-    + div[data-state="open"] {
-    background: rgba(11, 10, 15, 0.8);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
+  [role="dialog"] input[placeholder] {
+    caret-color: var(--divine-highlight);
   }
 
-  /* The Fumadocs search dialog content — brighter than body, purple
-     rim, soft purple ambient shadow. `[role="dialog"]` catches the
-     search modal; we narrow further with the `cmdk`-style structure. */
-  .dark:not(.minimal)
-    [role="dialog"][data-state="open"]:has(input[placeholder]),
-  .dark:not(.minimal)
-    [role="dialog"][data-state="open"][aria-labelledby*="radix"] {
-    /* The site's floating panel (NewLayout dropdowns). */
-    background: #121119 !important;
-    border: 1px solid #191722 !important;
-    border-radius: 12px !important;
-    box-shadow: 0 12px 40px -8px rgba(0, 0, 0, 0.6) !important;
-  }
-
-  /* Search input placeholder + caret — muted divine, purple caret. */
-  .dark:not(.minimal) [role="dialog"] input[placeholder] {
-    caret-color: var(--color-divine-primary-light);
-  }
-
-  /* ESC pill — align with Divine surface + border. */
-  .dark:not(.minimal)
-    [role="dialog"]
-    button[type="button"]:has(> *:only-child) {
-    border-color: color-mix(
-      in srgb,
-      var(--color-divine-primary) 25%,
-      transparent
-    );
-  }
-
-  /* Search result rows — hover/active uses purple wash, highlighted
-     match text uses purple-light (already via --color-fd-primary). */
-  /* Scoped to the search dialog: fumadocs popovers are role="dialog" too,
-     and this must not repaint the font picker's selected row. */
-  .dark:not(.minimal)
-    [role="dialog"]:has(input[placeholder])
-    button[aria-selected="true"] {
-    background: #1a1922 !important;
+  /* Result rows: the package's menu row under the keyboard cursor. */
+  [role="dialog"]:has(input[placeholder]) button[aria-selected="true"] {
+    background: var(--divine-row-tint) !important;
     color: var(--color-divine-text) !important;
   }
 
-  /* Footer strip inside search dialog (keyboard hints, tags). */
-  .dark:not(.minimal) [role="dialog"] [class*="bg-fd-secondary"] {
-    background: #0e0d13 !important;
-    border-top: 1px solid #191722;
-  }
-
-  /* Any ring/outline inside dialogs uses purple-light. */
-  .dark:not(.minimal) [role="dialog"] :focus-visible {
-    outline-color: var(--color-divine-primary-light);
+  [role="dialog"] :focus-visible {
+    outline-color: var(--divine-highlight);
   }
 } /* end @layer components */
+
+/* Scrollbars — the site's .divine-scrollbar (apps/web/src/index.css) as the
+   default, so no scrolling area shows the native bar and its arrows: a slim
+   rounded thumb on a clear track, firming up on hover. In the base layer, so
+   the [scrollbar-width:none] rows and fumadocs' own containers still win. */
+@layer base {
+  @supports not selector(::-webkit-scrollbar) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--color-divine-border) transparent;
+    }
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-button {
+    display: none;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 6px 2px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-divine-border);
+    background-clip: padding-box;
+    border: 3px solid transparent;
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-divine-muted);
+  }
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+}
 
 /* Full-width docs article. Fumadocs caps the prose column at 900px and
    centers it; combined with the widened `--fd-layout-width` (see
@@ -1404,44 +1274,6 @@ html[data-font] {
   color: var(--color-divine-text);
 }
 
-/* GlowCTA solid fill — its light: classes pair divine-primary-light with
-   divine-text, which are both near-black under Minimal's neutral tokens
-   (black-on-black button). Use the stock fd primary pair instead: black
-   pill / white text in light, white pill / black text in dark. */
-.minimal .divine-cta-solid {
-  background: var(--color-fd-primary);
-  color: var(--color-fd-primary-foreground);
-  box-shadow: none;
-}
-.minimal .divine-cta-solid:hover {
-  filter: none;
-  opacity: 0.85;
-}
-
-/* Callout (src/components/mdx/Callout.tsx) — the divineskins.gg markdown
-   callout: the component sets the per-type accent / hairline / wash as
-   custom properties; Minimal flattens them to the neutral tokens. */
-.divine-callout {
-  border-color: var(--callout-border);
-  background: var(--callout-background);
-}
-.divine-callout-title {
-  color: var(--callout-accent);
-}
-.divine-callout-bar {
-  background: var(--callout-accent);
-}
-.minimal .divine-callout-bar {
-  background: var(--color-divine-border);
-}
-.minimal .divine-callout {
-  border-color: var(--color-divine-border);
-  background: var(--color-divine-surface);
-}
-.minimal .divine-callout-title {
-  color: var(--color-divine-text);
-}
-
 /* ──────────────────────────────────────────────────────────────
    divineskins.gg sizing, radius, hover and motion on fumadocs chrome.
    Unlayered on purpose: fumadocs styles these elements with Tailwind
@@ -1451,64 +1283,112 @@ html[data-font] {
    lift 4px with ease-out, and nothing moves under reduced motion.
    ────────────────────────────────────────────────────────────── */
 
-/* Sidebar rows — LegalSidebar geometry: px-3 py-2, gap-2.5, 8px radius,
-   4px between rows. Fumadocs indents nesting with an inline
-   padding-inline-start; only the top level (2 × spacing) is widened to
-   the site's 12px so nested depths keep their steps. Fumadocs also kills
-   the transition on hover; the site eases every row change over 200ms. */
-#nd-sidebar a[data-active],
-#nd-sidebar button[data-active] {
+/* Sidebar rows — the package's menu row at the sidebar's 14px: muted, a white
+   tint on hover, and the highlight on a 10% accent tint while active (no rim).
+   Unlayered, so they beat fumadocs' utilities; the flat folder tree's layered
+   !important rules still win inside folders. Fumadocs indents nesting with an
+   inline padding-inline-start; only the top level (2 x spacing) is widened to
+   12px so nested depths keep their steps. */
+:is(#nd-sidebar, #nd-sidebar-mobile) :is(a, button)[data-active] {
   gap: 0.625rem;
   padding-block: 0.5rem;
   padding-inline-end: 0.75rem;
   margin-block: 2px;
+  border: 1px solid transparent;
   border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.375;
+  color: var(--color-divine-muted);
   transition:
-    color 200ms,
-    background-color 200ms,
-    border-color 200ms !important;
+    color 150ms,
+    background-color 150ms !important;
 }
-#nd-sidebar a[data-active][style*="calc(2 * var(--spacing))"],
-#nd-sidebar button[data-active][style*="calc(2 * var(--spacing))"] {
+:is(#nd-sidebar, #nd-sidebar-mobile)
+  :is(a, button)[data-active][style*="calc(2 * var(--spacing))"] {
   padding-inline-start: 0.75rem !important;
 }
-
-/* Search trigger — the design system input: 40px tall, 8px radius,
-   matching the game switcher and language picker around it. */
-#nd-sidebar [data-search-full] {
-  height: 2.5rem;
-  padding-inline: 0.875rem 0.375rem;
-  border-radius: 8px;
-  gap: 0.625rem;
-  transition:
-    color 200ms,
-    border-color 200ms;
+:is(#nd-sidebar, #nd-sidebar-mobile) :is(a, button)[data-active="false"]:hover {
+  background: var(--divine-row-tint);
+  color: var(--color-divine-text);
 }
-#nd-sidebar [data-search-full] kbd {
-  border-radius: 6px;
+:is(#nd-sidebar, #nd-sidebar-mobile) :is(a, button)[data-active="true"] {
+  background: color-mix(in srgb, var(--divine-accent) 10%, transparent);
+  color: var(--divine-highlight);
+  font-weight: 600;
+}
+:is(#nd-sidebar, #nd-sidebar-mobile) :is(a, button)[data-active="true"] svg {
+  color: var(--divine-highlight);
 }
 
-/* Game switcher + language picker — 40px rows in the site's field
-   recipe (#121119 on #191722, #1A1922 on hover). */
-#nd-sidebar button[aria-label="Choose a language"],
-#nd-sidebar [data-radix-popper-content-wrapper] + button,
-#nd-sidebar > div:first-child button[aria-haspopup] {
+/* Search trigger, game switcher and language picker — the package's field and
+   select trigger: 40px, 12px corners, the surface fill on the control rim,
+   raising on hover and warming to the accent while open. */
+:is(#nd-sidebar, #nd-sidebar-mobile) [data-search-full],
+:is(#nd-sidebar, #nd-sidebar-mobile) button[aria-label="Choose a language"],
+:is(#nd-sidebar, #nd-sidebar-mobile) > div:first-child button[aria-haspopup] {
   min-height: 2.5rem;
-  border-radius: 8px;
+  border: 1px solid var(--color-divine-border-control);
+  border-radius: 12px;
+  background: var(--color-divine-surface);
+  color: var(--color-divine-text);
   transition:
     color 200ms,
     background-color 200ms,
     border-color 200ms;
 }
-.dark:not(.minimal) #nd-sidebar button[aria-label="Choose a language"],
-.dark:not(.minimal) #nd-sidebar > div:first-child button[aria-haspopup] {
-  border: 1px solid #191722;
-  background: #121119;
-  color: #e4e4e7;
+:is(#nd-sidebar, #nd-sidebar-mobile) [data-search-full]:hover,
+:is(#nd-sidebar, #nd-sidebar-mobile)
+  button[aria-label="Choose a language"]:hover,
+:is(#nd-sidebar, #nd-sidebar-mobile)
+  > div:first-child
+  button[aria-haspopup]:hover {
+  border-color: var(--color-divine-border-subtle);
+  background: var(--color-divine-surface-raised);
 }
-.dark:not(.minimal) #nd-sidebar button[aria-label="Choose a language"]:hover,
-.dark:not(.minimal) #nd-sidebar > div:first-child button[aria-haspopup]:hover {
-  background: #1a1922;
+:is(#nd-sidebar, #nd-sidebar-mobile)
+  button[aria-label="Choose a language"][data-state="open"],
+:is(#nd-sidebar, #nd-sidebar-mobile)
+  > div:first-child
+  button[aria-haspopup][data-state="open"] {
+  border-color: color-mix(in srgb, var(--divine-accent) 60%, transparent);
+  background: var(--color-divine-surface-raised);
+}
+:is(#nd-sidebar, #nd-sidebar-mobile) [data-search-full] {
+  height: 2.5rem;
+  padding-inline: 0.875rem 0.375rem;
+  gap: 0.625rem;
+  color: var(--color-divine-muted);
+  font-weight: 500;
+}
+:is(#nd-sidebar, #nd-sidebar-mobile) [data-search-full]:hover {
+  color: var(--color-divine-text);
+}
+:is(#nd-sidebar, #nd-sidebar-mobile) [data-search-full] kbd {
+  border: 0;
+  border-radius: 6px;
+  background: var(--divine-row-tint);
+  color: var(--color-divine-muted);
+}
+/* The field's muted chevrons; the language picker's turns while open. */
+:is(#nd-sidebar, #nd-sidebar-mobile)
+  button[aria-label="Choose a language"]
+  > svg:last-child,
+:is(#nd-sidebar, #nd-sidebar-mobile)
+  > div:first-child
+  button[aria-haspopup]
+  > svg:last-child {
+  color: var(--color-divine-muted);
+  transition: rotate 300ms;
+}
+:is(#nd-sidebar, #nd-sidebar-mobile)
+  button[aria-label="Choose a language"][data-state="open"]
+  > svg:last-child {
+  rotate: 180deg;
+}
+@media (prefers-reduced-motion: reduce) {
+  :is(#nd-sidebar, #nd-sidebar-mobile) button[aria-haspopup] > svg:last-child {
+    transition: none;
+  }
 }
 
 /* Breadcrumb — 14px meta row; trail in muted gray, current in lilac. */
@@ -1556,68 +1436,6 @@ html[data-font] {
   color: #8b8d98;
 }
 
-/* Tabs — the site's segmented pill control (SupporterBoard): a #121119
-   card on a #191722 hairline with a full-width tab strip, and the content
-   in a darker #0B0A0F area below it (square corners, no inner frame).
-   Tabs are 32px bold pills; the active one is solid purple with the
-   CTA's inset top highlight (no glow). */
-#nd-page div[data-orientation="horizontal"]:has(> [role="tablist"]) {
-  overflow: hidden;
-  border-radius: 12px;
-  margin-block: 1.75rem;
-}
-.dark:not(.minimal)
-  #nd-page
-  div[data-orientation="horizontal"]:has(> [role="tablist"]) {
-  border-color: #191722;
-  background: #121119;
-}
-#nd-page [role="tablist"] {
-  gap: 0.25rem;
-  padding: 0.5rem 0.5rem 0.5rem 0.75rem;
-  border-bottom: 1px solid var(--color-fd-border);
-}
-.dark:not(.minimal) #nd-page [role="tablist"] {
-  border-bottom-color: #191722;
-}
-#nd-page [role="tab"] {
-  height: 2rem;
-  padding: 0 0.875rem;
-  border: 0;
-  border-radius: 999px;
-  font-size: 14px;
-  font-weight: 700;
-  transition:
-    color 200ms,
-    background-color 200ms,
-    box-shadow 200ms,
-    transform 200ms;
-}
-.dark:not(.minimal) #nd-page [role="tab"] {
-  color: #8b8d98;
-}
-.dark:not(.minimal) #nd-page [role="tab"]:hover {
-  color: #e4e4e7;
-}
-.dark:not(.minimal) #nd-page [role="tab"][data-state="active"] {
-  background: #783cb5;
-  color: #ffffff;
-  box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.35);
-}
-#nd-page [role="tab"]:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 1px rgba(120, 60, 181, 0.5);
-}
-#nd-page [role="tabpanel"] {
-  padding: 1rem 1.25rem !important;
-  border-radius: 0 !important;
-  font-size: 0.9375rem;
-  line-height: 1.7;
-}
-.dark:not(.minimal) #nd-page [role="tabpanel"] {
-  background: #0b0a0f !important;
-}
-
 /* Code blocks — the site's markdown `pre` spacing, and the copy button
    as a 32px icon button (8px radius, white/10 on hover). */
 .prose figure.shiki {
@@ -1650,77 +1468,228 @@ figure.shiki > [role="region"] {
   --padding-left: 1.375rem;
 }
 
-/* Popovers (language picker, game switcher, appearance settings) — the
-   site's dropdown panel (NewLayout "Create Mods" menu): solid #121119 on
-   a #191722 hairline, 12px radius, 6px inset, deep drop shadow. Rows are
-   14px, 8px radius, #1A1922 on hover. Fumadocs' frosted /60 fill is
-   replaced with the solid panel. */
-.dark:not(.minimal) [data-radix-popper-content-wrapper] > div.rounded-xl {
-  background: #121119;
+/* Popovers (fumadocs' language picker and game switcher) — the package's
+   panel, so they match its Popover, Select and DropdownMenu: the field fill
+   with no rim, 12px corners, 6px inset, deep drop shadow. Fumadocs' frosted
+   /60 fill is replaced with the solid panel. */
+[data-radix-popper-content-wrapper] > div.rounded-xl {
+  background: var(--color-divine-surface-field);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
-  border-color: #191722;
-  box-shadow: 0 12px 40px -8px rgba(0, 0, 0, 0.6);
-}
-[data-radix-popper-content-wrapper] > div.rounded-xl {
+  border-color: transparent;
   border-radius: 12px;
   padding: 0.375rem;
+  box-shadow: var(--shadow-divine-panel);
 }
 
-/* Language picker list (fumadocs LanguageSelect: a title <p> followed by
-   one button per locale). */
-/* Same width as its trigger (the sidebar language button); Radix exposes
-   the trigger width as a custom property. */
+/* Their rows — the package's menu row: 13px medium on an 8px corner, a white
+   tint on hover, the highlight on a 10% accent tint when picked. */
+[data-radix-popper-content-wrapper] > div:has(> p + button) > button,
+[data-radix-popper-content-wrapper] a.rounded-lg:has(> svg.lucide-check) {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.625rem;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-divine-text);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+  transition:
+    color 150ms,
+    background-color 150ms;
+}
+[data-radix-popper-content-wrapper] > div:has(> p + button) > button:hover,
+[data-radix-popper-content-wrapper] a.rounded-lg:has(> svg.lucide-check):hover {
+  background: var(--divine-row-tint);
+  color: var(--color-divine-text);
+}
+[data-radix-popper-content-wrapper]
+  > div:has(> p + button)
+  > button[class*="text-fd-primary"],
+[data-radix-popper-content-wrapper]
+  a.rounded-lg:has(> svg.lucide-check:not(.invisible)) {
+  background: color-mix(in srgb, var(--divine-accent) 10%, transparent);
+  color: var(--divine-highlight);
+}
+/* Game switcher: the row's own text and trailing check. */
+[data-radix-popper-content-wrapper] a.rounded-lg:has(> svg.lucide-check) p {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+}
+[data-radix-popper-content-wrapper] a.rounded-lg > svg.lucide-check {
+  width: 1rem;
+  height: 1rem;
+  color: var(--divine-highlight);
+}
+
+/* Language picker (fumadocs LanguageSelect: a title <p> followed by one button
+   per locale), as wide as its trigger. The package's menu label on top, and
+   the check its picked rows have, which fumadocs doesn't draw here. */
 [data-radix-popper-content-wrapper] > div:has(> p + button) {
   gap: 2px;
   width: var(--radix-popover-trigger-width);
   min-width: 0;
 }
 [data-radix-popper-content-wrapper] > div:has(> p + button) > p {
-  padding: 0.5rem 0.625rem 0.375rem;
-  font-size: 11px;
-  font-weight: 400;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-}
-[data-radix-popper-content-wrapper] > div:has(> p + button) > button {
-  display: flex;
-  align-items: center;
-  padding: 0.5rem 0.625rem;
-  border-radius: 8px;
-  font-size: 14px;
-  transition:
-    color 150ms,
-    background-color 150ms;
-}
-.dark:not(.minimal)
-  [data-radix-popper-content-wrapper]
-  > div:has(> p + button)
-  > p {
-  color: rgba(139, 141, 152, 0.7);
-}
-.dark:not(.minimal)
-  [data-radix-popper-content-wrapper]
-  > div:has(> p + button)
-  > button {
-  color: #e4e4e7;
-  background: transparent;
-}
-.dark:not(.minimal)
-  [data-radix-popper-content-wrapper]
-  > div:has(> p + button)
-  > button:hover {
-  background: #1a1922;
-}
-/* Current language — the site's active menu item: lilac text on the
-   hover fill. */
-.dark:not(.minimal)
-  [data-radix-popper-content-wrapper]
-  > div:has(> p + button)
-  > button[class*="text-fd-primary"] {
-  background: #1a1922;
-  color: #c084fc;
+  padding: 0.375rem 0.625rem 0.25rem;
+  color: var(--color-divine-muted);
+  font-size: 12px;
   font-weight: 600;
+}
+[data-radix-popper-content-wrapper]
+  > div:has(> p + button)
+  > button[class*="text-fd-primary"]::after {
+  content: "";
+  width: 1rem;
+  height: 1rem;
+  margin-inline-start: auto;
+  background: currentColor;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   @divineskins/ui adapters. The package is dark-only: its tints are
+   white at low alpha and its Tile, glow and shadows are fixed. The
+   tokens above recolor the rest; these flip what tokens can't reach.
+   Unlayered, so they beat the package's utilities.
+   ────────────────────────────────────────────────────────────── */
+.light .bg-white\/\[0\.04\],
+.light .bg-white\/10,
+.light .hover\:bg-white\/10:hover,
+.light .hover\:bg-white\/\[0\.08\]:hover,
+.light .data-\[state\=open\]\:bg-white\/\[0\.08\][data-state="open"],
+.light .bg-white\/\[0\.06\],
+.light .bg-white\/\[0\.08\],
+.light .hover\:bg-white\/\[0\.05\]:hover,
+.light .focus-visible\:bg-white\/\[0\.05\]:focus-visible,
+.light .data-\[highlighted\]\:bg-white\/\[0\.05\][data-highlighted],
+.light .data-\[state\=open\]\:bg-white\/\[0\.05\][data-state="open"] {
+  background-color: rgb(0 0 0 / 0.05);
+}
+.light .hover\:bg-white\/20:hover,
+.light .hover\:bg-white\/\[0\.16\]:hover {
+  background-color: rgb(0 0 0 / 0.1);
+}
+/* White text with a white tint behind it: secondary Button, neutral Badge. */
+.light .bg-white\/10.text-white,
+.light .bg-white\/\[0\.06\].text-white,
+.light .enabled\:hover\:text-white:enabled:hover {
+  color: var(--color-divine-text);
+}
+.light .bg-divine-tile,
+.minimal .bg-divine-tile {
+  background-image: none;
+  background-color: var(--color-divine-elevated);
+}
+/* The package's press and toggle motion is written for Tailwind v3, where
+   scale-* and translate-* compile to `transform`. In v4 they set the separate
+   `scale` and `translate` properties, which these lists don't name, so the
+   change would jump instead of springing. `scale` takes `transform`'s place
+   in the Button's list so its three durations still line up. Gated so it
+   doesn't undo the package's motion-reduce:transition-none. */
+@media (prefers-reduced-motion: no-preference) {
+  .transition-\[color\,background-color\,transform\] {
+    transition-property: color, background-color, scale;
+  }
+  .transition-\[color\,transform\] {
+    transition-property: color, scale;
+  }
+  .transition-\[background-color\,transform\] {
+    transition-property: background-color, scale;
+  }
+  .transition-\[transform\,background-color\] {
+    transition-property: translate, scale, background-color;
+  }
+  .transition-\[transform\,opacity\,background-color\] {
+    transition-property: scale, opacity, background-color;
+  }
+}
+/* The Mode row's thumb: next-themes injects `* { transition: none !important }`
+   while it flips the theme, which would make the thumb jump. This keeps its
+   slide through the flip (same importance, higher specificity); everything
+   else still changes at once. Timing is SegmentedControl's. */
+@media (prefers-reduced-motion: no-preference) {
+  [role="radiogroup"] > .transition-transform {
+    transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1) !important;
+  }
+}
+/* Homepage hero (src/components/home/hero-background.tsx and the heading in
+   (home)/page.tsx), from the site's HeroBackground and heroHeading. The stops
+   sit at distances from the center, so they land where the design puts them.
+   Light takes a deeper end stop to stay readable on white, and Minimal is a
+   plain heading. */
+.divine-hero-heading {
+  background-image: linear-gradient(
+    -2.3579deg,
+    #783cb5 calc(50% - 70.89px),
+    #a976dd calc(50% + 14.19px)
+  );
+  filter: url(#hero-heading-inner-shadow);
+}
+.light .divine-hero-heading {
+  background-image: linear-gradient(
+    -2.3579deg,
+    #5f2d99 calc(50% - 70.89px),
+    #783cb5 calc(50% + 14.19px)
+  );
+  filter: none;
+}
+.minimal .divine-hero-heading {
+  background-image: none;
+  color: var(--color-divine-text);
+  filter: none;
+}
+.divine-hero-shade {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-divine-bg) 90%, transparent) 0%,
+    color-mix(in srgb, var(--color-divine-bg) 95%, transparent) 39.754%,
+    color-mix(in srgb, var(--color-divine-bg) 99%, transparent) 60%,
+    var(--color-divine-bg) 100%
+  );
+}
+.dark:not(.minimal) .divine-hero-shade {
+  background: linear-gradient(
+    180deg,
+    rgba(14, 13, 20, 0.9) 0%,
+    rgba(18, 17, 25, 0.95) 39.754%,
+    rgba(21, 20, 29, 0.99) 60%,
+    #0e0d14 100%
+  );
+}
+
+/* The navbar's scroll fade (src/components/site-header.tsx): the page color,
+   running out below the bar. */
+.divine-nav-fade {
+  background: linear-gradient(
+    180deg,
+    var(--color-divine-bg) 0%,
+    color-mix(in srgb, var(--color-divine-bg) 85%, transparent) 40%,
+    color-mix(in srgb, var(--color-divine-bg) 50%, transparent) 70%,
+    transparent 100%
+  );
+}
+
+/* Minimal callouts drop the status color from the tile too. */
+.minimal .divine-callout > :first-child {
+  color: var(--color-divine-text);
+}
+/* Glow is the Divine dark style's alone. */
+.light .before\:bg-divine-cta-glow::before,
+.minimal .before\:bg-divine-cta-glow::before {
+  display: none;
+}
+.light .shadow-divine-cta-highlight,
+.light .shadow-divine-cta-sm,
+.light .data-\[state\=active\]\:shadow-divine-cta[data-state="active"],
+.minimal .shadow-divine-cta-highlight,
+.minimal .shadow-divine-cta-sm,
+.minimal .data-\[state\=active\]\:shadow-divine-cta[data-state="active"] {
+  box-shadow: none;
 }
 
 /* Press feedback — the site's buttons shrink while pressed (framer
@@ -1735,11 +1704,9 @@ figure.shiki > [role="region"] {
   transform: scale(0.98);
 }
 #nd-sidebar [data-search-full]:active,
-#nd-page [role="tab"]:active,
 figure.shiki button[aria-label^="Copy"]:active {
   transform: scale(0.98);
 }
-#nd-page [role="tab"],
 figure.shiki button[aria-label^="Copy"] {
   transition-property: color, background-color, box-shadow, transform;
 }
@@ -1779,7 +1746,6 @@ figure.shiki button[aria-label^="Copy"] {
 @media (prefers-reduced-motion: reduce) {
   .divine-press:active,
   #nd-sidebar [data-search-full]:active,
-  #nd-page [role="tab"]:active,
   figure.shiki button[aria-label^="Copy"]:active {
     transform: none;
   }
@@ -1962,8 +1928,10 @@ figure.shiki button[aria-label^="Copy"] {
   flex-shrink: 0;
   margin-block: 1.5rem 0.75rem;
 }
+/* Repurposes the primary Button's bloom layer as the divider. */
 #nd-sidebar .divine-sidebar-contribute::before {
   content: "";
+  display: block;
   position: absolute;
   top: calc(-0.75rem - 1px);
   right: 0;
@@ -1974,8 +1942,8 @@ figure.shiki button[aria-label^="Copy"] {
 .dark:not(.minimal) #nd-sidebar .divine-sidebar-contribute {
   box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.35);
 }
-.dark:not(.minimal) #nd-sidebar .divine-sidebar-contribute::before {
-  background: #25222f;
+#nd-sidebar .divine-sidebar-contribute::before {
+  background: var(--color-divine-border-subtle);
 }
 
 /* Rail label chip (src/components/sidebar-rail-tooltip.tsx) — fades in
@@ -2012,8 +1980,8 @@ figure.shiki button[aria-label^="Copy"] {
   height: 1px;
   background: var(--color-fd-border);
 }
-.dark:not(.minimal) #nd-sidebar > div:last-child::before {
-  background: #25222f;
+#nd-sidebar > div:last-child::before {
+  background: var(--color-divine-border-subtle);
 }
 @media (min-width: 768px) {
   #nd-sidebar[data-collapsed="true"] > div:first-child::after,
@@ -2079,19 +2047,17 @@ figure.shiki .line:empty:not(:has(~ .line:not(:empty))) {
 
 /* Tables — the site's 1.75rem breathing room above and below, so a label
    or heading never sits on top of the table. */
-.prose table {
+.prose table:not(.not-prose *) {
   margin-block: 1.75rem !important;
 }
 
-/* Callouts and blockquotes — all four corners share the 8px radius. The
-   accent is the 2px left border of an overlay covering the hairline with
-   the same radius, so it bends around the left corners and tapers into
-   the top and bottom edges instead of ending square. */
-.divine-callout,
+/* Blockquotes — all four corners share the 8px radius. The accent is the 2px
+   left border of an overlay covering the hairline with the same radius, so it
+   bends around the left corners and tapers into the top and bottom edges
+   instead of ending square. */
 .prose blockquote {
   overflow: visible !important;
 }
-.divine-callout-bar,
 .dark:not(.minimal) .prose blockquote::before {
   inset: -1px !important;
   width: auto !important;
@@ -2100,43 +2066,33 @@ figure.shiki .line:empty:not(:has(~ .line:not(:empty))) {
   background: none !important;
   pointer-events: none;
 }
-.divine-callout-bar {
-  border-left-color: var(--callout-accent);
-}
-.minimal .divine-callout-bar {
-  border-left-color: var(--color-divine-border);
-}
 .dark:not(.minimal) .prose blockquote::before {
   border-left-color: #783cb5;
 }
 
 /* Nested folder rows (e.g. Tools › Modding apps) are buttons without
    data-active; give them the same row recipe as the nav links. */
-#nd-sidebar [data-radix-scroll-area-viewport] button[aria-expanded] {
+:is(#nd-sidebar, #nd-sidebar-mobile)
+  [data-radix-scroll-area-viewport]
+  button[aria-expanded]:not([data-active="true"]) {
   gap: 0.625rem;
   padding-block: 0.5rem;
   padding-inline-end: 0.75rem;
   margin-block: 2px;
   border: 1px solid transparent;
   border-radius: 8px;
+  color: var(--color-divine-muted);
   font-size: 14px;
   line-height: 1.375;
   transition:
-    color 200ms,
-    background-color 200ms !important;
+    color 150ms,
+    background-color 150ms !important;
 }
-.dark:not(.minimal)
-  #nd-sidebar
+:is(#nd-sidebar, #nd-sidebar-mobile)
   [data-radix-scroll-area-viewport]
-  button[aria-expanded] {
-  color: #8b8d98;
-}
-.dark:not(.minimal)
-  #nd-sidebar
-  [data-radix-scroll-area-viewport]
-  button[aria-expanded]:hover {
-  background: rgba(25, 23, 34, 0.6);
-  color: #e4e4e7;
+  button[aria-expanded]:not([data-active="true"]):hover {
+  background: var(--divine-row-tint);
+  color: var(--color-divine-text);
 }
 
 /* Folder tree — every expanded folder draws its own guide line, and rows
@@ -2256,27 +2212,6 @@ figure.shiki .line:empty:not(:has(~ .line:not(:empty))) {
 /* Callout v2 — neutral card body in the Divine style, color only on the
    bar, the icon tile and the title. Light / Minimal keep the tinted
    panel from the base rules. */
-/* Icon: the site's IconTile surface (set in Callout.tsx), glyph in the
-   IconTile tone color for the callout type. */
-.divine-callout-icon {
-  color: var(--callout-icon);
-}
-.light .divine-callout-icon {
-  border-color: var(--color-divine-border);
-  background: var(--color-divine-surface);
-  box-shadow: none;
-}
-.dark:not(.minimal) .divine-callout {
-  border-color: #191722;
-  background: #121119;
-}
-.minimal .divine-callout-icon {
-  color: var(--color-divine-text);
-  border-color: var(--color-divine-border);
-  background: var(--color-divine-surface);
-  box-shadow: none;
-}
-
 /* Icon glyph gradients — the site's category-icon treatment: the glyph
    itself is filled top-to-bottom (lilac → purple for brand icons; the
    same light-to-deep pattern per callout tone). Gradients are defined

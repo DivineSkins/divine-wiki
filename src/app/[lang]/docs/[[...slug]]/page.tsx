@@ -28,7 +28,7 @@ import {
   SITE_NAME,
   docsTitle,
 } from "@/lib/seo";
-import { Separator } from "@/components/ui/separator";
+import { Button, Separator } from "@divineskins/ui";
 import { DocsLanding } from "@/components/home/docs-landing";
 import { GuideCredits } from "@/components/guide-credits";
 import { getGuideCredits } from "@/lib/guide-credits";
@@ -204,7 +204,7 @@ export default async function Page(
         className={cn("mt-5", !page.data.full && "xl:hidden")}
       />
 
-      <Separator className="bg-fd-border mt-8 mb-10" />
+      <Separator className="mt-8 mb-10" />
 
       <DocsBody>
         <MDX
@@ -221,12 +221,14 @@ export default async function Page(
           }}
           className="mt-12"
           action={
-            <Link
-              {...editLink}
-              className="not-prose divine-press light:bg-fd-accent light:text-fd-foreground inline-flex h-10 items-center justify-center rounded-full bg-white/10 px-5 text-sm font-bold text-white hover:bg-white/20 focus-visible:ring-1 focus-visible:ring-[rgba(120,60,181,0.5)] focus-visible:outline-none"
+            <Button
+              asChild
+              variant="secondary"
+              size="md"
+              className="not-prose no-underline"
             >
-              {ui.misc.editOnGithub}
-            </Link>
+              <Link {...editLink}>{ui.misc.editOnGithub}</Link>
+            </Button>
           }
         />
       </DocsBody>

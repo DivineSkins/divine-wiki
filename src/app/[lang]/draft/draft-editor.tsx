@@ -1,5 +1,12 @@
 "use client";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@divineskins/ui";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -389,7 +396,7 @@ export function DraftEditor({
           <span className="relative hidden size-7 sm:block">
             <Image
               alt="Divine Skins"
-              src="/brand/logo.webp"
+              src="/brand/divine-mark.webp"
               fill
               sizes="28px"
             />
@@ -491,7 +498,7 @@ export function DraftEditor({
               "mb-5 flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3",
             )}
           >
-            <History className="text-divine-primary-light light:text-divine-primary size-4 shrink-0" />
+            <History className="text-divine-highlight size-4 shrink-0" />
             <p className="min-w-0 text-sm">
               <span className="text-divine-text font-semibold">
                 {d.unsavedHeading}
@@ -551,26 +558,30 @@ export function DraftEditor({
           </div>
 
           <div className="grid shrink-0 grid-cols-2 gap-2 sm:max-w-xl xl:w-[34rem]">
-            <label className={cn(FIELD, "col-span-2 sm:col-span-1")}>
+            <div className={cn(FIELD, "col-span-2 sm:col-span-1")}>
               <span className="text-divine-text-muted shrink-0 text-xs font-medium">
                 {d.fieldCategory}
               </span>
-              <span className="relative flex min-w-0 flex-1 items-center">
-                <select
-                  className="text-divine-text w-full appearance-none bg-transparent pr-5 text-sm font-semibold outline-none disabled:opacity-60"
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  disabled={mode === "edit"}
+              <Select
+                value={category}
+                onValueChange={setCategory}
+                disabled={mode === "edit"}
+              >
+                <SelectTrigger
+                  aria-label={d.fieldCategory}
+                  className="h-auto min-w-0 flex-1 rounded-none border-0 bg-transparent px-0 font-semibold hover:bg-transparent data-[state=open]:bg-transparent"
                 >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
                   {categories.map((c) => (
-                    <option key={c} value={c}>
+                    <SelectItem key={c} value={c}>
                       {c}
-                    </option>
+                    </SelectItem>
                   ))}
-                </select>
-                <ChevronDown className="text-divine-text-muted pointer-events-none absolute right-0 size-3.5" />
-              </span>
-            </label>
+                </SelectContent>
+              </Select>
+            </div>
 
             <label className={cn(FIELD, "col-span-2 sm:col-span-1")}>
               <span className="text-divine-text-muted shrink-0 text-xs font-medium">

@@ -1,11 +1,12 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
+import { IconTile } from "@divineskins/ui";
 import { ArrowRightIcon } from "lucide-react";
 
+import { CardLink } from "@/components/ui/links";
+
 /**
- * Landing-page portal card — one per wiki category. Glassy Divine
- * surface with a brand icon chip, title, blurb, and a guide count.
- * Lifts + brightens on hover, matching the site's premium card feel.
+ * Landing-page portal card — one per wiki category: an interactive Card with
+ * an IconTile, title, blurb, and a guide count.
  */
 export function CategoryCard({
   href,
@@ -21,14 +22,15 @@ export function CategoryCard({
   count?: number;
 }) {
   return (
-    <Link
+    <CardLink
       href={href}
-      className="group divine-cut border-divine-border bg-divine-surface/60 hover:border-divine-primary/50 hover:bg-divine-surface relative flex flex-col gap-3 rounded-none border p-5 no-underline backdrop-blur transition-all duration-200 hover:-translate-y-0.5"
+      padding="md"
+      className="group relative flex flex-col gap-3"
     >
       <div className="flex items-center gap-3">
-        <span className="bg-divine-primary/15 text-divine-primary-light ring-divine-primary/10 group-hover:bg-divine-primary/25 inline-flex size-10 shrink-0 items-center justify-center rounded-none ring-1 transition-colors">
+        <IconTile size="md" className="divine-icon-brand">
           {icon}
-        </span>
+        </IconTile>
         <h3 className="text-divine-text text-base leading-tight font-[var(--font-section)] font-semibold">
           {title}
         </h3>
@@ -46,8 +48,8 @@ export function CategoryCard({
         ) : (
           <span />
         )}
-        <ArrowRightIcon className="text-divine-text-muted group-hover:text-divine-primary-light size-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+        <ArrowRightIcon className="text-divine-text-muted group-hover:text-divine-highlight size-4 transition-transform duration-200 group-hover:translate-x-0.5" />
       </div>
-    </Link>
+    </CardLink>
   );
 }

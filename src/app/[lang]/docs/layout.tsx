@@ -1,3 +1,4 @@
+import { Button } from "@divineskins/ui";
 import { DocsLayout } from "fumadocs-ui/layouts/docs";
 import type * as PageTree from "fumadocs-core/page-tree";
 import { SHARED_SECTIONS, source } from "@/lib/source";
@@ -97,24 +98,26 @@ export default async function Layout({
           // Component — so without a key React warns on every render.
           footer: (
             <div key="footer" className="flex items-center gap-2 pt-1">
-              <a
-                href={discordInviteUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={messages.nav.discord}
-                className="light:border-fd-border light:bg-fd-secondary light:text-fd-muted-foreground light:hover:text-fd-accent-foreground inline-flex size-10 items-center justify-center rounded-lg border border-[#191722] bg-[#121119] text-[#E4E4E7] transition-colors duration-200 hover:bg-[#1A1922] focus-visible:ring-1 focus-visible:ring-[rgba(120,60,181,0.5)] focus-visible:outline-none"
-              >
-                <DiscordLogo className="size-4" />
-              </a>
-              <a
-                href={githubRepoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="GitHub"
-                className="light:border-fd-border light:bg-fd-secondary light:text-fd-muted-foreground light:hover:text-fd-accent-foreground inline-flex size-10 items-center justify-center rounded-lg border border-[#191722] bg-[#121119] text-[#E4E4E7] transition-colors duration-200 hover:bg-[#1A1922] focus-visible:ring-1 focus-visible:ring-[rgba(120,60,181,0.5)] focus-visible:outline-none"
-              >
-                <GitHubLogo className="size-4" />
-              </a>
+              <Button asChild variant="field" className="size-10 px-0">
+                <a
+                  href={discordInviteUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={messages.nav.discord}
+                >
+                  <DiscordLogo />
+                </a>
+              </Button>
+              <Button asChild variant="field" className="size-10 px-0">
+                <a
+                  href={githubRepoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="GitHub"
+                >
+                  <GitHubLogo />
+                </a>
+              </Button>
               <div className="flex-1" />
               <AppearanceSettings labels={messages.settings} />
             </div>

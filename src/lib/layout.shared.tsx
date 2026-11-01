@@ -31,7 +31,7 @@ export function baseOptions(locale: string): BaseLayoutProps {
           <div className="relative h-9 w-9 lg:h-8 lg:w-8">
             <Image
               alt="Divine Skins"
-              src="/brand/logo.webp"
+              src="/brand/divine-mark.webp"
               fill
               sizes="36px"
               priority

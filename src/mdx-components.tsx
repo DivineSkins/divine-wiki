@@ -14,7 +14,7 @@ import { CardGrid } from "@/components/mdx/CardGrid";
 import { Requirements, Requirement } from "@/components/mdx/Requirements";
 import { MenuPath } from "@/components/mdx/MenuPath";
 import { Icon } from "@/components/icon";
-import * as TabsComponents from "fumadocs-ui/components/tabs";
+import * as TabsComponents from "@/components/mdx/Tabs";
 import { Steps, Step } from "fumadocs-ui/components/steps";
 import { Files, Folder, File } from "fumadocs-ui/components/files";
 import { Accordions, Accordion } from "@/components/mdx/Accordions";

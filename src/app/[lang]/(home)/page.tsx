@@ -1,6 +1,6 @@
 import { ContributorMarquee } from "@/components/home/contributor-marquee";
 import { GamePicker } from "@/components/home/game-picker";
-import { StarField } from "@/components/home/star-field";
+import { HeroBackground } from "@/components/home/hero-background";
 import { CONTRIBUTORS } from "@/lib/contributors";
 import { listGames } from "@/lib/guide-count";
 import { i18n } from "@/lib/i18n";
@@ -21,28 +21,22 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
   const t = getMessages(lang).home;
 
   return (
-    <div className="relative isolate flex flex-1 flex-col">
-      {/* Hero: stars on the void under a purple wash, like the site's hero.
-          It starts under the transparent header, so the wash reaches the top. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 -top-16 -z-10 h-[820px] bg-[radial-gradient(ellipse_at_top,color-mix(in_srgb,var(--color-divine-primary)_24%,transparent),transparent_62%)]"
-      >
-        <StarField />
-      </div>
+    <div className="relative isolate flex flex-1 flex-col overflow-x-clip">
+      <HeroBackground />
+      <HeroHeadingFilter />
 
-      <section className="flex flex-col items-center px-6 pt-20 text-center md:pt-28">
-        <h1 className="text-divine-text max-w-3xl font-[family-name:var(--font-hero)] text-4xl leading-[1.1] font-bold tracking-tight text-balance sm:text-5xl md:text-6xl lg:text-[72px]">
+      <section className="flex flex-col items-center gap-6 px-6 pt-16 text-center md:pt-[109.5px]">
+        <h1 className="divine-hero-heading -my-3 w-full max-w-[1023px] bg-clip-text py-3 font-[family-name:var(--font-hero)] text-4xl leading-[1.15] font-bold tracking-[-0.2px] text-balance text-transparent sm:text-5xl sm:leading-[1.15] md:text-[64px] md:leading-[73px]">
           <TitleWithAccent title={t.title} accent={t.titleAccent} />
         </h1>
-        <p className="text-divine-text-muted mt-5 max-w-xl text-base font-medium sm:text-lg">
+        <p className="text-divine-muted w-full max-w-[720px] text-base font-medium text-balance sm:text-lg md:text-xl md:leading-7">
           {t.tagline}
         </p>
       </section>
 
       {/* The game row is the hero's call to action, so it sits right under
-          the tagline. 944px = five 176px cards and four 16px gaps, so the
-          heading lines up with the first card. Narrower screens scroll the
+          the tagline. Five 178px cards and four 14px gaps fill the 944px, so
+          the heading lines up with the first card. Narrower screens scroll the
           row instead. Search lives in the header (and ⌘K / Ctrl K). */}
       <section
         aria-labelledby="games-heading"
@@ -81,18 +75,44 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
 }
 
 /**
- * Lilac accent on one phrase of the title. Each locale names its own accent
- * phrase (`home.titleAccent`) since word order moves it; a translation that
- * doesn't contain its accent just renders plain.
+ * The site's hero heading treatment: `.divine-hero-heading` shows its purple
+ * gradient through the heading's transparent text, so plain words get a solid
+ * color and the accent stays bare. Each locale names its own accent phrase
+ * (`home.titleAccent`) since word order moves it; a translation that doesn't
+ * contain its accent just renders plain.
  */
 function TitleWithAccent({ title, accent }: { title: string; accent: string }) {
+  const plain = (text: string) =>
+    text ? <span className="text-divine-text">{text}</span> : null;
   const idx = accent ? title.indexOf(accent) : -1;
-  if (idx === -1) return title;
+  if (idx === -1) return plain(title);
   return (
     <>
-      {title.slice(0, idx)}
-      <span className="divine-gradient-text">{accent}</span>
-      {title.slice(idx + accent.length)}
+      {plain(title.slice(0, idx))}
+      {accent}
+      {plain(title.slice(idx + accent.length))}
     </>
+  );
+}
+
+/**
+ * The heading's inner highlight (white 25%, y 1, blur 1). CSS has no inset
+ * text-shadow, so it's an SVG filter: the glyph minus itself shifted 1px down,
+ * laid `atop` the text so it stays inside the letters.
+ */
+function HeroHeadingFilter() {
+  return (
+    <svg aria-hidden className="pointer-events-none absolute size-0">
+      <filter id="hero-heading-inner-shadow" colorInterpolationFilters="sRGB">
+        <feOffset in="SourceAlpha" dy="1" />
+        <feGaussianBlur stdDeviation="0.5" />
+        <feComposite in2="SourceAlpha" operator="arithmetic" k2="-1" k3="1" />
+        <feColorMatrix
+          type="matrix"
+          values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.25 0"
+        />
+        <feComposite in2="SourceGraphic" operator="atop" />
+      </filter>
+    </svg>
   );
 }

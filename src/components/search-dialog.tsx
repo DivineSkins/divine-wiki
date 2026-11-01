@@ -11,14 +11,12 @@ import {
   SearchDialogContent,
   SearchDialogFooter,
   SearchDialogHeader,
-  SearchDialogIcon,
-  SearchDialogInput,
   SearchDialogList,
   SearchDialogOverlay,
-  TagsList,
-  TagsListItem,
   type SharedProps,
 } from "fumadocs-ui/components/dialog/search";
+import { Chip, EmptyState, SearchInput, Spinner } from "@divineskins/ui";
+import { SearchX } from "lucide-react";
 import { DEFAULT_GAME, GAMES } from "@/lib/games";
 import { SEARCH_GAMES, searchGameFromPath, searchLanguage } from "@/lib/search";
 import { version } from "@/lib/search-version.json";
@@ -57,18 +55,23 @@ const noServerGame = () => undefined;
 function NoResults() {
   const { misc } = useMessages();
   return (
-    <div className="text-fd-muted-foreground py-12 text-center text-sm">
-      <p>{misc.searchNoResults}</p>
-      <p className="mt-2">
-        {misc.searchSkinsPrompt}{" "}
-        <a
-          href="https://divineskins.gg/"
-          className="text-fd-primary font-medium hover:underline"
-        >
-          {misc.searchSkinsLink}
-        </a>
-      </p>
-    </div>
+    <EmptyState
+      size="sm"
+      icon={<SearchX />}
+      title={misc.searchNoResults}
+      description={
+        <>
+          {misc.searchSkinsPrompt}{" "}
+          <a
+            href="https://divineskins.gg/"
+            className="text-divine-highlight font-medium hover:underline"
+          >
+            {misc.searchSkinsLink}
+          </a>
+        </>
+      }
+      className="py-10"
+    />
   );
 }
 const renderNoResults = () => <NoResults />;
@@ -86,6 +89,7 @@ const renderNoResults = () => <NoResults />;
  */
 export default function StaticSearchDialog(props: SharedProps) {
   const locale = useI18n().locale ?? "en";
+  const { nav } = useMessages();
   const pathname = usePathname();
   const pageGame = searchGameFromPath(pathname);
   const lastGame = useSyncExternalStore(
@@ -134,33 +138,43 @@ export default function StaticSearchDialog(props: SharedProps) {
       isLoading={query.isLoading}
       {...props}
     >
-      <SearchDialogOverlay />
-      <SearchDialogContent>
-        <SearchDialogHeader>
-          <SearchDialogIcon />
-          <SearchDialogInput />
-          <SearchDialogClose />
+      {/* The package's Dialog overlay and surface. */}
+      <SearchDialogOverlay className="bg-divine-overlay/80 backdrop-blur-[4px]" />
+      <SearchDialogContent className="bg-divine-panel border-divine-border-faint text-divine-text shadow-divine-dialog font-manrope rounded-2xl *:border-b-0">
+        <SearchDialogHeader className="p-3">
+          <SearchInput
+            value={search}
+            onValueChange={setSearch}
+            placeholder={nav.search}
+            className="w-full"
+            trailing={
+              <span className="flex items-center gap-2">
+                {query.isLoading ? <Spinner size="xs" tone="muted" /> : null}
+                <SearchDialogClose className="text-divine-muted font-manrope h-7 rounded-lg border-0 bg-white/[0.06] px-2 text-[11px] font-bold" />
+              </span>
+            }
+          />
         </SearchDialogHeader>
         <SearchDialogList
           items={query.data !== "empty" ? query.data : null}
           Empty={renderNoResults}
+          className="border-divine-border-subtle mx-3 border-t data-[empty=true]:border-t-0"
         />
         {SEARCH_GAME_OPTIONS.length > 1 && (
-          <SearchDialogFooter>
-            <TagsList
-              tag={game}
-              onTagChange={(value) => {
-                if (!value) return;
-                setPicked({ on: pathname, game: value });
-                writeLastGame(value);
-              }}
-            >
-              {SEARCH_GAME_OPTIONS.map((option) => (
-                <TagsListItem key={option.slug} value={option.slug}>
-                  {option.name}
-                </TagsListItem>
-              ))}
-            </TagsList>
+          <SearchDialogFooter className="border-divine-border-subtle mx-3 flex flex-wrap gap-1.5 border-t bg-transparent px-0">
+            {SEARCH_GAME_OPTIONS.map((option) => (
+              <Chip
+                key={option.slug}
+                size="sm"
+                selected={option.slug === game}
+                onClick={() => {
+                  setPicked({ on: pathname, game: option.slug });
+                  writeLastGame(option.slug);
+                }}
+              >
+                {option.name}
+              </Chip>
+            ))}
           </SearchDialogFooter>
         )}
       </SearchDialogContent>

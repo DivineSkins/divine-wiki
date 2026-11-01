@@ -1,3 +1,4 @@
+import { Badge, IconTile } from "@divineskins/ui";
 import type { ReactNode } from "react";
 
 import { resolveIcon } from "@/components/icon";
@@ -54,35 +55,31 @@ export function ToolHeader({
     >
       <div className="flex items-start gap-4">
         {glyph ? (
-          <div className="light:border-divine-border light:bg-none light:bg-divine-elevated light:text-divine-primary divine-icon-brand inline-flex size-14 shrink-0 items-center justify-center rounded-[14px] border border-[#17161C] bg-[linear-gradient(180deg,#2A2638_0%,#191722_100%)] text-[#AB69EF] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] [&_img]:size-8 [&_svg]:size-7">
+          <IconTile
+            size="2xl"
+            className="divine-icon-brand [&_img]:size-8 [&_svg]:size-7"
+          >
             {glyph}
-          </div>
+          </IconTile>
         ) : null}
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-divine-text text-[20px] leading-snug font-bold">
               {name}
             </span>
-            {badge ? (
-              <span className="inline-flex shrink-0 items-center rounded-full border border-[rgba(120,60,181,0.3)] bg-[rgba(120,60,181,0.15)] px-2 py-0.5 text-[10px] leading-normal font-bold tracking-wider text-[#C084FC] uppercase">
-                {badge}
-              </span>
-            ) : null}
+            {badge ? <Badge caps>{badge}</Badge> : null}
           </div>
           {children ? (
-            <div className="text-divine-text-muted [&_a]:text-divine-primary-light mt-1.5 text-[14px] leading-relaxed [&_a]:underline [&_p]:m-0">
+            <div className="text-divine-text-muted [&_a]:text-divine-highlight mt-1.5 text-[14px] leading-relaxed [&_a]:underline [&_p]:m-0">
               {children}
             </div>
           ) : null}
           {facts && facts.length > 0 ? (
             <div className="mt-3 flex flex-wrap gap-1.5">
               {facts.map((fact) => (
-                <span
-                  key={fact}
-                  className="light:border-divine-border light:bg-divine-elevated text-divine-text rounded-full border border-[#25222F] bg-white/5 px-2.5 py-1 text-xs font-semibold"
-                >
+                <Badge key={fact} tone="neutral" size="md" className="text-xs">
                   {fact}
-                </span>
+                </Badge>
               ))}
             </div>
           ) : null}

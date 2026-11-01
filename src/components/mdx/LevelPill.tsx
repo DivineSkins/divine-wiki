@@ -1,3 +1,5 @@
+import { Badge, type BadgeTone } from "@divineskins/ui";
+
 interface LevelPillProps {
   level: "beginner" | "intermediate" | "advanced";
   label?: string;
@@ -6,30 +8,22 @@ interface LevelPillProps {
 }
 
 /**
- * Difficulty marker in the divineskins.gg category chip recipe: a full
- * pill with bold 11px uppercase tracked text on a soft tint of its tone
- * (no outline stroke). A three-bar meter before the label lights 1, 2 or
- * 3 bars, so the level reads without relying on color.
+ * Difficulty marker: a caps Badge. A three-bar meter before the label lights
+ * 1, 2 or 3 bars, so the level reads without relying on color.
  */
-const tones: Record<LevelPillProps["level"], { pill: string; bars: number }> = {
-  beginner: {
-    pill: "bg-[rgba(34,197,94,0.12)] text-[#22C55E]",
-    bars: 1,
-  },
-  intermediate: {
-    pill: "bg-[rgba(236,185,106,0.12)] text-[#ECB96A]",
-    bars: 2,
-  },
-  advanced: {
-    pill: "bg-[rgba(120,60,181,0.2)] text-[#C084FC]",
-    bars: 3,
-  },
+const tones: Record<
+  LevelPillProps["level"],
+  { tone: BadgeTone; bars: number }
+> = {
+  beginner: { tone: "success", bars: 1 },
+  intermediate: { tone: "gold", bars: 2 },
+  advanced: { tone: "accent", bars: 3 },
 };
 
 // MDX props aren't type-checked, so a typo or translated value
 // (`level="Intermediario"`) reaches here at runtime. Render a neutral pill
 // with the raw text instead of crashing the prerender and failing the deploy.
-const unknownTone = { pill: "bg-white/[0.06] text-[#D9D7DF]", bars: 0 };
+const unknownTone = { tone: "neutral" as const, bars: 0 };
 
 const defaults: Record<LevelPillProps["level"], string> = {
   beginner: "Beginner",
@@ -38,19 +32,18 @@ const defaults: Record<LevelPillProps["level"], string> = {
 };
 
 export function LevelPill({ level, label, size = "md" }: LevelPillProps) {
-  const tone = tones[level] ?? unknownTone;
-  const sizing =
-    size === "sm"
-      ? "h-5 gap-1.5 px-2 text-[10px]"
-      : "me-1.5 h-7 gap-2 px-3 text-[11px]";
+  const { tone, bars } = tones[level] ?? unknownTone;
   return (
-    <span
-      className={`not-prose inline-flex items-center rounded-full align-middle leading-none font-bold tracking-wider uppercase ${sizing} ${tone.pill}`}
+    <Badge
+      tone={tone}
+      size={size}
+      caps
+      className={`not-prose align-middle leading-none ${size === "sm" ? "gap-1.5" : "me-1.5 gap-2"}`}
     >
       <svg
         aria-hidden
         viewBox="0 0 12 12"
-        className={`${size === "sm" ? "size-2.5" : "size-3"} shrink-0`}
+        className={size === "sm" ? "size-2.5" : "size-3"}
         fill="currentColor"
       >
         {[0, 1, 2].map((i) => (
@@ -61,11 +54,11 @@ export function LevelPill({ level, label, size = "md" }: LevelPillProps) {
             width="3"
             height={4 + i * 3}
             rx="1"
-            opacity={i < tone.bars ? 1 : 0.3}
+            opacity={i < bars ? 1 : 0.3}
           />
         ))}
       </svg>
       {label ?? defaults[level] ?? level}
-    </span>
+    </Badge>
   );
 }

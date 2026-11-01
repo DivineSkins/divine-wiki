@@ -3,12 +3,16 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useTheme } from "next-themes";
 import {
+  buttonVariants,
+  cn,
+  PickerTrigger,
   Popover,
   PopoverContent,
+  PopoverItem,
   PopoverTrigger,
-} from "fumadocs-ui/components/ui/popover";
-import { SettingsIcon, ChevronDownIcon, CheckIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
+  SegmentedControl,
+} from "@divineskins/ui";
+import { SettingsIcon } from "lucide-react";
 
 import {
   STYLE_STORAGE_KEY,
@@ -58,12 +62,12 @@ const FONT_OPTIONS: { id: FontId; label: string; family: string }[] = [
   { id: "system", label: "", family: "system-ui, sans-serif" },
 ];
 
-/** One setting: the site's 11px uppercase eyebrow over a full-width
- *  control, so every row lines up edge to edge. */
+/** One setting: the package's field label over a full-width control, so
+ *  every row lines up edge to edge. */
 function Row({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="flex flex-col gap-2">
-      <span className="light:text-fd-muted-foreground text-[11px] tracking-[0.18em] text-[#8B8D98]/70 uppercase">
+      <span className="text-divine-body-sm text-divine-text font-bold tracking-tight">
         {label}
       </span>
       {children}
@@ -71,48 +75,12 @@ function Row({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-function Segmented<T extends string>({
-  value,
-  options,
-  onChange,
-  groupLabel,
-}: {
-  value: T;
-  options: { value: T; label: string }[];
-  onChange: (next: T) => void;
-  groupLabel: string;
-}) {
-  return (
-    <div
-      role="radiogroup"
-      aria-label={groupLabel}
-      className="light:border-fd-border light:bg-fd-secondary grid w-full auto-cols-fr grid-flow-col gap-0.5 rounded-full border border-[#191722] bg-[#121119] p-0.5"
-    >
-      {options.map((option) => (
-        <button
-          key={option.value}
-          type="button"
-          role="radio"
-          aria-checked={value === option.value}
-          onClick={() => onChange(option.value)}
-          className={cn(
-            "h-7 rounded-full px-2 text-xs font-bold transition-colors duration-200 focus-visible:ring-1 focus-visible:ring-[rgba(120,60,181,0.5)] focus-visible:outline-none",
-            value === option.value
-              ? "light:bg-fd-primary light:text-fd-primary-foreground light:shadow-none bg-[#783CB5] text-white shadow-[inset_0px_1px_1px_0px_rgba(255,255,255,0.35)]"
-              : "light:text-fd-muted-foreground light:hover:text-fd-foreground text-[#8B8D98] hover:text-[#E4E4E7]",
-          )}
-        >
-          {option.label}
-        </button>
-      ))}
-    </div>
-  );
-}
-
 // The sidebar-footer trigger: a square tile beside the Discord and GitHub
 // icon links. The homepage header passes its own circle instead.
-const SIDEBAR_TRIGGER_CLASS =
-  "light:border-fd-border light:bg-fd-secondary light:text-fd-muted-foreground light:hover:text-fd-accent-foreground inline-flex size-10 items-center justify-center rounded-lg border border-[#191722] bg-[#121119] text-[#E4E4E7] transition-colors duration-200 hover:bg-[#1A1922] focus-visible:ring-1 focus-visible:ring-[rgba(120,60,181,0.5)] focus-visible:outline-none";
+const SIDEBAR_TRIGGER_CLASS = cn(
+  buttonVariants({ variant: "field" }),
+  "size-10 px-0",
+);
 
 export function AppearanceSettings({
   labels,
@@ -180,13 +148,14 @@ export function AppearanceSettings({
       <PopoverTrigger aria-label={labels.trigger} className={triggerClassName}>
         <SettingsIcon className="size-4" aria-hidden />
       </PopoverTrigger>
-      <PopoverContent align={align} className="flex w-60 flex-col gap-4 p-3.5!">
+      <PopoverContent align={align} className="flex flex-col gap-4 p-4!">
         <Row label={labels.mode}>
           {mounted ? (
-            <Segmented
-              groupLabel={labels.mode}
+            <SegmentedControl
+              aria-label={labels.mode}
+              className="w-full"
               value={(theme ?? "system") as "light" | "dark" | "system"}
-              onChange={setTheme}
+              onValueChange={setTheme}
               options={[
                 { value: "light", label: labels.modeLight },
                 { value: "dark", label: labels.modeDark },
@@ -196,10 +165,11 @@ export function AppearanceSettings({
           ) : null}
         </Row>
         <Row label={labels.style}>
-          <Segmented
-            groupLabel={labels.style}
+          <SegmentedControl
+            aria-label={labels.style}
+            className="w-full"
             value={style}
-            onChange={applyStyle}
+            onValueChange={applyStyle}
             options={[
               { value: "divine", label: labels.styleDivine },
               { value: "minimal", label: labels.styleMinimal },
@@ -223,11 +193,9 @@ export function AppearanceSettings({
 }
 
 /**
- * Font picker. A custom list instead of a native <select>, whose open menu
- * the browser draws in OS styling. Same panel as the wiki's other
- * dropdowns: #121119 on a #191722 hairline, 12px radius, 14px rows on
- * #1A1922 hover, the current font in lilac with a check. Each row and the
- * trigger preview their own typeface.
+ * Font picker: the package's picker, a Popover with a field trigger, because
+ * a Select's portal doesn't nest inside this settings Popover. Each row and
+ * the trigger preview their own typeface.
  */
 function FontSelect({
   value,
@@ -245,47 +213,37 @@ function FontSelect({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger
-        aria-label={label}
-        style={{ fontFamily: current?.family }}
-        className="light:border-fd-border light:bg-fd-secondary light:text-fd-foreground flex h-9 w-full items-center justify-between rounded-lg border border-[#191722] bg-[#121119] pr-2.5 pl-3 text-[13px] font-semibold text-[#E4E4E7] transition-colors duration-200 hover:bg-[#1A1922] focus-visible:border-[#25222F] focus-visible:outline-none data-[state=open]:bg-[#1A1922]"
-      >
-        {current?.label || systemLabel}
-        <ChevronDownIcon
-          className={cn(
-            "light:text-fd-muted-foreground size-3.5 text-[#8B8D98] transition-transform duration-200",
-            open && "rotate-180",
-          )}
-          aria-hidden
-        />
+      <PopoverTrigger asChild>
+        <PickerTrigger
+          aria-label={label}
+          style={{ fontFamily: current?.family }}
+          // The package tints a field inside a panel so it shows on the
+          // panel's matching fill; its rule only reaches a Select's trigger.
+          className="h-9 border-transparent bg-white/[0.04] text-[13px] font-semibold hover:border-transparent hover:bg-white/[0.08] data-[state=open]:bg-white/[0.08]"
+        >
+          {current?.label || systemLabel}
+        </PickerTrigger>
       </PopoverTrigger>
       <PopoverContent
         align="start"
-        className="divine-font-list flex w-(--radix-popover-trigger-width) min-w-0 flex-col gap-0.5"
+        className="flex w-(--radix-popover-trigger-width) flex-col gap-0.5"
       >
         {FONT_OPTIONS.map((option) => {
           const selected = option.id === value;
           return (
-            <button
+            <PopoverItem
               key={option.id}
-              type="button"
               role="option"
+              selected={selected}
               aria-selected={selected}
               onClick={() => {
                 onChange(option.id);
                 setOpen(false);
               }}
               style={{ fontFamily: option.family }}
-              className={cn(
-                "flex items-center justify-between rounded-lg px-2.5 py-2 text-left text-[14px] transition-colors duration-150",
-                selected
-                  ? "light:bg-fd-accent light:text-fd-foreground bg-[#1A1922] font-semibold text-[#C084FC]"
-                  : "light:text-fd-foreground light:hover:bg-fd-accent text-[#E4E4E7] hover:bg-[#1A1922]",
-              )}
             >
               {option.label || systemLabel}
-              {selected ? <CheckIcon className="size-4" aria-hidden /> : null}
-            </button>
+            </PopoverItem>
           );
         })}
       </PopoverContent>
