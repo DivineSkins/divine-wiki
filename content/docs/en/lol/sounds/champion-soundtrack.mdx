@@ -1,6 +1,6 @@
 ---
 title: "Champion Soundtracks"
-description: "Give a skin its own music: a theme that starts on spawn, loops for the whole life, ends with an outro on death and restarts on respawn. Built from new Wwise events added to the skin's own banks and fired from the animation graph."
+description: "Give a League skin its own music: a theme that starts on spawn, loops all life, plays an outro on death and restarts on respawn, fired from the animation graph."
 category: "sounds"
 ---
 
@@ -34,16 +34,16 @@ Not sure if it lives through reconnects, but it should. The music is on an SFX b
 
 ## Required Tools
 
-| Tool                           | Purpose                                                                                                                                              |
-| :----------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Flint** or **Obsidian**      | Extract the champion WAD                                                                                                                             |
-| **Jade** or **Ritobin**        | Edit the skin `.bin`                                                                                                                                 |
-| **Wwise**                      | `WwiseConsole convert-external-source`, to encode `.wav` to `.wem`. Setup is covered in [Intermediate - Custom Banks](/docs/lol/sounds/sound-medium) |
-| **wwiser**                     | Dump `events.bnk` so you can see object IDs and field offsets. See [Advanced - Reading and editing events.bnk](/docs/lol/sounds/sound-hard)          |
-| **vgmstream**                  | Decode `.wem` files and check their loop points                                                                                                      |
-| A hex editor or a script       | Appending objects to `events.bnk` and media to `audio.bnk`                                                                                           |
-| An audio editor                | Cutting the main loop and the outro                                                                                                                  |
-| **cslol-manager** / `wad-make` | Packaging                                                                                                                                            |
+| Tool                      | Purpose                                                                                                                                              |
+| :------------------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Flint** or **Obsidian** | Extract the champion WAD                                                                                                                             |
+| **Jade** or **Ritobin**   | Edit the skin `.bin`                                                                                                                                 |
+| **Wwise**                 | `WwiseConsole convert-external-source`, to encode `.wav` to `.wem`. Setup is covered in [Intermediate - Custom Banks](/docs/lol/sounds/sound-medium) |
+| **wwiser**                | Dump `events.bnk` so you can see object IDs and field offsets. See [Advanced - Reading and editing events.bnk](/docs/lol/sounds/sound-hard)          |
+| **vgmstream**             | Decode `.wem` files and check their loop points                                                                                                      |
+| A hex editor or a script  | Appending objects to `events.bnk` and media to `audio.bnk`                                                                                           |
+| An audio editor           | Cutting the main loop and the outro                                                                                                                  |
+| **Celestial**             | Test in game with Creator Hub and export the `.modpkg`                                                                                               |
 
 There is no point-and-click tool for the bank part yet. Expect to work at the byte level, or script it. Or, you know, ask Jean Claude for help.
 
@@ -399,7 +399,7 @@ Do not change anything else in the graph. The original clips, their events and e
 
 If your mod writes the skin into several skin slots, every one of those skin bins carries its own copy of the animation graph, and every one needs the same patch. The Radahn package patches 38.
 
-Then build the WAD and `.fantome` as usual. Only three kinds of file change: the SFX `audio.bnk`, the SFX `events.bnk`, and the skin bins.
+Then test it in Creator Hub and export a `.modpkg` as usual. [Export and install a .modpkg](/docs/lol/mod-format/modpkg) shows how. Only three kinds of file change: the SFX `audio.bnk`, the SFX `events.bnk`, and the skin bins.
 
 ---
 
