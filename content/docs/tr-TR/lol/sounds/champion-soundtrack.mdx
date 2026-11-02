@@ -1,0 +1,420 @@
+---
+title: "Şampiyon Soundtrack'leri"
+description: "Bir League skin'ine kendi müziğini ver: doğunca başlayan, hayatı boyunca döngüde çalan, ölünce bir outro çalan ve yeniden doğunca baştan başlayan, animasyon grafiğinden tetiklenen bir tema."
+category: "sounds"
+---
+
+Burada soundtrack, tek bir yeteneğe değil şampiyonun hayatına ait olan müzik demek. Tema şampiyon doğduğunda başlar, belirlediğin kısmı döngüde çalmaya devam eder, ölünce yumuşakça kısa bir outro'ya geçer ve yeniden doğunca en baştan başlar. Bunu sadece sen, kendi şampiyonunda duyarsın: başka bir oyuncu bunu kullanan bir skin giyiyorsa onunkini duymazsın.
+
+Aynı kurulum birden fazla tema taşıyabilir. Bu sayfadaki örnek, Pantheon için yapılmış bir Starscourge Radahn skin'i, iki tema arasında sırayla geçiyor: ilk hayatta bir tema, sonrakinde diğeri, böyle devam ediyor. Her temanın kendi ölüm outro'su var.
+
+Müzik **skin'in mevcut SFX bank'larına eklenen yeni event'lerde** yaşar. Hangi event'in ne zaman tetikleneceğine de **animasyon grafiği** karar verir.
+
+---
+
+## Neler test edildi
+
+Aşağıdakilerin hepsi Radahn skin'inde, oyunda doğrulandı:
+
+- Her tema doğuşta ve yeniden doğuşta en baştan başlıyor.
+- Her tema döngüde çalıyor (belirli bir kısım döngüye alınabiliyor, böylece intro bir daha çalmıyor).
+- Ölüm temayı durduruyor ve onunla eşleşen doğru outro'yu bir kez çalıyor.
+- Yeniden doğuş hâlâ çalan outro'yu durduruyor ve sıradaki temayı başlatıyor.
+- Temalar hayatlar arasında sırayla değişiyor.
+
+Oyuna yeniden bağlandığında çalmaya devam edip etmediğinden emin değilim, ama etmesi gerekir. Müzik bir SFX bus'ında olduğu için **Sound Effects** ses kaydırıcısına uyar.
+
+<Callout type="info">
+  Bu sayfada gözlem değil de çıkarım olan ifadeler ayrıca belirtildi. Bir bank'ı
+  parse etmek ya da bir bin'i geri okumak, dosyanın düzgün yapılandığını
+  kanıtlar. Oyunun onu çaldığını kanıtlamaz.
+</Callout>
+
+---
+
+## Gerekli Araçlar
+
+| Araç                         | Ne işe yarar                                                                                                                                              |
+| :--------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Flint** ya da **Obsidian** | Şampiyonun WAD'ını çıkar                                                                                                                                  |
+| **Jade** ya da **Ritobin**   | Skin `.bin`'ini düzenle                                                                                                                                   |
+| **Wwise**                    | `.wav`'ı `.wem`'e kodlamak için `WwiseConsole convert-external-source`. Kurulumu [Orta - Özel Bank'lar](/docs/lol/sounds/sound-medium) anlatıyor           |
+| **wwiser**                   | Obje ID'lerini ve alan offset'lerini görebilmek için `events.bnk`'yi dök. Bkz. [İleri - events.bnk okuma ve düzenleme](/docs/lol/sounds/sound-hard)      |
+| **vgmstream**                | `.wem` dosyalarını çöz ve loop noktalarını kontrol et                                                                                                     |
+| Bir hex editör ya da script  | `events.bnk`'ye obje, `audio.bnk`'ye medya eklemek                                                                                                        |
+| Bir ses editörü              | Ana loop'u ve outro'yu kesmek                                                                                                                             |
+| **Celestial**                | Creator Hub ile oyunda test et ve `.modpkg` dosyasını export et                                                                                           |
+
+Bank kısmı için henüz tıkla geç bir araç yok. Byte seviyesinde çalışmaya hazır ol ya da işi script'le. Ya da, bilirsin, Jean Claude'dan yardım iste.
+
+---
+
+## Parçalar nasıl birleşiyor
+
+```text
+Animation graph (skin .bin)
+  Respawn clip  ──fires──►  Play_..._Main_Event
+  Death clip    ──fires──►  Play_..._Outro_Event
+
+events.bnk (HIRC)
+  Event ──► Stop main, Stop outro, ... ──► Play its own sound
+  Sound ──► embedded media ID, loop setting, bus
+
+audio.bnk (DIDX + DATA)
+  The encoded .wem recordings themselves
+```
+
+Çalmak istediğin her kayıt bir **Sound** objesi. Her Sound'un tek bir **Event**'i olur. Bu event önce diğer bütün müzik seslerini durdurur, sonra kendi sesini çalar. Animasyon grafiği sadece "bu event'i tetikle" der. Döngü, fade ve durdurmayla ilgili her şey bank'ta yaşar.
+
+İki tema için bu dört kayıt demek: tema A ana, tema A outro, tema B ana, tema B outro. Tek temalı bir skin'e sadece iki kayıt yeter.
+
+---
+
+## 1. Sesi hazırla
+
+İki tür kayda ihtiyacın var.
+
+**Ana tema** bir kez baştan çalar, sonra şampiyon hayatta kaldığı sürece bir loop bölgesini tekrarlar. Loop bölgesi dosyanın içinde loop noktaları olarak saklanır, yani intro hiçbir zaman tekrar etmez.
+
+**Outro**, ölünce bir kez çalan kısa bir parça.
+
+### Loop'u kusursuz yapmak
+
+Parçanın sonundan ortasına geri atlayan bir loop, iki nokta birbirine benzemiyorsa tıklar ya da sarsılır. Bunu garantilemenin basit bir yolu var:
+
+1. Parçanın içinde, intro'dan sonra bir loop başlangıcı seç. Radahn 24. saniyeyi kullanıyor.
+2. O noktadan başlayan 4 saniyelik sesi al ve **parçanın son 4 saniyesini crossfade ile bu sese geçir**.
+3. Loop başlangıcını 28. saniyeye (asıl nokta artı crossfade uzunluğu), loop sonunu da son sample'a ayarla.
+
+Artık dosyanın sonu, loop başlangıcından hemen önceki sesle birebir aynı duyuluyor. Yani geri atlama hiç duyulmuyor.
+
+Loop noktaları `.wav`'a standart bir `smpl` chunk'ı olarak girer. Wwise encoder'ı onları `.wem`'e taşır. Sonucu vgmstream'in metadata moduyla kontrol et:
+
+```bash
+vgmstream-cli -m base-main.wem
+```
+
+Ayarladığın loop başlangıcını ve sonunu göstermeli. Loop yok diyorsa `smpl` chunk'ı aradan sağ çıkmamış.
+
+### Seviye
+
+Tam seviyede çalan müzik, şampiyonun kendi ses efektlerini ve repliklerini bastırır. Radahn'ın parçaları orijinal seviyelerinin %35'ine çekildi. Bunu bir başlangıç noktası olarak al ve kulakla ayarla. Bin'de bunun için bir ses kontrolü yok, yani dosyaya gömdüğün seviye oyuncuların duyacağı seviye olur.
+
+İntro'yu, loop'u ve outro'yu tam olarak nereden keseceğin skin'in için müzikal bir karar, tekniğin bir şartı değil.
+
+---
+
+## 2. `.wem`'e kodla
+
+`WwiseConsole convert-external-source`'u bir kaynak listesiyle kullan. League için tam bir Wwise projesine ihtiyacın yok, WwiseConsole'un açabildiği bir proje yeterli:
+
+```xml
+<ExternalSourcesList SchemaVersion="1" Root="C:\work\soundtrack">
+  <Source Path="audio\base-main.wav"  Conversion="Vorbis Quality High" Destination="base-main"/>
+  <Source Path="audio\base-outro.wav" Conversion="Vorbis Quality High" Destination="base-outro"/>
+</ExternalSourcesList>
+```
+
+```bash
+WwiseConsole.exe convert-external-source MyProject.wproj --source-file source.wsources --output encoded --platform Windows
+```
+
+Devam etmeden önce her `.wem`'i vgmstream ile geri çöz ve dinle. Bozuk bir encode'u burada yakalamak oyunda yakalamaktan çok daha kolay.
+
+<Callout type="info">
+  Radahn'ın `.wem` dosyaları Wwise 2024.1 ile kodlandı ve League'in mevcut
+  bank'larının içinde doğru çalıyor (events bank sürümü 145, oyunun Wwise 2022.1
+  runtime'ıyla eşleşiyor). Bu, yeni kodlanmış **medyanın** çalıştığını
+  gösteriyor. Daha yeni bir Wwise'ın ürettiği **bank'lar** hakkında hiçbir şey
+  söylemiyor, o farklı ve daha riskli bir iş. Bu sayfa hiç bank üretmiyor;
+  skin'in zaten taşıdığı bank'ları yamalıyor.
+</Callout>
+
+---
+
+## 3. Kayıtları `audio.bnk`'ye göm
+
+Skin'in SFX audio bank'ı (örneğin `Pantheon_Base_SFX_audio.bnk`) üç chunk'tan oluşur: `BKHD`, `DIDX` ve `DATA`. `DATA` ham `.wem` dosyalarını art arda tutar. `DIDX` ise indekstir, her dosya için 12 byte'lık bir giriş:
+
+| Byte  | Alan                     |
+| :---- | :----------------------- |
+| 4     | Medya ID'si              |
+| 4     | `DATA` içindeki offset   |
+| 4     | Byte cinsinden boyut     |
+
+Bir kayıt eklemek için:
+
+1. İndekste henüz olmayan bir **medya ID'si** seç. Kendine özel bir adı Wwise hash'iyle (aşağıda) hash'lemek, çakışmayacak bir ID bulmanın pratik bir yolu.
+2. `DATA`'nın sonuna padding ekle, böylece yeni dosya bank dosyasının başından sayarak **16 byte'lık bir sınırda** başlasın.
+3. `.wem`'i `DATA`'nın sonuna, eşleşen girişi de `DIDX`'in sonuna ekle.
+4. İki chunk'ın boyutunu da güncelle.
+
+Mevcut hiçbir byte'a ve offset'e dokunma. Offset'ler `DATA`'nın başına göre hesaplanır, yani `DIDX` büyüyünce bozulmazlar. Ama `DATA`'nın dosyada başladığı yer kayar. 16 byte'lık padding'i hesaplarken bunu hesaba kat.
+
+Sonra bank'ı geri oku ve her yeni ID'den tam olarak koyduğun dosyanın çıktığını doğrula.
+
+### Neden stream değil de gömülü
+
+League'in replikleri bir `.wpk`'den stream edilir ve müziğin de aynı şekilde çalışabilmesi akla yatkın. Uçtan uca test edilen yol gömülü olan, o yüzden burada anlatılan da o. `.wpk`'den stream etmek çalışan build'in parçası değildi ve bu iş için test edilmedi.
+
+---
+
+## 4. `events.bnk`'ye Sound objeleri ekle
+
+Events bank'ı (örneğin `Pantheon_Base_SFX_events.bnk`) bir `HIRC` chunk'ı tutar: her birinin bir tipi, bir uzunluğu, bir ID'si ve bir gövdesi olan düz bir obje listesi. Yeni objeleri listenin sonuna ekler ve `HIRC`'in başındaki obje sayısını artırırsın.
+
+### Wwise ID'leri
+
+Event ID'leri, event adının küçük harfe çevrilmiş hâlinin Wwise hash'idir. Bu **FNV-1** (önce çarp, sonra XOR), bin hash'lerinde kullanılan FNV-1a değil:
+
+```python
+def wwise_hash(name: str) -> int:
+    h = 0x811C9DC5
+    for b in name.lower().encode("utf-8"):
+        h = (h * 0x01000193) & 0xFFFFFFFF
+        h ^= b
+    return h
+```
+
+Event ID'si, bin'den tetikleyeceğin adın hash'i **olmak zorunda**, yoksa oyun onu asla bulamaz. Sound'lar ve aksiyonlar için kullanılmayan herhangi bir ID iş görür, ama açıklayıcı özel adları hash'lemek (`MySkin_Music_BaseMain_Sound`) onları benzersiz ve dökümde okunabilir tutar.
+
+### Bir donörle başla
+
+Bir `CAkSound`'u sıfırdan yazmak, sürüme özel bir formatın her alanını doğru tutturmak demek. Hazır birini klonlamak çok daha güvenli. Radahn'ın Sound objeleri oyunda zaten var olan bir müzik loop'undan, Ekko'nun skin 19 SFX events bank'ındaki dans müziğinden klonlandı, sonra düzenlendi. Döngüde çalan herhangi bir mevcut müzik sesi iyi bir donör olur. Her alanı ve offset'ini görmek için donör bank'ı wwiser ile dök:
+
+```bash
+python wwiser.py -d xml Ekko_Skin19_SFX_events.bnk
+```
+
+### Her Sound'da değiştirilecek alanlar
+
+| Alan                            | Ana tema            | Outro               | Neden                                                                      |
+| :------------------------------ | :------------------ | :------------------ | :------------------------------------------------------------------------- |
+| `ulID`                          | yeni ID             | yeni ID             | Bank'taki hiçbir şeyle çakışmamalı                                         |
+| `sourceID`                      | kendi medya ID'si   | kendi medya ID'si   | Gömdüğün kaydı gösterir                                                    |
+| `StreamType`                    | `0`                 | `0`                 | Bank'a gömülü, stream değil                                                |
+| `uInMemoryMediaSize`            | tam `.wem` boyutu   | tam `.wem` boyutu   | `DIDX` girişiyle eşleşmeli                                                 |
+| `OverrideBusId`                 | bir SFX bus ID'si   | aynısı              | Aşağıya bak                                                                |
+| `DirectParentID`                | `0`                 | `0`                 | Sesi donörün mixer hiyerarşisinden ayırır                                  |
+| `uBitsPositioning`              | `1`                 | `1`                 | Konumsuz: kamera nerede olursa olsun ses seviyesi aynı                     |
+| `u16MaxNumInstance`             | `1`                 | `1`                 | Aynı parçanın asla iki kopyası birden çalmaz                               |
+| `AdvSettingsParams.byBitVector` | bit 3'ü aç          | bit 3'ü aç          | `bIgnoreParentMaxNumInst`, böylece geçerli olan limit yukarıdaki olur      |
+| Loop özelliği                   | `0`                 | `1`                 | `0` sonsuza kadar döngüde çalar, `1` bir kez çalar                         |
+
+Loop özelliği, bu bank sürümünde özellik ID'si `58` olan `AkPropBundle` girişi. Sayıya körü körüne güvenme, ID'yi kendi dökümünde doğrula.
+
+**Bus.** Radahn, `2232828494` bus'ına override ediyor. Bu, o skin'in kurulumunda doğru çözülen bir SFX bus'ı. Bus ID'lerinin her yerde aynı olması garanti değil, o yüzden numarayı kopyalama, kendi şampiyonunun bank'ında uygun bir bus bul. Müziğin Sound Effects kaydırıcısına uymasının sebebi, bir SFX bus'ına yönlendirilmiş olması.
+
+---
+
+## 5. Aksiyonlar ve event'ler
+
+Bir Wwise event'i aslında sadece bir aksiyon listesi. Buradaki her soundtrack event'i aynı iki şeyi sırayla yapar:
+
+1. Eklediğin her müzik Sound'unu kısa bir fade out ile durdurur (**Stop**).
+2. Kendi Sound'unu kısa bir fade in ile çalar (**Play**).
+
+İki fade de aksiyonun `TransitionTime` özelliği (bu bank sürümünde özellik ID'si `16`, milisaniye cinsinden, lineer eğriyle). Radahn Stop'larda 400 ms, Play'lerde 500 ms kullanıyor; ikincisi sadece donör aksiyondan miras kaldı. İki değer de tekniğin şartı değil, müziğine hangisi iyi geliyorsa onu ayarla.
+
+Bu tek kural, ekstra hiçbir mantık olmadan bütün yaşam döngüsü davranışını üretir:
+
+- **Ölüm** event'i o an çalan ana temayı durdurur, sonra kendi outro'sunu çalar.
+- **Yeniden doğuş** event'i bitmemiş outro'yu durdurur, sonra bir ana temayı en baştan çalar.
+- Aynı event'i iki kez tetiklemek, üstüne ikinci bir kopya bindirmek yerine parçayı yeniden başlatır.
+
+Donörden bir Stop ve bir Play aksiyonu klonla ve düzenle:
+
+- **Play:** `ulID`'yi ayarla, `idExt`'i Sound'un ID'sine ayarla ve `bankID`'yi ayarla. Radahn'da `bankID`, events bank'ının adının (`Pantheon_Base_SFX_events`) Wwise hash'ini tutuyor ve bu, `audio.bnk`'de duran medyayla sorunsuz çalışıyor.
+- **Stop:** `ulID`'yi ayarla, `idExt`'i durdurulacak Sound'a ayarla ve `TransitionTime`'ı istediğin fade out süresine ayarla.
+
+Bu bank sürümünde bir event objesi şöyle: tip byte'ı `4`, 4 byte'lık bir uzunluk, 4 byte'lık event ID'si, bir aksiyon sayısı, sonra her aksiyon için 4 byte'lık bir aksiyon ID'si. Sayı değişken uzunluklu bir tam sayı; 128'in altındaki her değer için tek byte.
+
+### Her aksiyon tam olarak bir event'e ait olmalı
+
+Bu sayfada sana bir gün kaybettirecek tek hata bu, çünkü bank kusursuz parse ediliyor ve dökümde her event doğru görünüyor.
+
+Akla gelen tasarruf, dört Stop aksiyonunu bir kez oluşturup dört event'in hepsinde listelemek. **Yapma.** Ortak Stop aksiyonlarıyla, hangi event tetiklenirse tetiklensin her event **aynı outro'yu** çaldı. Her event'e bütün aksiyonlarının kendine ait kopyalarını vermek (event başına dört Stop ve bir Play, dört event için yirmi aksiyon) sorunu anında çözdü ve dört yolun dördü de oyunda doğru çaldı.
+
+Birkaç aksiyon aynı Sound'u gösterebilir. Paylaşılmaması gereken şey aksiyon objesinin kendisi.
+
+Bunun neden olduğu doğrulanmadı. Gözlenen davranış, her aksiyonu kendi event'indeki bir sonrakine bağlayan ve aksiyon objesi başına tek bir bağlantı tutan bir runtime'la uyuşuyor. Bir aksiyon birkaç event'te geçiyorsa, en son yüklenen event bu bağlantının üstüne yazar ve onu paylaşan her event aynı zinciri takip etmeye başlar. Bu model hangi outro'nun kazandığını tam olarak öngörüyor, ama bunu kanıtlamak için kimse oyunun belleğini incelemedi. Kuralı kesinleşmiş, açıklamayı ise muhtemel bir hikâye olarak gör.
+
+Bank build'lerini script'liyorsan, herhangi bir aksiyon ID'si birden fazla event'te geçtiğinde hata veren bir kontrol ekle.
+
+---
+
+## 6. Event'leri skin bin'ine kaydet
+
+Oyun, event'leri sırf bir bank'ta var oldukları için yüklemez. Skin'in audio özelliklerinde tanımlanmaları gerekir. SFX bank unit'ini bul ve event adlarını onun `Events` listesine ekle:
+
+```py
+SkinAudioProperties: embed = SkinAudioProperties {
+    BankUnits: list2[embed] = {
+        BankUnit {
+            Name: string = "Pantheon_Base_SFX"
+            BankPath: list[string] = {
+                "ASSETS/.../Pantheon_Base_SFX_audio.bnk"
+                "ASSETS/.../Pantheon_Base_SFX_events.bnk"
+            }
+            Events: list[string] = {
+                // ...the existing events, unchanged...
+                "Play_MySkin_Soundtrack_BaseMain_Event"
+                "Play_MySkin_Soundtrack_BaseOutro_Event"
+                "Play_MySkin_Soundtrack_AltMain_Event"
+                "Play_MySkin_Soundtrack_AltOutro_Event"
+            }
+        }
+    }
+}
+```
+
+Bank yolları olduğu gibi kalır, çünkü müzik artık skin'in zaten yüklediği bank'ların içinde. Başka kimsenin kullanmayacağı adlar seç. Skin'inin adıyla başlayan bir önek yeterli.
+
+---
+
+## 7. Event'leri animasyon kliplerinden tetikle
+
+Kliplerdeki ses event'leri klibin `mEventDataMap`'ine yazılır:
+
+```py
+mEventDataMap: map[hash,pointer] = {
+    "Play_MySkin_Soundtrack_BaseMain_Event" = SoundEventData {
+        mSoundName: string = "Play_MySkin_Soundtrack_BaseMain_Event"
+        mStartFrame: f32 = 0
+        mIsLoop: bool = false
+        mIsKillEvent: bool = false
+        mIsSelfOnly: bool = true
+        mFireIfAnimationEndsEarly: bool = true
+    }
+}
+```
+
+| Alan                        | Değer   | Neden                                                                                                                                   |
+| :-------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------- |
+| `mIsLoop`                   | `false` | Döngüyü bank'taki Sound hallediyor. Bu alan müzikle değil, animasyon event'iyle ilgili                                                  |
+| `mIsKillEvent`              | `false` | Yoksa müzik, klip bittiği anda, yani birkaç saniye içinde kesilir                                                                       |
+| `mIsSelfOnly`               | `true`  | Sadece skin'i kullanan oyuncu duyar                                                                                                     |
+| `mFireIfAnimationEndsEarly` | `true`  | Klip, frame 0 işlenmeden kesilirse event yine de tetiklenir. Bu, müziğin ne kadar çaldığıyla değil, event'in yerine ulaşmasıyla ilgili |
+
+### Önce yolları test et
+
+Herhangi bir yaşam döngüsü mantığı kurmadan önce her event'i geçici olarak bir emote klibine ekle (joke, taunt, dance ve laugh, yani `Ctrl+1` ile `Ctrl+4` arası). Böylece bir antrenman oyununda her yolu elle tetikleyebilir, her birinin doğru kaydı çaldığını ve diğerlerini durdurduğunu doğrulayabilirsin. Yukarıdaki ortak aksiyon sorunu tam olarak bu şekilde bulundu. İşin bitince emote'ları eski hâline getir.
+
+---
+
+## 8. Doğuş, ölüm ve yeniden doğuş
+
+Tek temayla bu adım kısa: ana event'i yeniden doğuşta oynayan klibe, outro event'ini de ölüm klibine ekle.
+
+Pantheon'da `Respawn` kaydı bir `SequencerClipData`. İlk alt klibi, şampiyon belirirken oynayan atomik klip, ardından da `Respawn_End` geliyor. Aynı kayıt oyunun başında da oynadı, yani tema ilk doğuşta da başlıyor. Kendi şampiyonunun grafiğine bak; her şampiyon aynı şekilde kurulmamış.
+
+### Hatırlanan bir değerle temaları sırayla değiştirmek
+
+Sırayla geçebilmek için grafiğin en son hangi temanın çaldığını hatırlaması gerekir. Bu hafızayı klip accessory'leri sağlar.
+
+Bir klipteki `KeyFrameFloatMapClipAccessoryData`, o klip oynadığında adı belirlenmiş bir float yazar. Bir `KeyFrameFloatClipReaderDriver` bu değeri grafiğin başka herhangi bir yerinde geri okur ve `PersistentFloatChanges` açıksa değer, onu yazan klip bittikten sonra da korunur. Değerin adı `NextTheme` olsun, varsayılanı `0`:
+
+| Hayat | Yeniden doğuş okur | Çalar   | Açılış yazar | Ölüm okur | Outro |
+| :---- | :----------------- | :------ | :----------- | :-------- | :---- |
+| 1     | `0`                | Tema A  | `1`          | `1`       | A     |
+| 2     | `1`                | Tema B  | `0`          | `0`       | B     |
+| 3     | `0`                | Tema A  | `1`          | `1`       | A     |
+
+Değeri sadece açılış klipleri yazar. Ölüm onu sadece okur, her outro'yu o an çalan temayla eşleşik tutan da bu.
+
+### Kurulum
+
+1. **Açılış atomik klibini iki kez klonla**, `MySkin_A_Opening` ve `MySkin_B_Opening` olarak. Her birine eşleşen ana event'i ve bir sonraki değeri yazan accessory'yi ekle:
+
+```py
+"MySkin_A_Opening" = AtomicClipData {
+    // ...everything copied from the original opening clip...
+    mEventDataMap: map[hash,pointer] = {
+        // ...the original events, plus:
+        "Play_MySkin_Soundtrack_BaseMain_Event" = SoundEventData { ... }
+    }
+    Accessorylist: list[pointer] = {
+        KeyFrameFloatMapClipAccessoryData {
+            Name: hash = "MySkin_NextTheme"
+            KeyFrameFloatmap: map[f32,f32] = { 0 = 1 }
+        }
+    }
+}
+```
+
+`MySkin_B_Opening` de aynısı, sadece tema B event'i ve `{ 0 = 0 }` ile.
+
+2. **`Respawn` sekansını iki kez klonla**, her biri kendi açılışını göstersin:
+
+```py
+"MySkin_A_Respawn" = SequencerClipData {
+    mClipNameList: list[hash] = { "MySkin_A_Opening"  "Respawn_End" }
+}
+```
+
+3. **Ölüm klibini iki kez klonla**, `MySkin_A_Death` ve `MySkin_B_Death` olarak. Her birinde kendi outro event'i olsun, accessory olmasın.
+
+4. **`Respawn` ve `Death`'i, değeri okuyan selector'larla değiştir.** Koşullu klipleri [Animation Bin: Klipler, Koşullar ve Geçişler](/docs/lol/animations/animation-bin-clips-and-transitions) daha detaylı anlatıyor:
+
+```py
+"Respawn" = ConditionBoolClipData {
+    Updater: pointer = LogicDriverBoolParametricUpdater {
+        Driver: pointer = FloatComparisonMaterialDriver {
+            mOperator: u32 = 0
+            mValueA: pointer = KeyFrameFloatClipReaderDriver {
+                ClipAccessoryToRead: hash = "MySkin_NextTheme"
+                DefaultFloat: f32 = 0
+                PersistentFloatChanges: bool = true
+            }
+            mValueB: pointer = FloatLiteralMaterialDriver { mValue: f32 = 0 }
+        }
+    }
+    mTrueConditionClipName: hash = "MySkin_A_Respawn"
+    mFalseConditionClipName: hash = "MySkin_B_Respawn"
+    mChangeAnimationMidPlay: bool = false
+    DontStompTransitionClip: bool = true
+}
+```
+
+`mOperator: 0` bir eşitlik testi. `Death` de aynısı, tek farkı `1` ile karşılaştırması ve `MySkin_A_Death` ile `MySkin_B_Death` arasında seçim yapması.
+
+<Callout type="info">
+  `MySkin_NextTheme` ya da klon klip adları gibi kendi uydurduğun adlar hash
+  olarak saklanır. Bin'i tekrar açtığında, hash listende yoksalar `0x36b9b28f`
+  gibi hex değerler olarak görünürler. Bu normal; bin yine de doğru.
+</Callout>
+
+`mChangeAnimationMidPlay` bilerek `false`. Açılış klibi oynarken değeri değiştiriyor ve selector'ın buna tepki verip klipleri yarı yolda değiştirmesini istemezsin.
+
+### Geçişleri koru
+
+`mBlendDataTable` içindeki geçişler klip adı çiftleriyle anahtarlanır. Klonlarının adları yeni, yani orijinal geçişlerin hiçbiri onlara uygulanmaz. Kaynağı ya da hedefi orijinal açılış ya da ölüm klibi olan her mevcut satır için, o konuma klonun adını yazarak satırın bir kopyasını ekle. Orijinal satırları yerinde bırak.
+
+Grafikte başka hiçbir şeyi değiştirme. Orijinal klipler, event'leri ve alakasız her geçiş tam olarak oldukları gibi kalır. Değişikliği diff'lemeyi ve geri almayı kolaylaştıran da bu.
+
+---
+
+## Paketleme
+
+Modun skin'i birkaç skin slotuna yazıyorsa, o skin bin'lerinin her biri animasyon grafiğinin kendi kopyasını taşır ve her birine aynı yama gerekir. Radahn paketi 38 tanesini yamalıyor.
+
+Sonra her zamanki gibi Creator Hub'da test et ve bir `.modpkg` export et. Nasıl yapılacağını [.modpkg export et ve kur](/docs/lol/mod-format/modpkg) gösteriyor. Sadece üç tür dosya değişiyor: SFX `audio.bnk`, SFX `events.bnk` ve skin bin'leri.
+
+---
+
+## Çalışmadığında
+
+| Belirti                                                   | Muhtemel sebep                                                                                                                  |
+| :-------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------ |
+| Ses yok, hata da yok                                      | Event adı `Events` listesinde yok ya da event ID'si tetiklediğin adın Wwise hash'i değil                                        |
+| Ses yok, event kayıtlı                                    | `sourceID` bir `DIDX` girişiyle eşleşmiyor, `uInMemoryMediaSize` yanlış ya da `StreamType` hâlâ stream olarak ayarlı            |
+| Her event aynı kaydı çalıyor                              | Aksiyon objeleri event'ler arasında paylaşılıyor                                                                                |
+| Müzik bir iki saniye sonra kesiliyor                      | Klip event'inde `mIsKillEvent` `true`                                                                                           |
+| Parça bir kez çalıp duruyor                               | Ana Sound'da loop özelliği `1` ya da `.wem`'de loop noktası yok                                                                 |
+| Loop en başa atlıyor                                      | `.wem` loop noktalarını kaybetmiş; `vgmstream-cli -m` ile kontrol et                                                            |
+| Temanın iki kopyası birden çalıyor                        | `u16MaxNumInstance` ayarlanmamış ya da hâlâ ebeveynin limiti geçerli                                                            |
+| Outro temayla eşleşmiyor                                  | Ölüm klipleri durum değerini yazıyor; sadece açılışlar yazmalı                                                                  |
+| Diğer oyuncular da duyuyor                                | `mIsSelfOnly` `false`                                                                                                           |
+| Yeniden doğuştan ya da ölümden sonra animasyon geçişleri bozuk | Klonlanan klip adları için geçiş satırları kopyalanmamış                                                                   |
+
+Rehber: Kaizen

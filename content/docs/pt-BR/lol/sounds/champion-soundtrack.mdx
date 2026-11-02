@@ -1,0 +1,421 @@
+---
+title: "Trilhas Sonoras de Campeão"
+description: "Dê a uma skin do League a sua própria música: um tema que começa no spawn, fica em loop a vida inteira, toca um encerramento na morte e recomeça no respawn, disparado pelo grafo de animação."
+category: "sounds"
+---
+
+Trilha sonora, aqui, é uma música que acompanha a vida do campeão, e não uma habilidade específica. O tema começa no spawn do campeão, fica repetindo o trecho que você escolheu, passa com um fade para um encerramento curto na morte e recomeça do início no respawn. Só você ouve, no seu próprio campeão: se outro jogador estiver usando uma skin com isso, você não vai ouvir a dele.
+
+A mesma estrutura aguenta mais de um tema. O exemplo desta página, uma skin Starscourge Radahn para o Pantheon, alterna entre dois: um tema na primeira vida, o outro na seguinte, e assim por diante, cada um com o seu próprio encerramento de morte.
+
+A música mora em **eventos novos adicionados ao final dos bancos de SFX que a skin já tem**, e o **grafo de animação** decide qual evento disparar e quando.
+
+---
+
+## O que já foi testado
+
+Tudo abaixo foi confirmado no jogo com a skin do Radahn:
+
+- Cada tema começa do início no spawn e no respawn.
+- Cada tema fica em loop (dá para definir um trecho específico, assim a intro não toca de novo).
+- A morte para o tema e toca o encerramento certo, o que corresponde a ele, uma vez só.
+- O respawn para qualquer encerramento que ainda esteja tocando e começa o próximo tema.
+- A alternância entre temas de uma vida para a outra.
+
+Não sei se isso sobrevive a uma reconexão, mas deveria. A música vai num bus de SFX, então ela segue o controle de volume **Sound Effects**.
+
+<Callout type="info">
+  Esta página marca o que é dedução e não observação. Ler um banco ou reabrir
+  um bin prova que o arquivo está bem formado. Não prova que o jogo vai tocar
+  ele.
+</Callout>
+
+---
+
+## Ferramentas Necessárias
+
+| Ferramenta                         | Para quê                                                                                                                                                                 |
+| :--------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Flint** ou **Obsidian**          | Extrair o WAD do campeão                                                                                                                                                 |
+| **Jade** ou **Ritobin**            | Editar o `.bin` da skin                                                                                                                                                  |
+| **Wwise**                          | `WwiseConsole convert-external-source`, para converter `.wav` em `.wem`. A configuração está em [Intermediário - Bancos de Som Personalizados](/docs/lol/sounds/sound-medium) |
+| **wwiser**                         | Fazer o dump do `events.bnk` para ver os IDs dos objetos e os offsets dos campos. Veja [Avançado - Leitura e edição de events.bnk](/docs/lol/sounds/sound-hard)            |
+| **vgmstream**                      | Decodificar os arquivos `.wem` e conferir os pontos de loop                                                                                                              |
+| Um editor hexadecimal ou um script | Adicionar objetos ao `events.bnk` e mídia ao `audio.bnk`                                                                                                                 |
+| Um editor de áudio                 | Cortar o loop principal e o encerramento                                                                                                                                 |
+| **Celestial**                      | Testar no jogo com o Creator Hub e exportar o `.modpkg`                                                                                                                  |
+
+Ainda não existe ferramenta de apontar e clicar para a parte dos bancos. Conte com trabalho no nível dos bytes, ou escreva um script. Ou então, né, peça ajuda para o Jean Claude.
+
+---
+
+## Como as peças se encaixam
+
+```text
+Animation graph (skin .bin)
+  Respawn clip  ──fires──►  Play_..._Main_Event
+  Death clip    ──fires──►  Play_..._Outro_Event
+
+events.bnk (HIRC)
+  Event ──► Stop main, Stop outro, ... ──► Play its own sound
+  Sound ──► embedded media ID, loop setting, bus
+
+audio.bnk (DIDX + DATA)
+  The encoded .wem recordings themselves
+```
+
+Cada gravação que você quer tocar é um objeto **Sound**. Cada Sound ganha um **Event** que primeiro para todos os outros sons de música e depois toca o seu. O grafo de animação só diz "dispare este evento". Tudo sobre loop, fade e parada mora no banco.
+
+Para dois temas, isso dá quatro gravações: principal do tema A, encerramento do tema A, principal do tema B, encerramento do tema B. Uma skin com um tema só precisa de duas.
+
+---
+
+## 1. Prepare o áudio
+
+Você precisa de dois tipos de gravação.
+
+**O tema principal** toca uma vez desde o começo e depois repete um trecho de loop enquanto o campeão estiver vivo. Esse trecho fica guardado dentro do arquivo como pontos de loop, então a intro nunca se repete.
+
+**O encerramento** é um trecho curto que toca uma vez só, na morte.
+
+### Deixando o loop sem emenda
+
+Um loop que pula do fim da faixa de volta para o meio vai dar estalo ou tranco, a não ser que os dois pontos soem parecidos. Um jeito simples de garantir isso:
+
+1. Escolha um início de loop no meio da faixa, depois da intro. O Radahn usa 24 segundos.
+2. Pegue os 4 segundos de áudio que começam nesse ponto e **faça um crossfade dos últimos 4 segundos da faixa para dentro deles**.
+3. Coloque o início do loop em 28 segundos (o ponto original mais a duração do crossfade) e o fim do loop na última amostra.
+
+Agora o fim do arquivo soa exatamente como o áudio logo antes do início do loop, então o pulo de volta fica inaudível.
+
+Os pontos de loop vão no `.wav` como um chunk `smpl` padrão. O encoder do Wwise leva esses pontos para o `.wem`. Confira o resultado com o modo de metadados do vgmstream:
+
+```bash
+vgmstream-cli -m base-main.wem
+```
+
+Ele deve mostrar o início e o fim de loop que você definiu. Se não mostrar loop nenhum, o chunk `smpl` se perdeu no caminho.
+
+### Volume
+
+Música no volume máximo enterra os efeitos sonoros e a voz do próprio campeão. As faixas do Radahn estão em 35% do volume original. Use isso como ponto de partida e ajuste de ouvido. Não existe controle de volume para isso no bin, então o volume que você grava no arquivo é o volume que os jogadores vão ouvir.
+
+Onde exatamente cortar a intro, o loop e o encerramento é uma decisão musical da sua skin, não uma exigência da técnica.
+
+---
+
+## 2. Codifique para `.wem`
+
+Use o `WwiseConsole convert-external-source` com uma lista de sources. Você não precisa de um projeto completo do Wwise para o League, só de um que o WwiseConsole consiga abrir:
+
+```xml
+<ExternalSourcesList SchemaVersion="1" Root="C:\work\soundtrack">
+  <Source Path="audio\base-main.wav"  Conversion="Vorbis Quality High" Destination="base-main"/>
+  <Source Path="audio\base-outro.wav" Conversion="Vorbis Quality High" Destination="base-outro"/>
+</ExternalSourcesList>
+```
+
+```bash
+WwiseConsole.exe convert-external-source MyProject.wproj --source-file source.wsources --output encoded --platform Windows
+```
+
+Decodifique cada `.wem` de volta com o vgmstream e escute antes de seguir. Um encode quebrado é muito mais fácil de pegar aqui do que no jogo.
+
+<Callout type="info">
+  Os arquivos `.wem` do Radahn foram codificados com o Wwise 2024.1 e tocam
+  direitinho dentro dos bancos que o League já tem (banco de eventos na versão
+  145, compatível com o runtime Wwise 2022.1 do jogo). Isso mostra que **mídia**
+  recém-codificada funciona. Não diz nada sobre **bancos** gerados por um Wwise
+  mais novo, que é outra história, e mais arriscada. Esta página nunca gera um
+  banco: ela aplica patch nos que a skin já traz.
+</Callout>
+
+---
+
+## 3. Embuta as gravações no `audio.bnk`
+
+O banco de áudio de SFX da skin (por exemplo `Pantheon_Base_SFX_audio.bnk`) é formado por três chunks: `BKHD`, `DIDX` e `DATA`. O `DATA` guarda os arquivos `.wem` brutos, um atrás do outro. O `DIDX` é o índice, com um registro de 12 bytes por arquivo:
+
+| Bytes | Campo                  |
+| :---- | :--------------------- |
+| 4     | Media ID               |
+| 4     | Offset dentro do `DATA` |
+| 4     | Tamanho em bytes       |
+
+Para adicionar uma gravação:
+
+1. Escolha um **media ID** que ainda não exista no índice. Fazer o hash de um nome privado com o hash do Wwise (abaixo) é um jeito prático de conseguir um que não vai colidir.
+2. Complete o fim do `DATA` com padding para que o arquivo novo comece num **limite de 16 bytes**, contando a partir do início do arquivo do banco.
+3. Adicione o `.wem` ao final do `DATA` e um registro correspondente ao `DIDX`.
+4. Atualize o tamanho dos dois chunks.
+
+Não mexa em nenhum byte nem offset que já existe. Os offsets são relativos ao início do `DATA`, então aumentar o `DIDX` não invalida eles, mas muda o ponto onde o `DATA` começa dentro do arquivo. Leve isso em conta na hora de calcular o padding de 16 bytes.
+
+Depois, leia o banco de novo e confirme que cada ID novo extrai exatamente o arquivo que você colocou.
+
+### Por que embutido e não em streaming
+
+As falas do League vêm em streaming de um `.wpk`, e a música poderia muito bem fazer o mesmo. O caminho embutido é o que foi testado de ponta a ponta, então é o que está documentado aqui. Streaming a partir de um `.wpk` não fez parte da versão que funcionou e não foi testado para isso.
+
+---
+
+## 4. Adicione objetos Sound ao `events.bnk`
+
+O banco de eventos (por exemplo `Pantheon_Base_SFX_events.bnk`) tem um chunk `HIRC`: uma lista plana de objetos, cada um com um tipo, um tamanho, um ID e um corpo. Para adicionar objetos novos, coloque eles no final e aumente a contagem de objetos no início do `HIRC`.
+
+### IDs do Wwise
+
+Os IDs de evento são o hash do Wwise do nome do evento em minúsculas. É **FNV-1** (multiplica e depois faz XOR), não o FNV-1a usado nos hashes de bin:
+
+```python
+def wwise_hash(name: str) -> int:
+    h = 0x811C9DC5
+    for b in name.lower().encode("utf-8"):
+        h = (h * 0x01000193) & 0xFFFFFFFF
+        h ^= b
+    return h
+```
+
+O ID do evento **precisa** ser o hash do nome que você vai disparar pelo bin, senão o jogo nunca vai encontrar ele. Para Sounds e Actions qualquer ID livre serve, mas fazer o hash de nomes privados descritivos (`MySkin_Music_BaseMain_Sound`) deixa eles únicos e fáceis de ler num dump.
+
+### Comece por um doador
+
+Escrever um `CAkSound` do zero significa acertar cada campo de um formato que muda de versão para versão. Clonar um é muito mais seguro. Os objetos Sound do Radahn foram clonados de um loop de música que já existe no jogo, a música de dança do Ekko no banco de eventos de SFX da skin 19 dele, e depois editados. Qualquer som de música em loop que já exista é um bom doador. Faça o dump do banco doador com o wwiser para ver cada campo e o offset dele:
+
+```bash
+python wwiser.py -d xml Ekko_Skin19_SFX_events.bnk
+```
+
+### Campos para mudar em cada Sound
+
+| Campo                           | Tema principal          | Encerramento            | Por quê                                                              |
+| :------------------------------ | :---------------------- | :---------------------- | :------------------------------------------------------------------- |
+| `ulID`                          | ID novo                 | ID novo                 | Não pode colidir com nada no banco                                   |
+| `sourceID`                      | o media ID dele         | o media ID dele         | Aponta para a gravação que você embutiu                              |
+| `StreamType`                    | `0`                     | `0`                     | Embutido no banco, sem streaming                                     |
+| `uInMemoryMediaSize`            | tamanho exato do `.wem` | tamanho exato do `.wem` | Precisa bater com o registro no `DIDX`                               |
+| `OverrideBusId`                 | um ID de bus de SFX     | igual                   | Veja abaixo                                                          |
+| `DirectParentID`                | `0`                     | `0`                     | Solta o Sound da hierarquia de mixer do doador                       |
+| `uBitsPositioning`              | `1`                     | `1`                     | Sem posicionamento: o mesmo volume onde quer que a câmera esteja     |
+| `u16MaxNumInstance`             | `1`                     | `1`                     | Nunca duas cópias da mesma faixa ao mesmo tempo                      |
+| `AdvSettingsParams.byBitVector` | ativar o bit 3          | ativar o bit 3          | `bIgnoreParentMaxNumInst`, para que o limite acima seja o que vale   |
+| Propriedade de loop             | `0`                     | `1`                     | `0` repete para sempre, `1` toca uma vez                             |
+
+A propriedade de loop é a entrada do `AkPropBundle` com ID de propriedade `58` nesta versão de banco. Confirme o ID no seu próprio dump em vez de confiar no número às cegas.
+
+**O bus.** O Radahn faz override para o bus `2232828494`, um bus de SFX que resolveu corretamente na configuração daquela skin. Não há garantia de que os IDs de bus sejam iguais em todo lugar, então procure um bus adequado no banco do seu próprio campeão em vez de copiar o número. Rotear para um bus de SFX é o motivo de a música seguir o controle **Sound Effects**.
+
+---
+
+## 5. Ações e eventos
+
+Um evento do Wwise é só uma lista de ações. Cada evento de trilha sonora aqui faz as mesmas duas coisas, nesta ordem:
+
+1. **Stop** em todos os Sounds de música que você adicionou, com um fade out curto.
+2. **Play** no seu próprio Sound, com um fade in curto.
+
+Os dois fades são a propriedade `TransitionTime` da ação (ID de propriedade `16` nesta versão de banco, em milissegundos, com curva linear). O Radahn usa 400 ms nos Stops e 500 ms nos Plays, este último simplesmente herdado da ação doadora. Nenhum dos dois valores é exigido pela técnica: use o que soar certo para a sua música.
+
+Essa regra única já gera todo o comportamento do ciclo de vida, sem lógica extra nenhuma:
+
+- O evento de **morte** para o tema principal que estiver tocando e depois toca o encerramento dele.
+- O evento de **respawn** para qualquer encerramento que ainda não terminou e depois toca um tema principal desde o começo.
+- Disparar o mesmo evento duas vezes reinicia a faixa em vez de empilhar uma segunda cópia.
+
+Clone uma ação Stop e uma ação Play do doador e edite as duas:
+
+- **Play:** defina o `ulID`, coloque no `idExt` o ID do Sound e defina o `bankID`. No Radahn, o `bankID` guarda o hash do Wwise do nome do banco de eventos (`Pantheon_Base_SFX_events`), e isso funciona com a mídia que está no `audio.bnk`.
+- **Stop:** defina o `ulID`, coloque no `idExt` o Sound que vai ser parado e coloque no `TransitionTime` o seu fade out.
+
+Nesta versão de banco, um objeto de evento é: byte de tipo `4`, um tamanho de 4 bytes, o ID do evento de 4 bytes, uma contagem de ações e depois um ID de ação de 4 bytes para cada ação. A contagem é um inteiro de tamanho variável, que ocupa um byte só para qualquer coisa abaixo de 128 ações.
+
+### Cada ação precisa pertencer a exatamente um evento
+
+Este é o único erro desta página que vai te custar um dia inteiro, porque o banco é lido sem problema nenhum e todo evento parece certo no dump.
+
+A economia óbvia é criar quatro ações Stop uma vez só e listar elas nos quatro eventos. **Não faça isso.** Com ações Stop compartilhadas, todos os eventos tocavam o **mesmo encerramento**, não importava qual deles fosse disparado. Dar a cada evento as suas próprias cópias privadas de todas as ações (quatro Stops e um Play por evento, vinte ações para quatro eventos) resolveu na hora, e as quatro rotas passaram a tocar certo no jogo.
+
+Várias ações podem apontar para o mesmo Sound. O que não pode ser compartilhado é o objeto de ação em si.
+
+O motivo disso não está confirmado. O comportamento observado bate com um runtime que liga cada ação à próxima do seu evento, com um único link por objeto de ação. Se uma ação aparece em vários eventos, o último evento carregado sobrescreve o link, e todo evento que compartilha essa ação acaba seguindo a mesma cadeia. Esse modelo prevê exatamente qual encerramento ganhou, mas ninguém inspecionou a memória do jogo para provar. Trate a regra como estabelecida e a explicação como uma história provável.
+
+Se você monta seus bancos com script, adicione uma checagem que falha quando qualquer ID de ação aparece em mais de um evento.
+
+---
+
+## 6. Registre os eventos no bin da skin
+
+O jogo não carrega eventos só porque eles existem num banco. Eles precisam estar declarados nas propriedades de áudio da skin. Encontre a bank unit de SFX e adicione os nomes dos seus eventos ao final da lista `Events`:
+
+```py
+SkinAudioProperties: embed = SkinAudioProperties {
+    BankUnits: list2[embed] = {
+        BankUnit {
+            Name: string = "Pantheon_Base_SFX"
+            BankPath: list[string] = {
+                "ASSETS/.../Pantheon_Base_SFX_audio.bnk"
+                "ASSETS/.../Pantheon_Base_SFX_events.bnk"
+            }
+            Events: list[string] = {
+                // ...the existing events, unchanged...
+                "Play_MySkin_Soundtrack_BaseMain_Event"
+                "Play_MySkin_Soundtrack_BaseOutro_Event"
+                "Play_MySkin_Soundtrack_AltMain_Event"
+                "Play_MySkin_Soundtrack_AltOutro_Event"
+            }
+        }
+    }
+}
+```
+
+Os caminhos dos bancos ficam como estão, porque agora a música mora dentro de bancos que a skin já carrega. Use nomes que mais ninguém vai usar. Um prefixo com o nome da sua skin já basta.
+
+---
+
+## 7. Dispare os eventos pelos clips de animação
+
+Eventos de som em clips vão no `mEventDataMap` do clip:
+
+```py
+mEventDataMap: map[hash,pointer] = {
+    "Play_MySkin_Soundtrack_BaseMain_Event" = SoundEventData {
+        mSoundName: string = "Play_MySkin_Soundtrack_BaseMain_Event"
+        mStartFrame: f32 = 0
+        mIsLoop: bool = false
+        mIsKillEvent: bool = false
+        mIsSelfOnly: bool = true
+        mFireIfAnimationEndsEarly: bool = true
+    }
+}
+```
+
+| Campo                       | Valor   | Por quê                                                                                                                                                |
+| :-------------------------- | :------ | :----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `mIsLoop`                   | `false` | O loop fica por conta do Sound no banco. Este campo é sobre o evento de animação, não sobre a música                                                   |
+| `mIsKillEvent`              | `false` | Senão a música é cortada no instante em que o clip termina, uns dois segundos depois de começar                                                        |
+| `mIsSelfOnly`               | `true`  | Só o jogador que está usando a skin ouve                                                                                                               |
+| `mFireIfAnimationEndsEarly` | `true`  | Se o clip for interrompido antes de o frame 0 ser processado, o evento dispara mesmo assim. Isso é sobre a entrega do evento, não sobre quanto tempo a música toca |
+
+### Teste as rotas primeiro
+
+Antes de montar qualquer lógica de ciclo de vida, coloque cada evento temporariamente num clip de emote (piada, provocação, dança e risada são `Ctrl+1` a `Ctrl+4`). Assim você consegue disparar cada rota na mão numa partida de treino e confirmar que cada uma toca a gravação certa e para as outras. O problema das ações compartilhadas lá de cima foi descoberto exatamente assim. Depois, deixe as emotes como eram antes.
+
+---
+
+## 8. Spawn, morte e respawn
+
+Com um tema só, este passo é curto: coloque o evento principal no clip que toca no respawn e o evento de encerramento no clip de morte.
+
+No Pantheon, a entrada `Respawn` é um `SequencerClipData` cujo primeiro filho é o clip atômico que toca enquanto o campeão aparece, seguido de `Respawn_End`. A mesma entrada tocou no começo da partida, então o tema também começa no primeiro spawn. Confira o grafo do seu próprio campeão: nem todo campeão é montado do mesmo jeito.
+
+### Alternando temas com um valor guardado
+
+Para alternar, o grafo precisa lembrar qual tema tocou por último. Os acessórios de clip dão essa memória.
+
+Um `KeyFrameFloatMapClipAccessoryData` num clip escreve um float com nome quando aquele clip toca. Um `KeyFrameFloatClipReaderDriver` lê esse valor em qualquer outro lugar do grafo e, com `PersistentFloatChanges` ativado, o valor continua guardado depois que o clip que escreveu ele terminou. Chame o valor de `NextTheme`, com padrão `0`:
+
+| Vida | O respawn lê | Toca   | A abertura escreve | A morte lê | Encerramento |
+| :--- | :----------- | :----- | :----------------- | :--------- | :----------- |
+| 1    | `0`          | Tema A | `1`                | `1`        | A            |
+| 2    | `1`          | Tema B | `0`                | `0`        | B            |
+| 3    | `0`          | Tema A | `1`                | `1`        | A            |
+
+Só os clips de abertura escrevem o valor. A morte só lê, e é isso que mantém cada encerramento combinando com o tema que estava tocando.
+
+### Montando
+
+1. **Clone o clip atômico de abertura duas vezes**, como `MySkin_A_Opening` e `MySkin_B_Opening`. Adicione a cada um o evento principal correspondente, e também o acessório que escreve o próximo valor:
+
+```py
+"MySkin_A_Opening" = AtomicClipData {
+    // ...everything copied from the original opening clip...
+    mEventDataMap: map[hash,pointer] = {
+        // ...the original events, plus:
+        "Play_MySkin_Soundtrack_BaseMain_Event" = SoundEventData { ... }
+    }
+    Accessorylist: list[pointer] = {
+        KeyFrameFloatMapClipAccessoryData {
+            Name: hash = "MySkin_NextTheme"
+            KeyFrameFloatmap: map[f32,f32] = { 0 = 1 }
+        }
+    }
+}
+```
+
+`MySkin_B_Opening` é igual, com o evento do tema B e `{ 0 = 0 }`.
+
+2. **Clone a sequência `Respawn` duas vezes**, cada uma apontando para a sua própria abertura:
+
+```py
+"MySkin_A_Respawn" = SequencerClipData {
+    mClipNameList: list[hash] = { "MySkin_A_Opening"  "Respawn_End" }
+}
+```
+
+3. **Clone o clip de morte duas vezes**, como `MySkin_A_Death` e `MySkin_B_Death`, cada um com o seu evento de encerramento e sem acessório.
+
+4. **Troque `Respawn` e `Death` por selectors** que leem o valor. Os clips condicionais são explicados com mais detalhe em [Animation Bin: Clips, Condições e Transições](/docs/lol/animations/animation-bin-clips-and-transitions):
+
+```py
+"Respawn" = ConditionBoolClipData {
+    Updater: pointer = LogicDriverBoolParametricUpdater {
+        Driver: pointer = FloatComparisonMaterialDriver {
+            mOperator: u32 = 0
+            mValueA: pointer = KeyFrameFloatClipReaderDriver {
+                ClipAccessoryToRead: hash = "MySkin_NextTheme"
+                DefaultFloat: f32 = 0
+                PersistentFloatChanges: bool = true
+            }
+            mValueB: pointer = FloatLiteralMaterialDriver { mValue: f32 = 0 }
+        }
+    }
+    mTrueConditionClipName: hash = "MySkin_A_Respawn"
+    mFalseConditionClipName: hash = "MySkin_B_Respawn"
+    mChangeAnimationMidPlay: bool = false
+    DontStompTransitionClip: bool = true
+}
+```
+
+`mOperator: 0` é um teste de igualdade. `Death` é idêntico, só que compara com `1` e escolhe entre `MySkin_A_Death` e `MySkin_B_Death`.
+
+<Callout type="info">
+  Nomes que você inventa, como `MySkin_NextTheme` ou os nomes dos clips
+  clonados, ficam guardados como hashes. Quando você abrir o bin de novo, eles
+  aparecem como valores hexadecimais tipo `0x36b9b28f`, a não ser que estejam
+  na sua lista de hashes. Isso é esperado: o bin continua correto.
+</Callout>
+
+`mChangeAnimationMidPlay` é `false` de propósito. O clip de abertura muda o valor enquanto está tocando, e você não quer que o selector reaja a isso trocando de clip no meio do caminho.
+
+### Mantenha as transições
+
+As transições no `mBlendDataTable` são indexadas por pares de nomes de clip. Os seus clones têm nomes novos, então nenhuma das transições originais vale para eles. Para cada linha existente cuja origem ou destino seja o clip original de abertura ou de morte, adicione uma cópia da linha com o nome do clone nessa posição. Deixe as linhas originais onde estão.
+
+Não mude mais nada no grafo. Os clips originais, os eventos deles e todas as transições que não têm nada a ver com isso ficam exatamente como estavam, e é isso também que deixa a mudança fácil de comparar e de desfazer.
+
+---
+
+## Empacotando
+
+Se o seu mod coloca a skin em vários slots de skin, cada um desses bins de skin carrega a sua própria cópia do grafo de animação, e cada um precisa do mesmo patch. O pacote do Radahn aplica patch em 38.
+
+Depois, teste no Creator Hub e exporte um `.modpkg` como sempre. [Exporte e instale um .modpkg](/docs/lol/mod-format/modpkg) mostra como. Só três tipos de arquivo mudam: o `audio.bnk` de SFX, o `events.bnk` de SFX e os bins da skin.
+
+---
+
+## Quando não funciona
+
+| Sintoma                                                        | Causa provável                                                                                                                         |
+| :------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------- |
+| Silêncio, sem erros                                            | O nome do evento não está na lista `Events`, ou o ID do evento não é o hash do Wwise do nome que você dispara                          |
+| Silêncio, com o evento registrado                              | O `sourceID` não bate com nenhuma entrada do `DIDX`, o `uInMemoryMediaSize` está errado, ou o `StreamType` ainda está como streaming |
+| Todo evento toca a mesma gravação                              | Objetos de ação compartilhados entre eventos                                                                                           |
+| A música corta depois de um ou dois segundos                   | `mIsKillEvent` está `true` no evento do clip                                                                                           |
+| A faixa toca uma vez e para                                    | A propriedade de loop está em `1` no Sound principal, ou o `.wem` não tem pontos de loop                                               |
+| O loop volta para o comecinho da faixa                         | O `.wem` perdeu os pontos de loop; confira com `vgmstream-cli -m`                                                                      |
+| Duas cópias do tema tocando                                    | `u16MaxNumInstance` não foi definido, ou o limite do pai ainda está mandando                                                           |
+| O encerramento não combina com o tema                          | Os clips de morte estão escrevendo o valor de estado; só as aberturas deveriam                                                         |
+| Outros jogadores ouvem                                         | `mIsSelfOnly` está `false`                                                                                                             |
+| Transições de animação quebradas depois do respawn ou da morte | As linhas de transição não foram copiadas para os nomes dos clips clonados                                                             |
+
+Guia por Kaizen
