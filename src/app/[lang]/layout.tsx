@@ -75,17 +75,27 @@ const atkinson = Atkinson_Hyperlegible({
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   keywords: [
+    "divine skins",
+    "celestial launcher",
+    "modding guides",
+    "skin modding tutorial",
+    // League of Legends
     "league of legends",
     "lol custom skins",
     "league modding",
     "champion mods",
     "fantome files",
-    "skin modding tutorial",
     "league of legends vfx",
     "ltmao",
     "cs-lol-manager",
-    "divine skins",
-    "celestial launcher",
+    // Deadlock
+    "deadlock",
+    "deadlock mods",
+    "deadlock modding",
+    "deadlock hero model swap",
+    "deadlock sound mods",
+    "source 2 viewer",
+    "csdk 12",
   ],
   icons: {
     icon: [

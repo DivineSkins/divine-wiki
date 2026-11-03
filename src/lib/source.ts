@@ -110,6 +110,19 @@ function getEnglishPages() {
   return source.getPages().filter((page) => page.locale === "en");
 }
 
+/** Docs slugs of a page URL: "/en/docs/lol/tools" -> ["lol", "tools"]. */
+function urlSlugs(url: string): string[] {
+  return url
+    .replace(/^\/[^/]+\/docs\/?/, "")
+    .split("/")
+    .filter(Boolean);
+}
+
+/**
+ * The llms.txt body: one `## <game>` section per game, each a nested link
+ * list of its guides. Skips the docs root (it redirects to the default game)
+ * and shared-section copies that aren't the indexed one.
+ */
 export function getLLMIndex(baseUrl: string) {
   const tree = localizePageTree(source.pageTree["en"], "en");
   const lines: string[] = [];
@@ -118,6 +131,14 @@ export function getLLMIndex(baseUrl: string) {
     let inSeparator = false;
 
     for (const node of nodes) {
+      const url =
+        node.type === "folder"
+          ? node.index?.url
+          : node.type === "page"
+            ? node.url
+            : undefined;
+      if (url && isDuplicateCopy(urlSlugs(url))) continue;
+
       if (node.type === "separator") {
         if (node.name) {
           const indent = "  ".repeat(depth);
@@ -149,13 +170,22 @@ export function getLLMIndex(baseUrl: string) {
     }
   }
 
-  walk(tree.children, 0);
+  // Top-level folders are the games. Pages at the top (the docs root) are
+  // skipped. A game's landing page is usually its first child; take its
+  // index too in case the tree ever stores it there.
+  for (const node of tree.children) {
+    if (node.type !== "folder") continue;
+    lines.push("", `## ${node.name}`, "");
+    walk(node.index ? [node.index, ...node.children] : node.children, 0);
+  }
+
   return lines;
 }
 
 export async function getLLMFullText(baseUrl: string) {
   const pages = getEnglishPages()
-    .filter((page) => !isDuplicateCopy(page.slugs))
+    // The docs root redirects to the default game, so it isn't a guide.
+    .filter((page) => page.slugs.length > 0 && !isDuplicateCopy(page.slugs))
     .map(async (page) => {
       const processed = await page.data.getText("processed");
       return `--- ${page.data.title}\nSource: ${baseUrl}${page.url}\n${processed}`;

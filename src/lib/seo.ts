@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { GAMES } from "@/lib/games";
 
 // Shared SEO metadata fragments. Centralized here because Next merges
 // metadata across route segments SHALLOWLY: a page that sets `openGraph`,
@@ -9,21 +10,42 @@ import type { Metadata } from "next";
 
 export const SITE_NAME = "Divine Skins Wiki";
 
+// How each game reads in titles, keyed by its slug in GAMES. `short` is the
+// name searchers type ("LoL"); `mentioned` spots a title that already names
+// the game. A game missing here falls back to its full name.
+const GAME_SEO: Record<string, { short: string; mentioned: RegExp }> = {
+  lol: { short: "LoL", mentioned: /\b(lol|league)\b/i },
+  deadlock: { short: "Deadlock", mentioned: /\bdeadlock\b/i },
+};
+
+/** "A and B", "A, B, and C". */
+function joinNames(names: string[]): string {
+  if (names.length <= 2) return names.join(" and ");
+  return `${names.slice(0, -1).join(", ")}, and ${names.at(-1)}`;
+}
+
+// Site-wide copy names every game the wiki covers, built from GAMES so a new
+// game shows up in the homepage title, meta description, and llms.txt
+// without touching this file.
+const GAME_NAMES = joinNames(GAMES.map((game) => game.name));
+
+/** Homepage <title>: what the wiki is about first, brand last. */
+export const HOME_TITLE = `${joinNames(
+  GAMES.map((game) => GAME_SEO[game.slug]?.short ?? game.name),
+)} Modding Guides | ${SITE_NAME}`;
+
+/** Site-wide meta description (homepage, llms.txt). Keep it under ~160 chars. */
+export const SITE_DESCRIPTION = `Guides for making ${GAME_NAMES} mods and custom skins: models, VFX, sounds, and tools. Written by the Divine Skins creator community.`;
+
 // Search results show the <title> on its own, so a bare guide title like
 // "Flint" or "Mod managers compared" doesn't say which game it's for. Docs
 // pages append the game and the site name, skipping whichever the title
 // already carries. Keyed by the first slug segment (the game segment).
-const GAME_TITLE_SUFFIX: Record<string, { label: string; mentioned: RegExp }> =
-  {
-    lol: { label: "LoL Modding", mentioned: /\b(lol|league)\b/i },
-    deadlock: { label: "Deadlock Modding", mentioned: /\bdeadlock\b/i },
-  };
-
 export function docsTitle(title: string, game?: string): string {
   if (title.includes(SITE_NAME)) return title;
-  const suffix = game ? GAME_TITLE_SUFFIX[game] : undefined;
+  const seo = game ? GAME_SEO[game] : undefined;
   const parts = [title];
-  if (suffix && !suffix.mentioned.test(title)) parts.push(suffix.label);
+  if (seo && !seo.mentioned.test(title)) parts.push(`${seo.short} Modding`);
   parts.push(SITE_NAME);
   return parts.join(" | ");
 }
