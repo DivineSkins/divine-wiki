@@ -32,4 +32,4 @@ values for `.light`, `.minimal.dark` and `.minimal.light`, and a new white-tint
 class may need an adapter.
 
 Everything in the `.tgz` is public once committed, so look at it first
-(`tar -tzf`).
+(`tar -tzf`), then run `npm run test:security`.
