@@ -74,28 +74,14 @@ const atkinson = Atkinson_Hyperlegible({
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
+  // Game-agnostic: guide pages add their own game's keywords (gameSeo).
   keywords: [
     "divine skins",
     "celestial launcher",
+    "game modding",
     "modding guides",
+    "custom skins",
     "skin modding tutorial",
-    // League of Legends
-    "league of legends",
-    "lol custom skins",
-    "league modding",
-    "champion mods",
-    "fantome files",
-    "league of legends vfx",
-    "ltmao",
-    "cs-lol-manager",
-    // Deadlock
-    "deadlock",
-    "deadlock mods",
-    "deadlock modding",
-    "deadlock hero model swap",
-    "deadlock sound mods",
-    "source 2 viewer",
-    "csdk 12",
   ],
   icons: {
     icon: [

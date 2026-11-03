@@ -10,13 +10,16 @@ import { GAMES } from "@/lib/games";
 
 export const SITE_NAME = "Divine Skins Wiki";
 
-// How each game reads in titles, keyed by its slug in GAMES. `short` is the
-// name searchers type ("LoL"); `mentioned` spots a title that already names
-// the game. A game missing here falls back to its full name.
-const GAME_SEO: Record<string, { short: string; mentioned: RegExp }> = {
-  lol: { short: "LoL", mentioned: /\b(lol|league)\b/i },
-  deadlock: { short: "Deadlock", mentioned: /\bdeadlock\b/i },
-};
+// Site-wide copy stays game-agnostic: the wiki keeps adding games, and a
+// title or description that lists them goes stale (and past search-result
+// length limits) with every new one.
+
+/** Homepage <title>: what the wiki is about first, brand last. */
+export const HOME_TITLE = `Game Modding Guides | ${SITE_NAME}`;
+
+/** Site-wide meta description. Keep it under ~160 chars. */
+export const SITE_DESCRIPTION =
+  "Step-by-step guides for making game mods and custom skins: models, textures, VFX, sounds, and tools. Written by the Divine Skins creator community.";
 
 /** "A and B", "A, B, and C". */
 function joinNames(names: string[]): string {
@@ -24,18 +27,53 @@ function joinNames(names: string[]): string {
   return `${names.slice(0, -1).join(", ")}, and ${names.at(-1)}`;
 }
 
-// Site-wide copy names every game the wiki covers, built from GAMES so a new
-// game shows up in the homepage title, meta description, and llms.txt
-// without touching this file.
-const GAME_NAMES = joinNames(GAMES.map((game) => game.name));
+/**
+ * llms.txt summary. No length limit there, so it also names every game in
+ * GAMES, which tells AI tools what the wiki covers.
+ */
+export const LLM_SUMMARY = `${SITE_DESCRIPTION} Covers ${joinNames(
+  GAMES.map((game) => game.name),
+)}.`;
 
-/** Homepage <title>: what the wiki is about first, brand last. */
-export const HOME_TITLE = `${joinNames(
-  GAMES.map((game) => GAME_SEO[game.slug]?.short ?? game.name),
-)} Modding Guides | ${SITE_NAME}`;
+interface GameSeo {
+  /** How the game reads in guide titles ("Flint | LoL Modding | ..."). */
+  short: string;
+  /** Matches a guide title that already names the game. */
+  mentioned: RegExp;
+  /** Keywords every guide of the game carries. */
+  keywords: string[];
+}
 
-/** Site-wide meta description (homepage, llms.txt). Keep it under ~160 chars. */
-export const SITE_DESCRIPTION = `Guides for making ${GAME_NAMES} mods and custom skins: models, VFX, sounds, and tools. Written by the Divine Skins creator community.`;
+// Only games whose name-based defaults don't fit need an entry here.
+const GAME_SEO_OVERRIDES: Record<string, Partial<GameSeo>> = {
+  lol: {
+    short: "LoL",
+    mentioned: /\b(lol|league)\b/i,
+    keywords: [
+      "league of legends",
+      "lol custom skins",
+      "league modding",
+      "celestial launcher",
+    ],
+  },
+};
+
+/**
+ * SEO wording for a game segment, built from its name in GAMES so a new game
+ * works without touching this file. Undefined outside a game segment.
+ */
+export function gameSeo(slug: string | undefined): GameSeo | undefined {
+  const game = GAMES.find((entry) => entry.slug === slug);
+  if (!game) return undefined;
+  const name = game.name.toLowerCase();
+  const escaped = game.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return {
+    short: game.name,
+    mentioned: new RegExp(`\\b${escaped}\\b`, "i"),
+    keywords: [name, `${name} mods`, `${name} modding`, `${name} custom skins`],
+    ...GAME_SEO_OVERRIDES[game.slug],
+  };
+}
 
 // Search results show the <title> on its own, so a bare guide title like
 // "Flint" or "Mod managers compared" doesn't say which game it's for. Docs
@@ -43,7 +81,7 @@ export const SITE_DESCRIPTION = `Guides for making ${GAME_NAMES} mods and custom
 // already carries. Keyed by the first slug segment (the game segment).
 export function docsTitle(title: string, game?: string): string {
   if (title.includes(SITE_NAME)) return title;
-  const seo = game ? GAME_SEO[game] : undefined;
+  const seo = gameSeo(game);
   const parts = [title];
   if (seo && !seo.mentioned.test(title)) parts.push(`${seo.short} Modding`);
   parts.push(SITE_NAME);
