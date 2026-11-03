@@ -6,9 +6,8 @@ import { createPortal } from "react-dom";
 /**
  * Label chips for the collapsed sidebar rail. The rail only shows icons
  * (see the "Sidebar rail" block in global.css), so hovering or focusing
- * one shows its label beside it on the wiki's panel recipe: #121119 on a
- * #191722 hairline, 8px radius, 13px semibold text, an arrow pointing at
- * the icon, and a quick fade. Rendered in a portal because
+ * one shows its label beside it in the package Tooltip's look, with an arrow
+ * pointing at the icon and a quick fade. Rendered in a portal because
  * the rail clips its own overflow.
  */
 
@@ -111,13 +110,13 @@ export function SidebarRailTooltip() {
     <div
       role="tooltip"
       key={chip.label + chip.top}
-      className="divine-rail-chip pointer-events-none fixed z-50 -translate-y-1/2 rounded-lg border border-[#191722] bg-[#121119] px-2.5 py-1.5 text-[13px] font-semibold whitespace-nowrap text-[#E4E4E7]"
+      className="divine-rail-chip bg-divine-tooltip text-divine-text shadow-divine-panel pointer-events-none fixed z-50 -translate-y-1/2 rounded-lg px-3 py-1.5 text-xs leading-[18px] font-medium whitespace-nowrap"
       style={{ top: chip.top, left: chip.left }}
     >
       {/* Arrow pointing back at the icon. */}
       <span
         aria-hidden
-        className="absolute top-1/2 -left-[5px] size-2 -translate-y-1/2 rotate-45 border-b border-l border-[#191722] bg-[#121119]"
+        className="bg-divine-tooltip absolute top-1/2 -left-[5px] size-2 -translate-y-1/2 rotate-45"
       />
       {chip.label}
     </div>,

@@ -1,5 +1,7 @@
-import { LocalizedLink } from "@/components/localized-link";
+import { Badge } from "@divineskins/ui";
 import type { ReactNode } from "react";
+
+import { CardLink } from "@/components/ui/links";
 
 interface ToolCardProps {
   name: string;
@@ -11,10 +13,7 @@ interface ToolCardProps {
 
 /**
  * Tool list card — each tool renders as its own row: icon, the name, a
- * pipe separator, and the description trailing. Uses the divineskins.gg
- * card recipe (#121119 on a #191722 hairline, 12px radius, #1A1922 on
- * hover, no lift), plus a 2px accent left edge that follows the rounded
- * corners: purple, lilac on hover.
+ * pipe separator, and the description trailing, on an interactive Card.
  *
  * The whole row is one anchor, so `children` MUST NOT contain links —
  * a markdown link in the description renders an `<a>` inside this `<a>`,
@@ -22,43 +21,30 @@ interface ToolCardProps {
  * name (inline code) and let the row's own href do the navigating.
  */
 export function ToolCard({ name, href, children, badge, icon }: ToolCardProps) {
-  const isExternal = /^https?:\/\//i.test(href);
-  const Tag = isExternal ? "a" : LocalizedLink;
-  const externalProps = isExternal
-    ? { target: "_blank", rel: "noopener noreferrer" }
-    : {};
-
   return (
-    <Tag
+    <CardLink
       href={href}
-      {...externalProps}
-      className="not-prose group light:border-divine-border light:bg-divine-surface light:hover:bg-divine-elevated relative my-2 flex items-center gap-3 rounded-xl border border-[#191722] bg-[#121119] px-4 py-3 leading-normal no-underline transition-[background-color,border-color] duration-200 ease-out hover:bg-[#1A1922]"
+      className="group relative my-2 flex items-center gap-3 px-4 py-3 leading-normal"
     >
-      {/* Accent left edge: the 2px left border of an overlay on the hairline
-          with the card's radius, so it bends around the left corners. */}
-      <span
-        aria-hidden
-        className="pointer-events-none absolute -inset-px rounded-[inherit] border-l-2 border-[#783CB5] transition-colors duration-200 group-hover:border-[#C084FC]"
-      />
       {icon ? (
-        <span className="text-divine-primary-light flex shrink-0 items-center [&_img]:size-[22px] [&_svg]:size-[22px]">
+        <span className="text-divine-highlight flex shrink-0 items-center [&_img]:size-[22px] [&_svg]:size-[22px]">
           {icon}
         </span>
       ) : null}
-      <span className="text-divine-text group-hover:text-divine-primary-light text-[15px] font-bold transition-colors duration-200">
+      <span className="text-divine-text group-hover:text-divine-highlight text-[15px] font-bold transition-colors duration-200">
         {name}
       </span>
-      <span className="light:text-divine-border text-[#25222F]" aria-hidden>
+      <span className="text-divine-border-subtle" aria-hidden>
         |
       </span>
       <span className="text-divine-text-muted flex-1 text-[14px] [&_p]:m-0">
         {children}
       </span>
       {badge ? (
-        <span className="ml-auto inline-flex shrink-0 items-center rounded-full border border-[rgba(120,60,181,0.3)] bg-[rgba(120,60,181,0.15)] px-2 py-0.5 text-[10px] leading-normal font-bold tracking-wider text-[#C084FC] uppercase">
+        <Badge caps className="ml-auto">
           {badge}
-        </span>
+        </Badge>
       ) : null}
-    </Tag>
+    </CardLink>
   );
 }

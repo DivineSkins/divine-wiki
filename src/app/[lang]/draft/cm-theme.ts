@@ -5,7 +5,7 @@ import type { Extension } from "@codemirror/state";
 
 // Theme-aware colors: the editor follows the site theme, so every color is
 // a design-system variable. `--editor-accent` is set on the editor wrapper
-// (code-editor.tsx): lilac in dark, the amber text tone in light, grey under
+// (code-editor.tsx): lilac in dark, the purple text tone in light, grey under
 // Minimal (its tokens are already neutral).
 const TEXT = "var(--color-divine-text)";
 const MUTED = "var(--color-divine-text-muted)";

@@ -1,6 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import {
+  Button,
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@divineskins/ui";
 import {
   ArrowRight,
   Check,
@@ -18,7 +27,6 @@ import {
   CHIP,
   FIELD,
   FIELD_INPUT,
-  PANE,
   pillClassName,
   TAG,
   TEXT_LINK,
@@ -100,37 +108,28 @@ export function Handoff({
     }
   };
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
-
   return (
-    <div
-      className="animate-in fade-in-0 light:bg-black/30 fixed inset-0 z-50 flex items-center justify-center bg-[#0b0a0f]/80 p-4 backdrop-blur-sm duration-200"
-      onClick={onClose}
+    <Dialog
+      open
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
     >
-      <div
-        className={cn(
-          PANE,
-          "animate-in fade-in-0 zoom-in-95 light:shadow-[0_20px_60px_-10px_rgba(0,0,0,0.2)] relative max-h-[90vh] w-full max-w-2xl overflow-auto p-6 shadow-[0_20px_60px_-10px_rgba(0,0,0,0.6)] duration-200 sm:p-8",
-        )}
-        role="dialog"
-        aria-modal="true"
-        aria-label={d.contribute}
-        onClick={(e) => e.stopPropagation()}
+      <DialogContent
+        hideCloseButton
+        className="block max-h-[90vh] max-w-2xl p-6 sm:p-8"
       >
-        <button
-          type="button"
-          aria-label={d.close}
-          className="text-divine-text-muted hover:text-divine-text light:hover:bg-black/5 absolute top-4 right-4 flex size-8 items-center justify-center rounded-full transition-colors outline-none hover:bg-white/5 focus-visible:ring-1 focus-visible:ring-[#C084FC]"
-          onClick={onClose}
-        >
-          <X className="size-4" />
-        </button>
+        {/* Our own close, for its localized label. */}
+        <DialogClose asChild>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label={d.close}
+            className="absolute top-4 right-4"
+          >
+            <X />
+          </Button>
+        </DialogClose>
 
         {step === "links" ? (
           <LinkCheck
@@ -165,22 +164,18 @@ export function Handoff({
             <ImagesReminder d={d} stagedImages={stagedImages} owner={owner} />
           </>
         )}
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
 /** Dialog title and one-line intro: the contribute picker's heading. */
 function DialogHeading({ title, body }: { title: string; body: string }) {
   return (
-    <div className="mb-6 pr-8">
-      <h2 className="text-divine-text font-[family-name:var(--font-hero)] text-lg leading-tight font-bold tracking-tight">
-        {title}
-      </h2>
-      <p className="text-divine-text-muted mt-1.5 text-sm leading-relaxed font-medium">
-        {body}
-      </p>
-    </div>
+    <DialogHeader className="mb-6 pr-8">
+      <DialogTitle>{title}</DialogTitle>
+      <DialogDescription>{body}</DialogDescription>
+    </DialogHeader>
   );
 }
 
@@ -211,7 +206,7 @@ function LinkCheck({
             className={cn(CHIP, "max-w-full px-3 py-1.5")}
             onClick={() => onApplySuggestion(suggestion)}
           >
-            <Link2 className="text-divine-primary-light light:text-divine-primary size-3.5 shrink-0" />
+            <Link2 className="text-divine-highlight size-3.5 shrink-0" />
             <span className="text-divine-text truncate">
               &ldquo;{suggestion.match}&rdquo;
             </span>
@@ -461,7 +456,7 @@ function ImagesReminder({
   return (
     <section className="border-fd-border mt-7 border-t pt-6">
       <h3 className="text-divine-text flex items-center gap-2 text-[15px] font-bold">
-        <ImagePlus className="text-divine-primary-light light:text-divine-primary size-4" />
+        <ImagePlus className="text-divine-highlight size-4" />
         {d.imagesHeading}
       </h3>
       <p className="text-divine-text-muted mt-1.5 text-sm leading-relaxed">

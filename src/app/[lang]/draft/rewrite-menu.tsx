@@ -99,7 +99,7 @@ export function RewriteMenu({
           setOpen((v) => !v);
         }}
       >
-        <Sparkles className="text-divine-primary-light light:text-divine-primary size-4" />
+        <Sparkles className="text-divine-highlight size-4" />
         <span className="hidden sm:inline">{d.rewriteWithAi}</span>
       </button>
 

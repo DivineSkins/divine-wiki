@@ -163,7 +163,7 @@ export function Toolbar({ onInsert, onUploadImage, docsHref }: ToolbarProps) {
           className={cn(
             CHIP,
             "shrink-0",
-            showOverflow && "border-divine-primary/60 text-divine-text",
+            showOverflow && "bg-divine-surface-raised text-divine-text",
           )}
           onClick={() => {
             keepCard();
@@ -201,7 +201,7 @@ export function Toolbar({ onInsert, onUploadImage, docsHref }: ToolbarProps) {
         className={cn(CHIP, "text-divine-text shrink-0")}
         onClick={() => fileInputRef.current?.click()}
       >
-        <ImagePlus className="text-divine-primary-light light:text-divine-primary size-3.5" />
+        <ImagePlus className="text-divine-highlight size-3.5" />
         {/* Icon only on phones, where the chip row needs the room. */}
         <span className="sr-only sm:not-sr-only">{d.uploadImage}</span>
       </button>
@@ -228,7 +228,7 @@ export function Toolbar({ onInsert, onUploadImage, docsHref }: ToolbarProps) {
                 }}
               >
                 {Icon && (
-                  <Icon className="text-divine-primary-light light:text-divine-primary size-4 shrink-0" />
+                  <Icon className="text-divine-highlight size-4 shrink-0" />
                 )}
                 <span className="truncate">{snippet.label}</span>
               </button>
@@ -272,7 +272,7 @@ function Chip({
       onBlur={() => onHover(null)}
     >
       {Icon && (
-        <Icon className="text-divine-primary-light/80 group-hover:text-divine-primary-light light:text-divine-primary size-3.5 transition-colors" />
+        <Icon className="text-divine-primary-light/80 group-hover:text-divine-highlight size-3.5 transition-colors" />
       )}
       {snippet.label}
     </button>

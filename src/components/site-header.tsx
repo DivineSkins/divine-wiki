@@ -5,8 +5,20 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
+  Button,
+  buttonVariants,
+  cn,
+  iconTileVariants,
+  menuItemClassName,
+  menuPanelClassName,
+  Popover,
+  PopoverContent,
+  PopoverItem,
+  PopoverTrigger,
+  Separator,
+} from "@divineskins/ui";
+import {
   ArrowUpRightIcon,
-  CheckIcon,
   ChevronDownIcon,
   LanguagesIcon,
   MenuIcon,
@@ -15,20 +27,12 @@ import {
 import { useI18n } from "fumadocs-ui/contexts/i18n";
 import { useSearchContext } from "fumadocs-ui/contexts/search";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "fumadocs-ui/components/ui/popover";
-import {
   AppearanceSettings,
   type SettingsLabels,
 } from "@/components/appearance-settings";
 import { useContributePicker } from "@/components/contribute-picker";
-import { NAV_LINK, PANEL_BORDER, PANEL_FILL } from "@/components/home/styles";
-import { glowCtaClassName } from "@/components/mdx/GlowCTA";
 import type { GameEntry } from "@/lib/games";
 import { homePath } from "@/lib/i18n";
-import { cn } from "@/lib/utils";
 
 export interface SiteHeaderLabels {
   guides: string;
@@ -39,36 +43,69 @@ export interface SiteHeaderLabels {
   settings: SettingsLabels;
 }
 
-// The divineskins.gg navbar icon circle (NewLayout): 36px, translucent
-// #25222F fill that firms up on hover.
-const ICON_BUTTON =
-  "text-divine-text inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-[rgba(37,34,47,0.46)] transition-colors duration-200 hover:bg-[rgba(37,34,47,0.7)] " +
-  "light:bg-black/5 light:hover:bg-black/10 " +
-  "outline-none focus-visible:ring-1 focus-visible:ring-[#C084FC] data-[state=open]:bg-[rgba(37,34,47,0.7)]";
+/** Scroll distance over which the navbar's fade comes in: its own height. */
+const NAV_FADE_DISTANCE = 96;
 
-const MENU_ITEM =
-  "text-divine-text-muted hover:text-divine-text flex w-full items-center justify-between gap-3 rounded-lg px-2.5 py-2 text-left text-sm font-medium no-underline transition-colors hover:bg-white/5 light:hover:bg-black/5";
-
-// A game row in the Guides menu: the site dropdown's row (8px radius,
-// #1A1922 on hover) with a box-art thumbnail.
-const GAME_ROW =
-  "flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left no-underline transition-colors duration-150";
-
-// The dropdown panel: the site's #121119 card on a #191722 hairline with
-// its deep drop shadow.
-const DROPDOWN_PANEL = cn(
-  "rounded-xl p-1.5 shadow-[0_12px_40px_-8px_rgba(0,0,0,0.6)]",
-  PANEL_BORDER,
-  PANEL_FILL,
+// The site navbar's icon button: secondary, 40px.
+const ICON_BUTTON_CLASS = "size-10 shrink-0 [&_svg]:size-[18px]";
+const ICON_BUTTON = cn(
+  buttonVariants({ variant: "secondary", size: "icon" }),
+  ICON_BUTTON_CLASS,
 );
 
+// A navbar item (NavMenuDropdown): 14px semibold, a white/10 pill on hover. The
+// 9px side padding is offset by the nav's negative margin.
+const NAV_ITEM =
+  "text-divine-text flex h-9 items-center gap-1.5 rounded-md px-[9px] text-sm leading-5 font-semibold tracking-[-0.2px] whitespace-nowrap no-underline transition-colors duration-200 hover:bg-white/10 focus-visible:ring-divine-highlight focus-visible:ring-1 focus-visible:outline-none";
+
+const MENU_ITEM = menuItemClassName({
+  className: "justify-between no-underline",
+});
+
+// Each game's glyph, as a mask on its 512px tile (the site's GameIcon).
+const GAME_GLYPHS: Record<string, { src: string; size: string }> = {
+  lol: { src: "/brand/games/lol-glyph.svg", size: "100%" },
+  deadlock: { src: "/brand/games/deadlock-glyph.svg", size: "69.14%" },
+};
+
+function GameIcon({ game }: { game: GameEntry }) {
+  const glyph = GAME_GLYPHS[game.slug];
+  const tile = cn(
+    iconTileVariants({ size: null, tone: null }),
+    "relative size-6 overflow-hidden rounded-[7px]",
+  );
+  // A game added later has no glyph here yet: its cover.
+  if (!glyph) {
+    return (
+      <span aria-hidden className={tile}>
+        {/* eslint-disable-next-line @next/next/no-img-element -- tiny box-art thumbnail */}
+        <img src={game.cover} alt="" className="size-full object-cover" />
+      </span>
+    );
+  }
+  const mask = `url(${glyph.src}) center / ${glyph.size} no-repeat`;
+  return (
+    <span aria-hidden className={tile}>
+      <span
+        className="absolute inset-0 block"
+        style={{
+          background: game.href
+            ? "linear-gradient(180deg, var(--divine-highlight) 0%, var(--divine-accent) 100%)"
+            : "var(--color-divine-muted)",
+          mask,
+          WebkitMask: mask,
+        }}
+      />
+    </span>
+  );
+}
+
 /**
- * Homepage navbar, built from the divineskins.gg navbar: wordmark logo with
- * no container (it links home), a "Guides" dropdown listing every game, text
- * links, then icon circles and one primary pill on the right. Transparent
- * over the hero; once the page scrolls it gets the void fill, a blur, and a
- * hairline so it stays legible. Below md everything but the circles moves
- * into a menu.
+ * Homepage navbar, built from the divineskins.gg navbar (NewLayout): 96px tall
+ * with no bar of its own, the logo, a divider and the menus on the left, icon
+ * buttons and one primary pill on the right. A fade comes in behind it over
+ * the first 96px of scroll, so it stays legible over the page. Below lg
+ * everything but the icon buttons moves into a menu.
  */
 export function SiteHeader({
   lang,
@@ -81,11 +118,19 @@ export function SiteHeader({
   games: GameEntry[];
 }) {
   const [scrolled, setScrolled] = useState(false);
+  const fadeRef = useRef<HTMLDivElement>(null);
   const { setOpenSearch } = useSearchContext();
   const { open: openContribute } = useContributePicker();
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    const onScroll = () => {
+      setScrolled(window.scrollY > 8);
+      if (fadeRef.current) {
+        fadeRef.current.style.opacity = String(
+          Math.min(window.scrollY / NAV_FADE_DISTANCE, 1),
+        );
+      }
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -96,70 +141,78 @@ export function SiteHeader({
   ];
 
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-40 border-b transition-[background-color,border-color] duration-200",
-        scrolled
-          ? "bg-divine-void/80 light:border-divine-border [.minimal_&]:border-divine-border border-[#191722] backdrop-blur-md"
-          : "border-transparent",
-      )}
-    >
-      <div className="mx-auto flex h-16 w-full max-w-[992px] items-center gap-4 px-6">
-        <Link
-          href={homePath(lang)}
-          aria-label="Divine Skins Wiki"
-          className="mr-2 flex shrink-0 items-center no-underline"
-        >
-          <Image
-            src="/brand/footer-logo.webp"
-            alt=""
-            width={115}
-            height={44}
-            priority
-            className="h-11 w-auto"
-          />
-        </Link>
+    <header className="sticky top-0 z-50 w-full">
+      <div
+        ref={fadeRef}
+        aria-hidden
+        className="divine-nav-fade pointer-events-none absolute inset-x-0 top-0 h-[140%] opacity-0"
+      />
+      <div className="relative z-10 flex min-h-[96px] w-full justify-center">
+        <div className="flex w-full max-w-[1309px] items-center justify-between px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-6">
+            <Link
+              href={homePath(lang)}
+              aria-label="Divine Skins Wiki"
+              className="inline-flex shrink-0 items-center no-underline focus:outline-none"
+            >
+              <Image
+                src="/brand/divine-wordmark.webp"
+                alt=""
+                width={134}
+                height={45}
+                priority
+                className="h-[44.831px] w-[134px]"
+              />
+            </Link>
 
-        <nav className="hidden items-center md:flex">
-          <GuidesMenu label={labels.guides} games={games} />
-          {links.map((link) => (
-            <NavLink key={link.href} item={link} className={NAV_LINK} />
-          ))}
-        </nav>
+            <div
+              aria-hidden
+              className="light:bg-divine-border -mx-px hidden h-6 w-0.5 rounded-full bg-[#2A2638] lg:block"
+            />
 
-        <div className="ml-auto flex items-center gap-2">
-          <button
-            type="button"
-            aria-label={labels.search}
-            onClick={() => setOpenSearch(true)}
-            className={ICON_BUTTON}
-          >
-            <SearchIcon className="size-4" aria-hidden />
-          </button>
-          <LanguageMenu label={labels.language} />
-          <AppearanceSettings
-            labels={labels.settings}
-            triggerClassName={ICON_BUTTON}
-            align="end"
-          />
-          <button
-            type="button"
-            onClick={openContribute}
-            className={cn(
-              glowCtaClassName("solid", "md"),
-              "hidden md:inline-flex",
-            )}
-          >
-            {labels.writeGuide}
-          </button>
-          <MobileMenu
-            label={labels.menu}
-            guidesLabel={labels.guides}
-            games={games}
-            links={links}
-            writeGuide={labels.writeGuide}
-            onWriteGuide={openContribute}
-          />
+            <nav className="-mx-[9px] hidden items-center lg:flex">
+              <GuidesMenu label={labels.guides} games={games} />
+              {links.map((link) => (
+                <NavLink key={link.href} item={link} className={NAV_ITEM} />
+              ))}
+            </nav>
+          </div>
+
+          <div className="flex items-center justify-end gap-2 lg:gap-3.5">
+            <Button
+              variant="secondary"
+              size="icon"
+              aria-label={labels.search}
+              onClick={() => setOpenSearch(true)}
+              className={ICON_BUTTON_CLASS}
+            >
+              <SearchIcon aria-hidden />
+            </Button>
+            <LanguageMenu label={labels.language} />
+            <AppearanceSettings
+              labels={labels.settings}
+              triggerClassName={ICON_BUTTON}
+              align="end"
+            />
+            <Button
+              size="md"
+              onClick={openContribute}
+              className={cn(
+                "hidden px-6 font-semibold lg:inline-flex",
+                scrolled && "opacity-80 hover:opacity-100",
+              )}
+            >
+              {labels.writeGuide}
+            </Button>
+            <MobileMenu
+              label={labels.menu}
+              guidesLabel={labels.guides}
+              games={games}
+              links={links}
+              writeGuide={labels.writeGuide}
+              onWriteGuide={openContribute}
+            />
+          </div>
         </div>
       </div>
     </header>
@@ -203,10 +256,10 @@ function NavLink({
 }
 
 /**
- * "Guides ⌄": the site navbar's hover dropdown (NewLayout's Create Mods
- * menu) listing every game. Opens on hover, with a short close delay so the
- * pointer can travel to the panel, and on click for touch and keyboard.
- * Escape, or focus leaving the menu, closes it.
+ * "Guides ⌄": the site navbar's hover dropdown (NavMenuDropdown) listing every
+ * game. Opens on hover, with a short close delay so the pointer can travel to
+ * the panel, and on click for touch and keyboard. Escape, or focus leaving the
+ * menu, closes it.
  */
 function GuidesMenu({ label, games }: { label: string; games: GameEntry[] }) {
   const [open, setOpen] = useState(false);
@@ -241,17 +294,14 @@ function GuidesMenu({ label, games }: { label: string; games: GameEntry[] }) {
       <button
         type="button"
         aria-expanded={open}
+        aria-haspopup="true"
         onClick={() => setOpen((value) => !value)}
-        className={cn(
-          NAV_LINK,
-          "gap-1.5",
-          open && "text-divine-text light:bg-black/5 bg-white/5",
-        )}
+        className={NAV_ITEM}
       >
         {label}
         <ChevronDownIcon
           className={cn(
-            "size-3.5 transition-transform duration-300",
+            "size-3.5 shrink-0 transition-transform duration-300",
             open && "rotate-180",
           )}
           aria-hidden
@@ -267,7 +317,7 @@ function GuidesMenu({ label, games }: { label: string; games: GameEntry[] }) {
             : "pointer-events-none invisible translate-y-2 opacity-0",
         )}
       >
-        <div className={cn("w-64", DROPDOWN_PANEL)}>
+        <div className={menuPanelClassName("flex w-[200px] flex-col gap-0.5")}>
           {games.map((game) => (
             <GameMenuItem
               key={game.slug}
@@ -282,8 +332,8 @@ function GuidesMenu({ label, games }: { label: string; games: GameEntry[] }) {
 }
 
 /**
- * One game in the Guides menu: box art, name, and its guide count. A game
- * without guides yet shows "Coming soon" and isn't a link.
+ * One game in the Guides menu: its icon and name. A game without guides yet
+ * shows a muted icon and isn't a link.
  */
 function GameMenuItem({
   game,
@@ -294,31 +344,19 @@ function GameMenuItem({
 }) {
   const body = (
     <>
-      {/* eslint-disable-next-line @next/next/no-img-element -- tiny box-art thumbnail */}
-      <img
-        src={game.cover}
-        alt=""
-        width={24}
-        height={32}
-        className={cn(
-          "h-8 w-6 shrink-0 rounded-[4px] object-cover",
-          !game.href && "opacity-60 saturate-50",
-        )}
-      />
-      <span className="min-w-0 flex-1">
-        <span className="text-divine-text block text-[13px] leading-[18px] font-semibold">
-          {game.name}
-        </span>
-        <span className="text-divine-text-muted block text-xs">
-          {game.status}
-        </span>
-      </span>
+      <GameIcon game={game} />
+      <span>{game.name}</span>
     </>
   );
 
   if (!game.href) {
     return (
-      <div aria-disabled="true" className={cn(GAME_ROW, "cursor-default")}>
+      <div
+        aria-disabled="true"
+        className={menuItemClassName({
+          className: "cursor-default hover:bg-transparent",
+        })}
+      >
         {body}
       </div>
     );
@@ -327,10 +365,7 @@ function GameMenuItem({
     <Link
       href={game.href}
       onClick={onNavigate}
-      className={cn(
-        GAME_ROW,
-        "light:hover:bg-black/5 outline-none hover:bg-[#1A1922] focus-visible:bg-[#1A1922] [.minimal_&]:hover:bg-white/5",
-      )}
+      className={menuItemClassName({ className: "no-underline" })}
     >
       {body}
     </Link>
@@ -348,30 +383,21 @@ function LanguageMenu({ label }: { label: string }) {
   return (
     <Popover>
       <PopoverTrigger aria-label={label} className={ICON_BUTTON}>
-        <LanguagesIcon className="size-4" aria-hidden />
+        <LanguagesIcon aria-hidden />
       </PopoverTrigger>
-      <PopoverContent
-        align="end"
-        className="flex w-48 min-w-0 flex-col gap-0.5"
-      >
+      <PopoverContent align="end" className="flex w-48 flex-col gap-0.5">
         <MenuHeading>{label}</MenuHeading>
         {locales.map((item) => {
           const active = item.locale === locale;
           return (
-            <button
+            <PopoverItem
               key={item.locale}
-              type="button"
+              selected={active}
+              aria-pressed={active}
               onClick={() => router.push(homePath(item.locale))}
-              className={cn(MENU_ITEM, active && "text-divine-text")}
             >
               {item.name}
-              {active ? (
-                <CheckIcon
-                  className="text-divine-primary-light size-4"
-                  aria-hidden
-                />
-              ) : null}
-            </button>
+            </PopoverItem>
           );
         })}
       </PopoverContent>
@@ -400,14 +426,14 @@ function MobileMenu({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         aria-label={label}
-        className={cn(ICON_BUTTON, "md:hidden")}
+        className={cn(
+          buttonVariants({ variant: "ghost", size: "icon" }),
+          "text-divine-text lg:hidden [&_svg]:size-6",
+        )}
       >
-        <MenuIcon className="size-4" aria-hidden />
+        <MenuIcon aria-hidden />
       </PopoverTrigger>
-      <PopoverContent
-        align="end"
-        className="flex w-60 min-w-0 flex-col gap-0.5"
-      >
+      <PopoverContent align="end" className="flex w-60 flex-col gap-0.5">
         <MenuHeading>{guidesLabel}</MenuHeading>
         {games.map((game) => (
           <GameMenuItem
@@ -416,10 +442,7 @@ function MobileMenu({
             onNavigate={() => setOpen(false)}
           />
         ))}
-        <div
-          aria-hidden
-          className="light:border-divine-border my-1.5 border-t border-[#191722]"
-        />
+        <Separator className="my-1.5" />
         {links.map((link) => (
           <NavLink
             key={link.href}
@@ -428,16 +451,16 @@ function MobileMenu({
             onClick={() => setOpen(false)}
           />
         ))}
-        <button
-          type="button"
+        <Button
+          size="md"
           onClick={() => {
             setOpen(false);
             onWriteGuide();
           }}
-          className={cn(glowCtaClassName("solid", "md"), "mt-2 w-full")}
+          className="mt-2 w-full"
         >
           {writeGuide}
-        </button>
+        </Button>
       </PopoverContent>
     </Popover>
   );
@@ -448,7 +471,7 @@ function MobileMenu({
 // a <p> here would match it and squeeze this menu to 36px.
 function MenuHeading({ children }: { children: ReactNode }) {
   return (
-    <div className="light:text-fd-muted-foreground px-2.5 pt-1 pb-1.5 text-[11px] tracking-[0.18em] text-[#8B8D98]/70 uppercase">
+    <div className="text-divine-muted px-2.5 pt-1.5 pb-1 text-xs font-semibold">
       {children}
     </div>
   );

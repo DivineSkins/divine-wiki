@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { Card } from "@divineskins/ui";
 import {
   PencilLineIcon,
   CompassIcon,
@@ -11,6 +12,7 @@ import {
   ArrowUpRightIcon,
 } from "lucide-react";
 import { CategoryCard } from "@/components/home/category-card";
+import { CardLink } from "@/components/ui/links";
 import { MayaLogo, BlenderLogo, DiscordLogo } from "@/components/brand-logos";
 import { ContributeCtaButton } from "@/components/contribute-picker";
 import { getMessages } from "@/lib/locale";
@@ -131,19 +133,19 @@ export function DocsLanding({ lang }: { lang: string }) {
             </h2>
             <div className="grid gap-2 sm:grid-cols-2">
               {FEATURED.map((f) => (
-                <Link
+                <CardLink
                   key={f.href}
                   href={`/${lang}/${f.href}`}
-                  className="group divine-cut border-divine-border/70 bg-divine-surface/40 hover:border-divine-primary/40 hover:bg-divine-surface flex items-center justify-between gap-3 rounded-none border px-4 py-3 no-underline transition-colors"
+                  className="group flex items-center justify-between gap-3 px-4 py-3"
                 >
                   <span className="text-divine-text text-sm font-medium">
                     {f.label}
                   </span>
                   <ArrowUpRightIcon
-                    className="text-divine-text-muted group-hover:text-divine-primary-light size-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                    className="text-divine-text-muted group-hover:text-divine-highlight size-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
                     aria-hidden
                   />
-                </Link>
+                </CardLink>
               ))}
             </div>
           </section>
@@ -152,11 +154,12 @@ export function DocsLanding({ lang }: { lang: string }) {
         {/* ── Right rail (runs alongside from the top, sticks on scroll) ── */}
         <aside className="flex w-full shrink-0 flex-col gap-4 lg:sticky lg:top-6 lg:w-80 lg:self-start">
           {/* Featured tool — Jade */}
-          <Link
+          <CardLink
             href={`/${lang}/docs/lol/tools/modding-apps/jade`}
-            className="group divine-cut border-divine-primary/45 bg-divine-primary/10 hover:bg-divine-primary/15 hover:border-divine-primary/60 block rounded-none border p-5 no-underline transition-colors duration-200"
+            padding="md"
+            className="group block"
           >
-            <div className="text-divine-primary-light flex items-center gap-1.5 text-[11px] font-semibold tracking-wide uppercase">
+            <div className="text-divine-highlight flex items-center gap-1.5 text-[11px] font-semibold tracking-wide uppercase">
               <SparklesIcon className="size-3.5" aria-hidden />
               Featured tool
             </div>
@@ -167,17 +170,17 @@ export function DocsLanding({ lang }: { lang: string }) {
               The all-in-one editor - meshes, textures, animations and physics
               in one app instead of five.
             </p>
-            <span className="text-divine-primary-light mt-3 inline-flex items-center gap-1 text-sm font-medium">
+            <span className="text-divine-highlight mt-3 inline-flex items-center gap-1 text-sm font-medium">
               Open the guide
               <ArrowUpRightIcon
                 className="size-3.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
                 aria-hidden
               />
             </span>
-          </Link>
+          </CardLink>
 
           {/* Community */}
-          <div className="divine-cut border-divine-border bg-divine-surface/40 rounded-none border p-5">
+          <Card>
             <h3 className="text-divine-text text-base font-[var(--font-section)] font-semibold">
               {t.communityHeading ?? "It's all community-written"}
             </h3>
@@ -189,19 +192,19 @@ export function DocsLanding({ lang }: { lang: string }) {
               <ContributeCtaButton
                 text={t.ctaContribute}
                 icon={<PencilLineIcon className="size-4" aria-hidden />}
-                className="text-divine-text hover:text-divine-primary-light inline-flex items-center gap-2 text-sm no-underline transition-colors"
+                className="text-divine-text hover:text-divine-highlight inline-flex items-center gap-2 text-sm no-underline transition-colors"
               />
               <Link
                 href={discordInviteUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-divine-text hover:text-divine-primary-light inline-flex items-center gap-2 text-sm no-underline transition-colors"
+                className="text-divine-text hover:text-divine-highlight inline-flex items-center gap-2 text-sm no-underline transition-colors"
               >
                 <DiscordLogo className="size-4" />
                 {t.joinDiscord}
               </Link>
             </div>
-          </div>
+          </Card>
 
           {/* Stat */}
           <p className="text-divine-text-muted/70 text-center text-xs">

@@ -57,7 +57,7 @@ export const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(
         placeholder={placeholder}
         theme={divineEditorTheme}
         height="100%"
-        // Accent for cm-theme.ts: lilac on dark, the amber text tone on light.
+        // Accent for cm-theme.ts: lilac on dark, the purple text tone on light.
         className="light:[--editor-accent:var(--color-divine-primary)] h-full [--editor-accent:var(--color-divine-primary-light)]"
         basicSetup={{ lineNumbers: true, foldGutter: false }}
         extensions={[markdown(), EditorView.lineWrapping, ...extraExtensions]}

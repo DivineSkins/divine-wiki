@@ -28,7 +28,7 @@ export function MenuPath({ path }: MenuPathProps) {
                 className="text-divine-text-muted size-3.5 shrink-0"
               />
             ) : null}
-            <span className="light:border-divine-border light:bg-divine-elevated text-divine-text rounded-md border border-[#25222F] bg-white/5 px-1.5 py-0.5 [font-family:var(--font-ui)] text-[13px] leading-tight font-semibold">
+            <span className="light:bg-divine-elevated text-divine-text border-divine-border-subtle rounded-md border bg-white/5 px-1.5 py-0.5 [font-family:var(--font-ui)] text-[13px] leading-tight font-semibold">
               {item}
             </span>
           </Fragment>

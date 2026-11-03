@@ -75,7 +75,7 @@ export default async function Layout({
   const messages = getMessages(lang);
 
   return (
-    <>
+    <div className="bg-divine-bg flex flex-1 flex-col">
       <SiteHeader
         lang={lang}
         games={listGames(lang, messages.home)}
@@ -90,6 +90,6 @@ export default async function Layout({
       />
       <main className="flex flex-1 flex-col">{children}</main>
       <SiteFooter lang={lang} />
-    </>
+    </div>
   );
 }

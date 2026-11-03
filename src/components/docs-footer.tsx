@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import Link from "next/link";
+import { CardLink } from "@/components/ui/links";
 import { useMessages } from "@/lib/hooks/useMessages";
 import { cn } from "@/lib/utils";
 
@@ -58,17 +58,17 @@ function FooterCard({
   direction: "previous" | "next";
 }) {
   return (
-    <Link
+    <CardLink
       href={item.url}
       className={cn(
-        "group light:border-divine-border light:bg-divine-surface light:hover:bg-divine-elevated flex flex-col rounded-xl border border-[#191722] bg-[#121119] px-5 py-4 leading-normal no-underline transition-[background-color,border-color] duration-200 ease-out hover:bg-[#1A1922]",
+        "group flex flex-col px-5 py-4 leading-normal",
         direction === "next" && "items-end text-right",
       )}
     >
-      <span className="text-[11px] tracking-[0.18em] text-[#8B8D98]/70 uppercase">
+      <span className="text-divine-muted/70 text-[11px] tracking-[0.18em] uppercase">
         {label}
       </span>
-      <span className="text-divine-text group-hover:text-divine-primary-light mt-1.5 text-[16px] leading-snug font-bold transition-colors duration-200">
+      <span className="text-divine-text group-hover:text-divine-highlight mt-1.5 text-[16px] leading-snug font-bold transition-colors duration-200">
         {item.name}
       </span>
       {item.description ? (
@@ -76,6 +76,6 @@ function FooterCard({
           {item.description}
         </span>
       ) : null}
-    </Link>
+    </CardLink>
   );
 }
