@@ -46,6 +46,28 @@ const config = {
         ],
       },
       {
+        // Pages and their RSC payloads (same path plus ?_rsc=). Skips
+        // /_next/*, /api/* and any path with a dot (robots.txt, sitemap.xml,
+        // llms.txt, images), which keep their own caching.
+        //
+        // Prerendered pages otherwise ship "s-maxage=31536000,
+        // stale-while-revalidate=2592000" from the OpenNext cache
+        // interceptor. Browsers ignore s-maxage but honour the SWR window, so
+        // for 30 days a repeat visit can be answered from the browser cache
+        // with HTML or RSC from an older deploy. That payload pulls the old
+        // deploy's JS chunks into a page running the new ones. Turbopack
+        // module ids stay the same across builds while export names are
+        // mangled per build, so the old code calls exports that no longer
+        // exist ("(0, f.f) is not a function") and the page crashes before
+        // Next's build-id check can force a full reload.
+        //
+        // no-cache keeps responses storable (back/forward cache still works)
+        // but makes the browser revalidate every time. OpenNext applies these
+        // headers after the cache interceptor's, so this value wins.
+        source: "/:path((?!_next/|api/)[^.]*)",
+        headers: [{ key: "Cache-Control", value: "no-cache" }],
+      },
+      {
         // The search index routes (one per locale and game). Production
         // serves them as static files under /search/<hash>/ (public/_headers);
         // the route only changes with a deploy, so it can be cached forever.
