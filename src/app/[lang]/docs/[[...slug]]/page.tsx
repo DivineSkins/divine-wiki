@@ -27,6 +27,7 @@ import {
   LANDING_OG_HEIGHT,
   SITE_NAME,
   docsTitle,
+  gameSeo,
 } from "@/lib/seo";
 import { Button, Separator } from "@divineskins/ui";
 import { DocsLanding } from "@/components/home/docs-landing";
@@ -276,24 +277,12 @@ export async function generateMetadata(
   const pageKeywords = [
     ...new Set([...(page.data.keywords ?? []), ...(page.data.tags ?? [])]),
   ];
-  // Keywords follow the page's game segment, so Deadlock guides don't
-  // advertise League terms (and the other way round).
-  const globalKeywords =
-    slug[0] === "deadlock"
-      ? [
-          "deadlock",
-          "deadlock mods",
-          "deadlock modding",
-          "deadlock custom skins",
-          "divine skins",
-        ]
-      : [
-          "league of legends",
-          "lol custom skins",
-          "league modding",
-          "divine skins",
-          "celestial launcher",
-        ];
+  // Keywords follow the page's game segment, so one game's guides don't
+  // advertise another game's terms.
+  const globalKeywords = [
+    ...(gameSeo(slug[0])?.keywords ?? []),
+    "divine skins",
+  ];
 
   // hreflang: advertise only locales that actually have this page. Missing
   // locales fall back to English at render time, so listing them would point

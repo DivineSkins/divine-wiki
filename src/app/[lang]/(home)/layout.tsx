@@ -7,6 +7,8 @@ import {
   LANDING_OG_HEIGHT,
   LANDING_OG_IMAGE,
   LANDING_OG_WIDTH,
+  HOME_TITLE,
+  SITE_DESCRIPTION,
   SITE_NAME,
   baseOpenGraph,
   baseTwitter,
@@ -14,9 +16,6 @@ import {
 } from "@/lib/seo";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-
-const DESCRIPTION =
-  "Guides for making custom skins and mods, written by the Divine Skins creator community. Modeling, VFX, animations, and the tools behind them.";
 
 export async function generateMetadata({
   params,
@@ -33,8 +32,8 @@ export async function generateMetadata({
   languages["x-default"] = homePath(i18n.defaultLanguage);
 
   return {
-    title: SITE_NAME,
-    description: DESCRIPTION,
+    title: { absolute: HOME_TITLE },
+    description: SITE_DESCRIPTION,
     alternates: {
       canonical: homePath(lang),
       languages,
@@ -43,8 +42,8 @@ export async function generateMetadata({
     // The site's landing page gets the static branded banner (see seo.ts).
     openGraph: {
       ...baseOpenGraph,
-      title: SITE_NAME,
-      description: DESCRIPTION,
+      title: HOME_TITLE,
+      description: SITE_DESCRIPTION,
       url: homePath(lang),
       images: [
         {
@@ -57,8 +56,8 @@ export async function generateMetadata({
     },
     twitter: {
       ...baseTwitter,
-      title: SITE_NAME,
-      description: DESCRIPTION,
+      title: HOME_TITLE,
+      description: SITE_DESCRIPTION,
       images: [LANDING_OG_IMAGE],
     },
   };
