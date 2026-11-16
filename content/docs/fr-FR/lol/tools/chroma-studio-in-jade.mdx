@@ -1,7 +1,10 @@
 ---
 title: "Recolorer un skin avec Chroma Studio dans Jade"
-description: "Utilise Chroma Studio dans Jade pour sélectionner une partie d'un modèle et changer ses couleurs avec la teinte, la balance des couleurs et d'autres réglages."
+description: "Utilise Chroma Studio dans Jade pour sélectionner une partie d'un modèle et changer ses couleurs avec la teinte, la balance des couleurs, les niveaux et d'autres réglages."
 category: "tools"
+credits:
+  discord: Ceerel
+  github: CeerelXP
 ---
 
 Chroma Studio est un outil de recoloration intégré à [Jade](/docs/lol/tools/modding-apps/jade).
@@ -10,7 +13,7 @@ Il te permet de sélectionner une seule partie d'un modèle et de changer ses co
 ## Avant de commencer
 
 - Installe [Jade](/docs/lol/tools/modding-apps/jade).
-- Choisis le skin que tu veux recolorer.
+- Extrais le skin que tu veux recolorer, pour avoir son fichier `.skn` et ses textures.
 
 ## Ouvre Chroma Studio
 
@@ -21,62 +24,80 @@ Il te permet de sélectionner une seule partie d'un modèle et de changer ses co
   alt="Écran d'accueil de Jade avec Open file mis en évidence dans la barre latérale"
 />
 
-2. Charge le skin que tu veux recolorer.
-3. Clique sur le bouton mis en évidence dans la barre d'outils pour ouvrir Chroma Studio.
+2. Clique sur le bouton mis en évidence dans la barre d'outils pour ouvrir Chroma Studio.
 
 <img
   src="/wiki-images/jade2.png"
   alt="Barre d'outils de l'éditeur Jade avec le bouton Chroma Studio mis en évidence"
 />
 
-## Repère-toi dans l'interface
-
-- **À gauche :** les textures utilisées par le mesh.
-- **À droite :** les réglages de tes modifications.
+Chroma Studio reste vide tant que tu n'as pas chargé de modèle.
 
 <img
-  src="/wiki-images/jade-3.png"
-  alt="Chroma Studio avec les textures du mesh à gauche et les réglages à droite"
+  src="/wiki-images/chroma-studio-empty.webp"
+  alt="Onglet Chroma Studio vide, en attente d'un modèle"
 />
+
+## Charge un modèle
+
+1. Clique sur **Load SKN…** dans le panneau **Assets**. Tu peux aussi glisser un fichier `.skn` directement dans le viewport.
+2. Choisis le fichier `.skn` du skin.
+3. Vérifie que les textures utilisées par le modèle apparaissent dans le panneau **Assets**.
+
+<img
+  src="/wiki-images/chroma-studio-loaded.webp"
+  alt="Chroma Studio avec un modèle chargé et ses textures listées dans le panneau Assets"
+/>
+
+## Repère-toi dans l'interface
+
+- **Assets** (à gauche) : le modèle et les textures qu'il utilise.
+- **Viewport** (au milieu) : un aperçu du modèle en direct.
+- **Mesh** (en bas) : les parties du modèle, qu'on appelle des submeshes.
+- **Recolor** (à droite) : les réglages de tes modifications.
+- **Texture** et **UV** (tout à droite) : la texture et ses îlots UV.
 
 ## Sélectionne une zone du modèle
 
-La partie droite affiche les îlots UV. Un îlot UV indique au modèle quelle zone de la texture utiliser pour chacune de ses parties.
+Un îlot UV, c'est un morceau à plat de la texture. Il indique au modèle quelle zone de la texture utiliser pour chacune de ses parties.
 C'est pour ça que les textures de League, comme celles de la plupart des modèles, ont l'air aplaties.
 
 <img
-  src="/wiki-images/jade-4.png"
-  alt="Un îlot UV affiché dans la partie droite de Chroma Studio"
+  src="/wiki-images/chroma-studio-uv-island.webp"
+  alt="Un îlot UV mis en évidence dans le panneau UV"
 />
 
-1. Clique sur n'importe quelle zone du mesh.
-2. Vérifie que la zone est bien surlignée à droite et sur le modèle.
-3. Modifie les réglages. Tes changements ne touchent que cette zone.
+1. Choisis **Island** dans le panneau **UV**.
+2. Clique sur l'îlot que tu veux recolorer.
+3. Vérifie que la zone est bien surlignée sur la texture et sur le modèle.
+
+Le haut du panneau **Recolor** t'indique ce que tu es en train de modifier. Si rien n'est sélectionné, tes changements s'appliquent à toute la texture.
 
 <img
-  src="/wiki-images/jade-5.png"
-  alt="Une zone sélectionnée surlignée sur la texture et sur le modèle"
+  src="/wiki-images/chroma-studio-island-selected.webp"
+  alt="Un îlot sélectionné surligné sur la texture, avec Editing 1 islands affiché dans le panneau Recolor"
 />
 
 ## Ajuste les couleurs
 
-Chaque réglage ci-dessous ne modifie que la zone que tu as sélectionnée.
+Coche la case à côté d'un réglage pour l'activer.
+Chaque réglage ne modifie que la zone que tu as sélectionnée.
 
-### Teinte, saturation et luminosité
+### Hue / Saturation
 
-- **Hue :** change la couleur, par exemple du rouge au bleu.
+- **Hue :** change la couleur, par exemple du rouge au vert.
 - **Saturation :** règle l'intensité de la couleur.
 - **Lightness :** rend la zone plus sombre ou plus blanche.
 
 <img
-  src="/wiki-images/screenshot-2026-11-16-151518.png"
-  alt="Réglages de teinte, saturation et luminosité dans Chroma Studio"
+  src="/wiki-images/chroma-studio-hue-saturation.webp"
+  alt="Hue / Saturation activé, la zone sélectionnée passe au vert"
 />
 
-### Balance des couleurs
+### Color Balance
 
-La balance des couleurs est le réglage le plus utile.
-Elle fait glisser la couleur entre chaque couleur primaire et son opposée sur l'échelle RVB.
+Color Balance (la balance des couleurs) est le réglage le plus utile.
+Chaque curseur fait glisser la couleur entre une couleur primaire et son opposée : cyan et rouge, magenta et vert, jaune et bleu.
 
 - **Shadows :** change la teinte des parties les plus sombres de la zone.
 - **Midtones :** change la teinte des tons moyens.
@@ -85,69 +106,56 @@ Elle fait glisser la couleur entre chaque couleur primaire et son opposée sur l
 Déplace les curseurs jusqu'à ce que la couleur te plaise.
 
 <img
-  src="/wiki-images/screenshot-2026-11-16-151816.png"
-  alt="Réglages de balance des couleurs dans Chroma Studio"
+  src="/wiki-images/chroma-studio-color-balance.webp"
+  alt="Curseurs de Color Balance pour les ombres, les tons moyens et les hautes lumières"
 />
 
-### Température et teinte
+### Temperature / Tint
 
 La température et la teinte gèrent la balance des blancs.
 La température fait passer les couleurs du chaud au froid. La teinte les fait passer du vert au magenta.
 
 <img
-  src="/wiki-images/screenshot-2026-11-16-151939.png"
-  alt="Réglages de température et de teinte dans Chroma Studio"
+  src="/wiki-images/chroma-studio-temperature-tint.webp"
+  alt="Curseurs Temperature / Tint"
 />
 
-### Luminosité
+### Brightness / Contrast
 
-Ce réglage définit à quel point la zone est lumineuse.
+- **Brightness :** règle à quel point la zone est lumineuse.
+- **Contrast :** règle l'écart entre les parties sombres et les parties claires.
 
 <img
-  src="/wiki-images/screenshot-2026-11-16-152005.png"
-  alt="Réglage de luminosité dans Chroma Studio"
+  src="/wiki-images/chroma-studio-brightness-contrast.webp"
+  alt="Curseurs Brightness / Contrast"
 />
 
-### Tons
+### Levels
 
-Ces réglages modifient la luminosité, les ombres et le contraste de la zone. Ils ne changent pas sa couleur.
+Levels (les niveaux) modifie la luminosité, les ombres et le contraste de la zone. Ça ne change pas sa couleur.
 
-<img
-  src="/wiki-images/screenshot-2026-11-16-152117.png"
-  alt="Réglages des tons dans Chroma Studio"
-/>
+- **Black :** règle à quel point les parties les plus sombres deviennent sombres.
+- **Gamma :** rend les tons moyens plus clairs ou plus sombres.
+- **White :** règle à quel point les parties les plus claires deviennent claires.
 
-### Tons foncés et tons clairs
+<img src="/wiki-images/chroma-studio-levels.webp" alt="Curseurs de Levels" />
 
-Ces réglages font ressortir les détails uniquement dans les parties les plus claires et les plus sombres de la zone.
+### Highlights / Shadows
+
+Fait ressortir les détails uniquement dans les parties les plus claires et les plus sombres de la zone.
 Les tons moyens ne bougent pas.
 
-<img
-  src="/wiki-images/screenshot-2026-11-16-152153.png"
-  alt="Réglages des tons foncés et des tons clairs dans Chroma Studio"
-/>
-
-### Remplace une couleur
+### Color Accent
 
 Choisis une couleur dans la texture et remplace-la par une autre.
 Tu peux aussi l'isoler. Le reste de la texture ne change pas.
 
-<img
-  src="/wiki-images/screenshot-2026-11-16-152220.png"
-  alt="Réglages de remplacement de couleur dans Chroma Studio"
-/>
-
-### Fais correspondre une couleur
+### Color Match
 
 Choisis une couleur. Chroma Studio modifie la zone pour s'en rapprocher le plus possible.
 
-<img
-  src="/wiki-images/screenshot-2026-11-16-152323.png"
-  alt="Réglages de correspondance de couleur dans Chroma Studio"
-/>
+### Gradient Map, Black and White et Transparency
 
-### Courbe de transfert de dégradé, noir et blanc et transparence
-
-- **Gradient map :** remplace les couleurs d'origine par un dégradé de deux couleurs, selon la luminosité de chaque partie.
-- **Black and white :** passe la zone en noir et blanc.
+- **Gradient Map :** remplace les couleurs d'origine par un dégradé de deux couleurs, selon la luminosité de chaque partie.
+- **Black and White :** passe la zone en noir et blanc.
 - **Transparency :** règle à quel point on voit à travers la zone.

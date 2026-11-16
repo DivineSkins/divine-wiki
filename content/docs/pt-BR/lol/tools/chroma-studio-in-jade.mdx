@@ -1,7 +1,10 @@
 ---
 title: "Mude as cores de uma skin com o Chroma Studio no Jade"
-description: "Use o Chroma Studio no Jade para selecionar uma parte do modelo e mudar as cores dela com matiz, equilíbrio de cores e outros ajustes."
+description: "Use o Chroma Studio no Jade para selecionar uma parte do modelo e mudar as cores dela com matiz, equilíbrio de cores, níveis e outros ajustes."
 category: "tools"
+credits:
+  discord: Ceerel
+  github: CeerelXP
 ---
 
 O Chroma Studio é uma ferramenta de recolor que fica dentro do [Jade](/docs/lol/tools/modding-apps/jade).
@@ -10,7 +13,7 @@ Com ele você seleciona uma parte do modelo e muda as cores dela sem mexer no re
 ## Antes de começar
 
 - Instale o [Jade](/docs/lol/tools/modding-apps/jade).
-- Escolha a skin que você quer recolorir.
+- Extraia a skin que você quer recolorir, pra ter o arquivo `.skn` e as texturas dela.
 
 ## Abra o Chroma Studio
 
@@ -21,62 +24,80 @@ Com ele você seleciona uma parte do modelo e muda as cores dela sem mexer no re
   alt="Tela inicial do Jade com Open file destacado na barra lateral"
 />
 
-2. Carregue a skin que você quer recolorir.
-3. Clique no botão destacado na barra de ferramentas para abrir o Chroma Studio.
+2. Clique no botão destacado na barra de ferramentas para abrir o Chroma Studio.
 
 <img
   src="/wiki-images/jade2.png"
   alt="Barra de ferramentas do editor do Jade com o botão do Chroma Studio destacado"
 />
 
-## Conheça a interface
-
-- **Lado esquerdo:** as texturas que a mesh usa.
-- **Lado direito:** as configurações das suas alterações.
+O Chroma Studio abre vazio até você carregar um modelo.
 
 <img
-  src="/wiki-images/jade-3.png"
-  alt="Chroma Studio com as texturas da mesh à esquerda e as configurações à direita"
+  src="/wiki-images/chroma-studio-empty.webp"
+  alt="Aba do Chroma Studio vazia, esperando um modelo"
 />
+
+## Carregue um modelo
+
+1. Clique em **Load SKN…** no painel **Assets**. Você também pode arrastar um arquivo `.skn` direto pro viewport.
+2. Escolha o arquivo `.skn` da skin.
+3. Confira se as texturas que o modelo usa aparecem no painel **Assets**.
+
+<img
+  src="/wiki-images/chroma-studio-loaded.webp"
+  alt="Chroma Studio com um modelo carregado e as texturas dele listadas no painel Assets"
+/>
+
+## Conheça a interface
+
+- **Assets** (esquerda): o modelo e as texturas que ele usa.
+- **Viewport** (meio): uma prévia ao vivo do modelo.
+- **Mesh** (embaixo): as partes do modelo, chamadas de submeshes.
+- **Recolor** (direita): as configurações das suas alterações.
+- **Texture** e **UV** (canto direito): a textura e as ilhas UV dela.
 
 ## Selecione uma área do modelo
 
-O lado direito mostra as ilhas UV. Uma ilha UV diz ao modelo qual pedaço da textura cada parte dele vai usar.
+Uma ilha UV é um pedaço plano da textura. Ela diz ao modelo qual área da textura cada parte dele vai usar.
 É por isso que as texturas do League, e da maioria dos modelos, parecem achatadas.
 
 <img
-  src="/wiki-images/jade-4.png"
-  alt="Uma ilha UV no lado direito do Chroma Studio"
+  src="/wiki-images/chroma-studio-uv-island.webp"
+  alt="Uma ilha UV destacada no painel UV"
 />
 
-1. Clique em qualquer área da mesh.
-2. Confira se a área ficou destacada no lado direito e no modelo.
-3. Mude as configurações. As alterações só valem para essa área.
+1. Escolha **Island** no painel **UV**.
+2. Clique na ilha que você quer recolorir.
+3. Confira se a área ficou destacada na textura e no modelo.
+
+O topo do painel **Recolor** mostra o que você está editando. Se nada estiver selecionado, as alterações valem pra textura inteira.
 
 <img
-  src="/wiki-images/jade-5.png"
-  alt="Uma área selecionada destacada na textura e no modelo"
+  src="/wiki-images/chroma-studio-island-selected.webp"
+  alt="Uma ilha selecionada destacada na textura, com Editing 1 islands aparecendo no painel Recolor"
 />
 
 ## Ajuste as cores
 
-Todas as configurações abaixo só mudam a área que você selecionou.
+Marque a caixa ao lado de uma configuração pra ativar ela.
+Todas as configurações só mudam a área que você selecionou.
 
-### Matiz, saturação e luminosidade
+### Hue / Saturation
 
-- **Hue:** muda a cor em si, por exemplo de vermelho para azul.
+- **Hue:** muda a cor em si, por exemplo de vermelho para verde.
 - **Saturation:** muda a intensidade da cor.
 - **Lightness:** deixa a área mais escura ou mais clara, até o branco.
 
 <img
-  src="/wiki-images/screenshot-2026-11-16-151518.png"
-  alt="Configurações de matiz, saturação e luminosidade no Chroma Studio"
+  src="/wiki-images/chroma-studio-hue-saturation.webp"
+  alt="Hue / Saturation ativado, deixando a área selecionada verde"
 />
 
-### Equilíbrio de cores
+### Color Balance
 
-O equilíbrio de cores é a configuração mais útil.
-Ele puxa a cor entre cada cor primária e a sua oposta na escala RGB.
+O Color Balance (o equilíbrio de cores do Photoshop) é a configuração mais útil.
+Cada slider puxa a cor entre uma cor primária e a oposta dela: ciano e vermelho, magenta e verde, amarelo e azul.
 
 - **Shadows:** muda o tom das partes mais escuras da área.
 - **Midtones:** muda o tom da faixa de brilho intermediária.
@@ -85,69 +106,56 @@ Ele puxa a cor entre cada cor primária e a sua oposta na escala RGB.
 Mexa nos sliders até a cor ficar do jeito que você quer.
 
 <img
-  src="/wiki-images/screenshot-2026-11-16-151816.png"
-  alt="Configurações de equilíbrio de cores no Chroma Studio"
+  src="/wiki-images/chroma-studio-color-balance.webp"
+  alt="Sliders do Color Balance para sombras, tons médios e realces"
 />
 
-### Temperatura e tonalidade
+### Temperature / Tint
 
 Temperatura e tonalidade controlam o equilíbrio de branco.
 A temperatura leva as cores entre quente e frio. A tonalidade leva entre verde e magenta.
 
 <img
-  src="/wiki-images/screenshot-2026-11-16-151939.png"
-  alt="Configurações de temperatura e tonalidade no Chroma Studio"
+  src="/wiki-images/chroma-studio-temperature-tint.webp"
+  alt="Sliders de Temperature / Tint"
 />
 
-### Brilho
+### Brightness / Contrast
 
-O brilho define o quanto a área fica clara.
+- **Brightness:** define o quanto a área fica clara.
+- **Contrast:** define a diferença entre as partes escuras e as claras.
 
 <img
-  src="/wiki-images/screenshot-2026-11-16-152005.png"
-  alt="Configuração de brilho no Chroma Studio"
+  src="/wiki-images/chroma-studio-brightness-contrast.webp"
+  alt="Sliders de Brightness / Contrast"
 />
 
-### Tom
+### Levels
 
-Essas configurações mudam o brilho, as sombras e o contraste da área. A cor continua a mesma.
+O Levels muda o brilho, as sombras e o contraste da área. A cor continua a mesma.
 
-<img
-  src="/wiki-images/screenshot-2026-11-16-152117.png"
-  alt="Configurações de tom no Chroma Studio"
-/>
+- **Black:** define o quanto as partes mais escuras escurecem.
+- **Gamma:** deixa os tons médios mais claros ou mais escuros.
+- **White:** define o quanto as partes mais claras clareiam.
 
-### Sombras e realces
+<img src="/wiki-images/chroma-studio-levels.webp" alt="Sliders do Levels" />
 
-Essas configurações recuperam detalhes só nas partes mais claras e mais escuras da área.
+### Highlights / Shadows
+
+Recupera detalhes só nas partes mais claras e mais escuras da área.
 Os tons médios não mudam.
 
-<img
-  src="/wiki-images/screenshot-2026-11-16-152153.png"
-  alt="Configurações de sombras e realces no Chroma Studio"
-/>
-
-### Substituir uma cor
+### Color Accent
 
 Escolha uma cor da textura e troque por outra.
 Você também pode isolar essa cor. O resto da textura continua igual.
 
-<img
-  src="/wiki-images/screenshot-2026-11-16-152220.png"
-  alt="Configurações de substituir cor no Chroma Studio"
-/>
+### Color Match
 
-### Corresponder uma cor
+Escolha uma cor. O Chroma Studio ajusta a área pra chegar o mais perto possível dela.
 
-Escolha uma cor. O Chroma Studio ajusta a área para chegar o mais perto possível dela.
+### Gradient Map, Black and White e Transparency
 
-<img
-  src="/wiki-images/screenshot-2026-11-16-152323.png"
-  alt="Configurações de corresponder cor no Chroma Studio"
-/>
-
-### Mapa de gradiente, preto e branco e transparência
-
-- **Gradient map:** troca as cores originais por um gradiente de duas cores, de acordo com o brilho de cada parte.
-- **Black and white:** deixa a área em preto e branco.
+- **Gradient Map:** troca as cores originais por um gradiente de duas cores, de acordo com o brilho de cada parte.
+- **Black and White:** deixa a área em preto e branco.
 - **Transparency:** muda o quanto dá para ver através da área.

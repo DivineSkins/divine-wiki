@@ -1,7 +1,10 @@
 ---
 title: "Przekoloruj skina w Chroma Studio w Jade"
-description: "Użyj Chroma Studio w Jade, żeby zaznaczyć jedną część modelu i zmienić jej kolory za pomocą barwy, balansu kolorów i innych ustawień."
+description: "Użyj Chroma Studio w Jade, żeby zaznaczyć jedną część modelu i zmienić jej kolory za pomocą barwy, balansu kolorów, poziomów i innych ustawień."
 category: "tools"
+credits:
+  discord: Ceerel
+  github: CeerelXP
 ---
 
 Chroma Studio to narzędzie do przekolorowywania wbudowane w [Jade](/docs/lol/tools/modding-apps/jade).
@@ -10,7 +13,7 @@ Zaznaczasz w nim jedną część modelu i zmieniasz jej kolory, a reszta zostaje
 ## Zanim zaczniesz
 
 - Zainstaluj [Jade](/docs/lol/tools/modding-apps/jade).
-- Wybierz skina, którego chcesz przekolorować.
+- Wypakuj skina, którego chcesz przekolorować, żeby mieć jego plik `.skn` i tekstury.
 
 ## Otwórz Chroma Studio
 
@@ -21,62 +24,80 @@ Zaznaczasz w nim jedną część modelu i zmieniasz jej kolory, a reszta zostaje
   alt="Ekran startowy Jade z zaznaczonym przyciskiem Open file na pasku bocznym"
 />
 
-2. Wczytaj skina, którego chcesz przekolorować.
-3. Kliknij zaznaczony przycisk na pasku narzędzi, żeby otworzyć Chroma Studio.
+2. Kliknij zaznaczony przycisk na pasku narzędzi, żeby otworzyć Chroma Studio.
 
 <img
   src="/wiki-images/jade2.png"
   alt="Pasek narzędzi edytora Jade z zaznaczonym przyciskiem Chroma Studio"
 />
 
-## Poznaj układ okna
-
-- **Po lewej:** tekstury, których używa mesh.
-- **Po prawej:** ustawienia twoich zmian.
+Chroma Studio jest puste, dopóki nie wczytasz modelu.
 
 <img
-  src="/wiki-images/jade-3.png"
-  alt="Chroma Studio z teksturami mesha po lewej i ustawieniami po prawej"
+  src="/wiki-images/chroma-studio-empty.webp"
+  alt="Pusta karta Chroma Studio czekająca na model"
 />
+
+## Wczytaj model
+
+1. Kliknij **Load SKN…** w panelu **Assets**. Możesz też upuścić plik `.skn` na podgląd.
+2. Wybierz plik `.skn` skina.
+3. Sprawdź, czy tekstury, których używa model, pojawiły się w panelu **Assets**.
+
+<img
+  src="/wiki-images/chroma-studio-loaded.webp"
+  alt="Chroma Studio z wczytanym modelem i jego teksturami w panelu Assets"
+/>
+
+## Poznaj układ okna
+
+- **Assets** (po lewej): model i tekstury, których używa.
+- **Viewport** (na środku): podgląd modelu na żywo.
+- **Mesh** (na dole): części modelu, czyli submeshe.
+- **Recolor** (po prawej): ustawienia twoich zmian.
+- **Texture** i **UV** (skrajnie po prawej): tekstura i jej wyspy UV.
 
 ## Zaznacz fragment modelu
 
-Po prawej widzisz wyspy UV. Wyspa UV mówi modelowi, z którego miejsca tekstury ma brać obraz dla danej części.
+Wyspa UV to jeden płaski kawałek tekstury. Mówi modelowi, z którego miejsca tekstury ma brać obraz dla danej części.
 Dlatego tekstury z League, jak większość tekstur modeli, wyglądają na płasko rozłożone.
 
 <img
-  src="/wiki-images/jade-4.png"
-  alt="Wyspa UV widoczna po prawej stronie Chroma Studio"
+  src="/wiki-images/chroma-studio-uv-island.webp"
+  alt="Wyspa UV podświetlona w panelu UV"
 />
 
-1. Kliknij dowolny fragment mesha.
-2. Sprawdź, czy ten fragment podświetlił się po prawej i na modelu.
-3. Zmień ustawienia. Zmiany dotyczą tylko tego fragmentu.
+1. Wybierz **Island** w panelu **UV**.
+2. Kliknij wyspę, którą chcesz przekolorować.
+3. Sprawdź, czy ten fragment podświetlił się na teksturze i na modelu.
+
+Na górze panelu **Recolor** widzisz, co aktualnie edytujesz. Jeśli nic nie jest zaznaczone, zmiany obejmą całą teksturę.
 
 <img
-  src="/wiki-images/jade-5.png"
-  alt="Zaznaczony fragment podświetlony na teksturze i na modelu"
+  src="/wiki-images/chroma-studio-island-selected.webp"
+  alt="Zaznaczona wyspa podświetlona na teksturze, a w panelu Recolor napis Editing 1 islands"
 />
 
 ## Zmień kolory
 
-Każde z poniższych ustawień zmienia tylko zaznaczony fragment.
+Zaznacz pole obok ustawienia, żeby je włączyć.
+Każde ustawienie zmienia tylko zaznaczony fragment.
 
-### Barwa, nasycenie i jasność
+### Hue / Saturation
 
-- **Hue:** zmienia barwę, na przykład z czerwonej na niebieską.
+- **Hue:** zmienia barwę, na przykład z czerwonej na zieloną.
 - **Saturation:** zmienia nasycenie, czyli to, jak mocny jest kolor.
 - **Lightness:** zmienia jasność, czyli to, jak ciemny albo biały jest fragment.
 
 <img
-  src="/wiki-images/screenshot-2026-11-16-151518.png"
-  alt="Ustawienia barwy, nasycenia i jasności w Chroma Studio"
+  src="/wiki-images/chroma-studio-hue-saturation.webp"
+  alt="Włączone Hue / Saturation, które zmienia kolor zaznaczonego fragmentu na zielony"
 />
 
-### Balans kolorów
+### Color Balance
 
-Balans kolorów to najprzydatniejsze ustawienie.
-Przesuwa kolor między każdym kolorem podstawowym a jego przeciwieństwem w skali RGB.
+Color Balance (w Photoshopie to Balans kolorów) to najprzydatniejsze ustawienie.
+Każdy suwak przesuwa kolor między kolorem podstawowym a jego przeciwieństwem: cyjanem i czerwienią, magentą i zielenią, żółcią i niebieskim.
 
 - **Shadows:** zmienia zabarwienie cieni, czyli najciemniejszych miejsc fragmentu.
 - **Midtones:** zmienia zabarwienie półtonów, czyli średnich jasności.
@@ -85,69 +106,56 @@ Przesuwa kolor między każdym kolorem podstawowym a jego przeciwieństwem w ska
 Przesuwaj suwaki, aż kolor będzie ci pasował.
 
 <img
-  src="/wiki-images/screenshot-2026-11-16-151816.png"
-  alt="Ustawienia balansu kolorów w Chroma Studio"
+  src="/wiki-images/chroma-studio-color-balance.webp"
+  alt="Suwaki Color Balance dla cieni, półtonów i świateł"
 />
 
-### Temperatura i odcień
+### Temperature / Tint
 
 Temperatura i odcień odpowiadają za balans bieli.
 Temperatura przesuwa kolory między ciepłymi a zimnymi. Odcień przesuwa je między zielenią a magentą.
 
 <img
-  src="/wiki-images/screenshot-2026-11-16-151939.png"
-  alt="Ustawienia temperatury i odcienia w Chroma Studio"
+  src="/wiki-images/chroma-studio-temperature-tint.webp"
+  alt="Suwaki Temperature / Tint"
 />
 
-### Jasność
+### Brightness / Contrast
 
-To ustawienie decyduje, jak jasny jest fragment.
+- **Brightness:** ustawia, jak jasny jest fragment.
+- **Contrast:** ustawia, jak bardzo różnią się od siebie ciemne i jasne miejsca.
 
 <img
-  src="/wiki-images/screenshot-2026-11-16-152005.png"
-  alt="Ustawienie jasności w Chroma Studio"
+  src="/wiki-images/chroma-studio-brightness-contrast.webp"
+  alt="Suwaki Brightness / Contrast"
 />
 
-### Tonalność
+### Levels
 
-Te ustawienia zmieniają jasność, cienie i kontrast fragmentu. Nie ruszają jego koloru.
+Levels zmienia jasność, cienie i kontrast fragmentu. Nie rusza jego koloru.
 
-<img
-  src="/wiki-images/screenshot-2026-11-16-152117.png"
-  alt="Ustawienia tonalności w Chroma Studio"
-/>
+- **Black:** ustawia, jak ciemne są najciemniejsze miejsca.
+- **Gamma:** rozjaśnia albo przyciemnia półtony.
+- **White:** ustawia, jak jasne są najjaśniejsze miejsca.
 
-### Cienie i światła
+<img src="/wiki-images/chroma-studio-levels.webp" alt="Suwaki Levels" />
 
-Te ustawienia wyciągają detale tylko z najjaśniejszych i najciemniejszych miejsc fragmentu.
+### Highlights / Shadows
+
+Wyciąga detale tylko z najjaśniejszych i najciemniejszych miejsc fragmentu.
 Półtony zostają bez zmian.
 
-<img
-  src="/wiki-images/screenshot-2026-11-16-152153.png"
-  alt="Ustawienia cieni i świateł w Chroma Studio"
-/>
-
-### Zastąp kolor
+### Color Accent
 
 Wybierz jeden kolor na teksturze i zamień go na inny.
 Możesz go też odizolować. Reszta tekstury zostaje bez zmian.
 
-<img
-  src="/wiki-images/screenshot-2026-11-16-152220.png"
-  alt="Ustawienia zastępowania koloru w Chroma Studio"
-/>
-
-### Dopasuj kolor
+### Color Match
 
 Wybierz kolor. Chroma Studio zmieni fragment tak, żeby był do niego jak najbardziej podobny.
 
-<img
-  src="/wiki-images/screenshot-2026-11-16-152323.png"
-  alt="Ustawienia dopasowania koloru w Chroma Studio"
-/>
+### Gradient Map, Black and White oraz Transparency
 
-### Mapa gradientu, czerń i biel oraz przezroczystość
-
-- **Gradient map:** zastępuje oryginalne kolory gradientem z dwóch kolorów, zależnie od tego, jak jasna jest każda część.
-- **Black and white:** zmienia fragment na czarno-biały.
+- **Gradient Map:** zastępuje oryginalne kolory gradientem z dwóch kolorów, zależnie od tego, jak jasna jest każda część.
+- **Black and White:** zmienia fragment na czarno-biały.
 - **Transparency:** zmienia przezroczystość, czyli to, jak bardzo fragment prześwituje.
