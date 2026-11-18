@@ -1,50 +1,65 @@
-import { LocalizedLink } from "@/components/localized-link";
+import { IconTile } from "@divineskins/ui";
 import type { ReactNode } from "react";
 import { ArrowUpRight } from "lucide-react";
+
+import { LevelPill } from "@/components/mdx/LevelPill";
+import { CardLink } from "@/components/ui/links";
 
 interface PremiumCardProps {
   title: string;
   href: string;
   icon?: ReactNode;
   children?: ReactNode;
+  /** No visual effect now; guides still pass it, so it stays accepted. */
+  featured?: boolean;
+  /** Optional difficulty tag under the title, for guide cards. */
+  level?: "beginner" | "intermediate" | "advanced";
 }
 
-export function PremiumCard({ title, href, icon, children }: PremiumCardProps) {
-  const isExternal = /^https?:\/\//i.test(href);
-  const Tag = isExternal ? "a" : LocalizedLink;
-  const externalProps = isExternal
-    ? { target: "_blank", rel: "noopener noreferrer" }
-    : {};
-
+/** Link card: an interactive Card with the icon in an IconTile. */
+export function PremiumCard({
+  title,
+  href,
+  icon,
+  children,
+  level,
+}: PremiumCardProps) {
   return (
-    <Tag
+    <CardLink
       href={href}
-      {...externalProps}
-      className="divine-card-gradient-border group bg-divine-surface hover:divine-card-hover relative my-2 block rounded-[8px] p-5 no-underline transition-shadow duration-300"
+      padding="md"
+      className="group relative my-2 block leading-normal"
     >
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-3">
             {icon ? (
-              <div className="bg-divine-primary/15 text-divine-primary-light light:text-divine-primary inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[6px]">
+              <IconTile className="divine-icon-brand [&_img]:size-5">
                 {icon}
-              </div>
+              </IconTile>
             ) : null}
-            <div className="text-divine-text text-lg leading-tight font-[var(--font-section)] font-semibold">
-              {title}
+            <div className="min-w-0">
+              <div className="text-divine-text text-[18px] leading-snug font-bold">
+                {title}
+              </div>
+              {level ? (
+                <div className="mt-1.5">
+                  <LevelPill level={level} size="sm" />
+                </div>
+              ) : null}
             </div>
           </div>
           {children ? (
-            <div className="text-divine-text-muted mt-2 text-sm leading-relaxed">
+            <div className="text-divine-text-muted mt-3 text-[14px] leading-relaxed [&_p]:m-0">
               {children}
             </div>
           ) : null}
         </div>
         <ArrowUpRight
-          className="text-divine-text-muted group-hover:text-divine-primary-light mt-0.5 h-4 w-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+          className="text-divine-text-muted group-hover:text-divine-highlight mt-0.5 size-4 shrink-0 transition-[color,translate] duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
           aria-hidden
         />
       </div>
-    </Tag>
+    </CardLink>
   );
 }

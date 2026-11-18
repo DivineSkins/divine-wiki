@@ -1,0 +1,137 @@
+---
+title: "Configure un projet de mod"
+description: "Transforme ton mod League of Legends en projet dans le Creator Hub de Celestial : ajoute tes fichiers, remplis les infos du mod, ajoute un readme, une licence et une miniature, et continue de bosser dans ton propre dossier."
+keywords:
+  - projet de mod league
+  - importer dans le creator hub celestial
+  - mod.config.json
+category: "mod-format"
+---
+
+<LevelPill level="beginner" />
+
+Un projet de mod, c'est ton mod avant qu'il soit packé : ses fichiers, plus les infos qui vont avec, comme le nom, la version et les auteurs. Le Creator Hub de Celestial crée le projet pour toi quand tu ajoutes tes fichiers. C'est de là que tu testes, repathes et exportes le mod.
+
+<Requirements>
+  <Requirement
+    icon="Download"
+    href="https://divineskins.gg/install-mods"
+    note="Windows"
+  >
+    Celestial
+  </Requirement>
+  <Requirement icon="FolderOpen" note="dossier, .modpkg ou .fantome">
+    Les fichiers de ton mod
+  </Requirement>
+</Requirements>
+
+## Ce que contient un projet
+
+<Files>
+  <Folder name="my-mod" defaultOpen>
+    <File name="mod.config.json : nom, version, auteurs, licence, couches" />
+    <File name="README.md et LICENSE (optionnels)" />
+    <File name="miniature (optionnelle)" />
+    <Folder name="content" defaultOpen>
+      <Folder name="base" defaultOpen>
+        <Folder name="Aatrox.wad.client">
+          <File name="tes fichiers, à leurs chemins du jeu" />
+        </Folder>
+      </Folder>
+      <Folder name="chroma-red (couche optionnelle)">
+        <Folder name="Aatrox.wad.client">
+          <File name="seulement les fichiers que cette variante modifie" />
+        </Folder>
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+
+- **`mod.config.json`** contient les infos du mod. Le Creator Hub l'écrit quand tu passes par **Edit Info**, donc tu ne le modifies jamais à la main.
+- **`content`** a un dossier par [couche](/docs/lol/mod-format/layers). Chaque projet a `base`.
+- **`Aatrox.wad.client`** porte le nom de l'archive du jeu dans laquelle vont ses fichiers. Le Creator Hub le déduit de tes fichiers.
+
+Tout ce qui est dans le projet part dans le `.modpkg` quand tu l'exportes.
+
+<Steps>
+<Step>
+
+### Ajoute ton mod au Creator Hub
+
+Ouvre le **Hub Créateur** dans Celestial et glisse ton mod dedans. Le Creator Hub accepte :
+
+- un dossier avec les dossiers `assets` et `data` de ton mod, comme ce que sortent Quartz ou Jade
+- un dossier de projet Flint ou Jade
+- un fichier `.modpkg` ou `.fantome`
+
+**Import** dans la barre d'outils choisit un dossier. Un `.modpkg` déjà dans ta Bibliothèque ? Fais un clic droit dessus et clique sur **Ouvrir dans le Creator Hub**.
+
+Règle ton **Nom du créateur** une fois pour toutes dans **Paramètres**, puis **Hub Créateur**. Celestial t'ajoute comme auteur de chaque mod que tu importes.
+
+</Step>
+<Step>
+
+### Remplis les infos de ton mod
+
+Fais un clic droit sur la carte du mod et clique sur **Edit Info**.
+
+1. Vérifie le **Nom affiché**. C'est ce que les joueurs voient dans la Bibliothèque.
+2. Vérifie le **Nom (slug)** : lettres minuscules, chiffres, `-` et `_`. C'est lui qui nomme le fichier exporté.
+3. Indique la **Version**, comme `1.0.0`. Augmente-la à chaque mise à jour que tu publies.
+4. Ajoute une courte **Description**.
+5. Sous **Auteurs**, mets-toi et tous ceux qui ont bossé sur le mod. **Ajouter un auteur** ajoute une ligne, et le **Rôle** est facultatif.
+6. Choisis une **Licence**.
+7. Sous **Classification**, ajoute des **Tags** et des **Champions**. Pour un mod de map, ajoute des **Cartes**.
+8. Clique sur **Enregistrer**.
+
+<img
+  src="/wiki-images/lol-mod-format-1.webp"
+  width={560}
+  alt="La fenêtre Modifier le projet, avec le champ Version marqué 1 et la liste Auteurs avec Ajouter un auteur marqué 2"
+/>
+
+</Step>
+<Step>
+
+### Ajoute un readme, une licence et une miniature
+
+Les trois sont optionnels, et les trois voyagent dans le `.modpkg`. Fais un clic droit sur la carte du mod :
+
+- **Readme** ouvre un éditeur pour `README.md`. Utilise-le pour les notes d'installation, les crédits ou un changelog.
+- **Licence** contient le texte complet de la licence. La **Licence** dans **Edit Info** ne fait que la nommer.
+- **Set Image** choisit la miniature que les joueurs voient dans la Bibliothèque. **Rm Image** la retire.
+
+</Step>
+<Step>
+
+### Continue de bosser dans ton propre dossier
+
+Le Creator Hub garde sa propre copie de ton mod, appelée **Stockage**. Tes fichiers restent dans ton **Dossier du mod**. **Reload**, **Start Patcher** et **Export** copient d'abord tes derniers changements dans le Stockage, donc tu n'as jamais à réimporter le mod.
+
+- Modifie tes fichiers dans ton Dossier du mod. Les changements faits dans le Stockage sont écrasés au prochain Reload.
+- Ne supprime jamais ton Dossier du mod. Le Creator Hub lit dedans.
+- Le menu du clic droit a **Stockage** et **Dossier du mod** pour ouvrir chacun des deux.
+
+</Step>
+</Steps>
+
+## Et ensuite
+
+<CardGrid>
+  <PremiumCard
+    title="Ajoute des couches"
+    href="/docs/lol/mod-format/layers"
+    icon={<Icon name="Layers" />}
+    level="beginner"
+  >
+    Livre des chromas et des variantes dans le même mod.
+  </PremiumCard>
+  <PremiumCard
+    title="Exporte et installe un .modpkg"
+    href="/docs/lol/mod-format/modpkg"
+    icon={<Icon name="Package" />}
+    level="beginner"
+  >
+    Packe le projet dans le fichier que tu uploades.
+  </PremiumCard>
+</CardGrid>

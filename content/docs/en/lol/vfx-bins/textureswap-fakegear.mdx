@@ -1,130 +1,264 @@
 ---
 title: "TextureSwap Fakegear"
-description: "This is a pretty basic tutorial involving bin editing."
+description: "Create outfit, clothes, texture and mesh swaps in Ruby with direct materials and persistent conditions, without stacking fakegear particles."
 category: "vfx-bins"
+authors:
+  - name: DAKA
+    url: https://github.com/sxrmss
+tags: [Ruby, BIN, materials, textures, meshes, outfits]
+keywords:
+  - fakegear
+  - texture swap
+  - mesh swap
+  - outfit swap
+  - clothes swap
+  - clothing swap
+  - costume change
+  - emote outfit toggle
+  - persistent outfit
+  - FPS drops
 ---
 
-## 1. Getting Your Static Materials Ready
+<LevelPill level="intermediate" label="Medium" />
 
-You thought we were swapping textures? I wish it was that simple.
+Fakegear lets you change textures or visible meshes without a native gear toggle. The old method spawned a long-lived material-override particle on each selection. Repeating it could leave more instances running and gradually hurt FPS.
 
-You need to copy the existing `staticmaterial` associated with the base texture for that mesh. For Yuumi's body, it's `Orb_Cat_inst`. You can find it by searching for the texture name in the skin bin.
+This version uses direct materials and mesh conditions. **Sora Master Yi** is the visual example. The snippets use two choices, A and B, so you can adapt them to your own skin without copying Sora's BINs.
 
-<img src="/wiki-images/1767149443636-vvzsnj.webp" alt="Image" width={800} />
+Do not use custom skins on Korean or Chinese League servers.
 
-After that, you copy the entire thing, paste it somewhere, rename things, and add your texture file to it. In my case, the name is gonna be `"mine"`, as well as the texture file.
+## 1. Find your meshes and materials
 
-<img src="/wiki-images/1767149464084-1r81lr.webp" alt="Image" width={500} />
+Open your skin BIN in Ruby. Find `skinMeshProperties`, the linked animation BIN, and the `StaticMaterialDef` used by each mesh you want to change.
 
----
+Click **BIN editor** at the bottom of Ruby. For the skin's properties, choose **Skin** at the top of the editor. Its bottom buttons switch between **Inspector** for fields and **Raw text** for the same entry as text.
 
-## 2. VFX
+Use **Raw text** to insert the starter snippets, then **Inspector** to change names, values, and lists. Paste inside the objects named in each step and keep their existing fields. Comments mark where to insert another snippet; fill those places before saving.
 
-You will need this code snippet. I recommend pasting it close to your staticmaterial so you have everything in one place.
+Replace these example names throughout:
+
+| Example                        | Replace with                                     |
+| ------------------------------ | ------------------------------------------------ |
+| `SwapChoice_A`, `SwapChoice_B` | The selection marker names you add in step 2     |
+| `Outfit_A`, `Outfit_B`         | Your actual SKN submesh names                    |
+| `MySkin/Materials/Outfit`      | A unique BIN entry name for your copied material |
+| `assets/myskin/outfit_b.tex`   | The path to your replacement texture             |
+| `Diffuse_Texture`              | Your material's sampler name                     |
+
+For Sora, `KH1_outfit` and `KH3_outfits` are separate outfit meshes. Limit and the other KH2 forms share clothing geometry and swap its texture instead.
+
+## 2. Signal the choice from the emote
+
+For a choice that stays after an emote, add one tiny transparent marker submesh per choice in your mesh editor. Name them `SwapChoice_A` and `SwapChoice_B`, weight them to an existing center bone, and export with valid normalized weights.
+
+Leave both markers visible by default. Their transparent material hides them on screen, but the condition drivers still read their visibility. Do not put them in `initialSubmeshToHide`.
+
+In your animation BIN, find the atomic animation branch that selects A. Inside its `mEventDataMap`, replace the outfit-only `ParticleEventData` with:
 
 ```py
-"Hide" = VfxSystemDefinitionData {
-    timeBeforeFirstEmission: f32 = 1
-    complexEmitterDefinitionData: list[pointer] = {
-        VfxEmitterDefinitionData {
-            rate: embed = ValueFloat {
-                constantValue: f32 = 1
+0xa947e23c = SubmeshVisibilityEventData {
+    mShowSubmeshList: list[hash] = { "SwapChoice_A" }
+    mHideSubmeshList: list[hash] = { "SwapChoice_B" }
+}
+```
+
+Keep **your existing event key and selection frame**. `0xa947e23c` is Sora's example key, not a key you need to add everywhere. For the B branch, reverse the two marker names. Keep other animation, spell, recall, and sound events.
+
+In Sora, CTRL+4 chooses among four animation branches. Find the individual branch, not just the shared `Laugh` state. Several branches use `joke.anm`, so the filename alone does not identify the choice.
+
+If your champion already supplies a suitable gear or buff state, use that as the condition input instead. The markers are for emote-driven selections that need their own memory.
+
+## 3. Remember the choice
+
+Markers return to their default visibility when the emote ends. To keep the selected outfit, compare the time since A was selected with the time since B was selected.
+
+This is the complete **A condition**. Keep it ready to paste into the mesh condition or texture option in the following steps:
+
+```py
+OwnerCondition: pointer = FloatComparisonMaterialDriver {
+    mOperator: u32 = 3
+    mValueA: pointer = LerpMaterialDriver {
+        mBoolDriver: pointer = AllTrueMaterialDriver {
+            mDrivers: list[pointer] = {
+                SubmeshVisibilityBoolDriver {
+                    Submeshes: list[hash] = { "SwapChoice_A" }
+                    VISIBLE: bool = true
+                }
+                SubmeshVisibilityBoolDriver {
+                    Submeshes: list[hash] = { "SwapChoice_B" }
+                    VISIBLE: bool = false
+                }
             }
-            particleLifetime: embed = ValueFloat {
-                constantValue: f32 = 1e+14
+        }
+        mOnValue: f32 = 0
+        mOffValue: f32 = 1000000000
+        mTurnOnTimeSec: f32 = 0
+        mTurnOffTimeSec: f32 = 1000000000
+        mUseBrokenOldInterpolation: bool = false
+    }
+    mValueB: pointer = LerpMaterialDriver {
+        mBoolDriver: pointer = AllTrueMaterialDriver {
+            mDrivers: list[pointer] = {
+                SubmeshVisibilityBoolDriver {
+                    Submeshes: list[hash] = { "SwapChoice_A" }
+                    VISIBLE: bool = false
+                }
+                SubmeshVisibilityBoolDriver {
+                    Submeshes: list[hash] = { "SwapChoice_B" }
+                    VISIBLE: bool = true
+                }
             }
-            isSingleParticle: flag = true
-            emitterName: string = "Override"
-            meshRenderFlags: u8 = 0
-            materialOverrideDefinitions: list[embed] = {
-                VfxMaterialOverrideDefinitionData {
-                    priority: i32 = 1
-                    subMeshName: option[string] = {
-                        "Yourmaterialnamefrommaya"
-                    }
-                    material: link = "Characters/urchamp/Skins/urskin/Materials/urstaticmaterial"
-                    transitionSample: f32 = 1
+        }
+        mOnValue: f32 = 0
+        mOffValue: f32 = 1000000000
+        mTurnOnTimeSec: f32 = 0
+        mTurnOffTimeSec: f32 = 1000000000
+        mUseBrokenOldInterpolation: bool = false
+    }
+}
+```
+
+`mOperator = 3` means less-than. Selecting A resets its age to zero. After the emote, its age remains smaller until B is selected. Both markers visible means no new selection.
+
+To make the **B condition**, duplicate this block and exchange every `SwapChoice_A` and `SwapChoice_B` name. Leave the numbers and boolean values unchanged.
+
+For more choices, each signal must show its own marker and hide all others. In `mValueA`, test that whole pattern. In `mValueB`, use `OneTrueMaterialDriver` with a `mDrivers: list[pointer]` containing each other choice's complete `AllTrueMaterialDriver` pattern. This keeps idle from counting as a selection.
+
+To edit this through fields, switch to **Inspector** and type `OwnerCondition` in **Find property**. Expand your outfit condition, then `mValueA` or `mValueB` with the arrows. Click a number box to enter its value and use the toggle for a boolean. Set `mOperator` to `3` and leave `mUseBrokenOldInterpolation` off.
+
+<img
+  src="/wiki-images/fakegear-modern/ruby-condition-fields.webp"
+  alt="Ruby Skin Inspector with Skin, Find property, the mOperator value, the disabled interpolation toggle, and Save highlighted"
+  width={720}
+  style={{ maxWidth: 720 }}
+/>
+
+The boxed controls show the field view of the same condition. Clear the search to see the rest of the entry. Click **Save** or press **CTRL+S** when your edits are ready.
+
+## 4. Show or hide meshes
+
+In your skin BIN, find `SkinCharacterDataProperties.PersistentEffectConditions`. Add this entry **inside the existing list**, then paste the complete A `OwnerCondition` block from step 3 at the comment:
+
+```py
+PersistentEffectConditionData {
+    // Paste the A OwnerCondition block here.
+    SubmeshesToShow: list2[hash] = { "Outfit_A" }
+    SubmeshesToHide: list2[hash] = { "Outfit_B" }
+}
+```
+
+Add a second entry with the B condition, showing `Outfit_B` and hiding `Outfit_A`. Add hair and weapon submesh names to the lists where needed. Keep shared body parts outside them, and never include the selection markers.
+
+In `skinMeshProperties.initialSubmeshToHide`, add the parts hidden on spawn. For this example, hide `Outfit_B` and leave A visible. Preserve any already-hidden recall props. These outfit conditions need no `PersistentVfxs`.
+
+In **Inspector**, search `SubmeshesToShow` or `SubmeshesToHide` and expand the list. Edit an existing name in its value box. To add a name, open the list row's **...** menu and choose **Add**. Use the menu on an individual item to remove that item.
+
+<img
+  src="/wiki-images/fakegear-modern/ruby-list-actions.webp"
+  alt="Ruby field editor with the SubmeshesToShow list menu and Add option boxed"
+  width={720}
+  style={{ maxWidth: 720 }}
+/>
+
+The **Add list item** dialog uses typed JSON. For a submesh hash, enter this and replace `Outfit_A` with your SKN name:
+
+```json
+{ "t": "hash", "v": "Outfit_A" }
+```
+
+Keep `t` as `hash`, change `v`, and click **Add**. This adds one list item; **Save** writes the BIN. Existing hashes may display as `0x...` if Ruby has no readable name for them.
+
+<img
+  src="/wiki-images/fakegear-modern/ruby-list-add.webp"
+  alt="Ruby Add list item dialog with the typed hash value and Add button highlighted"
+  width={720}
+  style={{ maxWidth: 720 }}
+/>
+
+## 5. Bind the material and swap a texture
+
+Copy the affected mesh's visible `StaticMaterialDef` entry. Give its entry key and `name` a unique value such as `MySkin/Materials/Outfit`. Keep its shader, samplers, parameters, and render settings.
+
+In `skinMeshProperties.materialOverride`, edit the matching entry to point at your copy. If none exists, add one inside that list:
+
+```py
+SkinMeshDataProperties_MaterialOverride {
+    submesh: string = "Outfit_A"
+    material: link = "MySkin/Materials/Outfit"
+}
+```
+
+`submesh` must match the SKN name. `material` must match the copied BIN entry key. Repeat for any other affected mesh.
+
+You can also edit these bindings in **Skin > Inspector**. Search `materialOverride`, find the matching submesh, and choose the copied material in its **Material** selector. The **Material** editor tab at the top opens the material tools; switch to the material's source BIN if its definition is in a linked file.
+
+For two textures on the **same mesh**, keep A as the normal sampler texture. Add this `dynamicMaterial` field inside your copied `StaticMaterialDef`:
+
+```py
+dynamicMaterial: pointer = DynamicMaterialDef {
+    textures: list[embed] = {
+        DynamicMaterialTextureSwapDef {
+            name: string = "Diffuse_Texture"
+            Enabled: bool = true
+            options: list[embed] = {
+                DynamicMaterialTextureSwapOption {
+                    // Paste the B condition here, renaming OwnerCondition to driver.
+                    TextureName: file = "assets/myskin/outfit_b.tex"
                 }
             }
         }
     }
-    particleName: string = "Hide"
-    particlePath: string = "Hide"
 }
 ```
 
-```py
-"Show" = VfxSystemDefinitionData {
-    timeBeforeFirstEmission: f32 = 1
-    complexEmitterDefinitionData: list[pointer] = {
-        VfxEmitterDefinitionData {
-            rate: embed = ValueFloat {
-                constantValue: f32 = 1
-            }
-            particleLifetime: embed = ValueFloat {
-                constantValue: f32 = 1e+14
-            }
-            isSingleParticle: flag = true
-            emitterName: string = "Override"
-            meshRenderFlags: u8 = 0
-            materialOverrideDefinitions: list[embed] = {
-                VfxMaterialOverrideDefinitionData {
-                    priority: i32 = 1
-                    subMeshName: option[string] = {
-                        "Yourmaterialnamefrommaya"
-                    }
-                    material: link = "Characters/urchamp/Skins/urskin/Materials/defaultstaticmaterial"
-                    transitionSample: f32 = 1
-                }
-            }
-        }
-    }
-    particleName: string = "Show"
-    particlePath: string = "Show"
-}
-```
+Paste the B condition from step 3 at the comment and change only its first field name from `OwnerCondition` to `driver`. It should begin `driver: pointer = FloatComparisonMaterialDriver {`. Replace the sampler name and texture path with yours. Keep `TextureName` typed as `file`.
 
----
+If `dynamicMaterial` or a swap for that sampler already exists, add to it instead of creating a duplicate field. Texture-only changes do not need the outfit mesh conditions from step 4.
 
-## 3. Resource Resolver
+<img
+  src="/wiki-images/fakegear-modern/sora-limit-idle.webp"
+  alt="Ruby preview with Limit clothing circled on Sora's shared KH2 mesh"
+  width={1200}
+/>
 
-You will also need this in `ResourceResolver`:
+Sora's circled Limit clothing uses a texture swap on shared geometry.
 
-```py
-"Hide" = "Hide"
-"Show" = "Show"
-```
+<img
+  src="/wiki-images/fakegear-modern/sora-oathkeeper-idle.webp"
+  alt="Ruby preview with Sora's Oathkeeper weapon circled"
+  width={1200}
+/>
 
----
+Oathkeeper needs its own mesh. Check that the other weapons are hidden.
 
-## 4. Animation Bin
+## 6. Check it in Ruby
 
-After this, you need the animation bin. Find the animation you want to use as a toggle and paste these code snippets like this:
+Open **Conditions** and enable the boxed **Submesh swaps** and **Material conditions** options. Older builds call the second option **Material params**. Leave the individual condition-force checkboxes unticked.
 
-<img src="/wiki-images/1767149506632-k9q8d.webp" alt="Image" width={700} />
+<img
+  src="/wiki-images/fakegear-modern/sora-ruby-conditions.webp"
+  alt="Ruby Conditions menu with boxes around the enabled Submesh swaps and Material conditions controls"
+  width={1200}
+/>
 
-```py
-"Hide" = ParticleEventData {
-    mEffectKey: hash = "Hide"
-    mParticleEventDataPairList: list[embed] = {
-        ParticleEventDataPair {}
-    }
-    mIsLoop: bool = false
-    mIsKillEvent: bool = false
-}
-```
+Play the selection branch in **Animation**, then choose idle without reopening the BIN. Check that the outfit stays and all markers return to their default visibility in **Submeshes**.
 
-```py
-"Show" = ParticleEventData {
-    mEffectKey: hash = "Show"
-    mParticleEventDataPairList: list[embed] = {
-        ParticleEventDataPair {}
-    }
-    mIsLoop: bool = false
-    mIsKillEvent: bool = false
-}
-```
+<img
+  src="/wiki-images/fakegear-modern/sora-kh3-idle.webp"
+  alt="Ruby preview with Idle1 boxed and the retained KH3 outfit circled"
+  width={1200}
+/>
 
----
+The box marks `Idle1`; the circle marks Sora's retained KH3 outfit. Repeat a choice, then select another. Only one outfit should be active.
 
-> ✅ After this, you should be good to go if you did everything right and replaced everything correctly!
+Selection memory needs Ruby's scalar Lerp history support added with this update. Reopening or editing the BIN resets the preview state. Ruby checks appearance; persistence and FPS still need testing in League.
+
+## 7. Remove the old route and test
+
+Remove the old outfit-only VFX definitions and unused resolver mappings. Check every selection branch for leftover outfit particle spawns. Keep normal ability and recall effects, and apply the skin changes to every skin BIN your mod overrides.
+
+Start a fresh game test:
+
+- Select an outfit, finish the emote, move, attack, and cast. It should stay until another selection.
+- Repeat selections 30-50 times at the same location and camera view. Compare FPS before and after, separating the first texture-loading hitch from a continuing drop.
+- Check interrupted emotes, recall, death, respawn, and brush visibility for resets, missing parts, or doubled weapons.

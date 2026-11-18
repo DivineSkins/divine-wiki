@@ -1,5 +1,12 @@
 "use client";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@divineskins/ui";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -16,11 +23,22 @@ import {
   GitPullRequest,
   History,
   Loader2,
-  PencilLine,
   Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DiscordLogo, GitHubLogo } from "@/components/brand-logos";
+import { NAV_LINK } from "@/components/home/styles";
+import {
+  FIELD,
+  FIELD_INPUT,
+  HAIRLINE_BOTTOM,
+  ICON_TILE,
+  PANE,
+  PANE_BAR,
+  pillClassName,
+  SMALL_PILL,
+  TAG,
+} from "./styles";
 import { useMessages } from "@/lib/hooks/useMessages";
 import { deriveSlug, isValidSlug } from "@/lib/draft/slug";
 import { CodeEditor, type CodeEditorHandle } from "./code-editor";
@@ -30,6 +48,7 @@ import { scanForLinks, applySuggestion } from "@/lib/draft/scan-links";
 import { PreviewPane, type PreviewStatus } from "./preview-pane";
 import { Toolbar } from "./toolbar";
 import { Handoff } from "./handoff";
+import { RewriteMenu } from "./rewrite-menu";
 import matter from "gray-matter";
 import { rawSourceUrl, editFileUrl } from "@/lib/draft/github";
 import {
@@ -40,6 +59,12 @@ import {
 } from "@/lib/draft/persistence";
 import { entities } from "@/lib/draft/entities";
 import {
+  acceptsGuides,
+  DEFAULT_GAME,
+  GAMES,
+  gameCategories,
+} from "@/lib/games";
+import {
   normalizeFilename,
   dedupeName,
   wikiImageSrc,
@@ -49,24 +74,33 @@ import {
 
 export interface DraftEditorProps {
   mode: "new" | "edit";
+  /** Docs segment from `?game=`; the contribute picker always sets it. */
+  initialGame: string | null;
   initialCategory: string | null;
   editPath: string | null;
 }
 
-const CATEGORIES = [
-  "guided-walkthrough",
-  "tools",
-  "maya",
-  "blender",
-  "animations",
-  "vfx-bins",
-  "assets-library",
-  "errors",
-  "contributing",
-];
+/**
+ * The game a draft belongs to. An edit path carries it as its first segment
+ * ("lol/tools/flint"); a new draft takes `?game=` if that game accepts
+ * guides, and falls back to the default game otherwise.
+ */
+function resolveGame(initialGame: string | null, editPath: string | null) {
+  const fromPath = editPath?.split("/")[0];
+  if (fromPath && acceptsGuides(fromPath)) return fromPath;
+  if (initialGame && acceptsGuides(initialGame)) return initialGame;
+  return DEFAULT_GAME;
+}
+
+/** Tools is the usual home for a new guide, so it's the default category. */
+function defaultCategory(categories: string[], requested: string | null) {
+  if (requested && categories.includes(requested)) return requested;
+  return categories.includes("tools") ? "tools" : (categories[0] ?? "");
+}
 
 export function DraftEditor({
   mode,
+  initialGame,
   initialCategory,
   editPath,
 }: DraftEditorProps) {
@@ -75,14 +109,21 @@ export function DraftEditor({
   const params = useParams();
   const lang = (params?.lang as string) ?? "en";
 
+  const game = resolveGame(initialGame, editPath);
+  const gameInfo = GAMES.find((g) => g.slug === game);
+  const categories = gameCategories(game);
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState(
-    initialCategory && CATEGORIES.includes(initialCategory)
-      ? initialCategory
-      : "tools",
+  const [category, setCategory] = useState(() =>
+    defaultCategory(categories, initialCategory),
   );
-  const storageKey = draftKey(mode, editPath ?? "new");
+  // New League drafts keep the key they had before the editor knew about
+  // games, so drafts saved back then still offer to restore.
+  const storageKey = draftKey(
+    mode,
+    editPath ?? (game === DEFAULT_GAME ? "new" : `new:${game}`),
+  );
   const [slugTouched, setSlugTouched] = useState(false);
   const [slug, setSlug] = useState("");
   const [body, setBody] = useState("");
@@ -125,7 +166,10 @@ export function DraftEditor({
 
   const slugCollision =
     mode === "new" &&
-    entities.some((e) => e.category === category && e.slug === effectiveSlug);
+    entities.some(
+      (e) =>
+        e.game === game && e.category === category && e.slug === effectiveSlug,
+    );
 
   const isDraftEmpty = !title.trim() && !description.trim() && !body.trim();
 
@@ -209,7 +253,7 @@ export function DraftEditor({
         // e.g. "lol/tools/flint" — the category is the second part.
         const parts = editPath.split("/");
         const categoryPart = (parts.length >= 3 ? parts[1] : parts[0]) ?? "";
-        setCategory(CATEGORIES.includes(categoryPart) ? categoryPart : "tools");
+        setCategory(defaultCategory(categories, categoryPart));
         setSlugTouched(true);
         setSlug(parts[parts.length - 1] ?? "");
         setLoadingSource(false);
@@ -222,7 +266,9 @@ export function DraftEditor({
     return () => {
       cancelled = true;
     };
-  }, [mode, editPath]);
+    // `categories` is the generated index's own array for this game, so it
+    // keeps its identity across renders.
+  }, [mode, editPath, categories]);
 
   const handleInsert = (snippet: string) => {
     editorRef.current?.insertAtCursor(snippet);
@@ -232,7 +278,7 @@ export function DraftEditor({
     if (!restorePrompt) return;
     setTitle(restorePrompt.title);
     setDescription(restorePrompt.description);
-    setCategory(restorePrompt.category);
+    setCategory(defaultCategory(categories, restorePrompt.category));
     setSlugTouched(true);
     setSlug(restorePrompt.slug);
     setBody(restorePrompt.body);
@@ -305,16 +351,26 @@ export function DraftEditor({
     return (
       <Shell>
         <div className="flex flex-1 items-center justify-center p-8">
-          <div className="bg-divine-surface border-divine-border rounded-divine-xl max-w-md border p-6 text-center shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
-            <AlertTriangle className="text-divine-warning mx-auto size-6" />
-            <p className="text-divine-text mt-3">{d.editLoadError}</p>
+          <div
+            className={cn(
+              PANE,
+              "flex max-w-md flex-col items-center p-6 text-center",
+            )}
+          >
+            <span className={ICON_TILE}>
+              <AlertTriangle />
+            </span>
+            <p className="text-divine-text mt-4 text-sm leading-relaxed">
+              {d.editLoadError}
+            </p>
             <a
               href={editFileUrl(editPath)}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-divine-primary-light hover:text-divine-text mt-3 inline-block text-sm font-medium transition-colors"
+              className={cn(pillClassName("secondary"), "mt-5")}
             >
-              {d.openGuideOnGithub} →
+              <GitHubLogo className="size-4" />
+              {d.openGuideOnGithub}
             </a>
           </div>
         </div>
@@ -324,138 +380,176 @@ export function DraftEditor({
 
   return (
     <Shell>
-      {/* ── Top bar ─────────────────────────────────────────────── */}
-      <header className="border-divine-primary/15 bg-divine-void/85 flex h-14 shrink-0 items-center gap-3 border-b px-4 backdrop-blur sm:px-6">
+      {/* ── Top bar: the site navbar, scrolled state ───────────── */}
+      <header
+        className={cn(
+          HAIRLINE_BOTTOM,
+          "flex h-14 shrink-0 items-center gap-2 px-3 sm:gap-3 sm:px-5",
+        )}
+      >
         <Link
-          href={`/${lang}/docs`}
+          href={`/${lang}/docs/${game}`}
           aria-label={d.backToWiki}
-          className="text-divine-text-muted hover:text-divine-text group flex items-center gap-2.5 transition-colors"
+          className={cn(NAV_LINK, "group gap-2 px-2")}
         >
           <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-0.5" />
-          <span className="relative hidden h-7 w-7 sm:block">
+          <span className="relative hidden size-7 sm:block">
             <Image
               alt="Divine Skins"
-              src="/brand/logo.webp"
+              src="/brand/divine-mark.webp"
               fill
               sizes="28px"
             />
           </span>
         </Link>
 
-        <span aria-hidden className="bg-divine-border/70 h-5 w-px" />
+        <span aria-hidden className="bg-fd-border h-5 w-px shrink-0" />
 
         <div className="flex min-w-0 items-center gap-2.5">
-          <PencilLine className="text-divine-primary-light size-4 shrink-0" />
-          <h1 className="text-divine-text truncate text-sm font-semibold">
+          <h1 className="text-divine-text truncate font-[family-name:var(--font-hero)] text-[15px] font-bold tracking-tight">
             {mode === "edit" ? d.editTitle : d.newTitle}
           </h1>
           {mode === "edit" && editPath && (
-            <span className="border-divine-primary/30 bg-divine-primary/10 text-divine-primary-light hidden truncate rounded-full border px-2.5 py-0.5 font-mono text-[11px] md:inline">
+            <span
+              className={cn(
+                TAG,
+                "text-divine-text-muted hidden truncate font-mono font-medium md:inline-flex",
+              )}
+            >
               {editPath}
             </span>
           )}
-          {loadingSource && (
-            <Loader2 className="text-divine-text-muted size-3.5 animate-spin" />
+          {/* A new draft's game comes from the contribute picker (`?game=`):
+              shown here, not chosen. An edit path already names it. */}
+          {mode === "new" && gameInfo && (
+            <span
+              title={d.fieldGame}
+              className={cn(TAG, "hidden py-0.5 pl-1 sm:inline-flex")}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element -- tiny cover thumbnail */}
+              <img
+                src={gameInfo.cover}
+                alt=""
+                width={15}
+                height={20}
+                className="h-5 w-[15px] rounded-[3px] object-cover"
+              />
+              {gameInfo.name}
+            </span>
           )}
-        </div>
-
-        <div className="ml-auto flex items-center gap-2.5">
-          {/* Help links — new tab so an open draft is never navigated away. */}
-          <Link
-            href={`/${lang}/docs/lol/contributing`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-divine-text-muted hover:text-divine-text hidden items-center gap-1.5 text-xs font-medium transition-colors md:flex"
-          >
-            <BookOpen className="size-3.5" />
-            {d.contributingGuide}
-          </Link>
-          <Link
-            href={`/${lang}/docs/lol/contributing/components`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-divine-text-muted hover:text-divine-text hidden items-center gap-1.5 text-xs font-medium transition-colors md:flex"
-          >
-            <Blocks className="size-3.5" />
-            {d.components}
-          </Link>
-          <span
-            aria-hidden
-            className="bg-divine-border/70 hidden h-5 w-px md:block"
-          />
+          {loadingSource && (
+            <Loader2 className="text-divine-text-muted size-3.5 shrink-0 animate-spin" />
+          )}
           {hasSaved && (
-            <span className="text-divine-text-muted hidden items-center gap-1 text-xs sm:flex">
+            <span className="text-divine-text-muted hidden shrink-0 items-center gap-1 text-xs font-medium sm:inline-flex">
               <Check className="text-divine-success size-3.5" />
               {d.saved}
             </span>
           )}
+        </div>
+
+        <nav className="ml-auto flex shrink-0 items-center gap-1">
+          {/* Help links: new tab so an open draft is never navigated away. */}
+          <Link
+            href={`/${lang}/docs/${game}/contributing`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(NAV_LINK, "hidden gap-1.5 px-3 lg:inline-flex")}
+          >
+            <BookOpen className="size-4" />
+            {d.contributingGuide}
+          </Link>
+          <Link
+            href={`/${lang}/docs/${game}/contributing/components`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(NAV_LINK, "hidden gap-1.5 px-3 md:inline-flex")}
+          >
+            <Blocks className="size-4" />
+            {d.components}
+          </Link>
+          <span className="ml-1 sm:ml-2">
+            <RewriteMenu
+              game={game}
+              gameName={gameInfo?.name ?? game}
+              title={title}
+              description={description}
+              body={body}
+            />
+          </span>
           <button
             type="button"
-            className="inline-flex h-9 items-center gap-2 rounded-full bg-gradient-to-r from-[#B472FF] to-[#783CB5] px-5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+            className={cn(pillClassName("solid"), "ml-1.5 sm:ml-2")}
             disabled={!canContribute}
             onClick={handleContribute}
           >
             <GitPullRequest className="size-4" />
             {d.contribute}
           </button>
-        </div>
+        </nav>
       </header>
 
-      {/* ── Restore banner ──────────────────────────────────────── */}
-      {restorePrompt !== null && (
-        <div className="border-divine-secondary/25 bg-divine-secondary/[0.07] flex shrink-0 flex-wrap items-center gap-x-3 gap-y-2 border-b px-4 py-2.5 text-sm sm:px-6">
-          <History className="text-divine-secondary size-4 shrink-0" />
-          <span className="text-divine-text font-medium">
-            {d.unsavedHeading}
-          </span>
-          <span className="text-divine-text-muted hidden sm:inline">
-            {d.unsavedBody}
-          </span>
-          <div className="ml-auto flex items-center gap-2">
-            <button
-              type="button"
-              className="bg-divine-secondary/15 text-divine-secondary hover:bg-divine-secondary/25 rounded-full px-3.5 py-1 text-xs font-semibold transition-colors"
-              onClick={handleRestore}
-            >
-              {d.restore}
-            </button>
-            <button
-              type="button"
-              className="text-divine-text-muted hover:text-divine-text rounded-full px-2 py-1 text-xs transition-colors"
-              onClick={handleDiscard}
-            >
-              {d.discard}
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* ── Guide details ───────────────────────────────────────── */}
-      <div className="shrink-0 border-b border-white/[0.06] px-4 pt-4 pb-3 sm:px-6">
-        <div className="flex flex-col gap-4 xl:flex-row xl:items-start">
+      <div className="shrink-0 px-4 pt-5 pb-4 sm:px-6">
+        {restorePrompt !== null && (
+          <div
+            className={cn(
+              PANE,
+              "mb-5 flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3",
+            )}
+          >
+            <History className="text-divine-highlight size-4 shrink-0" />
+            <p className="min-w-0 text-sm">
+              <span className="text-divine-text font-semibold">
+                {d.unsavedHeading}
+              </span>{" "}
+              <span className="text-divine-text-muted hidden sm:inline">
+                {d.unsavedBody}
+              </span>
+            </p>
+            <div className="ml-auto flex items-center gap-1">
+              <button
+                type="button"
+                className={SMALL_PILL}
+                onClick={handleRestore}
+              >
+                {d.restore}
+              </button>
+              <button
+                type="button"
+                className={cn(NAV_LINK, "px-3 py-1.5 text-xs")}
+                onClick={handleDiscard}
+              >
+                {d.discard}
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:gap-8">
           <div className="min-w-0 flex-1">
             <input
               aria-label={d.fieldTitle}
-              className="text-divine-text placeholder:text-divine-text-muted/55 w-full bg-transparent font-[family-name:var(--font-hero)] text-3xl font-bold tracking-tight outline-none sm:text-4xl"
+              className="text-divine-text placeholder:text-divine-text-muted/50 w-full bg-transparent font-[family-name:var(--font-hero)] text-3xl font-bold tracking-tight outline-none sm:text-[2.5rem] sm:leading-tight"
               placeholder={d.fieldTitlePlaceholder}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
-            <div className="mt-2 flex max-w-2xl items-center gap-3">
+            <div className="mt-1.5 flex max-w-2xl items-center gap-3">
               <input
                 aria-label={d.fieldDescription}
                 maxLength={160}
-                className="text-divine-text-muted placeholder:text-divine-text-muted/40 w-full min-w-0 flex-1 bg-transparent text-sm outline-none"
+                className="text-divine-text-muted placeholder:text-divine-text-muted/50 w-full min-w-0 flex-1 bg-transparent text-[15px] outline-none"
                 placeholder={d.fieldDescriptionPlaceholder}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
               <span
                 className={cn(
-                  "shrink-0 font-mono text-[11px] tabular-nums",
+                  "shrink-0 text-xs font-medium tabular-nums",
                   description.length >= 160
                     ? "text-divine-warning"
-                    : "text-divine-text-muted/60",
+                    : "text-divine-text-muted/70",
                 )}
               >
                 {description.length}/160
@@ -463,35 +557,39 @@ export function DraftEditor({
             </div>
           </div>
 
-          <div className="flex shrink-0 flex-wrap items-center gap-2">
-            <label className="hover:border-divine-primary/40 focus-within:border-divine-primary/50 flex h-9 items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 transition-colors">
-              <span className="text-divine-text-muted text-xs">
+          <div className="grid shrink-0 grid-cols-2 gap-2 sm:max-w-xl xl:w-[34rem]">
+            <div className={cn(FIELD, "col-span-2 sm:col-span-1")}>
+              <span className="text-divine-text-muted shrink-0 text-xs font-medium">
                 {d.fieldCategory}
               </span>
-              <span className="relative flex items-center">
-                <select
-                  className="text-divine-text appearance-none bg-transparent pr-5 text-sm font-medium outline-none disabled:opacity-60"
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  disabled={mode === "edit"}
+              <Select
+                value={category}
+                onValueChange={setCategory}
+                disabled={mode === "edit"}
+              >
+                <SelectTrigger
+                  aria-label={d.fieldCategory}
+                  className="h-auto min-w-0 flex-1 rounded-none border-0 bg-transparent px-0 font-semibold hover:bg-transparent data-[state=open]:bg-transparent"
                 >
-                  {CATEGORIES.map((c) => (
-                    <option key={c} value={c}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((c) => (
+                    <SelectItem key={c} value={c}>
                       {c}
-                    </option>
+                    </SelectItem>
                   ))}
-                </select>
-                <ChevronDown className="text-divine-text-muted pointer-events-none absolute right-0 size-3.5" />
-              </span>
-            </label>
+                </SelectContent>
+              </Select>
+            </div>
 
-            <label className="hover:border-divine-primary/40 focus-within:border-divine-primary/50 flex h-9 items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 transition-colors">
-              <span className="text-divine-text-muted text-xs">
+            <label className={cn(FIELD, "col-span-2 sm:col-span-1")}>
+              <span className="text-divine-text-muted shrink-0 text-xs font-medium">
                 {d.fieldSlug}
               </span>
-              <span className="flex items-baseline">
+              <span className="flex min-w-0 flex-1 items-baseline">
                 <input
-                  className="text-divine-text w-36 bg-transparent font-mono text-sm outline-none disabled:opacity-60"
+                  className={cn(FIELD_INPUT, "flex-1 font-mono")}
                   value={effectiveSlug}
                   onChange={(e) => {
                     setSlugTouched(true);
@@ -499,30 +597,30 @@ export function DraftEditor({
                   }}
                   disabled={mode === "edit"}
                 />
-                <span className="text-divine-text-muted/60 font-mono text-sm">
+                <span className="text-divine-text-muted/70 font-mono text-sm">
                   .mdx
                 </span>
               </span>
             </label>
 
-            {/* Optional credit handles — written to the `credits` frontmatter
+            {/* Optional credit handles: written to the `credits` frontmatter
                 block and shown at the bottom of the published page. */}
-            <label className="hover:border-divine-primary/40 focus-within:border-divine-primary/50 flex h-9 items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 transition-colors">
-              <DiscordLogo className="text-divine-text-muted size-3.5 shrink-0" />
+            <label className={FIELD}>
+              <DiscordLogo className="text-divine-text-muted size-4 shrink-0" />
               <input
                 aria-label={d.fieldDiscord}
-                className="text-divine-text placeholder:text-divine-text-muted/40 w-36 bg-transparent text-sm outline-none"
+                className={cn(FIELD_INPUT, "w-full")}
                 placeholder={d.fieldDiscordPlaceholder}
                 value={discord}
                 onChange={(e) => setDiscord(e.target.value)}
               />
             </label>
 
-            <label className="hover:border-divine-primary/40 focus-within:border-divine-primary/50 flex h-9 items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 transition-colors">
-              <GitHubLogo className="text-divine-text-muted size-3.5 shrink-0" />
+            <label className={FIELD}>
+              <GitHubLogo className="text-divine-text-muted size-4 shrink-0" />
               <input
                 aria-label={d.fieldGithub}
-                className="text-divine-text placeholder:text-divine-text-muted/40 w-36 bg-transparent text-sm outline-none"
+                className={cn(FIELD_INPUT, "w-full")}
                 placeholder={d.fieldGithubPlaceholder}
                 value={github}
                 onChange={(e) => setGithub(e.target.value)}
@@ -531,14 +629,16 @@ export function DraftEditor({
           </div>
         </div>
 
-        <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1">
-          <span className="text-divine-text-muted/80 flex items-center gap-1.5 font-mono text-[11px]">
-            <FileText className="size-3.5" />
-            content/docs/en/lol/{category}/{effectiveSlug || "…"}.mdx
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">
+          <span className="text-divine-text-muted flex min-w-0 items-center gap-1.5 font-mono text-xs">
+            <FileText className="size-3.5 shrink-0" />
+            <span className="truncate">
+              content/docs/en/{game}/{category}/{effectiveSlug || "…"}.mdx
+            </span>
           </span>
           {slugCollision && (
-            <span className="text-divine-warning flex items-center gap-1.5 text-xs">
-              <AlertTriangle className="size-3.5" />
+            <span className="text-divine-warning flex items-center gap-1.5 text-xs font-medium">
+              <AlertTriangle className="size-3.5 shrink-0" />
               {d.slugCollision}
             </span>
           )}
@@ -546,17 +646,22 @@ export function DraftEditor({
       </div>
 
       {/* ── Workspace: editor | preview ─────────────────────────── */}
-      <div className="flex min-h-0 flex-1 flex-col gap-3 px-4 pt-3 pb-4 sm:px-6">
+      <div className="flex min-h-0 flex-1 flex-col gap-3 px-4 pb-4 sm:px-6 sm:pb-6">
         {/* Mobile pane switcher */}
-        <div className="flex gap-1 self-start rounded-full border border-white/10 bg-white/[0.03] p-1 lg:hidden">
+        <div
+          role="tablist"
+          className="border-fd-border bg-fd-card flex gap-1 self-start rounded-full border p-1 lg:hidden"
+        >
           {(["write", "preview"] as const).map((view) => (
             <button
               key={view}
               type="button"
+              role="tab"
+              aria-selected={mobileView === view}
               className={cn(
                 "rounded-full px-4 py-1 text-xs font-semibold transition-colors",
                 mobileView === view
-                  ? "bg-divine-primary/20 text-divine-primary-light"
+                  ? "text-divine-text light:bg-black/10 bg-white/10"
                   : "text-divine-text-muted hover:text-divine-text",
               )}
               onClick={() => setMobileView(view)}
@@ -567,10 +672,12 @@ export function DraftEditor({
         </div>
 
         <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-2">
-          {/* Editor card */}
+          {/* Editor pane */}
           <section
+            aria-label={d.editorLabel}
             className={cn(
-              "rounded-divine-xl min-h-0 flex-col overflow-hidden border border-white/[0.08] bg-[#100f17] shadow-[0_4px_12px_rgba(0,0,0,0.3)]",
+              PANE,
+              "min-h-0 flex-col overflow-hidden",
               mobileView === "write" ? "flex" : "hidden lg:flex",
             )}
           >
@@ -578,7 +685,7 @@ export function DraftEditor({
               onInsert={handleInsert}
               onUploadImage={addImages}
               docsHref={(anchor) =>
-                `/${lang}/docs/lol/contributing/components#${anchor}`
+                `/${lang}/docs/${game}/contributing/components#${anchor}`
               }
             />
             <div className="min-h-0 flex-1 overflow-hidden">
@@ -592,20 +699,29 @@ export function DraftEditor({
             </div>
           </section>
 
-          {/* Preview card */}
+          {/* Preview pane. Its body sits on the page background, not the
+              panel fill, so cards and panels in the guide read exactly as
+              they do on the published page. */}
           <section
+            aria-label={d.previewHeading}
             className={cn(
-              "rounded-divine-xl min-h-0 flex-col overflow-hidden border border-white/[0.08] bg-[#100f17] shadow-[0_4px_12px_rgba(0,0,0,0.3)]",
+              PANE,
+              "min-h-0 flex-col overflow-hidden",
               mobileView === "preview" ? "flex" : "hidden lg:flex",
             )}
           >
-            <div className="border-divine-primary/15 flex shrink-0 items-center gap-2 border-b bg-white/[0.02] px-4 py-2">
-              <Eye className="text-divine-text-muted size-3.5" />
-              <span className="text-divine-text-muted text-xs font-semibold">
+            <div
+              className={cn(
+                PANE_BAR,
+                "flex min-h-12 shrink-0 items-center gap-2 px-4",
+              )}
+            >
+              <Eye className="text-divine-text-muted size-4" />
+              <span className="text-divine-text text-sm font-semibold">
                 {d.previewHeading}
               </span>
               {!isDraftEmpty && (
-                <span className="text-divine-text-muted ml-auto flex items-center gap-1.5 text-[11px]">
+                <span className="text-divine-text-muted ml-auto flex items-center gap-1.5 text-xs font-medium">
                   <span
                     className={cn(
                       "size-1.5 rounded-full",
@@ -621,16 +737,16 @@ export function DraftEditor({
                 </span>
               )}
             </div>
-            <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-7">
+            <div className="bg-fd-background min-h-0 flex-1 overflow-y-auto px-5 py-6 sm:px-8">
               {isDraftEmpty ? (
-                <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
-                  <div className="border-divine-primary/30 bg-divine-primary/10 rounded-full border p-3 shadow-[0_0_40px_-8px_#783CB5]">
-                    <Sparkles className="text-divine-primary-light size-6" />
-                  </div>
-                  <p className="text-divine-text font-semibold">
+                <div className="flex h-full flex-col items-center justify-center px-6 text-center">
+                  <span className={ICON_TILE}>
+                    <Sparkles />
+                  </span>
+                  <p className="text-divine-text mt-4 font-[family-name:var(--font-hero)] text-base font-bold">
                     {d.previewEmptyHeading}
                   </p>
-                  <p className="text-divine-text-muted max-w-xs text-sm">
+                  <p className="text-divine-text-muted mt-1.5 max-w-xs text-sm leading-relaxed">
                     {d.previewEmptyBody}
                   </p>
                 </div>
@@ -657,11 +773,12 @@ export function DraftEditor({
           onContinue={() => setHandoff({ step: "main" })}
           mode={mode}
           mdx={assembledMdx}
+          game={game}
           category={category}
           slug={effectiveSlug}
           editPath={editPath}
           stagedImages={stagedImages}
-          // Never clear the draft here — the GitHub steps may still be in
+          // Never clear the draft here: the GitHub steps may still be in
           // flight in another tab. The restore banner offers "start fresh".
           onClose={() => setHandoff(null)}
         />
@@ -671,26 +788,14 @@ export function DraftEditor({
 }
 
 /**
- * Forced-dark app shell. The editor is a "studio" surface: it always renders
- * the dark Divine look regardless of the site theme — the `.dark` class makes
- * every divine and fd token resolve to its dark value (global.css re-declares
- * them on `.dark` for exactly this), and the ambient purple wash supplies the
- * brand's glow-on-void atmosphere.
+ * App shell: a full-height workspace on the page background. It follows the
+ * reader's theme (dark, light, Minimal) like the rest of the wiki, so the
+ * preview matches the page they'll publish. No atmosphere: the Contribute
+ * pill's bloom is the screen's one glow.
  */
 function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <div
-      className="dark bg-divine-void text-divine-text relative isolate flex h-dvh flex-col overflow-hidden font-[family-name:var(--font-ui)]"
-      style={{ colorScheme: "dark" }}
-    >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10"
-        style={{
-          background:
-            "radial-gradient(900px 480px at 10% -10%, rgba(120, 60, 181, 0.16), transparent 60%), radial-gradient(700px 400px at 95% 0%, rgba(236, 185, 106, 0.05), transparent 55%)",
-        }}
-      />
+    <div className="bg-fd-background text-divine-text flex h-dvh flex-col overflow-hidden">
       {children}
     </div>
   );

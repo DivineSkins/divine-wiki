@@ -1,0 +1,111 @@
+---
+title: "Thêm lớp"
+description: "Gói chroma và các biến thể vào chung một mod League of Legends: thêm lớp trong Trình quản lý lớp của Celestial, đặt độ ưu tiên và để người chơi tự bật tắt."
+keywords:
+  - modpkg layers
+  - league mod chromas one file
+  - celestial layer manager
+  - lớp mod league
+category: "mod-format"
+---
+
+<LevelPill level="beginner" />
+
+Lớp (layer) là những nhóm file bên trong một mod mà người chơi có thể bật hoặc tắt. Dùng chúng cho chroma, các phiên bản khác của một skin, hoặc phần thêm tùy chọn như particle tùy chỉnh. Trên Divine, một mod League là một file `.modpkg` duy nhất, nên mỗi biến thể nằm trong một lớp chứ không phải một lần tải lên thứ hai.
+
+## Lớp hoạt động thế nào
+
+- **`base`** là các file chính của mod. Mod nào cũng có lớp này, và nó luôn bật.
+- **Mỗi lớp còn lại** chỉ chứa những file mà biến thể đó thay đổi, đặt đúng đường dẫn như trong `base`.
+- **Độ ưu tiên** quyết định lớp nào thắng khi hai lớp cùng thay đổi một file. Cao hơn thì thắng. `base` luôn là 0.
+- **Cùng độ ưu tiên** nghĩa là các lớp đó là lựa chọn thay thế cho nhau, như hai chroma. Người chơi chỉ nên bật một trong số đó.
+
+Hai kiểu thiết lập hay gặp. **Chroma**, người chơi chọn một:
+
+| Lớp | Độ ưu tiên | Chứa gì |
+| --- | --- | --- |
+| `base` | 0 | Skin |
+| `chroma-red` | 1 | Texture đỏ |
+| `chroma-blue` | 1 | Texture xanh dương |
+
+**Phần thêm tùy chọn**, người chơi bật chồng lên nhau:
+
+| Lớp | Độ ưu tiên | Chứa gì |
+| --- | --- | --- |
+| `base` | 0 | Skin |
+| `particles` | 1 | VFX tùy chỉnh |
+| `hd-textures` | 2 | Texture lớn hơn |
+
+Muốn người chơi chỉ thấy một lớp mỗi lần? Mở **Edit Info** rồi bật **Mỗi lần một lớp**. Khi đó, bật một lớp sẽ chuyển sang lớp đó thay vì chồng nó lên các lớp khác.
+
+## Thêm một lớp
+
+Mod của bạn phải có sẵn trong Creator Hub. Bài [Dựng một dự án mod](/docs/lol/mod-format/mod-project) chỉ cách làm.
+
+<Steps>
+<Step>
+
+### Chuẩn bị file của biến thể
+
+Tạo một thư mục cho mỗi biến thể, sắp xếp giống thư mục mod của bạn, với `assets` và `data`. Chỉ bỏ vào những file mà biến thể thay đổi, như các texture đã đổi màu của một chroma. Giữ nguyên đường dẫn và prefix như trong `base`.
+
+</Step>
+<Step>
+
+### Mở Trình quản lý lớp
+
+Bấm chuột phải vào thẻ của mod trong Creator Hub rồi bấm **Layers**.
+
+<img
+  src="/wiki-images/lol-mod-format-2.webp"
+  width={560}
+  alt="Trình quản lý lớp với lớp base cho Aatrox.wad.client và nút Thêm lớp có tên được khoanh tròn"
+/>
+
+</Step>
+<Step>
+
+### Thêm lớp
+
+1. Bấm **Thêm lớp có tên** rồi gõ tên, ví dụ `chroma-red`. Dùng chữ thường, số và `-`.
+2. Đặt **Độ ưu tiên** bằng các mũi tên.
+3. Bấm **Duyệt** rồi chọn thư mục của biến thể. Chọn nhiều thư mục để gộp chúng thành một lớp.
+
+**Nhập nhanh** bỏ qua bước đặt tên: nó chọn một thư mục và đặt tên lớp theo thư mục đó.
+
+</Step>
+<Step>
+
+### Kiểm tra danh sách
+
+Mỗi lớp hiện các file WAD và độ ưu tiên của nó. Các lớp được đánh dấu **thay thế** có chung độ ưu tiên. Đổi độ ưu tiên bằng các mũi tên, hoặc dùng **Đổi tên lớp** và **Xóa lớp**.
+
+</Step>
+</Steps>
+
+## Người chơi thấy gì
+
+Người chơi cài mod của bạn bằng Celestial. Một huy hiệu lớp trên thẻ của mod cho biết có bao nhiêu lớp đang bật, và lúc đầu chỉ có `base` được bật. Bấm vào huy hiệu để bật hoặc tắt từng lớp.
+
+Muốn tự kiểm tra, hãy [xuất file .modpkg](/docs/lol/mod-format/modpkg), cài nó vào Thư viện rồi bật thử từng lớp.
+
+## Bước tiếp theo
+
+<CardGrid>
+  <PremiumCard
+    title="Xuất và cài file .modpkg"
+    href="/docs/lol/mod-format/modpkg"
+    icon={<Icon name="Package" />}
+    level="beginner"
+  >
+    Đóng gói base và mọi lớp vào một file.
+  </PremiumCard>
+  <PremiumCard
+    title="Đăng mod của bạn lên Divine"
+    href="/docs/lol/publishing/publish-on-divine"
+    icon={<Icon name="Upload" />}
+    level="beginner"
+  >
+    Tải file lên từ Creator Panel.
+  </PremiumCard>
+</CardGrid>

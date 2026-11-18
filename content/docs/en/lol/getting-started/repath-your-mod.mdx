@@ -1,0 +1,320 @@
+---
+title: "Repath your mod"
+description: "Repath a League of Legends champion mod in Celestial's Creator Hub, or start repathed by extracting with Quartz, Flint or Jade, so your mod never clashes with other mods."
+keywords:
+  - repath league mod
+  - league mod repath celestial
+  - custom skin conflicts with other mods
+  - partially repathed
+category: "getting-started"
+---
+
+<LevelPill level="beginner" />
+
+Repathing gives your mod's files their own folder, so your mod never clashes with another mod for the same champion. Repath every champion mod before you upload it to Divine. Divine's file check tells you when a champion mod isn't repathed.
+
+The best time to repath is when you start a skin. If your mod is already finished, Celestial repaths it with one right-click.
+
+## What repathing does
+
+A champion mod replaces files at the game's own paths. Two mods that change the same file can't both win, so one of them breaks. Repathing moves your files under a word only you use, called the **prefix**:
+
+```text
+assets/characters/aatrox/skins/base/aatrox_base_tx_cm.tex
+assets/daka_aatrox/characters/aatrox/skins/base/aatrox_base_tx_cm.tex
+```
+
+The BIN files are updated to point at the new paths, so the game still finds everything.
+
+| Mod type                   | Repath it? |
+| -------------------------- | ---------- |
+| Champion skins and chromas | **Yes**    |
+| Map mods                   | No         |
+| HUD and interface mods     | No         |
+| Sound mods                 | No         |
+
+## Pick a good prefix
+
+Every tool asks for a prefix. Use the same rules everywhere:
+
+- Lowercase letters, numbers and `_` only. Quartz removes `-`.
+- Make it yours: your creator name plus the mod name works, like `daka_aatrox`.
+- Never use one of Riot's folder names, such as `characters`, `shared`, `particles` or `hud`. Celestial reads those as not repathed.
+
+## Best practice: start repathed
+
+When you start a new skin, extract the champion's files already repathed. Every file you edit then lives under your prefix from day one, and you never repath at the end. Pick your extractor:
+
+<Tabs items={["Quartz", "Flint", "Jade"]}>
+<Tab value="Quartz">
+
+Quartz repaths only through its **Repath** button. The plain **Extract** button gives you files at Riot's paths.
+
+1. Open **Settings**, then **External Tools**. Set **League Install Path** and **WAD Extraction Output Path**.
+2. Open **Asset Extractor** in the sidebar and pick the **Champions** tab.
+3. Pick a champion, then click the skin card you want to work on.
+4. Click **Repath**, not **Extract**.
+5. Type your prefix in **Entry Prefix**. Leave **Preserve HUD ability icons** on.
+6. Click **Start Repath**.
+
+Quartz writes a folder like `aatrox_skin0_extracted_clean` to your output path. [Quartz](/docs/lol/tools/modding-apps/quartz) has the rest of the app.
+
+</Tab>
+<Tab value="Flint">
+
+Flint repaths every new skin project for you. The prefix is your creator name plus the project name.
+
+1. Set your **Creator name** in **Settings**, then **Creator**. With no creator name, Flint does not repath.
+2. Set your League folder in **Settings**, then **Paths**.
+3. Click **Create Project**, then pick **Type: Skin**.
+4. Pick the champion and skin, type a **Project name** and click **Create project**.
+
+Your files land under `assets/<creator>/<project>/`. The plain **Extract** in WAD Explorer does not repath. [Flint](/docs/lol/tools/modding-apps/flint) has the rest of the app.
+
+</Tab>
+<Tab value="Jade">
+
+These steps follow Jade 1.x. Jade 2.0 adds a **Create a Mod** tab with a prefix setting.
+
+1. Open **Extract Files** and pick **League of Legends** under **Locations**.
+2. Set your prefix in **Extraction settings**, then **Repath prefix**.
+3. Open the champion's `.wad.client` and click **Extract as skin mod**.
+4. Pick your skins and turn **Repath** on. Leave **Preserve HUD icons** on.
+5. Click **Extract**.
+
+[Jade](/docs/lol/tools/modding-apps/jade) has the rest of the app.
+
+</Tab>
+</Tabs>
+
+Then edit your files as usual. When you import the folder into Creator Hub, its badge should already be green.
+
+## Repath in Celestial
+
+Already made your mod without a prefix? Celestial repaths it. Creator Hub is in the Windows version of Celestial.
+
+<Requirements>
+  <Requirement
+    icon="Download"
+    href="https://divineskins.gg/install-mods"
+    note="Windows"
+  >
+    Celestial
+  </Requirement>
+  <Requirement icon="FolderOpen" note="folder, .modpkg or .fantome">
+    Your champion mod
+  </Requirement>
+  <Requirement icon="LeagueOfLegends" note="installed">
+    League of Legends
+  </Requirement>
+</Requirements>
+
+<Steps>
+<Step>
+
+### Add your mod to Creator Hub
+
+1. Open Celestial and click the **Creator Hub** icon at the top.
+2. Drag your mod's folder, `.modpkg` or `.fantome` file onto Creator Hub. **Import** also works for folders.
+
+A `.modpkg` that's already in your Library? Right-click it there and choose **Open in Creator Hub**.
+
+<img
+  src="/wiki-images/lol-repath-1.webp"
+  alt="Celestial's Creator Hub with the Creator Hub icon marked 1 and the Import button marked 2, and the imported Aatrox Wiki Example mod below"
+/>
+
+</Step>
+<Step>
+
+### Check the badge
+
+The icon at the top right of the mod's card shows its repath state. Hover it to read it.
+
+<ParameterList
+  parameters={[
+    {
+      name: "Repathed (green)",
+      description: "Done. Skip to the in-game test.",
+    },
+    {
+      name: "Partially repathed (yellow)",
+      description:
+        "Some files still use the game's own paths. Repath to finish the job.",
+    },
+    {
+      name: "Not repathed (red)",
+      description: "Nothing has a prefix yet. Repath it.",
+    },
+  ]}
+/>
+
+<img
+  src="/wiki-images/lol-repath-2.webp"
+  width={480}
+  alt="The repath badge on the mod's card, ringed, with its tooltip: Partially repathed, finish repathing to avoid conflicts"
+/>
+
+</Step>
+<Step>
+
+### Open Repath
+
+1. Right-click the mod's card.
+2. Under **Tools**, click **Repath**.
+
+You only see **Repath** when Celestial knows which champion the mod is for. It works on champion mods only.
+
+The first time, Celestial shows a short notice before the Repath window. Click **I understand**.
+
+<img
+  src="/wiki-images/lol-repath-3.webp"
+  width={480}
+  alt="The mod's right-click menu with Repath ringed in the Tools section"
+/>
+
+</Step>
+<Step>
+
+### Pick the skin and type a prefix
+
+1. Under **Select skin IDs to repath**, pick the skin your mod changes. Skin 0 is the base skin.
+2. Type your **Prefix**.
+
+Your mod changes more than one skin? Repath one skin, then open Repath again for the next one.
+
+<img
+  src="/wiki-images/lol-repath-4.webp"
+  width={480}
+  alt="The Repath Mod window with the skin picker set to Skin 0 marked 1 and the Prefix field filled with daka_aatrox marked 2"
+/>
+
+</Step>
+<Step>
+
+### Check the options and start
+
+Scroll down. The defaults fit most mods:
+
+- **Update to Riot's new asset format** is off. Turn it on if the mod's card warns about an old asset format.
+- **Merge particles** moves your VFX files into one folder.
+- **Remove redundant base BINs** removes BIN files the game loads from its own files anyway.
+- **Keep ability icons** keeps the `hud/icons2d` folder as it is.
+
+Then click the **Repath** button under the options. It names the skin you picked, like Skin 0.
+
+<img
+  src="/wiki-images/lol-repath-5.webp"
+  width={480}
+  alt="The repath options marked 1, with Merge particles, Remove redundant base BINs and Keep ability icons on, and the Repath button marked 2"
+/>
+
+</Step>
+<Step>
+
+### Read the result
+
+Celestial shows how many BINs and paths it changed, and the prefix it used. Click **Close**.
+
+It may also list two kinds of files:
+
+- **Extractable assets** are files your BINs use but your mod doesn't include. Click **Extract from game** to copy them in, so your mod keeps working when Riot changes them.
+- **Unresolved assets** weren't found in the game either. They keep the game's paths.
+
+<img
+  src="/wiki-images/lol-repath-6.webp"
+  width={480}
+  alt="The repath result: 1 BIN repathed, 601 paths changed, prefix daka_aatrox"
+/>
+
+</Step>
+<Step>
+
+### Check the badge again
+
+Hover the badge. It should read **Repathed**. Still yellow? Another skin or a file from another champion still needs a prefix. Repath again for that skin.
+
+<img
+  src="/wiki-images/lol-repath-7.webp"
+  width={480}
+  alt="The badge, ringed, now green with the tooltip Repathed"
+/>
+
+</Step>
+<Step>
+
+### Test it in game
+
+1. Turn off your other mods.
+2. Click the mod's card in Creator Hub to turn it on.
+3. Click **Start Patcher**.
+4. Start a practice game and check the model, abilities, recall and effects.
+
+</Step>
+</Steps>
+
+### Undo a repath
+
+Something broke? Right-click the mod and click **Restore**. It brings back the files from before the repath.
+
+<img
+  src="/wiki-images/lol-repath-8.webp"
+  width={480}
+  alt="The right-click menu after a repath, with Restore ringed in the Tools section"
+/>
+
+## Common problems
+
+<Accordions>
+<Accordion title="There's no Repath in the menu">
+
+Celestial couldn't tell which champion the mod is for, or it isn't a champion mod. Repath works on champion skins only. Check that your files sit under `assets/characters/<champion>/` and `data/characters/<champion>/`.
+
+</Accordion>
+<Accordion title="The badge stays yellow">
+
+Some files still use the game's own paths. Repath each skin your mod changes, one at a time. Files from other champions, like a shared particle, count too.
+
+</Accordion>
+<Accordion title="The mod looks wrong after the repath">
+
+Click **Restore**, then try again with **Merge particles** off. Still broken? Ask on Discord with the mod's name and what looks wrong.
+
+</Accordion>
+<Accordion title="Divine's file check says the mod isn't repathed">
+
+The note doesn't stop your upload. It tells you the mod can clash with other mods for the same champion. Repath it here, export a new `.modpkg` and upload it again.
+
+</Accordion>
+</Accordions>
+
+Still have questions? Hit us up on [Discord](https://discord.gg/divineskins). We're always around.
+
+## Other repath tools
+
+<Callout type="info" title="Archived">
+  [League Mod Repather](/docs/lol/tools/modding-apps/league-mod-repather) is the
+  old standalone repath tool. Its guide stays up for older mods, but Celestial
+  is the way to repath now.
+</Callout>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Mod format"
+    href="/docs/lol/mod-format"
+    icon={<Icon name="Package" />}
+    level="beginner"
+  >
+    Export your repathed mod as a .modpkg.
+  </PremiumCard>
+  <PremiumCard
+    title="Publish your mod on Divine"
+    href="/docs/lol/publishing/publish-on-divine"
+    icon={<Icon name="Upload" />}
+    level="beginner"
+  >
+    Upload it from the Creator Panel.
+  </PremiumCard>
+</CardGrid>

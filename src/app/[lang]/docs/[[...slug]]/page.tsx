@@ -1,4 +1,9 @@
-import { source } from "@/lib/source";
+import {
+  canonicalSlugs,
+  contentPath,
+  sharedSectionHref,
+  source,
+} from "@/lib/source";
 import {
   DocsBody,
   DocsDescription,
@@ -11,7 +16,8 @@ import type { Metadata } from "next";
 import { createRelativeLink } from "fumadocs-ui/mdx";
 import { localizeHref } from "@/lib/localize-href";
 import Link from "next/link";
-import { i18n, ogLanguageBlacklist } from "@/lib/i18n";
+import { homePath, i18n, ogLanguageBlacklist } from "@/lib/i18n";
+import { baseUrl, githubRepoUrl } from "@/lib/config";
 import {
   baseOpenGraph,
   baseTwitter,
@@ -20,11 +26,44 @@ import {
   LANDING_OG_WIDTH,
   LANDING_OG_HEIGHT,
   SITE_NAME,
+  docsTitle,
+  gameSeo,
 } from "@/lib/seo";
-import { Separator } from "@/components/ui/separator";
+import { Button, Separator } from "@divineskins/ui";
 import { DocsLanding } from "@/components/home/docs-landing";
-import { PageCredits } from "@/components/page-credits";
+import { GuideCredits } from "@/components/guide-credits";
+import { getGuideCredits } from "@/lib/guide-credits";
+import { getMessages } from "@/lib/locale";
 import { DocsBanner } from "../docs-banner";
+import { DocsFooter } from "@/components/docs-footer";
+import { AskAI } from "@/components/ask-ai";
+import { cn } from "@/lib/utils";
+import { findNeighbour } from "fumadocs-core/page-tree";
+import { localizePageTree } from "@/lib/tree-localization";
+
+// BreadcrumbList for Google, so results show "Divine Skins Wiki > ... > page"
+// instead of a raw URL: the homepage, then every parent folder that has its
+// own page, then this page. Parents resolve like the page itself does, so an
+// English fallback page lists English parents.
+function breadcrumbJsonLd(slugs: string[], lang: string) {
+  const crumbs = slugs.flatMap((_, i) => {
+    const prefix = slugs.slice(0, i + 1);
+    const crumb = source.getPage(prefix, lang) ?? source.getPage(prefix, "en");
+    return crumb ? [{ name: crumb.data.title, url: crumb.url }] : [];
+  });
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [{ name: SITE_NAME, url: homePath(lang) }, ...crumbs].map(
+      (crumb, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: crumb.name,
+        item: `${baseUrl}${crumb.url}`,
+      }),
+    ),
+  };
+}
 
 export default async function Page(
   props: PageProps<"/[lang]/docs/[[...slug]]">,
@@ -45,6 +84,9 @@ export default async function Page(
   if (!page) notFound();
 
   const messages = require(`@/../messages/${params.lang}.json`);
+  // Merged over English, so strings added since a locale's last sync still
+  // render (the raw file above has only what that locale translated).
+  const ui = getMessages(params.lang);
 
   const authors = page.data.authors;
   const loadedPageData = await page.data.load();
@@ -54,24 +96,86 @@ export default async function Page(
   // Relative links resolve against the page (locale-aware via source);
   // absolute internal links get the locale prefixed here, otherwise the
   // edge redirect `/docs/* → /en/docs/*` dumps readers back to English.
+  // Links to a shared section (/docs/contributing/...) stay in this game.
   const RelativeLink = createRelativeLink(source, page);
   const MDXLink = (props: React.ComponentProps<"a">) => (
-    <RelativeLink {...props} href={localizeHref(props.href, params.lang)} />
+    <RelativeLink
+      {...props}
+      href={localizeHref(
+        sharedSectionHref(props.href, page.slugs[0]),
+        params.lang,
+      )}
+    />
   );
+
+  // Previous / next guides for the footer cards, from the same localized
+  // tree the sidebar renders (see ../layout.tsx).
+  const neighbours = findNeighbour(
+    localizePageTree(
+      source.pageTree[params.lang] ?? source.pageTree["en"],
+      params.lang,
+      {
+        translateName: true,
+        translateTitle: true,
+        translateIndex: false,
+        translateChildren: true,
+      },
+    ),
+    page.url,
+  );
+
+  const askAi = {
+    lang: params.lang,
+    title: page.data.title,
+    url: `${baseUrl}${page.url}`,
+  };
+
+  // The visual editor saves guides into a game's own category folders
+  // (content/docs/en/<game>/<category>/), so shared sections, which live
+  // outside any game, open GitHub's editor on the English file instead.
+  const file = contentPath(page.path);
+  const editLink =
+    file === page.path
+      ? { href: `/${params.lang}/draft?edit=${page.slugs.join("/")}` }
+      : {
+          href: `${githubRepoUrl}/edit/main/content/docs/${file.replace(/^[^/]+\//, "en/")}`,
+          target: "_blank",
+          rel: "noopener noreferrer",
+        };
 
   return (
     <DocsPage
       toc={loadedPageData.toc}
-      tableOfContent={{ style: "clerk", footer: <DocsBanner /> }}
+      footer={{ items: neighbours }}
+      slots={{ footer: DocsFooter }}
+      tableOfContent={{
+        style: "clerk",
+        // Pinned to the bottom of the sticky TOC column, so "Ask AI" stays
+        // in view while the reader scrolls (see ask-ai.tsx).
+        footer: (
+          <div className="mt-auto flex flex-col gap-4 pt-4">
+            <AskAI variant="rail" {...askAi} />
+            <DocsBanner lang={params.lang} />
+          </div>
+        ),
+      }}
       full={page.data.full}
     >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            breadcrumbJsonLd(page.slugs, params.lang),
+          ).replace(/</g, "\\u003c"),
+        }}
+      />
       <DocsTitle className="divine-doc-title">{page.data.title}</DocsTitle>
       <DocsDescription className="divine-doc-description mb-0">
         {page.data.description}
       </DocsDescription>
 
       {authors && authors.length > 0 && (
-        <div className="text-muted-foreground mt-4 text-sm">
+        <div className="text-muted-foreground mt-4 text-[14px]">
           {messages.misc?.credit ?? "Written by"}{" "}
           {authors.map((author, index) => (
             <span key={index}>
@@ -93,7 +197,15 @@ export default async function Page(
         </div>
       )}
 
-      <Separator className="mt-4 mb-6" />
+      {/* Below xl the TOC column (and its Ask AI panel) is hidden, and full
+          pages have none, so the links sit under the title instead. */}
+      <AskAI
+        variant="inline"
+        {...askAi}
+        className={cn("mt-5", !page.data.full && "xl:hidden")}
+      />
+
+      <Separator className="mt-8 mb-10" />
 
       <DocsBody>
         <MDX
@@ -101,19 +213,25 @@ export default async function Page(
             a: MDXLink,
           })}
         />
-        <hr className="border-divine-border my-8" />
-        <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
-          <PageCredits
-            credits={page.data.credits}
-            label={messages.misc?.madeBy ?? "Made by"}
-          />
-          <Link
-            href={`/${params.lang}/draft?edit=${page.slugs.join("/")}`}
-            className="text-divine-primary-light text-sm hover:underline"
-          >
-            {messages.misc?.editOnGithub ?? "Edit on GitHub"} →
-          </Link>
-        </div>
+        <GuideCredits
+          {...getGuideCredits(page)}
+          lang={params.lang}
+          labels={{
+            ...ui.credits,
+            lastUpdated: ui.misc.lastUpdated,
+          }}
+          className="mt-12"
+          action={
+            <Button
+              asChild
+              variant="secondary"
+              size="md"
+              className="not-prose no-underline"
+            >
+              <Link {...editLink}>{ui.misc.editOnGithub}</Link>
+            </Button>
+          }
+        />
       </DocsBody>
     </DocsPage>
   );
@@ -136,13 +254,14 @@ export async function generateMetadata(
   if (!page) notFound();
 
   const slug = params.slug || [];
+  const title = { absolute: docsTitle(page.data.title, slug[0]) };
   const imageUrl = `/api/og/docs/${params.lang}${slug.length > 0 ? "/" + slug.join("/") : ""}`;
 
-  // The LoL guides index (slug ["lol"]) is the redirect target for the site
-  // root (/:lang -> /:lang/docs/lol), so it's the de-facto landing page a
-  // shared site link resolves to. Give it the static branded banner instead of
-  // the dynamic per-page card. The banner is a static image with no localized
-  // text, so it's safe to serve even for OG-blacklisted locales.
+  // The LoL guides index (slug ["lol"]) was the site's landing page before
+  // the homepage existed, and old shares of the site still point at it. Give
+  // it the same static branded banner as the homepage instead of the dynamic
+  // per-page card. The banner is a static image with no localized text, so
+  // it's safe to serve even for OG-blacklisted locales.
   const isLandingTarget = slug.length === 1 && slug[0] === "lol";
   const ogImages = isLandingTarget
     ? [
@@ -155,29 +274,37 @@ export async function generateMetadata(
       ]
     : [{ url: imageUrl, width: 1200, height: 630 }];
   const twitterImages = isLandingTarget ? [LANDING_OG_IMAGE] : [imageUrl];
-  const pageKeywords = (page.data as any).keywords || [];
+  const pageKeywords = [
+    ...new Set([...(page.data.keywords ?? []), ...(page.data.tags ?? [])]),
+  ];
+  // Keywords follow the page's game segment, so one game's guides don't
+  // advertise another game's terms.
   const globalKeywords = [
-    "league of legends",
-    "lol custom skins",
-    "league modding",
+    ...(gameSeo(slug[0])?.keywords ?? []),
     "divine skins",
-    "celestial launcher",
   ];
 
   // hreflang: advertise only locales that actually have this page. Missing
   // locales fall back to English at render time, so listing them would point
   // Google at English content under a non-English URL. `canonical` is the
   // resolved page's own URL, so en-fallback views consolidate to the en URL.
+  // A shared section's copy in another game points at the default game's
+  // copy (canonicalSlugs), so search engines index it once.
+  const indexed = canonicalSlugs(slug);
   const languages: Record<string, string> = {};
   for (const locale of i18n.languages) {
-    const localized = source.getPage(slug, locale);
+    const localized = source.getPage(indexed, locale);
     if (localized) languages[locale] = localized.url;
   }
-  const englishPage = source.getPage(slug, "en");
+  const englishPage = source.getPage(indexed, "en");
   if (englishPage) languages["x-default"] = englishPage.url;
+  const indexedPage =
+    indexed === slug
+      ? page
+      : (source.getPage(indexed, params.lang) ?? englishPage ?? page);
 
   const alternates = {
-    canonical: page.url,
+    canonical: indexedPage.url,
     languages,
     types: llmAlternateTypes,
   };
@@ -186,14 +313,14 @@ export async function generateMetadata(
   // those scripts), but the landing target's static banner is always safe.
   if (ogLanguageBlacklist.includes(params.lang) && !isLandingTarget)
     return {
-      title: page.data.title,
+      title,
       description: page.data.description,
       keywords: [...globalKeywords, ...pageKeywords],
       alternates,
     };
 
   return {
-    title: page.data.title,
+    title,
     description: page.data.description,
     keywords: [...globalKeywords, ...pageKeywords],
     alternates,

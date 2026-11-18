@@ -1,7 +1,10 @@
 ---
 title: "Jade'de Chroma Studio ile skin'i yeniden renklendir"
-description: "Jade'deki Chroma Studio ile modelin tek bir parçasını seç, ton, renk dengesi ve diğer ayarlarla renklerini değiştir."
+description: "Jade'deki Chroma Studio ile modelin tek bir parçasını seç, ton, renk dengesi, seviyeler ve diğer ayarlarla renklerini değiştir."
 category: "tools"
+credits:
+  discord: Ceerel
+  github: CeerelXP
 ---
 
 Chroma Studio, [Jade](/docs/lol/tools/modding-apps/jade) içinde gelen bir yeniden renklendirme aracı.
@@ -10,7 +13,7 @@ Modelin sadece bir parçasını seçip renklerini değiştirmeni sağlar, geri k
 ## Başlamadan önce
 
 - [Jade](/docs/lol/tools/modding-apps/jade)'i kur.
-- Hangi skin'i yeniden renklendireceğine karar ver.
+- Yeniden renklendirmek istediğin skin'i çıkar, böylece `.skn` dosyası ve dokuları elinde olsun.
 
 ## Chroma Studio'yu aç
 
@@ -21,62 +24,80 @@ Modelin sadece bir parçasını seçip renklerini değiştirmeni sağlar, geri k
   alt="Kenar çubuğunda Open file işaretlenmiş Jade ana ekranı"
 />
 
-2. Renklendirmek istediğin skin'i yükle.
-3. Chroma Studio'yu açmak için araç çubuğunda işaretli düğmeye tıkla.
+2. Chroma Studio'yu açmak için araç çubuğunda işaretli düğmeye tıkla.
 
 <img
   src="/wiki-images/jade2.png"
   alt="Chroma Studio düğmesi işaretlenmiş Jade editör araç çubuğu"
 />
 
-## Arayüzü tanı
-
-- **Sol taraf:** mesh'in kullandığı dokular.
-- **Sağ taraf:** yaptığın değişikliklerin ayarları.
+Sen bir model yükleyene kadar Chroma Studio boş açılır.
 
 <img
-  src="/wiki-images/jade-3.png"
-  alt="Solda mesh dokuları, sağda ayarlar olan Chroma Studio"
+  src="/wiki-images/chroma-studio-empty.webp"
+  alt="Model yüklenmesini bekleyen boş Chroma Studio sekmesi"
 />
+
+## Bir model yükle
+
+1. **Assets** panelinde **Load SKN…**'e tıkla. İstersen bir `.skn` dosyasını sürükleyip viewport'a da bırakabilirsin.
+2. Skin'in `.skn` dosyasını seç.
+3. Modelin kullandığı dokuların **Assets** panelinde göründüğünü kontrol et.
+
+<img
+  src="/wiki-images/chroma-studio-loaded.webp"
+  alt="Model yüklenmiş ve dokuları Assets panelinde listelenmiş Chroma Studio"
+/>
+
+## Arayüzü tanı
+
+- **Assets** (sol): model ve kullandığı dokular.
+- **Viewport** (orta): modelin canlı önizlemesi.
+- **Mesh** (alt): modelin parçaları, yani submesh'ler.
+- **Recolor** (sağ): yaptığın değişikliklerin ayarları.
+- **Texture** ve **UV** (en sağ): doku ve UV adaları.
 
 ## Modelde bir bölge seç
 
-Sağ tarafta UV adalarını görürsün. Bir UV adası, modelin her parçası için dokunun hangi bölgesinin kullanılacağını modele söyler.
+UV adası, dokunun düz bir parçasıdır. Modelin her parçası için dokunun hangi bölgesinin kullanılacağını modele söyler.
 League dokularının, hatta çoğu model dokusunun düz görünmesinin sebebi bu.
 
 <img
-  src="/wiki-images/jade-4.png"
-  alt="Chroma Studio'nun sağ tarafında gösterilen bir UV adası"
+  src="/wiki-images/chroma-studio-uv-island.webp"
+  alt="UV panelinde vurgulanmış bir UV adası"
 />
 
-1. Mesh'te herhangi bir bölgeye tıkla.
-2. Bölgenin hem sağ tarafta hem de modelde vurgulandığını kontrol et.
-3. Ayarları değiştir. Değişikliklerin sadece o bölgeyi etkiler.
+1. **UV** panelinde **Island**'ı seç.
+2. Renklendirmek istediğin adaya tıkla.
+3. Bölgenin hem dokuda hem de modelde vurgulandığını kontrol et.
+
+**Recolor** panelinin üst kısmı neyi düzenlediğini gösterir. Hiçbir şey seçili değilse değişikliklerin tüm dokuyu etkiler.
 
 <img
-  src="/wiki-images/jade-5.png"
-  alt="Dokuda ve modelde vurgulanan seçili bir bölge"
+  src="/wiki-images/chroma-studio-island-selected.webp"
+  alt="Dokuda vurgulanmış seçili bir ada ve Recolor panelinde Editing 1 islands yazısı"
 />
 
 ## Renkleri ayarla
 
-Aşağıdaki her ayar sadece seçtiğin bölgeyi değiştirir.
+Bir ayarı açmak için yanındaki kutucuğu işaretle.
+Her ayar sadece seçtiğin bölgeyi değiştirir.
 
-### Ton, doygunluk ve açıklık
+### Hue / Saturation
 
-- **Hue:** rengin tonunu değiştirir, örneğin kırmızıdan maviye.
-- **Saturation:** doygunluğu, yani rengin ne kadar canlı olduğunu değiştirir.
-- **Lightness:** açıklığı, yani bölgenin ne kadar koyu ya da beyaz olduğunu değiştirir.
+- **Hue:** rengi değiştirir, örneğin kırmızıdan yeşile.
+- **Saturation:** rengin ne kadar canlı olduğunu değiştirir.
+- **Lightness:** bölgenin ne kadar koyu ya da beyaz olduğunu değiştirir.
 
 <img
-  src="/wiki-images/screenshot-2026-11-16-151518.png"
-  alt="Chroma Studio'da ton, doygunluk ve açıklık ayarları"
+  src="/wiki-images/chroma-studio-hue-saturation.webp"
+  alt="Seçili bölgeyi yeşile boyayan, açık Hue / Saturation ayarı"
 />
 
-### Renk dengesi
+### Color Balance
 
-En çok işine yarayacak ayar renk dengesi.
-Rengi, RGB skalasında her ana renkle onun karşıt rengi arasında kaydırır.
+En çok işine yarayacak ayar Color Balance, yani renk dengesi.
+Her kaydırıcı rengi bir ana renkle onun karşıtı arasında kaydırır: camgöbeği ve kırmızı, macenta ve yeşil, sarı ve mavi.
 
 - **Shadows:** bölgenin en koyu kısımlarındaki renk tonunu değiştirir.
 - **Midtones:** orta tonlardaki renk tonunu değiştirir.
@@ -85,69 +106,56 @@ Rengi, RGB skalasında her ana renkle onun karşıt rengi arasında kaydırır.
 Renk gözüne doğru gelene kadar kaydırıcılarla oyna.
 
 <img
-  src="/wiki-images/screenshot-2026-11-16-151816.png"
-  alt="Chroma Studio'da renk dengesi ayarları"
+  src="/wiki-images/chroma-studio-color-balance.webp"
+  alt="Shadows, midtones ve highlights için Color Balance kaydırıcıları"
 />
 
-### Sıcaklık ve renk tonu
+### Temperature / Tint
 
-Sıcaklık ve renk tonu beyaz dengesini kontrol eder.
-Sıcaklık renkleri sıcak ve soğuk arasında, renk tonu ise yeşil ve macenta arasında kaydırır.
+Temperature ve Tint beyaz dengesini kontrol eder.
+Temperature renkleri sıcak ve soğuk arasında kaydırır. Tint ise yeşil ve macenta arasında kaydırır.
 
 <img
-  src="/wiki-images/screenshot-2026-11-16-151939.png"
-  alt="Chroma Studio'da sıcaklık ve renk tonu ayarları"
+  src="/wiki-images/chroma-studio-temperature-tint.webp"
+  alt="Temperature / Tint kaydırıcıları"
 />
 
-### Parlaklık
+### Brightness / Contrast
 
-Parlaklık, bölgenin ne kadar parlak olacağını belirler.
+- **Brightness:** bölgenin ne kadar parlak olacağını belirler.
+- **Contrast:** koyu ve açık kısımların birbirinden ne kadar ayrışacağını belirler.
 
 <img
-  src="/wiki-images/screenshot-2026-11-16-152005.png"
-  alt="Chroma Studio'da parlaklık ayarı"
+  src="/wiki-images/chroma-studio-brightness-contrast.webp"
+  alt="Brightness / Contrast kaydırıcıları"
 />
 
-### Tonlama
+### Levels
 
-Bu ayarlar bölgenin parlaklığını, gölgelerini ve kontrastını değiştirir. Rengine dokunmaz.
+Levels bölgenin parlaklığını, gölgelerini ve kontrastını değiştirir. Rengine dokunmaz.
 
-<img
-  src="/wiki-images/screenshot-2026-11-16-152117.png"
-  alt="Chroma Studio'da tonlama ayarları"
-/>
+- **Black:** en koyu kısımların ne kadar koyulaşacağını belirler.
+- **Gamma:** orta tonları açar ya da koyulaştırır.
+- **White:** en parlak kısımların ne kadar parlayacağını belirler.
 
-### Gölgeler ve vurgular
+<img src="/wiki-images/chroma-studio-levels.webp" alt="Levels kaydırıcıları" />
 
-Bu ayarlar sadece bölgenin en parlak ve en koyu kısımlarındaki detayları geri getirir.
+### Highlights / Shadows
+
+Sadece bölgenin en parlak ve en koyu kısımlarındaki detayları geri getirir.
 Orta tonlar olduğu gibi kalır.
 
-<img
-  src="/wiki-images/screenshot-2026-11-16-152153.png"
-  alt="Chroma Studio'da gölgeler ve vurgular ayarları"
-/>
-
-### Rengi değiştir
+### Color Accent
 
 Dokudan bir renk seç ve onu başka bir renge çevir.
 İstersen o rengi izole de edebilirsin. Dokunun geri kalanı aynı kalır.
 
-<img
-  src="/wiki-images/screenshot-2026-11-16-152220.png"
-  alt="Chroma Studio'da renk değiştirme ayarları"
-/>
-
-### Rengi eşle
+### Color Match
 
 Bir renk seç. Chroma Studio bölgeyi bu renge olabildiğince yaklaştırır.
 
-<img
-  src="/wiki-images/screenshot-2026-11-16-152323.png"
-  alt="Chroma Studio'da renk eşleme ayarları"
-/>
+### Gradient Map, Black and White ve Transparency
 
-### Degrade eşleme, siyah beyaz ve saydamlık
-
-- **Gradient map:** her kısmın ne kadar parlak olduğuna göre orijinal renkleri iki renkli bir degradeyle değiştirir.
-- **Black and white:** bölgeyi siyah beyaz yapar.
-- **Transparency:** bölgenin saydamlığını, yani ne kadar içini gösterdiğini değiştirir.
+- **Gradient Map:** her kısmın ne kadar parlak olduğuna göre orijinal renkleri iki renkli bir degradeyle değiştirir.
+- **Black and White:** bölgeyi siyah beyaz yapar.
+- **Transparency:** bölgenin ne kadar saydam olduğunu değiştirir.

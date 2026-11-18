@@ -1,9 +1,33 @@
 # Cloudflare Pages `_redirects` — evaluated at the edge, zero Function cost.
 # Next.js redirects() in next.config.mjs stay for local dev + as a fallback.
 
-/ /en 301
-/docs /en/docs 302
-/docs/* /en/docs/:splat 302
+# `/` is the English homepage, served by a rewrite in next.config.mjs.
+# Permanent, so Google indexes the /en/docs URL instead of the bare /docs one.
+/docs /en/docs 301
+/docs/* /en/docs/:splat 301
+
+# Legacy URLs from the old site (/wiki/..., /en/guided/..., /tools/...).
+# First match wins, so specific rules go above the splat.
+/wiki/tools/league-mod-repather /en/docs/lol/tools/modding-apps/league-mod-repather 301
+/wiki/*                         /en/docs/lol/:splat                                  301
+/wiki                           /en/docs/lol                                         301
+/en/guided/*                    /en/docs/lol/getting-started                         301
+/tools/TexThumbnailProvider     /en/docs/lol/tools/texturing/tex-thumbnail-provider  301
+/en/Posting_Guidelines          /en/docs/lol/publishing/publish-on-divine            301
+/lol-blender-plugin             /en/docs/lol/blender/lol-blender-plugin              301
+/en/modding/bin-particle-dictionary /en/docs/lol/vfx-bins/bin-dictionary             301
+
+# League guides reorganised (2026-10-30): the Quick Start category folded into
+# Getting started, and Which format to choose moved under Mod format.
+/:lang/docs/lol/guided-walkthrough/walkthrough  /:lang/docs/lol/getting-started/walkthrough        301
+/:lang/docs/lol/guided-walkthrough              /:lang/docs/lol/getting-started                    301
+/:lang/docs/lol/tools/which-format-to-choose    /:lang/docs/lol/mod-format/which-format-to-choose  301
+
+# The VFX hub linked a form-swap page that never existed. Translated hubs still do.
+/:lang/docs/lol/vfx-bins/form-swap /:lang/docs/lol/vfx-bins/textureswap-fakegear 301
+
+# The Flint thumbnail guide belongs in Assets Library.
+/:lang/docs/lol/tools/how-to-make-your-thumbnail-in-flint /:lang/docs/lol/assets-library/how-to-make-your-thumbnail-in-flint 301
 
 # Retired tools (2026-06-14): Obsidian and Hexbelt are out of the flow, replaced
 # by Flint and Quartz. Point old links at Flint, the all-in-one extractor.
@@ -17,6 +41,32 @@
 # LTK Tex Thumb Handler retired (2026-07-08): folded into the Tex Thumbnail
 # Provider page as an alternative. Point old links there.
 /:lang/docs/lol/tools/texturing/ltk-tex-thumb-handler /:lang/docs/lol/tools/texturing/tex-thumbnail-provider 301
+
+# Deadlock publishing pages retired (2026-10-26): credits are covered by Divine's
+# Content Rules, and the screenshot tips moved into the upload guide.
+/:lang/docs/deadlock/publishing/credits-and-licenses /:lang/docs/deadlock/publishing/publish-on-divine 301
+/:lang/docs/deadlock/publishing/showcase             /:lang/docs/deadlock/publishing/publish-on-divine 301
+
+# Guessed URLs built from page titles, e.g. "Errors and fixes" -> errors-and-fixes.
+# None of these pages ever existed. Point each at the real page.
+/:lang/docs/deadlock/tools/blender                             /:lang/docs/deadlock/tools/blender-add-ons    301
+/:lang/docs/deadlock/tools/blender-and-add-ons-for-deadlock    /:lang/docs/deadlock/tools/blender-add-ons    301
+/:lang/docs/deadlock/tools/csdk12                              /:lang/docs/deadlock/tools/csdk-12            301
+/:lang/docs/deadlock/basics/hero-names-and-file-paths          /:lang/docs/deadlock/basics/hero-codenames    301
+/:lang/docs/deadlock/heroes/hero-names-and-file-paths          /:lang/docs/deadlock/basics/hero-codenames    301
+/:lang/docs/deadlock/basics/test-in-game                       /:lang/docs/deadlock/basics/test-your-mod     301
+/:lang/docs/deadlock/basics/pack-your-mod-into-a-vpk           /:lang/docs/deadlock/basics/pack-a-vpk        301
+/:lang/docs/deadlock/textures/retexture-a-hero                 /:lang/docs/deadlock/textures/retexture       301
+/:lang/docs/deadlock/textures/hero-material-settings           /:lang/docs/deadlock/textures/material-reference 301
+/:lang/docs/deadlock/models/hero-swap                          /:lang/docs/deadlock/models/hero-model-swap   301
+/:lang/docs/deadlock/models/hero-swap-overview                 /:lang/docs/deadlock/models/hero-model-swap   301
+/:lang/docs/deadlock/hero-swap-blender                         /:lang/docs/deadlock/models/hero-swap-blender 301
+/:lang/docs/deadlock/errors-and-fixes                          /:lang/docs/deadlock/errors                   301
+/:lang/docs/deadlock/sound-modding                             /:lang/docs/deadlock/sounds                   301
+/:lang/docs/lol/publishing/upload-guide                        /:lang/docs/lol/publishing/publish-on-divine  301
+/:lang/docs/lol/publishing/file-rules                          /:lang/docs/lol/publishing/publish-on-divine  301
+/:lang/docs/lol/publishing/repathing                           /:lang/docs/lol/getting-started/repath-your-mod 301
+/:lang/docs/lol/tools/flint                                    /:lang/docs/lol/tools/modding-apps/flint      301
 
 # Game-segment migration (2026-05-19): old per-category URLs now live under /lol/.
 # Keep these redirects until external traffic to the old shape has decayed.

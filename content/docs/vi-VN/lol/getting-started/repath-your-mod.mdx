@@ -1,0 +1,320 @@
+---
+title: "Repath mod của bạn"
+description: "Repath mod tướng League of Legends trong Creator Hub của Celestial, hoặc repath ngay từ đầu bằng cách trích xuất với Quartz, Flint hay Jade, để mod của bạn không bao giờ đụng mod khác."
+keywords:
+  - repath mod liên minh
+  - repath mod league bằng celestial
+  - skin tùy chỉnh xung đột với mod khác
+  - mới repath một phần
+category: "getting-started"
+---
+
+<LevelPill level="beginner" />
+
+Repath cho file trong mod của bạn một thư mục riêng, nên mod của bạn không bao giờ đụng một mod khác cho cùng tướng. Hãy repath mọi mod tướng trước khi tải lên Divine. Bước kiểm tra file của Divine sẽ báo cho bạn khi một mod tướng chưa được repath.
+
+Lúc tốt nhất để repath là khi bạn bắt đầu làm một bộ skin. Nếu mod của bạn đã làm xong, Celestial repath nó chỉ với một cú chuột phải.
+
+## Repath làm gì
+
+Một mod tướng thay file ngay tại đường dẫn gốc của game. Hai mod cùng đổi một file thì không thể cùng thắng, nên một trong hai sẽ hỏng. Repath chuyển file của bạn vào dưới một từ chỉ mình bạn dùng, gọi là **tiền tố** (prefix):
+
+```text
+assets/characters/aatrox/skins/base/aatrox_base_tx_cm.tex
+assets/daka_aatrox/characters/aatrox/skins/base/aatrox_base_tx_cm.tex
+```
+
+Các file BIN được cập nhật để trỏ tới đường dẫn mới, nên game vẫn tìm thấy mọi thứ.
+
+| Loại mod                 | Có cần repath? |
+| ------------------------ | -------------- |
+| Skin và chroma tướng     | **Có**         |
+| Mod bản đồ               | Không          |
+| Mod HUD và giao diện     | Không          |
+| Mod âm thanh             | Không          |
+
+## Chọn một tiền tố tốt
+
+Công cụ nào cũng hỏi tiền tố. Ở đâu cũng dùng chung các quy tắc này:
+
+- Chỉ dùng chữ thường, số và `_`. Quartz sẽ xóa dấu `-`.
+- Đặt cái gì đó của riêng bạn: tên creator cộng tên mod là ổn, ví dụ `daka_aatrox`.
+- Đừng bao giờ dùng tên thư mục của Riot, như `characters`, `shared`, `particles` hay `hud`. Celestial sẽ coi chúng là chưa repath.
+
+## Cách tốt nhất: repath ngay từ đầu
+
+Khi bắt đầu một bộ skin mới, hãy trích xuất file của tướng ở dạng đã repath sẵn. Từ ngày đầu, mọi file bạn chỉnh đều nằm dưới tiền tố của bạn, và bạn không phải repath vào phút chót. Chọn công cụ trích xuất của bạn:
+
+<Tabs items={["Quartz", "Flint", "Jade"]}>
+<Tab value="Quartz">
+
+Quartz chỉ repath qua nút **Repath**. Nút **Extract** thường sẽ cho bạn file ở đường dẫn của Riot.
+
+1. Mở **Settings**, rồi **External Tools**. Đặt **League Install Path** và **WAD Extraction Output Path**.
+2. Mở **Asset Extractor** ở thanh bên và chọn tab **Champions**.
+3. Chọn một tướng, rồi bấm vào thẻ skin bạn muốn làm.
+4. Bấm **Repath**, đừng bấm **Extract**.
+5. Gõ tiền tố của bạn vào **Entry Prefix**. Để nguyên **Preserve HUD ability icons** ở trạng thái bật.
+6. Bấm **Start Repath**.
+
+Quartz ghi một thư mục kiểu `aatrox_skin0_extracted_clean` vào đường dẫn xuất của bạn. [Quartz](/docs/lol/tools/modding-apps/quartz) có phần còn lại của app.
+
+</Tab>
+<Tab value="Flint">
+
+Flint tự repath mọi dự án skin mới cho bạn. Tiền tố là tên creator của bạn cộng tên dự án.
+
+1. Đặt **Creator name** của bạn trong **Settings**, rồi **Creator**. Không có tên creator thì Flint không repath.
+2. Đặt thư mục League của bạn trong **Settings**, rồi **Paths**.
+3. Bấm **Create Project**, rồi chọn **Type: Skin**.
+4. Chọn tướng và skin, gõ **Project name** rồi bấm **Create project**.
+
+File của bạn sẽ nằm dưới `assets/<creator>/<project>/`. Nút **Extract** thường trong WAD Explorer không repath. [Flint](/docs/lol/tools/modding-apps/flint) có phần còn lại của app.
+
+</Tab>
+<Tab value="Jade">
+
+Các bước này theo Jade 1.x. Jade 2.0 có thêm tab **Create a Mod** với một ô cài đặt tiền tố.
+
+1. Mở **Extract Files** và chọn **League of Legends** trong **Locations**.
+2. Đặt tiền tố của bạn trong **Extraction settings**, rồi **Repath prefix**.
+3. Mở file `.wad.client` của tướng và bấm **Extract as skin mod**.
+4. Chọn các skin của bạn và bật **Repath**. Để nguyên **Preserve HUD icons** ở trạng thái bật.
+5. Bấm **Extract**.
+
+[Jade](/docs/lol/tools/modding-apps/jade) có phần còn lại của app.
+
+</Tab>
+</Tabs>
+
+Sau đó chỉnh file như bình thường. Khi bạn nhập thư mục vào Creator Hub, huy hiệu của nó phải xanh lá sẵn rồi.
+
+## Repath trong Celestial
+
+Đã làm xong mod mà không có tiền tố? Celestial repath nó cho bạn. Creator Hub có trong bản Windows của Celestial.
+
+<Requirements>
+  <Requirement
+    icon="Download"
+    href="https://divineskins.gg/install-mods"
+    note="Windows"
+  >
+    Celestial
+  </Requirement>
+  <Requirement icon="FolderOpen" note="thư mục, .modpkg hoặc .fantome">
+    Mod tướng của bạn
+  </Requirement>
+  <Requirement icon="LeagueOfLegends" note="đã cài">
+    League of Legends
+  </Requirement>
+</Requirements>
+
+<Steps>
+<Step>
+
+### Thêm mod vào Creator Hub
+
+1. Mở Celestial và bấm biểu tượng **Trung tâm Sáng tạo** (Creator Hub) ở trên cùng.
+2. Kéo thư mục, file `.modpkg` hoặc `.fantome` của mod thả vào Creator Hub. Nút **Import** cũng dùng được cho thư mục.
+
+File `.modpkg` đã có sẵn trong Thư viện? Chuột phải vào nó ở đó và chọn **Mở trong Creator Hub**.
+
+<img
+  src="/wiki-images/lol-repath-1.webp"
+  alt="Creator Hub của Celestial, biểu tượng Creator Hub được đánh số 1 và nút Nhập được đánh số 2, bên dưới là mod Aatrox Wiki Example đã nhập"
+/>
+
+</Step>
+<Step>
+
+### Kiểm tra huy hiệu
+
+Biểu tượng ở góc trên bên phải thẻ mod cho biết trạng thái repath. Rê chuột lên để đọc.
+
+<ParameterList
+  parameters={[
+    {
+      name: "Đã repath (xanh lá)",
+      description: "Xong rồi. Nhảy thẳng tới bước thử trong game.",
+    },
+    {
+      name: "Mới repath một phần (vàng)",
+      description:
+        "Một số file vẫn dùng đường dẫn gốc của game. Repath để làm nốt.",
+    },
+    {
+      name: "Chưa repath (đỏ)",
+      description: "Chưa có file nào có tiền tố. Repath nó đi.",
+    },
+  ]}
+/>
+
+<img
+  src="/wiki-images/lol-repath-2.webp"
+  width={480}
+  alt="Huy hiệu repath trên thẻ mod, được khoanh tròn, kèm chú thích: Mới repath một phần, repath nốt để tránh xung đột"
+/>
+
+</Step>
+<Step>
+
+### Mở Repath
+
+1. Chuột phải vào thẻ của mod.
+2. Trong mục **Tools**, bấm **Repath**.
+
+Bạn chỉ thấy **Repath** khi Celestial biết mod này dành cho tướng nào. Nó chỉ dùng được cho mod tướng.
+
+Lần đầu tiên, Celestial hiện một thông báo ngắn trước cửa sổ Repath. Bấm **Mình hiểu rồi**.
+
+<img
+  src="/wiki-images/lol-repath-3.webp"
+  width={480}
+  alt="Menu chuột phải của mod, Repath được khoanh tròn trong mục Tools"
+/>
+
+</Step>
+<Step>
+
+### Chọn skin và gõ tiền tố
+
+1. Trong **Chọn ID skin để repath**, chọn skin mà mod của bạn thay đổi. Skin 0 là skin gốc.
+2. Gõ **Tiền tố** của bạn.
+
+Mod của bạn đổi nhiều hơn một skin? Repath một skin, rồi mở lại Repath cho skin tiếp theo.
+
+<img
+  src="/wiki-images/lol-repath-4.webp"
+  width={480}
+  alt="Cửa sổ Repath Mod, ô chọn skin đặt ở Skin 0 được đánh số 1 và ô Tiền tố điền daka_aatrox được đánh số 2"
+/>
+
+</Step>
+<Step>
+
+### Kiểm tra các tùy chọn rồi bắt đầu
+
+Cuộn xuống. Thiết lập mặc định hợp với hầu hết mod:
+
+- **Update to Riot's new asset format** đang tắt. Bật nó lên nếu thẻ của mod cảnh báo về định dạng asset cũ.
+- **Gộp particle** dồn các file VFX của bạn vào một thư mục.
+- **Remove redundant base BINs** xóa các file BIN mà dù sao game cũng nạp từ file của chính nó.
+- **Giữ icon kỹ năng** giữ nguyên thư mục `hud/icons2d`.
+
+Rồi bấm nút **Repath** bên dưới các tùy chọn. Nút này ghi tên skin bạn đã chọn, ví dụ Skin 0.
+
+<img
+  src="/wiki-images/lol-repath-5.webp"
+  width={480}
+  alt="Các tùy chọn repath được đánh số 1, với Gộp particle, Remove redundant base BINs và Giữ icon kỹ năng đang bật, và nút Repath được đánh số 2"
+/>
+
+</Step>
+<Step>
+
+### Đọc kết quả
+
+Celestial cho biết nó đã đổi bao nhiêu BIN và bao nhiêu đường dẫn, cùng tiền tố nó đã dùng. Bấm **Đóng**.
+
+Nó cũng có thể liệt kê hai loại file:
+
+- **Tài nguyên có thể trích xuất** là các file mà BIN của bạn dùng nhưng mod của bạn không có. Bấm **Trích xuất từ game** để chép chúng vào, để mod vẫn chạy khi Riot thay đổi chúng.
+- **Tài nguyên chưa giải quyết** là các file không tìm thấy cả trong game. Chúng giữ đường dẫn của game.
+
+<img
+  src="/wiki-images/lol-repath-6.webp"
+  width={480}
+  alt="Kết quả repath: 1 BIN đã repath, 601 đường dẫn đã thay đổi, tiền tố daka_aatrox"
+/>
+
+</Step>
+<Step>
+
+### Kiểm tra lại huy hiệu
+
+Rê chuột lên huy hiệu. Nó phải ghi **Đã repath**. Vẫn vàng? Một skin khác hoặc một file của tướng khác vẫn cần tiền tố. Repath lại cho skin đó.
+
+<img
+  src="/wiki-images/lol-repath-7.webp"
+  width={480}
+  alt="Huy hiệu, được khoanh tròn, giờ đã xanh lá với chú thích Đã repath"
+/>
+
+</Step>
+<Step>
+
+### Thử trong game
+
+1. Tắt các mod khác của bạn.
+2. Bấm vào thẻ của mod trong Creator Hub để bật nó.
+3. Bấm **Start Patcher**.
+4. Vào một trận luyện tập và kiểm tra mô hình, chiêu thức, biến về và hiệu ứng.
+
+</Step>
+</Steps>
+
+### Hoàn tác repath
+
+Có gì đó hỏng? Chuột phải vào mod và bấm **Restore**. Nó đưa các file trước lúc repath trở lại.
+
+<img
+  src="/wiki-images/lol-repath-8.webp"
+  width={480}
+  alt="Menu chuột phải sau khi repath, Restore được khoanh tròn trong mục Tools"
+/>
+
+## Lỗi thường gặp
+
+<Accordions>
+<Accordion title="Không thấy Repath trong menu">
+
+Celestial không xác định được mod này dành cho tướng nào, hoặc đây không phải mod tướng. Repath chỉ dùng được cho skin tướng. Kiểm tra xem file của bạn có nằm dưới `assets/characters/<champion>/` và `data/characters/<champion>/` không.
+
+</Accordion>
+<Accordion title="Huy hiệu vẫn vàng">
+
+Một số file vẫn dùng đường dẫn gốc của game. Repath từng skin mà mod của bạn thay đổi, mỗi lần một skin. File của tướng khác, như một particle dùng chung, cũng tính.
+
+</Accordion>
+<Accordion title="Mod nhìn sai sau khi repath">
+
+Bấm **Restore**, rồi thử lại với **Gộp particle** tắt. Vẫn hỏng? Hỏi trên Discord, kèm tên mod và chỗ nhìn sai.
+
+</Accordion>
+<Accordion title="Bước kiểm tra file của Divine báo mod chưa repath">
+
+Thông báo này không chặn bạn tải lên. Nó chỉ cho biết mod có thể đụng các mod khác cho cùng tướng. Repath nó ở đây, xuất một file `.modpkg` mới rồi tải lên lại.
+
+</Accordion>
+</Accordions>
+
+Còn thắc mắc? Ghé [Discord](https://discord.gg/divineskins) hỏi tụi mình nhé. Tụi mình lúc nào cũng có mặt.
+
+## Công cụ repath khác
+
+<Callout type="info" title="Đã lưu trữ">
+  [League Mod Repather](/docs/lol/tools/modding-apps/league-mod-repather) là
+  công cụ repath độc lập đời cũ. Hướng dẫn của nó vẫn được giữ lại cho các mod
+  cũ, nhưng giờ cách để repath là dùng Celestial.
+</Callout>
+
+## Bước tiếp theo
+
+<CardGrid>
+  <PremiumCard
+    title="Định dạng mod"
+    href="/docs/lol/mod-format"
+    icon={<Icon name="Package" />}
+    level="beginner"
+  >
+    Xuất mod đã repath thành file .modpkg.
+  </PremiumCard>
+  <PremiumCard
+    title="Đăng mod của bạn lên Divine"
+    href="/docs/lol/publishing/publish-on-divine"
+    icon={<Icon name="Upload" />}
+    level="beginner"
+  >
+    Tải nó lên từ Creator Panel.
+  </PremiumCard>
+</CardGrid>

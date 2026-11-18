@@ -18,17 +18,17 @@ export const componentSnippets: ComponentSnippet[] = [
     id: "callout",
     label: "Callout",
     blurb:
-      "A colored box for warnings, tips, and the KR/CN safety note. Use danger for real risk.",
+      "A colored box for tips and warnings. Use danger for a real risk, like an unfair mod.",
     snippet:
       '<Callout type="info" title="Title here">\n  Body text here.\n</Callout>\n',
     preview:
-      '<Callout type="danger" title="Don\'t use custom skins in Korea or China">\n  The anti-cheat there blocks all mods. Accounts get banned.\n</Callout>',
+      '<Callout type="warning" title="Make a copy first">\n  Saving over the original file cannot be undone.\n</Callout>',
     docsAnchor: "callout",
   },
   {
     id: "tabs",
     label: "Tabs",
-    blurb: "Alternative paths - OS-specific steps, tool-specific workflows.",
+    blurb: "Two or more ways to do the same thing: per system or per tool.",
     snippet:
       '<Tabs items={["Windows", "macOS"]}>\n  <Tab value="Windows">\n    Windows steps here.\n  </Tab>\n  <Tab value="macOS">\n    macOS steps here.\n  </Tab>\n</Tabs>\n',
     preview:
@@ -42,13 +42,13 @@ export const componentSnippets: ComponentSnippet[] = [
     snippet:
       '<Accordions>\n  <Accordion title="Question here">\n    Answer here.\n  </Accordion>\n</Accordions>\n',
     preview:
-      '<Accordions>\n  <Accordion title="Is this safe?">\n    Yes, outside Korea and China.\n  </Accordion>\n</Accordions>',
+      '<Accordions>\n  <Accordion title="Do I need Maya to make a skin?">\n    No. Blender works for the full workflow.\n  </Accordion>\n</Accordions>',
     docsAnchor: "accordion",
   },
   {
     id: "image",
     label: "Image",
-    blurb: "A screenshot. alt text is required - CI and reviewers enforce it.",
+    blurb: "A screenshot. alt text is required. Reviewers check it.",
     snippet:
       '<img src="/wiki-images/your-screenshot.png" alt="Short description of the image" />\n',
     preview:
@@ -76,11 +76,11 @@ export const componentSnippets: ComponentSnippet[] = [
   {
     id: "toolcard",
     label: "ToolCard",
-    blurb: "A single tool row - name, link, one-line description.",
+    blurb: "A tool row: logo, name, link, one line. For tools, not guides.",
     snippet:
-      '<ToolCard name="Tool name" href="/docs/tools/slug">\n  One-line description of the tool.\n</ToolCard>\n',
+      '<ToolCard name="Tool name" href="/docs/..." icon={<Icon name="Wrench" />}>\n  One-line description of the tool.\n</ToolCard>\n',
     preview:
-      '<ToolCard name="Flint" href="/docs/tools/flint" badge="Recommended">\n  All-in-one skin creation tool.\n</ToolCard>',
+      '<ToolCard name="Flint" href="/docs/lol/tools/modding-apps/flint" badge="Recommended" icon={<Icon name="Flint" />}>\n  All-in-one skin creation tool.\n</ToolCard>',
     docsAnchor: "toolcard",
   },
   {
@@ -105,18 +105,18 @@ export const componentSnippets: ComponentSnippet[] = [
   {
     id: "premiumcard",
     label: "PremiumCard",
-    blurb: "A prominent gradient card for a featured link.",
+    blurb: "A link card for a guide or a section. Group several in a CardGrid.",
     snippet:
-      '<PremiumCard title="Card title" href="/docs/category/slug">\n  Supporting description.\n</PremiumCard>\n',
+      '<PremiumCard title="Card title" href="/docs/..." icon={<Icon name="Compass" />} level="beginner">\n  One line on what it covers.\n</PremiumCard>\n',
     preview:
-      '<PremiumCard title="Guided walkthrough" href="/docs/guided-walkthrough">\n  Start here if you are new.\n</PremiumCard>',
+      '<PremiumCard title="Getting started" href="/docs/lol/getting-started" icon={<Icon name="Compass" />}>\n  Start here if you are new.\n</PremiumCard>',
     docsAnchor: "premiumcard",
     overflow: true,
   },
   {
     id: "glowcta",
     label: "GlowCTA",
-    blurb: "A glowing call-to-action button. Use sparingly - one per page.",
+    blurb: "A glowing call-to-action button. One per page at most.",
     snippet: '<GlowCTA href="/docs/category/slug">Button label</GlowCTA>\n',
     preview: '<GlowCTA href="/docs">Browse the guides</GlowCTA>',
     docsAnchor: "glowcta",
@@ -127,8 +127,72 @@ export const componentSnippets: ComponentSnippet[] = [
     label: "YouTube",
     blurb: "An embedded YouTube video. Pass the video id, not the full URL.",
     snippet: '<YouTube id="VIDEO_ID" title="What the video shows" />\n',
-    preview: '<YouTube id="dQw4w9WgXcQ" title="Example video" />',
+    preview: '<YouTube id="xqB84ga55hI" title="Custom skin walkthrough" />',
     docsAnchor: "youtube",
+    overflow: true,
+  },
+  {
+    id: "steps",
+    label: "Steps",
+    blurb: "Numbered stages for a longer task. One ### heading per stage.",
+    snippet:
+      "<Steps>\n<Step>\n\n### First stage\n\n1. Do this.\n\n</Step>\n<Step>\n\n### Second stage\n\n1. Then this.\n\n</Step>\n</Steps>\n",
+    preview:
+      "<Steps>\n<Step>\n\n### Find the file\n\nOpen the game files.\n\n</Step>\n<Step>\n\n### Compile it\n\nRecompile your edit.\n\n</Step>\n</Steps>",
+    docsAnchor: "steps",
+    overflow: true,
+  },
+  {
+    id: "files",
+    label: "Files",
+    blurb: "A folder tree. Shows where files go.",
+    snippet:
+      '<Files>\n  <Folder name="folder" defaultOpen>\n    <File name="file.ext" />\n  </Folder>\n</Files>\n',
+    preview:
+      '<Files>\n  <Folder name="addons" defaultOpen>\n    <File name="pak01_dir.vpk" />\n  </Folder>\n</Files>',
+    docsAnchor: "files",
+    overflow: true,
+  },
+  {
+    id: "requirements",
+    label: "Requirements",
+    blurb: 'The "What you need" list as logo chips.',
+    snippet:
+      '<Requirements>\n  <Requirement icon="Blender" href="/docs/...">Blender</Requirement>\n  <Requirement>Something else you need</Requirement>\n</Requirements>\n',
+    preview:
+      '<Requirements>\n  <Requirement icon="Blender">Blender</Requirement>\n  <Requirement icon="GIMP" note="or Photoshop">GIMP</Requirement>\n</Requirements>',
+    docsAnchor: "requirements",
+    overflow: true,
+  },
+  {
+    id: "toolheader",
+    label: "ToolHeader",
+    blurb: "Summary panel at the top of a tool page: logo, facts, download.",
+    snippet:
+      '<ToolHeader\n  name="Tool name"\n  icon="Wrench"\n  facts={["Free", "Windows"]}\n  primary={{ label: "Download", href: "https://example.com" }}\n>\n  What the tool does, in one sentence.\n</ToolHeader>\n',
+    preview:
+      '<ToolHeader name="Flint" icon="Flint" badge="Recommended" facts={["Free", "Windows"]}>\n  All-in-one modding app.\n</ToolHeader>',
+    docsAnchor: "toolheader",
+    overflow: true,
+  },
+  {
+    id: "cardgrid",
+    label: "CardGrid",
+    blurb: "PremiumCards side by side, for sections and choices.",
+    snippet:
+      '<CardGrid>\n  <PremiumCard title="First" href="/docs/..." icon={<Icon name="Compass" />}>\n    One line.\n  </PremiumCard>\n  <PremiumCard title="Second" href="/docs/..." icon={<Icon name="Wrench" />}>\n    One line.\n  </PremiumCard>\n</CardGrid>\n',
+    preview:
+      '<CardGrid>\n  <PremiumCard title="Maya" href="/docs" icon={<Icon name="Maya" />}>\n    Rigging and export.\n  </PremiumCard>\n  <PremiumCard title="Blender" href="/docs" icon={<Icon name="Blender" />}>\n    The same in Blender.\n  </PremiumCard>\n</CardGrid>',
+    docsAnchor: "cardgrid",
+    overflow: true,
+  },
+  {
+    id: "menupath",
+    label: "MenuPath",
+    blurb: "A menu path inside a step, like File > Export.",
+    snippet: '<MenuPath path="File > Export" />',
+    preview: 'Choose <MenuPath path="File > Export > FBX" />.',
+    docsAnchor: "menupath",
     overflow: true,
   },
 ];

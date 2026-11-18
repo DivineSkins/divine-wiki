@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 // Generates src/git-info.json with the current branch + short commit hash.
-// Pure Node — reads from .git/ directly, no shell invocation, no external PM.
+// Pure Node: reads .git/ directly, no shell. (The page-dates step below runs git.)
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { resolve, dirname } from "node:path";
+import { createHash } from "node:crypto";
 
 const OUT = resolve("src/git-info.json");
 
@@ -89,7 +90,7 @@ function buildEntityIndex() {
         if (!title) continue;
         const url =
           slug === "index" ? `/docs/${game}` : `/docs/${game}/${slug}`;
-        entities.push({ title, slug, category: game, url });
+        entities.push({ title, slug, category: game, game, url });
         continue;
       }
       if (!entryStat.isDirectory()) continue;
@@ -114,7 +115,13 @@ function walkCategory(dirPath, game, category, relParts, entities) {
     if (!title) continue;
     const parts = [game, category, ...relParts];
     if (slug !== "index") parts.push(slug);
-    entities.push({ title, slug, category, url: `/docs/${parts.join("/")}` });
+    entities.push({
+      title,
+      slug,
+      category,
+      game,
+      url: `/docs/${parts.join("/")}`,
+    });
   }
 }
 
@@ -128,3 +135,479 @@ try {
   mkdirSync(dirname(ENTITY_OUT), { recursive: true });
   writeFileSync(ENTITY_OUT, "[]\n");
 }
+
+// --- Game index for the contribute picker and the draft editor -----------
+// Each game segment under content/docs/en/ with its guide categories: the
+// folders its meta.json `pages` lists, in that (sidebar) order, then any
+// folder it doesn't list. A game shows up here as soon as its segment has a
+// category folder, which is what lets the picker offer it for new guides.
+
+const GAMES_OUT = resolve("src/lib/draft/games-index.json");
+
+function buildGamesIndex() {
+  const games = {};
+  if (!existsSync(EN_DIR)) return games;
+  for (const game of readdirSync(EN_DIR).sort()) {
+    const gameDir = resolve(EN_DIR, game);
+    if (!statSync(gameDir).isDirectory()) continue;
+    const folders = readdirSync(gameDir).filter((entry) =>
+      statSync(resolve(gameDir, entry)).isDirectory(),
+    );
+    // Segments without category folders (the shared contributing section)
+    // aren't games.
+    if (folders.length === 0) continue;
+    let pages = [];
+    try {
+      pages = JSON.parse(
+        readFileSync(resolve(gameDir, "meta.json"), "utf-8"),
+      ).pages;
+    } catch {
+      // No meta.json yet: fall back to folder order.
+    }
+    const listed = (Array.isArray(pages) ? pages : []).filter((page) =>
+      folders.includes(page),
+    );
+    const unlisted = folders.filter((f) => !listed.includes(f)).sort();
+    games[game] = [...listed, ...unlisted];
+  }
+  return games;
+}
+
+try {
+  const games = buildGamesIndex();
+  writeFileSync(GAMES_OUT, JSON.stringify(games, null, 2) + "\n");
+  console.log(
+    `games-index.json generated: ${Object.keys(games).join(", ") || "none"}`,
+  );
+} catch (err) {
+  console.warn("Could not generate games-index.json:", err.message);
+  writeFileSync(GAMES_OUT, "{}\n");
+}
+
+// --- Last-commit date per content file, for the sitemap's <lastmod> -------
+// The one step here that runs git (no shell). Keys are paths relative to
+// content/docs ("en/lol/tools/index.mdx").
+//
+// Cloudflare's build clones one commit deep, and a shallow clone would give
+// every file that one commit's date. So a shallow clone first fetches the
+// rest of the history without file contents (commits and trees only: about
+// 6 MB and a second in Oct 2026). If that fails, or git is missing, this
+// writes {} and the sitemap leaves lastmod out instead of sending wrong dates.
+
+import { execFileSync } from "node:child_process";
+
+const DATES_OUT = resolve("src/lib/page-dates.json");
+
+const git = (args, options = {}) =>
+  execFileSync("git", args, {
+    encoding: "utf-8",
+    maxBuffer: 256 * 1024 * 1024,
+    ...options,
+  });
+const isShallow = () =>
+  git(["rev-parse", "--is-shallow-repository"]).trim() === "true";
+
+function buildPageDates() {
+  if (isShallow()) {
+    try {
+      git(["fetch", "--quiet", "--unshallow", "--filter=blob:none"], {
+        stdio: "ignore",
+        timeout: 120_000,
+      });
+    } catch (err) {
+      console.warn("Could not fetch git history for page dates:", err.message);
+    }
+    if (isShallow()) return {};
+  }
+  // --no-renames: rename detection would compare file contents, which the
+  // fetch above leaves out.
+  const log = git([
+    "log",
+    "--no-renames",
+    "--format=%x00%cI",
+    "--name-only",
+    "--",
+    "content/docs",
+  ]);
+  const dates = {};
+  let date = "";
+  for (const line of log.split("\n")) {
+    if (line.startsWith("\0")) date = line.slice(1);
+    else if (line.startsWith("content/docs/") && line.endsWith(".mdx")) {
+      // Newest commit comes first, so the first date seen per file wins.
+      dates[line.slice("content/docs/".length)] ??= date;
+    }
+  }
+  return dates;
+}
+
+try {
+  const dates = buildPageDates();
+  writeFileSync(DATES_OUT, JSON.stringify(dates) + "\n");
+  console.log(`page-dates.json generated: ${Object.keys(dates).length} files`);
+} catch (err) {
+  console.warn("Could not generate page-dates.json:", err.message);
+  writeFileSync(DATES_OUT, "{}\n");
+}
+
+// ---------------------------------------------------------------------------
+// Page credits: who created each guide and who has edited it since, for the
+// credits row at the bottom of every guide (src/lib/guide-credits.ts). Uses
+// the history fetched above. Keys match page-dates ("en/lol/maya/x.mdx").
+//
+// Three things in this repo's history would credit the wrong people:
+// - The 40 LoL guides imported from the old Divine Academy (IMPORT_COMMITS)
+//   were written by people git never saw. They get no creator here.
+// - Folder moves. Exact renames are followed with -M100% (no file contents
+//   needed, so it works on the blob-less fetch). Moves that also edited the
+//   file show as delete + add, so an add is paired with a delete of the same
+//   file name in the same commit and keeps that file's credits.
+// - Site-wide sweeps (formatting, link rewrites, title passes). A commit that
+//   edits BULK or more guides doesn't make anyone a contributor.
+// Bots and AI co-author trailers are skipped. GitHub logins come from noreply
+// emails, or from the GitHub API for other emails (cached in node_modules).
+// Emails never reach the output files.
+//
+// The same history also gives src/lib/contributors.json, the homepage's
+// thank-you row: everyone with a commit anywhere in the repo, with their
+// commit count. No sweep or import filtering there, a commit is a commit.
+
+const CREDITS_OUT = resolve("src/lib/page-credits.json");
+const CONTRIBUTORS_OUT = resolve("src/lib/contributors.json");
+const LOGIN_CACHE = resolve(
+  "node_modules/.cache/divine-wiki/github-logins.json",
+);
+const REPO = "DivineSkins/divine-wiki";
+const IMPORT_COMMITS = ["9ec672b"];
+const BULK = 15;
+const BOT =
+  /\[bot\]|noreply@anthropic\.com|^claude\b|dependabot|github-actions/i;
+const NOREPLY = /^(?:(\d+)\+)?([^@]+)@users\.noreply\.github\.com$/i;
+// Author name, email and co-authors, for commitPeople().
+const PEOPLE_FORMAT =
+  "%an%x1f%ae%x1f%(trailers:key=Co-authored-by,valueonly,separator=%x1e)";
+
+function parseIdent(text) {
+  const m = text.trim().match(/^(.*?)\s*<([^>]+)>$/);
+  return m ? { name: m[1], email: m[2] } : null;
+}
+
+/** Author and co-authors of one PEOPLE_FORMAT line, without bots. */
+function commitPeople(name, email, co) {
+  return [
+    { name, email },
+    ...(co ? co.split("\x1e").map(parseIdent).filter(Boolean) : []),
+  ].filter((p) => !BOT.test(p.name) && !BOT.test(p.email));
+}
+
+function readCommits() {
+  const log = git([
+    "log",
+    "--reverse",
+    "-M100%",
+    `--format=%x00%H%x1f${PEOPLE_FORMAT}`,
+    "--name-status",
+    "--",
+    "content/docs",
+    // Web-UI uploads land at the repo root before being moved into place.
+    ":(glob)*.mdx",
+  ]);
+  const commits = [];
+  for (const line of log.split("\n")) {
+    if (line.startsWith("\0")) {
+      const [sha, name, email, co] = line.slice(1).split("\x1f");
+      commits.push({ sha, people: commitPeople(name, email, co), changes: [] });
+    } else if (line && commits.length > 0) {
+      const [status, ...paths] = line.split("\t");
+      if (paths.at(-1)?.endsWith(".mdx")) {
+        commits.at(-1).changes.push({ status: status[0], paths });
+      }
+    }
+  }
+  return commits;
+}
+
+/** The people on every commit in the repo (merges left out), one list each. */
+function readAllCommitPeople() {
+  return git(["log", "--no-merges", `--format=${PEOPLE_FORMAT}`])
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => commitPeople(...line.split("\x1f")));
+}
+
+/** "My Guide.mdx" and "my-guide.mdx" are the same file name. */
+const fileKey = (path) =>
+  path
+    .split("/")
+    .pop()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-");
+
+/**
+ * Pairs each added file with a file deleted in the same commit that has the
+ * same name (index.mdx also needs the same parent folder). Returns
+ * added path -> deleted path.
+ */
+function pairMoves(deleted, added) {
+  const moves = new Map();
+  const used = new Set();
+  for (const to of added) {
+    const toParts = to.split("/");
+    const candidates = deleted.filter((from) => {
+      if (used.has(from) || fileKey(from) !== fileKey(to)) return false;
+      if (fileKey(to) !== "index-mdx") return true;
+      return from.split("/").at(-2) === toParts.at(-2);
+    });
+    if (candidates.length === 1) {
+      moves.set(to, candidates[0]);
+      used.add(candidates[0]);
+    }
+  }
+  return moves;
+}
+
+/** email -> { login, avatar } for commit emails that aren't noreply ones. */
+async function resolveLogins(emails) {
+  let cache = {};
+  try {
+    cache = JSON.parse(readFileSync(LOGIN_CACHE, "utf-8"));
+  } catch {}
+  if (emails.every((email) => email in cache)) return cache;
+  const headers = { Accept: "application/vnd.github+json" };
+  if (process.env.GITHUB_TOKEN) {
+    headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
+  }
+  try {
+    for (let page = 1; page <= 20; page++) {
+      const res = await fetch(
+        `https://api.github.com/repos/${REPO}/commits?per_page=100&page=${page}`,
+        { headers, signal: AbortSignal.timeout(8000) },
+      );
+      if (!res.ok) throw new Error(`GitHub API ${res.status}`);
+      const commits = await res.json();
+      for (const c of commits) {
+        const email = c.commit?.author?.email?.toLowerCase();
+        if (email && c.author?.login && !(email in cache)) {
+          cache[email] = { login: c.author.login, avatar: c.author.avatar_url };
+        }
+      }
+      if (commits.length < 100) break;
+    }
+    // Emails GitHub can't match to an account: remember that too.
+    for (const email of emails) cache[email] ??= null;
+    mkdirSync(dirname(LOGIN_CACHE), { recursive: true });
+    writeFileSync(LOGIN_CACHE, JSON.stringify(cache));
+  } catch (err) {
+    console.warn("Could not resolve GitHub logins:", err.message);
+  }
+  return cache;
+}
+
+/** GitHub serves 460px avatars unless asked; 128 covers 64px on 2x screens. */
+function sizedAvatar(url) {
+  const u = new URL(url);
+  if (u.hostname === "avatars.githubusercontent.com") {
+    u.searchParams.set("s", "128");
+  }
+  return u.toString();
+}
+
+/**
+ * One entry per person: by GitHub login when known, else by name. `add`
+ * takes a commit identity and returns its key; `finish` names everyone after
+ * the name they commit under most and returns key -> { login, avatar, name }.
+ */
+function peopleTable(logins) {
+  const people = {};
+  const names = {};
+  return {
+    add({ name, email }) {
+      const noreply = email.match(NOREPLY);
+      const known = noreply
+        ? {
+            login: noreply[2],
+            avatar: noreply[1]
+              ? `https://avatars.githubusercontent.com/u/${noreply[1]}?v=4`
+              : null,
+          }
+        : logins[email.toLowerCase()];
+      const key = known ? known.login.toLowerCase() : `name:${name}`;
+      people[key] ??= {
+        login: known?.login ?? null,
+        avatar: known?.avatar
+          ? sizedAvatar(known.avatar)
+          : known
+            ? `https://github.com/${known.login}.png?size=96`
+            : null,
+      };
+      (names[key] ??= {})[name] = (names[key][name] ?? 0) + 1;
+      return key;
+    },
+    finish() {
+      for (const [key, counts] of Object.entries(names)) {
+        people[key].name = Object.entries(counts).sort(
+          (a, b) => b[1] - a[1],
+        )[0][0];
+      }
+      return people;
+    },
+  };
+}
+
+function buildPageCredits(commits, logins) {
+  const table = peopleTable(logins);
+  const personKey = table.add;
+
+  const files = new Map();
+  for (const commit of commits) {
+    const imported = IMPORT_COMMITS.some((s) => commit.sha.startsWith(s));
+    const authors = commit.people.map(personKey);
+    const edits = commit.changes.filter((c) => c.status === "M").length;
+    const of = (status) =>
+      commit.changes.filter((c) => c.status === status).map((c) => c.paths[0]);
+    const moves = pairMoves(of("D"), of("A"));
+    const movedAway = new Set(moves.values());
+
+    for (const { status, paths } of commit.changes) {
+      const path = paths.at(-1);
+      if (status === "R") {
+        if (files.has(paths[0])) files.set(path, files.get(paths[0]));
+        files.delete(paths[0]);
+      } else if (status === "D") {
+        if (!movedAway.has(path)) files.delete(path);
+      } else if (status === "A") {
+        const from = moves.get(path);
+        if (from && files.has(from)) {
+          files.set(path, files.get(from));
+          files.delete(from);
+        } else {
+          const record = {
+            creator: imported ? null : (authors[0] ?? null),
+            edits: new Map(),
+          };
+          if (!imported)
+            for (const a of authors.slice(1)) record.edits.set(a, 1);
+          files.set(path, record);
+        }
+      } else if (status === "M" && edits < BULK) {
+        const record = files.get(path);
+        if (!record) continue;
+        for (const a of authors)
+          record.edits.set(a, (record.edits.get(a) ?? 0) + 1);
+      }
+    }
+  }
+
+  const people = table.finish();
+  const pages = {};
+  for (const [path, { creator, edits }] of files) {
+    if (!path.startsWith("content/docs/")) continue;
+    pages[path.slice("content/docs/".length)] = {
+      creator,
+      // Most edits first; the creator is listed on its own.
+      contributors: [...edits]
+        .filter(([key]) => key !== creator)
+        .sort((a, b) => b[1] - a[1])
+        .map(([key]) => key),
+    };
+  }
+  // Only people still credited somewhere.
+  const credited = new Set(
+    Object.values(pages).flatMap((p) => [p.creator, ...p.contributors]),
+  );
+  for (const key of Object.keys(people)) {
+    if (!credited.has(key)) delete people[key];
+  }
+  return { people, pages };
+}
+
+/**
+ * Everyone with a commit in the repo, most commits first. A commit counts
+ * once per person, even when they are both its author and a co-author.
+ */
+function buildContributors(commits, logins) {
+  const table = peopleTable(logins);
+  const counts = new Map();
+  for (const people of commits) {
+    for (const key of new Set(people.map(table.add))) {
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+  }
+  const people = table.finish();
+  return [...counts]
+    .map(([key, contributions]) => ({ ...people[key], contributions }))
+    .sort(
+      (a, b) =>
+        b.contributions - a.contributions || a.name.localeCompare(b.name),
+    );
+}
+
+async function buildCredits() {
+  if (isShallow()) return null;
+  const contentCommits = readCommits();
+  const allCommits = readAllCommitPeople();
+  const logins = await resolveLogins([
+    ...new Set(
+      [...contentCommits.map((c) => c.people), ...allCommits]
+        .flat()
+        .map((p) => p.email.toLowerCase())
+        .filter((e) => !NOREPLY.test(e)),
+    ),
+  ]);
+  return {
+    pageCredits: buildPageCredits(contentCommits, logins),
+    contributors: buildContributors(allCommits, logins),
+  };
+}
+
+let credits = { pageCredits: { people: {}, pages: {} }, contributors: [] };
+try {
+  credits = (await buildCredits()) ?? credits;
+} catch (err) {
+  console.warn("Could not build page credits and contributors:", err.message);
+}
+writeFileSync(CREDITS_OUT, JSON.stringify(credits.pageCredits) + "\n");
+writeFileSync(CONTRIBUTORS_OUT, JSON.stringify(credits.contributors) + "\n");
+console.log(
+  `page-credits.json generated: ${Object.keys(credits.pageCredits.pages).length} files, ${Object.keys(credits.pageCredits.people).length} people`,
+);
+console.log(
+  `contributors.json generated: ${credits.contributors.length} people`,
+);
+
+// Hash search inputs, including uncommitted edits and builds without .git.
+const searchHash = createHash("sha256");
+function hashSearchInput(path) {
+  if (statSync(path).isDirectory()) {
+    for (const entry of readdirSync(path).sort()) {
+      hashSearchInput(resolve(path, entry));
+    }
+    return;
+  }
+  searchHash.update(path.slice(process.cwd().length));
+  searchHash.update("\0");
+  searchHash.update(readFileSync(path));
+  searchHash.update("\0");
+}
+for (const input of [
+  "content/docs",
+  "messages",
+  "src/app/api/search",
+  "src/lib/games.ts",
+  "src/lib/i18n.ts",
+  "src/lib/search.ts",
+  "src/lib/search-keywords.ts",
+  "src/lib/source.ts",
+  "src/lib/tree-localization.ts",
+  "src/lib/remark-img.ts",
+  "src/lib/remark-youtube.ts",
+  "source.config.ts",
+  "package-lock.json",
+]) {
+  hashSearchInput(resolve(input));
+}
+writeFileSync(
+  resolve("src/lib/search-version.json"),
+  JSON.stringify({ version: searchHash.digest("hex").slice(0, 20) }) + "\n",
+);
+await import("./prepare-media.mjs");

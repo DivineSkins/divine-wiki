@@ -1,20 +1,25 @@
-## What this PR changes
+<!-- Thanks for helping! Fill in what you can and delete what doesn't apply. -->
 
-<!-- One or two sentences. Link any related Issue. -->
+## What this changes
 
-## Author
+<!-- One or two sentences. If it fixes an Issue, write "Closes #123". -->
 
-- GitHub: <!-- auto-filled by the in-site editor -->
-- Discord: <!-- optional, only if you want credit there -->
+## Type
 
-## Preview
+- [ ] New guide
+- [ ] Guide fix or update (typo, outdated step, new screenshot)
+- [ ] Site code (components, layout, build)
+- [ ] Other
 
-<!-- Cloudflare Workers Builds adds a preview URL as a comment. Paste it here once it appears. -->
+## AI use
 
-## Checklist
+<!-- AI is fine. Telling us what it did helps us know what to double-check. Spellcheck and autocomplete don't count. -->
 
-- [ ] All images have `alt=""`
-- [ ] All images compressed (< 500 KB where possible)
-- [ ] Linked from the relevant category's `meta.json`
-- [ ] Safety info near the top (if the guide touches install or region guidance)
-- [ ] Title uses Conventional Commits style (preferred, not required)
+- [ ] No AI used
+- [ ] AI helped. Tool and what for:
+
+## How I checked it
+
+- [ ] I followed every step myself in the real tool or game
+- [ ] I opened the page in the preview or with `npm run dev`, and it looks right
+- [ ] Code only: `npm run lint` and `npm run types:check` pass

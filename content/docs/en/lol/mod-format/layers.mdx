@@ -1,0 +1,110 @@
+---
+title: "Add layers"
+description: "Ship chromas and variants inside one League of Legends mod: add layers in Celestial's Layer Manager, set their priority, and let players switch them on and off."
+keywords:
+  - modpkg layers
+  - league mod chromas one file
+  - celestial layer manager
+category: "mod-format"
+---
+
+<LevelPill level="beginner" />
+
+Layers are groups of files inside one mod that players switch on and off. Use them for chromas, alternate versions of a skin, or optional extras like custom particles. On Divine, a League mod is one `.modpkg`, so every variant goes in a layer instead of a second upload.
+
+## How layers work
+
+- **`base`** is your mod's main files. Every mod has it, and it's always on.
+- **Every other layer** holds only the files that variant changes, at the same paths as in `base`.
+- **Priority** decides which layer wins when two change the same file. Higher wins. `base` is always 0.
+- **Same priority** means the layers are alternatives, like two chromas. Players should turn on only one of them.
+
+Two common setups. **Chromas**, where players pick one:
+
+| Layer         | Priority | What it holds |
+| ------------- | -------- | ------------- |
+| `base`        | 0        | The skin      |
+| `chroma-red`  | 1        | Red textures  |
+| `chroma-blue` | 1        | Blue textures |
+
+**Optional extras**, which players stack:
+
+| Layer         | Priority | What it holds   |
+| ------------- | -------- | --------------- |
+| `base`        | 0        | The skin        |
+| `particles`   | 1        | Custom VFX      |
+| `hd-textures` | 2        | Bigger textures |
+
+Want players to see one layer at a time? Open **Edit Info** and turn on **One layer at a time**. Turning a layer on then switches to it instead of stacking it.
+
+## Add a layer
+
+Your mod must already be in Creator Hub. [Set up a mod project](/docs/lol/mod-format/mod-project) shows how.
+
+<Steps>
+<Step>
+
+### Prepare the variant's files
+
+Make a folder for each variant, laid out like your mod folder, with `assets` and `data`. Put in only the files the variant changes, like the recolored textures of a chroma. Keep the same paths and prefix as in `base`.
+
+</Step>
+<Step>
+
+### Open the Layer Manager
+
+Right-click the mod's card in Creator Hub and click **Layers**.
+
+<img
+  src="/wiki-images/lol-mod-format-2.webp"
+  width={560}
+  alt="The Layer Manager with the base layer for Aatrox.wad.client and the Add layer with name button ringed"
+/>
+
+</Step>
+<Step>
+
+### Add the layer
+
+1. Click **Add layer with name** and type a name, like `chroma-red`. Use lowercase letters, numbers and `-`.
+2. Set its **Priority** with the arrows.
+3. Click **Browse** and pick the variant's folder. Pick more than one folder to combine them into one layer.
+
+**Quick import** skips the name: it picks a folder and names the layer after it.
+
+</Step>
+<Step>
+
+### Check the list
+
+Each layer shows its WAD files and priority. Layers marked **alternative** share a priority. Change a priority with the arrows, or use **Rename layer** and **Remove layer**.
+
+</Step>
+</Steps>
+
+## What players see
+
+Players install your mod with Celestial. A layers badge on the mod's card shows how many layers are on, and only `base` starts on. Clicking the badge switches layers on and off.
+
+To check it yourself, [export the .modpkg](/docs/lol/mod-format/modpkg), install it in your Library and switch each layer on.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Export and install a .modpkg"
+    href="/docs/lol/mod-format/modpkg"
+    icon={<Icon name="Package" />}
+    level="beginner"
+  >
+    Pack the base and every layer into one file.
+  </PremiumCard>
+  <PremiumCard
+    title="Publish your mod on Divine"
+    href="/docs/lol/publishing/publish-on-divine"
+    icon={<Icon name="Upload" />}
+    level="beginner"
+  >
+    Upload the file from the Creator Panel.
+  </PremiumCard>
+</CardGrid>

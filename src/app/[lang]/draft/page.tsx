@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default async function DraftPage(props: {
   params: Promise<{ lang: string }>;
-  searchParams: Promise<{ edit?: string; new?: string }>;
+  searchParams: Promise<{ edit?: string; new?: string; game?: string }>;
 }) {
   const searchParams = await props.searchParams;
   const editPath = searchParams.edit ?? null;
@@ -17,6 +17,7 @@ export default async function DraftPage(props: {
   return (
     <DraftEditor
       mode={mode}
+      initialGame={searchParams.game ?? null}
       initialCategory={searchParams.new ?? null}
       editPath={editPath}
     />

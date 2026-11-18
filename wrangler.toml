@@ -3,6 +3,10 @@ main = ".open-next/worker.js"
 compatibility_date = "2026-06-01"
 compatibility_flags = ["nodejs_compat"]
 
+# Wrangler 4.150+ uploads maps by default. This MDX bundle exceeds the 60 MiB
+# source-map limit; keep the previous behavior until the maps can be reduced.
+upload_source_maps = false
+
 workers_dev = true
 preview_urls = true
 
@@ -10,6 +14,28 @@ preview_urls = true
 directory = ".open-next/assets"
 binding = "ASSETS"
 
+[images]
+binding = "IMAGES"
+
 [vars]
 NEXT_PUBLIC_BASE_URL = "https://wiki.divineskins.gg"
 NEXT_PUBLIC_DIVINE_API_URL = "https://api.divineskins.gg"
+
+# First-party, cookieless page analytics (src/lib/analytics/). The dataset is
+# created on first write; query it with scripts/analytics-report.mjs. The KV
+# namespace holds the self-expiring daily salts for unique-visitor counts.
+[[analytics_engine_datasets]]
+binding = "WIKI_ANALYTICS"
+dataset = "wiki_events"
+
+[[kv_namespaces]]
+binding = "ANALYTICS_SALTS"
+id = "afdf12c3a55c49b6b8e36a7c78b6d1c4"
+
+# Max analytics events per IP per minute, per Cloudflare location. A reader
+# sends a few a minute; this stops one source from flooding the numbers.
+# namespace_id is any account-unique number; nothing else uses 1001.
+[[ratelimits]]
+name = "ANALYTICS_LIMITER"
+namespace_id = "1001"
+simple = { limit = 60, period = 60 }

@@ -1,0 +1,421 @@
+---
+title: "Nhạc nền cho tướng"
+description: "Cho skin Liên Minh một bản nhạc riêng: theme bắt đầu khi tướng xuất hiện, lặp suốt cả mạng, phát outro khi chết và phát lại khi hồi sinh, tất cả được kích hoạt từ đồ thị animation."
+category: "sounds"
+---
+
+Nhạc nền ở đây là nhạc gắn với cả một mạng của tướng, không phải với một kỹ năng riêng lẻ. Theme bắt đầu khi tướng xuất hiện, lặp mãi đoạn bạn chỉ định, chuyển dần sang một đoạn outro ngắn khi chết, rồi phát lại từ đầu khi hồi sinh. Chỉ bạn nghe thấy, và chỉ trên tướng của bạn: nếu người chơi khác dùng một skin có nhạc này, bạn sẽ không nghe nhạc của họ.
+
+Cùng một cách thiết lập có thể chứa nhiều theme. Ví dụ trên trang này, một skin Starscourge Radahn cho Pantheon, luân phiên giữa hai theme: một theme cho mạng đầu, theme kia cho mạng tiếp theo, cứ thế xoay vòng, và theme nào cũng có outro riêng khi chết.
+
+Nhạc nằm trong **các event mới được thêm vào cuối những bank SFX sẵn có của skin**, còn **đồ thị animation** quyết định kích hoạt event nào và lúc nào.
+
+---
+
+## Những gì đã được thử
+
+Mọi thứ dưới đây đã được xác nhận trong game trên skin Radahn:
+
+- Mỗi theme bắt đầu từ đầu khi tướng xuất hiện và khi hồi sinh.
+- Mỗi theme đều lặp (có thể chỉ lặp một đoạn chỉ định, để intro không phát lại).
+- Khi chết, theme dừng và đúng outro đi kèm của nó phát ra, một lần.
+- Khi hồi sinh, outro nào còn đang phát sẽ dừng và theme tiếp theo bắt đầu.
+- Các theme luân phiên qua từng mạng.
+
+Chưa chắc nhạc có còn chạy sau khi kết nối lại trận hay không, nhưng lẽ ra là còn. Nhạc đi qua một bus SFX, nên nó theo thanh âm lượng **Sound Effects**.
+
+<Callout type="info">
+  Trang này ghi rõ chỗ nào là suy luận chứ không phải quan sát thực tế. Đọc
+  được một bank hay đọc lại được một bin chỉ chứng minh file đúng định dạng.
+  Nó không chứng minh game phát được file đó.
+</Callout>
+
+---
+
+## Công cụ cần có
+
+| Công cụ                       | Để làm gì                                                                                                                                          |
+| :---------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Flint** hoặc **Obsidian**   | Trích xuất WAD của tướng                                                                                                                           |
+| **Jade** hoặc **Ritobin**     | Chỉnh file `.bin` của skin                                                                                                                         |
+| **Wwise**                     | `WwiseConsole convert-external-source`, để mã hóa `.wav` sang `.wem`. Cách thiết lập có trong [Trung bình - Bank tùy chỉnh](/docs/lol/sounds/sound-medium) |
+| **wwiser**                    | Dump `events.bnk` để thấy ID object và offset của từng trường. Xem [Khó - Đọc và chỉnh sửa events.bnk](/docs/lol/sounds/sound-hard)                |
+| **vgmstream**                 | Giải mã file `.wem` và kiểm tra điểm lặp của chúng                                                                                                 |
+| Một trình sửa hex hoặc script | Nối object vào cuối `events.bnk` và media vào cuối `audio.bnk`                                                                                     |
+| Một app chỉnh âm thanh        | Cắt đoạn lặp chính và đoạn outro                                                                                                                   |
+| **Celestial**                 | Test trong game bằng Creator Hub và xuất file `.modpkg`                                                                                            |
+
+Phần bank hiện chưa có công cụ nào chỉ cần bấm chuột là xong. Hãy chuẩn bị tinh thần làm việc ở mức byte, hoặc viết script. Hoặc, bạn biết đấy, nhờ Jean Claude giúp.
+
+---
+
+## Các phần ghép với nhau ra sao
+
+```text
+Animation graph (skin .bin)
+  Respawn clip  ──fires──►  Play_..._Main_Event
+  Death clip    ──fires──►  Play_..._Outro_Event
+
+events.bnk (HIRC)
+  Event ──► Stop main, Stop outro, ... ──► Play its own sound
+  Sound ──► embedded media ID, loop setting, bus
+
+audio.bnk (DIDX + DATA)
+  The encoded .wem recordings themselves
+```
+
+Mỗi bản thu bạn muốn phát là một object **Sound**. Mỗi Sound có một **Event** riêng: event này dừng mọi Sound nhạc khác trước, rồi mới phát Sound của nó. Đồ thị animation chỉ biết nói "kích hoạt event này". Mọi thứ về lặp, fade và dừng đều nằm trong bank.
+
+Với hai theme, bạn cần bốn bản thu: bản chính theme A, outro theme A, bản chính theme B, outro theme B. Skin chỉ có một theme thì cần hai.
+
+---
+
+## 1. Chuẩn bị âm thanh
+
+Bạn cần hai loại bản thu.
+
+**Bản chính** phát từ đầu một lần, rồi lặp lại một vùng lặp suốt lúc tướng còn sống. Vùng lặp được lưu ngay trong file dưới dạng điểm lặp, nên intro không bao giờ bị lặp lại.
+
+**Outro** là một đoạn ngắn chỉ phát một lần khi chết.
+
+### Làm vòng lặp liền mạch
+
+Một vòng lặp nhảy từ cuối bài về giữa bài sẽ bị lách cách hoặc khựng, trừ khi hai điểm đó nghe giống nhau. Một cách đơn giản để chắc chắn chúng giống nhau:
+
+1. Chọn điểm bắt đầu lặp ở giữa bài, sau intro. Radahn dùng giây thứ 24.
+2. Lấy 4 giây âm thanh bắt đầu từ điểm đó, rồi **crossfade 4 giây cuối của bài vào đoạn này**.
+3. Đặt điểm bắt đầu lặp ở giây thứ 28 (điểm ban đầu cộng độ dài crossfade) và điểm kết thúc lặp ở sample cuối cùng.
+
+Giờ đoạn cuối file nghe y hệt đoạn âm thanh ngay trước điểm bắt đầu lặp, nên cú nhảy ngược lại không ai nghe ra.
+
+Điểm lặp được ghi vào file `.wav` dưới dạng một chunk `smpl` chuẩn. Bộ mã hóa của Wwise mang chúng sang file `.wem`. Kiểm tra kết quả bằng chế độ metadata của vgmstream:
+
+```bash
+vgmstream-cli -m base-main.wem
+```
+
+Nó phải báo đúng điểm bắt đầu và kết thúc lặp bạn đã đặt. Nếu nó báo không có vòng lặp, chunk `smpl` đã bị rơi mất dọc đường.
+
+### Mức âm lượng
+
+Nhạc để ở mức tối đa sẽ đè lên hiệu ứng âm thanh và giọng nói của chính tướng. Các bản nhạc của Radahn được hạ xuống 35% mức gốc. Coi đó là điểm khởi đầu rồi chỉnh theo tai. Trong bin không có chỗ nào chỉnh âm lượng cho phần này, nên mức bạn đặt sẵn trong file là mức người chơi nghe.
+
+Cắt intro, vùng lặp và outro ở đâu là lựa chọn âm nhạc cho skin của bạn, không phải yêu cầu của kỹ thuật này.
+
+---
+
+## 2. Mã hóa sang `.wem`
+
+Dùng `WwiseConsole convert-external-source` kèm một danh sách nguồn. Bạn không cần một project Wwise đầy đủ cho Liên Minh, chỉ cần một project mà WwiseConsole mở được:
+
+```xml
+<ExternalSourcesList SchemaVersion="1" Root="C:\work\soundtrack">
+  <Source Path="audio\base-main.wav"  Conversion="Vorbis Quality High" Destination="base-main"/>
+  <Source Path="audio\base-outro.wav" Conversion="Vorbis Quality High" Destination="base-outro"/>
+</ExternalSourcesList>
+```
+
+```bash
+WwiseConsole.exe convert-external-source MyProject.wproj --source-file source.wsources --output encoded --platform Windows
+```
+
+Giải mã ngược từng file `.wem` bằng vgmstream và nghe thử trước khi làm tiếp. Bắt một bản mã hóa lỗi ở bước này dễ hơn nhiều so với trong game.
+
+<Callout type="info">
+  Các file `.wem` của Radahn được mã hóa bằng Wwise 2024.1 và phát đúng bên
+  trong các bank có sẵn của Liên Minh (bank event phiên bản 145, khớp với
+  runtime Wwise 2022.1 của game). Điều đó cho thấy **media** mới mã hóa chạy
+  được. Nó không nói lên gì về **bank** do Wwise mới hơn tạo ra, đó là chuyện
+  khác và rủi ro hơn. Trang này không bao giờ tạo bank mới; nó chỉ patch những
+  bank mà skin vốn đã có.
+</Callout>
+
+---
+
+## 3. Nhúng bản thu vào `audio.bnk`
+
+Bank âm thanh SFX của skin (ví dụ `Pantheon_Base_SFX_audio.bnk`) gồm ba chunk: `BKHD`, `DIDX` và `DATA`. `DATA` chứa các file `.wem` thô nối đuôi nhau. `DIDX` là bảng chỉ mục, mỗi file một bản ghi 12 byte:
+
+| Byte | Trường               |
+| :--- | :------------------- |
+| 4    | Media ID             |
+| 4    | Offset trong `DATA`  |
+| 4    | Kích thước tính bằng byte |
+
+Để thêm một bản thu:
+
+1. Chọn một **media ID** chưa có trong chỉ mục. Hash một cái tên riêng bằng hash Wwise (bên dưới) là cách tiện để có một ID không bị trùng.
+2. Thêm byte đệm vào cuối `DATA` để file mới bắt đầu ở **ranh giới 16 byte**, tính từ đầu file bank.
+3. Nối file `.wem` vào cuối `DATA` và một bản ghi tương ứng vào `DIDX`.
+4. Cập nhật kích thước của cả hai chunk.
+
+Giữ nguyên mọi byte và offset đang có. Offset tính từ đầu `DATA`, nên `DIDX` dài ra không làm chúng sai, nhưng nó đẩy vị trí bắt đầu của `DATA` trong file đi. Nhớ tính đến điều đó khi tính phần đệm 16 byte.
+
+Xong thì đọc lại bank và kiểm tra mỗi ID mới trích ra đúng y file bạn đã đưa vào.
+
+### Vì sao nhúng mà không stream
+
+Câu thoại của Liên Minh được stream từ file `.wpk`, và nghe chừng nhạc cũng làm được như vậy. Cách nhúng là cách đã được thử từ đầu đến cuối, nên trang này hướng dẫn cách đó. Stream từ `.wpk` không nằm trong bản build chạy được, và chưa được thử cho mục đích này.
+
+---
+
+## 4. Thêm Sound object vào `events.bnk`
+
+Bank event (ví dụ `Pantheon_Base_SFX_events.bnk`) chứa một chunk `HIRC`: một danh sách phẳng các object, mỗi object có loại, độ dài, ID và phần thân. Bạn thêm object mới bằng cách nối chúng vào cuối và tăng số lượng object ở đầu `HIRC`.
+
+### ID của Wwise
+
+ID của event là hash Wwise của tên event viết thường. Đó là **FNV-1** (nhân trước, XOR sau), không phải FNV-1a dùng cho hash trong bin:
+
+```python
+def wwise_hash(name: str) -> int:
+    h = 0x811C9DC5
+    for b in name.lower().encode("utf-8"):
+        h = (h * 0x01000193) & 0xFFFFFFFF
+        h ^= b
+    return h
+```
+
+ID của event **bắt buộc** phải là hash của đúng cái tên bạn sẽ kích hoạt từ bin, không thì game không bao giờ tìm thấy nó. Với Sound và Action thì ID nào chưa dùng cũng được, nhưng hash những tên riêng có ý nghĩa (`MySkin_Music_BaseMain_Sound`) giúp chúng không trùng và dễ đọc trong bản dump.
+
+### Bắt đầu từ một object mẫu
+
+Viết một `CAkSound` từ con số không nghĩa là phải làm đúng mọi trường của một định dạng thay đổi theo từng phiên bản. Clone một cái có sẵn an toàn hơn nhiều. Các Sound object của Radahn được clone từ một bản nhạc lặp đã có trong game, nhạc nhảy của Ekko trong bank event SFX của skin 19, rồi mới chỉnh sửa. Sound nhạc lặp nào có sẵn cũng là mẫu tốt. Dump bank mẫu bằng wwiser để thấy từng trường và offset của nó:
+
+```bash
+python wwiser.py -d xml Ekko_Skin19_SFX_events.bnk
+```
+
+### Các trường cần đổi trên mỗi Sound
+
+| Trường                          | Bản chính                | Outro                    | Lý do                                                                    |
+| :------------------------------ | :----------------------- | :----------------------- | :----------------------------------------------------------------------- |
+| `ulID`                          | ID mới                   | ID mới                   | Không được trùng với thứ gì trong bank                                   |
+| `sourceID`                      | media ID của nó          | media ID của nó          | Trỏ tới bản thu bạn đã nhúng                                             |
+| `StreamType`                    | `0`                      | `0`                      | Nhúng trong bank, không stream                                           |
+| `uInMemoryMediaSize`            | đúng kích thước `.wem`   | đúng kích thước `.wem`   | Phải khớp với bản ghi `DIDX`                                             |
+| `OverrideBusId`                 | một ID bus SFX           | như trên                 | Xem bên dưới                                                             |
+| `DirectParentID`                | `0`                      | `0`                      | Tách nó khỏi hierarchy mixer của Sound mẫu                               |
+| `uBitsPositioning`              | `1`                      | `1`                      | Không định vị: âm lượng như nhau dù camera ở đâu                         |
+| `u16MaxNumInstance`             | `1`                      | `1`                      | Không bao giờ có hai bản của cùng một bài phát cùng lúc                  |
+| `AdvSettingsParams.byBitVector` | bật bit 3                | bật bit 3                | `bIgnoreParentMaxNumInst`, để giới hạn ở trên là giới hạn được áp dụng   |
+| Thuộc tính loop                 | `0`                      | `1`                      | `0` lặp mãi, `1` phát một lần                                            |
+
+Thuộc tính loop là mục `AkPropBundle` có property ID `58` trong phiên bản bank này. Hãy kiểm lại ID trong bản dump của chính bạn thay vì tin mù quáng con số này.
+
+**Bus.** Radahn override sang bus `2232828494`, một bus SFX phân giải đúng trong thiết lập của skin đó. ID bus không chắc giống nhau ở mọi nơi, nên hãy tìm một bus phù hợp trong bank của chính tướng bạn thay vì chép con số. Định tuyến tới một bus SFX là lý do nhạc đi theo thanh **Sound Effects**.
+
+---
+
+## 5. Action và event
+
+Một event Wwise chỉ là một danh sách action. Mỗi event nhạc nền ở đây làm đúng hai việc, theo thứ tự:
+
+1. **Stop** mọi Sound nhạc bạn đã thêm, kèm một chút fade out.
+2. **Play** Sound của chính nó, kèm một chút fade in.
+
+Cả hai lần fade đều là thuộc tính `TransitionTime` của action (property ID `16` trong phiên bản bank này, tính bằng mili giây, đường cong tuyến tính). Radahn dùng 400 ms cho các Stop và 500 ms cho các Play, con số sau chỉ đơn giản là kế thừa từ action mẫu. Kỹ thuật này không đòi hỏi giá trị nào trong hai con số đó; cứ đặt sao cho hợp với nhạc của bạn.
+
+Chỉ một quy tắc đó đã tạo ra toàn bộ hành vi theo vòng đời mà không cần thêm logic nào:
+
+- Event **chết** dừng bản chính đang chạy, rồi phát outro của nó.
+- Event **hồi sinh** dừng outro nào chưa phát xong, rồi phát một bản chính từ đầu.
+- Kích hoạt cùng một event hai lần sẽ phát lại bài từ đầu chứ không chồng thêm một bản thứ hai.
+
+Clone một action Stop và một action Play từ bank mẫu rồi chỉnh chúng:
+
+- **Play:** đặt `ulID`, đặt `idExt` là ID của Sound, và đặt `bankID`. Trên Radahn, `bankID` chứa hash Wwise của tên bank event (`Pantheon_Base_SFX_events`), và cách này chạy được với media nằm trong `audio.bnk`.
+- **Stop:** đặt `ulID`, đặt `idExt` là Sound cần dừng, và đặt `TransitionTime` theo độ dài fade out của bạn.
+
+Trong phiên bản bank này, một event object gồm: byte loại `4`, độ dài 4 byte, ID event 4 byte, số lượng action, rồi mỗi action một ID 4 byte. Số lượng là một số nguyên có độ dài thay đổi, chỉ chiếm một byte nếu dưới 128 action.
+
+### Mỗi action phải thuộc về đúng một event
+
+Đây là lỗi duy nhất trên trang này sẽ làm bạn mất cả ngày, vì bank vẫn đọc ngon lành và event nào trong bản dump cũng trông đúng.
+
+Cách tiết kiệm hiển nhiên là tạo bốn action Stop một lần rồi liệt kê chúng trong cả bốn event. **Đừng làm vậy.** Với action Stop dùng chung, event nào cũng phát **cùng một outro**, bất kể bạn kích hoạt event nào. Cho mỗi event bản sao riêng của tất cả action của nó (bốn Stop và một Play cho mỗi event, hai mươi action cho bốn event) đã sửa được ngay, và sau đó cả bốn đường phát đều chạy đúng trong game.
+
+Nhiều action có thể trỏ tới cùng một Sound. Thứ không được dùng chung là chính action object.
+
+Vì sao lại như vậy thì chưa được xác nhận. Hành vi quan sát được khớp với một runtime nối mỗi action với action kế tiếp trong event của nó, mỗi action object chỉ có một liên kết. Nếu một action xuất hiện trong nhiều event, event được load sau cùng sẽ ghi đè liên kết đó, và mọi event dùng chung action ấy rốt cuộc đi theo cùng một chuỗi. Mô hình này đoán đúng outro nào thắng, nhưng chưa ai soi bộ nhớ của game để chứng minh. Hãy coi quy tắc là chuyện đã chắc, còn lời giải thích chỉ là một giả thuyết nhiều khả năng đúng.
+
+Nếu bạn viết script để dựng bank, hãy thêm một bước kiểm tra báo lỗi khi bất kỳ action ID nào xuất hiện trong hơn một event.
+
+---
+
+## 6. Đăng ký event trong skin bin
+
+Game không load event chỉ vì nó có trong bank. Event phải được khai báo trong audio properties của skin. Tìm bank unit SFX rồi thêm tên event của bạn vào cuối danh sách `Events` của nó:
+
+```py
+SkinAudioProperties: embed = SkinAudioProperties {
+    BankUnits: list2[embed] = {
+        BankUnit {
+            Name: string = "Pantheon_Base_SFX"
+            BankPath: list[string] = {
+                "ASSETS/.../Pantheon_Base_SFX_audio.bnk"
+                "ASSETS/.../Pantheon_Base_SFX_events.bnk"
+            }
+            Events: list[string] = {
+                // ...the existing events, unchanged...
+                "Play_MySkin_Soundtrack_BaseMain_Event"
+                "Play_MySkin_Soundtrack_BaseOutro_Event"
+                "Play_MySkin_Soundtrack_AltMain_Event"
+                "Play_MySkin_Soundtrack_AltOutro_Event"
+            }
+        }
+    }
+}
+```
+
+Đường dẫn bank giữ nguyên, vì nhạc giờ nằm bên trong những bank mà skin vốn đã load. Đặt những cái tên không ai khác dùng. Một tiền tố mang tên skin của bạn là đủ.
+
+---
+
+## 7. Kích hoạt event từ clip animation
+
+Sound event trên clip nằm trong `mEventDataMap` của clip:
+
+```py
+mEventDataMap: map[hash,pointer] = {
+    "Play_MySkin_Soundtrack_BaseMain_Event" = SoundEventData {
+        mSoundName: string = "Play_MySkin_Soundtrack_BaseMain_Event"
+        mStartFrame: f32 = 0
+        mIsLoop: bool = false
+        mIsKillEvent: bool = false
+        mIsSelfOnly: bool = true
+        mFireIfAnimationEndsEarly: bool = true
+    }
+}
+```
+
+| Trường                      | Giá trị | Lý do                                                                                                                                   |
+| :-------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------- |
+| `mIsLoop`                   | `false` | Việc lặp do Sound trong bank lo. Trường này nói về event animation, không phải về nhạc                                                  |
+| `mIsKillEvent`              | `false` | Nếu không, nhạc bị tắt ngay khi clip kết thúc, chỉ sau vài giây                                                                         |
+| `mIsSelfOnly`               | `true`  | Chỉ người chơi dùng skin nghe thấy                                                                                                      |
+| `mFireIfAnimationEndsEarly` | `true`  | Nếu clip bị ngắt trước khi frame 0 được xử lý, event vẫn kích hoạt. Trường này nói về việc event có được gửi đi không, không phải nhạc phát bao lâu |
+
+### Thử từng đường phát trước
+
+Trước khi dựng logic vòng đời, tạm thêm từng event vào một clip emote (joke, taunt, dance và laugh là `Ctrl+1` tới `Ctrl+4`). Khi đó bạn có thể tự tay kích hoạt từng đường phát trong một trận luyện tập, và kiểm tra mỗi đường phát đúng bản thu và dừng các bản khác. Lỗi action dùng chung ở trên được phát hiện đúng bằng cách này. Nhớ trả các emote về như cũ sau đó.
+
+---
+
+## 8. Xuất hiện, chết và hồi sinh
+
+Với một theme duy nhất, bước này ngắn: thêm event bản chính vào clip phát khi hồi sinh, và event outro vào clip chết.
+
+Trên Pantheon, mục `Respawn` là một `SequencerClipData` có con đầu tiên là clip nguyên tử phát lúc tướng hiện ra, theo sau là `Respawn_End`. Chính mục này cũng phát lúc đầu trận, nên theme cũng bắt đầu ở lần xuất hiện đầu tiên. Hãy kiểm tra đồ thị của tướng bạn; không phải tướng nào cũng được dựng giống nhau.
+
+### Luân phiên theme bằng một giá trị được ghi nhớ
+
+Để luân phiên, đồ thị cần nhớ theme nào đã phát lần trước. Clip accessory làm được việc đó.
+
+Một `KeyFrameFloatMapClipAccessoryData` trên một clip sẽ ghi một giá trị float có tên khi clip đó phát. Một `KeyFrameFloatClipReaderDriver` đọc lại giá trị đó ở bất kỳ đâu trong đồ thị, và khi bật `PersistentFloatChanges` thì giá trị được giữ lại cả sau khi clip ghi nó đã kết thúc. Gọi giá trị này là `NextTheme`, mặc định là `0`:
+
+| Mạng | Respawn đọc | Phát    | Clip mở màn ghi | Death đọc | Outro |
+| :--- | :---------- | :------ | :-------------- | :-------- | :---- |
+| 1    | `0`         | Theme A | `1`             | `1`       | A     |
+| 2    | `1`         | Theme B | `0`             | `0`       | B     |
+| 3    | `0`         | Theme A | `1`             | `1`       | A     |
+
+Chỉ các clip mở màn ghi giá trị. Clip chết chỉ đọc, và chính điều đó giữ cho mỗi outro khớp với theme đang phát.
+
+### Cách dựng
+
+1. **Clone clip nguyên tử mở màn hai lần**, thành `MySkin_A_Opening` và `MySkin_B_Opening`. Thêm event bản chính tương ứng vào mỗi clip, cùng accessory ghi giá trị tiếp theo:
+
+```py
+"MySkin_A_Opening" = AtomicClipData {
+    // ...everything copied from the original opening clip...
+    mEventDataMap: map[hash,pointer] = {
+        // ...the original events, plus:
+        "Play_MySkin_Soundtrack_BaseMain_Event" = SoundEventData { ... }
+    }
+    Accessorylist: list[pointer] = {
+        KeyFrameFloatMapClipAccessoryData {
+            Name: hash = "MySkin_NextTheme"
+            KeyFrameFloatmap: map[f32,f32] = { 0 = 1 }
+        }
+    }
+}
+```
+
+`MySkin_B_Opening` giống hệt, chỉ khác là dùng event của theme B và `{ 0 = 0 }`.
+
+2. **Clone sequence `Respawn` hai lần**, mỗi bản trỏ tới clip mở màn của riêng nó:
+
+```py
+"MySkin_A_Respawn" = SequencerClipData {
+    mClipNameList: list[hash] = { "MySkin_A_Opening"  "Respawn_End" }
+}
+```
+
+3. **Clone clip chết hai lần**, thành `MySkin_A_Death` và `MySkin_B_Death`, mỗi clip mang event outro của nó và không có accessory.
+
+4. **Thay `Respawn` và `Death` bằng selector** đọc giá trị đó. Clip điều kiện được nói kỹ hơn trong [Animation Bin: Clip, Điều kiện và Chuyển tiếp](/docs/lol/animations/animation-bin-clips-and-transitions):
+
+```py
+"Respawn" = ConditionBoolClipData {
+    Updater: pointer = LogicDriverBoolParametricUpdater {
+        Driver: pointer = FloatComparisonMaterialDriver {
+            mOperator: u32 = 0
+            mValueA: pointer = KeyFrameFloatClipReaderDriver {
+                ClipAccessoryToRead: hash = "MySkin_NextTheme"
+                DefaultFloat: f32 = 0
+                PersistentFloatChanges: bool = true
+            }
+            mValueB: pointer = FloatLiteralMaterialDriver { mValue: f32 = 0 }
+        }
+    }
+    mTrueConditionClipName: hash = "MySkin_A_Respawn"
+    mFalseConditionClipName: hash = "MySkin_B_Respawn"
+    mChangeAnimationMidPlay: bool = false
+    DontStompTransitionClip: bool = true
+}
+```
+
+`mOperator: 0` là phép so sánh bằng. `Death` giống hệt, chỉ khác là so với `1` và chọn giữa `MySkin_A_Death` và `MySkin_B_Death`.
+
+<Callout type="info">
+  Những tên bạn tự đặt, như `MySkin_NextTheme` hay tên các clip clone, được
+  lưu dưới dạng hash. Khi mở lại bin, chúng hiện thành giá trị hex kiểu
+  `0x36b9b28f` nếu không có trong danh sách hash của bạn. Chuyện đó bình
+  thường; bin vẫn đúng.
+</Callout>
+
+`mChangeAnimationMidPlay` để `false` là có chủ ý. Clip mở màn đổi giá trị ngay trong lúc nó đang phát, và bạn không muốn selector phản ứng với chuyện đó bằng cách đổi clip giữa chừng.
+
+### Giữ lại các chuyển tiếp
+
+Chuyển tiếp trong `mBlendDataTable` được đánh khóa theo cặp tên clip. Các clone của bạn có tên mới, nên không chuyển tiếp gốc nào áp dụng cho chúng. Với mỗi hàng đang có mà nguồn hoặc đích là clip mở màn hoặc clip chết gốc, hãy thêm một bản sao của hàng đó với tên clone ở đúng vị trí ấy. Giữ nguyên các hàng gốc.
+
+Đừng đổi gì khác trong đồ thị. Các clip gốc, event của chúng và mọi chuyển tiếp không liên quan giữ y như cũ, và đó cũng là điều giúp thay đổi của bạn dễ diff và dễ hoàn tác.
+
+---
+
+## Đóng gói
+
+Nếu mod của bạn ghi skin vào nhiều slot skin, mỗi skin bin đó mang bản sao riêng của đồ thị animation, và bản nào cũng cần cùng một bản vá. Gói Radahn patch 38 bản.
+
+Sau đó test trong Creator Hub và xuất file `.modpkg` như mọi khi. Bài [Xuất và cài file .modpkg](/docs/lol/mod-format/modpkg) chỉ cách làm. Chỉ ba loại file thay đổi: `audio.bnk` SFX, `events.bnk` SFX và các skin bin.
+
+---
+
+## Khi mọi thứ không chạy
+
+| Triệu chứng                                           | Nguyên nhân có thể                                                                                                     |
+| :---------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------- |
+| Im lặng, không báo lỗi                                | Tên event không có trong danh sách `Events`, hoặc ID event không phải hash Wwise của tên bạn kích hoạt                 |
+| Im lặng, event đã đăng ký                             | `sourceID` không khớp mục nào trong `DIDX`, `uInMemoryMediaSize` sai, hoặc `StreamType` vẫn đặt là stream              |
+| Event nào cũng phát cùng một bản thu                  | Action object bị dùng chung giữa các event                                                                             |
+| Nhạc bị cắt sau một hai giây                          | `mIsKillEvent` là `true` trên event của clip                                                                           |
+| Bài phát một lần rồi dừng                             | Thuộc tính loop là `1` trên Sound bản chính, hoặc file `.wem` không có điểm lặp                                        |
+| Vòng lặp nhảy về tận đầu bài                          | File `.wem` đã mất điểm lặp; kiểm tra bằng `vgmstream-cli -m`                                                          |
+| Hai bản của theme cùng phát                           | Chưa đặt `u16MaxNumInstance`, hoặc giới hạn của cha vẫn đang nắm quyền                                                 |
+| Outro không khớp với theme                            | Clip chết đang ghi giá trị trạng thái; chỉ clip mở màn mới được ghi                                                    |
+| Người chơi khác nghe thấy                             | `mIsSelfOnly` là `false`                                                                                               |
+| Chuyển tiếp animation hỏng sau khi hồi sinh hoặc chết | Các hàng chuyển tiếp chưa được chép cho tên clip clone                                                                 |
+
+Hướng dẫn bởi Kaizen

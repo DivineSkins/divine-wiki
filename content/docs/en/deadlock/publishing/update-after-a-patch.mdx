@@ -1,0 +1,222 @@
+---
+title: "Fix your mod after a game update"
+description: "Did a Deadlock update break your mod? Find what changed, rebuild it on the new game files, test it, and post the fix from Divine's Creator Panel."
+keywords:
+  - deadlock mods broken after update
+  - fix deadlock mods after update
+  - deadlock update broke mods
+  - deadlock mod camera broken
+category: "publishing"
+patch: "6779"
+---
+
+<LevelPill level="intermediate" />
+
+Updates break mods. The City Never Sleeps update (2026-09-29) broke most HUD mods at once, plus some model mods and many animation mods. This page shows how to find what changed, rebuild your mod, and post the fix. [How Deadlock mods work](/docs/deadlock/basics/how-mods-work) explains why updates break things.
+
+Players know this happens, so take the time you need.
+
+<Callout type="info" title="Playing mods, not making them?">
+  If no mods load after an update, Steam reset `gameinfo.gi`. Redo the [install
+  edit](/docs/deadlock/getting-started/install-by-hand#after-a-game-update) or
+  let your mod manager fix it. If one mod breaks your camera or your hero, turn
+  that mod off and wait for its creator to post an update.
+</Callout>
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="Source2Viewer"
+    href="/docs/deadlock/tools/source-2-viewer"
+    note="latest dev build"
+  >
+    Source 2 Viewer
+  </Requirement>
+  <Requirement icon="FolderOpen" note="and source files">
+    Your CSDK 12 addon
+  </Requirement>
+  <Requirement
+    icon="LayoutDashboard"
+    href="https://divineskins.gg/creator-panel"
+    note="to post the fix"
+  >
+    Creator Panel
+  </Requirement>
+</Requirements>
+
+Lost your addon and source files? Open your old VPK in Source 2 Viewer and decompile the files back into an addon.
+
+<img
+  src="/wiki-images/deadlock-publishing-update-after-a-patch-1.webp"
+  alt="Five steps: the game update changes files, you check what changed, rebuild on the new files, test with only your mod, and post the fix on the same mod page"
+/>
+
+## What updates break
+
+Your mod ships a full copy of every file it replaces. If Valve changes that file, your old copy hides the new version. If Valve moves it, your copy sits at a path the game no longer reads.
+
+| What Valve changed          | What players see                                    | What you do                                                                                                                      |
+| --------------------------- | --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| A model moved folders       | The normal hero shows up, with no error             | Move your files to the new path                                                                                                  |
+| Animation system            | The hero A-poses or has no animations               | Rebuild on a fresh copy of the current model                                                                                     |
+| Skeleton                    | Broken animations, also in other mods for that hero | Remove any `.vnmskel_c` from your mod                                                                                            |
+| Camera attachments          | The camera sits in the middle of the screen         | [Copy every attachment](/docs/deadlock/errors/model-problems#the-camera-sits-in-the-middle-of-the-screen) from the current model |
+| HUD layout                  | A broken HUD, or the game crashes at launch         | Redo your change on the new HUD file                                                                                             |
+| Hero data                   | New heroes stay locked, or stats stay at old values | Remove every `scripts/*.vdata_c` file from your mod                                                                              |
+| `gameinfo.gi` (player side) | No mods load at all                                 | Redo the install edit, or let a mod manager do it                                                                                |
+
+Cosmetic mods should never ship `scripts/*.vdata_c` files or a skeleton in the first place.
+
+## Fix it, step by step
+
+<Steps>
+<Step>
+
+### Check what changed
+
+1. Read Valve's update notes in the official [Changelog forum](https://forums.playdeadlock.com/forums/changelog.10/). Look for the heroes and items your mod touches. The notes never mention mods.
+2. Ask on [Divine's Discord](https://discord.gg/divineskins) what broke for other creators. Big updates break the same mod types for everyone.
+3. Open the new `game/citadel/pak01_dir.vpk` in Source 2 Viewer.
+4. Find every file your mod replaces. Check that each path and file name still matches. [Hero names and file paths](/docs/deadlock/basics/hero-codenames) shows how.
+
+For a deeper check, use GameTracking-Deadlock on GitHub. It saves Valve's files for every build.
+
+<ToolCard
+  name="GameTracking-Deadlock"
+  href="https://github.com/SteamTracking/GameTracking-Deadlock"
+  icon={<Icon name="GitHub" />}
+>
+  Valve's files for every Deadlock build, saved by SteamTracking.
+</ToolCard>
+
+1. Open the [history of `heroes.vdata`](https://github.com/SteamTracking/GameTracking-Deadlock/commits/master/game/citadel/pak01_dir/scripts/heroes.vdata). Each commit is one game build.
+2. Click the commit for the new build.
+3. Look for changed lines near your hero's model path.
+
+<img
+  src="/wiki-images/deadlock-publishing-update-after-a-patch-2.webp"
+  alt="GameTracking-Deadlock on GitHub showing the history of heroes.vdata, with one commit per game build such as 6779 and 6769"
+/>
+
+</Step>
+<Step>
+
+### Rebuild your mod
+
+Pick your mod type.
+
+<Tabs items={["Skin or model", "Sounds, images, materials", "HUD or UI", "Animation"]}>
+<Tab value="Skin or model">
+
+Start from a fresh copy of the current hero model, not your old model file. The current model already has Valve's new skeleton, attachments, and animation data. One creator showed this fix in August 2026, before City Never Sleeps, so details may differ now.
+
+1. Update Source 2 Viewer. Versions before 20.0 exported attachments wrong.
+2. Open the new `pak01_dir.vpk` and find the hero's current model. Check its folder, since it may have moved.
+3. Decompile the model into your addon at its current path.
+4. Swap your mesh into this fresh model. The [hero model swap guide](/docs/deadlock/models/hero-model-swap) covers the mesh and material steps.
+5. Check that every material points to the hero's current folder.
+6. Recompile, then pack only the files you changed.
+
+{/* NEEDS HANDS-ON TEST: the fresh-model fix (yt:tI7d19Vxmwk, one C-rated source from 2026-08-24) on build 6779 with one old skin. Check that the decompiled current model compiles as is and keeps its animations and camera. */}
+
+</Tab>
+<Tab value="Sounds, images, materials">
+
+This covers sounds, images, materials, and particles.
+
+1. Find the original file again in Source 2 Viewer.
+2. If its path or name changed, rebuild that path in your addon and staging folder.
+3. If Valve changed the file itself, decompile the new version. Redo your edit on it.
+4. Recompile and repack.
+
+For materials, this means redoing your values from [Recolor with material values](/docs/deadlock/textures/recolor-a-material) on the new material.
+
+</Tab>
+<Tab value="HUD or UI">
+
+1. Decompile the new `.vcss_c` or `.vxml_c` file with Source 2 Viewer.
+2. Redo only your change on the new file. Never paste your old full file over it.
+3. Compile, pack, and test. Close Deadlock fully before each test. Reconnecting is not enough.
+
+Save your change as a `.patch` file next time: a list of the lines you changed. Then you can reapply it to each new version instead of redoing it by hand. [Restyle a HUD element](/docs/deadlock/ui/restyle-hud) has the full steps.
+
+</Tab>
+<Tab value="Animation">
+
+1. Decompile the original clip again from the new game files.
+2. Check its frame count and FPS. If they changed, change your animation to match.
+3. Point the new `.vnmclip` at your DMX, recompile, and repack.
+
+Nobody has published which City Never Sleeps change broke animation mods. [Replace an animation](/docs/deadlock/animations/replace-an-animation) has the full steps.
+
+{/* NEEDS HANDS-ON TEST: what City Never Sleeps changed for animation clips. Rebuild one broken clip mod on build 6779 and note what had to change (gap G12). */}
+
+</Tab>
+</Tabs>
+
+</Step>
+<Step>
+
+### Test the fix
+
+1. Turn off your other mods.
+2. Load your mod in a private match. Follow [Test your mod in game](/docs/deadlock/basics/test-your-mod).
+3. Check the console for errors that name your files.
+
+</Step>
+<Step>
+
+### Post the new version
+
+Divine is adding Deadlock mods. Once they arrive, you post updates from the Creator Panel.
+
+1. Open your mod in the Creator Panel and edit it. Post the fix there, not as a new mod.
+2. Upload the new archive.
+3. Say in the description what changed and which game update it works with.
+4. Submit the change.
+
+{/* NEEDS HANDS-ON TEST: the edit label for a mod in the Creator Panel, whether there is a version or changelog field, and whether an edited mod goes back to In review. */}
+
+{/* SCREENSHOT: deadlock-publishing-update-after-a-patch-3.webp, editing a published test mod in the Creator Panel with a new archive attached */}
+
+</Step>
+</Steps>
+
+<Callout type="info" title="Fixes stay free">
+  Every mod on Divine is free, and so is every fix. Never lock a fix behind
+  early access. Fixing someone else's mod? Ask them first, as [Divine's Content
+  Rules](https://divineskins.gg/legal/content-rules#copyright) say.
+</Callout>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Publish your mod on Divine"
+    href="/docs/deadlock/publishing/publish-on-divine"
+    icon={<Icon name="Upload" />}
+    level="beginner"
+  >
+    The Creator Panel, step by step.
+  </PremiumCard>
+  <PremiumCard
+    title="Crashes, launch errors, and matchmaking blocks"
+    href="/docs/deadlock/errors/game-crashes"
+    icon={<Icon name="TriangleAlert" />}
+    level="beginner"
+  >
+    When an outdated mod crashes the game.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original pages.
+
+- **Data:** [GameTracking-Deadlock](https://github.com/SteamTracking/GameTracking-Deadlock) by SteamTracking (SteamDB).
+- **News:** [City Never Sleeps Update](https://gamebanana.com/news/21995) by TheLastFriendly and VoidNVain on GameBanana.
+- **Video:** [Let me walk you through updating a mod](https://www.youtube.com/watch?v=tI7d19Vxmwk) by Alacripose. The fresh-model approach comes from here.
+- **Code:** [deadlock-modbox](https://github.com/rszyma/deadlock-modbox) by rszyma: HUD changes kept as patch files.
+- **Code:** [naidan-deadlock-mod](https://github.com/Pa1eCr0w/naidan-deadlock-mod) by Pa1eCr0w: a real fix for a shipped hero data file.
+- **Policy:** [Paywalled Content Policy](https://gamebanana.com/wikis/2303) by GameBanana.

@@ -1,27 +1,29 @@
 import Link from "next/link";
 import { githubRepoUrl } from "@/lib/config";
+import { getMessages } from "@/lib/locale";
 
 /**
- * Attribution banner pinned to the bottom of the table-of-contents rail —
- * a one-line "written by the community, open source on GitHub" note. Passed
- * as the TOC `footer` slot and pushed to the bottom of that column with
- * `mt-auto` so it fills the empty space under the page outline. Compact
- * (text-xs) to fit the narrow TOC width. The Discord link lives in the
- * sidebar footer next to the GitHub icon (see layout.shared.tsx).
+ * Attribution line pinned to the bottom of the table-of-contents rail, under
+ * the Ask AI panel: "Written by the community · Open source", with "Open
+ * source" linking to the repo. One line at the rail's width in English; the
+ * strings live in messages (`misc.writtenByCommunity`, `misc.openSource`).
+ * The Discord link lives in the sidebar footer next to the GitHub icon (see
+ * layout.shared.tsx).
  */
-export function DocsBanner() {
+export function DocsBanner({ lang }: { lang: string }) {
+  const t = getMessages(lang).misc;
   return (
-    <div className="border-divine-border text-divine-text-muted mt-auto border-t pt-4 text-xs leading-relaxed">
-      Written by the Divine Skins community. Open source on{" "}
+    <p className="border-divine-border text-divine-text-muted border-t pt-4 text-xs leading-relaxed">
+      {t.writtenByCommunity}
+      <span aria-hidden> · </span>
       <Link
         href={githubRepoUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-divine-primary-light underline-offset-4 hover:text-white hover:underline"
+        className="text-divine-primary-light hover:text-divine-text underline-offset-4 hover:underline"
       >
-        GitHub
+        {t.openSource}
       </Link>
-      .
-    </div>
+    </p>
   );
 }

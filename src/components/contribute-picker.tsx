@@ -10,11 +10,27 @@ import {
   type ReactNode,
 } from "react";
 import { useParams, usePathname } from "next/navigation";
-import { PencilIcon, PencilLine } from "lucide-react";
+import {
+  Button,
+  cardVariants,
+  cn,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@divineskins/ui";
+import {
+  ArrowLeftIcon,
+  ChevronRightIcon,
+  HourglassIcon,
+  PencilLine,
+  PlusIcon,
+} from "lucide-react";
 import { GitHubLogo } from "@/components/brand-logos";
 import { useMessages } from "@/lib/hooks/useMessages";
 import { PremiumCard } from "@/components/mdx/PremiumCard";
-import { cn } from "@/lib/utils";
+import { acceptsGuides, GAMES, type Game } from "@/lib/games";
 
 interface PickerContextValue {
   open: () => void;
@@ -54,23 +70,9 @@ export function useContributePicker(): PickerContextValue {
 }
 
 export function ContributePickerModal() {
-  const messages = useMessages();
-  const p = messages.picker;
   const { isOpen, close } = useContributePicker();
-  const params = useParams();
-  const lang = (params?.lang as string) ?? "en";
   const pathname = usePathname();
   const initialPathnameRef = useRef(pathname);
-
-  // Escape-to-close, mirroring src/app/[lang]/draft/handoff.tsx.
-  useEffect(() => {
-    if (!isOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [isOpen, close]);
 
   // Close the modal on navigation — without this, clicking a card opens the
   // target route but the modal stays mounted (the provider lives in the
@@ -82,80 +84,200 @@ export function ContributePickerModal() {
     }
   }, [pathname, close]);
 
-  if (!isOpen) return null;
-
+  // DialogContent mounts fresh on every open, so it always starts on the game
+  // step.
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
-      onClick={close}
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) close();
+      }}
     >
-      <div
-        className="bg-divine-surface border-divine-border max-h-[85vh] w-full max-w-2xl overflow-auto rounded-xl border p-6"
-        role="dialog"
-        aria-modal="true"
-        aria-label={p.pickerHeading}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="mb-4 flex items-start justify-between gap-4">
-          <div>
-            <h2 className="text-divine-text text-xl font-semibold">
-              {p.pickerHeading}
-            </h2>
-            <p className="text-divine-text-muted mt-1 text-sm">
-              {p.pickerSubheading}
-            </p>
-          </div>
-          <button
-            type="button"
-            aria-label="Close"
-            className="text-divine-text-muted hover:text-divine-text text-2xl leading-none"
-            onClick={close}
-          >
-            ×
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <PremiumCard
-            title={p.visualEditorTitle}
-            href={`/${lang}/draft`}
-            icon={<PencilLine className="h-5 w-5" />}
-          >
-            {p.visualEditorBody}
-          </PremiumCard>
-          <PremiumCard
-            title={p.manualGithubTitle}
-            href={`/${lang}/docs/contributing`}
-            icon={<GitHubLogo className="h-5 w-5" />}
-          >
-            {p.manualGithubBody}
-          </PremiumCard>
-        </div>
-      </div>
-    </div>
+      <DialogContent className="divine-picker block max-h-[85vh] max-w-2xl p-6">
+        <PickerSteps />
+      </DialogContent>
+    </Dialog>
   );
 }
 
 /**
- * Nav-bar trigger. Renders an icon+text button styled to sit next to the
- * other Fumadocs nav links. Fumadocs renders this as a `type: "custom"` item
- * (or the fallback route imports it).
+ * Two steps: which game the guide is for, then how to write it (the visual
+ * editor, which gets the game as `?game=`, or by hand on GitHub). Games
+ * whose docs segment has no categories yet show as "Coming soon".
+ */
+function PickerSteps() {
+  const messages = useMessages();
+  const p = messages.picker;
+  const params = useParams();
+  const lang = (params?.lang as string) ?? "en";
+  const [game, setGame] = useState<Game | null>(null);
+
+  return (
+    <>
+      {game === null ? (
+        <>
+          <PickerHeading title={p.gameHeading} subtitle={p.gameSubheading} />
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {GAMES.map((option) => (
+              <GameOption
+                key={option.slug}
+                game={option}
+                available={acceptsGuides(option.slug)}
+                comingSoon={p.comingSoon}
+                onPick={() => setGame(option)}
+              />
+            ))}
+          </div>
+        </>
+      ) : (
+        <>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setGame(null)}
+            className="-mt-1 mb-4 pr-3 pl-1 font-semibold"
+          >
+            <ArrowLeftIcon aria-hidden />
+            {/* eslint-disable-next-line @next/next/no-img-element -- tiny cover thumbnail */}
+            <img
+              src={game.cover}
+              alt=""
+              width={18}
+              height={24}
+              className="h-6 w-[18px] rounded-[3px] object-cover"
+            />
+            <span className="text-divine-text">{game.name}</span>
+            <span aria-hidden>·</span>
+            {p.changeGame}
+          </Button>
+          <PickerHeading
+            title={p.pickerHeading}
+            subtitle={p.pickerSubheading}
+          />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <PremiumCard
+              title={p.visualEditorTitle}
+              href={`/${lang}/draft?game=${game.slug}`}
+              icon={<PencilLine className="h-5 w-5" />}
+            >
+              {p.visualEditorBody}
+            </PremiumCard>
+            <PremiumCard
+              title={p.manualGithubTitle}
+              href={`/${lang}/docs/${game.slug}/contributing`}
+              icon={<GitHubLogo className="h-5 w-5" />}
+            >
+              {p.manualGithubBody}
+            </PremiumCard>
+          </div>
+        </>
+      )}
+    </>
+  );
+}
+
+function PickerHeading({
+  title,
+  subtitle,
+}: {
+  title: string;
+  subtitle: string;
+}) {
+  return (
+    <DialogHeader className="mb-5 pr-8">
+      <DialogTitle>{title}</DialogTitle>
+      <DialogDescription>{subtitle}</DialogDescription>
+    </DialogHeader>
+  );
+}
+
+/**
+ * A game in the picker: box art thumbnail, name, and either an arrow (pick
+ * it) or "Coming soon" (its docs segment doesn't exist yet). Same card
+ * recipe as PremiumCard so the two steps look like one dialog.
+ */
+function GameOption({
+  game,
+  available,
+  comingSoon,
+  onPick,
+}: {
+  game: Game;
+  available: boolean;
+  comingSoon: string;
+  onPick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onPick}
+      disabled={!available}
+      className={cn(
+        cardVariants({
+          variant: available ? "interactive" : "default",
+          padding: "none",
+        }),
+        "group focus-visible:ring-divine-accent/50 flex items-center gap-4 p-3 pr-4 text-left outline-none focus-visible:ring-1",
+        available
+          ? "hover:bg-divine-surface-raised cursor-pointer"
+          : "cursor-default",
+      )}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element -- 3:4 box art thumbnail */}
+      <img
+        src={game.cover}
+        alt=""
+        width={48}
+        height={64}
+        className={cn(
+          "h-16 w-12 shrink-0 rounded-lg object-cover",
+          !available && "opacity-60 saturate-50",
+        )}
+      />
+      <span className="min-w-0 flex-1">
+        <span
+          className={cn(
+            "text-divine-text block text-[15px] leading-snug font-bold transition-colors",
+            available && "group-hover:text-divine-highlight",
+          )}
+        >
+          {game.name}
+        </span>
+        {!available ? (
+          <span className="text-divine-text-muted mt-0.5 inline-flex items-center gap-1.5 text-xs font-medium">
+            <HourglassIcon className="size-3.5" aria-hidden />
+            {comingSoon}
+          </span>
+        ) : null}
+      </span>
+      {available ? (
+        <ChevronRightIcon
+          className="text-divine-text-muted group-hover:text-divine-highlight size-4 shrink-0 transition-[color,transform] duration-200 group-hover:translate-x-0.5"
+          aria-hidden
+        />
+      ) : null}
+    </button>
+  );
+}
+
+/**
+ * Docs sidebar trigger ("Add a guide"): the homepage header's "Write a
+ * guide" button (`solid`, `md`) at full width. The sidebar's placement,
+ * divider and collapsed-rail styling live in global.css
+ * (`.divine-sidebar-contribute`).
  */
 export function ContributeButton({ className }: { className?: string }) {
   const messages = useMessages();
   const { open } = useContributePicker();
   return (
-    <button
-      type="button"
-      onClick={open}
-      className={cn(
-        "text-fd-muted-foreground hover:text-fd-accent-foreground inline-flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors",
-        className,
-      )}
-    >
-      <PencilIcon className="h-4 w-4" />
-      <span>{messages.nav.contribute}</span>
-    </button>
+    <Button size="md" onClick={open} className={cn("w-full", className)}>
+      {/* The plus sits inside the label so "+ Add a guide" centers as one
+          unit. The collapsed rail hides the text and keeps the plus. */}
+      <span className="inline-flex items-center gap-1.5">
+        <PlusIcon className="size-3.5" strokeWidth={2.75} />
+        {messages.nav.addGuide}
+      </span>
+    </Button>
   );
 }
 
@@ -178,9 +300,7 @@ export function ContributeCtaButton({
     <button
       type="button"
       onClick={open}
-      className={
-        className ?? "text-divine-primary-light text-sm hover:underline"
-      }
+      className={className ?? "text-divine-highlight text-sm hover:underline"}
     >
       {icon}
       {text}

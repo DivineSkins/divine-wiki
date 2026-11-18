@@ -1,7 +1,10 @@
 ---
 title: "Đổi màu skin bằng Chroma Studio trong Jade"
-description: "Dùng Chroma Studio trong Jade để chọn một phần của model rồi đổi màu nó bằng hue, cân bằng màu và các chỉnh màu khác."
+description: "Dùng Chroma Studio trong Jade để chọn một phần của model rồi đổi màu nó bằng hue, cân bằng màu, levels và các chỉnh màu khác."
 category: "tools"
+credits:
+  discord: Ceerel
+  github: CeerelXP
 ---
 
 Chroma Studio là công cụ đổi màu nằm sẵn trong [Jade](/docs/lol/tools/modding-apps/jade).
@@ -10,7 +13,7 @@ Bạn dùng nó để chọn một phần của model và đổi màu phần đ�
 ## Trước khi bắt đầu
 
 - Cài [Jade](/docs/lol/tools/modding-apps/jade).
-- Chọn sẵn skin bạn muốn đổi màu.
+- Extract skin bạn muốn đổi màu ra trước, để có sẵn file `.skn` và các texture của nó.
 
 ## Mở Chroma Studio
 
@@ -21,133 +24,138 @@ Bạn dùng nó để chọn một phần của model và đổi màu phần đ�
   alt="Màn hình chính của Jade, nút Open file được tô sáng ở thanh bên"
 />
 
-2. Mở skin bạn muốn đổi màu.
-3. Nhấn nút được tô sáng trên thanh công cụ để mở Chroma Studio.
+2. Nhấn nút được tô sáng trên thanh công cụ để mở Chroma Studio.
 
 <img
   src="/wiki-images/jade2.png"
   alt="Thanh công cụ của Jade, nút Chroma Studio được tô sáng"
 />
 
-## Làm quen với giao diện
-
-- **Bên trái:** các texture mà mesh đang dùng.
-- **Bên phải:** phần cài đặt cho những thay đổi của bạn.
+Chroma Studio sẽ trống trơn cho tới khi bạn load một model.
 
 <img
-  src="/wiki-images/jade-3.png"
-  alt="Chroma Studio với texture của mesh ở bên trái và phần cài đặt ở bên phải"
+  src="/wiki-images/chroma-studio-empty.webp"
+  alt="Tab Chroma Studio còn trống, đang chờ load model"
 />
+
+## Load model
+
+1. Nhấn **Load SKN…** trong panel **Assets**. Bạn cũng có thể kéo thả file `.skn` thẳng vào viewport.
+2. Chọn file `.skn` của skin.
+3. Kiểm tra xem các texture mà model dùng đã hiện trong panel **Assets** chưa.
+
+<img
+  src="/wiki-images/chroma-studio-loaded.webp"
+  alt="Chroma Studio đã load model, các texture của nó hiện trong panel Assets"
+/>
+
+## Làm quen với giao diện
+
+- **Assets** (bên trái): model và các texture nó dùng.
+- **Viewport** (ở giữa): xem trước model trực tiếp.
+- **Mesh** (bên dưới): các phần của model, gọi là submesh.
+- **Recolor** (bên phải): phần cài đặt cho những thay đổi của bạn.
+- **Texture** và **UV** (ngoài cùng bên phải): texture và các UV island của nó.
 
 ## Chọn một vùng trên model
 
-Bên phải hiện các UV island. Mỗi UV island cho model biết phần nào của model sẽ lấy vùng nào trên texture.
+UV island là một mảnh phẳng của texture. Nó cho model biết mỗi phần của model sẽ lấy vùng nào trên texture.
 Đó là lý do texture của LMHT, và của hầu hết model khác, trông phẳng dẹt như vậy.
 
 <img
-  src="/wiki-images/jade-4.png"
-  alt="Một UV island hiện ở bên phải Chroma Studio"
+  src="/wiki-images/chroma-studio-uv-island.webp"
+  alt="Một UV island được tô sáng trong panel UV"
 />
 
-1. Nhấn vào bất kỳ vùng nào trên mesh.
-2. Kiểm tra xem vùng đó đã được tô sáng ở bên phải và trên model chưa.
-3. Chỉnh các thông số. Thay đổi chỉ áp dụng cho vùng đó thôi.
+1. Chọn **Island** trong panel **UV**.
+2. Nhấn vào island bạn muốn đổi màu.
+3. Kiểm tra xem vùng đó đã được tô sáng trên texture và trên model chưa.
+
+Phía trên cùng của panel **Recolor** cho biết bạn đang chỉnh cái gì. Nếu chưa chọn gì, thay đổi sẽ áp dụng cho cả texture.
 
 <img
-  src="/wiki-images/jade-5.png"
-  alt="Vùng đã chọn được tô sáng trên texture và trên model"
+  src="/wiki-images/chroma-studio-island-selected.webp"
+  alt="Một island đã chọn được tô sáng trên texture, panel Recolor hiện Editing 1 islands"
 />
 
 ## Chỉnh màu
 
-Mọi thông số bên dưới chỉ thay đổi vùng bạn đã chọn.
+Tick vào ô cạnh một thông số để bật nó lên.
+Mọi thông số chỉ thay đổi vùng bạn đã chọn.
 
-### Hue, Saturation và Lightness
+### Hue / Saturation
 
-- **Hue:** đổi sắc màu, ví dụ từ đỏ sang xanh dương.
+- **Hue:** đổi sắc màu, ví dụ từ đỏ sang xanh lá.
 - **Saturation:** chỉnh độ bão hòa, tức màu đậm hay nhạt.
 - **Lightness:** chỉnh độ sáng, làm vùng đó tối đi hoặc trắng lên.
 
 <img
-  src="/wiki-images/screenshot-2026-11-16-151518.png"
-  alt="Các thông số Hue, Saturation và Lightness trong Chroma Studio"
+  src="/wiki-images/chroma-studio-hue-saturation.webp"
+  alt="Hue / Saturation đang bật, vùng đã chọn được đổi sang màu xanh lá"
 />
 
-### Cân bằng màu
+### Color Balance
 
-Cân bằng màu là thông số hữu ích nhất.
-Nó đẩy màu qua lại giữa từng màu cơ bản và màu đối lập của nó trên thang RGB.
+Color Balance (cân bằng màu) là thông số hữu ích nhất.
+Mỗi thanh trượt đẩy màu qua lại giữa một màu cơ bản và màu đối lập của nó: cyan và đỏ, magenta và xanh lá, vàng và xanh dương.
 
-- **Shadows:** đổi sắc của vùng tối nhất.
-- **Midtones:** đổi sắc của vùng có độ sáng trung bình.
-- **Highlights:** đổi sắc của vùng sáng nhất.
+- **Shadows:** đổi sắc của những chỗ tối nhất trong vùng.
+- **Midtones:** đổi sắc của những chỗ có độ sáng trung bình.
+- **Highlights:** đổi sắc của những chỗ sáng nhất trong vùng.
 
 Kéo các thanh trượt cho tới khi màu nhìn vừa mắt bạn.
 
 <img
-  src="/wiki-images/screenshot-2026-11-16-151816.png"
-  alt="Các thông số cân bằng màu trong Chroma Studio"
+  src="/wiki-images/chroma-studio-color-balance.webp"
+  alt="Các thanh trượt Color Balance cho shadows, midtones và highlights"
 />
 
-### Nhiệt độ màu và Tint
+### Temperature / Tint
 
-Nhiệt độ màu và tint dùng để chỉnh cân bằng trắng.
-Nhiệt độ màu kéo màu về phía ấm hoặc lạnh. Tint kéo màu về phía xanh lá hoặc tím hồng (magenta).
+Temperature (nhiệt độ màu) và tint dùng để chỉnh cân bằng trắng.
+Temperature kéo màu về phía ấm hoặc lạnh. Tint kéo màu về phía xanh lá hoặc magenta.
 
 <img
-  src="/wiki-images/screenshot-2026-11-16-151939.png"
-  alt="Các thông số nhiệt độ màu và tint trong Chroma Studio"
+  src="/wiki-images/chroma-studio-temperature-tint.webp"
+  alt="Các thanh trượt Temperature / Tint"
 />
 
-### Độ sáng
+### Brightness / Contrast
 
-Brightness quyết định vùng đó sáng tới mức nào.
+- **Brightness:** quyết định vùng đó sáng tới mức nào.
+- **Contrast:** quyết định chỗ tối và chỗ sáng cách biệt nhau bao nhiêu.
 
 <img
-  src="/wiki-images/screenshot-2026-11-16-152005.png"
-  alt="Thông số Brightness trong Chroma Studio"
+  src="/wiki-images/chroma-studio-brightness-contrast.webp"
+  alt="Các thanh trượt Brightness / Contrast"
 />
 
-### Tông sáng tối
+### Levels
 
-Nhóm thông số này chỉnh độ sáng, vùng tối và độ tương phản của vùng đã chọn. Chúng không đổi màu của nó.
+Levels chỉnh độ sáng, vùng tối và độ tương phản của vùng đã chọn. Nó không đổi màu của vùng đó.
 
-<img
-  src="/wiki-images/screenshot-2026-11-16-152117.png"
-  alt="Các thông số Tone trong Chroma Studio"
-/>
+- **Black:** quyết định chỗ tối nhất tối tới mức nào.
+- **Gamma:** làm vùng tông trung sáng lên hoặc tối đi.
+- **White:** quyết định chỗ sáng nhất sáng tới mức nào.
 
-### Vùng tối và vùng sáng
+<img src="/wiki-images/chroma-studio-levels.webp" alt="Các thanh trượt Levels" />
 
-Nhóm này lấy lại chi tiết chỉ ở những chỗ sáng nhất và tối nhất của vùng đã chọn.
+### Highlights / Shadows
+
+Lấy lại chi tiết chỉ ở những chỗ sáng nhất và tối nhất của vùng đã chọn.
 Vùng tông trung (midtones) giữ nguyên.
 
-<img
-  src="/wiki-images/screenshot-2026-11-16-152153.png"
-  alt="Các thông số Shadows và Highlights trong Chroma Studio"
-/>
-
-### Thay một màu
+### Color Accent
 
 Chọn một màu trên texture rồi đổi nó sang màu khác.
 Bạn cũng có thể tách riêng màu đó ra. Phần còn lại của texture giữ nguyên.
 
-<img
-  src="/wiki-images/screenshot-2026-11-16-152220.png"
-  alt="Các thông số thay màu trong Chroma Studio"
-/>
-
-### Khớp màu
+### Color Match
 
 Chọn một màu. Chroma Studio sẽ đổi vùng đó cho giống màu này nhất có thể.
 
-<img
-  src="/wiki-images/screenshot-2026-11-16-152323.png"
-  alt="Các thông số khớp màu trong Chroma Studio"
-/>
+### Gradient Map, Black and White và Transparency
 
-### Gradient map, đen trắng và độ trong suốt
-
-- **Gradient map:** thay màu gốc bằng một dải gradient hai màu, dựa theo độ sáng của từng chỗ.
-- **Black and white:** chuyển vùng đó sang đen trắng.
+- **Gradient Map:** thay màu gốc bằng một dải gradient hai màu, dựa theo độ sáng của từng chỗ.
+- **Black and White:** chuyển vùng đó sang đen trắng.
 - **Transparency:** chỉnh độ trong suốt, tức nhìn xuyên qua được bao nhiêu.

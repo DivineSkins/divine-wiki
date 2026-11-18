@@ -63,8 +63,8 @@ formality slips, structural mistakes).
    - `src/lib/i18n.ts` languages array
    - `src/lib/locale.ts` (message import + deepMerge map)
    - `next.config.mjs` locale regex (search for `const locale =`)
-   - Orama localeMap in BOTH `src/app/api/search/[locale]/route.ts` and
-     `src/components/search-dialog.tsx`. Orama wants language names, not
+   - Orama language map in `src/lib/search.ts` (the search index build and
+     the search dialog both read it). Orama wants language names, not
      locale codes, and stemmer support varies: Turkish exists, Polish
      doesn't (falls back to `"english"`). Check what `@orama/stemmers`
      supports for the new language.

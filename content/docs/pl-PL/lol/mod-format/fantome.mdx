@@ -1,0 +1,103 @@
+---
+title: "Format .fantome (stary)"
+description: "Czym jest plik moda .fantome do League, dlaczego to stary format i trzy sposoby, żeby przekonwertować go na .modpkg w Celestial."
+keywords:
+  - konwersja fantome na modpkg
+  - plik fantome
+  - fantome przestarzały
+category: "mod-format"
+---
+
+<LevelPill level="beginner" />
+
+<Callout type="warning" title="Stary format">
+  `.fantome` to stary format modów do League. Zostaje po to, żeby stare mody
+  dalej działały: Celestial nadal je instaluje, a Divine nadal udostępnia te,
+  które już są wrzucone. Nie rób w nim nowych modów. Divine przyjmuje nowe
+  uploady i aktualizacje tylko jako `.modpkg`.
+</Callout>
+
+## Czym jest .fantome
+
+`.fantome` to plik ZIP pod inną nazwą. Pochodzi ze starego menedżera modów Fantome. W środku:
+
+<Files>
+  <Folder name="MyMod.fantome" defaultOpen>
+    <Folder name="META" defaultOpen>
+      <File name="info.json: nazwa, autor, wersja, opis" />
+      <File name="image.png (opcjonalny)" />
+    </Folder>
+    <Folder name="WAD" defaultOpen>
+      <Folder name="Aatrox.wad.client">
+        <File name="pliki twojego bohatera" />
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+
+## Dlaczego to stary format
+
+- **Jeden autor, cztery pola.** W samym formacie nie ma ról, licencji, tagów ani readme.
+- **Brak prawdziwych warstw.** Warianty, jak chromy, wymagają dodatkowych zasad, których nie czyta każde narzędzie.
+- **Trzy sposoby na przechowanie tych samych plików.** Luźne foldery, spakowane WAD-y albo stary folder `RAW`. Narzędzia muszą zgadywać.
+- **Utracone nazwy plików.** Spakowany WAD w `.fantome` zachowuje tylko hashe twoich ścieżek. Twoje własne nazwy plików mogą przepaść na dobre. [Który format wybrać](/docs/lol/mod-format/which-format-to-choose) wyjaśnia dlaczego.
+- **Wolniejsza instalacja.** Launcher musi rozpakować pliki i spakować je od nowa.
+
+## Konwersja .fantome na .modpkg
+
+Wybierz sposób, który ci pasuje. Każdy z trzech zostawia oryginalny plik.
+
+<Tabs items={["Creator Hub", "Library", "File Explorer"]}>
+<Tab value="Creator Hub">
+
+Wybierz ten, jeśli chcesz poprawić informacje o modzie albo dodać warstwy przed eksportem. Tylko na Windowsie.
+
+1. Otwórz **Strefę twórców** (Creator Hub) w Celestial.
+2. Przeciągnij `.fantome` na Creator Hub.
+3. Kliknij prawym przyciskiem nową kartę i wybierz **Edit Info**. Uzupełnij wersję, autorów i licencję.
+4. Znowu kliknij kartę prawym przyciskiem. W sekcji **Export** kliknij **Modpkg**, a potem **Export**.
+
+[Załóż projekt moda](/docs/lol/mod-format/mod-project) i [Wyeksportuj i zainstaluj .modpkg](/docs/lol/mod-format/modpkg) pokazują każdy krok na zrzutach ekranu.
+
+</Tab>
+<Tab value="Library">
+
+Wybierz ten dla moda, którego już masz zainstalowanego.
+
+1. Otwórz **Bibliotekę** w Celestial.
+2. Kliknij prawym przyciskiem kartę moda.
+3. Kliknij **Export .modpkg** i wybierz, gdzie zapisać plik.
+
+<img
+  src="/wiki-images/lol-mod-format-5.webp"
+  width={300}
+  alt="Menu pod prawym przyciskiem karty w Bibliotece z Export .modpkg oznaczonym 1 i Open in Creator Hub oznaczonym 2"
+/>
+
+**Otwórz w Creator Hub** pojawia się tylko przy modach `.modpkg`. Dla `.fantome` użyj zakładki Creator Hub.
+
+</Tab>
+<Tab value="File Explorer">
+
+Celestial dodaje menu do Eksploratora plików Windows. Konwertuje bez otwierania Celestial.
+
+1. Kliknij prawym przyciskiem plik `.fantome` w Eksploratorze plików. Na Windowsie 11 najpierw kliknij **Pokaż więcej opcji**.
+2. W sekcji **Celestial** kliknij **Convert to .modpkg**.
+
+`.modpkg` pojawi się obok oryginalnego pliku.
+
+</Tab>
+</Tabs>
+
+Konwersja nie przywróci nazw plików, które spakowany WAD już stracił. Jeśli nadal masz folder projektu, wyeksportuj z niego.
+
+## Co dalej
+
+<PremiumCard
+  title="Opublikuj moda na Divine"
+  href="/docs/lol/publishing/publish-on-divine"
+  icon={<Icon name="Upload" />}
+  level="beginner"
+>
+  Wrzuć nowy .modpkg.
+</PremiumCard>

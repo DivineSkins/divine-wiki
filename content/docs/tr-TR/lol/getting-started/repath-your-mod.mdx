@@ -1,0 +1,320 @@
+---
+title: "Modunu repath'le"
+description: "Bir League of Legends şampiyon modunu Celestial'ın Creator Hub'ında repath'le ya da Quartz, Flint veya Jade ile çıkararak repath'lenmiş başla, böylece modun asla başka modlarla çakışmaz."
+keywords:
+  - league mod repath
+  - league mod repath celestial
+  - özel skin başka modlarla çakışıyor
+  - kısmen repath yapıldı
+category: "getting-started"
+---
+
+<LevelPill level="beginner" />
+
+Repath, modunun dosyalarına kendi klasörünü verir, böylece modun aynı şampiyon için yapılmış başka bir modla asla çakışmaz. Her şampiyon modunu Divine'a yüklemeden önce repath'le. Bir şampiyon modu repath'lenmemişse Divine'ın dosya kontrolü bunu sana söyler.
+
+Repath'lemek için en iyi zaman, skin'e başladığın an. Modun zaten bittiyse Celestial onu tek bir sağ tıkla repath'ler.
+
+## Repath ne işe yarar
+
+Bir şampiyon modu, oyunun kendi yollarındaki dosyaların yerine geçer. Aynı dosyayı değiştiren iki mod aynı anda kazanamaz, yani biri bozulur. Repath, dosyalarını yalnızca senin kullandığın bir kelimenin altına taşır. Bu kelimeye **önek** (prefix) denir:
+
+```text
+assets/characters/aatrox/skins/base/aatrox_base_tx_cm.tex
+assets/daka_aatrox/characters/aatrox/skins/base/aatrox_base_tx_cm.tex
+```
+
+BIN dosyaları yeni yolları gösterecek şekilde güncellenir, yani oyun yine her şeyi bulur.
+
+| Mod türü                         | Repath'lenmeli mi? |
+| -------------------------------- | ------------------ |
+| Şampiyon skin'leri ve chroma'lar | **Evet**           |
+| Harita modları                   | Hayır              |
+| HUD ve arayüz modları            | Hayır              |
+| Ses modları                      | Hayır              |
+
+## İyi bir önek seç
+
+Her araç senden bir önek ister. Her yerde aynı kuralları kullan:
+
+- Yalnızca küçük harf, rakam ve `_`. Quartz `-` işaretini siler.
+- Sana özel olsun: yapımcı adın artı mod adı iş görür, mesela `daka_aatrox`.
+- Asla Riot'un klasör adlarından birini kullanma, örneğin `characters`, `shared`, `particles` ya da `hud`. Celestial bunları repath'lenmemiş olarak okur.
+
+## En iyi yöntem: repath'lenmiş başla
+
+Yeni bir skin'e başlarken şampiyonun dosyalarını zaten repath'lenmiş olarak çıkar. Böylece düzenlediğin her dosya ilk günden önekinin altında yaşar ve sonda repath'lemekle uğraşmazsın. Extractor'ını seç:
+
+<Tabs items={["Quartz", "Flint", "Jade"]}>
+<Tab value="Quartz">
+
+Quartz yalnızca **Repath** butonuyla repath'ler. Düz **Extract** butonu dosyaları Riot'un yollarında verir.
+
+1. **Settings**'i, sonra **External Tools**'u aç. **League Install Path** ve **WAD Extraction Output Path**'i ayarla.
+2. Kenar çubuğundan **Asset Extractor**'ı aç ve **Champions** sekmesini seç.
+3. Bir şampiyon seç, sonra üzerinde çalışmak istediğin skin kartına tıkla.
+4. **Extract**'a değil, **Repath**'e tıkla.
+5. Önekini **Entry Prefix** alanına yaz. **Preserve HUD ability icons** açık kalsın.
+6. **Start Repath**'e tıkla.
+
+Quartz çıktı yoluna `aatrox_skin0_extracted_clean` gibi bir klasör yazar. Uygulamanın geri kalanı [Quartz](/docs/lol/tools/modding-apps/quartz) sayfasında.
+
+</Tab>
+<Tab value="Flint">
+
+Flint her yeni skin projesini senin için repath'ler. Önek, yapımcı adın artı proje adıdır.
+
+1. **Settings**, sonra **Creator** altında **Creator name**'ini ayarla. Yapımcı adı yoksa Flint repath'lemez.
+2. **Settings**, sonra **Paths** altında League klasörünü ayarla.
+3. **Create Project**'e tıkla, sonra **Type: Skin**'i seç.
+4. Şampiyonu ve skin'i seç, bir **Project name** yaz ve **Create project**'e tıkla.
+
+Dosyaların `assets/<creator>/<project>/` altına düşer. WAD Explorer'daki düz **Extract** repath'lemez. Uygulamanın geri kalanı [Flint](/docs/lol/tools/modding-apps/flint) sayfasında.
+
+</Tab>
+<Tab value="Jade">
+
+Bu adımlar Jade 1.x'e göre. Jade 2.0, önek ayarı olan bir **Create a Mod** sekmesi ekliyor.
+
+1. **Extract Files**'ı aç ve **Locations** altında **League of Legends**'ı seç.
+2. Önekini **Extraction settings**, sonra **Repath prefix** altında ayarla.
+3. Şampiyonun `.wad.client` dosyasını aç ve **Extract as skin mod**'a tıkla.
+4. Skin'lerini seç ve **Repath**'i aç. **Preserve HUD icons** açık kalsın.
+5. **Extract**'a tıkla.
+
+Uygulamanın geri kalanı [Jade](/docs/lol/tools/modding-apps/jade) sayfasında.
+
+</Tab>
+</Tabs>
+
+Sonra dosyalarını her zamanki gibi düzenle. Klasörü Creator Hub'a içe aktardığında rozeti zaten yeşil olmalı.
+
+## Celestial'da repath'le
+
+Modunu önek olmadan mı yaptın? Celestial onu repath'ler. Creator Hub, Celestial'ın Windows sürümünde var.
+
+<Requirements>
+  <Requirement
+    icon="Download"
+    href="https://divineskins.gg/install-mods"
+    note="Windows"
+  >
+    Celestial
+  </Requirement>
+  <Requirement icon="FolderOpen" note="klasör, .modpkg ya da .fantome">
+    Şampiyon modun
+  </Requirement>
+  <Requirement icon="LeagueOfLegends" note="kurulu">
+    League of Legends
+  </Requirement>
+</Requirements>
+
+<Steps>
+<Step>
+
+### Modunu Creator Hub'a ekle
+
+1. Celestial'ı aç ve üstteki **Creator Hub** simgesine tıkla (Türkçe arayüzde adı **İçerik Merkezi**).
+2. Modunun klasörünü, `.modpkg` ya da `.fantome` dosyasını Creator Hub'ın üzerine sürükle. Klasörler için **Import** da çalışır.
+
+Kütüphane'nde zaten olan bir `.modpkg` mi? Orada ona sağ tıkla ve **Creator Hub'da aç**'ı seç.
+
+<img
+  src="/wiki-images/lol-repath-1.webp"
+  alt="Celestial'ın Creator Hub'ı: Creator Hub simgesi 1, Import butonu 2 ile işaretli, altta içe aktarılmış Aatrox Wiki Example modu"
+/>
+
+</Step>
+<Step>
+
+### Rozeti kontrol et
+
+Modun kartının sağ üstündeki simge, repath durumunu gösterir. Okumak için üzerine gel.
+
+<ParameterList
+  parameters={[
+    {
+      name: "Repath yapıldı (yeşil)",
+      description: "Tamam. Doğrudan oyun içi teste geç.",
+    },
+    {
+      name: "Kısmen repath yapıldı (sarı)",
+      description:
+        "Bazı dosyalar hâlâ oyunun kendi yollarını kullanıyor. İşi bitirmek için repath'le.",
+    },
+    {
+      name: "Repath yapılmadı (kırmızı)",
+      description: "Henüz hiçbir şeyin öneki yok. Repath'le.",
+    },
+  ]}
+/>
+
+<img
+  src="/wiki-images/lol-repath-2.webp"
+  width={480}
+  alt="Modun kartındaki repath rozeti halka içinde, ipucunda: Kısmen repath yapıldı, çakışmaları önlemek için repath'i tamamla"
+/>
+
+</Step>
+<Step>
+
+### Repath'i aç
+
+1. Modun kartına sağ tıkla.
+2. **Tools** altında **Repath**'e tıkla.
+
+**Repath**'i yalnızca Celestial modun hangi şampiyon için olduğunu bildiğinde görürsün. Yalnızca şampiyon modlarında çalışır.
+
+İlk seferde Celestial, Repath penceresinden önce kısa bir uyarı gösterir. **Anladım**'a tıkla.
+
+<img
+  src="/wiki-images/lol-repath-3.webp"
+  width={480}
+  alt="Modun sağ tık menüsü, Tools bölümünde Repath halka içinde"
+/>
+
+</Step>
+<Step>
+
+### Skin'i seç ve bir önek yaz
+
+1. **Repath için skin ID'lerini seçin** altında modunun değiştirdiği skin'i seç. Skin 0 temel skin'dir.
+2. **Önek** alanına önekini yaz.
+
+Modun birden fazla skin'i mi değiştiriyor? Bir skin'i repath'le, sonra sıradaki için Repath'i tekrar aç.
+
+<img
+  src="/wiki-images/lol-repath-4.webp"
+  width={480}
+  alt="Mod Repath penceresi: Skin 0'a ayarlı skin seçici 1, daka_aatrox yazılmış Önek alanı 2 ile işaretli"
+/>
+
+</Step>
+<Step>
+
+### Seçenekleri kontrol et ve başlat
+
+Aşağı kaydır. Varsayılanlar çoğu moda uyar:
+
+- **Update to Riot's new asset format** kapalı. Modun kartı eski bir asset formatı hakkında uyarıyorsa aç.
+- **Parçacıkları birleştir**, VFX dosyalarını tek bir klasöre taşır.
+- **Remove redundant base BINs**, oyunun zaten kendi dosyalarından yüklediği BIN dosyalarını kaldırır.
+- **Yetenek simgelerini koru**, `hud/icons2d` klasörünü olduğu gibi bırakır.
+
+Sonra seçeneklerin altındaki **Repath** butonuna tıkla. Butonda seçtiğin skin'in adı yazar, mesela Skin 0.
+
+<img
+  src="/wiki-images/lol-repath-5.webp"
+  width={480}
+  alt="Repath seçenekleri 1 ile işaretli, Parçacıkları birleştir, Remove redundant base BINs ve Yetenek simgelerini koru açık, Repath butonu 2 ile işaretli"
+/>
+
+</Step>
+<Step>
+
+### Sonucu oku
+
+Celestial kaç BIN'i ve yolu değiştirdiğini, bir de kullandığı öneki gösterir. **Kapat**'a tıkla.
+
+İki tür dosya da listeleyebilir:
+
+- **Çıkarılabilir varlık** olarak listelenenler, BIN'lerinin kullandığı ama modunda olmayan dosyalar. Onları içeri kopyalamak için **Oyundan çıkar**'a tıkla, böylece Riot onları değiştirdiğinde modun çalışmaya devam eder.
+- **Çözülmemiş varlık** olarak listelenenler oyunda da bulunamadı. Bunlar oyunun yollarını korur.
+
+<img
+  src="/wiki-images/lol-repath-6.webp"
+  width={480}
+  alt="Repath sonucu: 1 BIN repath'lendi, 601 yol değişti, önek daka_aatrox"
+/>
+
+</Step>
+<Step>
+
+### Rozeti tekrar kontrol et
+
+Rozetin üzerine gel. **Repath yapıldı** yazmalı. Hâlâ sarı mı? Başka bir skin ya da başka bir şampiyondan gelen bir dosya hâlâ önek bekliyor. O skin için tekrar repath'le.
+
+<img
+  src="/wiki-images/lol-repath-7.webp"
+  width={480}
+  alt="Halka içindeki rozet, artık yeşil ve ipucunda Repath yapıldı yazıyor"
+/>
+
+</Step>
+<Step>
+
+### Oyunda test et
+
+1. Diğer modlarını kapat.
+2. Açmak için Creator Hub'da modun kartına tıkla.
+3. **Start Patcher**'a tıkla.
+4. Bir antrenman oyunu başlat ve modeli, yetenekleri, geri dönüşü ve efektleri kontrol et.
+
+</Step>
+</Steps>
+
+### Bir repath'i geri al
+
+Bir şey mi bozuldu? Moda sağ tıkla ve **Restore**'a tıkla. Repath'ten önceki dosyaları geri getirir.
+
+<img
+  src="/wiki-images/lol-repath-8.webp"
+  width={480}
+  alt="Repath sonrası sağ tık menüsü, Tools bölümünde Restore halka içinde"
+/>
+
+## Sık karşılaşılan sorunlar
+
+<Accordions>
+<Accordion title="Menüde Repath yok">
+
+Celestial modun hangi şampiyon için olduğunu anlayamadı ya da bu bir şampiyon modu değil. Repath yalnızca şampiyon skin'lerinde çalışır. Dosyalarının `assets/characters/<champion>/` ve `data/characters/<champion>/` altında durduğundan emin ol.
+
+</Accordion>
+<Accordion title="Rozet sarı kalıyor">
+
+Bazı dosyalar hâlâ oyunun kendi yollarını kullanıyor. Modunun değiştirdiği her skin'i tek tek repath'le. Başka şampiyonlardan gelen dosyalar da, mesela ortak bir partikül, buna dahil.
+
+</Accordion>
+<Accordion title="Repath'ten sonra mod yanlış görünüyor">
+
+**Restore**'a tıkla, sonra **Parçacıkları birleştir** kapalıyken tekrar dene. Hâlâ bozuk mu? Modun adıyla ve neyin yanlış göründüğüyle birlikte Discord'da sor.
+
+</Accordion>
+<Accordion title="Divine'ın dosya kontrolü modun repath'lenmediğini söylüyor">
+
+Bu not yüklemeni durdurmaz. Sadece modun aynı şampiyon için yapılmış başka modlarla çakışabileceğini söyler. Burada repath'le, yeni bir `.modpkg` export et ve tekrar yükle.
+
+</Accordion>
+</Accordions>
+
+Hâlâ soruların mı var? [Discord](https://discord.gg/divineskins)'da bize yaz. Hep buralardayız.
+
+## Diğer repath araçları
+
+<Callout type="info" title="Arşivlendi">
+  [League Mod Repather](/docs/lol/tools/modding-apps/league-mod-repather) eski,
+  bağımsız repath aracı. Rehberi eski modlar için yayında kalıyor, ama artık
+  repath'lemenin yolu Celestial.
+</Callout>
+
+## Sonraki adımlar
+
+<CardGrid>
+  <PremiumCard
+    title="Mod formatı"
+    href="/docs/lol/mod-format"
+    icon={<Icon name="Package" />}
+    level="beginner"
+  >
+    Repath'lenmiş modunu bir .modpkg olarak export et.
+  </PremiumCard>
+  <PremiumCard
+    title="Modunu Divine'da yayınla"
+    href="/docs/lol/publishing/publish-on-divine"
+    icon={<Icon name="Upload" />}
+    level="beginner"
+  >
+    Creator Panel'den yükle.
+  </PremiumCard>
+</CardGrid>

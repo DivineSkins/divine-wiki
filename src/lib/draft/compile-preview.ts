@@ -1,5 +1,6 @@
 import type { MDXRemoteSerializeResult } from "next-mdx-remote";
 import { previewRemarkPlugins } from "@/lib/draft/mdx-config";
+import remarkPreviewSecurity from "./remark-preview-security";
 
 export type CompileResult =
   | { ok: true; serialized: MDXRemoteSerializeResult }
@@ -18,13 +19,15 @@ export async function compilePreview(mdx: string): Promise<CompileResult> {
   try {
     const serialized = await serialize(mdx, {
       parseFrontmatter: true,
-      mdxOptions: { remarkPlugins: previewRemarkPlugins },
+      mdxOptions: {
+        remarkPlugins: [...previewRemarkPlugins, remarkPreviewSecurity],
+      },
       // next-mdx-remote's blockJS default strips every JSX expression
       // attribute, which silently breaks components with object props
       // (<ParameterList parameters={[...]}/>) and diverges from the
-      // published page. The compile runs in the author's own browser on
-      // their own draft — self-XSS territory — so allow expressions and
-      // keep only the eval/Function-style scrubber.
+      // published page. The preview-only validator above permits static
+      // data and Icon JSX while rejecting executable expressions and active
+      // HTML. The library's identifier blacklist alone is not a sandbox.
       blockJS: false,
       blockDangerousJS: true,
     });

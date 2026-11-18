@@ -3,7 +3,6 @@ import { defineI18nUI } from "fumadocs-ui/i18n";
 import { i18n } from "@/lib/i18n";
 import englishTranslations from "@/../messages/en.json";
 import {
-  Manrope,
   Poppins,
   Inter,
   JetBrains_Mono,
@@ -11,6 +10,7 @@ import {
   Lora,
   Atkinson_Hyperlegible,
 } from "next/font/google";
+import localFont from "next/font/local";
 import type { Metadata } from "next";
 import { baseUrl } from "@/lib/config";
 import { baseOpenGraph, baseTwitter, llmAlternateTypes } from "@/lib/seo";
@@ -21,11 +21,14 @@ import {
 } from "@/components/contribute-picker";
 import StaticSearchDialog from "@/components/search-dialog";
 import { ApplyAppearance } from "@/components/apply-appearance";
+import { IconGradients } from "@/components/icon-gradients";
+import { Analytics } from "@/components/analytics";
 
-const manrope = Manrope({
-  subsets: ["latin"],
+const manrope = localFont({
+  src: "../fonts/manrope/Manrope-Variable.woff2",
   variable: "--font-manrope",
-  weight: ["400", "600", "700", "800"],
+  weight: "200 800",
+  display: "swap",
 });
 
 const poppins = Poppins({
@@ -71,18 +74,14 @@ const atkinson = Atkinson_Hyperlegible({
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
+  // Game-agnostic: guide pages add their own game's keywords (gameSeo).
   keywords: [
-    "league of legends",
-    "lol custom skins",
-    "league modding",
-    "champion mods",
-    "fantome files",
-    "skin modding tutorial",
-    "league of legends vfx",
-    "ltmao",
-    "cs-lol-manager",
     "divine skins",
     "celestial launcher",
+    "game modding",
+    "modding guides",
+    "custom skins",
+    "skin modding tutorial",
   ],
   icons: {
     icon: [
@@ -146,21 +145,21 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body>
-        {/* Apply persisted appearance preferences (reading width, Minimal
-            style, font) before first paint — same no-flash trick next-themes
-            uses for the theme class. Serialized copy of applyStoredAppearance
-            in src/lib/appearance.ts; keep them in sync. Centered reading is
-            the default: add the class unless the visitor explicitly chose
-            "wide". */}
+        <IconGradients />
+        {/* Apply persisted appearance preferences (Minimal style, font)
+            before first paint — same no-flash trick next-themes uses for the
+            theme class. Serialized copy of applyStoredAppearance in
+            src/lib/appearance.ts; keep them in sync. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{var c=document.documentElement.classList;if(localStorage.getItem("divine-reading-width")!=="wide")c.add("centered-reading");if(localStorage.getItem("divine-style")==="minimal")c.add("minimal");var f=localStorage.getItem("divine-font");if(f==="geist"||f==="lora"||f==="atkinson"||f==="system")document.documentElement.setAttribute("data-font",f)}catch(e){}`,
+            __html: `try{var c=document.documentElement.classList;if(localStorage.getItem("divine-style")==="minimal")c.add("minimal");var f=localStorage.getItem("divine-font");if(f==="geist"||f==="lora"||f==="atkinson"||f==="system")document.documentElement.setAttribute("data-font",f)}catch(e){}`,
           }}
         />
         {/* Re-applies the same preferences after a language switch: the
             locale remount resets <html>'s attributes (see the component's
             doc comment). */}
         <ApplyAppearance />
+        <Analytics />
         <RootProvider
           i18n={provider(lang)}
           search={{ SearchDialog: StaticSearchDialog }}

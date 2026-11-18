@@ -1,0 +1,84 @@
+---
+title: "Hangi formatı seçmelisin"
+description: "Her yeni League of Legends modunu .modpkg olarak export et. Eski .fantome formatı sadece eski modlar çalışmaya devam etsin diye duruyor. Nedeni ve dosya adlarına ne olduğu burada."
+keywords:
+  - modpkg mi fantome mu
+  - league mod formatı
+  - özel yollar kaybolan hash
+category: "mod-format"
+---
+
+<LevelPill level="beginner" />
+
+**Her yeni modunu `.modpkg` olarak yap.** Divine'ın yeni League yüklemeleri ve güncellemeleri için kabul ettiği tek format bu ve Celestial'ın Creator Hub'ı da bunu export eder.
+
+`.fantome` eski format. Eski modlar çalışmaya devam etsin diye hâlâ destekleniyor: Celestial onları hâlâ kurar ve Divine'da zaten `.fantome` olarak duran modlar indirilmeye devam eder. Yeni bir işe onunla başlama. Eski bir `.fantome` modunu güncellemek için onu [dönüştür](/docs/lol/mod-format/fantome) ve `.modpkg` dosyasını yeni bir sürüm olarak yayınla.
+
+| Format     | Ne için                                                                                      |
+| ---------- | -------------------------------------------------------------------------------------------- |
+| `.modpkg`  | Her yeni mod ve her güncelleme. Dosya yollarını dosyalarınla birlikte tutar.                 |
+| `.fantome` | Yeni hiçbir şey. Eski modlar bir sonraki güncellemelerine kadar onunla çalışmaya devam eder. |
+
+Bir `.modpkg`, okunabilir dosya yollarını da dosyalarınla birlikte tutar. Araçların modunu sonra yeniden açabilmesi, düzenleyebilmesi, repath edebilmesi ve onarabilmesi bu sayede olur. Sayfanın geri kalanı bunun neden önemli olduğunu anlatıyor.
+
+## Bu neden artık önemli
+
+Riot, BIN dosyalarındaki varlık referanslarını okunabilir `string` değerlerinden hash içeren `file` değerlerine taşıyor.
+Daha fazla referans değiştikçe araçların BIN içinden kurtarabileceği okunabilir yol sayısı azalıyor.
+
+Kullandığın metin düzenleyicisine göre bu türü `file:` veya `file =` olarak görebilirsin.
+İkili dosya, yolun 64 bitlik hash'ini saklar. Düzenleyici eşleşen yolu biliyorsa okunabilir adı gösterebilir.
+
+Önceden bir string referansı, özel doku yolunu doğrudan BIN içinde taşıyabiliyordu:
+
+```text
+assets/my_custom_skin/textures/body.tex
+```
+
+`file` değerine dönüştürüldüğünde referans artık yolun hash'ini saklar.
+Adı başka bir yerde korunmuyorsa araç yalnızca hash'e bakarak yolu güvenilir biçimde geri getiremez.
+
+Bu değişiklik varlık referanslarıyla ilgilidir. BIN içindeki her metin alanının dosya referansına dönüştüğü anlamına gelmez.
+
+## Unhash işlemi nasıl çalışır
+
+Paketlenmiş bir WAD, dosyalarını yol hash'leriyle tanımlar. Okunabilir dosya adlarından oluşan normal bir dizin tutmaz.
+
+[Quartz](/docs/lol/tools/modding-apps/quartz) gibi araçlar bu hash'leri bir eşleştirme tablosuyla çözer:
+
+1. Dosyanın hash'ini oku.
+2. Bilinen yollar sözlüğünde bu hash'i ara.
+3. Eşleşme varsa yolu göster.
+4. Yol bilinmiyorsa sayısal hash'i koru.
+
+**Unhash, hash'i tersine çevirmek değil, sözlükte aramaktır.**
+Topluluk hash veritabanları bilinen oyun yollarını içerir. Modun için oluşturduğun yolları otomatik olarak bilemezler.
+Araçlar proje klasörlerinden, okunabilir BIN string'lerinden ve gömülü hash tablolarından da ad öğrenebilir.
+
+WAD paketlemek okunabilir dosya adlarını kaldırır. BIN string'lerini `file` hash'lerine dönüştürmek başka bir ad kaynağını kaldırır.
+Kaydedilmiş eşleştirme yoksa özel dosyalar onaltılık adlarla çıkarılabilir.
+Bu durum araçların dokuları bulmasını, referansları takip etmesini veya dosyaları doğru repath yapmasını engelleyebilir.
+
+<Callout type="warning" title="Yüklemek ile dosya adlarını kurtarmak farklıdır">
+  Hash'ler eşleşiyorsa mod oyunda çalışmaya devam edebilir. Sorun, sonraki düzenleme
+  ve onarımlar için okunabilir yolları kurtarmaktır. Dosya adının bilinmemesi,
+  WAD dosyasının açılamadığı anlamına gelmez.
+</Callout>
+
+## Projenden export et
+
+Okunabilir yollar hâlâ duruyorken [mod projenden](/docs/lol/mod-format/mod-project) export et. Eski bir paketlenmiş WAD'ı `.modpkg` dosyasına dönüştürmek, zaten kaybolmuş özel adları geri getiremez.
+
+## Paylaşmadan önce
+
+1. Creator Hub'dan bir `.modpkg` export et. Nasıl yapılacağını [.modpkg export et ve kur](/docs/lol/mod-format/modpkg) gösteriyor.
+2. Export ettiğin dosyayı yeniden aç ve özel dosya yollarının hâlâ okunabilir olduğunu kontrol et.
+3. Celestial ile oyunda test et.
+4. Gelecekteki güncellemeler için proje klasörünü sakla.
+
+Bir `.modpkg`, projenin yedeğinin yerini tutmaz.
+
+## Kaynaklar
+
+- [Quartz unhash kodu](https://github.com/RitoShark/Quartz/blob/main/src-tauri/crates/quartz-lib/src/bin/jade/unhasher.rs): `file`, `hash` ve `link` için sözlük aramaları.
+- [Hematite](https://github.com/RitoShark/Hematite): mod onarımı ve WAD işleme.

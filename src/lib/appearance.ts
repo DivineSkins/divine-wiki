@@ -1,4 +1,4 @@
-// Appearance preferences (Style / Font / reading Width) live as a class or
+// Appearance preferences (Style / Font) live as a class or
 // data attribute on <html>, persisted in localStorage. Three places apply
 // them and must stay in sync:
 //   1. The pre-paint inline script in src/app/[lang]/layout.tsx (first load,
@@ -11,10 +11,8 @@
 
 export const STYLE_STORAGE_KEY = "divine-style";
 export const FONT_STORAGE_KEY = "divine-font";
-export const READING_WIDTH_STORAGE_KEY = "divine-reading-width";
 
 export const MINIMAL_CLASS = "minimal";
-export const CENTERED_CLASS = "centered-reading";
 
 export const FONT_IDS = [
   "inter",
@@ -35,10 +33,6 @@ export function applyStoredAppearance() {
   const root = document.documentElement;
   try {
     const classes = root.classList;
-    classes.toggle(
-      CENTERED_CLASS,
-      localStorage.getItem(READING_WIDTH_STORAGE_KEY) !== "wide",
-    );
     classes.toggle(
       MINIMAL_CLASS,
       localStorage.getItem(STYLE_STORAGE_KEY) === "minimal",

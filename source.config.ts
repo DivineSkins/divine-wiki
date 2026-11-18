@@ -2,6 +2,7 @@ import { defineConfig, defineDocs, metaSchema } from "fumadocs-mdx/config";
 import { z } from "zod";
 import remarkYouTube from "./src/lib/remark-youtube";
 import remarkImg from "./src/lib/remark-img";
+import { divineDarkTheme } from "./src/lib/code-theme";
 
 // Declare the frontmatter schema fresh instead of extending Fumadocs'
 // re-exported `frontmatterSchema`. The re-export is bound to an internal
@@ -16,6 +17,8 @@ const frontmatterSchema = z.object({
   icon: z.string().optional(),
   full: z.boolean().optional(),
   category: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+  keywords: z.array(z.string()).optional(),
   authors: z
     .array(
       z.object({
@@ -68,10 +71,14 @@ export default defineConfig({
     // src/lib/draft/mdx-config.ts (the in-browser draft preview uses that copy).
     remarkPlugins: [remarkYouTube, remarkImg],
     rehypeCodeOptions: {
+      // Tags <code> with `language-*` so the code block header can show
+      // the language (src/components/mdx/CodeBlock.tsx).
+      addLanguageClass: true,
       langs: ["bash", "json", "python", "javascript", "typescript"],
       themes: {
         light: "light-plus",
-        dark: "github-dark",
+        // Site-palette syntax colors (see src/lib/code-theme.ts).
+        dark: divineDarkTheme,
       },
     },
   },

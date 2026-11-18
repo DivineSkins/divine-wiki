@@ -9,3 +9,12 @@ export const i18n = defineI18n({
 });
 
 export const ogLanguageBlacklist: string[] = [];
+
+/**
+ * The homepage for a locale. English lives at the bare domain (`/`, served
+ * by a rewrite to `/en` in next.config.mjs); every other locale keeps its
+ * prefix so its readers land in their own language.
+ */
+export function homePath(lang: string): string {
+  return lang === i18n.defaultLanguage ? "/" : `/${lang}`;
+}

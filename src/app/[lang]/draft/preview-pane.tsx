@@ -1,9 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useParams } from "next/navigation";
+import { AlertTriangle } from "lucide-react";
 import { MDXRemote, type MDXRemoteSerializeResult } from "next-mdx-remote";
 import { useMessages } from "@/lib/hooks/useMessages";
-import { PageCredits, type PageCreditsData } from "@/components/page-credits";
+import {
+  GuideCredits,
+  writersFromFrontmatter,
+} from "@/components/guide-credits";
 import { type StagedImages } from "@/lib/draft/staged-images";
 import { compilePreview } from "@/lib/draft/compile-preview";
 import { buildPreviewComponents } from "./preview-components";
@@ -18,7 +23,7 @@ interface PreviewPaneProps {
   title?: string;
   description?: string;
   /** Rendered as the credit line below the body, like the published page. */
-  credits?: PageCreditsData;
+  credits?: { discord?: string; github?: string };
   /** Lets the parent surface a live/error indicator in the pane header. */
   onStatusChange?: (status: PreviewStatus) => void;
 }
@@ -34,6 +39,7 @@ export function PreviewPane({
   onStatusChange,
 }: PreviewPaneProps) {
   const messages = useMessages();
+  const lang = useParams()?.lang?.toString() ?? "en";
   const d = messages.draft;
   // The last successful render stays mounted while the next compile is in
   // flight — no "Rendering preview…" flash on every keystroke.
@@ -96,24 +102,29 @@ export function PreviewPane({
       )}
 
       {error && (
-        <div className="bg-divine-error/10 border-divine-error/40 rounded-divine-lg mb-4 border p-3">
-          <p className="text-divine-error text-sm font-semibold">
-            {d.previewError}
-          </p>
-          <p className="text-divine-text-muted mt-1 font-mono text-xs">
-            {error.line ? `Line ${error.line}: ` : ""}
-            {error.message}
-          </p>
+        <div className="border-divine-error/30 bg-divine-error/10 mb-6 flex gap-3 rounded-xl border p-4">
+          <AlertTriangle className="text-divine-error mt-0.5 size-4 shrink-0" />
+          <div className="min-w-0">
+            <p className="text-divine-error text-sm font-bold">
+              {d.previewError}
+            </p>
+            <p className="text-divine-text-muted mt-1 font-mono text-xs leading-relaxed break-words">
+              {error.line ? `Line ${error.line}: ` : ""}
+              {error.message}
+            </p>
+          </div>
         </div>
       )}
 
-      {/* Page header — same treatment as the published docs page. */}
+      {/* Page header: the published page's title, description, and the
+          separator before the body. */}
       {(title || description) && (
-        <header className="border-divine-border/60 mb-6 border-b pb-5">
+        <header>
           {title && <h1 className="divine-doc-title">{title}</h1>}
           {description && (
-            <p className="divine-doc-description">{description}</p>
+            <p className="divine-doc-description mb-0">{description}</p>
           )}
+          <div aria-hidden className="bg-fd-border mt-8 mb-10 h-px" />
         </header>
       )}
 
@@ -122,7 +133,7 @@ export function PreviewPane({
       ) : (
         serialized && (
           <div
-            className={`prose prose-invert max-w-none transition-opacity ${
+            className={`prose max-w-none transition-opacity ${
               error ? "opacity-40" : "opacity-100"
             }`}
           >
@@ -131,11 +142,13 @@ export function PreviewPane({
         )
       )}
 
-      {/* Credit line — same treatment as the published docs page. */}
-      <PageCredits
-        credits={credits}
-        label={messages.misc.madeBy}
-        className="border-divine-border/60 mt-8 border-t pt-5"
+      {/* Credits row, as on the published page. A draft has no history
+          yet, so it shows only the writer the frontmatter names. */}
+      <GuideCredits
+        writers={writersFromFrontmatter(credits)}
+        lang={lang}
+        labels={{ ...messages.credits, lastUpdated: messages.misc.lastUpdated }}
+        className="mt-12"
       />
     </div>
   );

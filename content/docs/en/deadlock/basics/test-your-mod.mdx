@@ -1,0 +1,216 @@
+---
+title: "Test your mod in game"
+description: "Load your mod, open the console, start a private map, and check every part of your mod in game before you share it with anyone."
+category: "basics"
+patch: "6779"
+---
+
+<LevelPill level="beginner" />
+
+Test every mod on your own PC before you share it: load it, start a private map, and check every part for your mod type. You need a packed VPK first: [Pack your mod into a VPK](/docs/deadlock/basics/pack-a-vpk).
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Package">Your mod as a VPK</Requirement>
+  <Requirement
+    icon="DeadlockModManager"
+    href="/docs/deadlock/getting-started/install-with-mod-manager"
+    note="or by hand"
+  >
+    Deadlock Mod Manager
+  </Requirement>
+  <Requirement
+    icon="Source2Viewer"
+    href="/docs/deadlock/tools/source-2-viewer"
+    note="optional"
+  >
+    Source 2 Viewer
+  </Requirement>
+</Requirements>
+
+- Name your mod like `pak05_dir.vpk`.
+- Set up Deadlock to load mods. Deadlock Mod Manager does it for you, or [install mods by hand](/docs/deadlock/getting-started/install-by-hand) for the same setup without a manager.
+- Use Source 2 Viewer to compare paths when something does not show.
+
+## Load and check your mod
+
+<Steps>
+<Step>
+
+### Use one fixed pak number for test builds
+
+Pick one number for your work in progress, such as `pak05_dir.vpk`, and overwrite that file with every new build. Old test builds then never pile up in your addons folder.
+
+<img
+  src="/wiki-images/deadlock-basics-test-your-mod-1.webp"
+  alt="The test loop: edit the source file, compile it, overwrite pak05_dir.vpk, restart Deadlock and test, then fix and repeat"
+/>
+
+1. Close Deadlock. The game reads mods only when it starts.
+2. Copy your VPK into `game/citadel/addons/`, over the old test build.
+3. Start Deadlock.
+
+Restart the game after every new build. No source confirms that it reloads a changed VPK while running. {/* NEEDS HANDS-ON TEST: whether Deadlock picks up a replaced addon VPK without a restart */}
+
+- Turn off your other mods while you test. A mod with a lower number can hide yours.
+- If you test through Deadlock Mod Manager, zip your VPK first. Put the `.vpk` at the top level of the zip, not in a folder. {/* NEEDS HANDS-ON TEST: how to add a local zip in the current Deadlock Mod Manager, and the button label */}
+
+</Step>
+<Step>
+
+### Turn on the console
+
+1. Open Deadlock's settings.
+2. Turn on **Dev command console**. {/* NEEDS HANDS-ON TEST: exact label of the console setting and which settings tab it is on */}
+3. Press **F7** to open the console.
+
+{/* SCREENSHOT: the settings toggle for the dev console. File: deadlock-basics-test-your-mod-2.webp */}
+
+</Step>
+<Step>
+
+### Load a private map
+
+These maps run on your own PC, not on Valve's servers.
+
+1. Press **F7** to open the console.
+2. Type one of these commands and press **Enter**:
+   - `map dl_hideout`: the hideout.
+   - `map new_player_basics`: the new player basics map.
+   - `map dl_midtown`: the full main map.
+3. Pick your hero.
+4. To pick another hero, type `changeteam 0`. The team and hero choice opens again.
+
+{/* SCREENSHOT: the console with map dl_hideout typed in. File: deadlock-basics-test-your-mod-3.webp */}
+
+The game also has a sandbox mode. Some creators use it to spawn their hero and check the health bar. {/* NEEDS HANDS-ON TEST: how to open the sandbox on build 6779, what it can spawn, and what the hero_testing map is for */}
+
+{/* SCREENSHOT: the sandbox hero spawn screen. File: deadlock-basics-test-your-mod-4.webp */}
+
+</Step>
+<Step>
+
+### What to check
+
+Check every part of your mod, not only the part you changed.
+
+<Tabs items={["Skins and models", "Sounds", "Icons and UI", "Particles"]}>
+
+<Tab value="Skins and models">
+
+1. Walk around and look at your hero from every side.
+2. Aim down sights. The camera should sit where it does on the normal hero, not in the middle of the screen.
+3. Use every ability. Some switch parts of the model on or off.
+4. Die once and look at the body.
+5. Check that the health bar floats above the hero, not at the feet.
+6. Check the hero select and shop screens.
+7. Look for missing or wrong textures on every part.
+
+</Tab>
+
+<Tab value="Sounds">
+
+1. Type `snd_showstart 1` in the console. It now prints each sound path as the sound starts.
+2. Make the sound play, for example by using the ability.
+3. Check that your sound plays and its path shows in the console.
+4. Compare volume and length with the original sound. Keep them close.
+
+</Tab>
+
+<Tab value="Icons and UI">
+
+1. Check every place your image appears. A hero has six portraits: the hero card, the small icon, the minimap icon, the tall portrait, and the low health and kill streak portraits.
+2. Check that each image is sharp and not stretched.
+3. Check that see-through parts stay see-through, like in the original.
+
+</Tab>
+
+<Tab value="Particles">
+
+1. Use the ability with your effect.
+2. While it plays, type `dumpparticlelist` in the console to list the particle files in use.
+3. Check that your color shows on every part. Some effects use several particle files.
+4. Make sure the effect is as easy to see as the original.
+
+{/* NEEDS HANDS-ON TEST: whether dumpparticlelist works on a normal private map or needs a special server flag */}
+
+</Tab>
+
+</Tabs>
+
+<Callout type="danger" title="Keep it fair">
+  A skin, sound, or effect must not make enemies easier to see or hear. [What's
+  allowed and how to stay safe](/docs/deadlock/getting-started/stay-safe) lists
+  what crosses the line.
+</Callout>
+
+</Step>
+</Steps>
+
+## Useful console commands
+
+| Command            | What it does                                     |
+| ------------------ | ------------------------------------------------ |
+| `map dl_hideout`   | Loads the hideout on your PC.                    |
+| `changeteam 0`     | Opens the team and hero choice again.            |
+| `snd_showstart 1`  | Prints each sound path as the sound starts.      |
+| `soundinfo`        | Lists the sounds playing right now.              |
+| `play <path>`      | Plays one sound file, such as `play sounds/...`. |
+| `dumpparticlelist` | Lists the particle effects in use.               |
+
+These commands come from community notes written before the "City Never Sleeps" update. Some may have changed. {/* NEEDS HANDS-ON TEST: every command in this table on build 6779; also which helper commands (thirdperson, citadel_spawn_all_heroes_in_a_line, citadel_create_unit) need a server flag, and whether using them or the -dev launch option affects matchmaking (gap G07) */}
+
+## Read errors in the console
+
+Load a private map with your mod in place, open the console with **F7**, and read any errors or warnings that name your files.
+
+For example, a model with broken camera attachments fills the console with green text that names the bad attachment. If your mod does not show at all, the cause is almost always the file name, the folder, or a path inside the VPK.
+
+{/* NEEDS HANDS-ON TEST: which console messages appear when an addon file fails to load */}
+
+Fixes for common errors are in [Errors when making mods](/docs/deadlock/errors/creator-errors) and [Model and skin problems](/docs/deadlock/errors/model-problems).
+
+## Before you queue again
+
+<Callout type="warning" title="Clean up before a real match">
+  Deadlock will not start matchmaking while anyone in your party runs tools
+  mode. Close your tools first.
+</Callout>
+
+1. Close CSDK 12 and every other modding tool.
+2. Remove any custom map VPKs you tested. Custom maps do not work in Valve matches.
+3. Check that you changed only the `SearchPaths` part of `gameinfo.gi`. Edits to other parts can block matchmaking.
+4. Restart Deadlock, so nothing from your test session carries over. {/* NEEDS HANDS-ON TEST: whether a test session (private map, console commands) has any effect on queueing without a restart (gap G07) */}
+
+## Next steps
+
+Divine is adding Deadlock mods. When they arrive, you'll find them in Explore mods, and you'll publish yours from the Creator Panel.
+
+<CardGrid>
+  <PremiumCard
+    title="Publish your mod"
+    href="/docs/deadlock/publishing/publish-on-divine"
+    icon={<Icon name="Upload" />}
+  >
+    Share it once it passes your tests.
+  </PremiumCard>
+  <PremiumCard
+    title="Make another mod"
+    href="/docs/deadlock/getting-started#your-learning-path"
+    icon={<Icon name="Compass" />}
+  >
+    Pick your next project from the learning path.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Hosting a Local Listen Server](https://deadlockmodding.pages.dev/listen-server-hosting) and [Replacing Sounds](https://deadlockmodding.pages.dev/modding-guides/replacing-sounds) from Deadlock Modding Notes.
+- **Tool:** [DeadPacker](https://github.com/Artemon121/DeadPacker) by Artemon121.
+- **Video:** [(Read Desc) Deadlock - General Model Swap Steps](https://www.youtube.com/watch?v=piEYFbFYmVM) by Pugzilla.
+- **Video:** [(New Tool) Deadlock - Particle Color Change Tutorial](https://www.youtube.com/watch?v=Otm4C5FyDg8) by Pugzilla.
+- **Guide:** [From Start to Finish (Fuji's Asset Replacement Guide)](https://docs.google.com/document/d/10Be28UBdeN13R_-NO5PqYI7SiCyklldGK_JkZQUqAAg/edit) by Fuji (FellOffFuji).
+- **Guide:** [Neutral's General Guide for Modding Deadlock](https://docs.google.com/document/d/1p3_Q3HXRLmQOWnBvkUa5BljGmHVvW33UjBqEz-WRk24/edit) by Neutraldrift.

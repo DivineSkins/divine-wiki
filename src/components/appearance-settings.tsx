@@ -3,19 +3,21 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useTheme } from "next-themes";
 import {
+  buttonVariants,
+  cn,
+  PickerTrigger,
   Popover,
   PopoverContent,
+  PopoverItem,
   PopoverTrigger,
-} from "fumadocs-ui/components/ui/popover";
-import { SettingsIcon, ChevronDownIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
+  SegmentedControl,
+} from "@divineskins/ui";
+import { SettingsIcon } from "lucide-react";
 
 import {
   STYLE_STORAGE_KEY,
   FONT_STORAGE_KEY,
-  READING_WIDTH_STORAGE_KEY,
   MINIMAL_CLASS,
-  CENTERED_CLASS,
   type FontId,
 } from "@/lib/appearance";
 
@@ -38,9 +40,6 @@ export interface SettingsLabels {
   styleMinimal: string;
   font: string;
   fontSystem: string;
-  width: string;
-  widthWide: string;
-  widthCentered: string;
 }
 
 // Each label renders in its own typeface so the row previews the font.
@@ -48,7 +47,9 @@ export interface SettingsLabels {
 // include the size-adjusted fallback fonts — never literal family names.
 // "system" has an empty label: the localized labels.fontSystem fills it.
 const FONT_OPTIONS: { id: FontId; label: string; family: string }[] = [
-  { id: "inter", label: "Inter", family: "var(--font-inter), sans-serif" },
+  // The default id stays "inter" so stored preferences keep working, but
+  // the default face is Manrope, the divineskins.gg body font.
+  { id: "inter", label: "Manrope", family: "var(--font-manrope), sans-serif" },
   { id: "geist", label: "Geist", family: "var(--font-geist), sans-serif" },
   { id: "lora", label: "Lora", family: "var(--font-lora), serif" },
   {
@@ -61,66 +62,42 @@ const FONT_OPTIONS: { id: FontId; label: string; family: string }[] = [
   { id: "system", label: "", family: "system-ui, sans-serif" },
 ];
 
+/** One setting: the package's field label over a full-width control, so
+ *  every row lines up edge to edge. */
 function Row({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="flex items-center justify-between gap-3">
-      <span className="text-fd-muted-foreground text-xs">{label}</span>
+    <div className="flex flex-col gap-2">
+      <span className="text-divine-body-sm text-divine-text font-bold tracking-tight">
+        {label}
+      </span>
       {children}
     </div>
   );
 }
 
-function Segmented<T extends string>({
-  value,
-  options,
-  onChange,
-  groupLabel,
-}: {
-  value: T;
-  options: { value: T; label: string }[];
-  onChange: (next: T) => void;
-  groupLabel: string;
-}) {
-  return (
-    <div
-      role="radiogroup"
-      aria-label={groupLabel}
-      className="inline-flex items-center rounded-full border p-0.5"
-    >
-      {options.map((option) => (
-        <button
-          key={option.value}
-          type="button"
-          role="radio"
-          aria-checked={value === option.value}
-          onClick={() => onChange(option.value)}
-          className={cn(
-            "rounded-full px-2.5 py-1 text-xs transition-colors",
-            value === option.value
-              ? "bg-fd-accent text-fd-accent-foreground font-medium"
-              : "text-fd-muted-foreground hover:text-fd-foreground",
-          )}
-        >
-          {option.label}
-        </button>
-      ))}
-    </div>
-  );
-}
+// The sidebar-footer trigger: a square tile beside the Discord and GitHub
+// icon links. The homepage header passes its own circle instead.
+const SIDEBAR_TRIGGER_CLASS = cn(
+  buttonVariants({ variant: "field" }),
+  "size-10 px-0",
+);
 
-export function AppearanceSettings({ labels }: { labels: SettingsLabels }) {
+export function AppearanceSettings({
+  labels,
+  triggerClassName = SIDEBAR_TRIGGER_CLASS,
+  align,
+}: {
+  labels: SettingsLabels;
+  triggerClassName?: string;
+  align?: "start" | "center" | "end";
+}) {
   const { theme, setTheme } = useTheme();
   // SSR can't read localStorage / the html element; render defaults and
-  // sync once after hydration (same pattern the reading-width toggle
-  // used). `mounted` gates the Mode row to avoid a hydration mismatch
+  // sync once after hydration. `mounted` gates the Mode row to avoid a hydration mismatch
   // from next-themes.
   const [mounted, setMounted] = useState(false);
   const [style, setStyle] = useState<"divine" | "minimal">("divine");
   const [font, setFont] = useState<FontId>("inter");
-  // Centered is the default reading width (see the pre-paint script in
-  // src/app/[lang]/layout.tsx); the effect below reconciles with the actual
-  // <html> class on mount, so visitors who chose "wide" still sync correctly.
-  const [centered, setCentered] = useState(true);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -136,7 +113,6 @@ export function AppearanceSettings({ labels }: { labels: SettingsLabels }) {
         ? (storedFont as FontId)
         : "inter",
     );
-    setCentered(root.classList.contains(CENTERED_CLASS));
   }, []);
 
   function persist(key: string, value: string) {
@@ -167,29 +143,19 @@ export function AppearanceSettings({ labels }: { labels: SettingsLabels }) {
     persist(FONT_STORAGE_KEY, next);
   }
 
-  function applyWidth(next: boolean) {
-    setCentered(next);
-    document.documentElement.classList.toggle(CENTERED_CLASS, next);
-    persist(READING_WIDTH_STORAGE_KEY, next ? "centered" : "wide");
-  }
-
   return (
     <Popover>
-      {/* Plain icon button — styled to sit in a row with the Discord and
-          GitHub icon links in the sidebar footer. */}
-      <PopoverTrigger
-        aria-label={labels.trigger}
-        className="text-fd-muted-foreground hover:text-fd-accent-foreground hover:bg-fd-accent inline-flex items-center justify-center rounded-md p-1.5 transition-colors"
-      >
+      <PopoverTrigger aria-label={labels.trigger} className={triggerClassName}>
         <SettingsIcon className="size-4" aria-hidden />
       </PopoverTrigger>
-      <PopoverContent className="flex w-64 flex-col gap-3 p-3">
+      <PopoverContent align={align} className="flex flex-col gap-4 p-4!">
         <Row label={labels.mode}>
           {mounted ? (
-            <Segmented
-              groupLabel={labels.mode}
+            <SegmentedControl
+              aria-label={labels.mode}
+              className="w-full"
               value={(theme ?? "system") as "light" | "dark" | "system"}
-              onChange={setTheme}
+              onValueChange={setTheme}
               options={[
                 { value: "light", label: labels.modeLight },
                 { value: "dark", label: labels.modeDark },
@@ -199,24 +165,14 @@ export function AppearanceSettings({ labels }: { labels: SettingsLabels }) {
           ) : null}
         </Row>
         <Row label={labels.style}>
-          <Segmented
-            groupLabel={labels.style}
+          <SegmentedControl
+            aria-label={labels.style}
+            className="w-full"
             value={style}
-            onChange={applyStyle}
+            onValueChange={applyStyle}
             options={[
               { value: "divine", label: labels.styleDivine },
               { value: "minimal", label: labels.styleMinimal },
-            ]}
-          />
-        </Row>
-        <Row label={labels.width}>
-          <Segmented
-            groupLabel={labels.width}
-            value={centered ? "centered" : "wide"}
-            onChange={(next) => applyWidth(next === "centered")}
-            options={[
-              { value: "wide", label: labels.widthWide },
-              { value: "centered", label: labels.widthCentered },
             ]}
           />
         </Row>
@@ -224,39 +180,72 @@ export function AppearanceSettings({ labels }: { labels: SettingsLabels }) {
             dropdown reads more naturally at the bottom of the stack than
             wedged between the pill rows. */}
         <Row label={labels.font}>
-          {/* Native select keeps the row dependency-free. `appearance-none`
-              plus our own chevron gives a consistent trigger across OSes;
-              the control sizes to its content (right-aligned by the Row)
-              instead of stretching. The trigger previews the current font
-              via fontFamily; per-option fontFamily styles the open list
-              where the browser supports it (desktop Chrome/Firefox). */}
-          <div className="relative inline-flex items-center">
-            <select
-              aria-label={labels.font}
-              value={font}
-              onChange={(event) => applyFont(event.target.value as FontId)}
-              style={{
-                fontFamily: FONT_OPTIONS.find((option) => option.id === font)
-                  ?.family,
-              }}
-              className="text-fd-foreground bg-fd-popover appearance-none rounded-full border py-1.5 pr-7 pl-3 text-xs"
-            >
-              {FONT_OPTIONS.map((option) => (
-                <option
-                  key={option.id}
-                  value={option.id}
-                  style={{ fontFamily: option.family }}
-                >
-                  {option.label || labels.fontSystem}
-                </option>
-              ))}
-            </select>
-            <ChevronDownIcon
-              className="text-fd-muted-foreground pointer-events-none absolute right-2.5 size-3.5"
-              aria-hidden
-            />
-          </div>
+          <FontSelect
+            value={font}
+            onChange={applyFont}
+            label={labels.font}
+            systemLabel={labels.fontSystem}
+          />
         </Row>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+/**
+ * Font picker: the package's picker, a Popover with a field trigger, because
+ * a Select's portal doesn't nest inside this settings Popover. Each row and
+ * the trigger preview their own typeface.
+ */
+function FontSelect({
+  value,
+  onChange,
+  label,
+  systemLabel,
+}: {
+  value: FontId;
+  onChange: (next: FontId) => void;
+  label: string;
+  systemLabel: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const current = FONT_OPTIONS.find((option) => option.id === value);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <PickerTrigger
+          aria-label={label}
+          style={{ fontFamily: current?.family }}
+          // The package tints a field inside a panel so it shows on the
+          // panel's matching fill; its rule only reaches a Select's trigger.
+          className="h-9 border-transparent bg-white/[0.04] text-[13px] font-semibold hover:border-transparent hover:bg-white/[0.08] data-[state=open]:bg-white/[0.08]"
+        >
+          {current?.label || systemLabel}
+        </PickerTrigger>
+      </PopoverTrigger>
+      <PopoverContent
+        align="start"
+        className="flex w-(--radix-popover-trigger-width) flex-col gap-0.5"
+      >
+        {FONT_OPTIONS.map((option) => {
+          const selected = option.id === value;
+          return (
+            <PopoverItem
+              key={option.id}
+              role="option"
+              selected={selected}
+              aria-selected={selected}
+              onClick={() => {
+                onChange(option.id);
+                setOpen(false);
+              }}
+              style={{ fontFamily: option.family }}
+            >
+              {option.label || systemLabel}
+            </PopoverItem>
+          );
+        })}
       </PopoverContent>
     </Popover>
   );

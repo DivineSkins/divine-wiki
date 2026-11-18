@@ -1,0 +1,84 @@
+---
+title: "Which format to choose"
+description: "Export every new League of Legends mod as a .modpkg. The old .fantome format stays only so old mods keep working. Here's why, and what happens to your file names."
+keywords:
+  - modpkg or fantome
+  - league mod format
+  - custom paths lost hashes
+category: "mod-format"
+---
+
+<LevelPill level="beginner" />
+
+**Make every new mod a `.modpkg`.** It's the only format Divine takes for new League uploads and updates, and it's what Celestial's Creator Hub exports.
+
+`.fantome` is the old format. It stays supported so old mods keep working: Celestial still installs them, and mods already on Divine as `.fantome` keep downloading. Don't start new work in it. To update an old `.fantome` mod, [convert it](/docs/lol/mod-format/fantome) and post the `.modpkg` as a new release.
+
+| Format     | Use it for                                                             |
+| ---------- | ---------------------------------------------------------------------- |
+| `.modpkg`  | Every new mod and every update. Keeps your file paths with your files. |
+| `.fantome` | Nothing new. Old mods keep working in it until their next update.      |
+
+A `.modpkg` also keeps readable asset paths with your files. That's what lets tools reopen, edit, repath and repair your mod later. The rest of this page explains why that matters.
+
+## Why this matters now
+
+Riot is moving asset references in BIN files from readable `string` values to hashed `file` values.
+As more references change, tools have fewer readable paths to recover from the BIN itself.
+
+In text editors, you may see this type written as `file:` or `file =`, depending on the editor.
+The binary stores a 64-bit path hash. An editor can display a readable name when it knows the matching path.
+
+Previously, a string reference could carry a custom texture path directly in the BIN:
+
+```text
+assets/my_custom_skin/textures/body.tex
+```
+
+After conversion to a `file` value, the reference stores that path's hash instead.
+If nothing else preserves the name, the tool cannot reliably recover it from the hash alone.
+
+This concerns asset references. It does not mean every text field in a BIN becomes a file reference.
+
+## What unhashing actually does
+
+A packed WAD identifies its files by path hashes. It does not keep a normal directory of readable filenames.
+
+Tools such as [Quartz](/docs/lol/tools/modding-apps/quartz) use a lookup table to resolve those hashes:
+
+1. Read the file's hash.
+2. Look for that hash in a dictionary of known paths.
+3. Show the matching path if one exists.
+4. Keep a numeric hash if the path is unknown.
+
+**Unhashing is a lookup, not a reversal of the hash.**
+Community hash databases cover known game paths. They cannot automatically know paths you invented for your mod.
+Tools can also learn names from project folders, readable BIN strings, and embedded hash tables.
+
+Packing a WAD removes the readable filenames. Converting BIN strings to `file` hashes removes another source of those names.
+Without a saved mapping, custom paths may extract as hexadecimal filenames.
+That can prevent tools from finding textures, following references, or repathing assets correctly.
+
+<Callout type="warning" title="Loading is different from recovering filenames">
+  A mod can still load in-game when its hashes match. The problem is recovering
+  readable paths for later editing and repair. An unknown filename does not mean
+  the WAD itself cannot be opened.
+</Callout>
+
+## Export from your project
+
+Export from your [mod project](/docs/lol/mod-format/mod-project) while the readable paths still exist. Converting an old packed WAD to `.modpkg` can't bring back custom names that are already lost.
+
+## Before you share
+
+1. Export a `.modpkg` from Creator Hub. [Export and install a .modpkg](/docs/lol/mod-format/modpkg) shows how.
+2. Reopen the exported file and check that your custom asset paths are still readable.
+3. Test it in game with Celestial.
+4. Keep your project folder for future updates.
+
+A `.modpkg` doesn't replace a backup of your project.
+
+## Source references
+
+- [Quartz unhashing code](https://github.com/RitoShark/Quartz/blob/main/src-tauri/crates/quartz-lib/src/bin/jade/unhasher.rs): dictionary lookups for `file`, `hash`, and `link` values.
+- [Hematite](https://github.com/RitoShark/Hematite): mod repair and WAD processing.
