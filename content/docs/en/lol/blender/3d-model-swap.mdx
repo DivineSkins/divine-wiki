@@ -113,12 +113,20 @@ This step removes duplicate vertices and prevents major issues later.
 
 ### Decimate (Vertex Limit)
 
-League models Can now be over 65K vertices, the limit is now 65k PER submesh, so you can have multiple submeshes that go beyond 65k, it will still export
+The vertex limit is now about 65,000 vertices **per submesh**, not for the whole model. Each material on the mesh exports as its own submesh, so a model with several materials can go over 65k vertices in total and still export.
 
+<Callout type="info">
+A high vertex count still costs FPS in game. Keep the model as light as you can, even when the export allows more.
+</Callout>
 
-If too high, FPS in game will be affected, which is something you Kinda wanna avoid in a competitve game, But it doesnt mean its impossible.
+1. Enable **Statistics** in the viewport
+   <img src="/wiki-images/1768739771507-yn3w3j.webp" alt="Image" width={200} />
+2. Hide any non-custom meshes (`H`)
+3. Check the total vertex count
+   <img src="/wiki-images/1768739904291-lle6hg.webp" alt="Image" width={200} />
+4. To check one submesh, enter **Edit Mode**, deselect everything, select a material in the **Materials** tab and click **Select**. The statistics now show the vertex count for that material. Aim for under 60k per material.
 
-How to lower just incase
+If a submesh is too high, or you want better FPS:
 
 - Go to the modifiers tab:
   <img src="/wiki-images/1768739963121-r7xh8.webp" alt="Image" width={300} />
@@ -306,4 +314,3 @@ If parts stretch or stay behind like this:
 If something looks wrong in-game, carefully re-check each step above.
 
 ---
-
