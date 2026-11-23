@@ -112,15 +112,20 @@ Bước này xóa các vertex trùng lặp và ngăn nhiều lỗi lớn về sa
 
 ### Decimate (giới hạn vertex)
 
-Model của LMHT phải dưới khoảng 65.000 vertex mới nhập được.
+Giới hạn giờ là khoảng 65.000 vertex **cho mỗi submesh**, không còn tính cho cả model. Mỗi material trên mesh được xuất thành một submesh riêng, nên model có nhiều material vẫn xuất được dù tổng số vertex vượt quá 65k.
+
+<Callout type="info">
+Số vertex cao vẫn làm giảm FPS trong game. Hãy giữ model nhẹ nhất có thể, kể cả khi bản xuất cho phép nhiều hơn.
+</Callout>
 
 1. Bật **Statistics** trong viewport
    <img src="/wiki-images/1768739771507-yn3w3j.webp" alt="Ảnh" width={200} />
 2. Ẩn mọi mesh không phải của bạn (`H`)
-3. Kiểm tra số vertex (nhắm mức \<60k)
+3. Kiểm tra tổng số vertex
    <img src="/wiki-images/1768739904291-lle6hg.webp" alt="Ảnh" width={200} />
+4. Để kiểm tra một submesh, vào **Edit Mode**, bỏ chọn tất cả, chọn một material trong tab **Materials** rồi bấm **Select**. Bảng thống kê sẽ hiện số vertex của material đó. Nhắm dưới 60k cho mỗi material.
 
-Nếu quá cao:
+Nếu một submesh quá cao, hoặc bạn muốn FPS tốt hơn:
 
 - Vào tab modifier:
   <img src="/wiki-images/1768739963121-r7xh8.webp" alt="Ảnh" width={300} />

@@ -113,15 +113,20 @@ Cette étape supprime les vertices en double et évite de gros problèmes plus t
 
 ### Décime (limite de vertices)
 
-Les modèles League doivent être sous les ~65 000 vertices pour être importés.
+La limite est maintenant d'environ 65 000 vertices **par submesh**, et non plus pour tout le modèle. Chaque material du mesh est exporté comme son propre submesh, donc un modèle avec plusieurs materials peut dépasser 65k vertices au total et quand même s'exporter.
+
+<Callout type="info">
+Un nombre de vertices élevé fait quand même baisser les FPS en jeu. Garde le modèle aussi léger que possible, même si l'export en accepte plus.
+</Callout>
 
 1. Active **Statistics** dans le viewport
    <img src="/wiki-images/1768739771507-yn3w3j.webp" alt="Image" width={200} />
 2. Cache les meshes qui ne sont pas custom (`H`)
-3. Vérifie le nombre de vertices (vise \<60k)
+3. Vérifie le nombre total de vertices
    <img src="/wiki-images/1768739904291-lle6hg.webp" alt="Image" width={200} />
+4. Pour vérifier un submesh, passe en **Edit Mode**, désélectionne tout, sélectionne un material dans l'onglet **Materials** et clique sur **Select**. Les statistiques affichent alors le nombre de vertices de ce material. Vise moins de 60k par material.
 
-Si c'est trop élevé :
+Si un submesh est trop lourd, ou si tu veux de meilleurs FPS :
 
 - Va dans l'onglet des modifiers :
   <img src="/wiki-images/1768739963121-r7xh8.webp" alt="Image" width={300} />
