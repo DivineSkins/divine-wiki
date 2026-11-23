@@ -1,0 +1,139 @@
+---
+title: "Change ability VFX by ultimate rank"
+description: "Set up a rank condition in Ruby and use it to recolor or replace the particles on an ability."
+category: "vfx-bins"
+authors:
+  - name: DAKA
+    url: https://github.com/sxrmss
+tags: [Ruby, BIN, particles, stencil, ultimate]
+---
+
+<LevelPill level="intermediate" label="Medium" />
+
+## 1. Find the effect on your skin
+
+Open your extracted skin BIN in **Ruby → BIN editor → Resolver**. In **Table**, use **Filter keys and systems** to find the ability. Find the key for the part you want to edit, such as the cast, missile, or target hit. Play the system listed under **VFX system** to check it. If the row says **linked BIN**, open that BIN to edit the emitters.
+
+On Rimuru Tempest Talon, we used `Talon_Base_W_Mis_01` for the outgoing flame and `Talon_Base_W_Mis_02` for the returning ribbons. The target-hit rows control what appears on the enemy.
+
+![Ruby Resolver showing separate Talon W entries for both missiles, the endpoint, and target hits](/wiki-images/ultimate-rank-vfx/ruby-resolver.png)
+
+## 2. Add one invisible stencil writer to your skin
+
+The writer marks the screen while the rank condition is active. Reuse the same writer for every ability that changes at that rank.
+
+Make these two substitutions throughout the snippets before saving:
+
+| Placeholder    | What to enter                                                                                                                                                                                   |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `YourSkinPath` | Copy the path at the top of your Resolver table and drop the final `/Resources`. Talon's table shows `Characters/Talon/Skins/Skin0/Resources`, so its prefix is `Characters/Talon/Skins/Skin0`. |
+| `MySkin`       | Pick a name unique to your mod. Use it consistently in the writer key, mask ID, and texture folder.                                                                                             |
+
+Download [stencil-black.dds](/wiki-images/ultimate-rank-vfx/stencil-black.dds) and place it at `assets/MySkin/Particles/stencil-black.dds` relative to your extracted WAD root. Use the supplied texture as-is. Its black pixels stay invisible with additive blending, and its opaque alpha lets the writer mark the screen.
+
+Paste this system into the skin BIN’s top-level `entries` map. If your Ruby build only edits existing entries, convert the BIN to Ritobin text, insert the entry, convert it back, and reopen it in Ruby.
+
+```py
+"YourSkinPath/Particles/MySkin_R3_Writer" = VfxSystemDefinitionData {
+    particleName: string = "MySkin_R3_Writer"
+    particlePath: string = "YourSkinPath/Particles/MySkin_R3_Writer"
+    visibilityRadius: f32 = 9999
+    flags: u16 = 6
+    complexEmitterDefinitionData: list[pointer] = {
+        VfxEmitterDefinitionData {
+            emitterName: string = "Rank3_StencilMask"
+            texture: string = "assets/MySkin/Particles/stencil-black.dds"
+            blendMode: u8 = 4
+            pass: i16 = -9999
+            importance: u8 = 3
+            isSingleParticle: flag = true
+            rate: embed = ValueFloat { constantValue: f32 = 1 }
+            particleLifetime: embed = ValueFloat { constantValue: f32 = -1 }
+            bindWeight: embed = ValueFloat { constantValue: f32 = 1 }
+            birthColor: embed = ValueColor { constantValue: vec4 = { 1, 1, 1, 1 } }
+            birthScale0: embed = ValueVector3 { constantValue: vec3 = { 900, 900, 900 } }
+            birthRotation0: embed = ValueVector3 { constantValue: vec3 = { 0, -270, 0 } }
+            stencilMode: u8 = 1
+            StencilReferenceId: hash = "MySkin_R3_Mask"
+            renderPhaseOverride: u8 = 4
+        }
+    }
+}
+```
+
+Back in **Resolver → Table**, enter your writer key under **Effect key**, select the writer under **Pick a VFX system**, and click **Add**. Check the new `resourceMap` row in **Raw text**:
+
+```py
+"MySkin_R3_Writer" = "YourSkinPath/Particles/MySkin_R3_Writer"
+```
+
+## 3. Choose which R rank turns on the writer
+
+In **BIN editor → Skin → Raw text**, find `SkinCharacterDataProperties`. Append this item inside `PersistentEffectConditions`. If the list is missing, create `PersistentEffectConditions: list2[pointer] = { ... }` with the item inside. Use your writer’s resolver key for `effectKey` and your rig’s ground attachment for `boneName`.
+
+```py
+PersistentEffectConditionData {
+    OwnerCondition: pointer = FloatComparisonMaterialDriver {
+        mValueA: pointer = SpellRankIntDriver { SpellSlot: u32 = 3 }
+        mValueB: pointer = FloatLiteralMaterialDriver { mValue: f32 = 3 }
+    }
+    PersistentVfxs: list2[embed] = {
+        PersistentVfxData {
+            effectKey: hash = "MySkin_R3_Writer"
+            AttachToCamera: bool = true
+            ShowToOwnerOnly: bool = true
+            boneName: string = "BuffBone_Glb_Ground_Loc"
+        }
+    }
+    ForceRenderVfx: bool = true
+}
+```
+
+Keep `SpellSlot = 3` when **R rank** is the trigger, even if you're changing a passive, Q, W, or E. Set `mValue` to the **exact rank** you want. Talon’s W uses `3`, so the normal look plays at ranks 0 to 2 and the new look starts when the player spends the third point in R.
+
+To activate the new look at **rank 2 only**, use `mValue = 2`. To keep it for **ranks 2 and 3**, add two copies of the condition, one for each value, pointing to the same writer.
+
+## 4. Change the emitters on your chosen ability
+
+Open the ability system you found in step 1. Expand `complexEmitterDefinitionData`, duplicate one visible emitter, and give the copy a recognizable `emitterName`. Set these fields on each emitter:
+
+| Field                      | Original emitter   | New emitter        |
+| -------------------------- | ------------------ | ------------------ |
+| `stencilMode: u8`          | `3` (mask differs) | `2` (mask matches) |
+| `StencilReferenceId: hash` | `"MySkin_R3_Mask"` | `"MySkin_R3_Mask"` |
+| `renderPhaseOverride: u8`  | `4`                | `4`                |
+
+**To recolor a layer**, edit `birthColor` or the RGB values in the copy’s `color` curve. Keep its alpha curve for the first preview. If the texture already has a strong color, a neutral copy with the original alpha will give you more control over the tint.
+
+**To replace the effect**, give the original visual layers mode 3. Paste your new emitters into the same system and give each one mode 2. Put a trail on the missile, a hit burst on the target, or a persistent glow on the buff. The spell then supplies the timing and attachment. Include the textures, meshes, and secondary masks your new emitters use.
+
+| Talon W before R rank 3: blue blade                                                                      | Talon W at R rank 3: violet core and smoke                                                                      |
+| -------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| ![Ruby preview of the normal blue blade in flight](/wiki-images/ultimate-rank-vfx/w-outbound-normal.png) | ![Ruby preview of the evolved violet core leaving smoke](/wiki-images/ultimate-rank-vfx/w-outbound-evolved.png) |
+
+We put the siphon ribbons in `Talon_Base_W_Mis_02` so they follow the returning missile.
+
+![Ruby preview of the evolved return missile with three narrow siphon ribbons](/wiki-images/ultimate-rank-vfx/w-return-evolved.png)
+
+Leave the stencil fields off layers that should draw at every rank. Keep a single copy of each sound or child-effect trigger to avoid firing it twice.
+
+### If you want a different look at every rank
+
+The switch above is the version tested on Talon. To try four distinct looks on your champion, make one writer, resolver row, and exact-rank condition per rank:
+
+| R rank        | Writer key         | Stencil ID       |
+| ------------- | ------------------ | ---------------- |
+| 0 (unlearned) | `MySkin_R0_Writer` | `MySkin_R0_Mask` |
+| 1             | `MySkin_R1_Writer` | `MySkin_R1_Mask` |
+| 2             | `MySkin_R2_Writer` | `MySkin_R2_Mask` |
+| 3             | `MySkin_R3_Writer` | `MySkin_R3_Mask` |
+
+Give each visual group mode **2** with its own ID, including the rank-0 group. Exactly one writer should be active at a time. Test this extension at every rank before applying it to more abilities.
+
+## 5. Preview in Ruby and test in League
+
+1. Save your BIN. In a **test copy**, keep the shared emitters and one variant. Remove `stencilMode` and `StencilReferenceId` from that variant to preview it on its own. Repeat with the other variant in a fresh copy. Compare them at the same time and camera angle.
+2. Load your saved mod in Practice Tool. Trigger your ability or passive before learning R, then again after each R upgrade. Delay spending the point once to check that the switch follows the upgrade.
+3. If one stage stays the old color, check its own resolver row. If both looks appear, check for an ungated visual layer. If the new look never appears, check the writer’s resolver key, texture path, and opaque alpha. The writer and both emitter groups must share the same stencil ID and render phase.
+
+The writer covers the local camera view. In a mirror match, another instance of the same skin can show the local owner’s palette.
