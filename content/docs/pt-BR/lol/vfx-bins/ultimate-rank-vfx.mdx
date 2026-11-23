@@ -1,0 +1,139 @@
+---
+title: "Mude o VFX de uma habilidade pelo nível da ultimate"
+description: "Monte uma condição de nível no Ruby e use-a para recolorir ou substituir as partículas de uma habilidade."
+category: "vfx-bins"
+authors:
+  - name: DAKA
+    url: https://github.com/sxrmss
+tags: [Ruby, BIN, partículas, stencil, ultimate]
+---
+
+<LevelPill level="intermediate" label="Médio" />
+
+## 1. Encontre o efeito na sua skin
+
+Abra o BIN extraído da sua skin em **Ruby → BIN editor → Resolver**. Em **Table**, use **Filter keys and systems** para achar a habilidade. Encontre a key da parte que você quer editar, como a conjuração, o projétil ou o acerto no alvo. Reproduza o sistema listado em **VFX system** para conferir. Se a linha mostrar **linked BIN**, abra esse BIN para editar os emissores.
+
+Na Rimuru Tempest Talon, usamos `Talon_Base_W_Mis_01` para a chama de ida e `Talon_Base_W_Mis_02` para as fitas de volta. As linhas de acerto no alvo controlam o que aparece no inimigo.
+
+![Resolver do Ruby mostrando entradas separadas do W do Talon para os dois projéteis, o ponto final e os acertos no alvo](/wiki-images/ultimate-rank-vfx/ruby-resolver.png)
+
+## 2. Adicione um writer de stencil invisível à sua skin
+
+O writer marca a tela enquanto a condição de nível está ativa. Reaproveite o mesmo writer para todas as habilidades que mudam naquele nível.
+
+Faça estas duas substituições em todos os trechos antes de salvar:
+
+| Marcador       | O que colocar                                                                                                                                                                                       |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `YourSkinPath` | Copie o caminho no topo da sua tabela do Resolver e tire o `/Resources` do final. A tabela do Talon mostra `Characters/Talon/Skins/Skin0/Resources`, então o prefixo dele é `Characters/Talon/Skins/Skin0`. |
+| `MySkin`       | Escolha um nome exclusivo do seu mod. Use o mesmo nome na key do writer, no ID da máscara e na pasta da textura.                                                                                    |
+
+Baixe o [stencil-black.dds](/wiki-images/ultimate-rank-vfx/stencil-black.dds) e coloque em `assets/MySkin/Particles/stencil-black.dds`, relativo à raiz do seu WAD extraído. Use a textura fornecida do jeito que está. Os pixels pretos ficam invisíveis com blending aditivo, e o alpha opaco deixa o writer marcar a tela.
+
+Cole este sistema no mapa `entries` de nível superior do BIN da skin. Se a sua versão do Ruby só edita entradas existentes, converta o BIN para texto do Ritobin, insira a entrada, converta de volta e reabra no Ruby.
+
+```py
+"YourSkinPath/Particles/MySkin_R3_Writer" = VfxSystemDefinitionData {
+    particleName: string = "MySkin_R3_Writer"
+    particlePath: string = "YourSkinPath/Particles/MySkin_R3_Writer"
+    visibilityRadius: f32 = 9999
+    flags: u16 = 6
+    complexEmitterDefinitionData: list[pointer] = {
+        VfxEmitterDefinitionData {
+            emitterName: string = "Rank3_StencilMask"
+            texture: string = "assets/MySkin/Particles/stencil-black.dds"
+            blendMode: u8 = 4
+            pass: i16 = -9999
+            importance: u8 = 3
+            isSingleParticle: flag = true
+            rate: embed = ValueFloat { constantValue: f32 = 1 }
+            particleLifetime: embed = ValueFloat { constantValue: f32 = -1 }
+            bindWeight: embed = ValueFloat { constantValue: f32 = 1 }
+            birthColor: embed = ValueColor { constantValue: vec4 = { 1, 1, 1, 1 } }
+            birthScale0: embed = ValueVector3 { constantValue: vec3 = { 900, 900, 900 } }
+            birthRotation0: embed = ValueVector3 { constantValue: vec3 = { 0, -270, 0 } }
+            stencilMode: u8 = 1
+            StencilReferenceId: hash = "MySkin_R3_Mask"
+            renderPhaseOverride: u8 = 4
+        }
+    }
+}
+```
+
+De volta em **Resolver → Table**, digite a key do writer em **Effect key**, selecione o writer em **Pick a VFX system** e clique em **Add**. Confira a nova linha do `resourceMap` em **Raw text**:
+
+```py
+"MySkin_R3_Writer" = "YourSkinPath/Particles/MySkin_R3_Writer"
+```
+
+## 3. Escolha qual nível do R liga o writer
+
+Em **BIN editor → Skin → Raw text**, encontre `SkinCharacterDataProperties`. Adicione este item dentro de `PersistentEffectConditions`. Se a lista não existir, crie `PersistentEffectConditions: list2[pointer] = { ... }` com o item dentro. Use a key do resolver do seu writer em `effectKey` e o attachment de chão do seu rig em `boneName`.
+
+```py
+PersistentEffectConditionData {
+    OwnerCondition: pointer = FloatComparisonMaterialDriver {
+        mValueA: pointer = SpellRankIntDriver { SpellSlot: u32 = 3 }
+        mValueB: pointer = FloatLiteralMaterialDriver { mValue: f32 = 3 }
+    }
+    PersistentVfxs: list2[embed] = {
+        PersistentVfxData {
+            effectKey: hash = "MySkin_R3_Writer"
+            AttachToCamera: bool = true
+            ShowToOwnerOnly: bool = true
+            boneName: string = "BuffBone_Glb_Ground_Loc"
+        }
+    }
+    ForceRenderVfx: bool = true
+}
+```
+
+Mantenha `SpellSlot = 3` quando o gatilho for o **nível do R**, mesmo que você esteja mudando uma passiva, Q, W ou E. Defina `mValue` como o **nível exato** que você quer. O W do Talon usa `3`, então o visual normal toca nos níveis 0 a 2 e o novo visual começa quando o jogador coloca o terceiro ponto no R.
+
+Para ativar o novo visual **só no nível 2**, use `mValue = 2`. Para manter nos **níveis 2 e 3**, adicione duas cópias da condição, uma para cada valor, apontando para o mesmo writer.
+
+## 4. Altere os emissores da habilidade escolhida
+
+Abra o sistema da habilidade que você encontrou na etapa 1. Expanda `complexEmitterDefinitionData`, duplique um emissor visível e dê à cópia um `emitterName` fácil de reconhecer. Defina estes campos em cada emissor:
+
+| Campo                      | Emissor original          | Emissor novo                  |
+| -------------------------- | ------------------------- | ----------------------------- |
+| `stencilMode: u8`          | `3` (máscara diferente)   | `2` (máscara igual)           |
+| `StencilReferenceId: hash` | `"MySkin_R3_Mask"`        | `"MySkin_R3_Mask"`            |
+| `renderPhaseOverride: u8`  | `4`                       | `4`                           |
+
+**Para recolorir uma camada**, edite `birthColor` ou os valores RGB na curva `color` da cópia. Mantenha a curva de alpha dela na primeira prévia. Se a textura já tiver uma cor forte, uma cópia neutra com o alpha original te dá mais controle sobre o tom.
+
+**Para substituir o efeito**, coloque as camadas visuais originais no modo 3. Cole seus novos emissores no mesmo sistema e coloque cada um no modo 2. Coloque um rastro no projétil, uma explosão de acerto no alvo ou um brilho persistente no buff. Assim a habilidade cuida do timing e do attachment. Inclua as texturas, malhas e máscaras secundárias que seus novos emissores usam.
+
+| W do Talon antes do R nível 3: lâmina azul                                                                | W do Talon com R nível 3: núcleo violeta e fumaça                                                              |
+| --------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| ![Prévia do Ruby da lâmina azul normal em voo](/wiki-images/ultimate-rank-vfx/w-outbound-normal.png)      | ![Prévia do Ruby do núcleo violeta evoluído deixando fumaça](/wiki-images/ultimate-rank-vfx/w-outbound-evolved.png) |
+
+Colocamos as fitas de drenagem em `Talon_Base_W_Mis_02` para elas seguirem o projétil de volta.
+
+![Prévia do Ruby do projétil de volta evoluído com três fitas finas de drenagem](/wiki-images/ultimate-rank-vfx/w-return-evolved.png)
+
+Deixe os campos de stencil fora das camadas que devem aparecer em todos os níveis. Mantenha uma única cópia de cada gatilho de som ou de efeito filho para não disparar duas vezes.
+
+### Se você quiser um visual diferente em cada nível
+
+A troca acima é a versão testada no Talon. Para tentar quatro visuais diferentes no seu campeão, crie um writer, uma linha no resolver e uma condição de nível exato para cada nível:
+
+| Nível do R          | Key do writer      | ID do stencil    |
+| ------------------- | ------------------ | ---------------- |
+| 0 (não aprendido)   | `MySkin_R0_Writer` | `MySkin_R0_Mask` |
+| 1                   | `MySkin_R1_Writer` | `MySkin_R1_Mask` |
+| 2                   | `MySkin_R2_Writer` | `MySkin_R2_Mask` |
+| 3                   | `MySkin_R3_Writer` | `MySkin_R3_Mask` |
+
+Coloque cada grupo visual no modo **2** com seu próprio ID, incluindo o grupo do nível 0. Só um writer deve estar ativo por vez. Teste essa extensão em todos os níveis antes de aplicar em mais habilidades.
+
+## 5. Confira no Ruby e teste no League
+
+1. Salve seu BIN. Numa **cópia de teste**, mantenha os emissores compartilhados e uma variante. Tire `stencilMode` e `StencilReferenceId` dessa variante para ver a prévia dela sozinha. Repita com a outra variante numa cópia nova. Compare as duas no mesmo momento e no mesmo ângulo de câmera.
+2. Carregue seu mod salvo numa partida de treino. Use a habilidade ou passiva antes de aprender o R e de novo depois de cada nível do R. Numa das vezes, demore para gastar o ponto e confira se a troca acompanha o nível.
+3. Se uma etapa continuar com a cor antiga, confira a linha dela no resolver. Se os dois visuais aparecerem, procure uma camada visual sem stencil. Se o novo visual nunca aparecer, confira a key do resolver do writer, o caminho da textura e o alpha opaco. O writer e os dois grupos de emissores precisam ter o mesmo ID de stencil e a mesma render phase.
+
+O writer cobre a visão da câmera local. Numa partida espelhada, outra instância da mesma skin pode mostrar a paleta do dono local.
