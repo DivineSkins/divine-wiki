@@ -1,20 +1,26 @@
 ---
 title: "Blender'da model optimize etme"
-description: "Merge by Distance ve Decimate modifier'ı ile yüksek poligonlu bir modeli League'in 65.000 vertex sınırının altına indir."
+description: "Merge by Distance ve Decimate modifier'ı ile yüksek poligonlu bir modelin vertex sayısını düşür, oyunda daha az FPS yesin."
 category: "blender"
 credits:
   discord: Ceerel
   github: CeerelXP
 ---
 
-League yaklaşık **65.000 vertex**'ten fazlasına sahip bir modeli yükleyemez. İndirdiğin modeller, özellikle yapay zekâyla üretilmiş olanlar, bu sınırı çoğu zaman fazlasıyla aşar. Bu rehber Blender'da bu sayıyı düşürmenin iki yolunu gösteriyor.
+<LevelPill level="intermediate" />
+
+League of Legends modellerinde 65.000'den fazla vertex olabilir, yeter ki her submesh sınırın içinde kalsın. Bir submesh'te 65.000 vertex, başka bir submesh'te de 65.000 vertex olabilir, model yine de export edilir.
+
+Asıl sorun şu: çok fazla vertex FPS'ini düşürebilir. Güçlü cihazlarda fark ciddi olabilir, bazen 100 FPS civarında. Zayıf cihazlarda bu değişim o kadar fark edilmeyebilir.
+
+Bu rehber vertex sayını nasıl azaltacağını gösteriyor, böylece modelin FPS'e daha az yük bindirir.
 
 <img
   src="/wiki-images/optimize-model-1.webp"
   alt="Blender'da istatistik katmanının 219.906 vertex gösterdiği bir 2B modeli"
 />
 
-Bu 2B modelinde **219.906 vertex** var, yani sınırın üç katından fazla.
+Bu 2B modelinde **219.906 vertex** var, yani tek bir submesh için olan 65.000 sınırının üç katından fazla.
 
 <Callout type="info" title="Vertex sayısını göremiyor musun?">
   Viewport'un sağ üstündeki **Overlays** menüsünü aç ve **Statistics**
@@ -23,58 +29,114 @@ Bu 2B modelinde **219.906 vertex** var, yani sınırın üç katından fazla.
 
 ## Mesafeye göre birleştirme
 
-İçe aktarılan modellerin çoğunda üst üste binmiş bir sürü kopya vertex bulunur. Bunları birleştirmenin hiçbir bedeli yok: model aynı görünür ve vertex sayısının büyük bir kısmından kurtulur.
+İçe aktarılan modellerin çoğunda üst üste binmiş bir sürü kopya vertex bulunur. Bu vertex'leri modelin görünüşünü değiştirmeden birleştirebilirsin. Böylece çok sayıda vertex'ten kurtulabilirsin.
 
-1. Modelini seç ve **Edit Mode**'a geçmek için `Tab` tuşuna bas.
+<Steps>
+<Step>
+
+### Modeli seç
+
+1. Modelini seç.
+2. **Edit Mode**'a geçmek için `Tab` tuşuna bas.
 
 <img
   src="/wiki-images/optimize-model-2.webp"
   alt="Tüm mesh'i seçili hâlde Edit Mode'daki model"
 />
 
-2. Tüm vertex'leri seçmek için `A` tuşuna bas.
-3. **Merge** menüsünü açmak için `M` tuşuna bas ve **By Distance**'ı seç. Her zaman By Distance kullan, diğer seçenekler seçtiğin her şeyi tek bir noktaya ezer.
+</Step>
+<Step>
+
+### Tüm vertex'leri seç
+
+Tüm vertex'leri seçmek için `A` tuşuna bas.
+
+</Step>
+<Step>
+
+### Vertex'leri birleştir
+
+1. **Merge** menüsünü açmak için `M` tuşuna bas.
+2. **By Distance**'ı seç.
+
+<Callout type="warning" title="Her zaman By Distance kullan">
+  Diğer seçenekler seçtiğin her şeyi tek bir noktaya ezer.
+</Callout>
 
 <img
   src="/wiki-images/optimize-model-3.webp"
   alt="At Center, At Cursor, Collapse ve By Distance seçenekleriyle açık Merge menüsü"
 />
 
-Blender kaç vertex sildiğini pencerenin altında gösterir. Burada 188.335 vertex silindi ve model **31.571**'e düştü, sınırın epey altında.
+</Step>
+</Steps>
+
+Blender kaç vertex sildiğini pencerenin altında gösterir. Bu örnekte 188.335 vertex silindi. Model **31.571 vertex**'e düştü, sınırın epey altında.
 
 <img
   src="/wiki-images/optimize-model-4.webp"
   alt="Merge by Distance sonrası 31.571 vertex'e düşen model ve Blender'ın 188.335 vertex silindi bildirimi"
 />
 
-Sayı hâlâ çok yüksekse sol alttaki paneldeki **Merge Distance** değerini biraz artır, örneğin `0.001` yap. Çok abartma, yoksa birbirine yakın detaylar kaynaşmaya başlar.
+Sayı hâlâ çok yüksekse sol alttaki paneldeki **Merge Distance** değerini biraz artır. Örneğin `0.001` dene.
+
+Çok abartma, yoksa birbirine yakın detaylar kaynaşmaya başlayabilir.
 
 ## Decimate
 
 Birleştirme yetmezse mesh'i sadeleştirmek için **Decimate** modifier'ını kullan.
 
-1. **Object Mode**'a dönmek için `Tab` tuşuna bas ve modelini seç.
-2. Sağdaki Properties panelinde **Modifiers** sekmesini (mavi anahtar simgesi) aç.
+<Steps>
+<Step>
+
+### Modifiers sekmesini aç
+
+1. **Object Mode**'a dönmek için `Tab` tuşuna bas.
+2. Modelini seç.
+3. Sağdaki Properties panelinde **Modifiers** sekmesini aç. Mavi anahtar simgesine bak.
 
 <img
   src="/wiki-images/optimize-model-5.webp"
   alt="Properties panelinde daire içine alınmış mavi anahtar simgeli Modifiers sekmesi"
 />
 
-3. **Add Modifier**'a tıkla ve `Decimate` diye arat.
-4. Modu **Planar** olarak değiştir.
-5. **Angle Limit** değerini azar azar artır ve istediğin seviyeye gelene kadar vertex sayısını takip et. Dokuların esnememesi için **Delimit** altındaki **UVs** seçeneğini etkinleştir.
+</Step>
+<Step>
+
+### Decimate modifier'ını ekle
+
+1. **Add Modifier**'a tıkla.
+2. `Decimate` diye arat.
+
+</Step>
+<Step>
+
+### Modifier ayarlarını yap
+
+1. Modu **Planar** olarak değiştir.
+2. **Angle Limit** değerini azar azar artır.
+3. İstediğin seviyeye gelene kadar vertex sayısını takip et.
+4. Dokuların esnememesi için **Delimit** altındaki **UVs** seçeneğini etkinleştir.
 
 <img
   src="/wiki-images/optimize-model-6.webp"
   alt="Angle Limit ve Delimit seçenekleriyle Planar modunda Decimate modifier'ı"
 />
 
-6. Değişikliğin dışa aktarmadan önce mesh'e işlenmesi için modifier'ın açılır okunu aç ve **Apply**'a tıkla.
+</Step>
+<Step>
+
+### Modifier'ı uygula
+
+1. Modifier'ın açılır okunu aç.
+2. Dışa aktarmadan önce değişikliği mesh'e işlemek için **Apply**'a tıkla.
+
+</Step>
+</Steps>
 
 <Callout type="info" title="İkisini birlikte kullan">
   Çok yüksek poligonlu modellerde önce mesafeye göre birleştir, sonra kalanını
-  Decimate ile azalt. Pay bırakmak için 60.000 vertex'in altını hedefle. Model
-  hazırlığıyla ilgili diğer adımlar için [3D Model Swap
+  Decimate ile azalt. Pay bırakmak için submesh başına 60.000 vertex'in altını
+  hedefle. Model hazırlığıyla ilgili diğer adımlar için [3D Model Swap
   rehberine](/docs/lol/blender/3d-model-swap) göz at.
 </Callout>
