@@ -1,0 +1,139 @@
+---
+title: "Ulti seviyesine göre yetenek VFX'ini değiştir"
+description: "Ruby'de bir seviye koşulu kur ve onunla bir yeteneğin partiküllerini yeniden renklendir ya da tamamen değiştir."
+category: "vfx-bins"
+authors:
+  - name: DAKA
+    url: https://github.com/sxrmss
+tags: ["Ruby", "BIN", "partiküller", "stencil", "ulti"]
+---
+
+<LevelPill level="intermediate" label="Orta" />
+
+## 1. Skin'indeki efekti bul
+
+Çıkardığın skin BIN dosyasını **Ruby → BIN editor → Resolver** içinde aç. **Table** görünümünde yeteneği bulmak için **Filter keys and systems** alanını kullan. Düzenlemek istediğin parçanın anahtarını bul: cast, missile ya da hedefe isabet gibi. Kontrol etmek için **VFX system** altında listelenen sistemi oynat. Satırda **linked BIN** yazıyorsa emitter'ları düzenlemek için o BIN dosyasını aç.
+
+Rimuru Tempest Talon'da giden alev için `Talon_Base_W_Mis_01`, geri dönen şeritler için `Talon_Base_W_Mis_02` kullandık. Hedefe isabet satırları düşmanın üzerinde ne göründüğünü belirler.
+
+![İki missile, bitiş noktası ve hedefe isabetler için ayrı Talon W girdilerini gösteren Ruby Resolver](/wiki-images/ultimate-rank-vfx/ruby-resolver.png)
+
+## 2. Skin'ine görünmez bir stencil writer ekle
+
+Writer, seviye koşulu aktifken ekranı işaretler. O seviyede değişen her yetenek için aynı writer'ı tekrar kullan.
+
+Kaydetmeden önce kod parçalarının hepsinde şu iki değişikliği yap:
+
+| Yer tutucu     | Ne yazmalısın                                                                                                                                                                                   |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `YourSkinPath` | Resolver tablonun en üstündeki yolu kopyala ve sondaki `/Resources` kısmını sil. Talon'un tablosunda `Characters/Talon/Skins/Skin0/Resources` yazıyor, yani öneki `Characters/Talon/Skins/Skin0`. |
+| `MySkin`       | Moduna özel bir ad seç. Writer anahtarında, maske ID'sinde ve doku klasöründe hep aynı adı kullan.                                                                                             |
+
+[stencil-black.dds](/wiki-images/ultimate-rank-vfx/stencil-black.dds) dosyasını indir ve çıkardığın WAD kök klasörüne göre `assets/MySkin/Particles/stencil-black.dds` konumuna koy. Verilen dokuyu olduğu gibi kullan. Siyah pikselleri additive blending ile görünmez kalır, opak alfası da writer'ın ekranı işaretlemesini sağlar.
+
+Bu sistemi skin BIN'inin en üst seviyedeki `entries` haritasına yapıştır. Senin Ruby sürümün sadece mevcut girdileri düzenliyorsa BIN'i Ritobin metnine dönüştür, girdiyi ekle, geri dönüştür ve Ruby'de yeniden aç.
+
+```py
+"YourSkinPath/Particles/MySkin_R3_Writer" = VfxSystemDefinitionData {
+    particleName: string = "MySkin_R3_Writer"
+    particlePath: string = "YourSkinPath/Particles/MySkin_R3_Writer"
+    visibilityRadius: f32 = 9999
+    flags: u16 = 6
+    complexEmitterDefinitionData: list[pointer] = {
+        VfxEmitterDefinitionData {
+            emitterName: string = "Rank3_StencilMask"
+            texture: string = "assets/MySkin/Particles/stencil-black.dds"
+            blendMode: u8 = 4
+            pass: i16 = -9999
+            importance: u8 = 3
+            isSingleParticle: flag = true
+            rate: embed = ValueFloat { constantValue: f32 = 1 }
+            particleLifetime: embed = ValueFloat { constantValue: f32 = -1 }
+            bindWeight: embed = ValueFloat { constantValue: f32 = 1 }
+            birthColor: embed = ValueColor { constantValue: vec4 = { 1, 1, 1, 1 } }
+            birthScale0: embed = ValueVector3 { constantValue: vec3 = { 900, 900, 900 } }
+            birthRotation0: embed = ValueVector3 { constantValue: vec3 = { 0, -270, 0 } }
+            stencilMode: u8 = 1
+            StencilReferenceId: hash = "MySkin_R3_Mask"
+            renderPhaseOverride: u8 = 4
+        }
+    }
+}
+```
+
+**Resolver → Table** görünümüne dön, writer anahtarını **Effect key** alanına yaz, **Pick a VFX system** altında writer'ı seç ve **Add** düğmesine tıkla. Yeni `resourceMap` satırını **Raw text** içinde kontrol et:
+
+```py
+"MySkin_R3_Writer" = "YourSkinPath/Particles/MySkin_R3_Writer"
+```
+
+## 3. Writer'ı hangi R seviyesinin açacağını seç
+
+**BIN editor → Skin → Raw text** içinde `SkinCharacterDataProperties` girdisini bul. Bu öğeyi `PersistentEffectConditions` listesinin içine, sona ekle. Liste yoksa `PersistentEffectConditions: list2[pointer] = { ... }` oluştur ve öğeyi içine koy. `effectKey` için writer'ının resolver anahtarını, `boneName` için de rig'inin zemin bağlantı noktasını kullan.
+
+```py
+PersistentEffectConditionData {
+    OwnerCondition: pointer = FloatComparisonMaterialDriver {
+        mValueA: pointer = SpellRankIntDriver { SpellSlot: u32 = 3 }
+        mValueB: pointer = FloatLiteralMaterialDriver { mValue: f32 = 3 }
+    }
+    PersistentVfxs: list2[embed] = {
+        PersistentVfxData {
+            effectKey: hash = "MySkin_R3_Writer"
+            AttachToCamera: bool = true
+            ShowToOwnerOnly: bool = true
+            boneName: string = "BuffBone_Glb_Ground_Loc"
+        }
+    }
+    ForceRenderVfx: bool = true
+}
+```
+
+Tetikleyici **R seviyesi** ise pasifi, Q'yu, W'yu ya da E'yi değiştiriyor olsan bile `SpellSlot = 3` değerini koru. `mValue` değerini istediğin **tam seviyeye** ayarla. Talon'un W'si `3` kullanıyor. Yani normal görünüm 0 ile 2 arasındaki seviyelerde oynar, yeni görünüm de oyuncu R'ye üçüncü puanı verdiği anda başlar.
+
+Yeni görünümü **sadece 2. seviyede** açmak için `mValue = 2` kullan. **2. ve 3. seviyede** açık kalması için koşulun iki kopyasını ekle, her değer için bir tane, ikisi de aynı writer'ı göstersin.
+
+## 4. Seçtiğin yeteneğin emitter'larını değiştir
+
+1. adımda bulduğun yetenek sistemini aç. `complexEmitterDefinitionData` alanını genişlet, görünür bir emitter'ı çoğalt ve kopyaya tanınabilir bir `emitterName` ver. Her emitter'da şu alanları ayarla:
+
+| Alan                       | Orijinal emitter   | Yeni emitter         |
+| -------------------------- | ------------------ | -------------------- |
+| `stencilMode: u8`          | `3` (maske farklı) | `2` (maske eşleşir)  |
+| `StencilReferenceId: hash` | `"MySkin_R3_Mask"` | `"MySkin_R3_Mask"`   |
+| `renderPhaseOverride: u8`  | `4`                | `4`                  |
+
+**Bir katmanı yeniden renklendirmek için** kopyanın `birthColor` değerini ya da `color` eğrisindeki RGB değerlerini düzenle. İlk önizleme için alfa eğrisini olduğu gibi bırak. Doku zaten güçlü bir renge sahipse orijinal alfayla nötr bir kopya, tonu çok daha iyi kontrol etmeni sağlar.
+
+**Efekti tamamen değiştirmek için** orijinal görsel katmanlara mod 3 ver. Yeni emitter'larını aynı sisteme yapıştır ve her birine mod 2 ver. Missile'a bir iz, hedefe bir isabet patlaması ya da buff'a kalıcı bir parıltı koy. Zamanlamayı ve bağlantıyı spell kendisi sağlar. Yeni emitter'larının kullandığı dokuları, mesh'leri ve ikincil maskeleri de dahil et.
+
+| R 3. seviyeden önce Talon W: mavi bıçak                                                                  | R 3. seviyede Talon W: mor çekirdek ve duman                                                                    |
+| -------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| ![Havadaki normal mavi bıçağın Ruby önizlemesi](/wiki-images/ultimate-rank-vfx/w-outbound-normal.png) | ![Arkasında duman bırakan gelişmiş mor çekirdeğin Ruby önizlemesi](/wiki-images/ultimate-rank-vfx/w-outbound-evolved.png) |
+
+Emme şeritlerini geri dönen missile'ı takip etsinler diye `Talon_Base_W_Mis_02` içine koyduk.
+
+![Üç ince emme şeridiyle gelişmiş dönüş missile'ının Ruby önizlemesi](/wiki-images/ultimate-rank-vfx/w-return-evolved.png)
+
+Her seviyede çizilmesi gereken katmanlara stencil alanlarını ekleme. Bir sesin ya da child efekt tetikleyicisinin iki kez çalmaması için her birinden tek kopya tut.
+
+### Her seviyede farklı bir görünüm istiyorsan
+
+Yukarıdaki geçiş, Talon'da test edilen sürüm. Kendi şampiyonunda dört farklı görünüm denemek için her seviyeye bir writer, bir resolver satırı ve bir tam seviye koşulu hazırla:
+
+| R seviyesi        | Writer anahtarı    | Stencil ID       |
+| ----------------- | ------------------ | ---------------- |
+| 0 (öğrenilmemiş) | `MySkin_R0_Writer` | `MySkin_R0_Mask` |
+| 1                 | `MySkin_R1_Writer` | `MySkin_R1_Mask` |
+| 2                 | `MySkin_R2_Writer` | `MySkin_R2_Mask` |
+| 3                 | `MySkin_R3_Writer` | `MySkin_R3_Mask` |
+
+0. seviye grubu dahil her görsel gruba kendi ID'siyle mod **2** ver. Aynı anda sadece bir writer aktif olmalı. Bunu başka yeteneklere uygulamadan önce her seviyede test et.
+
+## 5. Ruby'de önizle ve League'de test et
+
+1. BIN dosyanı kaydet. Bir **test kopyasında** ortak emitter'ları ve tek bir varyantı tut. O varyantı tek başına önizlemek için `stencilMode` ve `StencilReferenceId` alanlarını kaldır. Diğer varyant için aynısını temiz bir kopyada tekrarla. İkisini aynı zamanda ve aynı kamera açısında karşılaştır.
+2. Kaydettiğin modu Practice Tool'da yükle. Yeteneğini ya da pasifini R'yi öğrenmeden önce tetikle, sonra her R yükseltmesinden sonra tekrar tetikle. Geçişin yükseltmeyi takip ettiğini görmek için bir kez puanı harcamayı geciktir.
+3. Bir aşama eski renkte kalıyorsa o aşamanın kendi resolver satırını kontrol et. İki görünüm birden çıkıyorsa stencil'sız kalmış bir görsel katman ara. Yeni görünüm hiç çıkmıyorsa writer'ın resolver anahtarını, doku yolunu ve opak alfasını kontrol et. Writer ve iki emitter grubu da aynı stencil ID'sini ve render phase'i paylaşmalı.
+
+Writer yerel kamera görünümünü kaplar. Ayna maçında aynı skin'in başka bir örneği, yerel sahibin paletini gösterebilir.
