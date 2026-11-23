@@ -1,0 +1,139 @@
+---
+title: "Đổi VFX kỹ năng theo cấp chiêu cuối"
+description: "Tạo điều kiện theo cấp chiêu trong Ruby và dùng nó để đổi màu hoặc thay particle của một kỹ năng."
+category: "vfx-bins"
+authors:
+  - name: DAKA
+    url: https://github.com/sxrmss
+tags: ["Ruby", "BIN", "particle", "stencil", "chiêu cuối"]
+---
+
+<LevelPill level="intermediate" label="Trung bình" />
+
+## 1. Tìm hiệu ứng trên skin của bạn
+
+Mở BIN skin đã trích xuất trong **Ruby → BIN editor → Resolver**. Trong **Table**, dùng **Filter keys and systems** để tìm kỹ năng. Tìm khóa của phần bạn muốn sửa, ví dụ lúc tung chiêu, đường đạn hoặc lúc trúng mục tiêu. Phát system ghi ở cột **VFX system** để kiểm tra. Nếu dòng đó ghi **linked BIN**, mở BIN đó để sửa emitter.
+
+Với Rimuru Tempest Talon, chúng tôi dùng `Talon_Base_W_Mis_01` cho ngọn lửa bay ra và `Talon_Base_W_Mis_02` cho các dải sáng bay về. Các dòng trúng mục tiêu quyết định thứ hiện lên trên kẻ địch.
+
+![Resolver của Ruby hiện các entry W riêng của Talon cho cả hai đường đạn, điểm cuối và lúc trúng mục tiêu](/wiki-images/ultimate-rank-vfx/ruby-resolver.png)
+
+## 2. Thêm một writer stencil vô hình vào skin
+
+Writer đánh dấu màn hình trong lúc điều kiện cấp chiêu đang bật. Dùng lại cùng một writer cho mọi kỹ năng thay đổi ở cấp đó.
+
+Thay hai giá trị này ở mọi chỗ trong các đoạn mã trước khi lưu:
+
+| Giá trị mẫu    | Nhập gì                                                                                                                                                                                   |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `YourSkinPath` | Sao chép đường dẫn ở đầu bảng Resolver và bỏ phần `/Resources` ở cuối. Bảng của Talon hiện `Characters/Talon/Skins/Skin0/Resources`, nên tiền tố là `Characters/Talon/Skins/Skin0`. |
+| `MySkin`       | Chọn một cái tên chỉ mod của bạn dùng. Dùng thống nhất tên này trong khóa writer, ID mask và thư mục texture.                                                                                             |
+
+Tải [stencil-black.dds](/wiki-images/ultimate-rank-vfx/stencil-black.dds) và đặt vào `assets/MySkin/Particles/stencil-black.dds`, tính từ thư mục gốc của WAD đã trích xuất. Giữ nguyên texture được cung cấp. Pixel đen của nó vẫn vô hình khi hòa trộn cộng, còn alpha đục giúp writer đánh dấu được màn hình.
+
+Dán system này vào map `entries` cấp cao nhất của BIN skin. Nếu bản Ruby của bạn chỉ sửa được entry có sẵn, hãy chuyển BIN sang văn bản Ritobin, chèn entry, chuyển ngược lại rồi mở lại trong Ruby.
+
+```py
+"YourSkinPath/Particles/MySkin_R3_Writer" = VfxSystemDefinitionData {
+    particleName: string = "MySkin_R3_Writer"
+    particlePath: string = "YourSkinPath/Particles/MySkin_R3_Writer"
+    visibilityRadius: f32 = 9999
+    flags: u16 = 6
+    complexEmitterDefinitionData: list[pointer] = {
+        VfxEmitterDefinitionData {
+            emitterName: string = "Rank3_StencilMask"
+            texture: string = "assets/MySkin/Particles/stencil-black.dds"
+            blendMode: u8 = 4
+            pass: i16 = -9999
+            importance: u8 = 3
+            isSingleParticle: flag = true
+            rate: embed = ValueFloat { constantValue: f32 = 1 }
+            particleLifetime: embed = ValueFloat { constantValue: f32 = -1 }
+            bindWeight: embed = ValueFloat { constantValue: f32 = 1 }
+            birthColor: embed = ValueColor { constantValue: vec4 = { 1, 1, 1, 1 } }
+            birthScale0: embed = ValueVector3 { constantValue: vec3 = { 900, 900, 900 } }
+            birthRotation0: embed = ValueVector3 { constantValue: vec3 = { 0, -270, 0 } }
+            stencilMode: u8 = 1
+            StencilReferenceId: hash = "MySkin_R3_Mask"
+            renderPhaseOverride: u8 = 4
+        }
+    }
+}
+```
+
+Quay lại **Resolver → Table**, nhập khóa writer vào ô **Effect key**, chọn writer ở **Pick a VFX system** rồi nhấn **Add**. Kiểm tra dòng `resourceMap` mới trong **Raw text**:
+
+```py
+"MySkin_R3_Writer" = "YourSkinPath/Particles/MySkin_R3_Writer"
+```
+
+## 3. Chọn cấp R sẽ bật writer
+
+Trong **BIN editor → Skin → Raw text**, tìm `SkinCharacterDataProperties`. Thêm mục này vào bên trong `PersistentEffectConditions`. Nếu chưa có danh sách đó, tạo `PersistentEffectConditions: list2[pointer] = { ... }` rồi đặt mục vào bên trong. Dùng khóa resolver của writer cho `effectKey` và điểm gắn mặt đất của rig cho `boneName`.
+
+```py
+PersistentEffectConditionData {
+    OwnerCondition: pointer = FloatComparisonMaterialDriver {
+        mValueA: pointer = SpellRankIntDriver { SpellSlot: u32 = 3 }
+        mValueB: pointer = FloatLiteralMaterialDriver { mValue: f32 = 3 }
+    }
+    PersistentVfxs: list2[embed] = {
+        PersistentVfxData {
+            effectKey: hash = "MySkin_R3_Writer"
+            AttachToCamera: bool = true
+            ShowToOwnerOnly: bool = true
+            boneName: string = "BuffBone_Glb_Ground_Loc"
+        }
+    }
+    ForceRenderVfx: bool = true
+}
+```
+
+Giữ `SpellSlot = 3` khi điều kiện kích hoạt là **cấp R**, kể cả khi bạn đang đổi nội tại, Q, W hay E. Đặt `mValue` bằng **đúng cấp** bạn muốn. W của Talon dùng `3`, nên hiệu ứng thường chạy ở cấp 0 đến 2 và hiệu ứng mới bắt đầu khi người chơi cộng điểm thứ ba vào R.
+
+Để bật hiệu ứng mới **chỉ ở cấp 2**, dùng `mValue = 2`. Để giữ nó cho **cấp 2 và 3**, thêm hai bản sao điều kiện, mỗi bản một giá trị, cùng trỏ đến một writer.
+
+## 4. Đổi emitter trên kỹ năng đã chọn
+
+Mở system của kỹ năng bạn tìm được ở bước 1. Mở rộng `complexEmitterDefinitionData`, nhân bản một emitter đang hiển thị và đặt cho bản sao một `emitterName` dễ nhận ra. Đặt các trường này trên từng emitter:
+
+| Trường                     | Emitter gốc        | Emitter mới        |
+| -------------------------- | ------------------ | ------------------ |
+| `stencilMode: u8`          | `3` (mask khác) | `2` (mask khớp) |
+| `StencilReferenceId: hash` | `"MySkin_R3_Mask"` | `"MySkin_R3_Mask"` |
+| `renderPhaseOverride: u8`  | `4`                | `4`                |
+
+**Để đổi màu một lớp**, sửa `birthColor` hoặc giá trị RGB trong đường cong `color` của bản sao. Giữ đường cong alpha cho lần xem trước đầu tiên. Nếu texture đã có màu đậm, một bản sao trung tính với alpha gốc sẽ giúp bạn kiểm soát màu nhuộm tốt hơn.
+
+**Để thay hẳn hiệu ứng**, đặt mode 3 cho các lớp hình ảnh gốc. Dán emitter mới vào cùng system và đặt mode 2 cho từng cái. Gắn một vệt trail lên đường đạn, một vụ nổ lên mục tiêu bị trúng, hoặc một vầng sáng duy trì lên buff. Khi đó kỹ năng lo phần thời điểm và điểm gắn. Đừng quên kèm theo texture, mesh và mask phụ mà emitter mới của bạn dùng.
+
+| W của Talon trước R cấp 3: lưỡi dao xanh                                                                      | W của Talon ở R cấp 3: lõi tím và khói                                                                      |
+| -------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| ![Bản xem trước trong Ruby với lưỡi dao xanh thường đang bay](/wiki-images/ultimate-rank-vfx/w-outbound-normal.png) | ![Bản xem trước trong Ruby với lõi tím đã tiến hóa để lại vệt khói](/wiki-images/ultimate-rank-vfx/w-outbound-evolved.png) |
+
+Chúng tôi đặt các dải hút năng lượng trong `Talon_Base_W_Mis_02` để chúng bám theo đường đạn bay về.
+
+![Bản xem trước trong Ruby với đường đạn bay về đã tiến hóa và ba dải hút năng lượng mảnh](/wiki-images/ultimate-rank-vfx/w-return-evolved.png)
+
+Không thêm các trường stencil vào những lớp cần hiện ở mọi cấp. Chỉ giữ một bản cho mỗi trigger âm thanh hoặc hiệu ứng con, để chúng không bị phát hai lần.
+
+### Nếu bạn muốn mỗi cấp một kiểu riêng
+
+Cách chuyển ở trên là bản đã được thử trên Talon. Để thử bốn kiểu khác nhau trên tướng của bạn, tạo một writer, một dòng resolver và một điều kiện đúng cấp cho mỗi cấp:
+
+| Cấp R        | Khóa writer         | ID stencil       |
+| ------------- | ------------------ | ---------------- |
+| 0 (chưa học) | `MySkin_R0_Writer` | `MySkin_R0_Mask` |
+| 1             | `MySkin_R1_Writer` | `MySkin_R1_Mask` |
+| 2             | `MySkin_R2_Writer` | `MySkin_R2_Mask` |
+| 3             | `MySkin_R3_Writer` | `MySkin_R3_Mask` |
+
+Đặt mode **2** với ID riêng cho từng nhóm hình ảnh, kể cả nhóm cấp 0. Tại mỗi thời điểm chỉ được có đúng một writer đang bật. Thử bản mở rộng này ở mọi cấp trước khi áp dụng cho thêm kỹ năng khác.
+
+## 5. Xem trước trong Ruby và thử trong League
+
+1. Lưu BIN. Trong một **bản sao để thử**, giữ các emitter dùng chung và một biến thể. Xóa `stencilMode` và `StencilReferenceId` khỏi biến thể đó để xem riêng nó. Lặp lại với biến thể còn lại trong một bản sao mới. So sánh chúng ở cùng thời điểm và cùng góc camera.
+2. Nạp mod đã lưu vào Practice Tool. Dùng kỹ năng hoặc kích nội tại trước khi học R, rồi dùng lại sau mỗi lần nâng R. Có một lần hãy chờ một lúc rồi mới cộng điểm, để chắc rằng hiệu ứng đổi theo lúc nâng cấp.
+3. Nếu một giai đoạn vẫn giữ màu cũ, kiểm tra dòng resolver riêng của nó. Nếu cả hai kiểu cùng hiện, kiểm tra xem có lớp hình ảnh nào chưa được gắn stencil không. Nếu kiểu mới không bao giờ hiện, kiểm tra khóa resolver của writer, đường dẫn texture và alpha đục. Writer và cả hai nhóm emitter phải dùng chung ID stencil và render phase.
+
+Writer chỉ phủ góc nhìn camera trên máy bạn. Trong trận gương, một bản khác của cùng skin có thể hiện theo bảng màu của người chơi đang xem trên máy đó.
