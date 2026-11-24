@@ -1,0 +1,209 @@
+---
+title: "Update your mod after a game update"
+description: "A Genshin Impact update broke your mod? See what changed, fix hashes, ORFix lines or normal maps from your .blend, test the risky moments, and share the fix."
+category: "publishing"
+patch: "7.2"
+keywords:
+  [
+    "update genshin mod",
+    "genshin mod broke after update",
+    "new hashes",
+    "orfix",
+    "rebuild mod",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+A game update broke a mod you made. This guide shows how to find what changed, fix it from your own files, test it, and share the fixed version. It is written for creators. Fixing a mod you downloaded is a player task with its own guide, linked in the next section.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Blender" note="the file you exported from">
+    Your .blend file
+  </Requirement>
+  <Requirement
+    icon="Box"
+    href="/docs/genshin-impact/tools/blender-add-on"
+    note="newest version"
+  >
+    XXMI Tools
+  </Requirement>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/genshin-impact/tools/xxmi-launcher"
+    note="updated GIMI"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement
+    icon="GitHub"
+    href="https://github.com/SilentNightSound/GI-Model-Importer-Assets"
+    note="or your own new dump"
+  >
+    The current original files
+  </Requirement>
+</Requirements>
+
+## Rule out the player side first
+
+Many "my mod broke" reports are not about the mod at all. Before you change anything, run the player checks in [Fix your mods after a game update](/docs/genshin-impact/getting-started/fix-mods-after-an-update). In short:
+
+1. **Dynamic Character Resolution is Off** in the game's graphics settings. Updates and GPU drivers can turn it back on.
+2. **GIMI is up to date.** Open XXMI Launcher and let it update. The in-game banner shows the version, such as `GIMI 8.9.4`.
+3. **Your mod is the only one for that character.** Turn the others off and press `F10`.
+
+Still broken? Then the update changed something your mod depends on. Keep a zipped copy of the broken version before you start.
+
+## What updates break in Genshin Impact
+
+Genshin Impact updates break mods in a few ways. Each needs a different fix.
+
+| What you see                                           | What changed                                              | Fix                                           |
+| ------------------------------------------------------ | --------------------------------------------------------- | --------------------------------------------- |
+| Your mod does not show: the character looks original   | The character got new hashes                              | [New hashes](#new-hashes)                     |
+| Green, yellow or neon parts, or wrong reflections      | The game's shaders changed, or your ORFix lines are wrong | [ORFix and face lines](#orfix-and-face-lines) |
+| White face, or face makeup gone                        | The face texture line is old                              | [ORFix and face lines](#orfix-and-face-lines) |
+| Odd lighting or stray lines on parts with a normal map | Your normal maps are older than version 5.4               | [Normal maps](#normal-maps)                   |
+
+Dates that matter, newest first:
+
+- **7.2 (2026-11-04):** Odette and Vesna got new hashes. No other character changed. Hash changes have become rare.
+- **6.1 (2025-10-22):** the game moved its texture slots. Every part except the face now needs an ORFix or NNFix line, and the face texture uses `this =`. Guides older than this date may be wrong.
+- **5.4 (2025-02-12):** normal maps changed to a new format, often called heightmaps. No script converts the old ones.
+- **Most other updates:** the ORFix library inside GIMI is updated, and XXMI Launcher installs that for everyone. Your mod usually needs nothing.
+
+## Find what changed
+
+<img
+  src="/wiki-images/genshin-impact-publishing-update-your-mod-1.webp"
+  alt="The GIMI-Package releases page on GitHub, showing release v8.9.4 with the note ORFix: Fixes Escoffier Tail LOD"
+/>
+
+1. Read the [GIMI-Package release notes](https://github.com/SilentNightSound/GIMI-Package/releases). On update day there is usually a release like "ORFix: First release for version 7.2". The releases after it list each fix, such as `ORFix: Fixes Escoffier Tail LOD`.
+2. Read the update log of the [Fix All Character Mods](https://gamebanana.com/tools/16433) tool. It names every character that got new hashes, such as "7.2 / Odette and Vesna new hashes".
+3. Wait a few days if your mod only breaks in one moment, such as a burst or from a distance. GIMI usually gets one to five follow-up releases in the two weeks after an update. They fix bursts, distance models, frozen and Nightsoul looks, and new characters.
+
+## Update your tools
+
+1. Open XXMI Launcher. It updates GIMI and its libraries when it starts.
+2. Update XXMI Tools in Blender to the newest version. This guide was written for XXMI Tools 1.8.2.
+3. Get the current original files for your character. Download the character's folder from the asset repo again, or make a new dump if the repo does not have the update yet. The asset repo has no 7.x characters at the time of writing. [Make a frame dump](/docs/genshin-impact/basics/frame-dump) shows how.
+
+## Fix the mod
+
+### New hashes
+
+The character's data got new fingerprints, so GIMI no longer finds your mod's sections. Pick one way:
+
+- **Export again.** Keep the new folder's name the same as the old one. In the XXMI Tools panel, set **Dump Folder** to the new folder and click **Export Mod**. The export reads the hashes from the new `hash.json`.
+- **Replace the hashes by hand.** Open the old and new `hash.json` side by side. In your `.ini`, replace each old hash with the new one. For example, version 5.4 changed Mavuika's body from `4e654846` to `00088f8d`.
+- **Run the official fix tool on a copy** of your mod, then compare the copy's `.ini` with yours to see which lines it changed.
+
+{/* NEEDS HANDS-ON TEST: that XXMI Tools 1.8.2 writes the new hashes when a .blend imported from an old dump is exported with Dump Folder set to the new dump folder */}
+
+If the update also changed the mesh itself, the vertex count or the weights, new hashes are not enough. Import the new dump and move your edits onto the new objects. Version 7.2 changed no weights for Odette and Vesna.
+
+### ORFix and face lines
+
+A mod exported with XXMI Tools 1.8.2 already has the right lines: each part runs `run = CommandList\GIMI\SetTextures`, which applies ORFix for you. If your mod was exported before 6.1, the cleanest fix is to export it again from your `.blend`.
+
+If you wrote or edited the `.ini` by hand, check each part's section:
+
+```ini
+; part with a normal map
+run = CommandList\global\ORFix\ORFix
+
+; part without a normal map
+run = CommandList\global\ORFix\NNFix
+```
+
+- Never put either line in a face section.
+- Face diffuse sections use `this =`, not `ps-t0 =`.
+- Never copy `ORFix.ini` into your mod. GIMI already has it.
+
+[Fix an old mod by hand](/docs/genshin-impact/ini/fix-an-old-mod) walks through every line, with the face fix and merged mods.
+
+### Normal maps
+
+Your mod ships its own normal maps made before 5.4? No tool converts them. Take the new `NormalMap.dds` for each part from the asset repo or your new dump, and redo your changes on it. Save it in the same format as the new original.
+
+### A changed file format
+
+If the release notes say the buffer format changed, update XXMI Tools and export again from your `.blend`. A finished mod cannot be imported back into Blender, so the `.blend` is your only way to rebuild. Without it, you can only patch the `.ini` by hand.
+
+## Test the risky moments
+
+A fix that looks right in the character screen can still break in action. Hide the character, press `F10`, bring it back, and check:
+
+1. The character screen, then running and attacking.
+2. The elemental burst.
+3. The character from far away, where the game draws a simpler model.
+4. The character frozen, and the character falling in battle.
+5. Nightsoul, for Natlan characters.
+6. Hold `F9` to compare with the original model.
+
+These are the moments ORFix handles with their own shaders, so they break first after an update.
+
+{/* NEEDS HANDS-ON TEST: which of these moments still draw a modded Genshin Impact character with a different shader on 7.2 */}
+
+## Share the fixed version
+
+1. Raise the version number, and add a line to the readme: `v1.1 (Genshin Impact 7.2): new hashes for 7.2`.
+2. Change the "Tested on" line to the new game version.
+3. Run the archive test from the publishing checklist again.
+4. Replace the old file in the same place you shared it first, not as a new mod. Players and mod managers look for updates there.
+5. Keep your `.blend` file and a copy of each version you shared.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The fixed mod still looks original" id="still-original">
+
+Some sections still hold old hashes, or the old version of your mod is still in `Mods`. Search the `.ini` for every old hash from `hash.json`. Keep only one copy of the mod in `Mods`, then press `F10`.
+
+</Accordion>
+<Accordion title="Players say the mod broke after they ran a fix tool" id="fixed-twice">
+
+A fix tool run on a mod that is already fixed, or run twice, can break it. In your readme, say the mod is fixed for the new version and needs no fix tool.
+
+</Accordion>
+<Accordion title="You lost your .blend file" id="lost-blend">
+
+XXMI Tools cannot import a finished mod. Hash and ORFix fixes still work in the `.ini` by hand. A changed mesh means you must rebuild the edit from a new import.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/genshin-impact/publishing/publishing-checklist"
+    icon={<Icon name="ListChecks" />}
+    level="beginner"
+    featured
+  >
+    Check the folder, the readme and the archive before you share the fix.
+  </PremiumCard>
+  <PremiumCard
+    title="Update fix tools"
+    href="/docs/genshin-impact/tools/update-fixers"
+    icon={<Icon name="Wrench" />}
+    level="beginner"
+  >
+    What each fix tool does, and how to spot a fake one.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Genshin 6.1 Mod Break Info + Rule Updates](https://gamebanana.com/news/21936) by SilentNightSound and Gustav0.
+- **Guide:** [Genshin 5.4 Update Issues and Fixes](https://gamebanana.com/news/21895) by SilentNightSound.
+- **Tool:** [GIMI-Package releases](https://github.com/SilentNightSound/GIMI-Package/releases) by SilentNightSound, LeoTorreZ and contributors.
+- **Tool:** [7.2 Fix All Character Mods!](https://gamebanana.com/tools/16433) by SilentNightSound and Gustav0.
+- **Tool:** [XXMI Tools](https://github.com/leotorrez/XXMITools) by LeoTorreZ and contributors.

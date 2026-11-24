@@ -1,0 +1,265 @@
+---
+title: "XXMI Launcher settings"
+description: "Every XXMI Launcher setting for Genshin Impact explained: the GIMI tab, game settings, updates, repair, moving and uninstalling the launcher."
+category: "tools"
+patch: "7.2"
+keywords: ["xxmi launcher", "xxmi launcher settings", "gimi", "genshin mods"]
+---
+
+<LevelPill level="beginner" />
+
+<ToolHeader
+  name="XXMI Launcher"
+  icon="XXMILauncher"
+  badge="Required"
+  facts={["Free", "Open source (GPL-3.0)", "Windows", "v2.5.0"]}
+  primary={{
+    label: "Download",
+    href: "https://github.com/SpectrumQT/XXMI-Launcher/releases/latest",
+  }}
+  links={[
+    { label: "GitHub", href: "https://github.com/SpectrumQT/XXMI-Launcher" },
+  ]}
+>
+  Installs, updates, and starts GIMI, the Genshin Impact model importer. By
+  SpectrumQT.
+</ToolHeader>
+
+XXMI Launcher is the only app you need to load Genshin Impact mods. It downloads GIMI and the XXMI DLL, keeps them up to date, and starts the game with your mods. This page explains every setting. For the first install, follow [Install mods with XXMI Launcher](/docs/genshin-impact/getting-started/install-with-xxmi-launcher).
+
+Written for XXMI Launcher 2.5.0, XXMI DLL 1.3.2, and GIMI 8.9.4 on Genshin Impact 7.2.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="GenshinImpact" note="HoYoPlay or Epic Games">
+    Genshin Impact
+  </Requirement>
+  <Requirement icon="Monitor">Windows PC</Requirement>
+  <Requirement icon="ShieldCheck">An administrator account</Requirement>
+</Requirements>
+
+The launcher needs admin rights, so Windows asks for permission each time it starts. XXMI Launcher is free. Never pay for it.
+
+## Get the real launcher
+
+Download it only from the [GitHub releases page](https://github.com/SpectrumQT/XXMI-Launcher/releases/latest). Each release has two files:
+
+- `XXMI-Launcher-Installer-Online-v2.5.0.msi`: the normal installer. Pick this one.
+- `XXMI-Launcher-Portable-v2.5.0.zip`: a portable copy. Install the Microsoft Visual C++ Redistributable (x64) first, extract it outside Program Files, and run `Resources\Bin\XXMI Launcher.exe`.
+
+<img
+  src="/wiki-images/genshin-impact-tools-xxmi-launcher-1.webp"
+  alt="The Assets list on the XXMI Launcher v2.5.0 release page, with the .msi installer and the portable .zip"
+/>
+
+The files are not code-signed. Windows SmartScreen and some antivirus apps warn about them. That is a known false alarm for this launcher, not a reason to turn your antivirus off. [XXMI Launcher problems](/docs/genshin-impact/errors/launcher-problems) shows how to restore files from quarantine.
+
+{/* NEEDS HANDS-ON TEST: the exact SmartScreen text shown for the unsigned XXMI Launcher 2.5.0 msi. */}
+
+## Where everything lives
+
+The installer puts the launcher in `%AppData%\XXMI Launcher`. GIMI and your mods sit in a `GIMI` folder inside it.
+
+<Files>
+  <Folder name="XXMI Launcher" defaultOpen>
+    <Folder name="Backups" />
+    <Folder name="Resources" />
+    <Folder name="GIMI" defaultOpen>
+      <Folder name="Core" />
+      <Folder name="Mods" />
+      <Folder name="ShaderFixes" />
+      <File name="d3dx.ini: written by the launcher" />
+      <File name="d3dx_user.ini: your saved mod toggles" />
+    </Folder>
+    <File name="XXMI Launcher Config.json: your settings" />
+    <File name="XXMI Launcher Log.txt: the log for bug reports" />
+  </Folder>
+</Files>
+
+- `GIMI\Mods` is where your mods go. Updates never touch it.
+- `GIMI\Core` holds GIMI itself, including its libraries (ORFix, NNFix, TexFx and others). Do not edit it: the next update replaces it.
+- `GIMI\ShaderFixes` holds shader files that GIMI ships. Never empty it.
+- `Backups` keeps a copy of your settings and of `d3dx.ini` before each GIMI update.
+
+## What Start does
+
+Each time you press **Start**, the launcher:
+
+1. Closes Genshin Impact if it is already running.
+2. Puts the XXMI DLL in the `GIMI` folder and checks its signature.
+3. Writes your settings into `GIMI\d3dx.ini`.
+4. Checks your `Mods` folder for files that break other mods (the Mod Optimizer, below).
+5. Turns `Dynamic Character Resolution` off in Genshin, if that setting is on.
+6. Starts the game and loads GIMI into it.
+7. Closes itself, unless you changed that.
+
+Start does not update the game. Update Genshin Impact in HoYoPlay or Epic Games first, then press **Start**.
+
+## The 3-dots menu
+
+The button with three dots next to **Start** opens these tools:
+
+| Item                     | What it does                                                                         |
+| ------------------------ | ------------------------------------------------------------------------------------ |
+| **Repair GIMI**          | Downloads GIMI and the XXMI DLL again and reinstalls them. Your mods stay.           |
+| **Check For Updates**    | Looks for new versions now. Shows "No updates available!" if there are none.         |
+| **Add Desktop Shortcut** | Adds a `GIMI Quick Start` shortcut that starts the game without the launcher window. |
+| **Optimize Mods**        | Runs the Mod Optimizer by hand. It also runs on every Start.                         |
+| **Open Mods Folder**     | Opens `GIMI\Mods` in File Explorer.                                                  |
+
+The Mod Optimizer turns off a stray `d3dx.ini` inside `Mods`, extra copies of GIMI's libraries, and lines that slow the game down. It renames the bad files with a `DISABLED_` prefix. If you find `ORFix.ini`, `ORFixAPI.ini`, `Region.ini` or `Offset.ini` loose in your `Mods` folder, delete them. GIMI already has them.
+
+## The settings window
+
+Click the gear in the top-right corner to open the settings. The window has four tabs: **General**, **Launcher**, **GIMI**, and **Advanced**. Your changes save when you close the window.
+
+{/* SCREENSHOT: genshin-impact-tools-xxmi-launcher-3.webp, XXMI Launcher 2.5.0 settings window on the GIMI tab, with GIMI selected. No settings-window screenshot of launcher 2.4.1 or newer exists in the sources. */}
+
+### General tab
+
+| Setting                              | Default       | What to do                                                                                                        |
+| ------------------------------------ | ------------- | ----------------------------------------------------------------------------------------------------------------- |
+| **Game Launch**                      | `Direct`      | Keep `Direct` for HoYoPlay. Genshin Impact is not on Steam.                                                       |
+| **Game Folder**                      | found for you | The folder that directly holds `GenshinImpact.exe`. Use **Detect Installations** or **Browse...** if it is empty. |
+| **Launch Options**                   | empty         | Leave it empty.                                                                                                   |
+| **Game Executable Run Method**       | `Shell`       | Keep the default.                                                                                                 |
+| **Game Process Launch Wait Timeout** | `30` seconds  | Raise it on a slow PC if the launcher says the game "did not start within 30s".                                   |
+| **Configure Game Settings For GIMI** | on            | Keep it on. It turns `Dynamic Character Resolution` off before every start.                                       |
+| **Enable HDR**                       | off           | Keep it off unless you use HDR and tested it with mods.                                                           |
+
+**Epic Games players:** the launcher code handles Epic installs with `Direct` when **Game Folder** points at the Epic copy. An `Epic Games` launch mode also exists.
+
+{/* NEEDS HANDS-ON TEST: whether Genshin Impact from Epic Games starts with mods using Game Launch = Direct, Epic Games, or both, on launcher 2.5.0. */}
+
+`Configure Game Settings For GIMI` changes a Windows registry value that Genshin Impact creates. Start the game once from HoYoPlay or Epic before your first modded start. If you skip that, the launcher shows "Genshin Impact registry key is not found!".
+
+<img
+  src="/wiki-images/genshin-impact-tools-xxmi-launcher-2.webp"
+  alt="Genshin Impact graphics settings with Dynamic Character Resolution set to Off"
+/>
+
+A GPU driver update can turn `Dynamic Character Resolution` back on. If your mods look broken after a driver update, check it in <MenuPath path="Settings > Graphics" /> in game.
+
+### Launcher tab
+
+| Setting                             | Default           | What to do                                                                              |
+| ----------------------------------- | ----------------- | --------------------------------------------------------------------------------------- |
+| **Close Launcher After Game Start** | on                | Turn off to keep the window open.                                                       |
+| **UI Theme**, **Window Scale**      | `Default`, `Auto` | Change the look and size.                                                               |
+| **Auto Update**                     | on                | Keep it on. Turned off, an up-arrow button appears next to **Start** when updates wait. |
+| **Overwrite d3dx.ini**              | on                | Keep it on. Updates replace `d3dx.ini` after a backup.                                  |
+| **GitHub Token**                    | empty             | Add one only if you see "GitHub API requests limit reached".                            |
+| **Verify SSL**, **Use Proxy**       | on, off           | Change only if your network blocks GitHub.                                              |
+
+### GIMI tab
+
+| Setting                                         | Default                     | What to do                                                                             |
+| ----------------------------------------------- | --------------------------- | -------------------------------------------------------------------------------------- |
+| **GIMI Folder**                                 | `GIMI/` inside the launcher | Where `Mods`, `Core` and `d3dx.ini` live. It must be outside the game folder.          |
+| **XXMI DLL Injection Mode**                     | `Hook`                      | Keep the default.                                                                      |
+| **Manage XXMI DLL Config**                      | on                          | Keep it on. Off, the launcher stops writing `d3dx.ini`.                                |
+| **Configure XXMI DLL for GIMI**                 | on                          | Keep it on. It sets what GIMI needs to work.                                           |
+| **XXMI DLL Initialization Delay**               | `0` ms                      | If the game crashes at start even with no mods, raise it in steps of 50.               |
+| **Mute Warnings**                               | on                          | Turn off while you look for a broken mod. Error text then shows on screen after `F10`. |
+| **Clear Unknown Mod Settings**                  | on                          | Removes saved toggles of mods you deleted.                                             |
+| **Enable By Default**, **Input Disabling Mode** | on, `Mods`                  | Mod hotkeys work from the start. `Ctrl+Alt+Shift+End` turns them on or off.            |
+| **Enable Hunting**                              | off                         | Turn on only to make mods. It allows hunting mode on `Numpad 0`.                       |
+| **Dump Shaders**                                | off                         | For creators. Copying a hash also saves the shader.                                    |
+| **Log File Output Verbosity**                   | `Disabled`                  | Keep `Disabled`. Debug logs grow very large.                                           |
+
+### Advanced tab
+
+This tab runs extra commands or loads extra files with the game. Leave every option off. Mods do not need any of them. The one common exception is starting a mod manager with the game, which [Mod managers compared](/docs/genshin-impact/tools/mod-managers) explains.
+
+## Update, repair, move, and uninstall
+
+<Steps>
+<Step>
+
+### Update
+
+With **Auto Update** on, the launcher updates itself, the XXMI DLL, and GIMI when you open it. To check by hand, open the 3-dots menu and click **Check For Updates**. An update replaces `Core` and `d3dx.ini`, and never touches `Mods`.
+
+</Step>
+<Step>
+
+### Repair
+
+Open the 3-dots menu and click **Repair GIMI**. Do this after you repair the game in HoYoPlay, or when GIMI files are missing. If you added your own files to `ShaderFixes`, remove only those first, then repair.
+
+</Step>
+<Step>
+
+### Move your mods
+
+1. Close the launcher.
+2. Copy the whole `GIMI` folder to the new place, for example `C:\Games\GIMI`.
+3. Open the settings, go to the **GIMI** tab, and set **GIMI Folder** to the new path.
+
+{/* NEEDS HANDS-ON TEST: whether changing GIMI Folder moves the files by itself, or expects you to copy the folder first as written. */}
+
+</Step>
+<Step>
+
+### Uninstall
+
+1. Back up `GIMI\Mods`, and `GIMI\d3dx_user.ini` if you want to keep your toggles.
+2. Open <MenuPath path="Windows Settings > Apps" />, find XXMI Launcher, and click **Uninstall**. For the portable copy, delete its folder and shortcuts.
+3. Delete the leftover `GIMI` folder if you no longer want your mods.
+
+`Dynamic Character Resolution` stays off until you change it in game.
+
+{/* NEEDS HANDS-ON TEST: which folders the 2.5.0 msi uninstaller leaves behind (GIMI, Backups, XXMI Launcher Config.json). */}
+
+</Step>
+</Steps>
+
+## Hand edits to config files
+
+Use the launcher settings when one exists. Edits to files in `Core` are lost at the next GIMI update. Edits to `d3dx.ini` are lost too, unless you turn off **Overwrite d3dx.ini**, and the launcher rewrites some lines on every Start. The old file goes to `Backups\GIMI <date>` before each update.
+
+## Command line
+
+The `GIMI Quick Start` shortcut runs the launcher with options. You can use them in your own shortcut:
+
+```text
+"%AppData%\XXMI Launcher\Resources\Bin\XXMI Launcher.exe" --nogui --xxmi GIMI
+```
+
+- `--nogui --xxmi GIMI` starts Genshin Impact with mods, with no launcher window.
+- `--update` checks for updates first.
+
+## Common problems
+
+Antivirus alerts, GitHub connection errors, and a launcher that will not open are on [XXMI Launcher problems](/docs/genshin-impact/errors/launcher-problems). If the game starts but your mods do not show, see [Mods not loading](/docs/genshin-impact/errors/mods-not-loading).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Add, turn off, and remove mods"
+    href="/docs/genshin-impact/getting-started/manage-mods"
+    icon={<Icon name="FolderOpen" />}
+    level="beginner"
+  >
+    Put mods in the Mods folder and switch them on and off.
+  </PremiumCard>
+  <PremiumCard
+    title="Fix your mods after a game update"
+    href="/docs/genshin-impact/getting-started/fix-mods-after-an-update"
+    icon={<Icon name="RefreshCw" />}
+    level="beginner"
+  >
+    What to do when a new Genshin Impact version breaks your mods.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This page is based on the work of these creators. Check out their original pages.
+
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT. Setting names and defaults come from its source code and English locale file.
+- **Tool:** [GIMI-Package](https://github.com/SilentNightSound/GIMI-Package) by SilentNightSound and the GIMI maintainers.
+- **Guide:** [Launchers](https://leotorrez.github.io/modding/guides/launchers) by LeoTorreZ.
+- **Images:** screenshot 2 from [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ and contributors.

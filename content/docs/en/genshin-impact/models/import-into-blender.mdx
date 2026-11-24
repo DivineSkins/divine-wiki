@@ -1,0 +1,222 @@
+---
+title: "Get a model into Blender"
+description: "Import a Genshin Impact character into Blender with XXMI Tools and the Genshin Impact preset, and learn what the imported objects hold before you edit them."
+category: "models"
+patch: "7.2"
+keywords:
+  ["genshin blender import", "xxmi dump import", "xxmi tools", "gimi blender"]
+---
+
+<LevelPill level="intermediate" />
+
+Every model mod starts from the character's original model. This page loads it into Blender with XXMI Tools, the right way, so it can export later. You need Blender and XXMI Tools installed, and the character's dump folder. Written for XXMI Tools 1.8.2 on Blender 4.5 LTS.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="Blender"
+    href="https://www.blender.org/download/lts/"
+    note="4.5 LTS"
+  >
+    Blender
+  </Requirement>
+  <Requirement
+    icon="Box"
+    href="/docs/genshin-impact/tools/blender-add-on"
+    note="1.8.2"
+  >
+    XXMI Tools
+  </Requirement>
+  <Requirement icon="FolderOpen" note="asset repo or frame dump">
+    A character dump folder
+  </Requirement>
+</Requirements>
+
+Nothing installed yet? [Set up your creator tools](/docs/genshin-impact/getting-started/creator-setup) installs Blender and XXMI Tools and shows how to download one character folder.
+
+<img
+  src="/wiki-images/genshin-impact-models-import-into-blender-1.webp"
+  alt="The Mona dump folder with its ib and vb0 text files and hash.json, imported with XXMI Dump and the Genshin Impact preset, gives the objects MonaHead and MonaBody with vertex groups, a TEXCOORD.xy UV map, a COLOR attribute and 3DMigoto properties"
+/>
+
+## Get the original model
+
+You import a **dump**: a folder with the character's buffers as `.txt` files, its textures and a `hash.json` file. It comes from one of two places:
+
+- **The asset repo.** [GI-Model-Importer-Assets](https://github.com/SilentNightSound/GI-Model-Importer-Assets) has a folder per character in `PlayerCharacterData`, for example `Mona` or `Furina`. Outfits have their own folder, such as `AyakaSpringbloom`. Download only that one folder, never the whole repo.
+- **Your own frame dump.** The repo has no 7.x characters (Odette, Alyosha, Vesna, Mitya, Valeriy) and no Lan Yan. For those, [make a frame dump](/docs/genshin-impact/basics/frame-dump) and extract the character with gui_collect.
+
+Put the folder somewhere it can stay, for example `Modding\Dumps\Mona`. Then follow two rules:
+
+- **Never rename the folder.** XXMI Tools uses its name to find your objects and to name the mod.
+- **Never delete or edit `hash.json`.** Export reads every hash from it.
+
+<Callout type="warning" title="A finished mod is not a dump">
+  XXMI Tools imports dumps only. You cannot import a mod you or someone else
+  exported, so keep your own `.blend` file for every mod you make.
+</Callout>
+
+## Import the character
+
+<Steps>
+<Step>
+
+### Start an empty scene
+
+1. Open Blender 4.5 LTS.
+2. Click in the 3D Viewport, press `A` to select everything, then press `X` and choose **Delete**. This removes the default cube, camera and light.
+
+</Step>
+<Step>
+
+### Open the XXMI Dump importer
+
+1. Open <MenuPath path="File > Import > XXMI Dump(vb.txt + ib.txt)" />.
+2. Go into the character's dump folder, the one that holds `hash.json`.
+3. Select every file the browser shows. It lists only the `.txt`, `.buf` and `.fmt` files.
+
+Older videos use `3DMigoto frame analysis dump (vb.txt + ib.txt)` instead. It still works with its defaults, but the steps below use the newer importer.
+
+</Step>
+<Step>
+
+### Pick the Genshin Impact preset
+
+On the right side of the file browser:
+
+1. Leave **Simple mode** ticked.
+2. Set **Game preset** to `Genshin Impact`. The red box "You must select a game" goes away.
+3. Optional: tick **Create Materials** to see the textures later.
+4. Leave **Merge Vertices**, **Tris to Quads** and **Clean Loose** off.
+5. Click the import button at the bottom right.
+
+The preset sets the rest for you: it flips the UVs and the mesh the way Genshin Impact needs, and turns the model upright. Do not change the flip or axis options by hand. If you do, the preset switches back to `None` without a warning.
+
+{/* SCREENSHOT: genshin-impact-models-import-into-blender-2.webp, Blender 4.5 file browser in the Mona dump folder with all files selected, and the XXMI Dump panel on the right showing Simple mode ticked and Game preset set to Genshin Impact */}
+
+{/* NEEDS HANDS-ON TEST: the label of the import button in the XXMI Tools 1.8.2 file browser, and that Simple mode with the Genshin Impact preset imports a GI-Model-Importer-Assets folder of .txt files without extra settings */}
+
+</Step>
+<Step>
+
+### Save your .blend file
+
+Open <MenuPath path="File > Save As" /> and save the file in your work folder, for example `Modding\Blend\Mona.blend`. Save often from now on.
+
+</Step>
+</Steps>
+
+## What you see after import
+
+The character shows up as one object per part. Mona gives `MonaHead` and `MonaBody`. Other characters also have `Dress` or `Extra`, and newer ones have extra components, like Furina's `FurinaPonytailHead`. [Character names and parts](/docs/genshin-impact/basics/character-names-and-parts) explains these names.
+
+{/* NEEDS HANDS-ON TEST: the exact object names XXMI Tools 1.8.2 gives on import (MonaHead, or the full file name with -vb0=hash) */}
+
+Each object carries data that export needs. Edit the mesh as you like, but keep these:
+
+| What                                  | Where in Blender                                                                                                    | Why it matters                                                  |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| The object name                       | Outliner                                                                                                            | Export finds each part by its name.                             |
+| Vertex groups `0`, `1`, `2` ...       | <MenuPath path="Object Data Properties > Vertex Groups" />                                                          | They are the game's bone numbers. Some are empty but must stay. |
+| UV maps `TEXCOORD.xy`, `TEXCOORD1.xy` | <MenuPath path="Object Data Properties > UV Maps" />                                                                | Export looks for these exact names.                             |
+| Color attribute `COLOR`               | <MenuPath path="Object Data Properties > Color Attributes" />                                                       | Game data for shading and outlines, not paint.                  |
+| `3DMigoto:` custom properties         | <MenuPath path="Object Properties > Custom Properties" />, or the sidebar panel **XXMI Object's Custom properties** | They hold the buffer format. Never edit them.                   |
+
+Three more things look odd but are normal:
+
+- **The mesh looks cut into pieces.** Vertices are split along UV and shading seams. Leave them split unless you plan to sculpt.
+- **There is no skeleton.** XXMI Tools imports no armature. The vertex groups still tell the game which bone moves which vertex.
+- **There is no face mesh.** A Genshin Impact face is texture-only in a dump. Changing its shape needs separate face tools.
+
+## Line up new parts with the original
+
+The preset stands the character upright. Old GIMI guides tell you to rotate new models by 90 degrees. Do not do that here. Place anything you add on top of the imported original, so it lines up in Blender, and apply its transforms before you join it in.
+
+{/* NEEDS HANDS-ON TEST: whether a model lined up with a Genshin Impact preset import still needs the old 90 degree rotation */}
+
+## Keep a clean reference copy
+
+Later you copy weights and vertex colors from the original. Keep an untouched copy for that:
+
+1. Right-click in the Outliner and choose **New Collection**. Name it `Reference`.
+2. Select the imported objects and press `Shift+D`, then right-click to drop the copies in place.
+3. Press `M` and move the copies into `Reference`.
+4. Click the eye icon of `Reference` to hide it.
+
+Keep it hidden when you export. Copies are named like `MonaHead.001`, and two visible objects that start with the same part name stop the export.
+
+## See the textures (optional)
+
+If you ticked **Create Materials**, each part has a material with its diffuse texture.
+
+1. Press `Z` in the 3D Viewport and choose **Material Preview**.
+2. If the colors look washed out, set <MenuPath path="Render Properties > Color Management > View Transform" /> to `Standard`.
+
+{/* NEEDS HANDS-ON TEST: whether Blender 4.5 shows the BC7 diffuse textures from the asset repo with Create Materials, or needs a DDS add-on or PNG copies */}
+
+## Clean up before you sculpt (optional)
+
+Skip this for a first edit like removing a part. Do it only when you will sculpt or select edge loops:
+
+1. Select an object and press `Tab` for Edit Mode, then `A` to select all.
+2. Open <MenuPath path="Mesh > Clean Up > Delete Loose" /> to remove stray vertices.
+3. Press `M` and choose **By Distance**. Set the distance to `0.0001 m` and tick **Sharp Edges**, so the shading survives.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title='A red box says "You must select a game"' id="select-a-game">
+
+Simple mode needs a preset. Set **Game preset** to `Genshin Impact`. The same cause gives the error `Simple mode can only export the specified games. Select one from the list to proceed or disable simple mode.`
+
+</Accordion>
+<Accordion title='"Unable to find corresponding buffers"' id="not-a-dump">
+
+You selected files that are not dump buffers, such as a finished mod's `.buf`, `.ini` or textures. Import a dump folder with `-ib=` and `-vb0=` files instead.
+
+</Accordion>
+<Accordion title='"Corresponding .buf files not found - using .txt files"' id="txt-instead-of-buf">
+
+This warning is harmless. Asset repo folders hold `.txt` buffers, and the importer reads those instead.
+
+</Accordion>
+<Accordion title="XXMI Dump is missing from File > Import" id="no-importer">
+
+XXMI Tools is not installed or not enabled. Tick `XXMI_Tools` in <MenuPath path="Edit > Preferences > Add-ons" /> and restart Blender. Remove any old 3DMigoto add-on first.
+
+</Accordion>
+</Accordions>
+
+More import and export messages are on [Blender export and import errors](/docs/genshin-impact/errors/creator-errors).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Your first model edit: remove a part"
+    href="/docs/genshin-impact/models/remove-a-part"
+    icon={<Icon name="Scissors" />}
+    level="intermediate"
+    featured
+  >
+    Delete Mona's hat, export the mod and see it in game.
+  </PremiumCard>
+  <PremiumCard
+    title="Export your mod from Blender"
+    href="/docs/genshin-impact/models/export-your-mod"
+    icon={<Icon name="PackageCheck" />}
+    level="intermediate"
+  >
+    The naming and data rules that make an export work.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [XXMI Tools guide](https://leotorrez.github.io/modding/guides/xxmi_tools) by LeoTorreZ.
+- **Guide:** [Mona Hat Removal Walkthrough](https://leotorrez.github.io/modding/guides/mona-hat) by SilentNightSound, on LeoTorrez's modding site.
+- **Tool:** [XXMI Tools](https://github.com/leotorrez/XXMITools) by LeoTorreZ and contributors.
+- **Tool:** [GI-Model-Importer-Assets](https://github.com/SilentNightSound/GI-Model-Importer-Assets) by SilentNightSound.

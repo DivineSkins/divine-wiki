@@ -1,0 +1,238 @@
+---
+title: "Your first model edit: remove a part"
+description: "Make your first Genshin Impact model mod: delete Mona's hat in Blender, export with XXMI Tools, and see it gone in game. The same steps remove any piece."
+category: "models"
+patch: "7.2"
+keywords:
+  [
+    "genshin model mod",
+    "remove hat mod",
+    "mona hat",
+    "xxmi tools",
+    "first blender mod",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+In this guide you make your first model mod: Mona without her hat. You delete the hat in Blender, export the mod, and load it in game. The same steps remove any piece from any character. Written for XXMI Tools 1.8.2 on Blender 4.5 LTS and GIMI 8.9.4.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="Box"
+    href="/docs/genshin-impact/tools/blender-add-on"
+    note="Blender 4.5 LTS"
+  >
+    XXMI Tools
+  </Requirement>
+  <Requirement
+    icon="GitHub"
+    href="https://github.com/SilentNightSound/GI-Model-Importer-Assets"
+    note="PlayerCharacterData/Mona"
+  >
+    The Mona folder
+  </Requirement>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/genshin-impact/tools/xxmi-launcher"
+    note="with GIMI"
+  >
+    XXMI Launcher
+  </Requirement>
+</Requirements>
+
+This guide uses the steps from [Get a model into Blender](/docs/genshin-impact/models/import-into-blender) and [Export your mod from Blender](/docs/genshin-impact/models/export-your-mod) in short form. You can start here and open those pages when you want the details.
+
+## The plan
+
+1. Import Mona into Blender.
+2. Select the hat and delete its vertices.
+3. Export the mod into your `Mods` folder.
+4. Reload in game and look.
+
+Mona's hat sits in the `MonaHead` part, together with her hair. You delete only the hat's vertices from that object. The object itself must stay: export finds each part by its object.
+
+## Make the mod
+
+<Steps>
+<Step>
+
+### Import Mona
+
+1. Download the `Mona` folder from `PlayerCharacterData` in the asset repo. Do not rename it.
+2. Open Blender, select everything in the empty scene with `A`, and delete it with `X`.
+3. Open <MenuPath path="File > Import > XXMI Dump(vb.txt + ib.txt)" />.
+4. Go into the `Mona` folder and select every file shown.
+5. Leave **Simple mode** ticked, set **Game preset** to `Genshin Impact`, and import.
+6. Save the file as `MonaNoHat.blend`.
+
+You now see Mona standing in the scene, as two objects: `MonaHead` and `MonaBody`.
+
+</Step>
+<Step>
+
+### Select the hat
+
+1. Click `MonaHead` in the Outliner.
+2. Press `Tab` to go into Edit Mode.
+3. Press `Alt+A` to deselect everything.
+4. Press `Alt+Z` to turn on X-ray, so you can see pieces behind other pieces.
+5. Hover the mouse over the hat and press `L`. The piece under the mouse turns orange.
+6. Hover over each part of the hat that is not orange yet and press `L` again, until the whole hat is orange.
+
+If you select hair by mistake, hover over it and press `Shift+L` to deselect it.
+
+<img
+  src="/wiki-images/genshin-impact-models-remove-a-part-1.webp"
+  alt="Blender in Edit Mode with Mona's hat selected in orange on the head object, and the Delete menu open with Vertices highlighted"
+/>
+
+The screenshot comes from an older Blender and importer, so the object there is called `MonaHead-vb0=20d0bfab.txt`. The steps are the same.
+
+</Step>
+<Step>
+
+### Delete the hat's vertices
+
+1. Press `X` and choose **Vertices**.
+2. Turn the view with the middle mouse button and check the head from all sides. Delete any hat piece you missed the same way.
+3. Press `Tab` to go back to Object Mode.
+4. Save with `Ctrl+S`.
+
+Deleted some hair? Press `Ctrl+Z` to undo.
+
+Mona's hair is modeled under the hat, so there is no hole to fill. On other characters you may find one. Select the edges around it and press `F` to fill it.
+
+<Callout type="warning" title="Delete vertices, never the object">
+  Keep `MonaHead` and `MonaBody` in the scene, visible, even if you empty one of
+  them. If a part's object is missing, the export stops with "Cannot find object
+  ... in the scene".
+</Callout>
+
+</Step>
+<Step>
+
+### Export into your Mods folder
+
+1. Press `N` in the 3D Viewport and open the **XXMI Tools** tab.
+2. Check that **Dump Folder** points to your `Mona` folder.
+3. Set **Output Folder** to a new folder: `%AppData%\XXMI Launcher\GIMI\Mods\MonaNoHat`.
+4. Check that **Game to mod** says `Genshin Impact`.
+5. Leave the **Export Settings** at their defaults.
+6. Click **Export Mod**.
+
+The status bar says `Exported Mona to ...` when it works. The new folder holds `Mona.ini`, three `.buf` files, `MonaHead.ib`, `MonaBody.ib` and Mona's textures.
+
+{/* NEEDS HANDS-ON TEST: export the hatless Mona with XXMI Tools 1.8.2 defaults into a folder inside GIMI\Mods, and confirm the exact status bar text and file list */}
+
+</Step>
+<Step>
+
+### Check it in game
+
+1. Turn off any other Mona mod: rename its folder so it starts with `DISABLED`.
+2. Start the game from XXMI Launcher.
+3. Switch to another character, press `F10` to reload mods, then switch back to Mona.
+4. Look at her in the character screen, then run and attack, to check the head in motion.
+
+<img
+  src="/wiki-images/genshin-impact-models-remove-a-part-2.webp"
+  alt="Mona in the Genshin Impact character screen without her witch hat, her hair and ribbon showing"
+/>
+
+That is your first model mod. To compare, hold `F9` to see the original Mona.
+
+</Step>
+<Step>
+
+### Fix the hair's shadow (optional)
+
+The hat used to cover the top of her hair, so the hair's light map may still darken it there. If that area looks too dark in game:
+
+1. Open `MonaHeadLightMap.dds` from your `MonaNoHat` folder in Paint.NET.
+2. Find the dark patch on the hair where the hat was.
+3. Pick the color, with its alpha, from the lit hair next to it, and paint over the patch.
+4. Save it with the same name, as `BC7 (Linear, DX 11+)`, at the same size.
+5. Press `F10` in game.
+
+[Save DDS textures the right way](/docs/genshin-impact/textures/save-dds-files) has the full save settings.
+
+{/* NEEDS HANDS-ON TEST: whether Mona's hair shows a hat shadow after the hat is removed on 7.2, and where it sits in MonaHeadLightMap.dds */}
+
+</Step>
+</Steps>
+
+## Remove other parts the same way
+
+| You want to remove                      | What to do                                                                                                 |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| One piece inside a part (a hat, a cape) | Select it with `L` in Edit Mode, then `X` > **Vertices**.                                                  |
+| A whole part, like `Dress`              | In Edit Mode press `A`, then `X` > **Vertices**. Keep the empty object.                                    |
+| A piece, but you do not know which part | Click the eye icon of each object in the Outliner to hide it. The piece disappears with the part it is in. |
+
+Hidden objects are skipped on export. Before you export, show every part object again.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Mona still has her hat in game" id="hat-still-there">
+
+- Check that the `MonaNoHat` folder is inside `%AppData%\XXMI Launcher\GIMI\Mods`.
+- Check that no other Mona mod is on. Orange `Possible Mod Conflict` text means two mods for her are loaded.
+- Switch away from Mona, press `F10`, and switch back. A mod loaded while she is on screen can show only partly.
+
+</Accordion>
+<Accordion title="The export stops with an error" id="export-error">
+
+Most errors come from a missing, renamed or extra object. Check that `MonaHead` and `MonaBody` both exist, are visible, and that the folder is still called `Mona`. [Blender export and import errors](/docs/genshin-impact/errors/creator-errors) lists every message.
+
+</Accordion>
+<Accordion title="Part of her hair is gone, or there is a hole" id="too-much-deleted">
+
+You deleted more than the hat. Press `Ctrl+Z` in Blender until the hair is back, or import the `Mona` folder again. Then select the hat again and export.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Swap weapons, gliders, and objects"
+    href="/docs/genshin-impact/models/swap-weapons-and-objects"
+    icon={<Icon name="Sword" />}
+    level="intermediate"
+    featured
+  >
+    The next project: weapons have no bones to fix, so a new sword is a good
+    second mod.
+  </PremiumCard>
+  <PremiumCard
+    title="Add a toggle"
+    href="/docs/genshin-impact/ini/add-a-toggle"
+    icon={<Icon name="ToggleRight" />}
+    level="intermediate"
+  >
+    Keep the hat, and turn it on and off in game with one key.
+  </PremiumCard>
+  <PremiumCard
+    title="Add or swap clothing parts"
+    href="/docs/genshin-impact/models/add-clothing-parts"
+    icon={<Icon name="Shirt" />}
+    level="intermediate"
+  >
+    Add a new piece, or move one over from another character.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Mona Hat Removal Walkthrough](https://leotorrez.github.io/modding/guides/mona-hat) by SilentNightSound, on LeoTorrez's modding site.
+- **Images:** screenshots 1 and 2 from the [Mona Hat Removal Walkthrough](https://leotorrez.github.io/modding/guides/mona-hat) by SilentNightSound.
+- **Guide:** [Modding 101](https://leotorrez.github.io/modding/guides/modding-101) and [XXMI Tools guide](https://leotorrez.github.io/modding/guides/xxmi_tools) by LeoTorreZ.
+- **Tool:** [XXMI Tools](https://github.com/leotorrez/XXMITools) by LeoTorreZ and contributors.
+- **Tool:** [GI-Model-Importer-Assets](https://github.com/SilentNightSound/GI-Model-Importer-Assets) by SilentNightSound.

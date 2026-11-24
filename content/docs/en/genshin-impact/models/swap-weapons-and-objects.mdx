@@ -1,0 +1,320 @@
+---
+title: "Swap weapons, gliders, and objects"
+description: "Replace a Genshin Impact weapon model in Blender, show it on one character only, retexture a glider, and fix black parts and twin weapons."
+category: "models"
+patch: "7.2"
+keywords: ["genshin weapon mod", "glider mod", "weapon swap", "xxmi tools"]
+---
+
+<LevelPill level="intermediate" />
+
+A weapon is the easiest first model mod: one object, and most swords have no vertex groups. This guide replaces a weapon's model, limits it to one character, and covers gliders, Paimon and other objects. Written for XXMI Tools 1.8.2 on Blender 4.5 LTS and GIMI 8.9.4.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Blender" href="/docs/genshin-impact/tools/blender-add-on">
+    Blender 4.5 LTS with XXMI Tools
+  </Requirement>
+  <Requirement
+    icon="Box"
+    href="/docs/genshin-impact/models/import-into-blender"
+  >
+    The weapon's dump, imported
+  </Requirement>
+  <Requirement icon="Swords" note="your own, or one whose license allows it">
+    The model you want to use
+  </Requirement>
+</Requirements>
+
+Weapon dumps sit in the asset repo under `WeaponData/<Type>/<Stars>/<Name>`.
+
+## What you can replace
+
+| Object                         | How               | Notes                                                                            |
+| ------------------------------ | ----------------- | -------------------------------------------------------------------------------- |
+| Weapons                        | Mesh and textures | Every character who equips the weapon gets your mod, unless you add a condition. |
+| Gliders                        | Textures only     | All gliders share one mesh. You target one glider by its texture hash.           |
+| Paimon, gadgets, the Waverider | Mesh and textures | Same steps as a weapon. Get the model from your own frame dump.                  |
+
+Weapons from easiest to hardest: swords, spears and claymores without tassels, then the same with tassels, then bows, then catalysts.
+
+## Replace a weapon model
+
+<Steps>
+<Step>
+
+### Import both models
+
+1. Import the weapon's dump with XXMI Tools.
+2. Check the weapon object's **Vertex Groups** list in the **Object Data** tab. An empty list is the simplest case.
+3. Import your model with <MenuPath path="File > Import" /> as FBX, OBJ or glTF.
+4. Remove what the game cannot use: extra objects, shape keys and bones. One object with one texture is easiest.
+
+</Step>
+<Step>
+
+### Line it up
+
+1. Move, rotate and scale your model over the original. Put the grip where the hand holds the original.
+2. Keep the size close to the original, or it clips through the character.
+3. Press `Ctrl+A` > **All Transforms**. Without this, the weapon shows at the wrong angle and size in game.
+
+<img
+  src="/wiki-images/genshin-impact-models-swap-weapons-and-objects-1.webp"
+  alt="A banana model lined up over the Serpent Spine claymore in Blender's viewport"
+/>
+
+</Step>
+<Step>
+
+### Join it into the original
+
+1. Select the original weapon object, press `Tab`, press `A`, then `X` > **Vertices**. The object is now empty but keeps its name and properties.
+2. In Object Mode, select your model, then `Shift+click` the empty original so it is active.
+3. Press `Ctrl+J`. Your model now has the original's name, which starts like `SerpentSpineHead`.
+
+</Step>
+<Step>
+
+### Set the UV maps and colors
+
+1. Name the texture UV map `TEXCOORD.xy`.
+2. Add a second UV map named `TEXCOORD1.xy`. It controls how the weapon fades in and out when it appears.
+3. For the fade map, press `Numpad 7` for the top view, select everything, and choose <MenuPath path="UV > Project From View" />. Turn it to match the original's `TEXCOORD1.xy`.
+4. Add a `COLOR` attribute: `Face Corner`, `Byte Color`, hex `FF8080`, alpha `0`. Alpha `0` means no outline, which suits most weapons.
+
+<img
+  src="/wiki-images/genshin-impact-models-swap-weapons-and-objects-2.webp"
+  alt="Blender's Add Color Attribute dialog with Name COLOR, Domain Face Corner, Data Type Byte Color, and a note reading Hex FF8080, A 0"
+/>
+
+[UV maps, vertex colors, and outlines](/docs/genshin-impact/models/uvs-and-vertex-colors) explains these values.
+
+{/* NEEDS HANDS-ON TEST: on Genshin Impact 7.2, that a TEXCOORD1.xy projected from the top view gives a normal fade-in for a replaced sword. */}
+
+</Step>
+<Step>
+
+### Weight it, if the original has groups
+
+Skip this step if the original weapon had no vertex groups. Otherwise copy its groups and assign your model to them:
+
+- **Bows** have groups `0` to `4`. Put the bow's body on group `1`. To keep the moving string, duplicate the original bow, delete everything but the string, and join the string into your model.
+- **Catalysts** spin with their groups: group `1` spins fast (the inner ball), group `4` spins slowly (the outer ring).
+- Group `0` may hold no weight, but it must exist.
+
+[Weight paint a mesh](/docs/genshin-impact/models/weight-painting) shows how to assign one group to a whole object.
+
+</Step>
+<Step>
+
+### Make the textures
+
+1. Paint the diffuse and save it as `BC7 (sRGB, DX 11+)`. Its alpha marks the parts that glow. A diffuse with no alpha makes the whole weapon glow.
+2. Fill a LightMap with one color picked from the original weapon's LightMap. Save it as `BC7 (Linear, DX 11+)`.
+3. Give both the file names the export writes, so they replace the originals.
+
+[Save DDS textures the right way](/docs/genshin-impact/textures/save-dds-files) has the save settings.
+
+</Step>
+<Step>
+
+### Export and test
+
+1. [Export your mod](/docs/genshin-impact/models/export-your-mod) and copy your textures over the exported ones.
+2. In game, equip the weapon and press `F10`.
+3. Check it standing, attacking, and while it fades in and out.
+
+</Step>
+</Steps>
+
+<YouTube
+  id="lc4BF6bLfdw"
+  start={540}
+  title="Your First Weapon, reshaping a weapon in Blender, by Murren Mods"
+/>
+
+The video is from 2023 and exports with the old GIMI plugin. The Blender steps are the same today: export with XXMI Tools.
+
+## Weapons that share one mesh
+
+Some weapons use the same model, with only a different texture. A mesh mod for one of them most likely also shows on its twin. Two mods for one pair at once give a duplicate hash conflict. Say "also replaces ..." in your mod's description.
+
+| Weapon             | Twin                   |
+| ------------------ | ---------------------- |
+| Royal Longsword    | Sacrificial Sword      |
+| Royal Bow          | Sacrificial Bow        |
+| Royal Greatsword   | Sacrificial Greatsword |
+| Royal Grimoire     | Sacrificial Fragments  |
+| Alley Hunter       | Favonius Warbow        |
+| Windblume Ode      | Compound Bow           |
+| Lithic Spear       | Dragon's Bane          |
+| Dodoco Tales       | Mappa Mare             |
+| Blackcliff Pole    | Prototype Starglitter  |
+| Blackcliff Agate   | Prototype Amber        |
+| Blackcliff Slasher | Prototype Archaic      |
+
+Blackcliff Warbow and Prototype Crescent do not share a mesh. Alley Flash and Favonius Sword share only their index buffer. This list comes from the asset repo's `hash.json` files.
+
+{/* NEEDS HANDS-ON TEST: on Genshin Impact 7.2, equip each twin with one mesh mod in place and check that both change. Check whether Alley Flash and Favonius Sword (shared IB only) both show the mod. */}
+
+## Show it on one character only
+
+A weapon mod shows for everyone who equips that weapon. To limit it, detect your character by their position hash. Get it from `position_vb` in the character's `hash.json` in the asset repo. Then add this to the weapon mod's `.ini`:
+
+```ini
+[Constants]
+global $active
+
+[Present]
+post $active = 0
+
+[TextureOverrideCharacterPosition]
+hash = <the character's position_vb hash>
+$active = 1
+match_priority = 0
+```
+
+Then wrap the lines inside every weapon `[TextureOverride...]` section in `if $active == 1` and `endif`. For more characters or outfits, add one more position section for each.
+
+<Accordions type="multiple">
+<Accordion title="The weapon mod has its own Position section" id="position-counter">
+
+If the weapon's `.ini` already has a section ending in `Position`, the method above fails, because that section never sees `$active = 1` in time. Use a counter instead:
+
+```ini
+[Present]
+if $active > 0
+  post $active = $active - 1
+endif
+```
+
+Set `$active = 2` in the character's position section, and test `if $active > 0` in the weapon sections.
+
+</Accordion>
+</Accordions>
+
+{/* NEEDS HANDS-ON TEST: both character-only methods with an XXMI Tools 1.8.2 weapon export on Genshin Impact 7.2, including which sections a weapon export writes. */}
+
+[How a mod .ini works](/docs/genshin-impact/ini/how-a-mod-ini-works) explains sections and conditions.
+
+## Gliders
+
+Every glider uses one shared mesh, so a mesh mod would change all of them. Glider mods replace the texture instead:
+
+1. Open the glider in game and make a [frame dump](/docs/genshin-impact/basics/frame-dump).
+2. In the dump's `deduped` folder, find the wing texture. It is a `BC7_UNORM_SRGB` file.
+3. Edit it, and save it in the same format and size.
+4. Make a folder in your `Mods` folder with the texture and this `.ini`:
+
+```ini
+[TextureOverrideGlider]
+hash = d27db883
+this = ResourceGlider
+
+[ResourceGlider]
+filename = Wing1.dds
+```
+
+`d27db883` is the default glider, Wings of First Flight, as of Genshin 3.3. Use the hash from your own dump. To move a glider mod to another glider, change only the `hash` line.
+
+<Accordions type="multiple">
+<Accordion title="Glider texture hashes from Genshin 3.3" id="glider-hashes">
+
+These may be out of date. Check each one with a frame dump.
+
+| Glider                          | Hash       |
+| ------------------------------- | ---------- |
+| Wings of First Flight (default) | `d27db883` |
+| Wings of Companionship          | `1d6ac69b` |
+| Wings of Shimmering Galaxy      | `8d658b17` |
+| Wings of Azure Wind             | `30c5a144` |
+| Wings of Concealing Snow        | `87acfe3a` |
+| Wings of Golden Flight          | `548923de` |
+| Wings of the Stormstrider       | `ad2f8201` |
+| Wings of the Forest             | `0e6c712a` |
+| Wings of Descension             | `469606b1` |
+| Wings of Feasting               | `8ef1f021` |
+
+</Accordion>
+</Accordions>
+
+{/* NEEDS HANDS-ON TEST: whether the 3.3 glider hashes still match on Genshin Impact 7.2, and the hashes of later gliders. */}
+
+## Paimon, gadgets and the Waverider
+
+These are mesh mods like a weapon. The asset repo may not have them, so hunt the object's index buffer and make your own frame dump. Then import, edit and export it with the weapon steps above.
+
+{/* NEEDS HANDS-ON TEST: a Paimon or Waverider mesh mod with gui_collect 1.4.2 and XXMI Tools 1.8.2 on Genshin Impact 7.2. */}
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The weapon is rotated, huge, or tiny" id="wrong-transform">
+
+The transforms were not applied. Line the model up with the original again, press `Ctrl+A` > **All Transforms**, and export.
+
+</Accordion>
+<Accordion title="The whole weapon glows" id="weapon-glows">
+
+The diffuse has no alpha channel, and the game then treats the whole weapon as glowing. Add an alpha channel that marks only the parts that should glow. The original weapon's diffuse alpha shows how.
+
+</Accordion>
+<Accordion title="Parts turn black after you move a weapon mod to another weapon" id="black-parts">
+
+This was reported for Light of Foliar Incision, Splendor of Tranquil Waters and Lumidouce Elegy moved onto other weapons.
+
+<img
+  src="/wiki-images/genshin-impact-models-swap-weapons-and-objects-3.webp"
+  alt="A character holding a catalyst in game, with black patches on the flower parts circled"
+/>
+
+1. In Edit Mode, select all and choose <MenuPath path="Mesh > Normals > Smooth Vectors" />.
+2. Delete the old color attribute. Add a new `COLOR` with `Face Corner`, `Byte Color`, hex `FF8080` and alpha `0`.
+3. In Object Mode, add a **Solidify** modifier: **Mode** `Simple`, **Thickness** `0.0001 m`, **Offset** `0`, **Even Thickness** on.
+4. Export again.
+
+{/* NEEDS HANDS-ON TEST: whether this fix is still needed on GIMI 8.9.4, since weapons support ORFix from GIMI 8.5.4 and black or green parts may now have an ORFix cause. */}
+
+</Accordion>
+<Accordion title="The mod shows on every character, or on another weapon" id="shows-everywhere">
+
+Weapon mods apply to every user of that weapon: add the character condition above. If it shows on a second weapon, check the twin list.
+
+</Accordion>
+</Accordions>
+
+More symptoms are on [Model problems in game](/docs/genshin-impact/errors/model-problems).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Add a toggle"
+    href="/docs/genshin-impact/ini/add-a-toggle"
+    icon={<Icon name="ToggleRight" />}
+    level="intermediate"
+  >
+    Switch between your weapon and the original with a key.
+  </PremiumCard>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/genshin-impact/publishing/publishing-checklist"
+    icon={<Icon name="Upload" />}
+    level="beginner"
+  >
+    Clean up the folder, credit your sources, and note any twin weapons.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Custom Weapon Modding Walkthrough](https://leotorrez.github.io/modding/guides/weapon-banana) by SilentNightSound (image 1).
+- **Guide:** [How to Make a Weapon Skin Character-Specific](https://gamebanana.com/tuts/18215) by ADudeCalledLeo.
+- **Guide:** [3DMigoto GIMI Texture Modding Tutorial](https://leotorrez.github.io/modding/guides/textures-101) by SilentNightSound, for gliders.
+- **Video:** [\[Genshin Modding\] Episode 1 - Your First Weapon!](https://www.youtube.com/watch?v=lc4BF6bLfdw) by Murren Mods.
+- **Discord:** black parts fix and images 2 and 3 by [RazielGenshin](https://discord.com/users/761634056009678850); twin weapons by [Hex](https://discord.com/users/219977617695178752) and [homu](https://discord.com/users/479701796219125771); glider hashes by [Ghosty !](https://discord.com/users/945865908029636649), all in the [AGMG Discord](https://discord.gg/agmg).
+- **Assets:** [GI-Model-Importer-Assets](https://github.com/SilentNightSound/GI-Model-Importer-Assets) by SilentNightSound.

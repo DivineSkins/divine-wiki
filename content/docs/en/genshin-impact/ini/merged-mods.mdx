@@ -1,0 +1,276 @@
+---
+title: "Combine mods into one merged mod"
+description: "Combine several Genshin Impact mods for one character into a merged mod with a switch key, using the GIMI merge script, and keep it working with other mods."
+category: "ini"
+patch: "7.2"
+keywords:
+  [
+    "genshin merged mod",
+    "merge mods",
+    "genshin_merge_mods.py",
+    "swapvar",
+    "merged.ini",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+Only one mod per character can show at a time. A merged mod works with that: it puts several mods for one character in one folder, and one key switches between them. This page shows how to make one with the GIMI merge script and how to keep it working. Written for GIMI 8.9.4.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="FileCode" note="Python 3">
+    Python
+  </Requirement>
+  <Requirement
+    icon="GitHub"
+    href="https://github.com/SilentNightSound/GI-Model-Importer/blob/main/Tools/genshin_merge_mods.py"
+  >
+    genshin_merge_mods.py
+  </Requirement>
+  <Requirement icon="FolderOpen">
+    Two or more mods for one character, each working on its own
+  </Requirement>
+</Requirements>
+
+When you install Python, tick **Add python.exe to PATH** in the installer. It is off by default. The script is also on its [GameBanana tool page](https://gamebanana.com/tools/11165).
+
+## How a merged mod works
+
+<img
+  src="/wiki-images/genshin-impact-ini-merged-mods-1.webp"
+  alt="A Char folder in Mods holds merged.ini, which loads, and the folders 0 Default, 1 Blue and 2 Red, whose ini files start with DISABLED and are skipped. Pressing K steps $swapvar, the CommandList in merged.ini binds the files of the chosen mod, and only that mod draws"
+/>
+
+- **One `merged.ini` does the work.** It holds every mod's lines, each inside an `if $swapvar == N` block.
+- **The original `.ini` files are switched off.** The script renames each one to start with `DISABLED`, so GIMI skips it. The `.ib`, `.buf` and `.dds` files stay in their folders.
+- **Each mod's resources get a number.** `[ResourceCharHeadIB.1]` belongs to mod 1, and its `filename` points into that mod's folder.
+- **One key switches.** `[KeySwap]` steps `$swapvar`, and `persist` saves the choice.
+
+This is a shortened `merged.ini`:
+
+```ini
+[Constants]
+global persist $swapvar = 0
+global $active
+global $creditinfo = 0
+
+[KeySwap]
+condition = $active == 1
+key = k
+type = cycle
+$swapvar = 0,1
+$creditinfo = 0
+
+[Present]
+post $active = 0
+
+[TextureOverrideCharHead]
+hash = eeeeeeee
+match_first_index = 0
+run = CommandListCharHead
+
+[CommandListCharHead]
+if $swapvar == 0
+	ib = ResourceCharHeadIB.0
+	ps-t0 = ResourceCharHeadDiffuse.0
+	drawindexed = auto
+else if $swapvar == 1
+	ib = ResourceCharHeadIB.1
+	ps-t0 = ResourceCharHeadDiffuse.1
+	drawindexed = auto
+endif
+
+[ResourceCharHeadIB.0]
+type = Buffer
+format = DXGI_FORMAT_R32_UINT
+filename = .\0 Default\CharHead.ib
+```
+
+## Before you merge
+
+1. **Check each mod alone.** Put it in `Mods` by itself, press `F10`, and check that it looks right. A mod that is broken alone stays broken in the merge.
+2. **Fix old mods first.** Mods made before version 6.1 need ORFix lines. Fixing each mod before you merge is much easier than fixing the merge.
+3. **Name the folders now.** Renaming a folder after the merge breaks the paths in `merged.ini`.
+4. **Check for keys.** The script cannot merge a mod that has its own toggle keys (`[Key...]` sections). Use one of the other ways at the end of this page for those.
+5. **Back up** every mod folder.
+
+## Make a merged mod
+
+<Steps>
+<Step>
+
+### Put the mods in one folder
+
+1. Make a new folder outside `Mods`, for example `Char`.
+2. Move each mod's folder into it.
+3. Rename the folders with a number first: `0 Default`, `1 Blue`, `2 Red`. Mod `0` is the one that shows first.
+4. Put `genshin_merge_mods.py` in the `Char` folder, next to the mod folders.
+
+</Step>
+<Step>
+
+### Run the script
+
+1. Hold `Shift`, right-click an empty spot in the `Char` folder, and choose **Open PowerShell window here**.
+2. Type this and press `Enter`:
+
+   ```text
+   python genshin_merge_mods.py
+   ```
+
+3. The script lists the mods in the order it will use. Press `Enter` to accept it, or type the numbers in the order you want, like `3 0 1 2`.
+4. When it asks for a key, type one letter and press `Enter`.
+
+{/* NEEDS HANDS-ON TEST: the right-click label for opening PowerShell in a folder on Windows 11, and whether the script accepts keys other than letters */}
+
+The script writes `merged.ini` and renames each mod's `.ini` to start with `DISABLED`. Before you test, compare `merged.ini` with the originals as shown in [Check the merge by hand](#check-the-merge-by-hand).
+
+</Step>
+<Step>
+
+### Test it in game
+
+1. Move the whole `Char` folder into your `Mods` folder: `%AppData%\XXMI Launcher\GIMI\Mods`.
+2. Remove the separate copies of these mods from `Mods`, if you had any.
+3. In game, press `F10`.
+4. Put the character on screen and press your key. The mods switch in order.
+
+</Step>
+</Steps>
+
+This video shows the same steps:
+
+<YouTube
+  id="r-zddzU5fkg"
+  start={94}
+  title="How to merge mods in 3DMigoto, by Daora"
+/>
+
+The video is from early 2023 and uses the old standalone GIMI. With XXMI Launcher, your `Mods` folder is `%AppData%\XXMI Launcher\GIMI\Mods`. The script steps are the same.
+
+## Check the merge by hand
+
+The script is from 2023, written for exports from the old GIMI Blender plugin. It keeps one value per line name in each section, so parts of an XXMI Tools 1.8.2 export do not come through. Open `merged.ini` next to each `DISABLED` `.ini` and check these lines:
+
+| Line in the original                                    | What the script does                                                                         | Fix by hand                                                         |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Several `drawindexed` lines in one part                 | Keeps only the last one. The other Blender objects of that part vanish                       | Copy every `drawindexed` line of the part into its `$swapvar` block |
+| `else`                                                  | Drops it, so both branches draw                                                              | Copy the whole `if`, `else`, `endif` block back                     |
+| An `if` without `==`, like `if $x != 0`                 | Drops or garbles it                                                                          | Copy the line back as it was                                        |
+| `override_vertex_count` in a `VertexLimitRaise` section | Keeps only the `hash` line                                                                   | Copy `override_vertex_count` and `override_byte_stride` back        |
+| `[Constants]`, `[Present]` and `[Key...]` sections      | Does not copy them. A `[Key...]` section with a `type =` line stops the script with an error | Merge only mods without their own keys                              |
+
+The rest comes through: part sections by hash and `match_first_index`, `[Resource...]` sections, `Resource\GIMI\...` lines with `run = CommandList\GIMI\SetTextures`, and simple `if ... == ...` blocks with one line of each name.
+
+{/* NEEDS HANDS-ON TEST: run genshin_merge_mods.py V3.0 on two XXMI Tools 1.8.2 exports, one with several objects in a part and one with a toggle, and check each row of this table on GIMI 8.9.4. Also check whether a VertexLimitRaise section needs the largest override_vertex_count of the merged mods. */}
+
+## Script options
+
+Add an option after the script name, like `python genshin_merge_mods.py -e`.
+
+| Option | What it does                                                                                        |
+| ------ | --------------------------------------------------------------------------------------------------- |
+| `-e`   | Turns the original `.ini` files back on, so you can build the merge again.                          |
+| `-s`   | Keeps the original `.ini` files on. Use it only if you know why: both copies then load.             |
+| `-c`   | Deletes duplicate files and points every mod to one copy. This saves space, but it is hard to undo. |
+| `-ref` | Adds an old reflection fix. Do not use it: ORFix inside GIMI replaces it.                           |
+
+Use `-c` only on a finished merge, and keep a backup without it.
+
+## Change a merged mod later
+
+Edit `merged.ini`. GIMI skips the `DISABLED` files, so changes there do nothing.
+
+- **Each mod's lines** are in the `[CommandList...]` blocks, inside `if $swapvar == N`. Mod `0` is the first block.
+- **ORFix lines** go inside the `[CommandList...]` block, after its `endif`. Do not add them to the short `[TextureOverride...]` section that only runs the command list.
+- **The ORFix Applier** does not handle merged mods. The [ORFix Applier Tool for Complex Toggle Mods](https://gamebanana.com/tools/21138) by Sanddino is made for them. Run it only inside the one merged mod's folder.
+
+{/* NEEDS HANDS-ON TEST: ORFix and NNFix lines placed after the endif of a merged mod's CommandList block, and the Complex Toggle Mods applier v1.4, on GIMI 8.9.4 */}
+
+To rebuild the merge from scratch:
+
+1. Move the folder out of `Mods`.
+2. Run `python genshin_merge_mods.py -e` to turn the original `.ini` files back on.
+3. Delete `merged.ini`.
+4. Make your changes, then run the script again without options.
+
+## Use a merged mod with other mods
+
+- **Keep one merged mod per character.** Two mods for the same character both draw, and GIMI shows `Possible Mod Conflict`.
+- **Do not keep the original mods turned on as well.** Every hash then loads twice.
+- **Fix tools treat a merged mod as one complex mod.** After a game update, check each part, or wait for the creators' updates and merge again.
+
+## Other ways to switch mods
+
+- **A mod manager** can switch between mods for one character without a `merged.ini`. [Mod managers compared](/docs/genshin-impact/tools/mod-managers) shows the main ones.
+- **[3Dmigoto Mods Merger](https://github.com/ShadowLemoon/3Dmigoto-mods-merger)** by Qian2333 is a newer Python script. It also merges mods that are already merged, gives each mod its own namespace, and can set a back key. It switches whole mods. It cannot mix parts of different mods.
+
+{/* NEEDS HANDS-ON TEST: 3Dmigoto Mods Merger v1.0.0 on Genshin Impact 7.2 mods */}
+
+<Callout type="warning" title="Ask before you share a merge">
+  Merging mods for your own game is your choice. To upload a merge of other
+  creators' mods, you need permission from each creator.
+</Callout>
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The character flickers, or GIMI shows Possible Mod Conflict" id="merged-conflict">
+
+The original mods are still loading next to `merged.ini`. Check that every `.ini` in the subfolders starts with `DISABLED`, and that no separate copy of these mods is in `Mods`.
+
+</Accordion>
+<Accordion title="My key switches another character's merged mod too" id="keys-switch-other-mods">
+
+Check the `[KeySwap]` section in both `merged.ini` files. Each needs `condition = $active == 1`. If one has it and still reacts, give it a different key.
+
+</Accordion>
+<Accordion title="A part is missing after I renamed a folder" id="renamed-folder">
+
+The `filename` lines still point to the old folder name. Rename the folder back, or rebuild the merge.
+
+</Accordion>
+<Accordion title="The mod forgets which outfit I picked" id="merged-forgets-choice">
+
+GIMI saves the choice under the mod's folder path. Moving or renaming the folder loses it.
+
+</Accordion>
+<Accordion title="Parts look green or the colors are wrong" id="merged-green">
+
+One of the mods is missing ORFix lines. Add them inside the `[CommandList...]` blocks, as shown above.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Change a mod's keys and saved settings"
+    href="/docs/genshin-impact/ini/change-mod-keys"
+    icon={<Icon name="Keyboard" />}
+    level="beginner"
+  >
+    Change the switch key and reset the outfit GIMI remembers.
+  </PremiumCard>
+  <PremiumCard
+    title="Fix an old mod by hand"
+    href="/docs/genshin-impact/ini/fix-an-old-mod"
+    icon={<Icon name="Wrench" />}
+    level="intermediate"
+  >
+    Update a mod made before version 6.1 before you merge it.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Tool:** [genshin_merge_mods.py](https://github.com/SilentNightSound/GI-Model-Importer/blob/main/Tools/genshin_merge_mods.py) by SilentNightSound, Takoyaki and HazrateGolabi, and its [GIMI Mod Toggle Script](https://gamebanana.com/tools/11165) page.
+- **Video:** [How to merge mods in 3DMigoto](https://www.youtube.com/watch?v=r-zddzU5fkg) by Daora.
+- **Guide:** [How To Fix: ORFix](https://gamebanana.com/tuts/19552) by veritas921, for ORFix lines in merged mods.
+- **Tool:** [3Dmigoto Mods Merger](https://github.com/ShadowLemoon/3Dmigoto-mods-merger) by Qian2333.
+- **Tool:** [ORFix Applier Tool for Complex Toggle Mods](https://gamebanana.com/tools/21138) by Sanddino.

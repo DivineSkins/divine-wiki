@@ -1,0 +1,285 @@
+---
+title: "Your first mod: recolor a character"
+description: "Change the colors of a Genshin Impact character's outfit or hair in Paint.NET, protect the glow mask, save the DDS the right way, and see it in game."
+category: "textures"
+patch: "7.2"
+keywords:
+  [
+    "genshin recolor mod",
+    "genshin texture mod",
+    "gimi recolor",
+    "paint.net dds",
+    "diffuse texture",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+You will change the colors of one character's outfit or hair, save the texture the way the game expects, and see it in game. No 3D work. GIMI must already load your mods. Written for XXMI Launcher 2.5.0 and GIMI 8.9.4 on Genshin Impact 7.2.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/genshin-impact/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement
+    icon="PaintNET"
+    href="/docs/genshin-impact/tools/texture-editors"
+    note="free"
+  >
+    Paint.NET
+  </Requirement>
+  <Requirement icon="Puzzle" note="free Paint.NET plugins">
+    Modify Channels and BoltBait's Plugin Pack
+  </Requirement>
+  <Requirement icon="FileImage">The character's diffuse texture</Requirement>
+</Requirements>
+
+Keep **Dynamic Character Resolution** off in the game's Graphics settings. With it on, mods draw wrong. If your tools are not set up yet, start with [Set up your creator tools](/docs/genshin-impact/getting-started/creator-setup).
+
+## How a recolor works
+
+Each character part uses a few textures. Only the **diffuse** holds the colors you see. GIMI swaps the game's diffuse for your edited copy while the game draws the character. No game file changes.
+
+| Texture file                | What it holds                          | Edit it for a recolor?       |
+| --------------------------- | -------------------------------------- | ---------------------------- |
+| `FurinaBodyDiffuse.dds`     | The colors. Its alpha is the glow mask | Yes                          |
+| `FurinaBodyLightMap.dds`    | Shine, shadows and material types      | No                           |
+| `FurinaBodyNormalMap.dds`   | Small surface bumps                    | No                           |
+| `FurinaFaceHeadDiffuse.dds` | The face colors                        | Only if you change skin tone |
+
+The part names come from the game: `Head` is hair and head, `Body` and `Dress` are clothing. [Character names and parts](/docs/genshin-impact/basics/character-names-and-parts) explains every name.
+
+<Callout type="warning" title="The alpha is the glow mask">
+  In a Genshin Impact diffuse, the alpha channel is not see-through. It marks
+  the areas that glow, for example when the burst is ready. That is why the file
+  looks mostly transparent in Paint.NET. Lose the alpha and the whole part
+  glows.
+</Callout>
+
+<img
+  src="/wiki-images/genshin-impact-textures-recolor-a-character-1.webp"
+  alt="Six steps of a Genshin Impact recolor: get the diffuse, copy its alpha to a glow mask layer, recolor in Paint.NET, paste the alpha back, save as BC7 sRGB with mipmaps, and press F10 in game"
+/>
+
+## Make the recolor
+
+<Steps>
+<Step>
+
+### Get the texture
+
+Pick one route. The paint steps after this are the same for both.
+
+<Tabs items={["Practice on a mod you have", "Make your own mod"]}>
+
+<Tab value="Practice on a mod you have">
+
+The fastest first project. You change a texture inside a mod you downloaded.
+
+1. Open your `Mods` folder: in XXMI Launcher, click the 3-dots button next to **Start**, then **Open Mods Folder**.
+2. Copy the mod's whole folder to your desktop as a backup.
+3. In the mod folder, find the diffuse of the part you want, for example `FurinaBodyDiffuse.dds`. If the names differ, open the mod's `.ini` and look for the `filename =` lines.
+
+Keep the result for yourself. The mod is someone else's work, so never share your edited copy.
+
+</Tab>
+
+<Tab value="Make your own mod">
+
+You start from the game's original texture and write a tiny `.ini` yourself.
+
+1. Open [GI-Model-Importer-Assets](https://github.com/SilentNightSound/GI-Model-Importer-Assets) on GitHub, then `PlayerCharacterData`, then your character's folder.
+2. Download only two files: the diffuse you want, for example `FurinaBodyDiffuse.dds`, and `hash.json`. Do not clone the repository. It is over 1 GB.
+3. Open `hash.json` in a text editor. Under `texture_hashes`, the parts are listed in the same order as `object_classifications`. Copy the 8-character hash after `"Diffuse", ".dds"` for your part.
+4. In your `Mods` folder, make a folder named `MyFirstRecolor` and put the `.dds` in it.
+5. In that folder, make a text file and rename it `MyFirstRecolor.ini`. Paste this, with your own hash and file name:
+
+```ini
+[TextureOverrideFurinaBodyDiffuse]
+hash = 39ff38df
+this = ResourceFurinaBodyDiffuse
+
+[ResourceFurinaBodyDiffuse]
+filename = FurinaBodyDiffuse.dds
+```
+
+<Files>
+  <Folder name="Mods" defaultOpen>
+    <Folder name="MyFirstRecolor" defaultOpen>
+      <File name="MyFirstRecolor.ini" />
+      <File name="FurinaBodyDiffuse.dds: your edited texture" />
+    </Folder>
+  </Folder>
+</Files>
+
+The hash above is Furina's body diffuse in the asset repository. A hash override changes every part that uses that texture. Furina's `Body` and `Dress` share one diffuse, so this file recolors both.
+
+Never write a note after the hash on the same line. In a `.ini`, `;` starts a comment only at the start of a line.
+
+The repository has no 7.x characters (Odette, Alyosha, Vesna, Mitya, Valeriy) and no Lan Yan. For those, get the texture and its hash from a [frame dump](/docs/genshin-impact/basics/frame-dump).
+
+{/* NEEDS HANDS-ON TEST: a texture-only this = override on a character body diffuse in Genshin Impact 7.2, using the hash from the asset repository hash.json (Furina 39ff38df). Check that the hash still matches and that the recolor shows in every pass, including the outline and the character screen. */}
+
+</Tab>
+
+</Tabs>
+
+</Step>
+<Step>
+
+### Split off the glow mask
+
+Work on a copy: keep a backup of the original `.dds`.
+
+1. Open the `.dds` in Paint.NET.
+2. Choose <MenuPath path="Layers > Duplicate Layer" />.
+3. With the top layer selected, open <MenuPath path="Adjustments > Modify Channels" />.
+4. Set line 1 to `Greyscale`, `Identity`, source `Alpha`. Click `+` and set line 2 to `Alpha`, `Constant`, `255`. Tick `Enabled`, then click **OK**. The top layer is now your glow mask in black and white.
+5. Hide the top layer: untick its box in the Layers panel.
+6. Select the bottom layer and open **Modify Channels** again. Use one line: `Alpha`, `Constant`, `255`. Now you see every color, with nothing transparent.
+
+{/* NEEDS HANDS-ON TEST: the Modify Channels plugin labels and these two settings in the current Paint.NET 5.x release */}
+
+</Step>
+<Step>
+
+### Recolor the part
+
+1. Select the bottom layer and pick the **Magic Wand**. Set **Tolerance** to about 20%, never above 25%.
+2. Hold `Shift` and click a color. This selects that color everywhere on the image. Hold `Ctrl` and click to add more colors.
+3. Choose <MenuPath path="Adjustments > Black and White" />. Only the selected area turns grey.
+4. Choose <MenuPath path="Layers > Add New Layer" />.
+5. Pick your new color as the primary color, then press `Backspace` to fill the selection on the new layer.
+6. Double-click the new layer and set **Blend mode** to **Overlay**. The grey shading shows through your color.
+7. Repeat for each color you want to change.
+
+Use a dark grey instead of pure black: black does nothing in Overlay mode. Select areas that looked empty before, too. The game can show them at the edges.
+
+<YouTube
+  id="nhiiWEpuTB8"
+  start={1195}
+  title="Magic Wand, Black and White and Overlay recolor in Paint.NET, by Proxy Index"
+/>
+
+This video uses Zenless Zone Zero files and is in Spanish, with an English audio track. The Paint.NET steps are the same in Genshin Impact.
+
+</Step>
+<Step>
+
+### Put the glow mask back
+
+1. Show the glow mask layer, select it, then press `Ctrl+A` and `Ctrl+C`.
+2. Choose <MenuPath path="Layers > Delete Layer" /> to remove the mask layer. It stays on your clipboard.
+3. Choose <MenuPath path="Image > Flatten" />.
+4. Choose <MenuPath path="Effects > Object > Paste Alpha" />. This comes from BoltBait's Plugin Pack.
+
+The image looks mostly transparent again. That is correct.
+
+{/* NEEDS HANDS-ON TEST: the menu location of Paste Alpha from BoltBait's Plugin Pack in the current Paint.NET 5.x release */}
+
+</Step>
+<Step>
+
+### Save as DDS
+
+1. Choose <MenuPath path="File > Save As" />. Keep the exact file name and the `.dds` ending.
+2. In the DDS window, pick `BC7 (sRGB, DX 11+)`.
+3. Tick **Generate Mip Maps**.
+4. Click **OK** and replace the old file.
+
+{/* NEEDS HANDS-ON TEST: whether a diffuse saved with Generate Mip Maps looks different in game from one saved with a single mip level, like the asset repository originals */}
+
+[Save DDS textures the right way](/docs/genshin-impact/textures/save-dds-files) explains every option.
+
+</Step>
+<Step>
+
+### Test it in game
+
+1. Switch to another character.
+2. Press `F10` to reload mods.
+3. Switch back and look at your recolor.
+4. Hold `F9` to see the original, then let go to compare.
+5. Check day and night, indoors, the character screen and combat. The glow shows when the burst is ready.
+
+</Step>
+</Steps>
+
+Changed the skin color? Recolor the face too, `FurinaFaceHeadDiffuse.dds`, with the same steps and settings. In your own mod it needs its own `[TextureOverride...]` and `[Resource...]` pair. In `hash.json` it sits under the component named `Face`. Otherwise the face will not match the body.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The whole part glows or looks very bright" id="part-glows">
+
+The alpha was lost or filled. Start again from your backup and paste the glow mask back before you save.
+
+</Accordion>
+<Accordion title="Colors look washed out, too dark or too strong" id="wrong-colors">
+
+The file was saved in the wrong format. A diffuse must be `BC7 (sRGB, DX 11+)`. Save again.
+
+</Accordion>
+<Accordion title="Nothing changed in game" id="nothing-changed">
+
+Check that the `filename =` line matches your file name exactly. Turn off other mods for that character: rename their folders so they start with `DISABLED`. Then check the hash. It may have changed since the asset repository was made. Get the current one from a frame dump.
+
+</Accordion>
+<Accordion title="Yellow error text after F10" id="yellow-text">
+
+GIMI could not load the texture. A typo in the file name, a missing file, or a size that is not a power of two causes this. Keep the original width and height.
+
+</Accordion>
+<Accordion title="The hair outline keeps its old color" id="old-outline">
+
+Outline colors come from the light map, not the diffuse. [What each texture map does](/docs/genshin-impact/textures/texture-maps) shows where they live.
+
+</Accordion>
+</Accordions>
+
+More symptoms and fixes are in [Mods look broken](/docs/genshin-impact/errors/mods-look-broken).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Test and reload your mod"
+    href="/docs/genshin-impact/basics/test-your-mod"
+    icon={<Icon name="Eye" />}
+    level="beginner"
+  >
+    Read GIMI's warnings and check your mod before you share it.
+  </PremiumCard>
+  <PremiumCard
+    title="Add glow and see-through parts"
+    href="/docs/genshin-impact/effects/glow-and-transparency"
+    icon={<Icon name="Sparkles" />}
+    level="intermediate"
+  >
+    Make parts of your recolor glow in a color you choose.
+  </PremiumCard>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/genshin-impact/publishing/publishing-checklist"
+    icon={<Icon name="Package" />}
+    level="beginner"
+  >
+    Pack your own mod with the right files and credits.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Genshin modding tutorial - character texture recolor](https://docs.google.com/document/d/1uA3YtovLD-6pWRreTNzwP1RWACxaQ3fBgyqxkeFQ5y0/edit) by Anilyan.
+- **Guide:** [Tutorial - Preserve alpha channels on Paint.net / how to handle .dds textures properly](https://docs.google.com/document/d/1DktYSbYMx-Bc4PKNF1XonvBAIRiC74pgNkMieQhd2jc/edit) by Anilyan.
+- **Guide:** [3DMigoto GIMI Texture Modding Tutorial](https://github.com/SilentNightSound/GI-Model-Importer/blob/main/Guides/TextureModdingTutorial.md) by SilentNightSound.
+- **Video:** [Tu PRIMER MOD de ZENLESS ZONE ZERO | Tutorial COMPLETO | TEXTURAS PARTE 1](https://www.youtube.com/watch?v=nhiiWEpuTB8) by Proxy Index.
+- **Assets:** [GI-Model-Importer-Assets](https://github.com/SilentNightSound/GI-Model-Importer-Assets) by SilentNightSound and contributors.
+- **Discord:** Modify Channels settings from guides by [cora](https://discord.com/users/1132443509329244222) and [bestie andrew](https://discord.com/users/518851482032930834) in the [AGMG Discord](https://discord.gg/agmg).

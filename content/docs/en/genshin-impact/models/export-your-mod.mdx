@@ -1,0 +1,297 @@
+---
+title: "Export your mod from Blender"
+description: "Export a Genshin Impact model mod with XXMI Tools: the naming and data rules that make an export work, the export settings, and the usual errors."
+category: "models"
+patch: "7.2"
+keywords:
+  [
+    "xxmi tools export",
+    "genshin mod export",
+    "export mod blender",
+    "gimi blender",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+Export turns your Blender scene into a mod folder that GIMI loads. Most failed exports break one of a few rules about names and mesh data. This page lists those rules, then runs the export. Written for XXMI Tools 1.8.2 on Blender 4.5 LTS and GIMI 8.9.4.
+
+<Accordions>
+<Accordion title="Coming from another game?">
+
+- **Honkai: Star Rail:** same add-on, with the `Honkai Star Rail` preset. Its template writes a compute-skinning `.ini` and binds textures with `this =` per texture hash. See the [Honkai: Star Rail section](/docs/honkai-star-rail).
+- **Zenless Zone Zero:** same add-on, with its own `Zenless Zone Zero` preset and axes. It writes `Resource\ZZMI\...` lines plus `run = CommandList\ZZMI\SetTextures` (SlotFix), and also matches parts by `match_index_count`. See the [Zenless Zone Zero section](/docs/zenless-zone-zero).
+- **Wuthering Waves:** a different add-on, WWMI Tools. It exports straight into `WWMI\Mods`, uses `component N` names and a merged skeleton, and writes the whole `mod.ini`. See the [Wuthering Waves section](/docs/wuthering-waves).
+- **Deadlock or League of Legends:** nothing is packed or compiled. XXMI Tools writes buffers and an `.ini`, GIMI swaps them in while the game draws, and `F10` reloads them.
+
+</Accordion>
+</Accordions>
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="Box"
+    href="/docs/genshin-impact/tools/blender-add-on"
+    note="1.8.2"
+  >
+    XXMI Tools
+  </Requirement>
+  <Requirement
+    icon="Blender"
+    href="/docs/genshin-impact/models/import-into-blender"
+    note="imported with the Genshin Impact preset"
+  >
+    A .blend with your character
+  </Requirement>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/genshin-impact/tools/xxmi-launcher"
+    note="to test"
+  >
+    XXMI Launcher with GIMI
+  </Requirement>
+</Requirements>
+
+<Callout type="warning" title="Keep your .blend file">
+  XXMI Tools cannot import a finished mod. Your `.blend` file is the only way
+  back into your work. Keep it, and save a copy before every big change.
+</Callout>
+
+## Check these rules before you export
+
+### Names
+
+<img
+  src="/wiki-images/genshin-impact-models-export-your-mod-1.webp"
+  alt="The dump folder name Mona plus the part Head from hash.json gives the object name MonaHead. One visible object named MonaHead or MonaHead-2 exports. Mona-Head, Head, two visible MonaHead objects, or a renamed folder fail"
+/>
+
+- **Every object name starts with folder, component and part.** Mona's parts are `MonaHead` and `MonaBody`. A named component sits in the middle, as in Furina's `FurinaPonytailHead`. The part names come from `hash.json`.
+- **One visible object per part.** Two visible objects that start with the same part name stop the export. Hide or rename spare meshes.
+- **Several meshes in one part.** Make a collection whose name starts with the part name, for example `MonaBody`. Keep the emptied original object in it and put your meshes in too. Export merges the collection into that part and writes one `drawindexed` line per object, ready for a toggle.
+- **Keep every part of a component you export.** A part you do not want stays as an empty object. Components you did not touch can be left out. Older guides tell you to edit `hash.json`: you no longer need to.
+
+{/* NEEDS HANDS-ON TEST: that XXMI Tools 1.8.2 exports a Genshin Impact character with one untouched component left out of the scene, and fails with "Cannot find object" when one part of an exported component is deleted */}
+
+### Build on the imported objects
+
+Never export an object you made from scratch. The imported objects carry hidden `3DMigoto:` properties that export needs. To put your own mesh into a part:
+
+1. Line up your mesh with the original. Select it and press `Ctrl+A`, then choose **All Transforms**.
+2. Select the imported part object, press `Tab`, press `A`, then `X` and choose **Vertices**. Press `Tab` again. The object is now empty.
+3. Click your mesh, then `Shift`+click the emptied part object, so it is selected last.
+4. Press `Ctrl+J`. Your mesh joins into the part object and keeps its name and properties.
+
+An object without these properties stops the export with `... is missing custom properties required for export!`. Import the dump again and join your mesh into the new import.
+
+### Vertex groups
+
+Vertex groups are the game's bone numbers. Export reads each group's place in the list, not its name, so the list must run `0`, `1`, `2` ... in order, with no gaps. A missing number shifts every bone after it.
+
+Before every export, open the **XXMI Toolbox** panel in the XXMI Tools sidebar and click:
+
+1. **Merge shared name Vertex Groups**. It folds `12.001` into `12`.
+2. **Fill gaps in Vertex Groups**. It adds empty groups for missing numbers and sorts the list.
+
+Hold `Alt` while you click to run a button on every selected object. If you used **Remove unused Vertex Groups**, always run **Fill gaps** after it.
+
+Every vertex of a moving part needs weight. Only 4 weights per vertex fit, and **Normalize weights to format** trims extras at export. [Weight paint a mesh](/docs/genshin-impact/models/weight-painting) covers weights in full.
+
+<YouTube
+  id="h7RMkdKWXEE"
+  start={3397}
+  title="A failed Genshin Impact export fixed by merging and filling vertex groups, by Aotani"
+/>
+
+The clip starts at 56:37. Aotani uses Blender 3.6 LTS and sets the outline rounding option to `10`. Keep Blender 4.5 LTS and the default of `8` unless you know you need more.
+
+{/* NEEDS HANDS-ON TEST: whether Outline decimal rounding precision 10 gives better Genshin Impact outlines than the default 8 in XXMI Tools 1.8.2 */}
+
+### UV maps and COLOR
+
+- **UV maps** keep the original names, such as `TEXCOORD.xy` and `TEXCOORD1.xy`, in capitals. When you join pieces, every piece needs the same UV map names. Otherwise Blender adds an extra map, and textures can go blank. **Clean UV Names** in the toolbox renames maps by their order.
+- **A `COLOR` attribute** must exist on every exported object, with domain `Face Corner` and type `Byte Color`. Copy its values from the original with a Data Transfer modifier. [UV maps, vertex colors, and outlines](/docs/genshin-impact/models/uvs-and-vertex-colors) shows how.
+
+### Size
+
+Stay close to the original vertex count. Very heavy meshes, with hundreds of thousands of vertices, cost performance. Textures stay one set per part, in powers of two such as 1024x1024 or 2048x2048.
+
+## Export the mod
+
+<Steps>
+<Step>
+
+### Fill in the XXMI Tools panel
+
+1. Press `N` in the 3D Viewport and open the **XXMI Tools** tab.
+2. Check **Dump Folder**. It is the folder you imported from, the one with `hash.json`. Import fills it in.
+3. Set **Output Folder** to a new, empty folder. It must not be the dump folder. A folder inside `%AppData%\XXMI Launcher\GIMI\Mods` makes testing faster.
+4. Check that **Game to mod** says `Genshin Impact`.
+
+If you leave **Output Folder** empty, the mod goes to `<DumpName>Mod` next to the dump, for example `MonaMod`.
+
+{/* SCREENSHOT: genshin-impact-models-export-your-mod-2.webp, Blender 4.5 sidebar with the XXMI Tools v1.8.2 tab open, Dump Folder and Output Folder filled in, Game to mod set to Genshin Impact, and the Export Settings panel unfolded */}
+
+</Step>
+<Step>
+
+### Check the export settings
+
+Unfold **Export Settings**. The defaults suit a first export:
+
+| Setting                           | Default | What to know                                                                           |
+| --------------------------------- | ------- | -------------------------------------------------------------------------------------- |
+| **Ignore hidden objects**         | on      | Hidden objects are skipped. Keep reference copies hidden.                              |
+| **Apply modifiers and shapekeys** | on      | Modifiers apply on a copy. Your scene stays as it is.                                  |
+| **Normalize weights to format**   | on      | Keeps at most 4 weights per vertex.                                                    |
+| **Mod textures**                  | on      | Copies the original textures once. It never overwrites a file with the same name.      |
+| **Write buffers**, **Write ini**  | on      | Write the mesh files and the `.ini`.                                                   |
+| **Outline Optimization**          | on      | Rebuilds outline data. It is slow, so some creators turn it off until the last export. |
+| **Credit**                        | empty   | Your name. The game shows "Created by" with it when the mod loads.                     |
+
+The XXMI Tools page, linked under What you need, explains every other option.
+
+</Step>
+<Step>
+
+### Click Export Mod
+
+Click **Export Mod** at the bottom of the panel. When it works, the status bar says `Exported <Name> to <folder> in <n> seconds`.
+
+Errors and warnings show in the status bar. For the full text, open <MenuPath path="Window > Toggle System Console" />.
+
+</Step>
+<Step>
+
+### Test it in game
+
+1. Copy the mod folder into `%AppData%\XXMI Launcher\GIMI\Mods`, unless you exported straight into it.
+2. Turn off any other mod for the same character.
+3. Switch to another character, press `F10` to reload, then switch back.
+4. Check the mod in the character screen, then while running and attacking.
+
+[Test and reload your mod](/docs/genshin-impact/basics/test-your-mod) explains the keys and on-screen warnings.
+
+</Step>
+</Steps>
+
+## What the export writes
+
+<Files>
+  <Folder name="MonaMod" defaultOpen>
+    <File name="Mona.ini: the mod's instructions for GIMI" />
+    <File name="MonaPosition.buf: vertex positions, normals, tangents" />
+    <File name="MonaBlend.buf: bone weights" />
+    <File name="MonaTexcoord.buf: UVs and COLOR" />
+    <File name="MonaHead.ib" />
+    <File name="MonaBody.ib: one index file per part" />
+    <File name="MonaHeadDiffuse.dds, MonaHeadLightMap.dds" />
+    <File name="MonaBodyDiffuse.dds, MonaBodyLightMap.dds" />
+  </Folder>
+</Files>
+
+A character with named components gets one set of `.buf` files per component, such as `FurinaPonytailPosition.buf`. Weapons without bones get only a Position buffer.
+
+Each part gets a section like this in the `.ini`:
+
+```ini
+[TextureOverrideMonaHead]
+hash = <ib hash>
+match_first_index = <first index>
+ib = ResourceMonaHeadIB
+Resource\GIMI\Diffuse = ref ResourceMonaHeadDiffuse
+Resource\GIMI\LightMap = ref ResourceMonaHeadLightMap
+run = CommandList\GIMI\SetTextures
+drawindexed = <index count>, <offset>, 0
+```
+
+This is the current form for Genshin Impact since 6.1. `run = CommandList\GIMI\SetTextures` runs ORFix for you, and ORFix already ships inside GIMI. Do not add ORFix lines by hand, and never copy ORFix into your mod. A mod folder also never holds `d3dx.ini`, `d3d11.dll` or a `ShaderFixes` folder. [How a mod .ini works](/docs/genshin-impact/ini/how-a-mod-ini-works) explains each line.
+
+## Export again, faster
+
+- **Export straight into `Mods`.** Then each export is one `F10` away from a test.
+- **Hand-edited the `.ini`?** Back it up and untick **Write ini**. Later exports then refresh only the mesh files. If the vertex count changes, tick it again, because the counts live in the `.ini`, and copy your edits back in.
+- **Before you share,** delete textures you did not change, with their lines in the `.ini`.
+
+Need to replace only one buffer, for example the UVs? XXMI Buffer Export by failsafe65 adds **Position**, **Blend**, **Texcoord** and **IB** buttons to the XXMI Tools panel. It is new (2026) and was not tested for this guide. A normal export is simpler when the vertex count or order changes.
+
+{/* NEEDS HANDS-ON TEST: XXMI Buffer Export 1.0.1 with XXMI Tools 1.8.2 on a Genshin Impact character: the button labels and that a Texcoord-only export loads in GIMI 8.9.4 */}
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title='"Cannot find match for name"' id="no-match-for-name">
+
+The dump folder was renamed, or no object name starts with the folder name. Rename the folder back to the character name its files use, such as `Mona`, and keep object names starting with it.
+
+</Accordion>
+<Accordion title='"Hash file ... does not exist or is not a file"' id="no-hash-json">
+
+**Dump Folder** points to the wrong place, such as a mod folder or a `FrameAnalysis` folder. Point it to the extracted dump folder with `hash.json`. If `hash.json` is gone, download or extract the folder again.
+
+</Accordion>
+<Accordion title='"Cannot find object ... in the scene"' id="missing-part">
+
+A part of a component you export has no object. It was deleted, renamed, or hidden while **Ignore hidden objects** is on. Bring the object back. It may be empty.
+
+</Accordion>
+<Accordion title='"Found multiple objects with the name ..."' id="multiple-objects">
+
+Two visible objects start with the same part name, such as `MonaHead` and `MonaHead.001`. Hide or rename one, or put both in a collection named after the part.
+
+</Accordion>
+<Accordion title='"... is missing the following UV layers" or "vertex colors: COLOR"' id="missing-uv-or-color">
+
+A UV map is missing or has the wrong name, or the `COLOR` attribute is missing. Rename the UV maps with **Clean UV Names**. Add `COLOR` with domain `Face Corner` and type `Byte Color`, then copy the values from the original.
+
+</Accordion>
+<Accordion title="The export works, but parts stretch or fly off in game" id="stretching">
+
+The vertex groups have a gap or are out of order. Run **Merge shared name Vertex Groups** and **Fill gaps in Vertex Groups**, export again, and press `F10`. [Model problems in game](/docs/genshin-impact/errors/model-problems) covers more symptoms.
+
+</Accordion>
+</Accordions>
+
+Every export and import message is listed on [Blender export and import errors](/docs/genshin-impact/errors/creator-errors).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Your first model edit: remove a part"
+    href="/docs/genshin-impact/models/remove-a-part"
+    icon={<Icon name="Scissors" />}
+    level="intermediate"
+    featured
+  >
+    Delete Mona's hat and run this whole export once.
+  </PremiumCard>
+  <PremiumCard
+    title="Add a toggle"
+    href="/docs/genshin-impact/ini/add-a-toggle"
+    icon={<Icon name="ToggleRight" />}
+    level="intermediate"
+  >
+    Turn a part on and off in game with one key.
+  </PremiumCard>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/genshin-impact/publishing/publishing-checklist"
+    icon={<Icon name="ListChecks" />}
+    level="beginner"
+  >
+    Clean up the folder, credit others, and package it.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [XXMI Tools guide](https://leotorrez.github.io/modding/guides/xxmi_tools) by LeoTorreZ.
+- **Guide:** [How to Export Genshin Mods - Blender](https://gamebanana.com/tuts/17838) by Dougline.
+- **Guide:** [Troubleshooting](https://github.com/SilentNightSound/GI-Model-Importer/blob/main/Guides/Troubleshooting.md) by SilentNightSound.
+- **Video:** [How to make Genshin mods the Aotani way (Intermediate)](https://www.youtube.com/watch?v=h7RMkdKWXEE) by Aotani.
+- **Tool:** [XXMI Tools](https://github.com/leotorrez/XXMITools) by LeoTorreZ and contributors.
+- **Tool:** [XXMI Buffer Export](https://github.com/failsafe42/modding-tools/tree/main/XXMI-Buffer-Export) by failsafe65.

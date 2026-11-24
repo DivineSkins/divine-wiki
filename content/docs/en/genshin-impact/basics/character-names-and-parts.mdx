@@ -1,0 +1,194 @@
+---
+title: "Character names and parts"
+description: "Look up the name Genshin Impact mod files use for each character and outfit, and the components and parts a character is split into."
+category: "basics"
+patch: "7.2"
+keywords:
+  ["genshin character names", "gimi parts", "hash.json", "genshin asset repo"]
+---
+
+<LevelPill level="beginner" />
+
+Mod files, dump folders and Blender objects all use the same names for characters and their parts. Learn them once here, so you pick the right folder and the right object every time.
+
+<Accordions>
+<Accordion title="Coming from another game?">
+
+**From Honkai: Star Rail or Zenless Zone Zero.** Those games split every character into several named components (`Hair`, `Body`, `Head`) with lettered parts. Older Genshin characters have one unnamed component with parts called `Head`, `Body`, `Dress` and `Extra`. Newer Genshin characters work like Star Rail and ZZZ.
+
+**From Wuthering Waves.** Genshin has no `Component N` objects and no merged skeleton. Each part is its own Blender object, named after the character, component and part.
+
+Other game sections: [Honkai: Star Rail](/docs/honkai-star-rail), [Zenless Zone Zero](/docs/zenless-zone-zero), [Wuthering Waves](/docs/wuthering-waves).
+
+</Accordion>
+</Accordions>
+
+## What you need
+
+Nothing to install. To browse the names yourself, open the asset repo in your browser:
+
+<Requirements>
+  <Requirement
+    icon="GitHub"
+    href="https://github.com/SilentNightSound/GI-Model-Importer-Assets"
+    note="optional"
+  >
+    GI-Model-Importer-Assets
+  </Requirement>
+</Requirements>
+
+## How a name is built
+
+Every file in a Genshin mod or dump follows one pattern: character, then component, then part, then texture type.
+
+<img
+  src="/wiki-images/genshin-impact-basics-character-names-and-parts-1.webp"
+  alt="The file name FurinaPonytailHeadDiffuse.dds split into character Furina, component Ponytail, part Head and texture type Diffuse"
+/>
+
+- **Character:** the folder name in the asset repo, written without spaces.
+- **Component:** one index buffer. Many older characters have one main component with no name, so it disappears from the file name: `FurinaBody`, not `FurinaMainBody`.
+- **Part:** a piece of that index buffer, like the head or the dress.
+- **Texture type:** `Diffuse` (color), `LightMap` (shading and material), `NormalMap` (surface detail).
+
+Blender objects and `.ib` files use the name without the texture type, for example `FurinaBody` or `ColumbinaBodyA`. Keep those names: the exporter uses them to match your mesh to the right part.
+
+## Names modders use
+
+Mod folders and the asset repo use the character's display name, written in one word with capitals: `HuTao`, `Furina`, `Mavuika`. Some are not what you would guess:
+
+| You know them as          | Folder name                      |
+| ------------------------- | -------------------------------- |
+| Childe                    | `Tartaglia`                      |
+| Raiden Shogun             | `RaidenShogun`                   |
+| Ayaka, Ayato              | `KamisatoAyaka`, `KamisatoAyato` |
+| Kazuha                    | `KaedeharaKazuha`                |
+| Kokomi                    | `SangonomiyaKokomi`              |
+| Itto                      | `AratakiItto`                    |
+| Kujou Sara, Kuki Shinobu  | `KujouSara`, `KukiShinobu`       |
+| Yae Miko, Yun Jin, Yaoyao | `YaeMiko`, `YunJin`, `YaoYao`    |
+| Aether, Lumine            | `TravelerBoy`, `TravelerGirl`    |
+
+Checked against the asset repo on 2026-11-24. Its last update was on 2026-08-03, so it is behind version 7.2.
+
+<Callout type="warning" title="Newer characters are missing">
+  The asset repo has no folder for Odette, Alyosha, Vesna, Mitya, Valeriy or Lan
+  Yan. For them, and for any character the repo lacks, make your own dump. [Make
+  a frame dump](/docs/genshin-impact/basics/frame-dump) shows how.
+</Callout>
+
+### The game's own names
+
+The game's internal files use other names again. You meet them in icon file names such as `UI_AvatarIcon_Side_<Name>`, not in character mods.
+
+| Display name              | Internal name                   |
+| ------------------------- | ------------------------------- |
+| Amber                     | `Ambor`                         |
+| Jean                      | `Qin`                           |
+| Raiden Shogun             | `Shougun`                       |
+| Noelle                    | `Noel`                          |
+| Yanfei                    | `Feiyan`                        |
+| Thoma                     | `Tohma`                         |
+| Lynette, Lyney            | `Linette`, `Liney`              |
+| Alhaitham                 | `Alhatham`                      |
+| Baizhu                    | `Baizhuer`                      |
+| Heizou                    | `Heizo`                         |
+| Ororon                    | `Olorun`                        |
+| Xianyun                   | `Liuyun`                        |
+| Kirara                    | `Momoka`                        |
+| Traveler (Aether, Lumine) | `PlayerBoy`, `PlayerGirl`       |
+| Miliastra mannequins      | `MannequinBoy`, `MannequinGirl` |
+
+The full list is in Enka's `avatars.json` (see Credits).
+
+## Outfits are separate models
+
+Each alternate or paid outfit is its own model, with its own hashes and its own asset folder. A mod for the default outfit does not change the outfit, and the other way round.
+
+Outfit folders in the asset repo: `AyakaSpringbloom`, `BarbaraSummertime`, `DilucFlamme`, `FischlHighness`, `GanyuTwilight`, `KaeyaSailwind`, `KeqingOpulent`, `KleeBlossomingStarlight`, `LisaStudent`, `NingguangOrchid`, `ShenheFrostFlower` and `XingqiuBamboo`.
+
+<Callout type="danger" title="Paid outfits">
+  Never put a paid outfit over its free version, or over the Miliastra
+  mannequins. Mod sites in this scene ban it.
+</Callout>
+
+**China client models.** The client for mainland China uses different models for Amber, Jean, Mona and Rosaria, with a different vertex group order. Their folders end in `CN`: `AmberCN`, `JeanCN`, `MonaCN`, `RosariaCN`. A mod for one client must be converted to work on the other.
+
+## Components and parts
+
+A **component** is one index buffer (IB) with its own hash. A **part** is a slice of that buffer. The `.ini` tells parts apart by where they start in the buffer, with `match_first_index`.
+
+**Older characters** have one main component with no name, split into up to four parts: `Head`, `Body`, `Dress`, `Extra`. Furina, for example:
+
+| Component       | Parts                   | Textures per part                                                               |
+| --------------- | ----------------------- | ------------------------------------------------------------------------------- |
+| (main, no name) | `Head`, `Body`, `Dress` | Head and Body: `Diffuse`, `LightMap`, `NormalMap`. Dress: `Diffuse`, `LightMap` |
+| `Ponytail`      | `Head`                  | `Diffuse`, `LightMap`                                                           |
+| `Face`          | `Head`                  | `Diffuse` only                                                                  |
+
+**Newer characters** have several named components with lettered parts. Columbina, for example:
+
+| Component                                 | Parts              |
+| ----------------------------------------- | ------------------ |
+| `Body`                                    | `A`, `B`, `C`      |
+| `HeadPiece`                               | `A`, `B`           |
+| `Bangs`, `Eyes`, `Mask`, `Transparencies` | `A`                |
+| `Face`                                    | `A` (texture only) |
+
+That is why you see objects like `ColumbinaBodyA`. gui_collect, the dump tool, follows the same rule when you dump a character yourself: a component with no name and four parts or fewer gets `Head`, `Body`, `Dress`, `Extra`. Everything else gets letters.
+
+Which parts have a `NormalMap` matters later. In the `.ini`, a part with a normal map gets the ORFix line, a part without one gets NNFix.
+
+### The face is textures only
+
+The `Face` component has no mesh in a normal dump. You can change its texture (`FurinaFaceHeadDiffuse.dds`), but the standard Blender export does not touch the face shape. Face mesh edits need separate face tools.
+
+### hash.json holds the map
+
+Every character folder in the asset repo, and every dump you extract, has a `hash.json`. It lists each component, its parts, their first indexes and every hash. XXMI Tools reads it when you export, and the export fails without it.
+
+- Never delete `hash.json`.
+- Never rename the dump folder.
+
+## Body types
+
+Characters share one of five body types: `BODY_BOY`, `BODY_GIRL`, `BODY_LADY`, `BODY_MALE` and `BODY_LOLI`. Characters with the same body type have the same proportions, so moving an outfit between them is easier. Vertex groups (bone numbers) still differ from character to character in general.
+
+{/* NEEDS HANDS-ON TEST: whether characters of one body type share vertex group numbers */}
+
+## Weapons
+
+Weapons sit in `WeaponData`, sorted by type (`Bows`, `Catalysts`, `Claymores`, `Polearms`, `Swords`) and then by stars (`1Star` to `5Star`). A weapon usually has one part, `Head`.
+
+Some weapon families share one mesh, for example the Royal and Sacrificial weapons. A mod for one will likely show on its twin too.
+
+{/* NEEDS HANDS-ON TEST: on 7.2, whether a Royal weapon mod also shows on the matching Sacrificial weapon */}
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Get a model into Blender"
+    href="/docs/genshin-impact/models/import-into-blender"
+    icon={<Icon name="Box" />}
+    level="intermediate"
+  >
+    Import a character folder with XXMI Tools and find each part.
+  </PremiumCard>
+  <PremiumCard
+    title="Find a hash with hunting mode"
+    href="/docs/genshin-impact/basics/find-a-hash"
+    icon={<Icon name="Crosshair" />}
+    level="intermediate"
+  >
+    Find the hash of any mesh, texture or shader on screen.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Data:** [GI-Model-Importer-Assets](https://github.com/SilentNightSound/GI-Model-Importer-Assets) by SilentNightSound, with additions by LeoTorrez: folder names, components and parts.
+- **Data:** [Enka API-docs `avatars.json`](https://github.com/EnkaNetwork/API-docs/blob/master/store/gi/avatars.json) by EnkaNetwork: internal character names.
+- **Tool:** [gui_collect](https://github.com/Petrascyll/gui_collect) by Petrascyll: part naming rule.

@@ -1,0 +1,286 @@
+---
+title: "Weight paint a mesh"
+description: "Make a new or changed Genshin Impact mesh bend with the character in Blender: copy weights from the original, fix the rest by hand, and clean the groups."
+category: "models"
+patch: "7.2"
+keywords:
+  ["genshin weight painting", "vertex groups", "data transfer", "xxmi tools"]
+---
+
+<LevelPill level="intermediate" />
+
+Weights tell the game which bones move each vertex of a mesh. A new part with no weights, or bad ones, stays frozen or stretches into spikes when the character moves. This page shows how to copy weights from the original part, fix what is left, and clean the groups so the export works. Written for XXMI Tools 1.8.2 on Blender 4.5 LTS.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Blender" href="/docs/genshin-impact/tools/blender-add-on">
+    Blender 4.5 LTS with XXMI Tools
+  </Requirement>
+  <Requirement
+    icon="Box"
+    href="/docs/genshin-impact/models/import-into-blender"
+  >
+    The original part, imported
+  </Requirement>
+  <Requirement icon="Shirt">Your new or edited mesh</Requirement>
+</Requirements>
+
+Before you start, duplicate the imported original part (`Shift+D`, then right-click to drop it in place) and hide the copy with `H`. That copy is your weight source. You will join your finished mesh into the original later, as [Export your mod from Blender](/docs/genshin-impact/models/export-your-mod) shows.
+
+## How weights work in Genshin Impact
+
+Each vertex group on an imported part is one bone of the character. The group's name is the bone's number. A weight from 0 to 1 says how strongly that bone moves the vertex: blue is 0, red is 1.
+
+<img
+  src="/wiki-images/genshin-impact-models-weight-painting-1.webp"
+  alt="A bow mesh shown five times, once for each vertex group 0 to 4, red where that bone moves the mesh and blue where it does not"
+/>
+
+XXMI Tools does not read the group names on export. It writes each vertex's bone as the position of the group in the list. That gives five rules for Genshin Impact:
+
+| Rule                                         | What happens if you break it                                                                             |
+| -------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Groups are `0`, `1`, `2`... in order, no gap | A missing number shifts every bone after it. The mesh explodes in game.                                  |
+| Keep every group the original part had       | Same as above. A group with no weight in it is fine.                                                     |
+| No new bones                                 | The skeleton is fixed. Groups past the original's last number are ignored.                               |
+| At most 4 weights per vertex                 | The game stores 4 bones per vertex. The exporter warns about more.                                       |
+| Every vertex of a moving part has weight     | The part does not follow the body. The exporter warns `Mesh(<name>) requires vertex groups to be posed`. |
+
+Most swords, spears and claymores have no vertex groups at all. Weapons follow other rules, on the weapon page under Next steps.
+
+<YouTube
+  id="dKZrzG5r13g"
+  title="Vertex Groups, Blender 2.80 Fundamentals, by the Blender Foundation"
+/>
+
+The video uses Blender 2.80. In Blender 4.5 the "2D falloff" option is **Falloff Shape** set to `Projected`. Its automatic weights make groups named after your own bones: the game cannot use those, so copy weights from the original instead.
+
+## Pick a method
+
+| Your part                                            | Method                                                              |
+| ---------------------------------------------------- | ------------------------------------------------------------------- |
+| A rigid piece that follows one bone: a pin, a badge  | [Give it one bone](#give-a-rigid-piece-one-bone)                    |
+| Clothing or a reshaped part that sits on the body    | [Copy weights with Data Transfer](#copy-weights-with-data-transfer) |
+| One area bends wrong after the copy                  | [Fix one area](#fix-one-area)                                       |
+| Clothing over the legs or armpits that keeps tearing | Try the Robust Weight Transfer add-on, then fix by hand             |
+
+<ToolCard
+  name="Robust Weight Transfer"
+  href="https://github.com/sentfromspacevr/robust-weight-transfer/releases"
+  badge="Untested"
+  icon={<Icon name="GitHub" />}
+>
+  Blender add-on that copies body weights onto clothing with fewer bad weights
+  between the legs and at the armpits. Free, GPL-3.0, v1.1.9.
+</ToolCard>
+
+{/* NEEDS HANDS-ON TEST: Robust Weight Transfer 1.1.9 on Blender 4.5 with a Genshin Impact 7.2 dump: group names stay numeric and the export loads in game. */}
+
+## Copy weights with Data Transfer
+
+This is the fastest way to weight clothing or any mesh that sits on the body.
+
+<Steps>
+<Step>
+
+### Line the mesh up
+
+1. Place your mesh where it should sit on the original part. The closer it fits, the better the copy.
+2. Press `Ctrl+A` and choose **All Transforms**.
+
+</Step>
+<Step>
+
+### Add the modifier
+
+1. Select your mesh and open the **Modifiers** tab (the wrench) in the Properties editor.
+2. Add a **Data Transfer** modifier.
+3. Set **Source** to the hidden copy of the original part.
+4. Keep the **Object Transform** button to the right of **Source** turned on (blue). It makes the copy use world positions.
+5. Tick **Vertex Data** and pick **Vertex Groups**.
+6. Change **Mapping** from `Nearest Vertex` to `Nearest Face Interpolated`. This avoids spiky weights.
+7. Leave **Layer Selection** on `All Layers` and **Layer Mapping** on `By Name`.
+8. Click **Generate Data Layers**. It adds the groups `0`, `1`, `2`... to your mesh. Without them the modifier copies nothing.
+
+<img
+  src="/wiki-images/genshin-impact-models-weight-painting-2.webp"
+  alt="The Data Transfer modifier panel with Source set to the original bow, Vertex Data ticked, Vertex Groups picked, Mapping still on Nearest Vertex, Layer Selection All Layers, Layer Mapping By Name, and the Generate Data Layers button"
+/>
+
+{/* NEEDS HANDS-ON TEST: whether Generate Data Layers creates the groups in the original's order on Blender 4.5. The clean-up below sorts them either way. */}
+
+</Step>
+<Step>
+
+### Apply it and check
+
+1. Click the down arrow in the modifier's header and choose **Apply**. Or hover over the modifier and press `Ctrl+A`.
+2. Press `Ctrl+Tab` to enter Weight Paint mode.
+3. Click through a few groups in the **Vertex Groups** list. The colors should look like the original's in the same place.
+
+</Step>
+</Steps>
+
+Data Transfer is fast but rough. Expect to fix spots where parts touch: arms against the body, between the legs, and fingers.
+
+## Give a rigid piece one bone
+
+A hairpin or a badge should not bend. Give all of it one group at full weight.
+
+1. Find the bone. In Weight Paint mode on the original part, click through its groups until the area under your piece turns red. Note that number.
+2. Select your piece, press `Tab` for Edit Mode, and press `A` to select everything.
+3. In the **Object Data** tab (the green triangle), under **Vertex Groups**, click `+`. Double-click the new group and rename it to the bone's number, for example `34`.
+4. Set **Weight** to `1.000` and click **Assign**.
+
+The other numbers come back when you join the piece into the original part, or when you run **Fill gaps in Vertex Groups** in the clean-up below.
+
+## Fix one area
+
+### Copy one group again
+
+Use this when one group came out wrong, for example the upper arm grabbed the body.
+
+1. In Object Mode, click the original copy, then `Shift+click` your mesh so it is the active object.
+2. In each object's **Vertex Groups** list, select the same group.
+3. Press `Ctrl+Tab` for Weight Paint mode.
+4. Open the **Weights** menu and choose **Transfer Weights**.
+5. In the panel at the bottom left, set **Vertex Mapping** to `Nearest Face Interpolated`, the source and destination layers to `Active Layer`, and **Mix Mode** to `Replace`.
+6. Open **Weights** again and choose **Normalize All**, with **Lock Active** off. Each vertex's weights now add up to 1.
+
+<img
+  src="/wiki-images/genshin-impact-models-weight-painting-3.webp"
+  alt="The Weights menu in Weight Paint mode with Normalize All highlighted and its tooltip, plus Smooth, Transfer Weights and Limit Total in the list"
+/>
+
+{/* NEEDS HANDS-ON TEST: the source and destination layer labels of the Transfer Weights panel in Blender 4.5, and which object must be active. */}
+
+### Paint it by hand
+
+1. In Weight Paint mode, pick the group to change.
+2. Set the brush **Weight** (the value you paint) and **Strength** (1.0 replaces what is there).
+3. Paint. To take weight away, set **Weight** to `0`.
+4. Use the **Blur** or **Average** brush on hard edges between red and blue.
+5. To paint the back side too, set **Falloff Shape** to `Projected` and untick **Front Faces Only**.
+6. Finish with **Weights** > **Smooth**, then **Weights** > **Normalize All**.
+
+Keep **Auto Normalize** on in the tool options while you paint with brushes. Turn it off when you use the **Gradient** tool.
+
+{/* NEEDS HANDS-ON TEST: where Falloff Shape, Front Faces Only and Auto Normalize sit in the Blender 4.5 Weight Paint tool settings. */}
+
+## Test with an armature
+
+Posing the mesh in Blender finds bad weights before you start the game. This part is optional.
+
+<ToolCard
+  name="AnimeGameArmatures"
+  href="https://github.com/Seris0/AnimeGameArmatures"
+  badge="Untested"
+  icon={<Icon name="GitHub" />}
+>
+  Ready-made armatures for Genshin Impact characters, with bones numbered like
+  the vertex groups. By Seris0.
+</ToolCard>
+
+1. Append your character's armature from its `.blend` file into your scene.
+2. On your mesh, add an **Armature** modifier and set **Object** to that armature. Do not apply it.
+3. Select the armature, press `Ctrl+Tab` for Pose Mode, and press `Alt+Z` for X-ray.
+4. Rotate the arms, legs and head with `R`. Watch for parts that stretch or stay behind.
+5. If a bone moves a part it should not, keep it posed. Switch to your mesh in Weight Paint mode and `Shift+right-click` the bad area: Blender lists the groups with weight there. Pick the wrong one and paint it to `0` until the mesh snaps back.
+6. When you finish, select all bones in Pose Mode and press `Alt+G`, `Alt+R` and `Alt+S` to return to the rest pose. Turn the Armature modifier off before you export.
+
+Old GI-Bones armature files from 2023 may not match current dumps.
+
+{/* NEEDS HANDS-ON TEST: that the AnimeGameArmatures Genshin Impact armature matches a 7.2 dump, and whether an Armature modifier left on changes the exported positions in XXMI Tools 1.8.2. */}
+
+## Clean up before every export
+
+Run this on the final object, after you join your mesh into the original part.
+
+1. Press `N` in the 3D Viewport and open **XXMI Tools** > **XXMI Toolbox**.
+2. Click **Merge shared name Vertex Groups**. It folds `12.001` into `12` and sorts the list.
+3. On a new part only, click **Remove unused Vertex Groups**.
+4. Click **Fill gaps in Vertex Groups**. Always run it after step 3, or every number after a removed group shifts.
+5. Keep **Normalize weights to format** on in the export settings. It keeps 4 weights per vertex and normalizes them. To do it by hand, use **Weights** > **Limit Total** with a limit of `4`, then **Normalize All**.
+6. Compare the group list with a fresh import of the same part. The numbers must match.
+
+Hold `Alt` when you click a Toolbox button to run it on every selected object.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The whole mesh explodes into spikes in game" id="mesh-explodes">
+
+The group list has a gap, is out of order, or lost a number. Run the clean-up above, compare the list with a fresh import, and export again.
+
+</Accordion>
+<Accordion title="One area stretches when the character moves" id="one-area-stretches">
+
+That area picked up weights from the wrong bone, often where an arm touches the body. Copy that group again with **Transfer Weights**, smooth it, and run **Normalize All**. Lining your mesh up closer to the original helps.
+
+</Accordion>
+<Accordion title="Data Transfer changed nothing" id="transfer-did-nothing">
+
+Check these in order:
+
+- **Source** is empty or points to the wrong object.
+- Your mesh has no groups with the same names. Click **Generate Data Layers**.
+- **Object Transform** is off, so the copy looks in the wrong place.
+- You are previewing with an Armature modifier above the Data Transfer modifier. Move Data Transfer to the top.
+
+</Accordion>
+<Accordion title="Hair or cloth does not sway" id="no-sway">
+
+The part is weighted to a rigid group such as the head or the spine. Weight it to the original's moving groups instead: the hair, cape, belt or tassel bones of that character.
+
+</Accordion>
+<Accordion title="Huge spikes appear right after export" id="spikes-after-export">
+
+The weights are not normalized, or a group name is not a plain number. Run **Normalize All** and check that every group is named `0`, `1`, `2` and so on.
+
+</Accordion>
+</Accordions>
+
+More symptoms and fixes are on [Model problems in game](/docs/genshin-impact/errors/model-problems).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="UV maps, vertex colors, and outlines"
+    href="/docs/genshin-impact/models/uvs-and-vertex-colors"
+    icon={<Icon name="Palette" />}
+    level="intermediate"
+  >
+    Keep textures lined up and outlines looking like the game's.
+  </PremiumCard>
+  <PremiumCard
+    title="Add or swap clothing parts"
+    href="/docs/genshin-impact/models/add-clothing-parts"
+    icon={<Icon name="Shirt" />}
+    level="intermediate"
+  >
+    Put a new piece on a character, weighted and textured.
+  </PremiumCard>
+  <PremiumCard
+    title="Swap weapons, gliders, and objects"
+    href="/docs/genshin-impact/models/swap-weapons-and-objects"
+    icon={<Icon name="Swords" />}
+    level="intermediate"
+  >
+    Weapons with no vertex groups, and weapons with a few.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Video:** [Vertex Groups - Blender 2.80 Fundamentals](https://www.youtube.com/watch?v=dKZrzG5r13g) by the Blender Foundation.
+- **Video:** [How Does The Data Transfer Modifier Really Work?](https://www.youtube.com/watch?v=6_B1xZK-o-8) by Game Abuse Studios.
+- **Video:** [WEIGHT PAINTING in BLENDER | Beginner to Pro](https://www.youtube.com/watch?v=tUIIauuXveE) by OzzO.
+- **Video:** [\[Genshin Modding\] Episode 2 - Your First Character!](https://www.youtube.com/watch?v=hUmSJxko9-g) by Murren Mods.
+- **Guide:** [Weight painting lesson](https://docs.google.com/presentation/d/1qfuKQj3WGSHpkZhhUwvLy7XVnZBIqutq2XLWqLN-xck) by [Cybertron: The Sequel](https://discord.com/users/622502585823395841) in the [AGMG Discord](https://discord.gg/agmg).
+- **Guide:** [How to Export Genshin Mods - Blender](https://gamebanana.com/tuts/17838) by Dougline.
+- **Images:** images 1 and 2 from [Custom Weapon Modding Walkthrough](https://leotorrez.github.io/modding/guides/weapon-banana) by SilentNightSound. Image 3 from [Beginner's Guide to Wuthering Waves modding](https://gamebanana.com/tuts/19096) by Denwarenji.
+- **Tools:** [XXMI Tools](https://github.com/leotorrez/XXMITools) by LeoTorreZ, [Robust Weight Transfer](https://github.com/sentfromspacevr/robust-weight-transfer) by SentFromSpaceVR, [AnimeGameArmatures](https://github.com/Seris0/AnimeGameArmatures) by Seris0.

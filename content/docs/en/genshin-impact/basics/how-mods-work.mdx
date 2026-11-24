@@ -1,0 +1,237 @@
+---
+title: "How Genshin Impact mods work"
+description: "How XXMI and GIMI swap models and textures while Genshin Impact draws, why hashes matter, why one mod per character wins, and why updates break mods."
+category: "basics"
+patch: "7.2"
+keywords: ["genshin mods", "gimi", "xxmi", "3dmigoto", "hash"]
+---
+
+<LevelPill level="beginner" />
+
+A Genshin Impact mod never changes the game's files. It swaps what the game draws, while the game runs. This page explains how that works, so most "my mod does nothing" problems make sense before you meet them.
+
+<Accordions>
+<Accordion title="Coming from another game?">
+
+**From Honkai: Star Rail or Zenless Zone Zero.** Same XXMI DLL, same launcher, same hotkeys, same Blender add-on (XXMI Tools). What changes in Genshin:
+
+- Turn **Dynamic Character Resolution** off in the game's graphics settings.
+- Part textures bind through `Resource\GIMI\...` lines plus `run = CommandList\GIMI\SetTextures`, not SlotFix or `this =` per texture.
+- Every part also needs an ORFix or NNFix line. Both ship inside GIMI. Genshin needs no RabbitFX.
+
+**From Wuthering Waves.** Genshin uses XXMI Tools, not WWMI Tools, and has no merged skeleton. Parts are matched by their index buffer hash plus `match_first_index`, not by a VB0 hash. The on-screen flag is `$active`, not `$object_detected`.
+
+**From Deadlock or League of Legends.** Nothing is packed or replaced on disk. XXMI swaps data while the game draws, and `F10` reloads your mod in game.
+
+Other game sections: [Honkai: Star Rail](/docs/honkai-star-rail), [Zenless Zone Zero](/docs/zenless-zone-zero), [Wuthering Waves](/docs/wuthering-waves).
+
+</Accordion>
+</Accordions>
+
+## What you need
+
+Nothing to install. This page explains ideas, not steps. To look at real files while you read, have these ready:
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/genshin-impact/tools/xxmi-launcher"
+    note="optional"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="FolderOpen" note="optional">
+    A mod you downloaded
+  </Requirement>
+</Requirements>
+
+## Mods change what the game draws
+
+Genshin Impact is a Unity game. On PC it draws everything through DirectX 11. Every frame, the game sends thousands of **draw calls** to the graphics card. Each one says: draw these triangles, with these vertices, these textures and these shaders.
+
+The XXMI DLL sits between the game and DirectX. It is a file named `d3d11.dll`, built from the 3DMigoto project. XXMI Launcher loads it into the game when you press **Start**. The game thinks it is talking to DirectX. The DLL passes every call on, but first it checks whether a mod wants to change that draw.
+
+<img
+  src="/wiki-images/genshin-impact-basics-how-mods-work-1.webp"
+  alt="Genshin Impact asks DirectX 11 to draw a mesh, the XXMI DLL hashes it and checks the Mods folder, a matching mod swaps in its own buffers and textures, and the GPU draws the result"
+/>
+
+**GIMI** (Genshin Impact Model Importer) is the Genshin part of XXMI. It is a folder with a main config file (`d3dx.ini`), a `Core\GIMI` folder of shared files and libraries, and a `ShaderFixes` folder. XXMI Launcher installs and updates GIMI for you. This page was written for XXMI Launcher 2.5.0, XXMI DLL 1.3.2 and GIMI 8.9.4.
+
+When GIMI loads, the game shows this text for about 30 seconds:
+
+```text
+GIMI 8.9.4 F12 TO SHOW GUIDE
+```
+
+No text means the DLL did not load, so no mod can work.
+
+<Callout type="info" title="Who sees your mod">
+  Mods change only what your own PC draws. Other players see the normal models.
+  The modding community reports this, but it has not been tested for this guide.
+  [What's allowed and how to stay
+  safe](/docs/genshin-impact/getting-started/stay-safe) explains the rules and
+  the risk.
+</Callout>
+
+{/* NEEDS HANDS-ON TEST: two-PC co-op check that other players see the original model, not the mod */}
+
+## Hashes: how a mod finds its target
+
+XXMI gives every buffer, texture and shader a **hash**: a short code computed from its data. A mod says "when you see this hash, use my files instead".
+
+| Hash of            | Length        | What it is                                                                         |
+| ------------------ | ------------- | ---------------------------------------------------------------------------------- |
+| Index buffer (IB)  | 8 hex digits  | The triangle list of a mesh. One IB often holds several parts, like head and body. |
+| Vertex buffer (VB) | 8 hex digits  | Vertex data: positions, bone weights, UVs, vertex colors.                          |
+| Texture            | 8 hex digits  | One image, like a diffuse or light map.                                            |
+| Shader             | 16 hex digits | One small GPU program.                                                             |
+
+In a mod's `.ini` file, a hash looks like this. `1a2b3c4d` stands for a real hash:
+
+```ini
+[TextureOverrideMyTexture]
+hash = 1a2b3c4d
+this = ResourceMyTexture
+
+[ResourceMyTexture]
+filename = MyTexture.dds
+```
+
+That is the idea in its smallest form. A character mod exported from Blender has more sections, one per buffer and per part. [How a mod .ini works](/docs/genshin-impact/ini/how-a-mod-ini-works) goes through every line.
+
+Two things follow from hashes:
+
+- **A part is found by its IB hash plus its first index.** Head, body and dress often share one index buffer. The `match_first_index` line tells them apart.
+- **Each outfit is its own model.** A paid outfit has its own hashes. A mod for the default outfit does not change the paid one, and the other way round.
+
+## How GIMI finds your mods
+
+Mods go in this folder:
+
+```text
+%AppData%\XXMI Launcher\GIMI\Mods
+```
+
+GIMI's `d3dx.ini` tells the DLL what to read:
+
+```ini
+[Include]
+include = Core\GIMI\main.ini
+include_recursive = Mods
+exclude_recursive = DISABLED*
+exclude_recursive = desktop.ini
+```
+
+What that means for you:
+
+- Every `.ini` file anywhere under `Mods` loads, at any folder depth.
+- A file or folder whose name **starts** with `DISABLED` is skipped, with everything inside it. `DISABLED_Hat` is skipped. `Hat_DISABLED` still loads.
+- Inside each folder, `.ini` files load first in A to Z order, then the subfolders.
+- A mod finds its `.buf`, `.ib` and `.dds` files by the names written in its `.ini`, starting from the `.ini`'s own folder. Rename one file and that part breaks.
+- Each `.ini` gets its own namespace. Two mods can use the same section names without clashing.
+
+{/* NEEDS HANDS-ON TEST: whether a mod file named with an upper-case .INI extension loads in XXMI DLL 1.3.2 */}
+
+## One mod per character
+
+Two mods for the same character or outfit both match the same hashes. Both run, and the result is a mess. Keep one mod per character or outfit turned on, and rename the others so they start with `DISABLED`.
+
+When warnings are on, a clash shows orange text like this:
+
+```text
+Possible Mod Conflict: Duplicate TextureOverride hash=...
+```
+
+XXMI Launcher mutes warnings by default. Turn them on in its settings while you test your mod.
+
+Want several outfits for one character? [Combine mods into one merged mod](/docs/genshin-impact/ini/merged-mods) and switch between them with a key.
+
+## What is in a mod folder
+
+A character mod exported with XXMI Tools looks about like this:
+
+<Files>
+  <Folder name="Mods" defaultOpen>
+    <Folder name="MonaRecolor" defaultOpen>
+      <File name="Mona.ini: tells XXMI what to swap" />
+      <File name="MonaPosition.buf" />
+      <File name="MonaBlend.buf" />
+      <File name="MonaTexcoord.buf" />
+      <File name="MonaHead.ib" />
+      <File name="MonaBody.ib" />
+      <File name="MonaHeadDiffuse.dds" />
+      <File name="MonaBodyDiffuse.dds" />
+      <File name="MonaBodyLightMap.dds" />
+    </Folder>
+  </Folder>
+</Files>
+
+{/* NEEDS HANDS-ON TEST: the exact file names XXMI Tools 1.8.2 writes for a one-component Genshin character such as Mona */}
+
+| File            | What it does                                                                                                         |
+| --------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `.ini`          | The mod's instructions: which hashes to watch and what to swap in. Plain text, save it as UTF-8.                     |
+| `.buf`          | Vertex data. `Position` holds shape and normals, `Blend` holds bone weights, `Texcoord` holds UVs and vertex colors. |
+| `.ib`           | Index buffer: the triangle list of one part.                                                                         |
+| `.dds`          | Textures: diffuse (color), light map, normal map.                                                                    |
+| `.hlsl`         | Shader code. Only effect mods have it.                                                                               |
+| `hash.json`     | In a frame dump or asset folder. Lists each part and its hashes. XXMI Tools reads it when you export.                |
+| `d3dx_user.ini` | In the `GIMI` folder, not in a mod. Saves toggle settings. Never edit it by hand.                                    |
+| `ShaderFixes`   | A folder in `GIMI`, not in a mod. GIMI ships its own files there.                                                    |
+
+## What a mod must never contain
+
+<Callout type="warning" title="Keep these out of every mod">
+  XXMI Launcher refuses to start the game if a mod ships `d3dx.ini`. It shows
+  `Cannot start with d3dx.ini in Mods folder!`
+</Callout>
+
+- **Loader files:** `d3dx.ini`, `d3d11.dll`, or a `ShaderFixes` folder. Package a shader edit as a normal mod instead.
+- **Library copies:** ORFix, ORFixAPI, NNFix (part of ORFix), TexFx, Offset, Region, Tracking and HealthBar ship inside GIMI, in `GIMI\Core\GIMI\Libraries`. You never install them. If you find `ORFix.ini`, `ORFixAPI.ini`, `Region.ini` or `Offset.ini` in `Mods`, delete it.
+- **Programs:** a mod holds `.ini`, `.buf`, `.ib`, `.dds` and sometimes `.hlsl` files. An `.exe` or `.dll` in a skin mod is a warning sign.
+
+## Why updates break mods
+
+Genshin updates about every six weeks. An update can break mods in six ways:
+
+1. **New hashes.** The game re-exports a model or texture, so its hash changes. The mod no longer matches and the character looks normal. Version 7.2 re-hashed Odette and Vesna.
+2. **New buffer layout.** The game changes how vertex data or bone numbers are stored. The mod's buffers no longer fit.
+3. **Moved texture slots.** Version 6.1 (2025-10-22) moved the slots characters are drawn with. Every part now needs an ORFix or NNFix line. Guides older than that date may teach the wrong lines.
+4. **New outline or reflection shaders.** Characters turn green, yellow or too bright. GIMI updates ORFix for everyone, so restarting XXMI Launcher fixes most of these.
+5. **A new way of drawing characters.** The importer and the mod format both have to change.
+6. **New graphics settings.** Version 4.4 added Dynamic Character Resolution. It must be off, or mods break.
+
+XXMI Launcher updates GIMI and its libraries by itself, which fixes shader and library breaks. New hashes and new layouts need a fix tool or an update from the mod's creator. No importer rewrites a mod's hashes for you. [Fix your mods after a game update](/docs/genshin-impact/getting-started/fix-mods-after-an-update) walks through it.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Test and reload your mod"
+    href="/docs/genshin-impact/basics/test-your-mod"
+    icon={<Icon name="FlaskConical" />}
+    level="beginner"
+  >
+    Reload in seconds with F10, compare with the original, and read the
+    on-screen messages.
+  </PremiumCard>
+  <PremiumCard
+    title="Your first mod: recolor a character"
+    href="/docs/genshin-impact/textures/recolor-a-character"
+    icon={<Icon name="Palette" />}
+    level="beginner"
+  >
+    Change a character's colors without touching the model.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Tool:** [XXMI DLL (XXMI-Libs-Package)](https://github.com/SpectrumQT/XXMI-Libs-Package) by SpectrumQT, a fork of [3Dmigoto](https://github.com/bo3b/3Dmigoto) by bo3b, Chiri and DarkStarSword.
+- **Tool:** [GIMI-Package](https://github.com/SilentNightSound/GIMI-Package) by SilentNightSound, maintained by LeoTorrez and the GIMI team.
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorrez and contributors.
+- **News:** [Genshin 6.1 Mod Break Info + Rule Updates](https://gamebanana.com/news/21936) by SilentNightSound and Gustav0.
+- **News:** [4.4 Update New Feature Breaking Mods Notice](https://gamebanana.com/news/21847) by SilentNightSound.

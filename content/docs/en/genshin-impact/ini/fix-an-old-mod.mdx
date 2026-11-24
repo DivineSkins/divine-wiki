@@ -1,0 +1,260 @@
+---
+title: "Fix an old mod by hand"
+description: "Update an old Genshin Impact mod's .ini by hand when no fix tool handles it: ORFix and NNFix lines, the face fix, changed hashes, and what no edit can fix."
+category: "ini"
+patch: "7.2"
+keywords:
+  [
+    "fix old genshin mod",
+    "orfix",
+    "nnfix",
+    "genshin mod green",
+    "genshin 6.1 fix",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+Fix tools repair most old mods. When they cannot, for example on merged mods or mods with many toggles, you can fix the `.ini` yourself. This page covers the change in version 6.1 (October 22, 2025) that broke most mods, and the older breaks that still show up. Written for GIMI 8.9.4 on version 7.2.
+
+<Accordions>
+<Accordion title="Coming from another game?">
+
+Each game broke its mods in its own way, so the fixes differ.
+
+- **Genshin Impact:** the big break is 6.1. Texture slots moved, so every character part needs an ORFix or NNFix line, and face textures use `this =`. Both libraries ship inside GIMI.
+- **Honkai: Star Rail:** version 3.2 moved skinning to compute shaders, and textures bind by hash. There is no ORFix.
+- **Zenless Zone Zero:** textures bind through SlotFix (`Resource\ZZMI\...`). There is no ORFix.
+- **Wuthering Waves:** old mods usually need a new export from WWMI Tools, not hand edits.
+
+Other game sections: [Honkai: Star Rail](/docs/honkai-star-rail), [Zenless Zone Zero](/docs/zenless-zone-zero), [Wuthering Waves](/docs/wuthering-waves).
+
+</Accordion>
+</Accordions>
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/genshin-impact/tools/xxmi-launcher"
+    note="GIMI up to date"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="NotepadPlusPlus" note="or any editor that saves UTF-8">
+    A text editor
+  </Requirement>
+  <Requirement icon="Archive">A backup copy of the mod</Requirement>
+</Requirements>
+
+If the layout of a mod `.ini` is new to you, read [How a mod .ini works](/docs/genshin-impact/ini/how-a-mod-ini-works) first.
+
+## Try the fix tools first
+
+Two things fix many "broken" mods with no edit at all: turn **Dynamic Character Resolution** off in the game's graphics settings, and let XXMI Launcher update GIMI. [Fix your mods after a game update](/docs/genshin-impact/getting-started/fix-mods-after-an-update) covers that, and [Update fix tools](/docs/genshin-impact/tools/update-fixers) covers the ORFix Applier and Fix All Character Mods.
+
+Fix by hand when:
+
+- the tool cannot read the mod: merged mods, mods with many toggles, or mods with several `.ini` files;
+- the tool fixed most of it, but one part still looks wrong;
+- you want to know what the tool changed.
+
+## Find what the mod needs
+
+| What you see                                                 | Why                                                                                                            | Fix                                            |
+| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| Green, yellow or purple parts, wrong reflections or outlines | Made before 6.1: the part has no ORFix or NNFix line, or the wrong one                                         | Add ORFix or NNFix                             |
+| White face, missing face edits, or pink rings on the cheeks  | The face uses the old `ps-t0 =` line, or has an ORFix line                                                     | Fix the face section                           |
+| The character looks unmodded                                 | The game changed the character's hashes: mods made before 4.4, Mavuika before 5.4, Odette and Vesna before 7.2 | Replace the hashes                             |
+| Odd shading or broken toggles after following an old guide   | A copy of ORFix or another GIMI library sits in `Mods`                                                         | Delete the copy                                |
+| Wrong shading from a custom normal map made before 5.4       | Version 5.4 changed normal maps into "heightmaps"                                                              | New maps from a fresh dump. No edit fixes this |
+
+<img
+  src="/wiki-images/genshin-impact-ini-fix-an-old-mod-1.webp"
+  alt="Two in-game shots of Furina standing on water: on the left her reflection is bright green, on the right, with the fix applied, the reflection has her normal colors"
+/>
+
+## Fix it by hand
+
+<Steps>
+<Step>
+
+### Back up and turn on warnings
+
+1. Copy the mod's folder to a place outside `Mods`.
+2. In XXMI Launcher, open the settings, go to the **GIMI** tab and untick **Mute Warnings**. Now `F10` shows errors in game.
+3. Open the mod's `.ini` in your text editor.
+
+</Step>
+<Step>
+
+### Delete copies of GIMI's libraries
+
+Look in the mod's folder and anywhere in `Mods` for `ORFix.ini`, `ORFixAPI.ini`, `Region.ini` or `Offset.ini`. Delete them, also inside a `BufferValues` folder.
+
+GIMI 8.9.4 already loads these from `GIMI\Core\GIMI\Libraries`, and a second copy conflicts with it. Old guides and many videos say to add ORFix yourself. That was for the old standalone GIMI, not XXMI Launcher.
+
+</Step>
+<Step>
+
+### Add ORFix or NNFix to each part
+
+Find the part sections: `[TextureOverride...Head]`, `...Body`, `...Dress` and so on. Each has a `match_first_index` line. Then look at the texture lines in each:
+
+| The part has                                 | Texture lines in this order                          | Add before `drawindexed`               |
+| -------------------------------------------- | ---------------------------------------------------- | -------------------------------------- |
+| A normal map: three texture lines            | `ps-t0` NormalMap, `ps-t1` Diffuse, `ps-t2` LightMap | `run = CommandList\global\ORFix\ORFix` |
+| No normal map: two texture lines             | `ps-t0` Diffuse, `ps-t1` LightMap                    | `run = CommandList\global\ORFix\NNFix` |
+| `run = CommandList\GIMI\SetTextures` already | `Resource\GIMI\...` lines                            | Nothing. This is the current form      |
+| No `ps-t` lines                              | none                                                 | Nothing                                |
+
+Put the line under the texture lines and above the `drawindexed` lines:
+
+```ini
+[TextureOverrideCharBody]
+hash = eeeeeeee
+match_first_index = 30000
+ib = ResourceCharBodyIB
+ps-t0 = ResourceCharBodyNormalMap
+ps-t1 = ResourceCharBodyDiffuse
+ps-t2 = ResourceCharBodyLightMap
+run = CommandList\global\ORFix\ORFix
+; the part's drawindexed lines stay here
+```
+
+If the texture lines are in another order, run the ORFix Applier first. Then check the order against the table.
+
+{/* NEEDS HANDS-ON TEST: the ORFix slot order in this table on Genshin Impact 7.2 with GIMI 8.9.4, and whether swapping ps-t0 and ps-t1 is ever needed */}
+
+Never add ORFix or NNFix to a face section. That gives a white face.
+
+</Step>
+<Step>
+
+### Fix the face
+
+Find `[TextureOverride...FaceHeadDiffuse]`. Remove any ORFix or NNFix line from it. Then change `ps-t0 =` to `this =`:
+
+```ini
+[TextureOverrideCharFaceHeadDiffuse]
+hash = ffffffff
+this = ResourceCharFaceHeadDiffuse
+```
+
+If the mod also changes the face's light map, use this form instead:
+
+```ini
+[TextureOverrideCharFaceHeadDiffuse]
+hash = ffffffff
+Resource\GIMI\LightMap = ref ResourceCharFaceHeadLightMap
+Resource\GIMI\Diffuse = ref ResourceCharFaceHeadDiffuse
+run = CommandList\GIMI\SetTextures
+```
+
+The tool Face Fix Updated by Sanddino makes the same change for you and keeps a backup.
+
+{/* NEEDS HANDS-ON TEST: both face forms on a pre-6.1 face mod in Genshin Impact 7.2 with GIMI 8.9.4 */}
+
+</Step>
+<Step>
+
+### In a merged mod, edit the command lists
+
+In a merged mod, each part's `[TextureOverride...]` section only runs a command list. Put the ORFix or NNFix line inside the matching `[CommandList...]` block, after its `endif`. [Combine mods into one merged mod](/docs/genshin-impact/ini/merged-mods) explains the layout.
+
+{/* NEEDS HANDS-ON TEST: ORFix line after the endif of a merged mod's CommandList block on GIMI 8.9.4 */}
+
+</Step>
+<Step>
+
+### Replace changed hashes
+
+Do this only if the character still looks unmodded. Fix All Character Mods covers every hash change from 3.0 to 7.2, so try it first. By hand:
+
+1. Get the new hashes. Each character folder in the public asset repo [GI-Model-Importer-Assets](https://github.com/SilentNightSound/GI-Model-Importer-Assets) has a `hash.json`. The repo has no characters from 7.0 on, so for those, [find the hashes in hunting mode](/docs/genshin-impact/basics/find-a-hash) or a frame dump.
+2. Replace each old hash in the `.ini` with the new one.
+3. Check that the `match_first_index` values still match the new dump.
+
+</Step>
+<Step>
+
+### Test
+
+1. Save the file as UTF-8.
+2. In game, switch to another character, then press `F10`.
+3. Switch back. Read any warning text, fix the line it names, and reload.
+4. Check every part while the character moves. Hold `F9` to compare with the original.
+
+</Step>
+</Steps>
+
+This video shows the ORFix and NNFix lines being added to a real mod, with the result in game:
+
+<YouTube
+  id="9b_S45lAT6U"
+  start={49}
+  title="How to manually fix Genshin mods in 6.1, by Heirou"
+/>
+
+The video assumes you installed ORFix yourself. With XXMI Launcher you do not: ORFix ships inside GIMI.
+
+## When a new export beats hand edits
+
+If you made the mod, or you have its `.blend` file, export it again with XXMI Tools 1.8.2. Every part then comes out in the current form, with no lines to fix. Normal maps from before 5.4 need new versions made from a fresh dump. No script converts them. Creators updating their own mod for others can follow [Update your mod after a game update](/docs/genshin-impact/publishing/update-your-mod).
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Still green after I added ORFix" id="still-green">
+
+- Check that you used `ORFix` on parts with a normal map and `NNFix` on parts without one.
+- Check the order of the texture lines against the table.
+- Check that XXMI Launcher updated GIMI. ORFix gets an update on most game patch days.
+- Green only during one skill or burst: ORFix does not cover that shader yet. Wait for the next GIMI update.
+
+</Accordion>
+<Accordion title="The face turned white" id="white-face">
+
+The face section has an ORFix or NNFix line. Remove it, and use `this =` as shown above.
+
+</Accordion>
+<Accordion title="Textures turned black after I switched to SetTextures" id="black-textures">
+
+An open bug report says the mod optimizer can drop the inside of `CommandList\GIMI\SetTextures` in some layouts. Go back to your backup and use the ORFix line form instead.
+
+{/* NEEDS HANDS-ON TEST: black textures with CommandList\GIMI\SetTextures after Optimize Mods on GIMI 8.9.4 */}
+
+</Accordion>
+<Accordion title="Only this character looks scrambled" id="one-character-scrambled">
+
+Another mod for the same character is loaded. Keep one mod per character.
+
+</Accordion>
+</Accordions>
+
+More symptoms and their fixes are on [Mods look broken](/docs/genshin-impact/errors/mods-look-broken).
+
+## Next steps
+
+<PremiumCard
+  title="Add a toggle"
+  href="/docs/genshin-impact/ini/add-a-toggle"
+  icon={<Icon name="ToggleRight" />}
+  level="intermediate"
+>
+  Once the mod works again, add keys that hide parts or swap textures.
+</PremiumCard>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Video:** [How To Manually Fix Genshin Mods In 6.1](https://www.youtube.com/watch?v=9b_S45lAT6U) by Heirou.
+- **Guide:** [Genshin 6.1 Mod Break Info + Rule Updates](https://gamebanana.com/news/21936) by SilentNightSound, with the fix section by Gustav0.
+- **Guide:** [How To Fix: ORFix](https://gamebanana.com/tuts/19552) by veritas921.
+- **Guide:** [ORFix guide](https://github.com/leotorrez/LeoTools/blob/main/guides/ORFixGuide.md) by LeoTorreZ.
+- **Tool:** [Outline/Reflection fix (ORFix) Applier](https://gamebanana.com/tools/16472) by golanah921, kept up by LeoMods\_.
+- **Images:** the before and after comparison from the [ORFix Applier page](https://gamebanana.com/tools/16472) by golanah921, CC BY-NC-ND 4.0.
+- **Tool:** [7.2 Fix All Character Mods](https://gamebanana.com/tools/16433) by SilentNightSound and Gustav0.
+- **Tool:** [Face Fix Updated](https://github.com/Sanddino00/Gi-FaceFix) by Sanddino.

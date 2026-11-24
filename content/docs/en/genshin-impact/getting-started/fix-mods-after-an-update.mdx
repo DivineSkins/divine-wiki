@@ -1,0 +1,258 @@
+---
+title: "Fix your mods after a game update"
+description: "Get Genshin Impact mods working again after an update: back up, update GIMI, check your settings, and run the right fix tool only on the mods that broke."
+category: "getting-started"
+patch: "7.2"
+keywords:
+  [
+    "genshin mods broken",
+    "orfix applier",
+    "fix all character mods",
+    "genshin 7.2 mods",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+Most Genshin Impact updates break some mods for a few days. This page shows what to do, in order, so you fix the broken mods without breaking the ones that still work. Written for Genshin Impact 7.2 and GIMI 8.9.4.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/genshin-impact/getting-started/install-with-xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="FileArchive" note="such as 7-Zip">
+    An archive tool
+  </Requirement>
+  <Requirement icon="Terminal" note="optional, 3.11 or newer">
+    Python
+  </Requirement>
+</Requirements>
+
+Python lets you run the readable source version of the fix tools instead of the `.exe`.
+
+## The order to follow
+
+<img
+  src="/wiki-images/genshin-impact-getting-started-fix-mods-after-an-update-1.webp"
+  alt="Six steps in a row: back up Mods, update XXMI Launcher, check Dynamic Character Resolution, run the ORFix Applier on old mods with wrong colors, run the Fix All script on re-hashed characters, then wait for the creator"
+/>
+
+Most mods work again after steps 2 and 3. Only use a fix tool when a mod is still broken after them.
+
+## What usually breaks in Genshin Impact
+
+Genshin Impact updates break mods in two ways:
+
+- **The game moves texture slots or changes its shaders.** Colors, reflections and outlines go wrong. The GIMI team fixes this in ORFix, a library that comes with GIMI, and XXMI Launcher installs the fix for you. Older mods may also need new ORFix lines.
+- **The game changes a character's model data.** The mod stops finding the character, so you see the original look. This is rare now. In 7.2, only Odette and Vesna changed.
+
+The last big change was version 6.1, on October 22, 2025. It moved texture slots for every character. Mods and guides made before that date may need fixing.
+
+| What you see                                                               | Likely cause                                        | What to do                                                                                     |
+| -------------------------------------------------------------------------- | --------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Every mod looks stretched or broken                                        | Dynamic Character Resolution is on                  | Turn it off (step 3)                                                                           |
+| Green, yellow, purple or neon parts, or wrong reflection or outline colors | GIMI not updated yet, or old ORFix lines in the mod | Update (step 2), then the ORFix Applier                                                        |
+| Green skin or a multicolored face                                          | ORFix lines on the wrong part, such as the face     | Run the ORFix Applier, or wait for the creator                                                 |
+| The mod does not show, and you see the original look                       | The character's model data changed                  | The Fix All script, for that mod only                                                          |
+| You get kicked with "Illegal tool detected"                                | Not a mod problem                                   | See [Illegal tool detected and 4001 errors](/docs/genshin-impact/errors/illegal-tool-detected) |
+
+<img
+  src="/wiki-images/genshin-impact-getting-started-fix-mods-after-an-update-2.webp"
+  alt="Furina's reflection on the floor before and after ORFix: green on the left, normal colors on the right"
+/>
+
+## Fix your mods
+
+<Steps>
+<Step>
+
+### Back up your Mods folder before the update
+
+1. Open `%AppData%\XXMI Launcher\GIMI\Mods`.
+2. Zip the whole folder with your archive tool.
+3. Keep the zip outside the `Mods` folder.
+
+Fix tools change model files that you cannot undo by hand. The zip is your way back.
+
+</Step>
+<Step>
+
+### Update the game, then XXMI Launcher
+
+1. Update Genshin Impact in HoYoPlay or Epic Games. XXMI Launcher does not update the game.
+2. Open XXMI Launcher. It checks for updates when it starts and offers to install new versions of GIMI.
+3. To check by hand, click the 3-dots button next to **Start**, then **Check For Updates**.
+4. Check the version in the bottom-left corner, for example `GIMI 8.9.4`.
+
+On update day, the GIMI team usually releases a first ORFix update. More follow over about two weeks. Open the launcher every few days so you get them.
+
+{/* NEEDS HANDS-ON TEST: the exact update prompt XXMI Launcher 2.5.0 shows when a new GIMI version is out, and whether it installs it without asking. */}
+
+</Step>
+<Step>
+
+### Check Dynamic Character Resolution
+
+1. Start the game with **Start** in XXMI Launcher.
+2. Open <MenuPath path="Settings > Graphics" />.
+3. Check that **Dynamic Character Resolution** is **Off**.
+
+Many "all my mods broke" reports are this setting alone. Graphics driver updates can turn it back on.
+
+</Step>
+<Step>
+
+### Test your mods
+
+1. Switch to a different character so the modded one is off screen.
+2. Press `F10` to reload.
+3. Switch back and check each modded character.
+
+Write down which mods are still broken. Only those need a fix tool.
+
+</Step>
+<Step>
+
+### Run one fix tool on the broken mods only
+
+<Callout type="warning" title="Get fix tools only from these two pages">
+  Fake fixers carrying malware have been uploaded after game updates. Download
+  only from the GameBanana pages below. Never use a "fix" that replaces
+  `d3d11.dll`, asks for admin rights, or comes in a password-protected archive.
+</Callout>
+
+<Tabs items={["Wrong colors: ORFix Applier", "Original look: Fix All script"]}>
+<Tab value="Wrong colors: ORFix Applier">
+
+<ToolCard
+  name="ORFix Applier"
+  href="https://gamebanana.com/tools/16472"
+  icon={<Icon name="GameBanana" />}
+>
+  By golanah921, maintained by LeoMods_. Adds the ORFix and NNFix lines that old
+  mods are missing.
+</ToolCard>
+
+Use it on mods made before October 22, 2025 that show wrong colors after step 2.
+
+1. Download the ORFix Applier. Take the `.py` source version if you have Python 3.11 or newer.
+2. Make a copy of the broken mod's folder outside `Mods`.
+3. Put the applier inside the broken mod's folder.
+4. Run it. It adds ORFix lines only to the parts that need them, and removes lines that are wrong.
+5. Delete the applier from the mod folder.
+6. Press `F10` in game and check the character.
+
+The applier saves a backup file that starts with `Backup_ORFIX_Applier_` next to the `.ini`. Mods with many toggles, and merged mods, often need a fix from their creator instead.
+
+</Tab>
+<Tab value="Original look: Fix All script">
+
+<ToolCard
+  name="7.2 Fix All Character Mods!"
+  href="https://gamebanana.com/tools/16433"
+  icon={<Icon name="GameBanana" />}
+>
+  Page by SilentNightSound, script by Gustav0. Updates mods for characters whose
+  model data changed.
+</ToolCard>
+
+Use it only on mods for a character whose data changed. For 7.2 that is Odette and Vesna. Mods made before version 4.5, and Mavuika mods from before version 5.4, may also need it.
+
+1. Download `gifixversion72.exe`, or the source `.zip` if you have Python.
+2. Make a copy of the broken mod's folder outside `Mods`.
+3. Put the script inside the broken mod's folder.
+4. Run it. It fixes that folder and every folder inside it.
+5. Delete the script from the mod folder.
+6. Press `F10` in game and check the character.
+
+The script skips any `.ini` file whose name starts with `DISABLED`.
+
+{/* NEEDS HANDS-ON TEST: run gifixversion72.exe inside one broken Odette or Vesna mod folder on 7.2 and confirm it fixes that mod and leaves other folders alone. Also confirm the ORFix Applier 4.2 works when placed in a single mod folder. */}
+
+</Tab>
+</Tabs>
+
+Run each tool once per mod. Running a tool twice, or an older tool after a newer one, can break the mod for good. If that happens, restore the mod from your copy and start again.
+
+Antivirus programs sometimes flag fix tools, because they rewrite many files at once. That is one more reason to use the source version when you can.
+
+</Step>
+<Step>
+
+### Still broken? Wait for the creator
+
+Some breaks no script can fix. Mods with their own normal maps from before version 5.4 need new maps from the creator, for example. Check the page where you got the mod for an update, and give creators a few days after a big update.
+
+To find which mod breaks things:
+
+1. Turn off half of your mods with the `DISABLED` prefix.
+2. Press `F10` and check whether the problem is still there.
+3. Keep halving the group that has the problem until one mod is left.
+
+</Step>
+</Steps>
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="A video says to put ORFix in Mods\BufferValues" id="orfix-buffervalues">
+
+That advice is for the old standalone GIMI. With XXMI Launcher, ORFix is already in `GIMI\Core\GIMI\Libraries` and updates by itself. Delete any `ORFix.ini`, `ORFixAPI.ini`, `Region.ini` or `Offset.ini` you find in `Mods`, and any `BufferValues` folder.
+
+</Accordion>
+<Accordion title="Everything was fine yesterday, and today every mod is broken" id="all-broken-after-driver">
+
+A graphics driver update probably turned Dynamic Character Resolution back on. Turn it off in the game's graphics settings and press `F10`.
+
+</Accordion>
+<Accordion title="Someone shared a new d3d11.dll that fixes everything" id="random-dll">
+
+Never use it. GIMI and the XXMI DLL come only through XXMI Launcher. A loader file from anywhere else can carry malware.
+
+</Accordion>
+<Accordion title="I use a mod manager" id="mod-manager">
+
+Some managers edit mod `.ini` files. Use the manager's restore option on a mod before you run a fix tool on it.
+
+</Accordion>
+</Accordions>
+
+If you make mods yourself, [Update your mod after a game update](/docs/genshin-impact/publishing/update-your-mod) covers the creator side.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Mods look broken"
+    href="/docs/genshin-impact/errors/mods-look-broken"
+    icon={<Icon name="TriangleAlert" />}
+    level="beginner"
+  >
+    Match what you see in game to its cause and fix.
+  </PremiumCard>
+  <PremiumCard
+    title="Update fix tools"
+    href="/docs/genshin-impact/tools/update-fixers"
+    icon={<Icon name="Wrench" />}
+    level="intermediate"
+  >
+    Every fix tool for Genshin Impact, and how to tell real ones from fakes.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **News:** [Genshin 6.1 Mod Break Info + Rule Updates](https://gamebanana.com/news/21936) by SilentNightSound and Gustav0.
+- **News:** [Genshin 5.4 Update Issues and Fixes](https://gamebanana.com/news/21895) by SilentNightSound.
+- **Tool:** [7.2 Fix All Character Mods!](https://gamebanana.com/tools/16433) by SilentNightSound and Gustav0.
+- **Tool:** [Outline/Reflection fix (ORFix) Applier](https://gamebanana.com/tools/16472) by golanah921 and LeoMods\_.
+- **Tool:** [GIMI-Package releases](https://github.com/SilentNightSound/GIMI-Package/releases) by LeoTorreZ and the GIMI maintainers.
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ.
+- **Images:** screenshot 2 from [Outline/Reflection fix (ORFix) Applier](https://gamebanana.com/tools/16472) by golanah921.

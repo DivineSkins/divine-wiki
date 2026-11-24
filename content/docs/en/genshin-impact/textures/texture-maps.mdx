@@ -1,0 +1,164 @@
+---
+title: "What each texture map does"
+description: "Learn what the diffuse, light map and normal map of a Genshin Impact character hold, channel by channel, so you change only what you mean to."
+category: "textures"
+patch: "7.2"
+keywords:
+  [
+    "genshin lightmap",
+    "genshin texture channels",
+    "diffuse alpha glow",
+    "genshin normal map",
+    "material id",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+Each Genshin Impact character part uses up to three textures, and each color channel in them does its own job. This page shows what each channel controls, so a recolor or a new part looks right in every light. Read [Your first mod: recolor a character](/docs/genshin-impact/textures/recolor-a-character) first if you have not edited a texture yet.
+
+<Accordions>
+<Accordion title="Coming from another game?" id="from-another-game">
+
+- **From [Honkai: Star Rail](/docs/honkai-star-rail):** you know the diffuse and light map pair. Genshin Impact has no stocking or material map, and its light map is full size. The Genshin exporter binds textures with `Resource\GIMI\...` and `run = CommandList\GIMI\SetTextures`, not `this =` per texture hash. No RabbitFX: TexFx is built into GIMI.
+- **From [Zenless Zone Zero](/docs/zenless-zone-zero):** Genshin Impact has no material map and no separate glow map. Glow comes from the diffuse alpha and from TexFx. GIMI's `SetTextures` does the job SlotFix does in ZZMI.
+- **From [Wuthering Waves](/docs/wuthering-waves):** Genshin Impact textures have readable names, like `FurinaBodyDiffuse.dds`. You do not need a usage file to tell them apart.
+
+</Accordion>
+</Accordions>
+
+## The one rule
+
+Copy every channel you do not mean to change from the original. The channel meanings below are community understanding, built from creators' tests and fan shader projects. They may be incomplete. A channel you leave alone cannot break.
+
+<img
+  src="/wiki-images/genshin-impact-textures-texture-maps-1.webp"
+  alt="Three boxes: the diffuse holds colors in RGB and the glow mask in alpha; the light map holds shine and metal in red, shadow in green, shine size in blue and material ID in alpha; the normal map holds surface direction in red and green"
+/>
+
+## The textures of a part
+
+A character folder in the asset repository holds files like these, for each part:
+
+| File                        | Format           | Used for                                 |
+| --------------------------- | ---------------- | ---------------------------------------- |
+| `FurinaBodyDiffuse.dds`     | `BC7_UNORM_SRGB` | Colors, plus the glow mask in the alpha  |
+| `FurinaBodyLightMap.dds`    | `BC7_UNORM`      | Shine, metal, shadows and material types |
+| `FurinaBodyNormalMap.dds`   | `BC7_UNORM`      | Small surface detail                     |
+| `FurinaFaceHeadDiffuse.dds` | `BC7_UNORM_SRGB` | Face colors                              |
+
+Older characters and many `Dress` parts have no normal map. Most characters since 3.0 have one on `Head` and `Body`. The export add-on handles both cases for you.
+
+## Diffuse
+
+- **RGB:** the colors you see. This is what a recolor changes.
+- **Alpha:** the glow mask. Bright areas glow, for example when the burst is ready. Most of it is near black, so the file looks mostly transparent in an editor. On some parts the alpha is a cut-out instead, and on the face it holds blush.
+
+A diffuse with no alpha, or a white alpha, makes the whole part glow.
+
+## Light map
+
+The light map looks green with patches of other colors. As a rule of thumb, green is skin and cloth, pink is metal, orange or yellow is hair, and lime green is eyes. Some characters break the rule, so compare with the diffuse.
+
+| Channel | What it controls                                                                                                | What to do                                    |
+| ------- | --------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| **R**   | Shine and metal. Black is matte. Very high values, about 230 and up, make the area metal.                       | Paint it only to add or remove metal or shine |
+| **G**   | Shadow. Mid grey `128` follows the real light. Darker is always in shadow. White is always lit, as on the eyes. | Keep the original                             |
+| **B**   | The size and sharpness of the shine. It only matters where R is painted.                                        | Keep the original unless you painted R        |
+| **A**   | Material ID. It picks the shading colors and the outline color of each area.                                    | Keep the original                             |
+
+To give a new area the same look as an existing one, pick the light map color from an area that already looks right, alpha included, and paint with it.
+
+<YouTube
+  id="K8Naxvm2v-4"
+  start={423}
+  title="Diffuse alpha and light map colors in a Genshin Impact mod, by MydnightMynt"
+/>
+
+{/* NEEDS HANDS-ON TEST: light map R, B and A meanings on Genshin Impact 7.2 shaders, and the value where R turns an area metal */}
+
+## Normal map
+
+- **R and G:** the direction of the surface, for small bumps and folds.
+- **B and A:** not understood. Keep the original.
+
+Since Genshin Impact 5.4, normal maps use a new format that creators call "heightmaps". No script converts the old ones. If a mod has a normal map from before 5.4, replace it with one from a new dump. Paint areas you add flat, or stray lines show up. Creators use about `128, 128, 255` (hex `8080FF`) for flat.
+
+{/* NEEDS HANDS-ON TEST: whether 8080FF still paints a flat area in the 5.4+ normal map format */}
+
+## Look at one channel
+
+In Paint.NET, duplicate the layer, then open <MenuPath path="Adjustments > Modify Channels" />. Set line 1 to `Greyscale`, `Identity`, and the channel you want as the source. Add line 2: `Alpha`, `Constant`, `255`. Tick `Enabled`. The layer now shows that one channel in black and white. Delete the layer when you are done.
+
+In Photoshop, open the **Channels** panel and click one channel. With Intel Texture Works, tick **Load Transparency as Alpha Channel** when you open the file, or the alpha does not show.
+
+## Textures you cannot change
+
+The face shadow map, the shadow ramps and the shared metal map belong to the game, not to the character. They are not part of a dump, and a normal character mod does not replace them.
+
+TexFx, the glow, transparency and outline library built into GIMI, reads two extra textures you make yourself: an effects mask and an outline map. [Add glow and see-through parts](/docs/genshin-impact/effects/glow-and-transparency) shows them.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Skin looks shiny, metal or like plastic" id="shiny-skin">
+
+Light map R is too high on the skin, or the light map comes from another character. Paint R black on the skin, or use the character's own light map.
+
+</Accordion>
+<Accordion title="Shadows are dark or in the wrong place after an edit" id="wrong-shadows">
+
+Light map G or A was changed, or the light map was saved as sRGB. Copy G and A back from the original and save as `BC7 (Linear, DX 11+)`.
+
+</Accordion>
+<Accordion title="Eyes look wrong on a character from 6.7 or later" id="newer-eyes">
+
+Newer characters, such as the Snezhnaya characters, have an eye part with several diffuse textures: base, pupil and highlight. The XXMI Tools export writes all three as `Resource\GIMI\Diffuse = ref` lines in one block, so only one works.
+
+- If you did not change the eyes, delete the eye section from your `.ini`.
+- If you recolored them, replace each eye texture by its own hash. Get each hash from gui_collect, then add one section per texture and point it at the resource the exporter wrote:
+
+```ini
+[TextureOverrideOdetteEyesAPupilDiffuse]
+hash = 0a1b2c3d
+this = ResourceOdetteEyesAPupilDiffuse
+```
+
+The hash above is a placeholder. Keep a copy of these edits: a new export overwrites the `.ini`. Genshin Impact 7.2 changed Odette's and Vesna's hashes, so check them after each update.
+
+{/* NEEDS HANDS-ON TEST: both eye fixes on a 6.7+ character in Genshin Impact 7.2, and whether a newer XXMI Tools release handles parts with several diffuse textures */}
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Save DDS textures the right way"
+    href="/docs/genshin-impact/textures/save-dds-files"
+    icon={<Icon name="Save" />}
+    level="beginner"
+  >
+    Save each map in its own format so the channels stay correct.
+  </PremiumCard>
+  <PremiumCard
+    title="UV maps, vertex colors, and outlines"
+    href="/docs/genshin-impact/models/uvs-and-vertex-colors"
+    icon={<Icon name="Brush" />}
+    level="intermediate"
+  >
+    The mesh data that sets outline thickness and shading.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Video:** [How to make Genshin mods](https://www.youtube.com/watch?v=K8Naxvm2v-4) by MydnightMynt.
+- **Guide:** [Manual Lightmap Editing, Crash Course](https://gamebanana.com/tuts/19171) by Huy Vo.
+- **Guide:** [Basic lightmap tutorial using Paint.Net](https://gamebanana.com/tuts/16884) by Astutes.
+- **Guide:** [Paint.net .dds Breakdown](https://rentry.co/AnimeGame_PDN_Guide) by SinsOfSeven.
+- **Guide:** [Tutorial - Preserve alpha channels on Paint.net / how to handle .dds textures properly](https://docs.google.com/document/d/1DktYSbYMx-Bc4PKNF1XonvBAIRiC74pgNkMieQhd2jc/edit) by Anilyan.
+- **Discord:** the eye texture fix from the Snezhnaya eye guide by [Soul](https://discord.com/users/204828899551608833), and the Modify Channels settings by [bestie andrew](https://discord.com/users/518851482032930834), in the [AGMG Discord](https://discord.gg/agmg).

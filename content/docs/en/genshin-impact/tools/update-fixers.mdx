@@ -1,0 +1,194 @@
+---
+title: "Update fix tools"
+description: "Which tool fixes Genshin Impact mods after a game update, in what order to run it, how to spot a fake fixer, and what no tool can fix."
+category: "tools"
+patch: "7.2"
+keywords:
+  [
+    "genshin mod fix",
+    "fix all character mods",
+    "orfix applier",
+    "genshin mods broken after update",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+<ToolHeader
+  name="Fix All Character Mods"
+  icon="GameBanana"
+  badge="Official"
+  facts={["Free", "Windows exe or Python source", "Version 7.2"]}
+  primary={{ label: "Download", href: "https://gamebanana.com/tools/16433" }}
+>
+  Updates the hashes in old Genshin Impact mods so they load again. Page by
+  SilentNightSound, script by Gustav0.
+</ToolHeader>
+
+After a Genshin Impact update, some mods stop working. Two community tools repair most of them: Fix All Character Mods and the ORFix Applier. This page explains which one each mod needs, how to make sure you have the real tool, and what no tool can fix.
+
+Written for Genshin Impact 7.2 and GIMI 8.9.4.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/genshin-impact/tools/xxmi-launcher"
+    note="updated"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="Archive">A zip backup of your Mods folder</Requirement>
+  <Requirement icon="Terminal" note="only for .py versions">
+    Python 3.11 or newer
+  </Requirement>
+</Requirements>
+
+## Most breaks need no tool
+
+Many "all my mods broke" moments fix themselves. Check these two things first:
+
+1. **`Dynamic Character Resolution` is Off.** Game updates and GPU driver updates can turn it back on.
+2. **GIMI is up to date.** Open XXMI Launcher and let it update. The game's load banner should read `GIMI 8.9.4 F12 TO SHOW GUIDE`.
+
+GIMI ships ORFix, the library that fixes outlines and reflections. When a new version turns characters green, yellow, or too bright, an ORFix update inside GIMI usually fixes every mod at once. Since 2024 this is the most common kind of break. Hash changes are rare: the 7.2 update changed the hashes of only two characters, Odette and Vesna.
+
+## The Genshin Impact fixers
+
+<ToolCard
+  name="ORFix Applier"
+  href="https://gamebanana.com/tools/16472"
+  badge="Official"
+  icon={<Icon name="GameBanana" />}
+>
+  Adds the ORFix and NNFix lines that mods made before version 6.1 are missing.
+  By golanah921, kept up by LeoMods_.
+</ToolCard>
+<ToolCard
+  name="Face Fix Updated"
+  href="https://github.com/Sanddino00/Gi-FaceFix"
+  badge="Untested"
+  icon={<Icon name="GitHub" />}
+>
+  Fixes face rings and missing face makeup in mods made before version 6.1. By
+  Sanddino.
+</ToolCard>
+
+| Tool                             | Run it when                                                                                                               | What it changes                                                                                                                                                                                                            |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **ORFix Applier** (v4.2)         | The mod was made before 6.1 (October 22, 2025) and shows green skin, wrong colors, or wrong outlines.                     | Adds `run = CommandList\global\ORFix\ORFix` to parts with a normal map and `run = CommandList\global\ORFix\NNFix` to parts without one. Removes wrong ORFix lines. Saves a backup `.txt` named `Backup_ORFIX_Applier_...`. |
+| **Fix All Character Mods** (7.2) | The mod looks unmodded, and it was made before 4.4, or it is for a re-hashed character such as Odette, Vesna, or Mavuika. | Replaces old hashes with new ones in the `.ini`. Covers changes from version 3.0 to 7.2.                                                                                                                                   |
+| **Face Fix Updated**             | Only the face looks wrong after 6.1.                                                                                      | Rewrites the face texture lines.                                                                                                                                                                                           |
+
+{/* NEEDS HANDS-ON TEST: Face Fix Updated v0.8.0 on a pre-6.1 face mod in Genshin Impact 7.2. Its author says it was made with AI help. */}
+
+The ORFix Applier is not for mods with complex toggles or merged mods. Those need a fix by hand or an update from the creator.
+
+## Run them in this order
+
+1. Back up: zip your whole `Mods` folder.
+2. Turn `Dynamic Character Resolution` off, and update GIMI in XXMI Launcher.
+3. Press `F10` in game and see which mods are still broken.
+4. Run the ORFix Applier on broken mods made before 6.1. Put it in the broken mod's folder and run it.
+5. Run Fix All Character Mods only on mods that still look unmodded. Put `gifixversion72.exe` in the broken mod's folder and run it.
+6. Press `F10` and test again.
+
+Three rules keep this from going wrong:
+
+- **Use only the newest fixer.** Running an old fixer after a newer one breaks mods.
+- **Fix only broken mods.** Running a fixer on working mods can cause conflicts.
+- **Never run a fixer twice** on the same mod. Start again from your backup instead.
+
+{/* NEEDS HANDS-ON TEST: where Fix All Character Mods 7.2 writes its backups, and whether running it from Mods also processes mods inside DISABLED folders. */}
+
+If you use a mod manager that edits `.ini` files, restore your mods in it first. Fix them, then add them back.
+
+## What no tool can fix
+
+- **Normal maps from before 5.4.** Version 5.4 (February 2025) changed normal maps into "heightmaps". No script converts them. The creator must make new ones from a fresh dump.
+- **Complex and merged mods.** Scripts often miss parts of them. Expect a fix by hand or a creator update.
+- **"Illegal tool detected".** Fixers only repair mod files. For that error, see ["Illegal tool detected" and 4001 errors](/docs/genshin-impact/errors/illegal-tool-detected).
+
+If a tool cannot fix a mod, check the mod's page for an update from its creator. Creators who fix their own mods use [Update your mod after a game update](/docs/genshin-impact/publishing/update-your-mod).
+
+## Spot a fake fixer
+
+<Callout type="danger" title="Fake fixers have carried malware">
+
+After the 6.0 update in September 2025, a new account uploaded a fake "6.0 Fix all Character Mods!". It copied the real title. Its script asked for admin rights and downloaded a malicious program. Fake fixers show up after game updates, when players are in a hurry.
+
+</Callout>
+
+Before you run any fixer, check:
+
+1. **The link.** Use the links on this page, or the one in the GIMI team's news post for that version. Not a link from a video comment or a search result.
+2. **The author.** The real Fix All page lists SilentNightSound and Gustav0\_ as authors. It has a long update log and hundreds of thousands of downloads.
+
+{/* SCREENSHOT: genshin-impact-tools-update-fixers-1.webp, the header of gamebanana.com/tools/16433 with the title "7.2 Fix All Character Mods!", Key Authors Gustav0_ and SilentNightSound, and the download count. Close the privacy pop-up first. */}
+
+3. **The checksum.** GameBanana shows an MD5 checksum and a scan result for each file. Compare the MD5 of your download with it.
+4. **The source.** Prefer the version you can read, such as the `.py` script or source `.zip`.
+
+Red flags: a "fix" that replaces `d3d11.dll` or other XXMI files, asks for admin rights, comes in a password-protected archive, or comes from a new account with one upload. Also a "fix" that appears before the community has announced one.
+
+Antivirus apps sometimes flag real fixers, because they rewrite many files at once. Add an exclusion for that one file. Never turn your antivirus off.
+
+## Tools to skip
+
+| Skip this                                         | Why                                              |
+| ------------------------------------------------- | ------------------------------------------------ |
+| Fix pages for 4.1, 4.3, and 4.4                   | Outdated. The 7.2 Fix All covers them.           |
+| Any old fixer version                             | It breaks mods that a newer fixer already fixed. |
+| HOYO-SHA hash updater                             | Not trusted. Do not run it.                      |
+| A `d3d11.dll` "fix" from anyone but XXMI Launcher | Real fixes never replace XXMI files.             |
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Green skin or a multicolored face after a fix" id="green-face">
+
+ORFix was added to a face part. Remove the `run = CommandList\global\ORFix\ORFix` line from the face sections of the `.ini`, or run the ORFix Applier again on a fresh copy.
+
+</Accordion>
+<Accordion title="Every mod broke after I ran a fixer" id="all-broke">
+
+An outdated fixer, or a fixer run twice, can do this. Restore your `Mods` backup and follow the order above with the newest fixer.
+
+</Accordion>
+<Accordion title="The launcher warns about duplicate libraries" id="duplicate-orfix">
+
+An old mod or fixer left `ORFix.ini`, `ORFixAPI.ini`, `Region.ini` or `Offset.ini` in `Mods`. GIMI already has them. Delete the copies.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Fix your mods after a game update"
+    href="/docs/genshin-impact/getting-started/fix-mods-after-an-update"
+    icon={<Icon name="RefreshCw" />}
+    level="beginner"
+  >
+    The full player checklist for update day.
+  </PremiumCard>
+  <PremiumCard
+    title="Fix an old mod by hand"
+    href="/docs/genshin-impact/ini/fix-an-old-mod"
+    icon={<Icon name="Wrench" />}
+    level="intermediate"
+  >
+    Add ORFix lines and face fixes yourself when a tool cannot.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This page is based on the work of these creators. Check out their original pages and tools.
+
+- **Tool:** [7.2 Fix All Character Mods!](https://gamebanana.com/tools/16433) by SilentNightSound and Gustav0.
+- **Tool:** [Outline/Reflection fix (ORFix) Applier](https://gamebanana.com/tools/16472) by golanah921 and LeoMods\_.
+- **Tool:** [Face Fix Updated](https://github.com/Sanddino00/Gi-FaceFix) by Sanddino.
+- **Guide:** [Genshin 6.1 Mod Break Info + Rule Updates](https://gamebanana.com/news/21936) by SilentNightSound and Gustav0.

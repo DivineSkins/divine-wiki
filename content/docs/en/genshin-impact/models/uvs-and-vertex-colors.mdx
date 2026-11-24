@@ -1,0 +1,267 @@
+---
+title: "UV maps, vertex colors, and outlines"
+description: "Keep a Genshin Impact mesh's UV maps, COLOR attribute and normals right in Blender, so textures line up and outlines and shading look like the game's own."
+category: "models"
+patch: "7.2"
+keywords:
+  [
+    "genshin uv map",
+    "texcoord",
+    "vertex color",
+    "genshin outlines",
+    "xxmi tools",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+Every mesh you export needs UV maps with the right names and a `COLOR` attribute with sensible values. UV maps place the texture. `COLOR` controls shading and outline thickness. Get them wrong and the part turns blank, black, or gets thick outlines. Written for XXMI Tools 1.8.2 on Blender 4.5 LTS.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Blender" href="/docs/genshin-impact/tools/blender-add-on">
+    Blender 4.5 LTS with XXMI Tools
+  </Requirement>
+  <Requirement
+    icon="Box"
+    href="/docs/genshin-impact/models/import-into-blender"
+  >
+    The original part, imported
+  </Requirement>
+  <Requirement icon="Shirt">Your new or edited mesh</Requirement>
+</Requirements>
+
+Keep a hidden copy of the original part in your scene. You copy colors and names from it below.
+
+## What Genshin Impact reads
+
+| Data          | Name in Blender                      | What the game uses it for                                                                   |
+| ------------- | ------------------------------------ | ------------------------------------------------------------------------------------------- |
+| First UV map  | `TEXCOORD.xy`                        | Where the texture goes.                                                                     |
+| Second UV map | `TEXCOORD1.xy`, only on some parts   | `Dress` parts: the inner side of one-sided cloth. Weapons: how the weapon fades in and out. |
+| Vertex color  | `COLOR`, `Face Corner`, `Byte Color` | Shading and outlines. Alpha is outline thickness.                                           |
+| Normals       | the mesh's own normals               | Lighting and the outline shell around the mesh.                                             |
+
+<img
+  src="/wiki-images/genshin-impact-models-uvs-and-vertex-colors-1.webp"
+  alt="The Object Data tab in Blender with the UV Maps list showing TEXCOORD.xy and TEXCOORD1.xy, and Color Attributes showing COLOR as Face Corner, Byte Color"
+/>
+
+The names are case-sensitive. Compare your mesh with the original part in the **Object Data** tab (the green triangle).
+
+<YouTube
+  id="K8Naxvm2v-4"
+  start={241}
+  title="How to make Genshin mods, TEXCOORD and COLOR setup, by MydnightMynt"
+/>
+
+The video sets the color with numbers like `0.5`. Type the hex value instead, as shown below. The video also starts from an older GIMI build: install GIMI with XXMI Launcher.
+
+## UV maps
+
+### Name them right
+
+1. Rename the UV maps of a new model right after you import it. Double-click a name to edit it.
+2. Make sure every piece you will join has the same UV map names. If the names differ, `Ctrl+J` adds an extra map that the game ignores, and the texture goes blank.
+3. Delete UV maps the part does not need.
+4. Or let XXMI Tools do it: press `N`, open **XXMI Tools** > **XXMI Toolbox**, and click **Clean UV Names**. It renames the maps by their order: `TEXCOORD.xy`, `TEXCOORD1.xy`, and so on.
+
+### Fit several materials into one texture
+
+Each part (`Head`, `Body`, `Dress`) draws with one set of textures. Check the dump's `hash.json` to see which part uses which texture: `Body` and `Dress` often share one. A new model with several materials must share one texture per part, called an atlas.
+
+1. Build the atlas image in your texture editor. Keep it square and a power of two: four 1024 blocks make one 2048 image. Do not go to 8K: shrink 4K sources to 2K instead.
+2. In Blender's UV Editor, set **Pivot Point** to **2D Cursor** and put the cursor at `0, 0`. Turn **UV Sync Selection** off.
+3. In the 3D Viewport, select the faces of one material. Hover over the UV Editor and press `A`.
+4. Type `S` `0.5` and press `Enter`. The UVs shrink to one corner block.
+5. Move them by exact steps: `G` `Y` `0.5` for the top-left block, `G` `X` `0.5` for the bottom-right. For the top-right, do both. Never move blocks by eye.
+6. For a 4 by 4 grid, scale by `0.25` and move in steps of `0.25`.
+
+<img
+  src="/wiki-images/genshin-impact-models-uvs-and-vertex-colors-2.webp"
+  alt="Blender's UV Editing workspace with a 2 by 2 texture atlas on the left, one quarter's UVs selected in orange, and the character model on the right"
+/>
+
+Make the LightMap atlas with the same layout. [Save DDS textures the right way](/docs/genshin-impact/textures/save-dds-files) covers the formats.
+
+### Give cloth an inside
+
+A `Dress` part uses `TEXCOORD1.xy` for the back side of one-sided cloth, like the inside of a skirt. If your new cloth has only `TEXCOORD.xy`, select it in **UV Maps** and click `+`. Blender adds a copy. Name the copy `TEXCOORD1.xy`. The inside now shows the same texture as the outside.
+
+{/* NEEDS HANDS-ON TEST: on Genshin Impact 7.2, that a Dress part with a copied TEXCOORD1.xy shows the texture on the inner side. */}
+
+<Accordions type="multiple">
+<Accordion title="Advanced: fake backfaces on parts that have no inside" id="fake-backfaces">
+
+A 2026 method from the AGMG Discord. It gives the back side its own mesh and UV map. Nobody has tested it for this wiki on 7.2.
+
+1. Select the faces that need a back side. Turning on the `TEXCOORD1.xy` map in UV Editing helps you find them.
+2. Choose **Split** > **Selection**, then **Separate** > **Selection**. You now have a mesh with only those faces.
+3. Add a **Solidify** modifier with a thickness of `0.003`. Apply it.
+4. Use **Select All by Trait** > **Faces by Sides**, then **Select Loops** > **Select Boundary Loop**, and mark those edges sharp. This fixes the normals that Solidify breaks.
+5. Run **Faces by Sides** again, then **Mesh** > **Split** > **Selection**. The rims come apart from the front and back faces.
+6. Select the front faces by hand and **Separate** them. You have three meshes: front faces, back faces, rims.
+7. On the back face and rim meshes, swap the names `TEXCOORD.xy` and `TEXCOORD1.xy`. They now use the back side's UV map.
+8. Join the back face and rim meshes and paint all their vertex colors `FF80FF`. This stops their outlines showing through the front.
+9. Optional: paint their vertex alpha to `00` to remove inner outlines.
+10. Join everything back into the original part.
+
+<img
+  src="/wiki-images/genshin-impact-models-uvs-and-vertex-colors-3.webp"
+  alt="Two boots seen from below in Blender, with the separate back face and rim meshes inside them and one boot's inner rim selected in orange"
+/>
+
+{/* NEEDS HANDS-ON TEST: the fake backfaces method on Genshin Impact 7.2 with XXMI Tools 1.8.2, and the exact Blender 4.5 menu labels for each step. */}
+
+</Accordion>
+</Accordions>
+
+## Vertex colors
+
+<Callout type="warning" title="Type hex values, not numbers">
+  In Blender's color picker, `0.5` and hex `80` are not the same. A typed `0.5`
+  is stored as about `BC`, so shadows stop matching the original. Always type
+  the hex value, like `FF8080`. The alpha slider has no hex field, but it is not
+  converted: `0.502` on that slider is `80`.
+</Callout>
+
+### Copy the colors from the original
+
+This is the best way. Do it before you join your mesh into the original part.
+
+1. Select your mesh. In **Object Data** > **Color Attributes**, check for a `COLOR` attribute. If there is none, click `+` and set **Name** `COLOR`, **Domain** `Face Corner`, **Data Type** `Byte Color`.
+2. Add a **Data Transfer** modifier. Set **Source** to the hidden copy of the original part.
+3. Tick **Face Corner Data** and pick **Colors**.
+4. Leave **Layer Selection** on `All Layers` and **Layer Mapping** on `By Name`.
+5. Apply the modifier.
+6. Press `Ctrl+Tab` and switch to Vertex Paint mode to check. Most of a character looks pink-red, like the original.
+
+Outlines too thick on an edited part? Copy the colors the same way from a part whose outline still looks right.
+
+{/* NEEDS HANDS-ON TEST: the Face Corner Data option label (Colors or Color Attributes) in the Blender 4.5 Data Transfer modifier. */}
+
+### Set one flat color
+
+Use this when no original part sits under your mesh, like a new weapon.
+
+1. In **Color Attributes**, delete the old attribute and click `+`.
+2. Set **Name** `COLOR`, **Domain** `Face Corner`, **Data Type** `Byte Color`.
+3. Click the color field, choose **Hex**, and type `FF8080`.
+4. Set **Alpha**: `0.502` (hex `80`) for a normal outline, `0` for none.
+5. Click **Add**.
+
+XXMI Tools has a **Reset Vertex Colors** button that does the same with a default color. Its default is set as numbers, not hex, so it may not give `FF8080`. Type the hex value by hand until this is checked.
+
+{/* NEEDS HANDS-ON TEST: whether Reset Vertex Colors writes byte 128 or 188 */}
+
+### Values creators use
+
+These meanings are community findings, not official. When you are unsure, keep the original's values.
+
+| Channel | What it does        | Value                                        |
+| ------- | ------------------- | -------------------------------------------- |
+| R       | Ambient occlusion   | `FF` means none. Keep the original's.        |
+| G       | Shadow smoothing    | Keep the original's. Usually `80`.           |
+| B       | Outline depth order | Keep the original's. Usually `80`.           |
+| A       | Outline thickness   | `00` no outline, `80` normal, `FF` thickest. |
+
+| Part                               | Color    | Alpha                  |
+| ---------------------------------- | -------- | ---------------------- |
+| Most character parts               | `FF8080` | `80`                   |
+| Exposed hands and feet             | `FF8080` | `66`, a little thinner |
+| Eyes                               | original | `00`                   |
+| Parts always in shadow             | `008080` | original               |
+| Weapons                            | `FF8080` | often `00`             |
+| Back faces and rims (method above) | `FF80FF` | original or `00`       |
+
+{/* NEEDS HANDS-ON TEST: the effect of each COLOR channel on Genshin Impact 7.2 shaders. */}
+
+## Normals and outlines
+
+Normals light the mesh and shape the outline shell around it. Check them before every export.
+
+1. Turn on the **Face Orientation** overlay. Blue faces point out, red faces point in.
+2. Press `Ctrl+A` > **All Transforms** first, then check again.
+3. Select red faces and press `Alt+N` > **Flip**, or use **Recalculate Outside**.
+
+Fixes for shading problems:
+
+- **Faceted look after an edit:** merge with `M` > **By Distance** and tick **Sharp Edges**, so hard edges stay hard. On a dented area, use <MenuPath path="Mesh > Normals > Smooth Vectors" />.
+- **A light seam between two parts:** duplicate both parts, join the copies, run **By Distance**, and hide the result. On each original part, add **Data Transfer** with that copy as **Source**, tick **Face Corner Data** > **Custom Normals**, and apply.
+- **Hair shading looks patchy:** model a half sphere over the hair. On the top hair layer, add **Data Transfer** with the sphere as **Source**, **Face Corner Data** > **Custom Normals**, mapping `Nearest Face Interpolated`, and apply. Do it last, after the shape and UVs are final.
+
+Old guides tell you to use **Auto Smooth**. Blender 4.1 removed it, so skip those steps.
+
+The export option **Outline Optimization** is on by default and rebuilds outline data. It is slow, so some creators turn it off while testing and on for the final export.
+
+{/* NEEDS HANDS-ON TEST: whether custom normals from Data Transfer survive an XXMI Tools 1.8.2 export, with Use custom normals for outlines off and on, and whether Outline Optimization undoes them. */}
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The texture is blank, white, or flat on a joined piece" id="blank-texture">
+
+The pieces had different UV map names when you joined them. Rename every piece's maps to `TEXCOORD.xy` and `TEXCOORD1.xy` before `Ctrl+J`, or run **Clean UV Names**.
+
+</Accordion>
+<Accordion title="The texture is scrambled" id="scrambled-texture">
+
+The first UV map is not named `TEXCOORD.xy`, or some faces are flipped. Fix the name and the normals, then export again.
+
+</Accordion>
+<Accordion title="Parts render black" id="black-parts">
+
+`COLOR` is black. A new attribute starts black. Copy the colors from the original, or set `FF8080`. A black LightMap also gives black areas.
+
+</Accordion>
+<Accordion title="Outlines are thick, colored, or blotchy" id="thick-outlines">
+
+The `COLOR` alpha is too high or uneven. Copy the colors from a part whose outline looks right.
+
+</Accordion>
+<Accordion title="Outlines are missing" id="no-outlines">
+
+The `COLOR` alpha is `00`, or the normals are flipped. Fix the alpha, then check **Face Orientation**.
+
+</Accordion>
+<Accordion title="Skin looks grey or too dark" id="dark-skin">
+
+The `COLOR` red channel is too low, or the LightMap does not match the original's skin. Set red back to `FF` and pick LightMap values from the original.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Add or swap clothing parts"
+    href="/docs/genshin-impact/models/add-clothing-parts"
+    icon={<Icon name="Shirt" />}
+    level="intermediate"
+  >
+    Put a new piece on a character, weighted and textured.
+  </PremiumCard>
+  <PremiumCard
+    title="Swap weapons, gliders, and objects"
+    href="/docs/genshin-impact/models/swap-weapons-and-objects"
+    icon={<Icon name="Swords" />}
+    level="intermediate"
+  >
+    Weapons use TEXCOORD1.xy for their fade and often have no outline.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Video:** [How to make Genshin mods](https://www.youtube.com/watch?v=K8Naxvm2v-4) by MydnightMynt.
+- **Video:** [3DMigoto Costume Mod Tutorial for Fairy Tail (PC)](https://www.youtube.com/watch?v=z2nvJzkwHHQ) by Ikaros, for the seam fix.
+- **Guide:** [3D anime models - lessons](https://docs.google.com/document/d/1OhNw4xVTRl-eZyPLZv2mAchy2scjnXX3Hw3BCPQXU1A) by [Anilyan](https://discord.com/users/301273867618484235), with the hair normals trick by [hime](https://discord.com/users/591348252830597139).
+- **Guide:** [Set Outline Thickness_Vertex Color Alpha](https://docs.google.com/document/d/e/2PACX-1vQiAkfd-a-HzDGDelQEXKv_Z7936FFTc35A63JDZV79wL2eBCiawP6fvBE_Bni7t-CTYMOqzbUvKfTw/pub) by [HumR](https://discord.com/users/210820300437192704).
+- **Guide:** [Custom Weapon Modding Walkthrough](https://leotorrez.github.io/modding/guides/weapon-banana) by SilentNightSound (image 1).
+- **Guide:** [How to Export Genshin Mods - Blender](https://gamebanana.com/tuts/17838) by Dougline (image 2).
+- **Discord:** fake backfaces method and image 3 by [M,](https://discord.com/users/143739017035251712), hex versus float note by [SinsOfSeven](https://discord.com/users/178340582991724545), in the [AGMG Discord](https://discord.gg/agmg).
+- **Tool:** [XXMI Tools](https://github.com/leotorrez/XXMITools) by LeoTorreZ.
