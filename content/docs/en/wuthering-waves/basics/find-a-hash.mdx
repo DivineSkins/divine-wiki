@@ -1,0 +1,180 @@
+---
+title: "Find a hash with hunting mode"
+description: "Use WWMI's hunting mode in Wuthering Waves to step through what is on screen and copy a vertex buffer, mesh or shader hash when WWMI Tools cannot give it."
+category: "basics"
+patch: "3.8"
+keywords:
+  ["wwmi hunting mode", "wuthering waves hash", "numpad 0", "enable hunting"]
+---
+
+<LevelPill level="intermediate" />
+
+Hunting mode lets you step through everything Wuthering Waves draws and copy its hash. For most Wuthering Waves mods you never need it: WWMI Tools reads every hash from a frame dump and writes the whole `mod.ini` for you. Use hunting to check what is on screen after an update, or to find the shader behind a UI element or an effect. Written for XXMI Launcher 2.5.0 and WWMI 1.1.0.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/wuthering-waves/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="Keyboard" note="or the Windows On-Screen Keyboard">
+    A number pad
+  </Requirement>
+  <Requirement icon="NotebookPen">A text file to paste hashes into</Requirement>
+</Requirements>
+
+If hashes are new to you, read [How Wuthering Waves mods work](/docs/wuthering-waves/basics/how-mods-work) first.
+
+## Turn on hunting
+
+Hunting is off by default. Turn it on before you start the game:
+
+1. Close Wuthering Waves if it is running.
+2. In XXMI Launcher, click the gear at the top right and open the **WWMI** tab.
+3. Under **Shader Hunting**, tick **Enable Hunting**. Leave **Dump Shaders** off.
+
+[Set up your creator tools](/docs/wuthering-waves/getting-started/creator-setup) shows the same setting with the rest of the creator kit.
+
+{/* NEEDS HANDS-ON TEST: in XXMI Launcher 2.5.0, the WWMI tab name, the Shader Hunting section and the button that saves and closes the settings window */}
+
+## Turn off mods for your target
+
+Rename the folder of every mod for that Resonator so it starts with `DISABLED`, then press `F10` in game. A mod hides the original, and you want the game's own hashes. A Resonator is the game's name for a playable character.
+
+## Hunt a hash
+
+<img
+  src="/wiki-images/wuthering-waves-basics-find-a-hash-1.webp"
+  alt="A number pad map for WWMI: 0 turns hunting on, 7 and 8 step through index buffers and 9 copies the hash, the same pattern for vertex buffers on slash, star and minus, vertex shaders on 4 to 6 and pixel shaders on 1 to 3, plus resets the lists, and Enter with slash or star picks the vertex buffer slot"
+/>
+
+1. Press **Start** in XXMI Launcher.
+2. Put your target on screen. The Resonators menu works well, because it draws few other things.
+3. Press `Numpad 0`. Green text appears at the top and the bottom of the screen.
+4. Press `Ctrl+F12` if you want the key guide on screen.
+5. Press the **next** key for the kind of hash you want, again and again, until your target disappears. For a pixel shader that is `Numpad 2`. The **previous** key goes back one.
+6. Press the **copy** key, `Numpad 3` for a pixel shader. The hash is now on your clipboard.
+7. Paste it into your text file right away, and write down what it is.
+
+The selected item disappears because hunting hides it by default. That is how you know you have the right one.
+
+Too many items to step through? Press `Numpad +` to reset the lists. This cuts down the number of items you step through.
+
+## Which keys for which hash
+
+| You want                                | Previous   | Next       | Copy       |
+| --------------------------------------- | ---------- | ---------- | ---------- |
+| A vertex buffer (VB)                    | `Numpad /` | `Numpad *` | `Numpad -` |
+| An index buffer (IB)                    | `Numpad 7` | `Numpad 8` | `Numpad 9` |
+| A pixel shader (PS): icons, UI, effects | `Numpad 1` | `Numpad 2` | `Numpad 3` |
+| A vertex shader (VS)                    | `Numpad 4` | `Numpad 5` | `Numpad 6` |
+| A compute shader (CS)                   | `.` + `1`  | `.` + `2`  | `.` + `3`  |
+
+For compute shaders, hold `Numpad .` and press the number. To pick which vertex buffer slot you step through, hold `Numpad Enter` and press `Numpad /` or `Numpad *`. WWMI mods match a Resonator by the buffer in slot 0, the VB0 hash.
+
+{/* NEEDS HANDS-ON TEST: on Wuthering Waves 3.8, which vertex buffer slot the overlay starts on, and whether Numpad Enter plus slash or star is needed to reach slot 0 */}
+
+## Read the overlay
+
+The top line counts what you have stepped through, as selected out of total:
+
+```text
+VS:3/120 PS:7/140 CS:... IB:... VB:...
+```
+
+After you move, the selected item's hash shows. For an index buffer it can read like this, with your own numbers:
+
+```text
+IB 1a2b3c4d (IndexCount: 12345, FirstIndex: 0)
+```
+
+Some versions show only `IB 1a2b3c4d`, without the numbers in brackets. When the numbers show, `FirstIndex` and `IndexCount` are the numbers in a component's `match_first_index` and `match_index_count` lines. When they do not, `Metadata.json` in the extracted object folder has them.
+
+The bottom line reads `Shader Hunting Mode (marking: skip)`. `skip` means the selected item is not drawn.
+
+{/* NEEDS HANDS-ON TEST: the exact overlay layout and text in Wuthering Waves 3.8 with WWMI 1.1.0 */}
+
+{/* SCREENSHOT: wuthering-waves-basics-find-a-hash-2.webp, Wuthering Waves Resonators menu in hunting mode, overlay counters at the top and one component hidden */}
+
+## What Wuthering Waves creators hunt
+
+<Accordions type="multiple">
+<Accordion title="Nothing, for a normal character mod" id="normal-mod">
+
+WWMI Tools takes every hash from a frame dump: the VB0 hash, each component's index range, the bone data and every texture. It writes them all into the `mod.ini`. Make a frame dump instead of hunting. The guide under Next steps shows how.
+
+</Accordion>
+<Accordion title="Whether a mod still matches after an update" id="check-after-update">
+
+Turn the mod off. Then make a frame dump and extract it with WWMI Tools. Each extracted folder is named after its VB0 hash. Compare that name with the `hash =` line in the mod's `[TextureOverrideComponent0]` section. If they differ, the game changed the model, and the mod needs a fix tool or an update from its creator.
+
+You can also step through vertex buffers with the Resonator on screen. If the mod's hash never shows up, the game changed it.
+
+</Accordion>
+<Accordion title="A texture hash" id="texture-hash">
+
+Hunting steps through buffers and shaders, not textures. Get texture hashes from an extracted object folder instead:
+
+1. Make a frame dump and extract it with WWMI Tools.
+2. Open your Resonator's folder.
+3. Read the file names. In `Components-0-1-2-3 t=4eba0ca3.dds`, the hash is `4eba0ca3`.
+4. Open `TextureUsage.json` to see which slot of which component used that texture.
+
+</Accordion>
+<Accordion title="The shader behind a UI element or an effect" id="pixel-shader">
+
+Step through pixel shaders with `Numpad 1` and `Numpad 2` until the icon or effect disappears. Copy the hash with `Numpad 3`. This 16-digit hash goes in a `[ShaderOverride]` section of your mod.
+
+UI mods for Wuthering Waves need hand-written `.ini` work that WWMI Tools does not do for you. WWMI's author does not answer questions about them.
+
+</Accordion>
+</Accordions>
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Numpad 0 does nothing" id="numpad-0-nothing">
+
+Check that **Enable Hunting** is ticked in the **WWMI** tab, and that you started the game after you ticked it. Check that Num Lock is on.
+
+</Accordion>
+<Accordion title="There are hundreds of items to step through" id="too-many-items">
+
+Go to the Resonators menu, where the game draws less. Press `Numpad +` to reset the lists, then step through again.
+
+</Accordion>
+</Accordions>
+
+When you finish, untick **Enable Hunting**, so `Numpad 0` cannot turn the overlay on by accident.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Make a frame dump"
+    href="/docs/wuthering-waves/basics/frame-dump"
+    icon={<Icon name="Camera" />}
+    level="intermediate"
+  >
+    Capture one frame with F8 and extract your Resonator with WWMI Tools.
+  </PremiumCard>
+  <PremiumCard
+    title="How a mod .ini works"
+    href="/docs/wuthering-waves/ini/how-a-mod-ini-works"
+    icon={<Icon name="FileCode" />}
+    level="intermediate"
+  >
+    Where each hash goes in a mod's .ini file.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Tool:** [WWMI hunting mode guide](https://github.com/SpectrumQT/WWMI-Package/blob/main/WWMI/Core/WWMI/Notifications/HuntingModeGuide.md) and [`d3dx.ini`](https://github.com/SpectrumQT/WWMI-Package/blob/main/WWMI/d3dx.ini) from [WWMI-Package](https://github.com/SpectrumQT/WWMI-Package) by SpectrumQT.
+- **Tool:** [WWMI Tools](https://github.com/SpectrumQT/WWMI-Tools) by SpectrumQT: extracted folders named by VB0 hash, and `TextureUsage.json`.
+- **Guide:** [3DMigoto Hunting & Dumping Tutorial](https://leotorrez.github.io/modding/guides/hunting) by Satan1c, on LeoTorrez's modding site.

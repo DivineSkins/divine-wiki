@@ -1,0 +1,341 @@
+---
+title: "Model problems in game"
+description: "Your Wuthering Waves model mod exports fine but looks wrong in game? Match what you see, from spikes and black faces to lost expressions, to the fix in Blender."
+category: "errors"
+patch: "3.8"
+keywords:
+  [
+    "wuthering waves mod exploded",
+    "wwmi tools skeleton",
+    "merged skeleton",
+    "vertex groups",
+    "black face mod",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+Your model mod exports and loads, but it looks wrong in game. Find what you see below, fix it in Blender, export again and reload. Written for WWMI Tools 1.8.0, WWMI 1.1.0 and Wuthering Waves 3.8.
+
+Export stopped with a message in Blender? Go to [Blender export and import errors](/docs/wuthering-waves/errors/creator-errors) instead.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="Box"
+    href="/docs/wuthering-waves/tools/blender-add-on"
+    note="1.8.0"
+  >
+    WWMI Tools
+  </Requirement>
+  <Requirement icon="Blender" note="your saved work">
+    Your .blend file
+  </Requirement>
+  <Requirement icon="FolderOpen" note="to compare with">
+    The extracted object folder
+  </Requirement>
+</Requirements>
+
+## Check these first
+
+1. **Your mod does not show at all.** Check that its folder is inside `%AppData%\XXMI Launcher\WWMI\Mods` and that no other mod for that Resonator is on. A Resonator is the game's name for a playable character. Switch to another Resonator, press `F10`, then switch back. A red `Mod Loading Error` box means the mod and WWMI do not match: [Test and reload your mod](/docs/wuthering-waves/basics/test-your-mod) explains each message.
+2. **Every modded Resonator looks wrong, not only yours.** That is a game setting or an update, not your model. Follow [Mods look broken](/docs/wuthering-waves/errors/mods-look-broken).
+3. **Your dump is older than the game.** Updates change models and textures. Version 3.8 broke Rover mods and facial expressions again. The ready-made WWMI-Assets dumps stop at version 2.7, so dump the Resonator yourself and export again.
+4. **Your mod shows, but looks wrong.** Find the symptom in the table. Most broken shapes come from the skeleton mode or vertex groups. Most wrong colors come from textures, the `COLOR` attribute or UV map names.
+
+Change one thing at a time, then export and press `F10`. Save each try as a new `.blend` file, so you can go back.
+
+## What do you see?
+
+| What you see                                         | Most likely cause                     | Fix                                            |
+| ---------------------------------------------------- | ------------------------------------- | ---------------------------------------------- |
+| The whole model explodes into spikes                 | Skeleton mode or vertex group names   | [Exploded model](#exploded-model)              |
+| One area stretches, such as a hand or fingers        | Wrong weights in that area            | [One area stretches](#one-area-stretches)      |
+| A part moves wrong after you moved it to a component | Bone numbers differ per component     | [Moved to another component](#moved-component) |
+| A part or a whole component is missing               | Hidden objects, or an empty component | [Missing parts](#missing-parts)                |
+| A part you removed is still there                    | Hidden objects were exported          | [Hidden objects](#hidden-objects)              |
+| The model lies down, turns, or has the wrong size    | Object transforms or Skeleton Scale   | [Wrong angle or size](#wrong-angle-or-size)    |
+| The face loses its expressions                       | Shape keys                            | [Face expressions](#face)                      |
+| Textures are scrambled, blank or white               | UV map names                          | [Wrong textures](#wrong-textures)              |
+| Textures look lighter or washed out                  | DDS color space                       | [Lighter textures](#lighter-textures)          |
+| Black faces or see-through spots                     | Flipped normals                       | [Black faces and holes](#holes-and-normals)    |
+| No outline on a new part                             | `COLOR` and `COLOR1`                  | [Outline problems](#outline-problems)          |
+| Two copies of the same modded Resonator glitch       | A limit of the Merged skeleton        | [Two copies on screen](#two-copies)            |
+| Your mod turns into the original at a distance       | The game swaps in a simpler model     | [Original at a distance](#distance)            |
+| Something else                                       |                                       | [Other problems](#other-problems)              |
+
+## Shape problems
+
+<Accordions type="multiple">
+<Accordion title="Exploded model" id="exploded-model">
+
+The whole model turns into a mess of spikes and stretched shapes, or every part follows the wrong bones.
+
+{/* SCREENSHOT: wuthering-waves-errors-model-problems-2.webp, a Wuthering Waves 3.8 Resonator mod exported with the wrong Skeleton mode: spikes and stretched parts in the Resonators menu */}
+
+**Cause 1, the skeleton mode:** you exported with another **Skeleton** than you imported with. Each mode numbers the bones differently, so every vertex follows the wrong bone.
+
+<img
+  src="/wiki-images/wuthering-waves-errors-model-problems-1.webp"
+  alt="Merged uses one bone list for the whole model, where a bone is 143 in every component. Per-Component uses one list per component, where the same bone can be 60. Import Merged, keep the group numbers, export Merged too"
+/>
+
+**Cause 2, the vertex group names:** the names are the bone numbers. A group named with a word, or a number your base model does not use, sends its vertices to the wrong bone.
+
+**Fix:**
+
+1. In **Export Mod**, set **Skeleton** to the mode you imported with. Import sets it for you, but importing a second model changes it.
+2. Check that **Object Sources** is your base model's folder.
+3. Check that every vertex group name is a number from the base model.
+4. Groups like `7.001` must be folded back into `7`. Set **Mode** to **Toolbox** and click **Merge Vertex Groups**.
+5. Export again and press `F10`.
+
+Still exploded? Import the original object folder into a new `.blend` and compare its vertex group list with yours.
+
+</Accordion>
+<Accordion title="One area stretches" id="one-area-stretches">
+
+Most of the model is fine, but a hand, fingers or the edge of a sleeve stretches when the Resonator moves.
+
+**Cause:** that area got weights from the wrong bone. This happens often where arms or hands sit close to the body when you copy weights.
+
+**Fix:**
+
+1. Copy the weights for that area again from the original, with the **Replace** mix mode.
+2. Smooth the weights there.
+3. Run <MenuPath path="Weights > Normalize All" />, export, and test in motion.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: copying weights again with Replace and smoothing fixes a stretched hand on a WWMI Tools 1.8.0 Merged export */}
+
+An old mod of yours, exported before WWMI Tools 1.3.0, can stretch limbs or accessories on its own. Export it again with 1.8.0.
+
+</Accordion>
+<Accordion title="Moved to another component" id="moved-component">
+
+You moved a mesh from one component into another, and now it follows the wrong body part.
+
+**Cause:** in some models, the same vertex group number means a different bone in another component.
+
+**Fix:** keep the mesh in the component whose weights you copied. Or copy its weights again from the original part of the new component. Export the unchanged model first to check that your setup works.
+
+{/* NEEDS HANDS-ON TEST: on WWMI Tools 1.8.0, which skeleton mode and which models show wrong bones after a mesh moves to another component */}
+
+</Accordion>
+<Accordion title="Missing parts" id="missing-parts">
+
+Parts of the model are not drawn, or a whole component is gone.
+
+**Cause 1, hidden objects:** with **Ignore Hidden Objects** on, export skips every hidden object.
+
+**Cause 2, an empty component:** a component with no objects is not drawn at all. Hiding or deleting `Component 4` removes everything in it, not only the piece you wanted gone.
+
+**Cause 3, the vertex count:** you changed the mesh, then used **Partial Export** or exported with **Write Mod INI** off. The vertex and index counts live in `mod.ini`. Run a full export with **Write Mod INI** on, then copy your own `.ini` edits back in.
+
+**Cause 4, load timing:** the Resonator was on screen when you pressed `F10`. Switch away, press `F10`, and switch back.
+
+</Accordion>
+<Accordion title="Hidden objects" id="hidden-objects">
+
+A part you removed is still in game.
+
+**Cause:** **Ignore Hidden Objects** is off by default, so export also writes hidden objects.
+
+**Fix:** tick **Ignore Hidden Objects**, or delete the part. Before you export, check the eye icon of every object in the Outliner.
+
+</Accordion>
+<Accordion title="Wrong angle or size" id="wrong-angle-or-size">
+
+The model lies on its back, faces the wrong way, or is huge or tiny.
+
+**Cause:** WWMI Tools applies each object's rotation and scale when it exports. A rotation you gave the object in Object Mode shows in game.
+
+**Fix:**
+
+1. Line your part up with the imported original. Imports since WWMI Tools 1.3.3 come in with rotation `0, 0, 0` and scale `1.00`.
+2. Check that **Skeleton Scale** under **Advanced** is `1.0`. It scales the whole model in game.
+3. Use the same **Mirror Mesh** setting on export as on import. Leave it off on both.
+
+Old guides tell you to rotate by `(0, 0, 180)` and scale by `0.01`, or to mirror the model before weight painting. Skip those steps with WWMI Tools 1.8.0.
+
+</Accordion>
+</Accordions>
+
+## Face and texture problems
+
+<Accordions type="multiple">
+<Accordion title="Face expressions" id="face">
+
+The face stops blinking or talking, or the shoulders move wrong.
+
+**Cause:** head and shoulder components carry shape keys that drive expressions and shoulder movement. They break when you delete the shape keys, or when an unticked shape key is skipped while **Ignore Muted Shape Keys** is on.
+
+**Fix:** import the original again and compare its shape key list with yours. Keep every shape key and tick each one. Your own shape keys need `custom` or `deform` and a number in their name.
+
+If the face broke after a game update, dump the Resonator again. Version 3.8 changed facial expressions.
+
+</Accordion>
+<Accordion title="Wrong textures" id="wrong-textures">
+
+Textures look scrambled, sit in the wrong place, or show plain white or flat color.
+
+**Cause:** a UV map has the wrong name, or joining two pieces added a second set of maps. When pieces with different UV map names are joined with `Ctrl+J`, Blender keeps both sets and the game reads the wrong one. A new mesh with no `TEXCOORD.xy` gets a placeholder map at export, so the texture does not line up.
+
+**Fix:**
+
+1. Before you join pieces, rename their UV maps to the same names: `TEXCOORD.xy`, `TEXCOORD1.xy` and `TEXCOORD2.xy`.
+2. Already joined? Press `Ctrl+Z` to undo the join, rename the maps, and join again.
+3. Check that the mod's `Textures` folder holds your edited files with their original names. The `t=<hash>` part of the name is what the mod matches.
+
+[UV maps, vertex colors, and outlines](/docs/wuthering-waves/models/uvs-and-vertex-colors) explains each map.
+
+**Your texture edit also shows on another Resonator:** some textures are shared by several Resonators, such as face shadow maps. The mod swaps a texture while your object is on screen, so a shared texture changes on everyone who uses it. Leave shared textures you did not change out of the mod: delete them from **Object Sources** and from the mod's `Textures` folder, then export again.
+
+**Your edit is gone after a new export:** you renamed or deleted the texture in `Textures`, so **Copy Textures** copied the original back. Keep the original file name.
+
+</Accordion>
+<Accordion title="Lighter textures" id="lighter-textures">
+
+Your edited texture looks lighter or washed out in game.
+
+**Cause:** the DDS was saved in the wrong color space.
+
+**Fix:** save the diffuse texture as BC7 sRGB, and the normal map and light map as BC7 linear. [Save DDS textures the right way](/docs/wuthering-waves/textures/save-dds-files) shows the dialogs.
+
+Keep the diffuse texture's alpha channel when you edit it. The beginner guide says Wuthering Waves uses it for shadows.
+
+</Accordion>
+<Accordion title="Wrong shading" id="wrong-shading">
+
+- **Skin looks wrong:** in the light map, orange marks skin and green marks other parts. Pick the light map colors from the same material on the original, and paint with those.
+- **A new part shades like skin, or not like skin:** the blue channel of `COLOR` is the skin mask. Copy `COLOR` from the original part.
+
+[What each texture map does](/docs/wuthering-waves/textures/texture-maps) explains the light map.
+
+</Accordion>
+<Accordion title="Outline problems" id="outline-problems">
+
+A new part has no outline, or its outline is too thick.
+
+**Cause:** the `COLOR` attribute controls outlines: its red channel says where to draw them and its green channel sets how thick they are. A new mesh gets default values. What `COLOR1` does is not fully known yet.
+
+**Fix:**
+
+1. Copy `COLOR` from the original mesh, with a Data Transfer modifier.
+2. Copy `COLOR1` from the original mesh too.
+3. If the outline is still missing, paint `COLOR1` black.
+4. Check for flipped normals, in the next section.
+
+{/* NEEDS HANDS-ON TEST: on WWMI Tools 1.8.0, that painting COLOR1 black brings back the outline of a new mesh */}
+
+</Accordion>
+</Accordions>
+
+## Mesh surface problems
+
+<Accordions type="multiple">
+<Accordion title="Black faces and holes" id="holes-and-normals">
+
+**Black faces, see-through spots, or faces you can see from the inside:** the normals are flipped.
+
+1. Turn on the **Face Orientation** overlay. Front faces show blue, flipped faces show red.
+2. In Edit Mode, select the red faces and press `Alt+N`.
+3. Choose **Flip**, or **Recalculate Outside** for a whole closed mesh.
+
+<YouTube
+  id="EsmqDm2Y788"
+  start={2474}
+  title="Fixing a black face with the Face Orientation overlay and Alt+N, by 千欢"
+/>
+
+The video is in Chinese and uses an older Blender and WWMI Tools. The Face Orientation overlay and `Alt+N` work the same in Blender 4.5 LTS.
+
+**Real holes or gaps:** a mirror or a deleted part left an opening. Select the edges around it and press `F` to fill it. Check both sides of the model.
+
+</Accordion>
+<Accordion title="Half the model is see-through from behind" id="see-through-from-behind">
+
+Since version 3.0, the game skips the back side of some models, so half of a mod can look see-through from behind. The fix is a change in `mod.ini` that makes the game draw both sides. No tested lines exist for WWMI 1.1.0 yet, so this wiki does not show them.
+
+{/* NEEDS HANDS-ON TEST: a cull = none fix around a part's draw in a WWMI Tools 1.8.0 mod.ini on Wuthering Waves 3.8, and whether it clashes with glow or see-through effects */}
+
+</Accordion>
+<Accordion title="Seams or a faceted look after editing" id="seams">
+
+You merged vertices or sculpted, and now the shading shows hard lines or flat faces.
+
+**Fix:** merge with **Merge by Distance** and its **Sharp Edges** option on, so the edges the game needs stay split. Then use <MenuPath path="Mesh > Normals > Smooth Vectors" /> on the area.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: Merge by Distance with Sharp Edges and Smooth Vectors on a WWMI Tools 1.8.0 export */}
+
+</Accordion>
+<Accordion title="Parts that do not move" id="parts-do-not-move">
+
+Hair, a cape or a belt stays stiff while the Resonator runs.
+
+**Cause:** the part is weighted to a body bone instead of the bones that make it swing.
+
+**Fix:** copy the weights from the matching part of the original, such as its hair or cape, so your part uses the same swinging bones. With the Merged skeleton, a part can use bones from any component.
+
+</Accordion>
+</Accordions>
+
+## Other problems
+
+<Accordions type="multiple">
+<Accordion title="Two copies on screen" id="two-copies">
+
+Two copies of the same modded Resonator glitch, for example in co-op, photo mode or a story scene. This is a known limit of the Merged skeleton, and WWMI's author will not fix it. Per-Component avoids it, but it is meant for weapons and simple retextures.
+
+With the Merged skeleton, WWMI also builds the skeleton one frame late. That small delay comes from how WWMI works, not from your mod.
+
+</Accordion>
+<Accordion title="Original at a distance" id="distance">
+
+Your mod shows up close, but turns into the original when the camera zooms out. The game swaps in a simpler model at a distance, and WWMI Tools does not export that model yet. [Make mods show at a distance](/docs/wuthering-waves/models/lods) explains the player settings and the creator side.
+
+</Accordion>
+<Accordion title="A part should glow or be see-through" id="effects">
+
+Blender's material settings do not reach the game. Glow uses a RabbitFX glow map. No tested method for see-through parts exists for this game yet. [Add glow and see-through parts](/docs/wuthering-waves/effects/glow-and-transparency) explains both.
+
+</Accordion>
+<Accordion title="Wild geometry after a hand edit of the .ini" id="hand-edited-ini">
+
+WWMI Tools writes the counts, offsets and hashes in `mod.ini` for you. A hand edit that changes them breaks the shapes. Export again with **Write Mod INI** on, then redo your `.ini` edits one at a time. [How a mod .ini works](/docs/wuthering-waves/ini/how-a-mod-ini-works) explains each part.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Weight paint a mesh"
+    href="/docs/wuthering-waves/models/weight-painting"
+    icon={<Icon name="Brush" />}
+    level="intermediate"
+    featured
+  >
+    Copy weights from the original and fix the areas that stretch.
+  </PremiumCard>
+  <PremiumCard
+    title="Export your mod from Blender"
+    href="/docs/wuthering-waves/models/export-your-mod"
+    icon={<Icon name="Upload" />}
+    level="intermediate"
+  >
+    The naming, collection and skeleton rules behind a working export.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Tool:** [WWMI Tools](https://github.com/SpectrumQT/WWMI-Tools) by SpectrumQT, with its issue tracker.
+- **Guide:** [WWMI Tools Modder Guide](https://github.com/SpectrumQT/WWMI-Tools/blob/main/guides/modder_guide.md) by SpectrumQT: skeleton modes, shape keys and vertex colors.
+- **Tool:** [WWMI](https://github.com/SpectrumQT/WWMI-Package) by SpectrumQT: the limits of the Merged skeleton.
+- **Guide:** [Beginner's Guide to Wuthering Waves modding](https://gamebanana.com/tuts/19096) by Denwarenji: texture maps and their colors.
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ and contributors.
+- **Video:** [千欢 - 换脸教程（结尾的脸部阴影是遮罩图的问题与换脸无关）](https://www.youtube.com/watch?v=EsmqDm2Y788) by 千欢, uploaded by 燈皇: the black face fix.

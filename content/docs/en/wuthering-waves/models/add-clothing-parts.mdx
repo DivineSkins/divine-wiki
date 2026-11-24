@@ -1,0 +1,219 @@
+---
+title: "Add or swap clothing parts"
+description: "Move a hat or other piece between Wuthering Waves Resonators in Blender: fit it, weight it, make room on the texture, and export it with WWMI Tools."
+category: "models"
+patch: "3.8"
+keywords:
+  ["wuthering waves outfit mod", "kitbash", "add clothing", "wwmi tools"]
+---
+
+<LevelPill level="intermediate" />
+
+This guide puts a piece from one Resonator onto another. A Resonator is the game's name for a playable character. The example moves Phoebe's hat onto Brant. The same steps work for glasses, a coat or an ornament. Written for WWMI Tools 1.8.0 on Blender 4.5 LTS.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Blender" href="/docs/wuthering-waves/tools/blender-add-on">
+    Blender 4.5 LTS with WWMI Tools
+  </Requirement>
+  <Requirement icon="Box" href="/docs/wuthering-waves/basics/frame-dump">
+    Extracted objects of both Resonators
+  </Requirement>
+  <Requirement
+    icon="PaintNET"
+    href="/docs/wuthering-waves/tools/texture-editors"
+  >
+    A texture editor with DDS support
+  </Requirement>
+</Requirements>
+
+You should already know how to [remove a part](/docs/wuthering-waves/models/remove-a-part) and export a mod.
+
+<Callout type="info" title="Parts from Wuthering Waves only">
+  This guide uses parts from other Resonators of this game. Models from other
+  games, films or anime are not covered.
+</Callout>
+
+## Plan where the piece goes
+
+You cannot add a new component to a Resonator. Your piece joins one of the components the target already has.
+
+- **The number in the name decides the component.** An object named `Component 4 Hat` goes into component 4. WWMI Tools merges it with the other objects of that component at export, so you do not need to join it.
+- **Pick a component that suits the piece.** Each component draws with its own shaders and textures. Put the piece in the component that held a similar part, like the old hat.
+- **Check which textures that component uses.** A texture file named `Components-4 t=...` belongs to component 4. One named `Components-0-1-2-3-4` is shared by five components. You will make room on these textures.
+- **Use the Merged skeleton.** With a Merged import, the piece can follow any bone of the Resonator. Per-Component limits it to the bones of its own component.
+
+## Add the piece
+
+<Steps>
+<Step>
+
+### Import both and cut the piece
+
+1. Import the target Resonator first (Brant), as [Get a model into Blender](/docs/wuthering-waves/models/import-into-blender) shows. Then import the donor (Phoebe) into the same scene, with the same skeleton mode.
+2. Open the **Import Object** mode and look at **Object Sources**. The second import changed it to the donor's folder. Set it back to the target's folder now. You check it again before export.
+3. On the donor, select the component that holds the piece and press `Tab` for Edit Mode. Hover over the piece and press `L` to select it.
+4. Press `P` > **Selection**. The piece is now its own object.
+5. In the new object, select anything you do not need with `L` and delete it with `X`.
+6. Press `M` and move the piece into the target's collection. Rename it with the target component's number, for example `Component 4 Hat`.
+7. Delete the rest of the donor's collection.
+8. Move, rotate and scale the piece with `G`, `R` and `S` until it sits right. Then press `Ctrl+A` > **All Transforms**.
+9. Remove the target's old piece, like Brant's hat, the way you remove a part.
+
+{/* NEEDS HANDS-ON TEST: on WWMI Tools 1.8.0, that a second Import Object changes the Object Sources field of the Export Mod mode as well, and the component number of the hat in the Brant example. */}
+
+</Step>
+<Step>
+
+### Weight the piece
+
+The piece's vertex groups belong to the donor's skeleton. Even when a number looks the same, it can be another bone on the target.
+
+**A rigid piece** (a hat, glasses, an ornament) follows one bone:
+
+1. Select the piece. In the **WWMI Tools** tab, set **Mode** to **Toolbox** and click **Remove All Vertex Groups**.
+2. Find the bone on the target. For a hat it is usually `0`, the head.
+3. In the **Object Data** tab, under **Vertex Groups**, click `+` and rename the new group to `0`.
+4. Press `Tab`, then `A` to select everything. Set **Weight** to `1.000` and click **Assign**.
+5. In Weight Paint mode, run **Weights** > **Normalize All**.
+
+<img
+  src="/wiki-images/wuthering-waves-models-add-clothing-parts-2.webp"
+  alt="The Vertex Groups list with group 0 selected, Weight set to 1.000 and an arrow pointing to the Assign button"
+/>
+
+**A piece that moves** (a coat, a skirt, long hair) needs weights from the body. Copy them with Data Transfer, as [Weight paint a mesh](/docs/wuthering-waves/models/weight-painting) shows. For sway, borrow the target's own moving bones: coat tails, a cape or hair. You cannot add new bones.
+
+</Step>
+<Step>
+
+### Make room on the texture
+
+1. Open the target component's diffuse in your texture editor, with its alpha channel. In Photoshop with the Intel plugin, tick **Load Transparency as Alpha Channel**.
+2. Double the canvas width, for example from 2048 to 4096, anchored on the left. Change the canvas size: do not resize the image.
+3. Paste the donor's texture into the empty right half.
+4. Copy the donor's alpha channel into the same half. This game uses the diffuse alpha for shadows.
+5. Do the same for the normal map and the light map, with the same layout. Double each one's own width, even if their sizes differ.
+6. Save each file under its original name. The diffuse is BC7 sRGB, the normal map and light map are BC7 linear. [Save DDS textures the right way](/docs/wuthering-waves/textures/save-dds-files) shows the dialogs.
+
+<img
+  src="/wiki-images/wuthering-waves-models-add-clothing-parts-1.webp"
+  alt="The Photoshop Canvas Size dialog changing a 2048 by 2048 texture to 4096 by 2048, anchored on the left"
+/>
+
+Then move the UVs to match, in Blender's UV Editor:
+
+1. Set **Pivot Point** to **2D Cursor**, with the cursor at `0, 0`.
+2. Select every object of the target component, select all their UVs, and type `S` `X` `0.5`.
+3. Select the piece, select all its UVs, and type `S` `X` `0.5`, then `G` `X` `0.5`.
+4. Repeat steps 2 and 3 on the `TEXCOORD1.xy` map, which maps the inside.
+
+Each mesh now uses its own half of the wide texture: the target component the left half, the piece the right half. Sizes stay powers of two: 4096 by 2048 is fine.
+
+If the texture is shared, for example `Components-0-1-2-3-4`, every component in its name now draws from the wide image. Scale their UVs into the left half too.
+
+{/* NEEDS HANDS-ON TEST: on Wuthering Waves 3.8, that a widened diffuse, normal map and light map with UVs scaled into halves show right in game, and that TEXCOORD1.xy needs the same scaling. */}
+
+</Step>
+<Step>
+
+### Fix colors and names
+
+1. Copy `COLOR` and `COLOR1` from the target component, as [UV maps, vertex colors, and outlines](/docs/wuthering-waves/models/uvs-and-vertex-colors) shows.
+2. Check that the piece's UV maps have the same names as the target's: `TEXCOORD.xy`, `TEXCOORD1.xy`, `TEXCOORD2.xy`.
+3. Look for red faces with the **Face Orientation** overlay and flip them.
+
+</Step>
+<Step>
+
+### Export and test
+
+1. Open the **Export Mod** mode. Check that **Object Sources** is the target's folder (Brant's), not the donor's. The export reads that folder's `Metadata.json`.
+2. Set **Components** to the target's collection and export, as [Export your mod from Blender](/docs/wuthering-waves/models/export-your-mod) shows.
+3. Copy your edited textures into the mod's `Textures` folder, over the copies with the same names. Later exports keep them: **Copy Textures** skips a file that already exists.
+4. In game, switch to another Resonator, press `F10`, and switch back.
+
+<img
+  src="/wiki-images/wuthering-waves-models-add-clothing-parts-3.webp"
+  alt="Brant in game wearing Phoebe's wide white hat, after export and reload"
+/>
+
+</Step>
+</Steps>
+
+## Keep pieces separate for toggles
+
+In Wuthering Waves you do not need to join the piece. Every object in a component gets its own draw at export, so each one can be switched on and off.
+
+1. Keep the piece as its own object, named with the component number, like `Component 4 Hat`.
+2. To switch between the old piece and the new one, split the old piece off with `P` > **Selection** instead of deleting it. It stays in its component as its own object.
+3. Build the toggle in the add-on's **Ini Toggles** panel. The toggle guide under Next steps shows how.
+
+Hidden objects are only skipped when **Ignore Hidden Objects** is on.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title='"Metadata.json in specified folder is missing Component N!"' id="wrong-object-sources">
+
+**Object Sources** points to the donor's folder. Set it back to the target's folder, then export again.
+
+</Accordion>
+<Accordion title="The piece floats or stays behind when the Resonator moves" id="piece-floats">
+
+It follows the wrong bone. Pick the group that is fully red right where the piece sits, and assign the piece to it again.
+
+</Accordion>
+<Accordion title="Other parts of the Resonator show the wrong texture" id="shared-texture">
+
+You widened a texture that other components share, and their UVs still cover the whole image. Scale the UVs of every component in the texture's file name into the left half.
+
+</Accordion>
+<Accordion title="The body pokes through the new clothing" id="clipping">
+
+The body under the clothing is still drawn, or the two layers have different weights. Delete the body faces that the clothing covers. On tight clothing, a **Displace** modifier with a strength of `0.001` pushes it out a little. Weight both layers the same way.
+
+</Accordion>
+<Accordion title="Removing the old piece left a hole" id="hole">
+
+The mesh may have no faces under the old piece. Rebuild the area: select the border edges and press `F`.
+
+</Accordion>
+<Accordion title="Shadows on the piece look wrong" id="wrong-shadows">
+
+The light map or the diffuse alpha does not match the new diffuse. Give the light map the same canvas size and layout, and copy the donor's alpha channel into the diffuse.
+
+</Accordion>
+</Accordions>
+
+More symptoms are on [Model problems in game](/docs/wuthering-waves/errors/model-problems).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Add a toggle"
+    href="/docs/wuthering-waves/ini/add-a-toggle"
+    icon={<Icon name="ToggleRight" />}
+    level="intermediate"
+  >
+    Switch your new piece on and off with a key.
+  </PremiumCard>
+  <PremiumCard
+    title="Make mods show at a distance"
+    href="/docs/wuthering-waves/models/lods"
+    icon={<Icon name="Telescope" />}
+    level="advanced"
+  >
+    Check your mod far from the camera and in the open world.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide and images:** [Beginner's Guide to Wuthering Waves modding](https://gamebanana.com/tuts/19096) by Denwarenji, with the Phoebe hat example.
+- **Guide:** [WWMI Tools Modder Guide](https://github.com/SpectrumQT/WWMI-Tools/blob/main/guides/modder_guide.md) by SpectrumQT: component naming and structure.
+- **Tool:** [WWMI Tools](https://github.com/SpectrumQT/WWMI-Tools) by SpectrumQT.

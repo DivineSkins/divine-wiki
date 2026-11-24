@@ -1,0 +1,223 @@
+---
+title: "Mods look broken"
+description: "A Wuthering Waves mod loads but looks wrong? Match what you see, from white textures to the original look at a distance, to its cause and the fix."
+category: "errors"
+patch: "3.8"
+keywords:
+  [
+    "wuthering waves mod textures broken",
+    "wwmi lod bias",
+    "wounded effect mods",
+    "wuthering waves mod broken",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+Your mod loads, but the Resonator looks wrong. A Resonator is a playable character. Find what you see in the table, then open the matching fix below. Written for Wuthering Waves 3.8 with XXMI Launcher 2.5.0 and WWMI 1.1.0.
+
+No mod shows at all? Go to [Mods not loading](/docs/wuthering-waves/errors/mods-not-loading).
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/wuthering-waves/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="Wrench" href="/docs/wuthering-waves/tools/update-fixers">
+    Update fix tools
+  </Requirement>
+  <Requirement icon="FileArchive" note="such as 7-Zip">
+    An archive tool
+  </Requirement>
+</Requirements>
+
+## Try this first
+
+These steps fix many broken mods. Do them before anything else.
+
+1. Close the game and open XXMI Launcher. It updates itself and WWMI.
+2. In the launcher's **General** settings, make sure **Configure Game Settings For WWMI** and **Disable Wounded Effect** are ticked, and **Mesh LOD Base FOV** is at `165`.
+3. In game, open <MenuPath path="Settings > Graphics" /> and set **LOD Bias** to **Ultra High**.
+4. Switch to another Resonator, press `F10`, and switch back.
+
+<img
+  src="/wiki-images/wuthering-waves-errors-mods-look-broken-1.webp"
+  alt="Three things the game swaps in that break a mod: lower-detail textures, kept away by LOD Bias Ultra High; a lower-detail model, kept away by Mesh LOD Base FOV 165; and wounded textures, kept away by Disable Wounded Effect"
+/>
+
+{/* NEEDS HANDS-ON TEST: the exact menu path and label of LOD Bias in the Wuthering Waves 3.8 graphics settings. */}
+
+## What do you see?
+
+| What you see                                                           | Most likely cause                             | Fix                                                         |
+| ---------------------------------------------------------------------- | --------------------------------------------- | ----------------------------------------------------------- |
+| White, patchy or wrong textures, mostly in the open world              | The game loads lower-detail textures          | [White or patchy textures](#white-or-patchy-textures)       |
+| Textures break after the Resonator takes a few hits                    | The Wounded Effect is on                      | [Textures break in a fight](#textures-break-in-a-fight)     |
+| The mod turns back to the original look when the camera zooms out      | The game swaps in a lower-detail model        | [Original look at a distance](#original-look-at-a-distance) |
+| The original look even up close, after a game update                   | The Resonator's data changed                  | [Old mod after an update](#old-mod-after-an-update)         |
+| Faces or shading look wrong on several unrelated Resonators            | One outdated mod ships an old shared texture  | [Several Resonators look wrong](#several-resonators)        |
+| One Resonator is a mix of two mods, or broken shapes                   | Two mods for one Resonator                    | [Two mods on one Resonator](#two-mods-on-one-resonator)     |
+| Parts missing or stretched right after you press `F10`                 | The Resonator was on screen during the reload | [Missing or stretched parts](#missing-or-stretched-parts)   |
+| Eyes and lips glitch, half the model is see-through, two copies glitch | Several causes                                | [Other problems](#other-problems)                           |
+
+## Fixes
+
+<Accordions type="multiple">
+<Accordion title="White or patchy textures" id="white-or-patchy-textures">
+
+The model is right, but its textures look white, patchy, blurry or wrong. Often they look fine in menus and break in the open world. This is the most common problem after a game update.
+
+{/* SCREENSHOT: wuthering-waves-errors-mods-look-broken-2.webp, a modded Resonator in the Wuthering Waves 3.8 open world with white or patchy textures, next to the same mod looking right in the Resonators menu. No usable current image exists in any source. */}
+
+**Cause:** the game loads lower-detail versions of textures, mostly in the open world. A mod only knows the full-detail textures, so it no longer matches. Updates also change texture data: version 2.6 changed the textures of every Resonator, weapon and glider. Since version 3.5, the launcher can no longer stop this for every mod.
+
+**Fix, in this order:**
+
+1. Set **LOD Bias** to **Ultra High** in the game's graphics settings.
+2. Close the game and open XXMI Launcher, so it updates.
+3. Check the mod's page for an update. Many creators now bind textures through RabbitFX texture slots, which survive updates better.
+4. If the mod is still broken, run one fix tool on a copy of it. [Fix your mods after a game update](/docs/wuthering-waves/getting-started/fix-mods-after-an-update) shows both tools and the steps.
+5. Still broken? Wait for the mod's creator.
+
+Guides and videos that tell you to type lines into the game's config files are stale since version 3.2. Skip those steps and use the settings above.
+
+{/* NEEDS HANDS-ON TEST: on Wuthering Waves 3.8 with XXMI Launcher 2.5.0, whether LOD Bias at Ultra High alone stops open-world texture breaks for a mod made without RabbitFX. */}
+
+</Accordion>
+<Accordion title="Textures break in a fight" id="textures-break-in-a-fight">
+
+The mod looks right until the Resonator takes a few hits. Then its textures break.
+
+**Cause:** the Wounded Effect. When a Resonator is hurt, the game swaps in damaged versions of its textures, which the mod does not know.
+
+**Fix:**
+
+1. In XXMI Launcher, open the settings with the gear icon, then the **General** tab.
+2. Tick **Disable Wounded Effect**. If the launcher asks about it when you start, click **Disable**.
+3. Start the game from XXMI Launcher again.
+
+</Accordion>
+<Accordion title="Original look at a distance" id="original-look-at-a-distance">
+
+The mod shows up close, but the Resonator turns back to the original look when the camera zooms out.
+
+**Cause:** at a distance, the game swaps in a simpler model of the Resonator. The mod is made for the full model, so it no longer matches.
+
+**Fix:**
+
+1. In XXMI Launcher, open the **General** settings tab.
+2. Check that **Configure Game Settings For WWMI** is ticked.
+3. Set **Mesh LOD Base FOV** to `165` or higher. `165` is the default.
+4. Update XXMI Launcher if it offers an update.
+
+Some mods come with a second `.ini` file for the distance model. Keep it in the mod's folder. [Make mods show at a distance](/docs/wuthering-waves/models/lods) explains how this works.
+
+{/* NEEDS HANDS-ON TEST: on XXMI Launcher 2.5.0 with Wuthering Waves 3.8, at which camera distance a mod still turns to the original look with Mesh LOD Base FOV at 165. */}
+
+</Accordion>
+<Accordion title="Old mod after an update" id="old-mod-after-an-update">
+
+**Cause:** a game update changed the Resonator's model or texture data, so the mod no longer matches. Rover breaks most often. Version 3.8 broke Rover mods and facial expressions again.
+
+**Fix:**
+
+1. Check the mod's page for an update first.
+2. Zip a copy of the mod folder and keep it outside `Mods`.
+3. Run one fix tool on the broken mod, with a release made for version 3.8 or newer.
+4. Run it once. Never run a tool twice on the same mod, and never run both tools on it.
+5. Press `F10` in game.
+
+Mods made for the first WWMI versions, from mid 2024, show a red `Mod Loading Error` box instead. No tool fixes those: they need a new export from their creator.
+
+Fake fixers carrying malware have been uploaded after game updates. Get fix tools only from their GitHub pages. Warning signs: the file asks for admin rights, comes in a password-protected archive, or wants to replace `d3d11.dll`.
+
+</Accordion>
+<Accordion title="Several Resonators look wrong" id="several-resonators">
+
+After an update, the faces or shading of several Resonators look wrong, even ones you never modded.
+
+**Cause:** some textures, such as face shadow and light maps, are shared by many Resonators. One outdated mod that still ships the old shared texture breaks all of them.
+
+**Fix:** find that mod and update it, run a fix tool on it, or turn it off. To find it, use the halves method:
+
+1. Rename half of your mod folders so they start with `DISABLED_`.
+2. Press `F10` and check whether the problem is still there.
+3. Keep halving the group that has the problem until one mod is left.
+
+</Accordion>
+<Accordion title="Two mods on one Resonator" id="two-mods-on-one-resonator">
+
+**Cause:** two mod folders change the same Resonator or outfit. Or a download holds several versions of one mod in subfolders, and all of them load.
+
+**Fix:**
+
+1. Keep one mod for each Resonator or outfit.
+2. Rename the other mod folders so they start with `DISABLED_`.
+3. For a download with several versions, keep one version folder and disable the rest.
+4. Press `F10`.
+
+</Accordion>
+<Accordion title="Missing or stretched parts" id="missing-or-stretched-parts">
+
+Parts are missing, or spikes stretch out of the body, the first time a mod loads.
+
+**Cause:** the Resonator was on screen when WWMI reloaded the mod.
+
+**Fix:** switch to another Resonator, press `F10`, and switch back. If that does not help, restart the game.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: what a Resonator looks like when F10 is pressed while it is on screen, and whether switching away and pressing F10 again fixes it. */}
+
+If a part always looks wrong, the mod itself is broken. See [Model problems in game](/docs/wuthering-waves/errors/model-problems).
+
+</Accordion>
+<Accordion title="Other problems" id="other-problems">
+
+**Eyes and lips glitch right after an update:** the game rebuilt its shaders. Restart the game.
+
+**Two copies of the same modded Resonator glitch**, for example in co-op, photo mode or a story scene: this is a known limit of WWMI and will not be fixed. Turn mods off with `F6` for that moment.
+
+**Half of the model is see-through from behind:** version 3.0 changed how the game hides the back side of some models. The mod needs a fix in its `.ini` from its creator. Check the mod's page for an update.
+
+**Skin looks pale in the open world only:** usually the mod itself, or another mod or shader file that clashes with it. Turn every other mod off with a `DISABLED_` prefix, remove any files you added to `WWMI\ShaderFixes`, and press `F10`. If the skin is still pale, ask the mod's creator.
+
+**Crashes or strange looks with several mods:** you may have more than one copy of RabbitFX, the shared texture and glow library. Keep exactly one copy in `Mods`. [Make textures survive game updates](/docs/wuthering-waves/textures/stable-textures) explains it.
+
+**The screen or map flickers on an RTX 50 card:** this is a driver problem in DirectX 11, and some players see it without mods too. No reliable fix is known yet.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Fix your mods after a game update"
+    href="/docs/wuthering-waves/getting-started/fix-mods-after-an-update"
+    icon={<Icon name="RefreshCw" />}
+    level="beginner"
+  >
+    What to do, in order, when an update breaks your mods.
+  </PremiumCard>
+  <PremiumCard
+    title="Add, turn off, and remove mods"
+    href="/docs/wuthering-waves/getting-started/manage-mods"
+    icon={<Icon name="FolderOpen" />}
+    level="beginner"
+  >
+    Turn mods on and off, and keep one mod per Resonator.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [WWMI on GameBanana](https://gamebanana.com/tools/17252), with its FAQ and update posts, by SpectrumQT.
+- **Discussion:** [WWMI and mod fixers confusion](https://github.com/SpectrumQT/WWMI-Package/issues/73) on the WWMI issue tracker, with answers by SpectrumQT.
+- **Guide:** [Fix Broken Character Textures (RabbitFX Stable Textures)](https://gamebanana.com/tuts/20005) by JessyJames84.
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT.
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ and contributors.

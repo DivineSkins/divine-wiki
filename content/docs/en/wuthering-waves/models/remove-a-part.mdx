@@ -1,0 +1,237 @@
+---
+title: "Your first model edit: remove a part"
+description: "Make your first Wuthering Waves model mod: split off Brant's hat in Blender, export with WWMI Tools, and see it gone in game. The same steps remove any piece."
+category: "models"
+patch: "3.8"
+keywords:
+  [
+    "wuthering waves model mod",
+    "remove hat mod",
+    "brant hat",
+    "wwmi tools",
+    "first blender mod",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+In this guide you make your first model mod: Brant without his hat. You split the hat off in Blender, hide it, export the mod, and load it in game. The same steps remove any piece from any Resonator, the game's name for a playable character. Written for WWMI Tools 1.8.0 on Blender 4.5 LTS and WWMI 1.1.0.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="Box"
+    href="/docs/wuthering-waves/tools/blender-add-on"
+    note="Blender 4.5 LTS"
+  >
+    WWMI Tools
+  </Requirement>
+  <Requirement
+    icon="FolderOpen"
+    href="/docs/wuthering-waves/basics/frame-dump"
+    note="extracted from your own frame dump"
+  >
+    Brant's object folder
+  </Requirement>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/wuthering-waves/tools/xxmi-launcher"
+    note="with WWMI"
+  >
+    XXMI Launcher
+  </Requirement>
+</Requirements>
+
+This guide uses the steps from [Get a model into Blender](/docs/wuthering-waves/models/import-into-blender) and [Export your mod from Blender](/docs/wuthering-waves/models/export-your-mod) in short form. You can start here and open those pages when you want the details.
+
+## The plan
+
+1. Import Brant into Blender.
+2. Split the hat off into its own object.
+3. Hide that object and export the mod into your `Mods` folder.
+4. Reload in game and look.
+
+Brant's hat sits in `Component 4`, together with his gloves and legs. So you cannot remove the whole component. You move only the hat's vertices into a new object and hide it. With **Ignore Hidden Objects** on, export skips the hat, but it stays in your `.blend` file for later.
+
+## Make the mod
+
+<Steps>
+<Step>
+
+### Import Brant
+
+1. Rename Brant's extracted object folder to `Brant`.
+2. Open Blender, select everything in the empty scene with `A`, and delete it with `X`.
+3. Press `N` in the 3D Viewport, open the **WWMI Tools** tab, and set **Mode** to **Import Object**.
+4. Set **Object Sources** to your `Brant` folder and keep **Skeleton** on `Merged`.
+5. Click **Import Object**.
+6. Save the file as `BrantNoHat.blend`.
+
+You now see Brant standing in the scene. The Outliner shows a collection `Brant` with six objects, `Component 0` to `Component 5`.
+
+</Step>
+<Step>
+
+### Find the hat's component
+
+1. Make sure you are in Object Mode.
+2. Click the hat in the 3D Viewport.
+
+The Outliner highlights `Component 4`. His gloves and legs get an orange outline too, because they belong to the same component.
+
+<img
+  src="/wiki-images/wuthering-waves-models-remove-a-part-1.webp"
+  alt="Brant in Blender's Object Mode with Component 4 selected: the orange outline covers his hat, his gloves and his legs"
+/>
+
+</Step>
+<Step>
+
+### Select the hat
+
+1. With `Component 4` selected, press `Tab` to go into Edit Mode.
+2. Press `Alt+A` to deselect everything.
+3. Press `Alt+Z` to turn on X-ray, so you can also select the vertices at the back of the hat.
+4. Press `B` and drag a box around the hat. Its vertices turn orange.
+
+Only the vertices of `Component 4` can be selected now, so the box does not catch the face or the hair. Turn the view with the middle mouse button and check the hat from all sides. Missed a piece? Hover over it and press `L`. Selected a piece of a glove? Hover over it and press `Shift+L`.
+
+<img
+  src="/wiki-images/wuthering-waves-models-remove-a-part-2.webp"
+  alt="Brant's Component 4 in Edit Mode with X-ray on, and a box drawn around the hat to select its vertices"
+/>
+
+</Step>
+<Step>
+
+### Split it off
+
+1. Press `P` and choose **Selection**. You can also right-click and choose <MenuPath path="Separate > Selection" />.
+2. Press `Tab` to go back to Object Mode.
+
+The hat is now its own object, named `Component 4.001`. Double-click that name in the Outliner and rename it `Component 4 Hat`. The name keeps it in component 4, so you can bring the hat back later as a toggle.
+
+</Step>
+<Step>
+
+### Hide the hat
+
+1. Click the eye icon of `Component 4 Hat` in the Outliner.
+2. Save with `Ctrl+S`.
+
+<img
+  src="/wiki-images/wuthering-waves-models-remove-a-part-3.webp"
+  alt="The Blender Outliner with the Brant collection, Component 0 to Component 5 and the new Component 4.001, and an arrow pointing at its eye icon"
+/>
+
+The screenshot shows the object before it was renamed.
+
+<Callout type="warning" title="Hide the hat, never Component 4">
+  `Component 4` still holds Brant's gloves and legs. If you hide or delete it,
+  they vanish in game too: a component with no objects is not drawn.
+</Callout>
+
+</Step>
+<Step>
+
+### Export into your Mods folder
+
+1. Set **Mode** to **Export Mod**.
+2. Set **Components** to `Brant`.
+3. Check that **Object Sources** points to your `Brant` folder.
+4. Set **Mod Folder** to a new folder: `%AppData%\XXMI Launcher\WWMI\Mods\BrantNoHat`.
+5. Check that **Skeleton** says `Merged`.
+6. Tick **Ignore Hidden Objects**. Without it, the hidden hat is exported too.
+7. In **Mod Info**, type a **Mod Name** such as `Brant No Hat`, and your **Author Name**.
+8. Click **Export Mod**.
+
+The new folder holds `mod.ini`, a `Meshes` folder and a `Textures` folder with Brant's textures.
+
+{/* NEEDS HANDS-ON TEST: on Wuthering Waves 3.8 with WWMI Tools 1.8.0 and WWMI 1.1.0, that Brant's hat sits in Component 4, and that the hat split off and hidden with Ignore Hidden Objects on is gone in game while the gloves and legs stay */}
+
+</Step>
+<Step>
+
+### Check it in game
+
+1. Turn off any other Brant mod: rename its folder so it starts with `DISABLED`.
+2. Start the game from XXMI Launcher. If it is already running, press `F10` to reload mods.
+3. Look at Brant in the Resonators menu, then run and attack, to check the head in motion.
+
+{/* SCREENSHOT: wuthering-waves-models-remove-a-part-4.webp, Brant in the Wuthering Waves Resonators menu without his hat, after F10 */}
+
+That is your first model mod. To compare, hold `F9` to see the original Brant.
+
+</Step>
+</Steps>
+
+## Remove other parts the same way
+
+| You want to remove                           | What to do                                                                                                                        |
+| -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| One piece of a component (a hat, a cape)     | Select it in Edit Mode, press `P` and choose **Selection**, then hide the new object. Keep **Ignore Hidden Objects** on.          |
+| A whole component                            | Hide or delete every object of that component. A component with no objects is not drawn in game.                                  |
+| A piece, but you do not know which component | Click the piece in Object Mode: the Outliner highlights its component. Or hide the components one by one with their eye icons.    |
+| A piece, for good                            | Delete the split-off object instead of hiding it. Or delete the piece's vertices in Edit Mode: press `X` and choose **Vertices**. |
+
+Hiding keeps the piece in your file. That makes it easy to turn it into a toggle later.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Brant still has his hat in game" id="hat-still-there">
+
+- Check that **Ignore Hidden Objects** was ticked when you exported. If not, tick it and export again.
+- Check that the `BrantNoHat` folder is inside `%AppData%\XXMI Launcher\WWMI\Mods`.
+- Check that no other Brant mod is on.
+- Press `F10` in game to reload.
+
+</Accordion>
+<Accordion title="His gloves and legs are gone too" id="component-gone">
+
+You hid or deleted `Component 4` itself, not the split-off hat. Show `Component 4` again with its eye icon, or press `Ctrl+Z` until it is back. Then export again.
+
+</Accordion>
+<Accordion title="Bits of the hat are still there" id="hat-pieces-left">
+
+Some hat vertices stayed in `Component 4`. Select `Component 4`, press `Tab`, select the leftover pieces with `L`, press `P` and choose **Selection**, then hide that new object too. Export again.
+
+</Accordion>
+<Accordion title="The export stops with an error" id="export-error">
+
+Most errors come from a wrong field. Check that **Components** is `Brant`, that **Object Sources** is your `Brant` folder with `Metadata.json`, and that **Skeleton** says `Merged`. [Blender export and import errors](/docs/wuthering-waves/errors/creator-errors) lists every message.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Add a toggle"
+    href="/docs/wuthering-waves/ini/add-a-toggle"
+    icon={<Icon name="ToggleRight" />}
+    level="intermediate"
+    featured
+  >
+    Keep the hat, and turn it on and off in game with one key.
+  </PremiumCard>
+  <PremiumCard
+    title="Add or swap clothing parts"
+    href="/docs/wuthering-waves/models/add-clothing-parts"
+    icon={<Icon name="Shirt" />}
+    level="intermediate"
+  >
+    Add a new piece, or move one over from another Resonator.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Beginner's Guide to Wuthering Waves modding](https://gamebanana.com/tuts/19096) by Denwarenji: the Brant hat removal steps.
+- **Images:** screenshots 1, 2 and 3 from [Beginner's Guide to Wuthering Waves modding](https://gamebanana.com/tuts/19096) by Denwarenji.
+- **Guide:** [WWMI Tools Modder Guide](https://github.com/SpectrumQT/WWMI-Tools/blob/main/guides/modder_guide.md) by SpectrumQT: component naming and skipping components.
+- **Tool:** [WWMI Tools](https://github.com/SpectrumQT/WWMI-Tools) by SpectrumQT.

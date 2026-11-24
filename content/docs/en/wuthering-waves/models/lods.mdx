@@ -1,0 +1,165 @@
+---
+title: "Make mods show at a distance"
+description: "Why Wuthering Waves mods turn back to the original look or lose their textures at a distance, the settings that keep them visible, and what creators can do."
+category: "models"
+patch: "3.8"
+keywords:
+  [
+    "wuthering waves lod",
+    "mesh lod base fov",
+    "lod bias ultra high",
+    "mod disappears at distance",
+    "wwmi",
+  ]
+---
+
+<LevelPill level="advanced" />
+
+Wuthering Waves swaps in simpler models and lower-detail textures when the camera is far away. A mod is made for the full-detail versions, so it can turn back to the original look, or its textures break. This page explains the settings that keep mods visible, what they cannot fix, and what creators can do. Written for XXMI Launcher 2.5.0, WWMI 1.1.0 and WWMI Tools 1.8.0.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/wuthering-waves/tools/xxmi-launcher"
+  >
+    XXMI Launcher with WWMI
+  </Requirement>
+  <Requirement
+    icon="Blender"
+    href="/docs/wuthering-waves/tools/blender-add-on"
+    note="creators only"
+  >
+    WWMI Tools
+  </Requirement>
+</Requirements>
+
+## What LODs are
+
+LOD means level of detail. Games keep simpler versions of models and textures for things far from the camera, because they cost less to draw. Wuthering Waves does this in two ways:
+
+- **A simpler model.** The game swaps the Resonator you play to a simpler model when the camera is far away. A Resonator is the game's name for a playable character.
+- **Lower-detail textures.** Since mid-2025, the game loads smaller versions of textures, mostly in the open world.
+
+Each lower-detail version has its own hash. A mod matches the full-detail model and textures by their hashes, so it misses the simpler ones. [How Wuthering Waves mods work](/docs/wuthering-waves/basics/how-mods-work) explains hashes.
+
+<img
+  src="/wiki-images/wuthering-waves-models-lods-1.webp"
+  alt="Two boxes. Lower-detail model: happens when the camera is far, the original look comes back, players keep Mesh LOD Base FOV at 165, creators have no export for it yet. Lower-detail textures: happen mostly in the open world, textures look white or patchy, players set LOD Bias to Ultra High, creators bind textures with RabbitFX texture slots"
+/>
+
+Texture hashes can also differ between the UHD, HD and SD resource qualities, and they change when an update edits a texture.
+
+## Settings that keep mods visible
+
+These settings are for every player. [Install mods with XXMI Launcher](/docs/wuthering-waves/getting-started/install-with-xxmi-launcher) sets them up the first time.
+
+| Setting                              | Where                          | Value                       | What it does                                                                                                                             |
+| ------------------------------------ | ------------------------------ | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| **Configure Game Settings For WWMI** | XXMI Launcher, **General** tab | ticked                      | Turns ray tracing off, handles the Wounded Effect, and keeps the full character model on screen at normal camera distance.               |
+| **Mesh LOD Base FOV**                | XXMI Launcher, **General** tab | `165`, the default, or more | Sets the camera distance where the game swaps to the simpler model. `165` covers most scenes. A higher value moves the swap further out. |
+| **Client Resource Quality**          | XXMI Launcher, **General** tab | the quality you installed   | Must match your install: UHD, HD or SD. A wrong choice crashes the game while it loads.                                                  |
+| **LOD Bias**                         | In game, graphics settings     | **Ultra High**              | Keeps the full-detail models and textures that mods are made for.                                                                        |
+
+To check them:
+
+1. In XXMI Launcher, open the settings with the gear icon and pick the **General** tab.
+2. Keep **Configure Game Settings For WWMI** ticked.
+3. Leave **Mesh LOD Base FOV** at `165`. If a mod still turns to the original look at your usual camera distance, raise it.
+4. Check that **Client Resource Quality** matches the quality you installed.
+5. Start the game from XXMI Launcher. Open <MenuPath path="Settings > Graphics" /> and set **LOD Bias** to **Ultra High**.
+6. Accept launcher updates when they come. After a game update, the launcher's handling of these settings is often what gets fixed.
+
+{/* NEEDS HANDS-ON TEST: on XXMI Launcher 2.5.0 with Wuthering Waves 3.8, at which camera distance a mod still turns to the original look with Mesh LOD Base FOV at 165, and what a higher value changes. */}
+
+{/* SCREENSHOT: wuthering-waves-models-lods-2.webp, the Wuthering Waves 3.8 graphics settings with LOD Bias set to Ultra High. */}
+
+<Callout type="warning" title="Skip config-file guides">
+  Guides and videos that tell you to type lines into the game's config files are
+  stale since version 3.2. The game ignores or removes those lines. Use the
+  settings above.
+</Callout>
+
+What the launcher changes in the game's settings, and what Kuro's terms say about it, is on [What's allowed and how to stay safe](/docs/wuthering-waves/getting-started/stay-safe).
+
+## What the settings cannot fix
+
+- **Textures in the open world.** Since version 3.5, the launcher has no option left that stops lower-detail textures. **LOD Bias** at **Ultra High** helps, but a mod's textures can still break in the open world while they look fine in menus.
+- **Very long camera distances.** At `165` the full model stays for most scenes, not all of them.
+
+When textures break, check the mod's page for an update first. Many creators now bind textures in a way that survives this. If there is none, try a fix tool on a copy of the mod, as [Fix your mods after a game update](/docs/wuthering-waves/getting-started/fix-mods-after-an-update) shows, or wait for the creator. [Mods look broken](/docs/wuthering-waves/errors/mods-look-broken) matches each symptom to its fix.
+
+Some mods come with a second `.ini` file and extra buffers for the distance model. Keep them in the mod's folder.
+
+## For creators: make your mod hold up
+
+<Steps>
+<Step>
+
+### Dump the full-detail model
+
+Make your frame dump close up, in the Resonators menu, with the settings above. Then you extract the full-detail model and textures that players see. [Make a frame dump](/docs/wuthering-waves/basics/frame-dump) shows the steps.
+
+{/* NEEDS HANDS-ON TEST: on Wuthering Waves 3.8, that a frame dump in the Resonators menu with LOD Bias at Ultra High captures the full-detail model and textures. */}
+
+</Step>
+<Step>
+
+### Bind textures by role
+
+A mod exported by WWMI Tools replaces each texture by its hash. A lower-detail texture, another resource quality or a game update gives the texture a new hash, and your texture stops showing. RabbitFX texture slots bind textures by their role instead: diffuse, normal map, light map. [Make textures survive game updates](/docs/wuthering-waves/textures/stable-textures) shows how to set it up.
+
+</Step>
+<Step>
+
+### Know the limit for distance models
+
+WWMI Tools 1.8.0 does not export the simpler distance model. Its author has said mesh LOD support is planned, with no date. Some creators ship a second `.ini` with buffers for the distance model, but no public guide explains how to make one yet.
+
+{/* NEEDS HANDS-ON TEST: how creators build the second .ini and buffers for the distance model on Wuthering Waves 3.8 (dump at a distance and extract the simpler model?). */}
+
+</Step>
+<Step>
+
+### Test at a distance
+
+1. Check the mod in the Resonators menu.
+2. Go into the open world and zoom the camera out as far as it goes. Watch for the original look.
+3. Walk around a busy open-world area for a few minutes. Watch for white, blurry or patchy textures.
+4. Switch to another Resonator and back, then check again.
+
+Textures that look right in menus and break in the open world point to lower-detail textures. The original look at a distance points to the simpler model. [Test and reload your mod](/docs/wuthering-waves/basics/test-your-mod) has the full test list.
+
+</Step>
+</Steps>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/wuthering-waves/publishing/publishing-checklist"
+    icon={<Icon name="ListChecks" />}
+    level="beginner"
+  >
+    Check files, names and settings before you share your mod.
+  </PremiumCard>
+  <PremiumCard
+    title="Update your mod after a game update"
+    href="/docs/wuthering-waves/publishing/update-your-mod"
+    icon={<Icon name="RefreshCw" />}
+    level="intermediate"
+  >
+    Fix your own mod when a game update changes hashes or models.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [WWMI on GameBanana](https://gamebanana.com/tools/17252), with its FAQ and update posts, by SpectrumQT.
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT, for the setting labels and tooltips.
+- **Guide:** [Fix Broken Character Textures (RabbitFX Stable Textures)](https://gamebanana.com/tuts/20005) by JessyJames84.
+- **Tool:** [WWMI Tools](https://github.com/SpectrumQT/WWMI-Tools) by SpectrumQT.

@@ -1,0 +1,234 @@
+---
+title: "Test and reload your mod"
+description: "Reload a Wuthering Waves mod with F10, compare it with the original, read WWMI's warnings and Mod Loading Errors, and check everything before you share."
+category: "basics"
+patch: "3.8"
+keywords:
+  [
+    "wwmi f10 reload",
+    "wuthering waves mod not working",
+    "wwmi hotkeys",
+    "mute warnings",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+You never need to restart Wuthering Waves to see a change to your mod. This page shows how to reload in seconds, compare your mod with the original, read WWMI's messages, and check every state before you share. Written for XXMI Launcher 2.5.0, WWMI 1.1.0 and WWMI Tools 1.8.0.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/wuthering-waves/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="WutheringWaves" note="started from XXMI Launcher">
+    Wuthering Waves
+  </Requirement>
+  <Requirement icon="FolderOpen">Your mod in the Mods folder</Requirement>
+</Requirements>
+
+Your mod goes in its own folder inside `%AppData%\XXMI Launcher\WWMI\Mods`.
+
+<img
+  src="/wiki-images/wuthering-waves-basics-test-your-mod-1.webp"
+  alt="The test loop: save your edit, switch to another Resonator, press F10, switch back, then hold F9 to compare with the original"
+/>
+
+## Check that WWMI loaded
+
+1. Press **Start** in XXMI Launcher. Starting the game from Kuro's launcher, Steam or Epic Games loads no mods.
+2. Look at the bottom-left corner in the first 30 seconds. You should see this text:
+
+   ```text
+   WWMI 1.1.0 (PRESS F12 TO SHOW GUIDE)
+   ```
+
+3. On your first start, WWMI shows its user guide. Press `F10` to hide it for good. Press `F12` to see it again.
+
+{/* SCREENSHOT: wuthering-waves-basics-test-your-mod-2.webp, the WWMI 1.1.0 user guide over the Wuthering Waves 3.8 loading screen, listing the F12, F6, F10, Alt+F12 and Ctrl+Alt+F10 keys */}
+
+No text at all? The XXMI DLL did not load, so no mod can work. [Mods not loading](/docs/wuthering-waves/errors/mods-not-loading) goes through the causes in order.
+
+## The keys you test with
+
+| Key            | What it does                                                                                                        |
+| -------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `F10`          | Reload all mods and save mod settings                                                                               |
+| `F9` (hold)    | Turn WWMI off while you hold it, to see the original                                                                |
+| `F6`           | Turn all mods off or on. The top of the screen shows `Mods Display: Disabled` or `Enabled`                          |
+| `F12`          | Show or hide the user guide                                                                                         |
+| `Ctrl+Alt+F10` | Reset all saved mod settings (toggles) and reload                                                                   |
+| `Ctrl+F9`      | Show the performance monitor: which mod costs the most time                                                         |
+| `Ctrl+F12`     | Show the hunting mode guide (needs **Enable Hunting**, see [Find a hash](/docs/wuthering-waves/basics/find-a-hash)) |
+| `Alt+F12`      | Turn compatibility mode for very old mods on or off, then press `F10`                                               |
+| `X`            | Hide a WWMI error message                                                                                           |
+
+## Reload your mod
+
+1. Save your change: a new export from Blender, an `.ini` edit, or a new texture.
+2. Switch to another Resonator in your team, so the modded one leaves the screen. A Resonator is the game's name for a playable character.
+3. Press `F10`.
+4. Switch back to the modded Resonator.
+
+Why switch first: WWMI's own user guide asks you to hide the modded Resonator before you reload. A mod that reloads while it is on screen can draw wrong. If that happens, switch away and press `F10` again, or restart the game.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: what a Resonator looks like when F10 is pressed while it is on screen, and whether switching away and pressing F10 again fixes it */}
+
+### A faster loop from Blender
+
+1. In WWMI Tools, set **Mod Folder** to your mod's folder inside `WWMI\Mods`. Each export then lands where the game reads it.
+2. Leave **Copy Textures** on if you like. It copies a texture only when no file with that name is in the mod's `Textures` folder yet, so your edited textures stay.
+3. If you edit the `mod.ini` by hand, untick **Write Mod INI**. Re-exports then refresh only the buffers.
+4. Tick **Write Mod INI** again when you add or remove vertices. The vertex and index counts live in the `.ini`.
+5. While you weight paint, tick **Partial Export** under **Advanced** and export only the Blend buffer. It is much faster. Any change to the vertex count needs a full export.
+
+{/* NEEDS HANDS-ON TEST: the labels Mod Folder, Copy Textures, Write Mod INI, Partial Export and Advanced in the WWMI Tools 1.8.0 Export Mod panel in Blender 4.5, read from the add-on source */}
+
+[Export your mod from Blender](/docs/wuthering-waves/models/export-your-mod) explains every export option.
+
+## Compare with the original
+
+- **Hold `F9`.** WWMI turns off while you hold the key, and your mod disappears. Let go and it comes back. Use it to compare colors and shape side by side.
+- **Press `F6`.** It turns every mod off. The top of the screen shows `Mods Display: Disabled`. Press it again to turn them back on.
+
+**Check your first export.** Before you change anything, export the unchanged model once with the **Merged** skeleton. Press `F6` in game. A short distortion when the mod switches proves that your export is active. No distortion means **Object Sources** or **Mod Folder** points to the wrong folder.
+
+{/* NEEDS HANDS-ON TEST: on WWMI 1.1.0 and WWMI Tools 1.8.0, that a vanilla Merged re-export shows a short distortion when F6 is pressed */}
+
+## Read warnings and errors
+
+WWMI shows two kinds of messages.
+
+**Mod Loading Error.** A red box from WWMI itself. It means the mod and WWMI do not match:
+
+| Message                                                                                                  | What it means                                                                          |
+| -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `Installed WWMI version is below minimally required!`                                                    | The mod's `$required_wwmi_version` is newer than your WWMI. Update XXMI Launcher.      |
+| `Mod is incompatible with current WWMI version!` with `Enable Compatibility Mode`                        | The mod uses the old 0.6 format. Press `Alt+F12`, then `F10`. Better: export it again. |
+| `Mod is incompatible with current WWMI version!` with `Please check out the mod's page for any updates!` | The mod was made for the first versions of WWMI and cannot load.                       |
+
+Press `X` to hide the box.
+
+**Warnings from the `.ini` file.** XXMI Launcher hides these by default. Turn them on while you test:
+
+1. In XXMI Launcher, click the gear at the top right.
+2. Open the **WWMI** tab.
+3. Untick **Mute Warnings**.
+4. Start the game and press `F10`.
+
+Each message names the section and the file it comes from, like `@ [Mods\MyMod\mod.ini]`. Common ones:
+
+| Message                                                     | What it means                                                    |
+| ----------------------------------------------------------- | ---------------------------------------------------------------- |
+| `Possible Mod Conflict: Duplicate TextureOverride hash=...` | Two mods change the same Resonator. Turn one off.                |
+| An error that names a missing file                          | A file name in the `.ini` does not match the file in the folder. |
+| `Entry outside of section`                                  | A line sits above the first `[section]` in an `.ini`.            |
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: the exact on-screen wording of these .ini warnings with Mute Warnings off in WWMI 1.1.0 */}
+
+{/* SCREENSHOT: wuthering-waves-basics-test-your-mod-3.webp, WWMI 1.1.0 in game with Mute Warnings off, showing a Possible Mod Conflict warning or a red Mod Loading Error box after F10 */}
+
+Messages fade after a few seconds. To keep them, write them to a log:
+
+1. In the **WWMI** tab, set **Log File Output Verbosity** to **Warning**.
+2. Start the game, press `F10`, then close the game.
+3. Open `d3d11_log.txt` in `%AppData%\XXMI Launcher\WWMI`.
+
+Set it back to **Disabled** when you are done. Never leave detailed logging on: it slows the game, and in one report the log grew past 20 GB while the game dropped to 10 to 20 FPS.
+
+{/* NEEDS HANDS-ON TEST: confirm that the WWMI tab of XXMI Launcher 2.5.0 shows Log File Output Verbosity (Disabled, Warning, Info, Debug), with Disabled as the default, in place of the older Calls Logging and Debug Logging boxes, and that d3d11_log.txt is written to %AppData%\XXMI Launcher\WWMI. */}
+
+Toggles stuck or acting strange? Press `Ctrl+Alt+F10`. It deletes `d3dx_user.ini`, the file that saves every mod's toggle settings, and reloads.
+
+## Find a broken mod with the halves method
+
+A mod you downloaded breaks your own, or the game acts up and you do not know why? First check that `Mods` holds only one RabbitFX folder: two copies cause crashes. Then split the `Mods` folder in halves:
+
+1. Move half of your mod folders out of `Mods`, to your desktop for example.
+2. Restart the game, or switch Resonators and press `F10`.
+3. Check if the problem is gone. If yes, it is in the half you moved out. If no, it is in the half that stayed.
+4. Repeat with the half that has the problem, until one mod is left.
+
+About seven rounds find one mod among a hundred.
+
+This also finds the cause when the faces or light maps of several unrelated Resonators look wrong after an update. Some textures are shared by many Resonators, and one outdated mod that still ships the old shared texture breaks all of them.
+
+Still broken with an empty `Mods` folder? Remove only the files you added to `ShaderFixes` yourself, and leave WWMI's own files there. Then click the three dots next to **Start** in XXMI Launcher and choose **Repair WWMI**.
+
+## Check everything before you share
+
+Test each state with the settings players use: **LOD Bias** at **Ultra High** and the Wounded Effect off.
+
+- [ ] The Resonators menu, the outfit screen and the open world
+- [ ] Idle, walking, running, sprinting and normal attacks
+- [ ] Every skill, and any alternate form the Resonator takes, such as a Liberation form
+- [ ] Face expressions and shoulder movement: blinking, talking in a story scene
+- [ ] Zoom the camera far out: the mod must not turn back into the original
+- [ ] Day and night, indoors and outdoors
+- [ ] A lower graphics preset: lower settings can load other texture versions with other hashes
+- [ ] Hold `F9`: the original looks normal
+- [ ] Warnings on: no message points at your mod
+
+Two copies of the same modded Resonator on screen, for example in co-op, always glitch with a **Merged** skeleton. That is a known limit of WWMI, not a bug in your mod.
+
+{/* NEEDS HANDS-ON TEST: which of these states break a typical Wuthering Waves 3.8 Resonator mod, and whether the list misses one */}
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The Resonator looks half drawn after F10" id="half-drawn">
+
+The Resonator was on screen while you reloaded. Switch to another Resonator, press `F10`, and switch back. Restarting the game also fixes it.
+
+</Accordion>
+<Accordion title="Eyes and lips glitch after the game changed its shaders" id="eyes-lips">
+
+After an update, the game compiles its shaders again on the first start. Restart the game once.
+
+</Accordion>
+<Accordion title="Textures look white, patchy or wrong" id="wrong-textures">
+
+Check the texture save format first, then the game's settings. [Mods look broken](/docs/wuthering-waves/errors/mods-look-broken) shows each symptom and its fix.
+
+</Accordion>
+<Accordion title="Toggles reset every time I start the game" id="toggles-reset">
+
+The mod saves its toggles only if they are declared `global persist`. WWMI Tools writes them that way when you use its **Ini Toggles** panel. Check the `[Constants]` section of the mod's `.ini`.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/wuthering-waves/publishing/publishing-checklist"
+    icon={<Icon name="Upload" />}
+    level="beginner"
+  >
+    Clean the folder, add credits, and pack it so it works for everyone.
+  </PremiumCard>
+  <PremiumCard
+    title="How Wuthering Waves mods work"
+    href="/docs/wuthering-waves/basics/how-mods-work"
+    icon={<Icon name="Layers" />}
+    level="beginner"
+  >
+    Hashes, components, the Mods folder, and why updates break mods.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Tool:** [WWMI-Package](https://github.com/SpectrumQT/WWMI-Package) by SpectrumQT and the WWMI team: the in-game [user guide](https://github.com/SpectrumQT/WWMI-Package/blob/main/WWMI/Core/WWMI/Notifications/UserGuide.md), [key bindings](https://github.com/SpectrumQT/WWMI-Package/blob/main/WWMI/Core/WWMI/KeyBindings.ini) and [error messages](https://github.com/SpectrumQT/WWMI-Package/tree/main/WWMI/Core/WWMI/Notifications).
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) and the [XXMI DLL](https://github.com/SpectrumQT/XXMI-Libs-Package) by SpectrumQT.
+- **Tool:** [WWMI Tools](https://github.com/SpectrumQT/WWMI-Tools) by SpectrumQT, with its modder guide: the export options.
+- **Guide:** [Beginner's Guide to Wuthering Waves modding](https://gamebanana.com/tuts/19096) by Denwarenji: the `F6` check of a first export.
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorrez and contributors: the halves method.

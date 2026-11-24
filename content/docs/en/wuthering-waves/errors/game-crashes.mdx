@@ -1,0 +1,334 @@
+---
+title: "Crashes and launch errors"
+description: "Wuthering Waves crashes, closes, or says to use the launcher when you start it with mods? Fix the launch error, or find the mod or setting behind the crash."
+category: "errors"
+patch: "3.8"
+keywords:
+  [
+    "wuthering waves crash mods",
+    "kuro use launcher to start game",
+    "wwmi crash",
+    "fatal error line 54",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+The game closes, crashes, shows an error, or stays black when you start it with mods. First match your problem below. If none fits, work through the crash checklist. Written for XXMI Launcher 2.5.0 and WWMI 1.1.0 on Wuthering Waves 3.8.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/wuthering-waves/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement
+    icon="WutheringWaves"
+    note="Kuro's launcher, Steam or Epic Games"
+  >
+    Wuthering Waves on PC
+  </Requirement>
+  <Requirement icon="FolderOpen">A folder on your desktop</Requirement>
+</Requirements>
+
+The desktop folder is a place to park mods while you test.
+
+## Launch errors
+
+Since version 3.7, the game ships in three resource qualities: **UHD**, **HD** and **SD**. Most launch errors come from a launcher that does not know which one you installed.
+
+<Accordions type="multiple">
+<Accordion title='"kuro: Use launcher to start game!"' id="use-launcher-to-start-game">
+
+The game shows a crash box with this text:
+
+```text
+Fatal error: [File:Unknown] [Line: 54]
+kuro: Use launcher to start game!
+```
+
+<img
+  src="/wiki-images/wuthering-waves-errors-game-crashes-2.webp"
+  alt="A Wuthering Waves crash box with the text Fatal error: [File:Unknown] [Line: 54] kuro: Use launcher to start game!"
+/>
+
+**Cause:** the game was started without a resource quality. Old XXMI Launcher versions, a ticked **Launch Options** box, or a start setup copied from an old guide cause this.
+
+**Fix:**
+
+1. Open XXMI Launcher and let it update. You need version 2.4.1 or newer, and 2.5.0 for Steam and Epic Games.
+2. Click the gear in the top-right corner and open the **General** tab.
+3. Set **Client Resource Quality** to the quality you installed: `UHD`, `HD` or `SD`.
+4. Leave **Launch Options** unticked.
+5. Check that **Game Launch** matches where you got the game.
+6. Click **Start** again.
+
+Guides from late September 2026 tell you to type start options by hand. Skip them: the launcher now does this for you.
+
+</Accordion>
+<Accordion title="The game crashes while it loads" id="wrong-resource-quality">
+
+**Cause:** **Client Resource Quality** does not match what you installed. The launcher starts the game with a quality you did not download.
+
+**Fix:** set **Client Resource Quality** to the quality you downloaded in Kuro's launcher, Steam or Epic Games. If you have only one installed, the launcher picks it for you.
+
+Not sure which one you have? Open the game folder, then `Client\Content`. The launcher looks for a folder named `UHD`, `HD` or `SD` there.
+
+{/* NEEDS HANDS-ON TEST: on a 3.8 install, confirm that the installed quality shows as a UHD, HD or SD folder under Client\Content, and what XXMI Launcher 2.5.0 shows when the chosen quality is not installed. */}
+
+</Accordion>
+<Accordion title='"Cannot find any resource tier available"' id="no-resource-tier">
+
+The launcher shows a message that starts like this and ends with a request to repair the game:
+
+```text
+Cannot find any resource tier available for configured Wuthering Waves installation
+```
+
+**Cause:** the launcher found no `UHD`, `HD` or `SD` folder in your game. The install is damaged or not finished, or **Game Folder** points at the wrong copy.
+
+**Fix:**
+
+1. Check **Game Folder** in the **General** tab. It must be the `Wuthering Waves Game` folder of the copy you play.
+2. Repair Wuthering Waves in its official launcher: Kuro's launcher, Steam or Epic Games.
+3. Click **Start** in XXMI Launcher again.
+
+</Accordion>
+<Accordion title="The launcher says the game did not start within 30 seconds" id="process-timeout">
+
+The launcher shows a message like this:
+
+```text
+Game process Client-Win64-Shipping.exe did not start within 30s.
+```
+
+**Cause:** your PC or drive is slow, so the game window took too long. Or the game crashed while it started.
+
+**Fix:**
+
+1. In the launcher settings, open the **General** tab.
+2. Raise **Game Process Launch Wait Timeout**, for example to `60`.
+3. Start the game again.
+
+If the game still closes, it crashed. Follow the crash checklist.
+
+{/* NEEDS HANDS-ON TEST: the exact process name the timeout message shows for Wuthering Waves on launcher 2.5.0. */}
+
+</Accordion>
+<Accordion title="The launcher will not start because of d3dx.ini" id="d3dx-ini-in-mods">
+
+The launcher shows:
+
+```text
+Cannot start with d3dx.ini in Mods folder!
+```
+
+**Cause:** a mod came with its own `d3dx.ini`, or an old WWMI folder was copied into `Mods`. These files break the loader's settings and can crash the game.
+
+**Fix:** when the launcher shows the "Stability Warning", click **Disable Ini Files**. It renames the stray files to start with `DISABLED_`. Or delete the stray `d3dx.ini` yourself.
+
+</Accordion>
+</Accordions>
+
+## Known crashes
+
+<Accordions type="multiple">
+<Accordion title="Two beeps, or an Unreal Engine fatal error, then the game closes" id="two-beeps">
+
+**Cause:** the mod loader, a mod, or a shader file crashed the game while it started.
+
+**Fix:** first try [the start delay](#initialization-delay) below. Then follow [the crash checklist](#the-crash-checklist). It finds the file behind the crash.
+
+</Accordion>
+<Accordion title="Crashes at start, even with no mods" id="initialization-delay">
+
+This happens most on PCs with fast processors, since version 2.4.
+
+**Cause:** the mod loader starts too early, before the game is ready for it.
+
+**Fix:**
+
+1. In XXMI Launcher, click the gear in the top-right corner.
+2. Open the **WWMI** tab.
+3. Raise **XXMI DLL Initialization Delay** from its default of `500`, in steps of `100`.
+4. Start the game after each change.
+5. If raising it does not help, try lower values in steps of `50`. Do not go below `50`.
+
+Change this setting only when the game crashes at start. Keep **XXMI DLL Injection Mode** at its default.
+
+{/* NEEDS HANDS-ON TEST: on XXMI Launcher 2.5.0, the exact tab, label and tooltip of XXMI DLL Initialization Delay, and which values stop start-up crashes on Wuthering Waves 3.8. */}
+
+If it still crashes, follow the crash checklist.
+
+</Accordion>
+<Accordion title="Crashes with several mods, or strange behavior" id="rabbitfx-copies">
+
+**Cause:** more than one copy of RabbitFX, the shared texture and glow library, sits in `Mods`. Some mods ship their own copy.
+
+**Fix:** keep exactly one RabbitFX folder in `Mods`. Delete the copies inside other mods' folders. [Add, turn off, and remove mods](/docs/wuthering-waves/getting-started/manage-mods) shows how.
+
+</Accordion>
+<Accordion title='"Fatal error!" with EXCEPTION_ACCESS_VIOLATION, or the game closes right after its icon shows' id="old-launcher-crash">
+
+On Steam, the game may show:
+
+```text
+Unhandled Exception: EXCEPTION_ACCESS_VIOLATION reading address
+```
+
+On some laptops with NVIDIA graphics, the game's icon shows in the taskbar, then the game closes.
+
+**Cause:** the game failed to start in DirectX 11. Old XXMI Launcher versions started the game in a way that caused this. Version 1.9.0 fixed it in 2025.
+
+**Fix:**
+
+1. Update XXMI Launcher.
+2. Leave **Launch Options** unticked in the **General** tab, so the launcher starts the game its default way.
+3. Start the game again.
+
+If it still crashes, follow the crash checklist.
+
+</Accordion>
+<Accordion title="Black screen with sound" id="black-screen">
+
+The game runs and you hear it, but you see only black or the desktop.
+
+**Cause:** an overlay clashes with the mod loader, or launch settings you changed broke the start.
+
+**Fix:**
+
+1. Turn off the Steam overlay and the Discord overlay.
+2. In XXMI Launcher, put any launch settings you changed back to their defaults.
+3. Start the game again.
+
+</Accordion>
+<Accordion title="Crashes with overlays or ReShade" id="overlays-and-reshade">
+
+**Cause:** programs that draw over the game can clash with the mod loader.
+
+**Fix:**
+
+1. Turn NVIDIA **Smooth Motion** off. It must stay off for mods.
+2. Turn off the NVIDIA overlay and other overlays while you test.
+3. Keep ReShade files and presets out of `Mods`.
+4. If you use ReShade, keep **XXMI DLL Initialization Delay** at `150` or higher.
+
+</Accordion>
+<Accordion title="An error about VCRUNTIME140.dll or Visual C++" id="vc-runtime">
+
+**Cause:** the Microsoft Visual C++ runtime is missing or damaged. XXMI Launcher and its loader need it.
+
+**Fix:** download and run the [Visual C++ Redistributable for x64](https://aka.ms/vs/17/release/vc_redist.x64.exe) from Microsoft. If it is already installed, choose **Repair**. Then restart your PC.
+
+</Accordion>
+</Accordions>
+
+Your antivirus deleted launcher files? See [XXMI Launcher problems](/docs/wuthering-waves/errors/launcher-problems).
+
+## The crash checklist
+
+This follows the official order from XXMI Launcher's crash report form, with two changes. You remove only your own shader files, and you skip the step that deletes files in `WWMI\Core`: **Repair WWMI** puts those files back anyway. Start the game after each step. Stop when the crash stops: the last thing you changed was the cause.
+
+<img
+  src="/wiki-images/wuthering-waves-errors-game-crashes-1.webp"
+  alt="Six steps in a row: reboot the PC, repair the game, repair WWMI, remove your own shader files, empty Mods, then put mods back half at a time"
+/>
+
+<Steps>
+<Step>
+
+### Reboot and repair the game
+
+1. Restart your PC.
+2. Repair Wuthering Waves in its official launcher: Kuro's launcher, Steam or Epic Games.
+
+{/* NEEDS HANDS-ON TEST: the exact label of the repair option in Kuro's launcher for Wuthering Waves 3.8, and where Steam installs repair the game since the 3.8 move to Kuro's launcher. */}
+
+</Step>
+<Step>
+
+### Repair WWMI
+
+1. Open XXMI Launcher and click the **WWMI** icon.
+2. Click the 3-dots button next to **Start**, then **Repair WWMI**.
+
+It downloads WWMI and the mod loader again. Your mods stay.
+
+</Step>
+<Step>
+
+### Remove your own shader files
+
+1. Open `%AppData%\XXMI Launcher\WWMI\ShaderFixes`.
+2. Remove only the files you added yourself.
+3. Run **Repair WWMI** again.
+
+{/* NEEDS HANDS-ON TEST: whether WWMI\ShaderFixes exists after a clean install with XXMI Launcher 2.5.0, and which files Repair WWMI puts in it. */}
+
+</Step>
+<Step>
+
+### Empty the Mods folder
+
+1. In XXMI Launcher, click the 3-dots button, then **Open Mods Folder**.
+2. Move every mod folder into the folder on your desktop.
+3. Start the game.
+
+If the game still crashes with an empty `Mods` folder, a mod is not the cause. Go to [If nothing helps](#if-nothing-helps).
+
+</Step>
+<Step>
+
+### Find the mod by halves
+
+1. Move half of your mods back into `Mods`.
+2. Start the game.
+3. If it crashes, the bad mod is in that half. If not, it is in the other half.
+4. Keep halving the group that crashes until one mod is left.
+
+Keep that mod out, and check its page for an update.
+
+</Step>
+</Steps>
+
+## If nothing helps
+
+If the game crashes after every step, ask for help or report it:
+
+- Ask in the [Divine Skins Discord](https://discord.gg/divineskins) or the [AGMG Discord](https://discord.gg/agmg). Say which steps you did, your WWMI version, and what you see.
+- Report the crash with the [Game Crash Report form](https://github.com/SpectrumQT/XXMI-Launcher/blob/main/.github/ISSUE_TEMPLATE/game-crash-report.md) on the XXMI Launcher issue tracker. Do every step above first: the form asks for them.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Mods not loading"
+    href="/docs/wuthering-waves/errors/mods-not-loading"
+    icon={<Icon name="TriangleAlert" />}
+    level="beginner"
+  >
+    The game runs, but your mods do not show.
+  </PremiumCard>
+  <PremiumCard
+    title="Install mods with XXMI Launcher"
+    href="/docs/wuthering-waves/getting-started/install-with-xxmi-launcher"
+    icon={<Icon name="Download" />}
+    level="beginner"
+  >
+    Check every launcher setting from the start, including resource quality.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Game Crash Report template and Crash Isolation Checklist](https://github.com/SpectrumQT/XXMI-Launcher/blob/main/.github/ISSUE_TEMPLATE/game-crash-report.md) by SpectrumQT.
+- **Guide:** [WWMI on GameBanana](https://gamebanana.com/tools/17252), with its FAQ and update posts, by SpectrumQT.
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT.
+- **Tool:** [WWMI-Package](https://github.com/SpectrumQT/WWMI-Package) by SpectrumQT.
+- **Image:** screenshot 2 by [ruvaldak](https://github.com/ruvaldak), from a report on the [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) issue tracker.
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ and contributors, for the halves method.

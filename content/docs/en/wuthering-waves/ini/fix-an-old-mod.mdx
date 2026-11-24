@@ -1,0 +1,249 @@
+---
+title: "Fix an old mod by hand"
+description: "Fix an old Wuthering Waves mod.ini by hand when no fix tool handles it: replace changed texture hashes and know which breaks only a new export can fix."
+category: "ini"
+patch: "3.8"
+keywords:
+  [
+    "fix old wuthering waves mod",
+    "wwmi texture hash",
+    "wuthering waves mod broken textures",
+    "required_wwmi_version",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+Fix tools repair most old Wuthering Waves mods. When the tool has no release for your game version yet, or one texture still looks wrong after it, you can fix some problems in the `mod.ini` yourself. Many breaks in this game need a setting, a launcher update or a new export instead, so this page also shows what no edit can fix. Written for WWMI 1.1.0 on version 3.8.
+
+<Accordions>
+<Accordion title="Coming from another game?">
+
+Each game broke its mods in its own way, so the fixes differ.
+
+- **Genshin Impact:** the big break is 6.1. Texture slots moved, so every character part needs an ORFix or NNFix line.
+- **Honkai: Star Rail:** version 3.2 moved skinning to compute shaders, and textures bind by hash.
+- **Zenless Zone Zero:** textures bind through SlotFix (`Resource\ZZMI\...`).
+- **Wuthering Waves:** most breaks are changed texture hashes and lower-detail models. There is no fix line to add. Very old mods need a new export from WWMI Tools.
+
+Other game sections: [Genshin Impact](/docs/genshin-impact), [Honkai: Star Rail](/docs/honkai-star-rail), [Zenless Zone Zero](/docs/zenless-zone-zero).
+
+</Accordion>
+</Accordions>
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/wuthering-waves/tools/xxmi-launcher"
+    note="WWMI up to date"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="NotepadPlusPlus" note="or any editor that saves UTF-8">
+    A text editor
+  </Requirement>
+  <Requirement
+    icon="Blender"
+    href="/docs/wuthering-waves/tools/blender-add-on"
+    note="for new hashes"
+  >
+    WWMI Tools for Blender
+  </Requirement>
+  <Requirement icon="Archive">A backup copy of the mod</Requirement>
+</Requirements>
+
+If the layout of a `mod.ini` is new to you, read [How a mod .ini works](/docs/wuthering-waves/ini/how-a-mod-ini-works) first.
+
+## Try the fixes without edits first
+
+Many "broken" mods work again with no edit at all: update XXMI Launcher, then check **Client Resource Quality**, **Mesh LOD Base FOV** and the in-game **LOD Bias**. [Fix your mods after a game update](/docs/wuthering-waves/getting-started/fix-mods-after-an-update) has the order, and [Update fix tools](/docs/wuthering-waves/tools/update-fixers) covers Wuwa_Mod_Fixer and WuWa_MOD_WojuFixer.
+
+Fix by hand when:
+
+- no fix tool has a release for your game version yet;
+- the tool fixed most of the mod, but one texture still looks wrong;
+- you want to know what the tool changed.
+
+## Find what the mod needs
+
+| What you see                                                                                                             | Why                                                | Fix                                                                                            |
+| ------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Red box: `Mod is incompatible with current WWMI version!` and `Please check out the mod's page for any updates!`         | Made for the first WWMI versions, mid 2024         | No edit fixes it. The creator must export it again                                             |
+| Red box: `Mod is incompatible with current WWMI version!` and `Enable Compatibility Mode [Alt]+[F12]->[F10] to load it.` | Made for the old 0.6 format                        | Press `Alt+F12`, then `F10`. A new export is better                                            |
+| Red box: `Installed WWMI version is below minimally required!`                                                           | The mod needs a newer WWMI                         | Update WWMI. See the version step below                                                        |
+| Model is right, but textures are white, patchy or wrong up close                                                         | A game update changed the texture hashes           | Replace the hashes, or move to RabbitFX textures                                               |
+| Textures wrong only in the open world or from far away                                                                   | The game loads lower-detail textures               | Settings, not an edit: **LOD Bias** at **Ultra High**                                          |
+| The mod turns back to the original look when the camera zooms out                                                        | The game swaps in a lower-detail model             | **Mesh LOD Base FOV**. [Make mods show at a distance](/docs/wuthering-waves/models/lods)       |
+| The original look even up close                                                                                          | The Resonator's model data changed                 | A fix tool, or the creator's update. No hand fix                                               |
+| Faces or shading wrong on several unrelated Resonators                                                                   | One outdated mod still ships an old shared texture | Find that mod by halves. See [Mods look broken](/docs/wuthering-waves/errors/mods-look-broken) |
+| Limbs or accessories stretch                                                                                             | An old export, from before WWMI Tools 1.3.0        | A new export with WWMI Tools 1.8.0                                                             |
+
+A Resonator is a playable character. Rover breaks most often: version 3.8 broke Rover mods and facial expressions again.
+
+A few breaks have no hand fix in any guide:
+
+- **Parts missing on mods made before 3.3.** Wuwa_Mod_Fixer has an optional fix for the 3.3 rendering change.
+- **Half of the model see-through from behind,** since 3.0. One community guide adds a custom shader for it. It can clash with see-through effects, so it is not covered here.
+
+{/* NEEDS HANDS-ON TEST: the label of the 3.3 rendering option in the current Wuwa_Mod_Fixer release */}
+
+## Fix it by hand
+
+<Steps>
+<Step>
+
+### Back up and turn on warnings
+
+1. Copy the mod's folder to a place outside `Mods`.
+2. In XXMI Launcher, open the settings, go to the **WWMI** tab and untick **Mute Warnings**. Now `F10` shows errors in game.
+3. Open the mod's `mod.ini` in your text editor.
+
+</Step>
+<Step>
+
+### Check the format and the WWMI version
+
+Look at two lines:
+
+- **The first line** names the format, like `; WWMI BETA-9 INI` for WWMI Tools 1.8.0. A merged-skeleton mod with a format older than `BETA-5` was exported before WWMI Tools 1.5.1 (January 26, 2026). It may misbehave since version 3.0, and only a new export fixes it.
+- **`global $required_wwmi_version`** in `[Constants]` is the oldest WWMI the mod works with.
+
+If WWMI says the installed version is below the minimum, update WWMI: open XXMI Launcher, click the 3-dots button next to **Start**, then **Check For Updates**. Never lower the number in the file. It is there so WWMI can refuse the mod instead of crashing the game.
+
+</Step>
+<Step>
+
+### Find the lines for the broken texture
+
+1. Open the mod's `Textures` folder in a DDS viewer, or in your image editor.
+2. Find the texture that looks wrong in game. The diffuse holds the real colors. The normal map has the same layout in yellow and grey. The light map looks like a brighter copy of the diffuse.
+3. Copy its full file name, like `Components-3 t=cccccccc.dds`.
+4. Search the `mod.ini` for it. You land on a `filename =` line in a section like `[ResourceTexture12]`.
+5. Find the section with the same number: `[TextureOverrideTexture12]`. Its `hash =` line is the one to update.
+
+<img
+  src="/wiki-images/wuthering-waves-ini-fix-an-old-mod-1.webp"
+  alt="Four steps: copy the texture file name Components-3 t=cccccccc.dds from the Textures folder, search the mod.ini to find the filename line in ResourceTexture12, go to TextureOverrideTexture12 with hash = cccccccc, and put the new hash from a fresh dump after hash ="
+/>
+
+This video shows the same search in a real mod, from 8:54:
+
+<YouTube
+  id="B9Zfy4NhpJ0"
+  start={534}
+  title="Wuthering Waves how to fix mods yourself, by Doctor Chao gaming"
+/>
+
+The video is from version 3.5 and uses the search to add RabbitFX lines. The search works the same way here. Its component numbers belong to that one mod.
+
+</Step>
+<Step>
+
+### Get the new hash
+
+1. Make a frame dump of the Resonator with no mods on it, as [Make a frame dump](/docs/wuthering-waves/basics/frame-dump) shows. Play with the same **Client Resource Quality** as always: each quality tier may have its own texture hashes.
+2. Extract it with **Extract Objects From Dump** in WWMI Tools.
+3. In the new object folder, find the same texture: the same component number in the name, and the same type. `TextureUsage.json` lists which texture each component uses.
+4. The part after `t=` in its file name is the new hash.
+
+No guide documents this way of matching an old texture to a new one, and nobody has tested it yet. A component often has several textures, and the component numbers in a file name can change. So compare the slot in `TextureUsage.json` and the format too, and always check the result in game.
+
+{/* NEEDS HANDS-ON TEST: matching an old texture to its new hash by component number and TextureUsage.json, on a Wuthering Waves 3.8 dump extracted with WWMI Tools 1.8.0 */}
+
+</Step>
+<Step>
+
+### Replace the hash
+
+In `[TextureOverrideTexture12]`, put the new hash after `hash =`. Keep one hash per line, with nothing after it:
+
+```ini
+[TextureOverrideTexture12]
+hash = dddddddd
+match_priority = 0
+if $object_detected
+    this = ResourceTexture12
+endif
+```
+
+You do not need to rename the `.dds` file: `filename` and `hash` are separate lines. Repeat for every texture that is still wrong.
+
+The next update may change the hash again. Mods that bind textures with RabbitFX survive most updates, because they bind each texture by its role. [Make textures survive game updates](/docs/wuthering-waves/textures/stable-textures) shows how to move a mod to it.
+
+</Step>
+<Step>
+
+### Test
+
+1. Save the file as UTF-8.
+2. In game, switch to another Resonator, then press `F10`.
+3. Switch back. Read any warning text, fix the line it names, and reload.
+4. Check every part up close and from far away, while the Resonator moves. Hold `F9` to compare with the original.
+
+</Step>
+</Steps>
+
+## When a new export beats hand edits
+
+If you made the mod, or you have its `.blend` file, export it again with WWMI Tools 1.8.0. Every section then comes out in the current format.
+
+When the Resonator's model itself changed, a new export is the only fix:
+
+1. Make a new frame dump of the unmodded Resonator and extract it.
+2. Import it with the same skeleton type as before.
+3. Make the vertex groups of your custom mesh match the new import.
+4. Export into a **new** mod folder.
+5. Move your edited textures from the old mod folder into the new one, one by one.
+
+Creators updating their own mod for others can follow [Update your mod after a game update](/docs/wuthering-waves/publishing/update-your-mod).
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Still wrong after I replaced the hash" id="still-wrong">
+
+- Check that your dump used the same **Client Resource Quality** you play with.
+- Check **LOD Bias** in the game's graphics settings. Below **Ultra High**, the game loads lower-detail textures with other hashes.
+- Check that you took the hash of the same texture type: a diffuse for a diffuse, a normal map for a normal map.
+
+</Accordion>
+<Accordion title="Another Resonator changed too" id="other-resonator-changed">
+
+Some textures, such as face shadow and light maps, are shared by several Resonators. The mod replaces them wherever they show while its Resonator is on screen. Remove that texture's two sections if you did not mean to change it.
+
+</Accordion>
+<Accordion title="A fix tool ran twice and the mod is worse" id="tool-ran-twice">
+
+Restore the mod from your backup, then run one tool once. Never run both tools on the same mod.
+
+</Accordion>
+<Accordion title="Only this Resonator looks scrambled" id="one-resonator-scrambled">
+
+Another mod for the same Resonator is loaded. Keep one mod per Resonator.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<PremiumCard
+  title="Add a toggle"
+  href="/docs/wuthering-waves/ini/add-a-toggle"
+  icon={<Icon name="ToggleRight" />}
+  level="intermediate"
+>
+  Once the mod works again, add keys that hide parts or switch outfits.
+</PremiumCard>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Video:** [Wuthering Waves how to fix mods yourself](https://www.youtube.com/watch?v=B9Zfy4NhpJ0) by Doctor Chao gaming.
+- **Guide:** [Fix Broken Character Textures (RabbitFX Stable Textures)](https://gamebanana.com/tuts/20005) by JessyJames84.
+- **News:** [WWMI update posts](https://gamebanana.com/tools/17252) on GameBanana by SpectrumQT, for what each update broke.
+- **Tool:** [WWMI-Package](https://github.com/SpectrumQT/WWMI-Package) by SpectrumQT, for the error messages and the version check.
+- **Guide:** [WWMI Tools Modder Guide](https://github.com/SpectrumQT/WWMI-Tools/blob/main/guides/modder_guide.md) by SpectrumQT, for updating your own mod.
+- **Tool:** [Wuwa_Mod_Fixer](https://github.com/Moonholder/Wuwa_Mod_Fixer) by Moonholder.

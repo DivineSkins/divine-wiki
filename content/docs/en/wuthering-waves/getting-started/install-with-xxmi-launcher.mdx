@@ -1,0 +1,355 @@
+---
+title: "Install mods with XXMI Launcher"
+description: "Install XXMI Launcher and WWMI, pick the right resource quality and graphics settings, add your first Wuthering Waves mod, and check that mods load in game."
+category: "getting-started"
+patch: "3.8"
+keywords:
+  [
+    "wuthering waves mods",
+    "wwmi",
+    "xxmi launcher",
+    "install wuthering waves mods",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+XXMI Launcher installs WWMI, the Wuthering Waves Model Importer, and starts the game with your mods. This guide was written for XXMI Launcher 2.5.0 and WWMI 1.1.0 on Wuthering Waves 3.8. Read [What's allowed and how to stay safe](/docs/wuthering-waves/getting-started/stay-safe) first: mods break Kuro Games' terms.
+
+<Callout type="info" title="Looking for Celestial?">
+  Celestial, Divine's own launcher, does not install Wuthering Waves mods, so
+  this guide uses XXMI Launcher.
+</Callout>
+
+<Callout type="warning" title="What the launcher changes in your game">
+  XXMI Launcher writes some graphics and level-of-detail settings into the
+  game's own settings files so mods stay visible. Kuro restricts which of these
+  settings players may change, and its terms ban getting around its technical
+  measures. Nobody outside Kuro knows how it views this.
+</Callout>
+
+<Accordions>
+<Accordion title="Coming from another game?">
+
+**From Genshin Impact, Honkai: Star Rail or Zenless Zone Zero:** it is the same launcher. Click the Wuthering Waves tile and install WWMI next to your other importer. What changes:
+
+- Mods go in `WWMI\Mods`, not `GIMI`, `SRMI` or `ZZMI`.
+- Wuthering Waves is made by Kuro Games and runs on a customised Unreal Engine 4. Its terms and its risks are its own.
+- You must pick the **Client Resource Quality** you installed (UHD, HD or SD), or the game crashes while loading.
+- The game must run in DirectX 11, with **LOD Bias** at Ultra High and the Wounded Effect off.
+- Creators use WWMI Tools in Blender, not XXMI Tools.
+
+See the [Genshin Impact](/docs/genshin-impact), [Honkai: Star Rail](/docs/honkai-star-rail) and [Zenless Zone Zero](/docs/zenless-zone-zero) sections for those games.
+
+**From Deadlock or League of Legends:** nothing is packed or replaced on disk. XXMI swaps models and textures while the game draws them, and `F10` reloads your mods in game.
+
+</Accordion>
+</Accordions>
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="WutheringWaves"
+    note="Kuro's launcher, Steam or Epic Games"
+  >
+    Wuthering Waves
+  </Requirement>
+  <Requirement icon="Monitor" note="64-bit">
+    Windows 10 or 11
+  </Requirement>
+  <Requirement icon="ShieldCheck">An admin account on your PC</Requirement>
+  <Requirement icon="FileArchive" note="such as 7-Zip">
+    An archive tool
+  </Requirement>
+</Requirements>
+
+Mods work on the Windows PC version only. Mobile, console and Mac versions cannot use mods, and the Google Play Games PC version is not supported. Old guides start mods with `WWMI Loader.exe`: that loader is gone, so use XXMI Launcher.
+
+<img
+  src="/wiki-images/wuthering-waves-getting-started-install-with-xxmi-launcher-2.webp"
+  alt="A checklist of the settings that decide whether Wuthering Waves mods show: five XXMI Launcher settings, three in-game settings and three PC settings"
+/>
+
+## Install XXMI Launcher and WWMI
+
+<Steps>
+<Step>
+
+### Download XXMI Launcher
+
+<ToolCard
+  name="XXMI Launcher"
+  href="https://github.com/SpectrumQT/XXMI-Launcher/releases/latest"
+  badge="Required"
+  icon={<Icon name="XXMILauncher" />}
+>
+  Official releases on GitHub, by SpectrumQT. Free and open source (GPL-3.0).
+</ToolCard>
+
+1. Open the latest release page on GitHub.
+2. Scroll down to **Assets**.
+3. Click `XXMI-Launcher-Installer-Online-v2.5.0.msi` to download it. The version number changes with each release.
+
+<img
+  src="/wiki-images/wuthering-waves-getting-started-install-with-xxmi-launcher-1.webp"
+  alt="The Assets list on the XXMI Launcher v2.5.0 release page, with the .msi installer and the portable .zip"
+/>
+
+Get the launcher only from this GitHub page. Other sites with "XXMI" in the name are not official.
+
+</Step>
+<Step>
+
+### Install it
+
+<Tabs items={["Installer (.msi)", "Portable (.zip)"]}>
+<Tab value="Installer (.msi)">
+
+1. Double-click the `.msi` file.
+2. Windows may warn you because the launcher is not code-signed. Check that the file came from the GitHub page above before you go on.
+3. Click **Quick Installation**. It installs to `%AppData%\XXMI Launcher`.
+4. If Windows asks for an admin account, right-click the `.msi` and choose **Run as administrator**.
+
+Use **Custom Installation** only to pick another folder. Never pick a folder inside the game folder or inside Program Files.
+
+{/* NEEDS HANDS-ON TEST: the exact Windows SmartScreen wording and buttons for the unsigned XXMI-Launcher-Installer-Online-v2.5.0.msi, and whether the installer asks for admin rights by itself. */}
+
+</Tab>
+<Tab value="Portable (.zip)">
+
+Use this when the `.msi` will not install.
+
+1. Install the [Microsoft Visual C++ Redistributable (x64)](https://aka.ms/vs/17/release/vc_redist.x64.exe).
+2. Download `XXMI-Launcher-Portable-v2.5.0.zip` from the same release page.
+3. Extract it to a folder you own. Not inside Program Files, not inside the game folder, and with no `{` or `}` in the path.
+4. Run `Resources\Bin\XXMI Launcher.exe`. Make a desktop shortcut to it.
+
+</Tab>
+</Tabs>
+
+XXMI Launcher needs admin rights each time it starts the game, because it loads the mod loader into the game.
+
+</Step>
+<Step>
+
+### Update Wuthering Waves first
+
+1. Open Kuro's launcher, Steam or the Epic Games Launcher.
+2. Update Wuthering Waves to the latest version. XXMI Launcher does not update the game.
+3. Note which resource quality you downloaded: **UHD**, **HD** or **SD**. You need it in a later step.
+4. Close the official launcher.
+
+Not sure which quality you have? Open the game folder, then `Client\Content`. The launcher looks for a folder named `UHD`, `HD` or `SD` there.
+
+{/* NEEDS HANDS-ON TEST: on a 3.8 install, confirm that the installed tier shows as a UHD, HD or SD folder under Client\Content, and where Kuro's launcher shows the chosen resource quality. */}
+
+</Step>
+<Step>
+
+### Add Wuthering Waves and install WWMI
+
+1. Open XXMI Launcher. You see **Select Games To Mod:** and a row of game tiles.
+2. Click the **Wuthering Waves** tile. The WWMI icon appears in the top-left bar.
+3. Click the WWMI icon, then click **Install**.
+4. When **Game Installation Found** appears, check the path and click **Confirm**.
+5. Wait while the launcher downloads WWMI and the XXMI DLL. The button changes to **Start**.
+
+The bottom-left corner now shows the versions, such as `LAUNCHER 2.5.0`, `XXMI 1.3.2` and `WWMI 1.1.0`.
+
+If you see **Game Installation Not Found**, click **Open Settings**. Under <MenuPath path="General > Game Folder" />, click **Browse...** and pick the `Wuthering Waves Game` folder. It is the one that holds `Wuthering Waves.exe` and the `Client` and `Engine` folders, not the outer `Wuthering Waves` folder.
+
+{/* SCREENSHOT: wuthering-waves-getting-started-install-with-xxmi-launcher-3.webp, XXMI Launcher 2.5.0 on the WWMI page after install, showing the Start button, the 3-dots button and the version text bottom-left. No current screenshot exists in any source. */}
+
+</Step>
+<Step>
+
+### Choose how the game starts
+
+1. Click the gear icon at the top right to open the settings.
+2. Open the **General** tab.
+3. Check **Game Folder**. It must point to the `Wuthering Waves Game` folder.
+4. Set **Game Launch** to match where you got the game:
+
+<Tabs items={["Kuro's launcher", "Steam", "Epic Games"]}>
+<Tab value="Kuro's launcher">
+
+Choose `Direct`. XXMI Launcher starts the game itself, in DirectX 11, and you log in as usual.
+
+</Tab>
+<Tab value="Steam">
+
+Choose `Steam`. Keep **Skip Kuro Games Launcher** ticked. XXMI Launcher then starts the game through Steam in one click.
+
+{/* NEEDS HANDS-ON TEST: on Wuthering Waves 3.8, whether the Steam "Fullpackage" mode (back since 2026-11-18) works with Game Launch = Steam and Skip Kuro Games Launcher in XXMI Launcher 2.5.0. */}
+
+</Tab>
+<Tab value="Epic Games">
+
+Choose `Epic Games`. When you press **Start**, Kuro's launcher opens. Tick its **DirectX 11** box, in the bottom-right corner, then press **Start** there. XXMI Launcher shows a one-time reminder about this.
+
+{/* NEEDS HANDS-ON TEST: the exact label and position of the DirectX 11 checkbox in Kuro's launcher on Wuthering Waves 3.8. The XXMI reminder says "bottom-right corner of the launcher window". */}
+
+</Tab>
+</Tabs>
+
+Leave **Launch Options** unticked. With it ticked, the launcher starts the game in another way, and the launcher's own tooltip warns that the game may crash.
+
+</Step>
+<Step>
+
+### Check the settings mods need
+
+Stay on the **General** tab.
+
+1. Set **Client Resource Quality** to the quality you downloaded: `UHD`, `HD` or `SD`. A wrong choice crashes the game while it loads. If you have only one installed, the launcher picks it for you.
+2. Keep **Configure Game Settings For WWMI** ticked. It turns ray tracing off, handles the Wounded Effect, and keeps the full character model on screen at normal camera distance.
+3. Make sure **Disable Wounded Effect** is ticked. The Wounded Effect swaps character textures when you take hits, which breaks modded textures. If the launcher asks about it, click **Disable**.
+4. Leave **Mesh LOD Base FOV** at `165`. It keeps the modded model on screen when the camera zooms out.
+
+Leave every other setting at its default, including **XXMI DLL Injection Mode** on the **WWMI** tab. Settings that change how the launcher loads into the game are not covered here. Leave **XXMI DLL Initialization Delay** on the same tab at its default too, unless the game crashes at start and the crash page below sends you there.
+
+{/* NEEDS HANDS-ON TEST: on XXMI Launcher 2.5.0, confirm the tab and label names (General, Game Launch, Launch Options, Client Resource Quality, Configure Game Settings For WWMI, Disable Wounded Effect, Mesh LOD Base FOV), and the exact buttons of the Wounded Effect dialog (Disable, Keep Enabled). No source has a screenshot of the 2.4.1+ settings window. */}
+
+{/* SCREENSHOT: wuthering-waves-getting-started-install-with-xxmi-launcher-4.webp, the General tab of XXMI Launcher 2.5.0 settings for WWMI, showing Game Launch, Client Resource Quality, Configure Game Settings For WWMI, Disable Wounded Effect and Mesh LOD Base FOV. */}
+
+</Step>
+<Step>
+
+### Start the game and check that WWMI loads
+
+1. Close Kuro's launcher, Steam's game window and the Epic Games Launcher if they are open.
+2. Click **Start** in XXMI Launcher. It closes itself when the game window opens.
+3. Watch the bottom-left corner while the game loads. For the first 30 seconds you should see `WWMI 1.1.0 (PRESS F12 TO SHOW GUIDE)`.
+4. Read the user guide that opens on the first start. Press `F10` to hide it for good. Press `F12` to open it again later.
+
+{/* SCREENSHOT: wuthering-waves-getting-started-install-with-xxmi-launcher-5.webp, Wuthering Waves 3.8 loading screen with the white WWMI 1.1.0 (PRESS F12 TO SHOW GUIDE) text bottom-left. No current screenshot exists in any source. */}
+
+No text means WWMI did not load, and no mod will show. Always start the game from XXMI Launcher, not from Kuro's launcher, Steam or Epic.
+
+</Step>
+<Step>
+
+### Set the in-game graphics
+
+1. In game, open <MenuPath path="Settings > Graphics" />.
+2. Set **LOD Bias** to **Ultra High**. Mods are made for the most detailed models and textures.
+3. Leave ray tracing and frame generation off. They need DirectX 12, and mods work only in DirectX 11.
+
+If you have an NVIDIA card, also turn off **Smooth Motion** and frame generation in the NVIDIA app. They stop WWMI from working.
+
+{/* NEEDS HANDS-ON TEST: the exact menu path and label of LOD Bias in the Wuthering Waves 3.8 graphics settings. */}
+
+</Step>
+<Step>
+
+### Add your first mod
+
+1. In XXMI Launcher, click the 3-dots button next to **Start**, then **Open Mods Folder**. It opens `%AppData%\XXMI Launcher\WWMI\Mods`.
+2. Open the mod you downloaded with your archive tool. Check that it holds only a `mod.ini`, `.buf` and `.dds` files.
+3. Extract the mod's folder into `Mods`.
+4. Turn off any other mod for the same Resonator, the game's name for a playable character.
+5. In game, switch to a different Resonator so the modded one is off screen.
+6. Press `F10` to reload. Then switch back.
+7. Press `F6` to check: the mod turns off and on, and the top of the screen shows `Mods Display: Disabled` or `Enabled`.
+
+<Files>
+  <Folder name="WWMI" defaultOpen>
+    <Folder name="Core: WWMI itself, do not edit" />
+    <Folder name="Mods" defaultOpen>
+      <Folder name="BrantRecolor: your mod" defaultOpen>
+        <File name="mod.ini" />
+        <Folder name="Meshes" />
+        <Folder name="Textures" />
+      </Folder>
+    </Folder>
+    <File name="d3dx.ini" />
+  </Folder>
+</Files>
+
+A `.zip` left inside `Mods` does nothing: always extract it. Some mods need a shared helper library, such as RabbitFX. Keep only one copy of it in `Mods`, never one per mod.
+
+{/* NEEDS HANDS-ON TEST: with a clean XXMI Launcher 2.5.0 install on Wuthering Waves 3.8, add one character mod, press F10 with the Resonator off screen, and confirm it appears and that F6 shows the Mods Display text. */}
+
+</Step>
+</Steps>
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title='"kuro: Use launcher to start game!"' id="use-launcher-to-start-game">
+
+The game was started without a resource quality. Update XXMI Launcher, set **Client Resource Quality** on the **General** tab, and leave **Launch Options** unticked. Then click **Start** again.
+
+</Accordion>
+<Accordion title="The game crashes while it loads" id="crash-while-loading">
+
+**Client Resource Quality** does not match what you installed. Pick the quality you downloaded. If the launcher says it cannot find any resource tier, repair Wuthering Waves in Kuro's launcher.
+
+</Accordion>
+<Accordion title='"Game folder must contain Wuthering Waves.exe and Client & Engine folders!"' id="wrong-game-folder">
+
+**Game Folder** points to the wrong folder, often the outer `Wuthering Waves` folder. Pick the `Wuthering Waves Game` folder inside it.
+
+</Accordion>
+<Accordion title="The game starts, but there is no WWMI text" id="no-banner">
+
+1. Check that the game runs in DirectX 11. With Epic Games, tick the DirectX 11 box in Kuro's launcher.
+2. Turn off NVIDIA Smooth Motion and frame generation.
+3. Start the game with **Start** in XXMI Launcher, not from another launcher.
+
+[Mods not loading](/docs/wuthering-waves/errors/mods-not-loading) has the full checklist.
+
+</Accordion>
+<Accordion title="Modded textures break after a few hits, or the mod turns normal at a distance" id="textures-break">
+
+1. Tick **Disable Wounded Effect** in the launcher.
+2. Set **LOD Bias** to **Ultra High** in the game.
+3. Leave **Mesh LOD Base FOV** at `165`.
+
+[Make mods show at a distance](/docs/wuthering-waves/models/lods) explains why this happens.
+
+</Accordion>
+<Accordion title="Black screen with sound" id="black-screen">
+
+Turn off the Steam and Discord overlays. In XXMI Launcher, put any launch settings you changed back to their defaults. Then start the game again.
+
+</Accordion>
+<Accordion title='The game keeps saying "A new update is now available"' id="update-loop">
+
+**Game Folder** points to an old second copy of the game. Point it to the copy you play and update, and remove the old copy.
+
+</Accordion>
+</Accordions>
+
+Launcher errors and antivirus alerts are in [XXMI Launcher problems](/docs/wuthering-waves/errors/launcher-problems). Crashes at start are in [Crashes and launch errors](/docs/wuthering-waves/errors/game-crashes).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Add, turn off, and remove mods"
+    href="/docs/wuthering-waves/getting-started/manage-mods"
+    icon={<Icon name="FolderOpen" />}
+    level="beginner"
+  >
+    Turn mods on and off, reload them in game, and keep your Mods folder clean.
+  </PremiumCard>
+  <PremiumCard
+    title="Fix your mods after a game update"
+    href="/docs/wuthering-waves/getting-started/fix-mods-after-an-update"
+    icon={<Icon name="RefreshCw" />}
+    level="beginner"
+  >
+    What to do when an update breaks your mods.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT.
+- **Tool:** [WWMI](https://github.com/SpectrumQT/WWMI-Package) by SpectrumQT and the WWMI team.
+- **Guide:** [WWMI on GameBanana](https://gamebanana.com/tools/17252), with its FAQ and update posts, by SpectrumQT.
+- **Guide:** [Getting Started](https://leotorrez.github.io/modding/guides/getting-started) by LeoTorreZ.

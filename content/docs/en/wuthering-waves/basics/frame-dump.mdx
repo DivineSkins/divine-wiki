@@ -1,0 +1,243 @@
+---
+title: "Make a frame dump"
+description: "Capture one Wuthering Waves frame with F8, extract your Resonator with WWMI Tools into a folder you can import, and find textures and buffers in the dump."
+category: "basics"
+patch: "3.8"
+keywords:
+  [
+    "wuthering waves frame dump",
+    "wwmi tools extract",
+    "wwmi f8",
+    "frameanalysis",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+A frame dump saves every buffer, texture and shader the game used to draw one frame. In Wuthering Waves, WWMI Tools turns the dump into one folder per object, ready to import into Blender. It is the main way to get a Resonator's original model, because the asset repository stops at version 2.7. Written for XXMI Launcher 2.5.0, WWMI 1.1.0 and WWMI Tools 1.8.0.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/wuthering-waves/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement
+    icon="Blender"
+    href="/docs/wuthering-waves/tools/blender-add-on"
+    note="Blender 4.5 LTS"
+  >
+    WWMI Tools 1.8.0
+  </Requirement>
+  <Requirement icon="HardDrive" note="several GB per dump">
+    Free disk space
+  </Requirement>
+</Requirements>
+
+You also need hunting mode. [Find a hash with hunting mode](/docs/wuthering-waves/basics/find-a-hash) shows how to turn it on. No Blender yet? [Set up your creator tools](/docs/wuthering-waves/getting-started/creator-setup) installs it with WWMI Tools.
+
+<img
+  src="/wiki-images/wuthering-waves-basics-frame-dump-1.webp"
+  alt="Five steps: move the Resonator's mods and RabbitFX out and press F10, press Numpad 0 then F8, get a FrameAnalysis folder, extract it with WWMI Tools in Blender, and get one folder per object named by its VB0 hash"
+/>
+
+## Get ready
+
+1. Tick **Enable Hunting** in the **WWMI** tab of XXMI Launcher's settings, before you start the game.
+2. Switch to another Resonator in game, so your target is off screen. A Resonator is the game's name for a playable character.
+3. Move every mod for your target out of the `Mods` folder. Move RabbitFX out too, if you have it.
+4. Press `F10` to reload.
+5. Lower the game's resolution if you dump a busy scene. A smaller frame makes a smaller dump, and huge dumps can crash the game.
+
+Why move the mods out: a mod hides the original, so you would dump the mod. Mods that are still on, RabbitFX included, also make the extraction fail with errors.
+
+## Dump a Resonator
+
+<Steps>
+<Step>
+
+### Show your target
+
+Put the Resonator on screen. The Resonators menu works well, because it draws little else.
+
+For a Resonator you do not own, open <MenuPath path="Gallery > Crossing Stars" /> and show them there.
+
+{/* NEEDS HANDS-ON TEST: on Wuthering Waves 3.8, the menu path to Crossing Stars in the Gallery, and that a dump made there extracts the full Resonator */}
+
+</Step>
+<Step>
+
+### Press F8
+
+1. Press `Numpad 0`. Green text shows that hunting is on. No number pad? Use the Windows On-Screen Keyboard.
+2. Press `F8`. The game freezes while it writes the dump. Wait until it moves again.
+
+The dump is a new folder in the WWMI folder:
+
+```text
+%AppData%\XXMI Launcher\WWMI\FrameAnalysis-YYYY-MM-DD-HHMMSS
+```
+
+Old guides say the dump lands next to `WWMI Loader.exe`. That loader is gone. XXMI Launcher replaced it.
+
+</Step>
+<Step>
+
+### Extract with WWMI Tools
+
+1. Open Blender and press `N` in the 3D view. Click the **WWMI Tools** tab.
+2. Set **Mode** to **Extract Objects From Dump**. It is the default mode.
+3. In **Frame Dump**, pick the `FrameAnalysis-...` folder itself, not the `WWMI` folder.
+4. In **Output Folder**, pick any folder. Tip: make a `Dump` folder and bookmark it in Blender's file browser.
+5. Leave the texture filters as they are for your first try.
+6. Click **Extract Objects From Dump**.
+
+{/* NEEDS HANDS-ON TEST: the Extract Objects From Dump panel of WWMI Tools 1.8.0 in Blender 4.5: field names Frame Dump and Output Folder, and the button label, read from the add-on source */}
+
+{/* SCREENSHOT: wuthering-waves-basics-frame-dump-3.webp, the WWMI Tools 1.8.0 sidebar in Blender 4.5 with Mode set to Extract Objects From Dump, Frame Dump and Output Folder filled in. The repository GIF shows an old 2024 layout. */}
+
+</Step>
+<Step>
+
+### Find your object
+
+WWMI Tools writes one folder for each object it found in the frame, named after the object's VB0 hash, like `93bbbdc0`.
+
+1. Import the folders one by one with **Import Object** to see which one is your Resonator.
+2. Rename the folder to something you can read, like `Aalto`. The hash is stored inside, so the new name does no harm.
+
+A Resonator holding a prop gives a second folder for the prop, like Brant's compass.
+
+</Step>
+<Step>
+
+### Clean the textures
+
+Delete the textures in the folder that you will never edit or that are not part of your Resonator. Export copies every texture left in this folder into your mod, so fewer textures make a smaller mod and a shorter `mod.ini`.
+
+Keep every texture you want to change. If you are not sure, keep it.
+
+</Step>
+</Steps>
+
+## What you get
+
+A folder per object, in the same layout as the folders in WWMI-Assets:
+
+<Files>
+  <Folder name="Aalto (was 93bbbdc0)" defaultOpen>
+    <File name="Component 0.ib, .vb, .fmt: one set per component" />
+    <File name="Components-0 t=<hash>.dds" />
+    <File name="Components-0-1-2-3 t=<hash>.dds" />
+    <File name="TextureUsage.json: which slot used which texture" />
+    <File name="Metadata.json: hashes, counts and vertex groups" />
+  </Folder>
+</Files>
+
+**Import Object** reads this folder into Blender, and **Export Mod** reads it again as **Object Sources**. [Character names and parts](/docs/wuthering-waves/basics/character-names-and-parts) explains each file and the numbered components. The next step is [Get a model into Blender](/docs/wuthering-waves/models/import-into-blender).
+
+<Callout type="warning" title="Keep Metadata.json">
+  WWMI Tools needs `Metadata.json` to import and to export your mod. Never
+  delete it.
+</Callout>
+
+## A texture is missing
+
+The texture filters skip small textures and `.jpg` files, because most of them are gradients and masks. Sometimes they also drop one you need, such as the face shadow map.
+
+1. Untick **Skip Small** and **Skip .jpg** under the texture filters.
+2. Click **Extract Objects From Dump** again.
+
+## Busy scenes and NPCs
+
+A story scene or a crowd puts several characters on screen. The dump then holds several sets of face data, and the extraction can fail.
+
+- Dump in a quiet place, or in the Resonators menu, when you can.
+- Lower the resolution before you dump open-world objects and NPCs.
+- For scenes you cannot avoid, one creator wrote a filter `.ini` that dumps only the face data of your target. See "Specified character dump" in Credits.
+
+{/* NEEDS HANDS-ON TEST: the filtered dump .ini from the Specified character dump tutorial (written for version 3.5) on Wuthering Waves 3.8, and whether its shader hashes still match */}
+
+## Read a dump by hand
+
+You do not need this for a Resonator. It helps for UI and effects that WWMI Tools does not extract.
+
+<img
+  src="/wiki-images/wuthering-waves-basics-frame-dump-2.webp"
+  alt="The dump file name 000123-vb0=1a2b3c4d-vs=0123456789abcdef-ps=fedcba9876543210.txt split into draw number, resource type, hash, shader hashes and file type"
+/>
+
+- **Find an object:** search the dump folder for `-vb0=` plus its hash. Every match is a draw of that object.
+- **Find its textures:** files with the same draw number and `-ps-t0=`, `-ps-t1=` and so on are the textures of that draw.
+- **Find a texture file:** the `deduped` folder holds each texture once, named `<hash>-<FORMAT>.dds`. Search for `BC7_UNORM_SRGB` to find color textures.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: the deduped folder and texture file names in a WWMI 1.1.0 dump */}
+
+## Delete old dumps
+
+Each dump can take several gigabytes. When you have extracted what you need, delete the `FrameAnalysis-...` folders in `%AppData%\XXMI Launcher\WWMI`.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The game crashes when I press F8" id="crash-on-f8">
+
+Busy places make huge dumps and can crash the game. Go to the Resonators menu, or lower the resolution, and dump again.
+
+</Accordion>
+<Accordion title='"Specified dump folder is missing log.txt file!"' id="missing-log">
+
+**Frame Dump** points to the wrong folder. Pick the `FrameAnalysis-...` folder itself. The `log.txt` file is inside it.
+
+</Accordion>
+<Accordion title='"Frame dump is missing shapekeys data!"' id="missing-shapekeys">
+
+The game skipped the face data in that frame, so WWMI Tools skipped the object. Dump again while the Resonator moves its face, for example while it blinks.
+
+</Accordion>
+<Accordion title="Python errors during extraction" id="extract-errors">
+
+Errors such as `No outputs for shader`, `components VB0 hash mismatch` or `Failed to locate required resource` usually mean a mod or RabbitFX was still on. Empty `Mods`, press `F10`, and dump again. In a busy scene, see "Busy scenes and NPCs" above.
+
+</Accordion>
+<Accordion title="The textures in the folder are the mod's, not the original" id="dumped-the-mod">
+
+A mod for that Resonator was still on. Move its folder out of `Mods`, press `F10`, and dump again.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Get a model into Blender"
+    href="/docs/wuthering-waves/models/import-into-blender"
+    icon={<Icon name="Box" />}
+    level="intermediate"
+  >
+    Import your extracted folder with WWMI Tools and pick a skeleton mode.
+  </PremiumCard>
+  <PremiumCard
+    title="Character names and parts"
+    href="/docs/wuthering-waves/basics/character-names-and-parts"
+    icon={<Icon name="IdCard" />}
+    level="beginner"
+  >
+    What the numbered components and the files in the folder mean.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Tool:** [WWMI Tools](https://github.com/SpectrumQT/WWMI-Tools) by SpectrumQT, with its [modder guide](https://github.com/SpectrumQT/WWMI-Tools/blob/main/guides/modder_guide.md): the dump and extraction steps and the error messages.
+- **Guide:** [Beginner's Guide to Wuthering Waves modding](https://gamebanana.com/tuts/19096) by Denwarenji: Crossing Stars, the output folder tip, renaming folders and cleaning textures.
+- **Guide:** [Specified character dump](https://gamebanana.com/tuts/20010) by xqfa: the filtered dump for busy scenes.
+- **Tool:** [WWMI hunting mode guide](https://github.com/SpectrumQT/WWMI-Package/blob/main/WWMI/Core/WWMI/Notifications/HuntingModeGuide.md) by SpectrumQT.
+- **Guide:** [3DMigoto Hunting & Dumping Tutorial](https://leotorrez.github.io/modding/guides/hunting) by Satan1c, on LeoTorrez's modding site: reading a dump by hand.
+- **Tool:** [XXMI DLL frame analysis](https://github.com/SpectrumQT/XXMI-Libs-Package) by SpectrumQT.

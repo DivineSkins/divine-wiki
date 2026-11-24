@@ -1,0 +1,304 @@
+---
+title: "Blender export and import errors"
+description: "WWMI Tools stopped your Wuthering Waves extract, import or export with a message? Find the exact text, learn what it means, and fix it in Blender."
+category: "errors"
+patch: "3.8"
+keywords:
+  [
+    "wwmi tools error",
+    "missing metadata.json",
+    "256 vg limit exceeded",
+    "wuthering waves blender export error",
+    "components collection is not specified",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+WWMI Tools stopped with a message when you extracted, imported or exported a Wuthering Waves object. Find the message on this page, then follow its fix. Messages are quoted from the source code of WWMI Tools 1.8.0. Written for WWMI Tools 1.8.0 on Blender 4.5 LTS.
+
+WWMI Tools has its own messages. Error texts from guides for other games, such as `hash.json` errors, do not apply here.
+
+The export worked, but the model looks wrong in game? Go to [Model problems in game](/docs/wuthering-waves/errors/model-problems).
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="Box"
+    href="/docs/wuthering-waves/tools/blender-add-on"
+    note="1.8.0"
+  >
+    WWMI Tools
+  </Requirement>
+  <Requirement icon="Blender" note="4.5 LTS">
+    Blender
+  </Requirement>
+  <Requirement icon="FolderOpen" note="with its Metadata.json">
+    The extracted object folder
+  </Requirement>
+</Requirements>
+
+## Read the whole message
+
+WWMI Tools shows an error in red in its panel, next to the field that caused it. Open the **WWMI Tools** tab in the sidebar (`N` in the 3D Viewport) and look under the field.
+
+{/* SCREENSHOT: wuthering-waves-errors-creator-errors-3.webp, the WWMI Tools 1.8.0 panel in Export Mod mode on Blender 4.5 LTS, with a red error under Object Sources */}
+
+{/* NEEDS HANDS-ON TEST: in WWMI Tools 1.8.0 on Blender 4.5 LTS, whether every export error shows in red next to its field, or some show only as a Blender report or in the System Console */}
+
+Long errors and Python errors are easier to read in the System Console. Open <MenuPath path="Window > Toggle System Console" />, then run the action again. The console keeps every line, and a full export ends with `Total mod export time`.
+
+<img
+  src="/wiki-images/wuthering-waves-errors-creator-errors-2.webp"
+  alt="Blender's Window menu open with Toggle System Console highlighted"
+/>
+
+The screenshot comes from an older Blender. The menu item is in the same place in 4.5 LTS. The System Console exists only on Windows.
+
+Most errors on this page come from a field that points to the wrong folder:
+
+<img
+  src="/wiki-images/wuthering-waves-errors-creator-errors-1.webp"
+  alt="Three WWMI Tools fields and their folders: Frame Dump takes the FrameAnalysis folder with log.txt, Object Sources takes the extracted object folder with Metadata.json, and Mod Folder takes a new folder inside WWMI Mods"
+/>
+
+## Blender and add-on problems
+
+<Accordions type="multiple">
+<Accordion title='"Blender 4.2 is not supported!"' id="blender-42">
+
+The panel shows this with `This Blender version cannot handle custom split normals properly due to regression.` WWMI Tools blocks Blender 4.2 on purpose. Install Blender 4.5 LTS and turn the add-on on there. You can keep another Blender next to it.
+
+</Accordion>
+<Accordion title="The add-on is on, but there is no WWMI Tools tab" id="no-tab">
+
+The sidebar is hidden. Press `N` in the 3D Viewport, or click the small `<` arrow at the top right of the viewport. Then click the **WWMI Tools** tab.
+
+</Accordion>
+<Accordion title='"Failed to build mod.ini from ini template" after you changed versions' id="template-after-update">
+
+Files from another WWMI Tools version were left behind. This happens after a downgrade, or after an update from version 1.4 or older.
+
+1. Remove WWMI Tools in <MenuPath path="Edit > Preferences > Add-ons" />.
+2. Restart Blender.
+3. Install the `.zip` of the version you want, then restart Blender again.
+
+</Accordion>
+</Accordions>
+
+## Extract errors
+
+These come from **Extract Objects From Dump**. [Make a frame dump](/docs/wuthering-waves/basics/frame-dump) shows the whole route from `F8` to the object folders.
+
+<Accordions type="multiple">
+<Accordion title='"Specified dump folder does not exist!" or "Specified dump folder is missing log.txt file!"' id="dump-folder">
+
+**Frame Dump** points to the wrong folder. Pick the `FrameAnalysis-...` folder itself, the one that holds `log.txt`. Do not pick a folder inside it or the folder above it.
+
+</Accordion>
+<Accordion title='"Frame dump is missing shapekeys data!"' id="missing-shapekeys">
+
+This warning starts with `Objects <hash> were skipped:` and ends with `Try to make another dump with ongoing facial animation.` The game sometimes skips the face update in the frame you dumped, so the object has no shape key data.
+
+**Fix:** dump again while the Resonator's face moves, for example while it blinks or talks. A Resonator is the game's name for a playable character.
+
+</Accordion>
+<Accordion title="A Python error while extracting" id="extract-python-error">
+
+The System Console shows a Python error with a line such as `No outputs for shader ...`, `components VB0 hash mismatch ...` or `Failed to locate required resource ...`.
+
+**Cause:** a mod was active during the dump, or the frame holds an object WWMI Tools cannot read. RabbitFX counts as a mod here.
+
+**Fix:**
+
+1. Move every mod for that object, and RabbitFX, out of `%AppData%\XXMI Launcher\WWMI\Mods`.
+2. Press `F10` in game.
+3. Dump again where only your object is on screen, such as the Resonators menu. Story scenes with many characters often fail.
+
+{/* NEEDS HANDS-ON TEST: on WWMI Tools 1.8.0 and Wuthering Waves 3.8, that a dump made with RabbitFX in the Mods folder fails extraction, and a dump of the Resonators menu with an empty Mods folder works */}
+
+</Accordion>
+</Accordions>
+
+## Import errors
+
+These come from **Import Object**.
+
+<Accordions type="multiple">
+<Accordion title='"Specified folder is missing Metadata.json!"' id="missing-metadata">
+
+**Object Sources** points to the dump or to the extraction's **Output Folder**. Pick the object folder inside it: the one named after a hash, or the name you gave it. The same fix goes for `Specified sources folder does not exist!` and `Specified folder is missing .fmt file for ...`.
+
+</Accordion>
+<Accordion title="You want to import a finished mod" id="finished-mod">
+
+WWMI Tools cannot import a finished mod's `.buf` files. This is on purpose, to protect creators' work. Import the extracted object folder instead. This is why you keep your `.blend` file for every mod.
+
+</Accordion>
+</Accordions>
+
+## Export errors
+
+These come from **Export Mod**. [Export your mod from Blender](/docs/wuthering-waves/models/export-your-mod) explains the rules behind them.
+
+### Panel, collection and folder errors
+
+<Accordions type="multiple">
+<Accordion title='"Components collection is not specified!"' id="no-collection">
+
+**Components** is empty. Pick the collection that holds your `Component N` objects.
+
+If the message reads `Collection "..." is not a member of "Scene Collection"!`, your collection sits inside another collection. Drag it onto **Scene Collection** in the Outliner.
+
+</Accordion>
+<Accordion title='"No eligible `Component` objects found!"' id="no-component-objects">
+
+No object in the collection has `component` and a number in its name. Or every such object is hidden while **Ignore Hidden Objects** is on.
+
+**Fix:** rename your objects, such as `Component 4` or `Component 4 Hat`. Case does not matter. Then check their eye icons in the Outliner.
+
+</Accordion>
+<Accordion title='"Metadata.json in specified folder is missing Component N!"' id="wrong-sources">
+
+The full message adds `Most likely it contains sources for other object.`
+
+**Cause:** **Object Sources** points to another object. This happens most often after you import a second model to take a part from it: import changes **Object Sources** to that model. An object name with a component number your model does not have gives the same message.
+
+**Fix:** set **Object Sources** back to the folder of your base model. Check that every object name uses a number the model has.
+
+</Accordion>
+<Accordion title='"Failed to write files to mod folder:"' id="write-failed">
+
+Windows did not let WWMI Tools write into **Mod Folder**.
+
+1. Close programs that have a file from that folder open, such as your image editor.
+2. Pick another folder inside `WWMI\Mods`.
+3. Check that the disk has free space.
+
+</Accordion>
+</Accordions>
+
+### Vertex group errors
+
+Vertex groups are the game's bone numbers. [Weight paint a mesh](/docs/wuthering-waves/models/weight-painting) shows how to copy and clean weights.
+
+<Accordions type="multiple">
+<Accordion title='"Component<N> 256 VG limit exceeded!"' id="vg-limit">
+
+The message goes on with `Currently it consists of ... object(s) using total of ... VGs with non-zero weights.` One component may use at most 256 vertex groups with weight, counted over all of its objects.
+
+**Fix:** remove weights you do not need, or move some objects into another component and weight them there.
+
+</Accordion>
+<Accordion title='"Vertex Group names of object ... are ambigous!"' id="ambiguous-vg">
+
+The message adds `VG ... is located among VGs with numeric IDs!` The object mixes groups named with numbers and groups named with words, such as `12` and `Hair`.
+
+**Fix:** rename every group to the number of the bone it belongs to. A group whose name contains `ignore` is skipped on purpose, so you can keep a helper group that way.
+
+</Accordion>
+<Accordion title='"8-bit weights normalization failed (max precision error ...)"' id="weights-normalization">
+
+Some weights are extreme or broken, so export cannot store them in 8 bits.
+
+**Fix:**
+
+1. Select the object and go into Weight Paint mode.
+2. Run <MenuPath path="Weights > Limit Total" /> with a limit of `4`.
+3. Run <MenuPath path="Weights > Normalize All" />.
+4. Export again.
+
+</Accordion>
+<Accordion title='"cannot convert float NaN to integer"' id="nan-weights">
+
+Broken weights stopped an old version of WWMI Tools. Version 1.3.2 fixed it. Update WWMI Tools to 1.8.0 and export again.
+
+</Accordion>
+</Accordions>
+
+### Mesh data errors
+
+<Accordions type="multiple">
+<Accordion title={`"KeyError: 'bpy_prop_collection[key]: key "COLOR" not found'"`} id="missing-color">
+
+A new mesh has no `COLOR` attribute, and your WWMI Tools is older than 1.6.0. Update to 1.8.0: **Fill Missing Mesh Data** under **Advanced** adds missing colors and UV maps for you.
+
+Filled-in values are a default, not the original's. Copy `COLOR` from the original part, so outlines and skin shading match the game. [UV maps, vertex colors, and outlines](/docs/wuthering-waves/models/uvs-and-vertex-colors) shows how.
+
+</Accordion>
+<Accordion title='"Failed to create `TEXCOORD...` UV Map: mesh ... already has the maximum of 8 UV maps"' id="uv-limit">
+
+Blender allows 8 UV maps per mesh, and your mesh already has 8. WWMI Tools cannot add the map it needs.
+
+**Fix:** open <MenuPath path="Object Data Properties > UV Maps" /> and delete the maps you do not need. Keep `TEXCOORD.xy`, `TEXCOORD1.xy` and `TEXCOORD2.xy`.
+
+</Accordion>
+<Accordion title='"Modifier cannot be applied to a mesh with shape keys"' id="modifier-shape-keys">
+
+This message comes from Blender itself. Blender refuses to apply a modifier on a mesh with shape keys, and head and shoulder components have them.
+
+**Fix:** pick one:
+
+- Tick **Apply All Modifiers** when you export. It applies the modifiers on temporary copies.
+- Set **Mode** to **Toolbox** and click **Apply Modifiers For Object With Shape Keys**.
+
+</Accordion>
+<Accordion title="Normals are missing and the vertex count grew after you joined objects" id="mixed-normals">
+
+The pieces you joined stored their custom normals in different ways. Blender may then show a second normals attribute, such as `custom_normal.001`. This is an open issue in WWMI Tools.
+
+**Fix:** before you join, transfer the normals so every piece uses the same kind. Then join and export again.
+
+{/* NEEDS HANDS-ON TEST: on Blender 4.5 LTS with WWMI Tools 1.8.0, how a second custom normal attribute shows after joining, and which normal transfer gives one format before export */}
+
+</Accordion>
+<Accordion title='"Failed to build mod.ini from ini template: Ini Template filling error: list object has no element 1"' id="template-element">
+
+This is an open bug, reported in August 2026. It shows when you merge objects in `Component 0` of an alternate outfit.
+
+**Fix:** keep those objects separate in `Component 0`, and export again.
+
+</Accordion>
+</Accordions>
+
+## Still stuck
+
+1. Import the same object folder into a new, empty `.blend` file.
+2. Export it unchanged into a test folder, with your settings. If this fails too, check the folders and fields again.
+3. If it works, compare your objects with the fresh import: the `component` number in each name, the vertex group names, the UV map names, and `COLOR` and `COLOR1`.
+4. Fix what differs, and export again.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: that comparing with a fresh WWMI Tools 1.8.0 import finds the cause of a failed export */}
+
+Still no luck? Ask in the [Divine Discord](https://discord.gg/divineskins) or the [AGMG Discord](https://discord.gg/agmg). Post the full text from the System Console, your WWMI Tools and Blender versions, and the Resonator you are working on.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Test and reload your mod"
+    href="/docs/wuthering-waves/basics/test-your-mod"
+    icon={<Icon name="RefreshCw" />}
+    level="beginner"
+  >
+    Load your export in game with F10 and read WWMI's messages.
+  </PremiumCard>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/wuthering-waves/publishing/publishing-checklist"
+    icon={<Icon name="ListChecks" />}
+    level="beginner"
+  >
+    Fill in Mod Info, clean the folder, and credit others.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Tool:** [WWMI Tools](https://github.com/SpectrumQT/WWMI-Tools) by SpectrumQT. The messages are quoted from its source code, and the fixes come from its issue tracker.
+- **Guide:** [WWMI Tools Modder Guide](https://github.com/SpectrumQT/WWMI-Tools/blob/main/guides/modder_guide.md) by SpectrumQT.
+- **Guide:** [Beginner's Guide to Wuthering Waves modding](https://gamebanana.com/tuts/19096) by Denwarenji: Object Sources after a second import.
+- **Images:** screenshot 2 from [Troubleshooting](https://github.com/SilentNightSound/GI-Model-Importer/blob/main/Guides/Troubleshooting.md) by SilentNightSound.

@@ -1,0 +1,191 @@
+---
+title: "Save DDS textures the right way"
+description: "Save Wuthering Waves textures in the exact DDS format the game expects, keep the alpha channel, and avoid dark, washed-out or missing textures."
+category: "textures"
+patch: "3.8"
+keywords:
+  [
+    "wuthering waves dds",
+    "bc7 srgb",
+    "bc7 linear",
+    "paint.net dds save",
+    "texconv",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+Every texture you edit goes back into the game as a `.dds` file, in the same format as the original. Get the format wrong and the colors shift, the shading breaks, or the texture does not load. This page shows how to find the format and save it in Paint.NET, Photoshop or texconv. Written for WWMI 1.1.0 and WWMI Tools 1.8.0 on Wuthering Waves 3.8.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="PaintNET"
+    href="/docs/wuthering-waves/tools/texture-editors"
+    note="or Photoshop, or texconv"
+  >
+    Paint.NET
+  </Requirement>
+  <Requirement icon="FileImage">
+    The original texture, to copy its format
+  </Requirement>
+</Requirements>
+
+## Find the original's format
+
+Wuthering Waves texture names do not show the format. A file from WWMI Tools or from a mod is named after its components and its hash, like `Components-3 t=<hash>.dds`. The frame dump you extracted it from still knows the format:
+
+1. Open the `FrameAnalysis-...` folder of your dump, then its `deduped` folder.
+2. Search for the hash, the part after `t=`.
+3. Read the end of the file name, for example `<hash>-BC7_UNORM_SRGB.dds`. That is the format.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: the deduped folder of a WWMI 1.1.0 dump names each texture <hash>-<FORMAT>.dds, with the same hash as the t= part of the extracted file */}
+
+<img
+  src="/wiki-images/wuthering-waves-textures-save-dds-files-1.webp"
+  alt="Two boxes: a dump file name ending in BC7_UNORM_SRGB means sRGB, for the diffuse and a mod logo, saved as BC7 (sRGB, DX 11+) in Paint.NET, and one ending in BC7_UNORM means Linear, for the normal map and most light maps, saved as BC7 (Linear, DX 11+)"
+/>
+
+No dump at hand, or the file came from a mod? Use this table, and check the result in game:
+
+| Texture                    | Format                    | Pick in Paint.NET             |
+| -------------------------- | ------------------------- | ----------------------------- |
+| Diffuse, the color texture | `BC7_UNORM_SRGB`          | `BC7 (sRGB, DX 11+)`          |
+| Normal map                 | `BC7_UNORM`               | `BC7 (Linear, DX 11+)`        |
+| Light map                  | `BC7_UNORM` in most files | `BC7 (Linear, DX 11+)`        |
+| Some small parts           | `BC3_UNORM_SRGB` or BC1   | The matching BC3 or BC1 entry |
+| Your mod logo (WWMI Tools) | `BC7_UNORM_SRGB`, 512x512 | `BC7 (sRGB, DX 11+)`          |
+
+One Resonator can mix many formats. Aalto's folder in the WWMI-Assets repository has 2048x2048 BC7 sRGB and BC7 Linear textures, a 1024x1024 BC7 sRGB one, a 512x512 BC3 sRGB one and a 1024x1024 BC1 one. Checked on 2026-11-24. A Resonator is the game's name for a playable character.
+
+The BC1 file has an older kind of header that does not say sRGB or Linear. So it is not known yet which of Paint.NET's BC1 entries matches it. Check the result in game.
+
+{/* NEEDS HANDS-ON TEST: the exact Paint.NET labels for the BC3 sRGB and BC1 entries that match the small-part textures of a Wuthering Waves 3.8 dump; for the BC1 file with a plain DXT1 header and no sRGB flag (Aalto Components-2 t=be78068e), whether BC1 sRGB or BC1 Linear looks right in game; and whether every light map in a 3.8 dump is BC7_UNORM */}
+
+## Rules for every texture
+
+- **Same format** as the original.
+- **Same width and height.** Sizes must be powers of two, like 1024x1024 or 2048x2048. Most Resonator textures are 2048x2048.
+- **Mipmaps on.** Tick **Generate Mip Maps**, or use `-m 0` in texconv. Dumped textures have only one mip level, but both load.
+- **Keep the alpha.** In a Wuthering Waves diffuse, the alpha holds shading data. Pick BC1 only when the original is BC1: it cannot hold a full alpha channel.
+- **Same file name**, `t=` hash included. The `mod.ini` loads the file by that name.
+- **Outside art goes upside down.** Dumped textures are stored flipped compared with normal pictures. If you start from a normal picture, flip it vertically before you save.
+
+{/* NEEDS HANDS-ON TEST: whether a Wuthering Waves texture saved with mipmaps looks different in game from one with a single mip level, like the dumped originals */}
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: whether textures in a WWMI 1.1.0 dump are stored upside down */}
+
+## Save the file
+
+<Tabs items={["Paint.NET", "Photoshop", "texconv"]}>
+
+<Tab value="Paint.NET">
+
+Paint.NET saves DDS files with its built-in DDS FileType Plus. No extra install.
+
+1. Flatten the image: <MenuPath path="Image > Flatten" />. If you split off the alpha, paste it back first.
+2. Choose <MenuPath path="File > Save As" />. Keep the file name and the `.dds` ending.
+3. In the **Save Configuration** window, open the format list at the top. Pick the format from the table above.
+4. Tick **Generate Mip Maps**.
+5. Leave the other options at their defaults and click **OK**.
+
+<img
+  src="/wiki-images/wuthering-waves-textures-save-dds-files-3.webp"
+  alt="The Paint.NET DDS Save Configuration window with the format list set to BC1 (Linear, DXT1), the compression and error metric options, and the Generate Mip Maps checkbox"
+/>
+
+The picture shows `BC1 (Linear, DXT1)` in the format list. For a diffuse, change it to `BC7 (sRGB, DX 11+)`.
+
+</Tab>
+
+<Tab value="Photoshop">
+
+Photoshop needs the Intel Texture Works plugin. Intel archived it in 2023, but the Wuthering Waves beginner guide still uses it.
+
+1. Open the `.dds` with **Load Transparency as Alpha Channel** ticked. The alpha then shows as its own channel.
+2. Edit the color and alpha in the **Channels** panel, one at a time.
+3. Save as an Intel Texture Works `.dds`.
+4. Set **Texture Type** to `Color + Alpha`.
+5. Set **Compression** to `BC7 8bpp Fast (sRGB, DX11+)` for a diffuse, or `BC7 8bpp Fast (Linear, DX11+)` for a light or normal map.
+6. Set **Mip Maps** to `Auto Generate`. The screenshot below shows `None`: change it.
+
+<img
+  src="/wiki-images/wuthering-waves-textures-save-dds-files-2.webp"
+  alt="The Intel Texture Works 1.0.4 save window with Texture Type set to Color + Alpha and the Compression list open, showing BC3 and BC7 8bpp Fast and Fine options in Linear and sRGB"
+/>
+
+{/* NEEDS HANDS-ON TEST: the Auto Generate entry in the Intel Texture Works Mip Maps list, and which compression entry matches a BC3_UNORM_SRGB small-part texture */}
+
+</Tab>
+
+<Tab value="texconv">
+
+texconv is Microsoft's free command-line converter. Export your edit as a PNG with its alpha, then convert it:
+
+```text
+texconv.exe -f BC7_UNORM_SRGB -m 0 -sepalpha -y diffuse.png
+texconv.exe -f BC7_UNORM -m 0 -sepalpha -y normalmap.png
+```
+
+- `-f` sets the format. Copy it from the dump's file name.
+- `-m 0` makes a full set of mipmaps.
+- `-sepalpha` treats the alpha as data when it makes mipmaps, so the shading data stays clean.
+- `-y` overwrites an older output file.
+- Add `-vflip` to flip outside art.
+
+Rename the new `.dds` to the original's file name, `t=` hash included.
+
+{/* NEEDS HANDS-ON TEST: these texconv lines on a Wuthering Waves 3.8 diffuse and normal map, checking colors and shading against the original in game */}
+
+</Tab>
+
+</Tabs>
+
+## What went wrong
+
+| What you see                                      | Why                                                  | Fix                                                |
+| ------------------------------------------------- | ---------------------------------------------------- | -------------------------------------------------- |
+| Colors washed out, too dark or too strong in game | A diffuse saved as Linear or another format          | Save as `BC7 (sRGB, DX 11+)`                       |
+| Shading or shadows look wrong on the part         | The diffuse alpha was lost or filled                 | Paste the original alpha back, then save again     |
+| Shading looks off after a light map edit          | A light map saved as sRGB, or its channels changed   | Save light maps as Linear. Keep the other channels |
+| Mostly black image with a few colored pixels      | The image was resized before the alpha was split off | Split off the alpha first, then resize             |
+| Texture missing after `F10`                       | Wrong file name, missing file, or a bad size         | Keep the original name, `t=` hash and size         |
+| Shading data gone from a part                     | Saved as BC1, which drops the alpha                  | Save in the original format                        |
+| Colors look wrong in another viewer, fine in game | That viewer reads the sRGB flag differently          | Nothing. Trust the game                            |
+
+{/* NEEDS HANDS-ON TEST: what a light map saved as sRGB looks like in Wuthering Waves 3.8 */}
+
+To read the error text after `F10`, untick **Mute Warnings** on the **WWMI** tab of the launcher settings. [Test and reload your mod](/docs/wuthering-waves/basics/test-your-mod) explains the messages.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Your first mod: recolor a character"
+    href="/docs/wuthering-waves/textures/recolor-a-character"
+    icon={<Icon name="Palette" />}
+    level="beginner"
+  >
+    Put these save settings to work on a full recolor.
+  </PremiumCard>
+  <PremiumCard
+    title="What each texture map does"
+    href="/docs/wuthering-waves/textures/texture-maps"
+    icon={<Icon name="Layers" />}
+    level="intermediate"
+  >
+    Tell the diffuse, normal map and light map apart.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Beginner's Guide to Wuthering Waves modding](https://gamebanana.com/tuts/19096) by Denwarenji.
+- **Guide:** [3DMigoto Hunting & Dumping Tutorial](https://leotorrez.github.io/modding/guides/hunting) by Satan1c, on LeoTorrez's modding site: reading the format from a dump.
+- **Guide:** [Tutorial - Preserve alpha channels on Paint.net / how to handle .dds textures properly](https://docs.google.com/document/d/1DktYSbYMx-Bc4PKNF1XonvBAIRiC74pgNkMieQhd2jc/edit) by Anilyan.
+- **Data:** [WWMI-Assets](https://github.com/SpectrumQT/WWMI-Assets) by SpectrumQT: texture formats and sizes.
+- **Tool:** [DDS FileType Plus](https://github.com/0xC0000054/pdn-ddsfiletype-plus) by null54 and [Texconv](https://github.com/microsoft/DirectXTex/wiki/Texconv) by Microsoft.
+- **Images:** the Intel Texture Works screenshot from [Beginner's Guide to Wuthering Waves modding](https://gamebanana.com/tuts/19096) by Denwarenji, and the Save Configuration screenshot from the [DDS FileType Plus Save UI wiki page](https://github.com/0xC0000054/pdn-ddsfiletype-plus/wiki/Save-UI) by null54.
