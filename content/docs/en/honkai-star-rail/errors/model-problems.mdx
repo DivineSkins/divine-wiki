@@ -1,0 +1,344 @@
+---
+title: "Model problems in game"
+description: "Your Honkai: Star Rail model mod exports fine but looks wrong in game? Match spikes, blinking, glow and outlines to the fix in Blender or the .ini."
+category: "errors"
+patch: "4.7"
+keywords:
+  [
+    "star rail mod exploded",
+    "vertex groups",
+    "mod blinking",
+    "vertex explosion",
+    "xxmi tools model problem",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+Your model mod exports and loads, but it looks wrong in game. Find what you see below, fix it, export again and reload. Written for XXMI Tools 1.8.2, SRMI 2.4.3 and Honkai: Star Rail 4.7.
+
+Export stopped with a message in Blender? Go to [Blender export and import errors](/docs/honkai-star-rail/errors/creator-errors) instead.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="Box"
+    href="/docs/honkai-star-rail/tools/blender-add-on"
+    note="1.8.2"
+  >
+    XXMI Tools
+  </Requirement>
+  <Requirement icon="Blender" note="your saved work">
+    Your .blend file
+  </Requirement>
+  <Requirement icon="FolderOpen" note="to compare with">
+    The original dump folder
+  </Requirement>
+</Requirements>
+
+## Check these first
+
+1. **Your mod does not show at all.** Check that its folder is inside `%AppData%\XXMI Launcher\SRMI\Mods` and that no other mod for that character is on. Switch to another character, press `F10`, then switch back.
+2. **Every modded character is broken, not only yours.** That is an update, an old SRMI or an old mod, not your model. Follow [Mods look broken](/docs/honkai-star-rail/errors/mods-look-broken).
+3. **Your dump is older than the game.** Updates change character hashes: version 4.4 broke Sparxie mods and 4.6 broke Robin Summeretto mods. The asset repo stops at version 3.8, and its folders do not always have the newest hashes. If your mod does not show, [make a frame dump](/docs/honkai-star-rail/basics/frame-dump) and export again from it.
+4. **Your mod shows, but looks wrong.** Find the symptom in the table. Most broken shapes come from vertex groups. Most wrong colors come from textures, the `COLOR` attribute or UV map names.
+
+Change one thing at a time, then export and press `F10`. Save each try as a new `.blend` file, so you can go back.
+
+## What do you see?
+
+| What you see                                            | Most likely cause                         | Fix                                                     |
+| ------------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------- |
+| The whole model explodes into spikes                    | Vertex groups out of order or with gaps   | [Exploded model](#exploded-model)                       |
+| One area stretches, such as a hand or fingers           | Wrong weights in that area                | [One area stretches](#one-area-stretches)               |
+| Spikes only during one animation                        | That animation uses another Position hash | [Explodes in one animation](#explodes-in-one-animation) |
+| The mod blinks, or parts are missing                    | The vertex count in the `.ini`, or timing | [Blinking or missing parts](#blinking-or-missing-parts) |
+| A glitch when two copies of the model are on screen     | Old format lines in a hand-edited `.ini`  | [Two copies on screen](#two-copies-on-screen)           |
+| The model lies down, turns, or has the wrong size       | Transforms not applied                    | [Wrong angle or size](#wrong-angle-or-size)             |
+| A part you deleted is still there, or a variant is gone | A hidden object at export                 | [Hidden objects](#hidden-objects)                       |
+| Textures are scrambled, blank or white                  | UV map names                              | [Wrong textures](#wrong-textures)                       |
+| A part glows brightly                                   | The Diffuse texture lost its alpha        | [Glowing parts](#glowing-parts)                         |
+| Metal shine, grey skin, or black patches                | LightMap values or `COLOR`                | [Wrong shading](#wrong-shading)                         |
+| Thick, colored or missing outlines                      | `COLOR` alpha, or the LightMap alpha      | [Outline problems](#outline-problems)                   |
+| Holes, see-through spots, or dark faces                 | Flipped normals                           | [Holes and inside-out faces](#holes-and-normals)        |
+| Hair or a coat does not move                            | Weights on a stiff bone                   | [Parts that do not move](#parts-do-not-move)            |
+| Something else                                          |                                           | [Other problems](#other-problems)                       |
+
+## Shape problems
+
+<Accordions type="multiple">
+<Accordion title="Exploded model" id="exploded-model">
+
+The whole model turns into a mess of spikes and stretched shapes. Old guides call this "completely FUBAR".
+
+**Cause:** the vertex groups are missing, out of order, or have a gap. Export reads each group's place in the list, not its name. One missing number shifts every bone after it.
+
+**Fix:**
+
+1. Select the object and open the **XXMI Toolbox** panel in the XXMI Tools sidebar.
+2. Click **Merge shared name Vertex Groups**.
+3. Click **Fill gaps in Vertex Groups**.
+4. Check that every group name is a plain number: `0`, `1`, `2` and so on.
+5. In Weight Paint mode, run <MenuPath path="Weights > Normalize All" />.
+6. Export again and press `F10`.
+
+Still exploded? Import the original dump into a new `.blend` and compare its vertex group list with yours.
+
+{/* SCREENSHOT: honkai-star-rail-errors-model-problems-3.webp, a Honkai: Star Rail test mod with its vertex groups out of order on purpose, drawn as spikes in game with SRMI 2.4.3. UID hidden. */}
+
+</Accordion>
+<Accordion title="One area stretches" id="one-area-stretches">
+
+Most of the model is fine, but a hand, fingers or the edge of a sleeve stretches when the character moves. Old guides call this "slightly FUBAR".
+
+**Cause:** that area got weights from the wrong bone. This happens often where arms or hands sit close to the body when you copy weights.
+
+**Fix:**
+
+1. Copy the weights for that area again from the original, with the **Replace** mix mode.
+2. Smooth the weights there.
+3. Run **Normalize All**, export, and test in motion.
+
+Copying weights works better when your mesh is posed like the original. The weight painting guide under Next steps covers this in full.
+
+</Accordion>
+<Accordion title="Explodes in one animation" id="explodes-in-one-animation">
+
+The model is fine, except in one pose. There it stretches into spikes. Known cases: Natasha's sprint stop, Serval's sprint end, Topaz's skill, Hook's ultimate and Bailu's ultimate.
+
+**Cause:** for a few frames of that animation, the game draws the body with a different Position hash. Your mod does not cover that hash.
+
+<img
+  src="/wiki-images/honkai-star-rail-errors-model-problems-2.webp"
+  alt="A diagram of Topaz's skill: holding F8 dumps 16 frames, including 3 frames where the Position hash changes from 2eab6d2d to 6f354853 and back"
+/>
+
+**Find the extra hash** in one of two ways:
+
+- Turn on hunting, play the animation, and step through the vertex buffers with `Numpad /` and `Numpad *` until the body disappears in that pose. [Find a hash](/docs/honkai-star-rail/basics/find-a-hash) shows the keys.
+- Make a held frame dump. With `hold` added to `analyse_options`, the dump runs for as long as you hold `F8`. Hold it through the animation, so the dump catches the frames with the other hash.
+
+**Add it to the mod:** the written fix, from 2024, copies the mod's Position section and gives the copy the extra hash. Today's Star Rail export no longer writes a separate Position section. The fix tools add the known extra hashes to older mods. For a mod you export now, ask in the [Divine Discord](https://discord.gg/divineskins) with the character and the animation.
+
+{/* NEEDS HANDS-ON TEST: whether a held frame dump (analyse_options with hold) works in SRMI 2.4.3, how to add an extra Position hash for one animation to a mod exported with the current Honkai Star Rail template, and whether these animations still use a separate Position hash on 4.7 */}
+
+</Accordion>
+<Accordion title="Blinking or missing parts" id="blinking-or-missing-parts">
+
+The mod flickers on and off, or parts of the model are not drawn.
+
+**Cause 1, load timing:** the character was on screen when you pressed `F10`. Switch to another character, press `F10`, and switch back. Or teleport.
+
+**Cause 2, the vertex count:** the `.ini` tells SRMI how many vertices your mesh has. XXMI Tools writes this for you. It breaks when you changed the mesh but exported with **Write ini** off, or when you edited the count by hand. A count that is too low makes the mod blink.
+
+**Fix:** export again with **Write ini** on, and copy your own `.ini` edits back in. Or set the count by hand:
+
+1. Right-click the mod's Position `.buf` file for that component and choose **Properties**.
+2. Read the **Size** in bytes, not **Size on disk**.
+3. Divide it by `40`. For example, `930520 / 40 = 23263`.
+4. Set both `$\SRMI\vertex_count` and `override_vertex_count` to that number.
+
+<img
+  src="/wiki-images/honkai-star-rail-errors-model-problems-1.webp"
+  alt="A Windows file Properties window in Portuguese for a Position .buf file: Size 930,520 bytes, Size on disk 933,888 bytes"
+/>
+
+The screenshot shows Windows in Portuguese. `Tamanho` is **Size**, and `Tamanho em disco` is **Size on disk**.
+
+</Accordion>
+<Accordion title="Two copies on screen" id="two-copies-on-screen">
+
+The mod looks fine until a second copy of the same model appears, such as during Acheron's skill or The Herta's ultimate.
+
+**Cause:** the `.ini` uses lines from the first 3.2 format: `DrawCS`, `$\SRMI\vertcount` or `$_blend_`. That format cannot tell two copies apart. XXMI Tools 1.8.2 never writes them, so they come from an old mod or an old guide.
+
+**Fix:** export again with **Write ini** on and redo your hand edits without those lines. For an old mod you cannot export again, the [Update fix tools](/docs/honkai-star-rail/tools/update-fixers) page shows the Pipeline Convert Fix.
+
+</Accordion>
+<Accordion title="Wrong angle or size" id="wrong-angle-or-size">
+
+The model lies on its back, faces the wrong way, or is huge or tiny.
+
+**Cause:** the object's rotation or scale was not applied, or your model was built in a different space from the import.
+
+**Fix:**
+
+1. Line your model up with the imported original. The `Honkai Star Rail` preset imports the character standing upright.
+2. Select it and press `Ctrl+A`, then choose **All Transforms**.
+3. Export again.
+
+</Accordion>
+<Accordion title="Hidden objects" id="hidden-objects">
+
+A part you removed is still in game, or a variant you made is missing.
+
+**Cause:** **Ignore hidden objects** is on by default, so export skips every hidden object. If you hid your new mesh and left a copy visible, export used the copy.
+
+**Fix:** before you export, check the eye icon of every object in the Outliner. Show the objects you want, and hide or delete spare copies.
+
+</Accordion>
+</Accordions>
+
+## Color and texture problems
+
+<Accordions type="multiple">
+<Accordion title="Wrong textures" id="wrong-textures">
+
+Textures look scrambled, sit in the wrong place, or show plain white or flat color.
+
+**Cause:** a UV map has the wrong name, or joining two pieces added a second UV map. When pieces with different UV map names are joined with `Ctrl+J`, Blender keeps both maps and the game reads only one.
+
+**Fix:**
+
+1. Before you join pieces, rename their UV maps to the same names, such as `TEXCOORD.xy`.
+2. Already joined? Press `Ctrl+Z` to undo the join, rename the maps, and join again.
+3. Check that the mod folder holds your new textures, not the old ones.
+
+Textures that go wrong only on low graphics settings or in new maps are a different problem: the `.ini` binds them to `ps-t` slot numbers. Keep the `hash =` and `this =` sections that XXMI Tools writes. [UV maps, vertex colors, and outlines](/docs/honkai-star-rail/models/uvs-and-vertex-colors) explains each map.
+
+</Accordion>
+<Accordion title="Glowing parts" id="glowing-parts">
+
+A part shines brightly, even in the dark.
+
+**Cause:** in Honkai: Star Rail, the Diffuse texture's alpha channel is the glow mask. A Diffuse saved without alpha, or with the alpha inverted, makes the whole part glow.
+
+**Fix:** paste the original alpha back into your Diffuse. It must be black wherever nothing should glow. Save it again as `BC7 (sRGB, DX 11+)`. [Save DDS textures the right way](/docs/honkai-star-rail/textures/save-dds-files) shows how to keep the alpha.
+
+</Accordion>
+<Accordion title="Wrong shading" id="wrong-shading">
+
+- **Metal shine or gloss where it should not be:** the LightMap holds shine and material values. Copy every channel you do not need to change from the original, and pick the colors from the same material on the original.
+- **Skin looks grey, bluish or too dark:** the LightMap values on your skin areas differ from the original's skin. Or the `COLOR` attribute darkens it. Copy both from the original part.
+- **Black patches:** a new `COLOR` attribute starts black, which shows as black patches. Copy `COLOR` from the original part with a Data Transfer modifier.
+- **Small black blocks or stars on the body:** the part uses a `StockingMap` or `MaterialMap` that your mod does not cover. These maps sit in a higher texture slot and need extra lines in the part's section. Some asset repo folders also lack their hashes, so take them from your own dump.
+
+[What each texture map does](/docs/honkai-star-rail/textures/texture-maps) explains every LightMap channel and the extra lines for these two maps.
+
+</Accordion>
+<Accordion title="Outline problems" id="outline-problems">
+
+The outline is too thick, has the wrong color, looks blotchy, or is missing.
+
+**Cause:** `COLOR` sets how wide an outline is. Community findings say its alpha is the width, and `00` removes the outline. The outline's color comes from the material ID in the LightMap's alpha channel.
+
+**Fix:**
+
+1. Thick, blotchy or missing outlines: copy `COLOR` from a part with good outlines, usually the original, with a Data Transfer modifier. Type colors as hex values, never as decimals.
+2. Wrong outline color: copy the LightMap's alpha channel from the original part.
+3. Still missing? Check for flipped normals, in the next section.
+
+{/* NEEDS HANDS-ON TEST: the effect of COLOR alpha and LightMap alpha on Honkai: Star Rail 4.7 outlines */}
+
+</Accordion>
+</Accordions>
+
+## Mesh surface problems
+
+<Accordions type="multiple">
+<Accordion title="Holes and inside-out faces" id="holes-and-normals">
+
+**See-through spots, dark faces, or faces you can see from the inside:** the normals are flipped.
+
+1. Turn on the **Face Orientation** overlay. Flipped faces show red.
+2. In Edit Mode, select those faces and press `Alt+N`.
+3. Choose **Recalculate Outside**, or **Flip** for single faces. Apply all transforms first.
+
+**Real holes or gaps:** a mirror or a deleted part left an opening. Select the edges around it and press `F` to fill it. Check both sides of the model.
+
+</Accordion>
+<Accordion title="Seams or a faceted look after editing" id="seams">
+
+You merged vertices or sculpted, and now the shading shows hard lines or flat faces.
+
+**Fix:** merge with **Merge by Distance** and its **Sharp Edges** option on, so the edges the game needs stay split. Then use **Smooth Normals** on the area.
+
+</Accordion>
+<Accordion title="Clipping through clothes" id="clipping">
+
+The body pokes through clothing when the character moves.
+
+**Fix:**
+
+- Delete the body faces hidden under the clothes.
+- Add a small Displace modifier, about `0.001`, to tight clothes.
+- Give the body and the clothes the same weights in that area.
+
+</Accordion>
+<Accordion title="Parts that do not move" id="parts-do-not-move">
+
+Hair, a coat tail or a belt stays stiff while the character runs.
+
+**Cause:** the part is weighted to a body bone instead of the bones that make it swing.
+
+**Fix:** copy the weights from the matching part of the original, such as its hair or coat, so your part uses the same swinging bones. A mod can use only the bones the original component has. A long skirt or long hair on a character without one must ride the bones that exist.
+
+</Accordion>
+</Accordions>
+
+## Other problems
+
+<Accordions type="multiple">
+<Accordion title="The face shades wrong" id="face">
+
+The face is the `Head` component. Its shading depends on its UV layout and its `Shadow` texture, so a face with a changed UV layout shades wrong. Keep the face's UV layout as the original. Leave the `Head` component out of your mod if you did not change it.
+
+{/* NEEDS HANDS-ON TEST: that a Honkai: Star Rail face edit with an unchanged UV layout keeps correct shading in SRMI 2.4.3 */}
+
+</Accordion>
+<Accordion title="Broken only on Intel graphics" id="intel">
+
+Players with Intel graphics see your mod black or exploded. Since a hotfix one day after version 3.7, Intel cards draw characters through the `if DRAW_TYPE == 1` branch. Keep both branches the export writes, and never delete either.
+
+</Accordion>
+<Accordion title="Your edited textures were replaced after a new export" id="textures-overwritten">
+
+Older exporters copied the original textures over yours on every export. XXMI Tools 1.8.2 skips files that already exist. Still, turn **Mod textures** off after your first export.
+
+</Accordion>
+<Accordion title="Wild geometry after a hand edit of the .ini" id="hand-edited-ini">
+
+Mixed-up shapes after you edited the `.ini` by hand usually mean a wrong stride, a hash in the wrong section, or index and vertex buffers that do not match. Keep `override_byte_stride = 40` and `uav_byte_stride = 4`. Export again from Blender, then redo your `.ini` edits one at a time. [How a mod .ini works](/docs/honkai-star-rail/ini/how-a-mod-ini-works) explains each line.
+
+</Accordion>
+<Accordion title="Slow game with your mod on" id="heavy-mesh">
+
+Stay close to the original vertex count. Meshes with hundreds of thousands of vertices cost performance.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Weight paint a mesh"
+    href="/docs/honkai-star-rail/models/weight-painting"
+    icon={<Icon name="Brush" />}
+    level="intermediate"
+    featured
+  >
+    Copy weights from the original and fix the areas that stretch.
+  </PremiumCard>
+  <PremiumCard
+    title="Test and reload your mod"
+    href="/docs/honkai-star-rail/basics/test-your-mod"
+    icon={<Icon name="RefreshCw" />}
+    level="beginner"
+  >
+    Reload with F10, compare with the original, and test the scenes that break
+    mods.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Troubleshooting](https://github.com/SilentNightSound/SR-Model-Importer/blob/main/Guides/Troubleshooting.md) for the Star Rail Model Importer by SilentNightSound.
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ and contributors.
+- **Guide:** [Vertex Explosion Bugs and Fixes](https://gamebanana.com/tuts/16401) by petrascyll.
+- **Tool:** [Pipeline Convert Fix](https://gamebanana.com/tools/19978) by Gustav0\_, with a script by petrascyll: the vertex count and old-format rules.
+- **Tool:** [XXMI Tools](https://github.com/leotorrez/XXMITools) by LeoTorreZ and contributors.
+- **Images:** screenshot 1 from [Pipeline Convert Fix](https://gamebanana.com/tools/19978) by Gustav0\_. Diagram 2 from [Vertex Explosion Bugs and Fixes](https://gamebanana.com/tuts/16401) by petrascyll.

@@ -1,0 +1,223 @@
+---
+title: "Get your mod ready to share"
+description: "Turn a working Honkai: Star Rail mod into a clean archive: what the folder holds and never holds, a readme, previews, credits, fair sharing, and a final test."
+category: "publishing"
+patch: "4.7"
+keywords:
+  [
+    "share star rail mod",
+    "mod readme",
+    "mod credits",
+    "package mod",
+    "srmi mod zip",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+Your mod works in your game. This checklist turns it into an archive that works for every player who downloads it, credits everyone it builds on, and follows the community's rules. Written for XXMI Launcher 2.5.0, SRMI 2.4.3 and Honkai: Star Rail 4.7.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="FolderCheck" note="tested in your own game">
+    Your finished mod folder
+  </Requirement>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/honkai-star-rail/tools/xxmi-launcher"
+    note="for the final test"
+  >
+    XXMI Launcher with SRMI
+  </Requirement>
+  <Requirement icon="FileArchive" note="such as 7-Zip">
+    An archive tool
+  </Requirement>
+</Requirements>
+
+## The checklist
+
+Work through it top to bottom. Each part has its own section below.
+
+1. The folder holds only what the mod needs.
+2. The `.ini` works on any player's setup.
+3. A readme says how to install and use the mod.
+4. Two or more preview shots show the mod in game, with your UID hidden.
+5. Everyone whose work you used is credited, and asked first.
+6. The mod is fair to share.
+7. The archive opens without a password and holds one top folder.
+8. You tested the archive itself, as a player would.
+
+## Clean the mod folder
+
+<img
+  src="/wiki-images/honkai-star-rail-publishing-publishing-checklist-1.webp"
+  alt="A mod archive with one top folder KafkaRecolor holding the .ini, buffers, textures, a readme and an optional preview. d3dx.ini, d3d11.dll, RabbitFX, BatchedPose.ini, a ShaderFixes folder, programs, the .blend file and the dump folder are marked to leave out"
+/>
+
+1. **Use one top folder, named after the mod,** such as `KafkaRecolor`. A player drops that folder into `Mods` and is done.
+2. **Keep only mod files:** the `.ini`, the `.buf` and `.ib` files from the export, the `.dds` textures the `.ini` uses, and `.hlsl` files only if your mod uses them. A readme and preview images are fine too.
+3. **Delete textures you did not change,** with their lines in the `.ini`. The game already has the originals.
+4. **Start no file or folder name with `DISABLED`.** SRMI skips anything named that way, so that part of your mod would never load.
+5. **Remove manager changes.** Some mod managers write lines into mod `.ini` files. Use the manager's restore option before you share, then check the `.ini` by eye.
+
+### What never goes in a mod
+
+| File                                            | Why                                                                                                                          |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `d3dx.ini`                                      | XXMI Launcher refuses to start with it in `Mods`: `Cannot start with d3dx.ini in Mods folder!`                               |
+| `d3d11.dll` or any other `.dll`                 | The launcher brings its own. A `.dll` in a mod is a sign of malware.                                                         |
+| A copy of RabbitFX                              | Players keep one current copy in the whole `Mods` folder. A second copy inside your mod breaks other mods.                   |
+| `BatchedPose.ini` or SRMI's skinning shaders    | SRMI ships these in `SRMI\Core\SRMI`. A copy in a mod is old the day SRMI updates.                                           |
+| A `ShaderFixes` folder                          | SRMI keeps its own files there. Package shader edits as a normal mod, with `[ShaderOverride]` and `[CustomShader]` sections. |
+| `.exe`, `.bat` or any other program             | A mod is data only. Players are taught to treat programs in a mod as malware.                                                |
+| Your `.blend` file and the original dump folder | They hold the game's own model data. Keep them for yourself, never share them publicly.                                      |
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check that a Honkai: Star Rail shader edit packaged with [ShaderOverride] plus [CustomShader] (handling = skip, draw = from_caller) loads in SRMI 2.4.3 without a ShaderFixes folder */}
+
+## Check the .ini
+
+A mod that works for you can still misbehave next to other players' mods, or on another PC. Open your `.ini` in a text editor and check:
+
+- **Every key only reacts on screen.** Each key section needs `condition = $active == 1`. Without it, the key also fires when your character is not on screen, and flips other mods that use the same key.
+- **Toggles are remembered.** Toggle values need `global persist` in `[Constants]`, so SRMI keeps them between sessions.
+- **Your keys stay clear of SRMI's own.** SRMI uses `F6`, `F8`, `F9`, `F10`, `F12`, some `Ctrl` combinations of them, and the number pad in hunting mode. Pick other keys.
+- **Both draw branches are there.** Keep the `if DRAW_TYPE == 1` and `elif DRAW_TYPE == 8` blocks the export wrote. Players with Intel graphics use the first one.
+- **Textures bind by hash.** Keep the `hash =` and `this =` sections. `ps-t` slot lines break on low graphics settings and in new maps.
+- **Comments sit on their own line.** A `;` after a value, such as `hash = 1234abcd ; hat`, breaks that line.
+- **No global `CheckTextureOverride` in a `[ShaderRegex]` section.** XXMI Launcher's mod optimizer switches it off because it slows every player's game.
+- **The file is saved as UTF-8.**
+
+```ini
+[KeyCoat]
+condition = $active == 1
+key = h
+type = cycle
+$coat = 0,1
+```
+
+[How a mod .ini works](/docs/honkai-star-rail/ini/how-a-mod-ini-works) explains each of these lines.
+
+## Write a readme
+
+Add a `README.txt` to the top folder. Players read it before they ask you questions. Copy this and fill it in:
+
+```text
+<Mod name>
+<One line: what it changes, on which character and outfit.>
+
+Install
+1. Extract this archive.
+2. Put the <ModFolder> folder in %AppData%\XXMI Launcher\SRMI\Mods
+3. In game, switch to another character, press F10, and switch back.
+
+Keys
+<key>   <what it does>
+
+Requires
+XXMI Launcher with SRMI 2.4.3 or newer
+(https://github.com/SpectrumQT/XXMI-Launcher/releases)
+RabbitFX (SRMI) 3.0, only if your mod uses it
+(<link to the RabbitFX (SRMI) page>)
+Tested on Honkai: Star Rail 4.7
+
+Known issues
+<Anything that still looks wrong, and any workaround.>
+
+Credits
+<Name>: <role, such as model, textures, testing>
+Original character design: HoYoverse
+
+Changes
+v1.0 (Honkai: Star Rail 4.7): first release
+```
+
+- **Requirements:** name XXMI Launcher and the SRMI version you tested with. If your mod uses RabbitFX for glow or stable textures, say so and link its page. Never put a copy in your archive.
+- **Outfits:** say which outfit the mod is for. Each official outfit is its own model, so a mod for the default outfit does not show on another outfit. For Caelus or Stelle, say which Path the mod is for: each Path has its own model.
+- **Game version:** players use it to tell whether your mod may need a fix after an update.
+
+## Take preview shots
+
+- **Show the mod in game,** at least two shots: for example the front in the character screen and the mod in motion.
+- **Hide or crop your UID** in every screenshot and video. A mod that hides the UID is optional, for privacy.
+- **Keep the shots clean.** This wiki covers mods anyone can look at: no suggestive poses or camera angles.
+- **Keep modded shots off official channels.** The official Discord, HoYoLAB and official subreddits remove modded content, and one Zenless Zone Zero player was banned from that game's official Discord for posting a modded screenshot.
+
+{/* SCREENSHOT: honkai-star-rail-publishing-publishing-checklist-2.webp, a good example preview: a modded character in the Honkai: Star Rail 4.7 character screen with the UID cropped out, next to the same shot with the UID visible marked "do not post" */}
+
+## Credit everyone
+
+- **List everyone who worked on the mod,** with their role: model, textures, `.ini`, testing.
+- **Name the original designer.** The character belongs to HoYoverse. Say so in the credits.
+- **Ask before you reuse parts of someone's mod,** such as a hairstyle, a texture or a toggle setup. Credit them, even when they say yes.
+- **Ask before you combine other people's mods** into a merged mod that you share.
+- **Use your own work, or parts you have permission for.** Do not port models from other games, films or anime.
+
+## Keep it fair
+
+<Callout type="warning" title="Fan work, not a product">
+  HoYoverse's terms and the Star Rail Fan Creations Guide allow fan creations
+  for non-commercial use only. Never sell a mod or lock it behind a paywall.
+  Reselling other people's mods, or leaking a mod its creator has not released
+  yet, is treated as piracy in this community.
+</Callout>
+
+The same guide forbids distributing unauthorized plug-ins for the game. It never says "mod", and HoYoverse has never said that cosmetic mods are allowed. [What's allowed and how to stay safe](/docs/honkai-star-rail/getting-started/stay-safe) explains the rules and the risk.
+
+- **Paid outfits stay paid.** Each official outfit is its own model with its own hashes. Never put a paid outfit, or part of one, over its free version.
+- **No leaked content.** Never use models or textures from versions that are not out yet.
+- **Cosmetic only.** A mod changes how things look. Anything that gives an unfair advantage, such as markers for chests or see-through walls, has no place in a mod you share.
+
+## Zip it
+
+1. Right-click the mod's top folder and make a `.zip` or `.7z` with your archive tool.
+2. Do not set a password. Players and download scanners must be able to open it.
+3. Check that the archive holds the top folder, not loose files.
+4. Ship variants, such as other colors or larger textures, as separate archives with clear names.
+5. If the archive gets very large, split it into parts and say in the readme what each part holds.
+
+## Test the archive
+
+Test the file you will share, not the folder on your disk.
+
+1. Move your working copy of the mod out of `Mods`, and turn off every other mod for that character.
+2. Extract the archive into `%AppData%\XXMI Launcher\SRMI\Mods`, as a player would. The path should read `Mods\KafkaRecolor\Kafka.ini`, with your own names.
+3. Start the game from XXMI Launcher, switch characters, and press `F10`.
+4. Check the mod in the character screen, in the overworld and in battle. Press every key from your readme.
+5. Check a scene with two copies of the model on screen, such as Acheron's skill or The Herta's ultimate, if your character has one.
+6. Lower the graphics settings once and check the textures again.
+7. Look for error text or an orange `Possible Mod Conflict` warning. SRMI mutes warnings by default: turn them on in XXMI Launcher's settings for this test.
+
+[Test and reload your mod](/docs/honkai-star-rail/basics/test-your-mod) explains what each warning means.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Update your mod after a game update"
+    href="/docs/honkai-star-rail/publishing/update-your-mod"
+    icon={<Icon name="RefreshCw" />}
+    level="intermediate"
+    featured
+  >
+    Find what an update broke, rebuild, and share the fixed version.
+  </PremiumCard>
+  <PremiumCard
+    title="Add a toggle"
+    href="/docs/honkai-star-rail/ini/add-a-toggle"
+    icon={<Icon name="ToggleRight" />}
+    level="intermediate"
+  >
+    Let players turn a part on and off with one key.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [LeoTorreZ's modding guides](https://leotorrez.github.io/modding/), for the file types a mod holds and the community's view on paywalls.
+- **Guide:** [Everything mod users should know](https://docs.google.com/document/d/1bEv1Z_KQQ3dbzdK8wmTGRnzD5hSISVYdmmIbgPE502Q) by Anilyan, for asking permission before you share an edit.
+- **Legal:** [Honkai: Star Rail Fan Creations Guide v1.0](https://hsr.hoyoverse.com/en-us/news/111203) by the Honkai: Star Rail team.
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT, for the files the launcher refuses and the mod optimizer.
+- **Tool:** [SRMI-Package](https://github.com/SpectrumQT/SRMI-Package) by SpectrumQT and contributors, for the files SRMI ships.

@@ -1,0 +1,334 @@
+---
+title: "Add a toggle"
+description: "Add keys to your Honkai: Star Rail mod that hide a part, cycle outfit variants or swap a texture, and make SRMI remember the choice between sessions."
+category: "ini"
+patch: "4.7"
+keywords:
+  [
+    "star rail mod toggle",
+    "srmi toggle",
+    "keyswap",
+    "global persist",
+    "xxmi tools toggle",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+A toggle lets a player press a key to hide a part, swap a texture, or switch between variants of an outfit. You add it by hand to the `.ini` that XXMI Tools exported, and SRMI remembers the choice between sessions. Written for XXMI Tools 1.8.2 and SRMI 2.4.3.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="Blender"
+    href="/docs/honkai-star-rail/tools/blender-add-on"
+  >
+    XXMI Tools for Blender
+  </Requirement>
+  <Requirement icon="NotepadPlusPlus" note="or any editor that saves UTF-8">
+    A text editor
+  </Requirement>
+  <Requirement icon="Package">Your own mod, exported and working</Requirement>
+</Requirements>
+
+You should know what a `drawindexed` line is and what the Blend section does. [How a mod .ini works](/docs/honkai-star-rail/ini/how-a-mod-ini-works) explains both.
+
+## How a toggle works
+
+A toggle has three pieces: a variable, a key that changes it, and an `if` block that checks it.
+
+<img
+  src="/wiki-images/honkai-star-rail-ini-add-a-toggle-1.webp"
+  alt="Three pieces of a toggle: global persist $bow = 1 in Constants, a KeyBow section that steps $bow between 1 and 0 while the character is on screen, and an if $bow == 1 block around the bow's drawindexed lines, so with $bow at 0 the bow disappears on the next frame"
+/>
+
+The part sections run again every frame. So when the key changes the variable, the mod draws the new choice on the next frame.
+
+## Prepare your parts in Blender
+
+XXMI Tools writes one `drawindexed` line for each Blender object. So every piece you want to toggle must be its own object.
+
+1. Put the pieces in the collection for their part. The collection's name starts with the part's name, like `KafkaBodyA`.
+2. Give each piece a clear name, like `bow 1`. The name shows up as a comment in the `.ini`.
+3. Export with XXMI Tools and the **Honkai Star Rail** preset. [Export your mod from Blender](/docs/honkai-star-rail/models/export-your-mod) shows the settings.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check on Honkai: Star Rail that a collection named KafkaBodyA with several objects exports one drawindexed line per object */}
+
+## Add an on/off toggle
+
+This example hides a bow made of two objects, `bow 1` and `bow 2`, in body part A.
+
+<Steps>
+<Step>
+
+### Check that the mod knows when it is on screen
+
+Search the `.ini` for `$active = 1`. XXMI Tools writes it only when you fill in a credit name. If it is missing, add these two sections near the top of the file:
+
+```ini
+[Constants]
+global $active = 0
+
+[Present]
+post $active = 0
+```
+
+If the file already has a `[Constants]` or `[Present]` section, add the line to it. Do not make a second one.
+
+Then add `$active = 1` as the last line of each `[TextureOverride...Blend]` section, after its `endif`:
+
+```ini
+[TextureOverrideKafkaBodyBlend]
+hash = bbbbbbbb
+handling = skip
+vb2 = ResourceKafkaBodyBlend
+if DRAW_TYPE == 1
+    vb0 = ResourceKafkaBodyPosition
+    draw = 21000, 0
+elif DRAW_TYPE == 8
+    Resource\SRMI\PositionBuffer = ref ResourceKafkaBodyPositionCS
+    Resource\SRMI\BlendBuffer = ref ResourceKafkaBodyBlendCS
+    $\SRMI\vertex_count = 21000
+endif
+$active = 1
+```
+
+Leave both `DRAW_TYPE` branches as they are.
+
+</Step>
+<Step>
+
+### Add the variable
+
+Add one line to `[Constants]`:
+
+```ini
+global persist $bow = 1
+```
+
+- `1` means "shown" when the mod first loads.
+- `persist` saves the player's choice. Without it, the bow comes back on every start and every `F10`.
+- A variable name is `$`, then letters, digits or `_`. It cannot start with a digit or contain `-` or `.`.
+
+</Step>
+<Step>
+
+### Add the key
+
+Add a new section anywhere in the file:
+
+```ini
+[KeyBow]
+key = 0
+condition = $active == 1
+type = cycle
+$bow = 0,1
+```
+
+- The name must start with `Key` and be unique in the file.
+- `condition = $active == 1` makes the key work only while this character is on screen. Without it, every mod that uses the same key reacts.
+- `type = cycle` steps through the list `0,1` on each press.
+
+</Step>
+<Step>
+
+### Wrap the part's lines
+
+Search for the object's name, here `bow`. It sits in the part section, `[TextureOverrideKafkaBodyA]`. Put `if` and `endif` around its comment and `drawindexed` lines:
+
+```ini
+if $bow == 1
+	; bow 1 (94)
+	drawindexed = 252, 31530, 0
+	; bow 2 (92)
+	drawindexed = 252, 31782, 0
+endif
+```
+
+Every `if` needs exactly one `endif`. The tabs are only for reading.
+
+</Step>
+<Step>
+
+### Test it
+
+1. Save the file as UTF-8.
+2. In game, switch to another character, then press `F10`.
+3. Switch back and press `0`. The bow disappears. Press `0` again to bring it back.
+
+</Step>
+</Steps>
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check on Honkai: Star Rail 4.7 with SRMI 2.4.3 that a part toggle works, with $active = 1 placed after the endif of the Blend section */}
+
+Each `drawindexed` line draws one range of the mesh. Skip a line, and that range is not drawn. In this drawing, only dots 1 to 9 are drawn, so only the ribbon shows:
+
+<img
+  src="/wiki-images/honkai-star-rail-ini-add-a-toggle-2.webp"
+  alt="An animation that joins only dots 1 to 9 of a connect-the-dots face, so only the ribbon is drawn and the hair dots stay unjoined"
+/>
+
+## Switch between variants
+
+One variable can pick between several versions of a part. Give the key one value per variant:
+
+```ini
+[Constants]
+global persist $hair = 0
+
+[KeyHair]
+key = h
+condition = $active == 1
+type = cycle
+$hair = 0,1,2
+```
+
+Then pick the draw in the part section:
+
+```ini
+if $hair == 0
+	drawindexed = 21054, 13605, 0
+else if $hair == 1
+	drawindexed = 21054, 34659, 0
+else
+	drawindexed = 12216, 55713, 0
+endif
+```
+
+Use `else` for the last variant, not `else if`. Then a part always draws, even if the variable holds a value you did not expect.
+
+To combine choices, use `&&` (both must be true) or `||` (one is enough). This draws a bracelet only when the jacket is off:
+
+```ini
+if $bracelet == 1 && $jacket == 0
+	; the bracelet's drawindexed lines go here
+endif
+```
+
+## Swap a texture
+
+In Star Rail, each texture has its own section with the texture's hash and a `this =` line. You wrap that `this =` line.
+
+1. Save the second texture in the same format and size as the first, in the mod folder.
+2. Add a resource for it:
+
+   ```ini
+   [ResourceKafkaBodyADiffuseDark]
+   filename = KafkaBodyADiffuseDark.dds
+   ```
+
+3. Find the texture's own section and wrap its `this =` line:
+
+   ```ini
+   [TextureOverrideKafkaBodyADiffuse]
+   hash = ffffffff
+   if $skin == 0
+   	this = ResourceKafkaBodyADiffuse
+   else
+   	this = ResourceKafkaBodyADiffuseDark
+   endif
+   ```
+
+4. Add `global persist $skin = 0` and a key section for `$skin`, the same way as above.
+
+{/* NEEDS HANDS-ON TEST: a texture swap that wraps the this = line inside a texture hash section, on SRMI 2.4.3 */}
+
+Older mods bind textures with slot lines like `ps-t2 = ResourceKafkaBodyADiffuse` inside the part section. Those break on low settings and in new maps. Move them to hash sections first, as [Fix an old mod by hand](/docs/honkai-star-rail/ini/fix-an-old-mod) shows, then wrap the `this =` line.
+
+## Toggles that switch by themselves
+
+A variable can also follow the game, with no key. Set it in a section that only runs when one object is drawn, and reset it every frame:
+
+```ini
+[Constants]
+global $seen = 0
+
+[Present]
+post $seen = 0
+
+[TextureOverrideSomethingSeen]
+hash = hhhhhhhh
+$seen = 1
+```
+
+Then use `if $seen == 1` around the lines you want. `hhhhhhhh` stands for the hash of a buffer or texture that only shows in that state, which you find with hunting mode. This works the same way as `$active`.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check on Honkai: Star Rail with SRMI 2.4.3 that a variable set in a TextureOverride and reset with post in Present can drive an if block in the same frame */}
+
+## Keep your toggles when you change the model
+
+- **Keep a copy of your edited `.ini`.** An export with **Write ini** on writes a fresh `.ini` over your toggles.
+- **Add new objects at the bottom** of the collection. They get new ranges at the end, and the existing `drawindexed` lines keep their numbers.
+- **Check the numbers after a change** to an object's mesh. If it gets more or fewer triangles, its `drawindexed` line changes, and so do the lines after it.
+- **Check the vertex count after a change.** A new export writes new `draw`, `$\SRMI\vertex_count` and `override_vertex_count` values. Copy them into your edited `.ini`.
+- **Fix tools may not understand hand-written toggles.** Keep a backup before you run one.
+
+{/* NEEDS HANDS-ON TEST: re-export from XXMI Tools 1.8.2 with the Honkai Star Rail preset after adding an object at the bottom of a collection, and check that the earlier drawindexed lines keep their numbers */}
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The key does nothing" id="key-does-nothing">
+
+- Put the character on screen. The `condition` blocks the key otherwise.
+- Check that the file sets `$active = 1` in the Blend section, after the `endif`.
+- Press `F10` after you save.
+- Check that the variable name is spelled the same in all three places.
+
+</Accordion>
+<Accordion title="SRMI shows Scope unbalanced" id="scope-unbalanced">
+
+An `if` has no `endif`, or there is one `endif` too many. Count them in the section the message names. The Blend section's `DRAW_TYPE` block has its own `endif`: do not remove it.
+
+</Accordion>
+<Accordion title="SRMI shows Unrecognised entry" id="unrecognised-entry">
+
+The `if` or key uses a variable that `[Constants]` never declares, or a name is misspelt. Add the `global persist` line, or fix the name.
+
+</Accordion>
+<Accordion title="The part comes back after every restart" id="toggle-not-saved">
+
+The variable has no `persist`. Change `global $bow = 1` to `global persist $bow = 1`.
+
+</Accordion>
+<Accordion title="The wrong part disappears" id="wrong-part">
+
+You wrapped another object's lines. Check the comment above each `drawindexed`: it names the Blender object.
+
+</Accordion>
+<Accordion title="The mod blinks after I re-exported" id="blinks">
+
+The vertex count in your edited `.ini` is older than the mesh. Copy the new numbers from the fresh export.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Combine mods into one merged mod"
+    href="/docs/honkai-star-rail/ini/merged-mods"
+    icon={<Icon name="Layers" />}
+    level="intermediate"
+  >
+    Switch between whole mods for one character with one key.
+  </PremiumCard>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/honkai-star-rail/publishing/publishing-checklist"
+    icon={<Icon name="Upload" />}
+    level="beginner"
+  >
+    Check and package your mod before you share it.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Toggle Guide](https://gamebanana.com/tuts/18971) by gdsfdg. The connect-the-dots animation is from this guide.
+- **Tool:** [XXMI Tools Honkai Star Rail template](https://github.com/leotorrez/XXMITools/blob/main/templates/Honkai%20Star%20Rail.ini.j2) by LeoTorreZ.
+- **Tool:** [SRMI `d3dx.ini`](https://github.com/SpectrumQT/SRMI-Package/blob/main/SRMI/d3dx.ini) by SpectrumQT, for key types and saved variables.

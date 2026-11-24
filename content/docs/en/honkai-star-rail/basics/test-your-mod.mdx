@@ -1,0 +1,223 @@
+---
+title: "Test and reload your mod"
+description: "Reload a Honkai: Star Rail mod with F10, compare it with the original, read SRMI's warnings, find a broken mod, and check everything before you share."
+category: "basics"
+patch: "4.7"
+keywords:
+  [
+    "srmi f10 reload",
+    "star rail mod not working",
+    "srmi hotkeys",
+    "mute warnings",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+You never need to restart Honkai: Star Rail to see a change to your mod. This page shows how to reload in seconds, compare your mod with the original, read SRMI's messages, and check every state before you share. Written for XXMI Launcher 2.5.0 and SRMI 2.4.3.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/honkai-star-rail/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="HonkaiStarRail" note="started from XXMI Launcher">
+    Honkai: Star Rail
+  </Requirement>
+  <Requirement icon="FolderOpen">Your mod in the Mods folder</Requirement>
+</Requirements>
+
+Your mod goes in its own folder inside `%AppData%\XXMI Launcher\SRMI\Mods`.
+
+## Check that SRMI loaded
+
+1. Press **Start** in XXMI Launcher. Starting the game from HoYoPlay or Epic loads no mods.
+2. Look for this text in the bottom-left corner in the first 30 seconds:
+
+   ```text
+   SRMI 2.4.3 (PRESS F12 TO SHOW GUIDE)
+   ```
+
+3. On your first start, SRMI shows a user guide in a black box. Press `F10` to hide it for good. Press `F12` to see it again. On a laptop, hold `Fn` with these keys.
+
+{/* SCREENSHOT: honkai-star-rail-basics-test-your-mod-2.webp, the SRMI 2.4.3 user guide box over the Honkai: Star Rail loading screen, with the banner visible bottom-left. UID hidden. */}
+
+No text at all? The XXMI DLL did not load, so no mod can work. [Mods not loading](/docs/honkai-star-rail/errors/mods-not-loading) goes through the causes in order.
+
+## The keys you test with
+
+| Key            | What it does                                                                                                         |
+| -------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `F10`          | Reload all mods and save mod settings                                                                                |
+| `F9` (hold)    | Show the original game while you hold it                                                                             |
+| `F6`           | Turn all mods off or on                                                                                              |
+| `F12`          | Show or hide the user guide                                                                                          |
+| `Ctrl+Alt+F10` | Reset all saved mod settings (toggles) and reload                                                                    |
+| `Ctrl+F9`      | Show the performance monitor: which mod costs the most time                                                          |
+| `Ctrl+F12`     | Show the hunting mode guide (needs **Enable Hunting**, see [Find a hash](/docs/honkai-star-rail/basics/find-a-hash)) |
+
+Some download pages still say `F1` for the guide. That is outdated: the keys above are the ones SRMI ships.
+
+## Reload your mod
+
+<img
+  src="/wiki-images/honkai-star-rail-basics-test-your-mod-1.webp"
+  alt="The test loop: save your change, switch to another character, press F10 to reload, then switch back and hold F9 to compare with the original"
+/>
+
+1. Save your change: a new export from Blender, an `.ini` edit, or a new texture.
+2. Switch to another character in your team, so the modded one leaves the screen.
+3. Press `F10`.
+4. Switch back to the modded character.
+
+Why switch first: a mod that reloads while its character is on screen can draw only partly, or look collapsed. If that happens, switch away and press `F10` again. Teleporting or restarting the game also fixes it.
+
+Some breaks need a full restart. Mortenax Blade mods can turn into stretched polygons at random, and `F10` does not fix it. Restart the game.
+
+If your mod has a credit line, `Created by ...` pops up the first time the character appears.
+
+### A faster loop from Blender
+
+1. In XXMI Tools, export straight into your mod's folder inside `Mods`.
+2. After your first export, untick **Mod textures**, so re-exports do not overwrite textures you edited.
+3. If you edit the `.ini` by hand, untick **Write ini**. Re-exports then refresh only the buffers.
+4. Tick **Write ini** again when you add or remove vertices. The vertex counts live in the `.ini`, and a Star Rail mod with a count that is too low blinks at random.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check on Honkai: Star Rail the exact labels of the Mod textures and Write ini options in XXMI Tools 1.8.2 */}
+
+## Compare with the original
+
+- **Hold `F9`.** Your mod disappears while you hold the key. Let go and it comes back. Use it to compare colors and shape side by side.
+- **Press `F6`.** It turns every character mod off. Press it again to turn them back on. `F6` does not turn off shader and effect mods.
+
+## Read warnings and errors
+
+SRMI hides mod warnings by default. Turn them on while you test:
+
+1. In XXMI Launcher, click the gear at the top right.
+2. Open the **SRMI** tab.
+3. Untick **Mute Warnings**.
+4. Start the game and press `F10`.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check on Honkai: Star Rail that Mute Warnings and Log File Output Verbosity sit in the SRMI tab of XXMI Launcher 2.5.0 */}
+
+Each message names the section and the file it comes from, like `@ [Mods\MyMod\MyMod.ini]`. Common ones:
+
+| Message                                                     | What it means                                                    |
+| ----------------------------------------------------------- | ---------------------------------------------------------------- |
+| `Possible Mod Conflict: Duplicate TextureOverride hash=...` | Two mods change the same character. Turn one off.                |
+| An error that names a missing file                          | A file name in the `.ini` does not match the file in the folder. |
+| `Entry outside of section`                                  | A line sits above the first `[section]` in an `.ini`.            |
+| A message that you reloaded shaders                         | Information only. `F10` also reloads the `ShaderFixes` folder.   |
+
+{/* SCREENSHOT: honkai-star-rail-basics-test-your-mod-3.webp, SRMI 2.4.3 in game with Mute Warnings off, showing a Possible Mod Conflict warning after F10 */}
+
+Messages fade after a few seconds. To keep them, write them to a log:
+
+1. In the **SRMI** tab, set **Log File Output Verbosity** to **Warning**.
+2. Start the game, press `F10`, then close the game.
+3. Open `d3d11_log.txt` in `%AppData%\XXMI Launcher\SRMI`.
+
+Set it back to **Disabled** when you are done. Detailed logging slows the game, and the log file can grow very large.
+
+{/* NEEDS HANDS-ON TEST: on XXMI Launcher 2.5.0, confirm that the SRMI tab shows Log File Output Verbosity (Disabled, Warning, Info, Debug) and no older Calls Logging or Debug Logging boxes, and that d3d11_log.txt is written to %AppData%\XXMI Launcher\SRMI */}
+
+Toggles stuck or acting strange? Press `Ctrl+Alt+F10`. It deletes `d3dx_user.ini`, the file that saves every mod's toggle settings, and reloads.
+
+## Find a broken mod with the halves method
+
+A mod you downloaded breaks your own, or the game acts up and you do not know why? Split the `Mods` folder in halves:
+
+1. Move half of your mod folders out of `Mods`, to your desktop for example. Keep your one RabbitFX folder in place if your mods need it.
+2. Restart the game, or switch characters and press `F10`.
+3. Check if the problem is gone. If yes, it is in the half you moved out. If no, it is in the half that stayed.
+4. Repeat with the half that has the problem, until one mod is left.
+
+About seven rounds find one mod among a hundred.
+
+Still broken with an empty `Mods` folder? Remove only the files you added to `ShaderFixes` yourself. Then click the three dots next to **Start** in XXMI Launcher and choose **Repair SRMI**. Never empty `ShaderFixes`: SRMI ships its own files there.
+
+## Check everything before you share
+
+Star Rail has a few states that break mods more often than others. Test each one:
+
+- [ ] The character screen, the open world, and battle
+- [ ] Idle, walking, sprinting and stopping a sprint
+- [ ] Basic attack, Skill and Ultimate
+- [ ] Two copies of the model on screen, such as Acheron's Skill, The Herta's Ultimate, Tribbie with her copies, or your character next to their NPC version
+- [ ] Different maps and areas, indoors and outdoors
+- [ ] Combat, if your mod has glow
+- [ ] Low graphics settings, and **Character Quality** on **High**
+- [ ] Hold `F9`: the original looks normal
+- [ ] Warnings on: no message points at your mod
+
+A mesh that breaks in only one animation, such as a sprint stop or an Ultimate, needs an extra position hash. Hunting mode can find it with the vertex buffer keys, `Numpad /`, `Numpad *` and `Numpad -`.
+
+Intel GPUs draw characters through the older `DRAW_TYPE == 1` path. If you edit the `.ini` by hand, keep both `DRAW_TYPE` branches, so the mod still works on Intel PCs.
+
+{/* NEEDS HANDS-ON TEST: which of these states break a typical Honkai: Star Rail 4.7 character mod, and whether the list misses one */}
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The character looks half drawn after F10" id="half-drawn">
+
+The character was on screen while you reloaded. Switch to another character, press `F10`, and switch back. Teleporting or restarting also fixes it.
+
+</Accordion>
+<Accordion title="The mod blinks at random" id="blinks">
+
+The vertex count in the `.ini` is too low. It must be the Position `.buf` file size divided by 40. Export again with **Write ini** ticked, or fix the count by hand. [How a mod .ini works](/docs/honkai-star-rail/ini/how-a-mod-ini-works) shows the lines.
+
+</Accordion>
+<Accordion title="Wrong textures on low settings or in a new area" id="wrong-textures">
+
+The mod binds its textures to fixed slots, and Star Rail moves them. Textures bound by hash keep working. [Mods look broken](/docs/honkai-star-rail/errors/mods-look-broken) shows each symptom and its fix.
+
+</Accordion>
+<Accordion title="The mod loads, but the character looks unmodded" id="looks-unmodded">
+
+Set **Character Quality** to **High** in the graphics settings. Then switch characters or teleport so the model reloads.
+
+</Accordion>
+<Accordion title="Toggles reset every time I start the game" id="toggles-reset">
+
+The mod saves its toggles only if they are declared `global persist`. Without `persist`, they reset on every start. Check the `[Constants]` section of the mod's `.ini`.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/honkai-star-rail/publishing/publishing-checklist"
+    icon={<Icon name="Upload" />}
+    level="beginner"
+  >
+    Clean the folder, add credits, and pack it so it works for everyone.
+  </PremiumCard>
+  <PremiumCard
+    title="How Honkai: Star Rail mods work"
+    href="/docs/honkai-star-rail/basics/how-mods-work"
+    icon={<Icon name="Layers" />}
+    level="beginner"
+  >
+    Hashes, the Mods folder, and why updates break mods.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Tool:** [SRMI-Package](https://github.com/SpectrumQT/SRMI-Package) by SpectrumQT: the in-game [user guide](https://github.com/SpectrumQT/SRMI-Package/blob/main/SRMI/Core/SRMI/Notifications/UserGuide.md) and key bindings.
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) and the [XXMI DLL](https://github.com/SpectrumQT/XXMI-Libs-Package) by SpectrumQT.
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ and contributors: the reload rule, the vertex count rule and the halves method.
+- **Tool:** [Another v3.3 HSR Fix](https://gamebanana.com/tools/19559) by petrascyll and [Pipeline Convert Fix](https://gamebanana.com/tools/19978) by Gustav0\_: the states to test, such as two copies of one model.
+- **Guide:** [Vertex Explosion Bugs and Fixes](https://gamebanana.com/tuts/16401) by petrascyll.

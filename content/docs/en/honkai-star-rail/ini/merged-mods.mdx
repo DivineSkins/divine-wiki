@@ -1,0 +1,292 @@
+---
+title: "Combine mods into one merged mod"
+description: "Combine Honkai: Star Rail mods for one character into one merged mod with a switch key, see what the old merge script gets wrong, and keep the merge working."
+category: "ini"
+patch: "4.7"
+keywords:
+  [
+    "star rail merged mod",
+    "merge mods",
+    "merge script",
+    "swapvar",
+    "merged.ini",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+Only one mod per character can show at a time. A merged mod works with that: it puts several mods for one character in one folder, and one key switches between them. This page explains how a merged mod works, how to make one with the common merge script, and what to check, because that script has not been tested on current Star Rail mods. Written for SRMI 2.4.3.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="FileCode" note="Python 3">
+    Python
+  </Requirement>
+  <Requirement
+    icon="GitHub"
+    href="https://github.com/SilentNightSound/GI-Model-Importer/blob/main/Tools/genshin_merge_mods.py"
+  >
+    The merge script
+  </Requirement>
+  <Requirement icon="NotepadPlusPlus" note="or any editor that saves UTF-8">
+    A text editor
+  </Requirement>
+  <Requirement icon="FolderOpen">
+    Two or more mods for one character, each working on its own
+  </Requirement>
+</Requirements>
+
+When you install Python, tick **Add python.exe to PATH** in the installer. It is off by default.
+
+## How a merged mod works
+
+<img
+  src="/wiki-images/honkai-star-rail-ini-merged-mods-1.webp"
+  alt="A Kafka folder in Mods holds merged.ini, which loads, and the folders 0 Default, 1 Blue and 2 Red, whose ini files start with DISABLED and are skipped. Pressing K steps $swapvar, the CommandList in merged.ini binds the files of the chosen mod, and only that mod draws"
+/>
+
+- **One `merged.ini` does the work.** It holds every mod's lines, each inside an `if $swapvar == N` block.
+- **The original `.ini` files are switched off.** Each one is renamed to start with `DISABLED`, so SRMI skips it. The `.ib`, `.buf` and `.dds` files stay in their folders.
+- **Each mod's resources get a number.** `[ResourceKafkaBodyAIB.1]` belongs to mod 1, and its `filename` points into that mod's folder.
+- **One key switches.** `[KeySwap]` steps `$swapvar`, and `persist` saves the choice.
+
+This is a shortened `merged.ini` for a Star Rail mod. A part and one of its textures each get a short section that runs a command list:
+
+```ini
+[Constants]
+global persist $swapvar = 0
+global $active
+global $creditinfo = 0
+
+[KeySwap]
+condition = $active == 1
+key = k
+type = cycle
+$swapvar = 0,1
+$creditinfo = 0
+
+[Present]
+post $active = 0
+
+[TextureOverrideKafkaBodyA]
+hash = eeeeeeee
+match_first_index = 0
+run = CommandListKafkaBodyA
+
+[CommandListKafkaBodyA]
+if $swapvar == 0
+	ib = ResourceKafkaBodyAIB.0
+	drawindexed = 30000, 0, 0
+else if $swapvar == 1
+	ib = ResourceKafkaBodyAIB.1
+	drawindexed = 31200, 0, 0
+endif
+
+[TextureOverrideKafkaBodyADiffuse]
+hash = ffffffff
+run = CommandListKafkaBodyADiffuse
+
+[CommandListKafkaBodyADiffuse]
+if $swapvar == 0
+	this = ResourceKafkaBodyADiffuse.0
+else if $swapvar == 1
+	this = ResourceKafkaBodyADiffuse.1
+endif
+
+[ResourceKafkaBodyAIB.0]
+type = Buffer
+format = DXGI_FORMAT_R32_UINT
+filename = .\0 Default\KafkaBodyA.ib
+```
+
+{/* NEEDS HANDS-ON TEST: a merged.ini for two Honkai: Star Rail 4.7 mods on SRMI 2.4.3, including a this = line inside a command list run from a texture hash section */}
+
+## The merge script and Star Rail
+
+The common merge script, `genshin_merge_mods.py` (V3.0, last changed in 2023), was written for Genshin Impact mods. It was not made for Star Rail, and it is older than the format Star Rail mods use since version 3.2. Nobody has tested it on current Star Rail mods.
+
+Reading its code shows four places where a current Star Rail export does not fit:
+
+1. **The `elif` line.** It copies `elif DRAW_TYPE == 8` from the Blend section as `elif DRAW_TYPE = 8`, with one `=`.
+2. **The Draw section.** It moves `override_vertex_count`, `override_byte_stride` and `uav_byte_stride` into a command list. Those lines may not work there.
+3. **`$active`.** It sets `$active = 1` only in sections whose name contains `Position`. Star Rail character mods have none. Unless the mods carry their own `$active = 1` line, the switch key never works.
+4. **Several `drawindexed` lines.** It keeps one line per key name in each section. A part with several Blender objects keeps only its last `drawindexed` line.
+
+Mods that already have their own toggles do worse. The script drops each mod's `[Constants]` and `[Present]` sections, every plain `else` line, and every `if` line without `==`. It stops with an error on a `[Key...]` section that has a `type =` line, so it cannot merge those mods at all.
+
+{/* NEEDS HANDS-ON TEST: run genshin_merge_mods.py V3.0 on two XXMI Tools 1.8.2 Honkai Star Rail exports and check these four points in the merged.ini on SRMI 2.4.3. Then run it on a mod with a [Key...] toggle and confirm it stops with KeyError: 'header' */}
+
+So treat the script's output as a draft that you check by hand. The steps below end with that check. If you do not want to edit `.ini` files, a mod manager can switch mods for you instead (see the end of this page).
+
+## Before you merge
+
+1. **Check each mod alone.** Put it in `Mods` by itself, press `F10`, and check that it looks right. A mod that is broken alone stays broken in the merge.
+2. **Fix old mods first.** Mods made before version 3.2 need the update fix or a hand fix. Fixing each mod before you merge is much easier than fixing the merge.
+3. **Name the folders now.** Renaming a folder after the merge breaks the paths in `merged.ini`.
+4. **Check for keys.** Open each mod's `.ini` and search for `[Key`. The script cannot merge a mod with its own toggle keys. Use one of the other ways at the end of this page for those mods.
+5. **Back up** every mod folder.
+
+## Make a merged mod
+
+<Steps>
+<Step>
+
+### Put the mods in one folder
+
+1. Make a new folder outside `Mods`, for example `Kafka`.
+2. Move each mod's folder into it.
+3. Rename the folders with a number first: `0 Default`, `1 Blue`, `2 Red`. Mod `0` is the one that shows first.
+4. Put `genshin_merge_mods.py` in the `Kafka` folder, next to the mod folders.
+
+</Step>
+<Step>
+
+### Run the script
+
+1. Hold `Shift`, right-click an empty spot in the `Kafka` folder, and choose **Open PowerShell window here**.
+2. Type this and press `Enter`:
+
+   ```text
+   python genshin_merge_mods.py
+   ```
+
+3. The script lists the mods in the order it will use. Press `Enter` to accept it, or type the numbers in the order you want, like `3 0 1 2`.
+4. When it asks for a key, type one letter and press `Enter`.
+
+{/* NEEDS HANDS-ON TEST: the right-click label for opening PowerShell in a folder on Windows 11, and whether the script accepts keys other than letters */}
+
+The script writes `merged.ini` and renames each mod's `.ini` to start with `DISABLED`.
+
+</Step>
+<Step>
+
+### Check merged.ini
+
+Open `merged.ini` in your text editor and compare it with each mod's own `.ini`, now named `DISABLED...ini`:
+
+1. Search for `elif DRAW_TYPE = 8`. Change each one to `elif DRAW_TYPE == 8`.
+2. Search for `$active = 1`. If it is missing, add it as the last line of each short `[TextureOverride...Blend]` section, the one with only `hash` and `run`.
+3. Compare the `drawindexed` lines of each part with the mod's own file. Copy back any line that is missing, in the same `if $swapvar` block.
+4. Check that each `...Draw` section still sizes the buffers. The script moves its lines into a command list, where they may not work. Copy the largest `override_vertex_count` back into the `[TextureOverride...Draw]` section, with `override_byte_stride = 40` and `uav_byte_stride = 4`.
+
+{/* NEEDS HANDS-ON TEST: whether these four hand edits give a working merged mod on SRMI 2.4.3, and whether the largest override_vertex_count is the right value for the Draw section of a merge */}
+
+</Step>
+<Step>
+
+### Test it in game
+
+1. Move the whole `Kafka` folder into your `Mods` folder: `%AppData%\XXMI Launcher\SRMI\Mods`.
+2. Remove the separate copies of these mods from `Mods`, if you had any.
+3. In game, press `F10`.
+4. Put the character on screen and press your key. The mods switch in order.
+5. Test each mod in the overworld and in battle. If SRMI shows errors, turn off **Mute Warnings** in the launcher's **SRMI** tab and press `F10` again.
+
+</Step>
+</Steps>
+
+## Script options
+
+Add an option after the script name, like `python genshin_merge_mods.py -e`.
+
+| Option | What it does                                                                                        |
+| ------ | --------------------------------------------------------------------------------------------------- |
+| `-e`   | Turns the original `.ini` files back on, so you can build the merge again.                          |
+| `-s`   | Keeps the original `.ini` files on. Use it only if you know why: both copies then load.             |
+| `-c`   | Deletes duplicate files and points every mod to one copy. This saves space, but it is hard to undo. |
+| `-ref` | Adds an old reflection fix made for another game. Do not use it on Star Rail mods.                  |
+
+Use `-c` only on a finished merge, and keep a backup without it.
+
+## Change a merged mod later
+
+Edit `merged.ini`. SRMI skips the `DISABLED` files, so changes there do nothing.
+
+- **Each mod's lines** are in the `[CommandList...]` blocks, inside `if $swapvar == N`. Mod `0` is the first block.
+- **Hand fixes** from [Fix an old mod by hand](/docs/honkai-star-rail/ini/fix-an-old-mod) go inside that mod's `if $swapvar == N` block, not in the short `[TextureOverride...]` section that only runs the command list.
+- **Fix tools** treat a merged mod as one complex mod, and often miss parts of it. Fix each mod before you merge, or rebuild the merge after an update.
+
+To rebuild the merge from scratch:
+
+1. Move the folder out of `Mods`.
+2. Run `python genshin_merge_mods.py -e` to turn the original `.ini` files back on.
+3. Delete `merged.ini`.
+4. Make your changes, then run the script again without options and check `merged.ini` again.
+
+## Use a merged mod with other mods
+
+- **Keep one merged mod per character or outfit.** Two mods for the same model both draw, and SRMI shows `Possible Mod Conflict`.
+- **Do not keep the original mods turned on as well.** Every hash then loads twice.
+- **Keep one RabbitFX.** If some of the merged mods need RabbitFX, keep the one copy in `Mods`, not one inside the merge.
+
+## Other ways to switch mods
+
+- **A mod manager** can switch between mods for one character without a `merged.ini`. No Reload Mod Manager switches in game with no reload. [Mod managers compared](/docs/honkai-star-rail/tools/mod-managers) shows the main ones.
+- **[3Dmigoto Mods Merger](https://github.com/ShadowLemoon/3Dmigoto-mods-merger)** by Qian2333 is a newer Python script. It also merges mods that are already merged, and gives each mod its own namespace. It switches whole mods. Its notes do not say whether it works with Star Rail mods, and it is untested here.
+
+{/* NEEDS HANDS-ON TEST: 3Dmigoto Mods Merger v1.0.0 on Honkai: Star Rail 4.7 mods exported with XXMI Tools 1.8.2 */}
+
+<Callout type="warning" title="Ask before you share a merge">
+  Merging mods for your own game is your choice. To upload a merge of other
+  creators' mods, you need permission from each creator.
+</Callout>
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The character flickers, or SRMI shows Possible Mod Conflict" id="merged-conflict">
+
+The original mods are still loading next to `merged.ini`. Check that every `.ini` in the subfolders starts with `DISABLED`, and that no separate copy of these mods is in `Mods`.
+
+</Accordion>
+<Accordion title="The switch key does nothing" id="key-does-nothing">
+
+`merged.ini` never sets `$active = 1`. Add it as shown in "Check merged.ini" above, then press `F10`.
+
+</Accordion>
+<Accordion title="My key switches another character's merged mod too" id="keys-switch-other-mods">
+
+Check the `[KeySwap]` section in both `merged.ini` files. Each needs `condition = $active == 1`. If one has it and still reacts, give it a different key.
+
+</Accordion>
+<Accordion title="Part of a mod is missing in the merge" id="part-missing">
+
+A `drawindexed` line was lost, or a folder was renamed after the merge. Compare the part with the mod's own `.ini`, or rename the folder back.
+
+</Accordion>
+<Accordion title="The mod forgets which outfit I picked" id="merged-forgets-choice">
+
+SRMI saves the choice under the mod's folder path. Moving or renaming the folder loses it.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Change a mod's keys and saved settings"
+    href="/docs/honkai-star-rail/ini/change-mod-keys"
+    icon={<Icon name="Keyboard" />}
+    level="beginner"
+  >
+    Change the switch key and reset the outfit SRMI remembers.
+  </PremiumCard>
+  <PremiumCard
+    title="How a mod .ini works"
+    href="/docs/honkai-star-rail/ini/how-a-mod-ini-works"
+    icon={<Icon name="FileCode" />}
+    level="intermediate"
+  >
+    Read the Blend, Draw and part sections you check in a merge.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Tool:** [genshin_merge_mods.py](https://github.com/SilentNightSound/GI-Model-Importer/blob/main/Tools/genshin_merge_mods.py) by SilentNightSound, Takoyaki and HazrateGolabi, and its [Mod Toggle Script](https://gamebanana.com/tools/11165) page.
+- **Tool:** [XXMI Tools Honkai Star Rail template](https://github.com/leotorrez/XXMITools/blob/main/templates/Honkai%20Star%20Rail.ini.j2) by LeoTorreZ.
+- **Tool:** [3Dmigoto Mods Merger](https://github.com/ShadowLemoon/3Dmigoto-mods-merger) by Qian2333.

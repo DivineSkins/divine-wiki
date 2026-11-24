@@ -1,0 +1,204 @@
+---
+title: "Character names and parts"
+description: "Look up the name Honkai: Star Rail mod files use for each character and outfit, and the Hair, Head and Body components and lettered parts of a character."
+category: "basics"
+patch: "4.7"
+keywords:
+  [
+    "star rail character names",
+    "srmi parts",
+    "hash.json",
+    "sr-model-importer-assets",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+Mod files, dump folders and Blender objects all use the same names for characters and their parts. Learn them once here, so you pick the right folder and the right object every time.
+
+<Accordions>
+<Accordion title="Coming from another game?">
+
+**From Genshin Impact.** Every Star Rail character has the same three components: `Hair`, `Head` and `Body`. Parts always have letters (`A`, `B`, `C`). There is no unnamed main component and no `Dress` or `Extra` part.
+
+**From Zenless Zone Zero.** Lettered parts work the same way, such as `KafkaBodyA`. The asset repo is different, and characters from version 4.0 on are in a separate copy of it. The face is a real mesh you can edit, not textures only.
+
+**From Wuthering Waves.** Star Rail has no `Component N` objects and no merged skeleton. Each part is its own Blender object, named after the character, component and part.
+
+Other game sections: [Genshin Impact](/docs/genshin-impact), [Zenless Zone Zero](/docs/zenless-zone-zero), [Wuthering Waves](/docs/wuthering-waves).
+
+</Accordion>
+</Accordions>
+
+## What you need
+
+Nothing to install. To browse the names yourself, open the asset repos in your browser:
+
+<Requirements>
+  <Requirement
+    icon="GitHub"
+    href="https://github.com/SilentNightSound/SR-Model-Importer-Assets"
+    note="up to 3.8"
+  >
+    SR-Model-Importer-Assets
+  </Requirement>
+  <Requirement
+    icon="GitHub"
+    href="https://github.com/Astute4533/SR-Model-Importer-Assets"
+    note="4.0 to 4.7"
+  >
+    The Astute4533 copy
+  </Requirement>
+</Requirements>
+
+## How a name is built
+
+Every file in a Star Rail mod or dump follows one pattern: character, then component, then part, then texture type.
+
+<img
+  src="/wiki-images/honkai-star-rail-basics-character-names-and-parts-1.webp"
+  alt="The file name KafkaBodyADiffuse.dds split into character Kafka, component Body, part A and texture type Diffuse"
+/>
+
+- **Character:** the folder name in the asset repo, written without spaces.
+- **Component:** one index buffer. Every character has three: `Hair`, `Head` and `Body`.
+- **Part:** a piece of that index buffer, named with a letter: `A`, `B`, `C` and so on.
+- **Texture type:** `Diffuse` (color), `LightMap` (shading and material), and sometimes `StockingMap` or `MaterialMap`. The head adds `ExpressionMap` and `Shadow`.
+
+Blender objects and `.ib` files use the name without the texture type, for example `KafkaBodyA` or `KafkaHairA`. Keep those names: the exporter uses them to match your mesh to the right part.
+
+## Names modders use
+
+Mod folders and the asset repos use the character's display name, written in one word with capitals: `Kafka`, `Acheron`, `BlackSwan`. Some are not what you would guess:
+
+| You know them as                | Folder name                            |
+| ------------------------------- | -------------------------------------- |
+| Silver Wolf, Silver Wolf LV.999 | `SilverWolf`, `SilverWolf999`          |
+| March 7th (Preservation, Hunt)  | `March7thPreservation`, `March7thHunt` |
+| Dan Heng: Imbibitor Lunae       | `DanHengIL`                            |
+| Dan Heng: Permansor Terrae      | `DanHengPT`                            |
+| Dr. Ratio                       | `DrRatio`                              |
+| Herta, The Herta                | `Herta`, `TheHerta`                    |
+| The Dahlia                      | `TheDahlia`                            |
+| Firefly's mech (SAM)            | `SAM`                                  |
+| Trailblazer (Caelus, Stelle)    | `Caelus...`, `Stelle...` (see below)   |
+
+Checked against both repos on 2026-11-24. The main repo was last updated on 2025-12-17 (version 3.8). The Astute4533 copy was last updated on 2026-11-12 (version 4.7).
+
+<Callout type="warning" title="Newer characters are in a separate copy">
+  The main repo stops at version 3.8. Characters and outfits from 4.0 on, such
+  as Sparxie, Evanescia, Pearl and Silver Wolf LV.999, are only in the
+  Astute4533 copy. For any character neither repo has, make your own dump. [Make
+  a frame dump](/docs/honkai-star-rail/basics/frame-dump) shows how.
+</Callout>
+
+The repos do not always have the newest hashes, and some folders lack MaterialMap hashes. After an update, check a hash against your own dump before you trust it.
+
+### The game's own names
+
+The game's data uses other names again for some characters. You rarely meet them in character mods, but they show up in data lists and some older guides.
+
+| Display name | Game model name                                         |
+| ------------ | ------------------------------------------------------- |
+| Blade        | `Avatar_Ren_00`                                         |
+| Clara        | `Avatar_Klara_00`                                       |
+| Silver Wolf  | `Avatar_Silwolf_00`                                     |
+| March 7th    | `Avatar_Mar_7th_00`, `Avatar_Mar_7th_10`                |
+| Mydei        | `Avatar_Mydeimos_00`                                    |
+| Hysilens     | `Avatar_Harscyline_00`                                  |
+| The Dahlia   | `Avatar_Constance_00`                                   |
+| Trailblazer  | `Avatar_PlayerBoy_00` to `_40`, `Avatar_PlayerGirl_...` |
+
+## The Trailblazer has one model per Path
+
+Caelus and Stelle have a separate model for each Path. The main repo has older folders split by Path, such as `CaelusDestruction`, `CaelusHarmony`, `CaelusPreservation` and `CaelusRemembrance`. Caelus and Stelle were dumped again for version 4.0: those dumps are the `Caelus` and `Stelle` folders in the Astute4533 copy.
+
+Older fix scripts made several Paths share one set of hashes, so one Caelus mod could cover them.
+
+{/* NEEDS HANDS-ON TEST: on Honkai: Star Rail 4.7, which Trailblazer Paths share hashes, and whether the fork's Caelus and Stelle folders match every Path */}
+
+## Outfits are separate models
+
+Each outfit is its own model, with its own hashes and its own asset folder. A mod for the default look does not change the outfit, and the other way round.
+
+Outfit folders include `FireflySpring`, `March7thPreservationSpring`, `RuanMeiPlumblossom`, `CastoriceFlutter` and `SparxieCandy`. The ones from 4.0 on are in the Astute4533 copy.
+
+## Components and parts
+
+A **component** is one index buffer (IB) with its own hash. A **part** is a slice of that buffer. The `.ini` tells parts apart by where they start in the buffer, with `match_first_index`.
+
+<img
+  src="/wiki-images/honkai-star-rail-basics-character-names-and-parts-2.webp"
+  alt="Kafka split into three components: Hair with part A, Head with parts A and B, Body with parts A to E, each component with an IB hash and four vertex buffer hashes stored in hash.json"
+/>
+
+Kafka, for example:
+
+| Component | Parts                   | Textures                                                          |
+| --------- | ----------------------- | ----------------------------------------------------------------- |
+| `Hair`    | `A`                     | `Diffuse`, `LightMap`                                             |
+| `Head`    | `A`, `B`                | Part A: `Diffuse`, `ExpressionMap`, `Shadow`. Part B: none        |
+| `Body`    | `A`, `B`, `C`, `D`, `E` | Each part: `Diffuse`, `LightMap`. Part A also has a `StockingMap` |
+
+Kafka's body parts share two texture sets: A and B use one, C, D and E use another. Newer characters often have one `Diffuse` and one `LightMap` for the whole body. Older characters with many parts can have several, with a different hash on each part.
+
+Head part B is a tiny piece with no textures in every dump checked. Nobody has documented what it is for.
+
+{/* NEEDS HANDS-ON TEST: what Head part B is in Honkai: Star Rail character dumps (Kafka, Firefly, Stelle, Sparxie) */}
+
+Each component also has four vertex buffer hashes: Position, Blend, Texcoord and Draw. A mod replaces all four. [What each texture map does](/docs/honkai-star-rail/textures/texture-maps) covers each texture type.
+
+### The face is the Head component
+
+In Star Rail, the face is a real mesh: the `Head` component. Its textures are `Diffuse`, `ExpressionMap` (blush and other expressions) and `Shadow` (the map that shades the face). If you edit the face mesh, keep its original UV layout, or the face shading breaks.
+
+{/* NEEDS HANDS-ON TEST: whether a Honkai: Star Rail face edit with a changed UV layout breaks the face shading */}
+
+### hash.json holds the map
+
+Every character folder in the asset repos, and every dump you extract, has a `hash.json`. It lists each component, its parts, their first indexes and every hash. XXMI Tools reads it when you export, and the export fails without it.
+
+The folder also holds the model data as text files named like `KafkaBodyA-ib=<hash>.txt` and `KafkaBodyA-vb0=<hash>.txt`, plus the `.dds` textures.
+
+- Never delete `hash.json`.
+- Never rename the dump folder.
+
+## Other folders: summons, enemies and weapons
+
+The asset repos also have folders for things that are not playable characters:
+
+- **`SkillObjData`:** memosprites and summons, such as `Mem`, `Pollux`, `Garmentmaker`, `Evey` and `Ica`.
+- **`EnemyData`:** a few enemies, such as `Svarog` and `SilvermaneSoldier`.
+- **`WeaponData`:** empty. Weapons only appear in battle, and the old weapon dumps were removed in November 2024. Dump a weapon yourself if you need one.
+
+Fix tools after an update mostly cover playable characters. Mods for enemies, NPCs and weapons often stay broken longer.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Get a model into Blender"
+    href="/docs/honkai-star-rail/models/import-into-blender"
+    icon={<Icon name="Box" />}
+    level="intermediate"
+  >
+    Import a character folder with XXMI Tools and find each part.
+  </PremiumCard>
+  <PremiumCard
+    title="Find a hash with hunting mode"
+    href="/docs/honkai-star-rail/basics/find-a-hash"
+    icon={<Icon name="Crosshair" />}
+    level="intermediate"
+  >
+    Find the hash of any mesh, texture or shader on screen.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Data:** [SR-Model-Importer-Assets](https://github.com/SilentNightSound/SR-Model-Importer-Assets) by SilentNightSound and contributors: folder names, components, parts and `hash.json`.
+- **Data:** [SR-Model-Importer-Assets, 4.x copy](https://github.com/Astute4533/SR-Model-Importer-Assets) by Astute4533: characters and outfits from 4.0 to 4.7.
+- **Guide:** [关于星铁贴图错误的问题如何手动修复](https://gamebanana.com/tuts/18999) (manual fixes for Star Rail texture errors, in Chinese) by sora\_: texture types and per-part textures.
+- **Tool:** [XXMI Tools](https://github.com/leotorrez/XXMITools) by LeoTorreZ: object names and the `hash.json` export rule.

@@ -1,0 +1,266 @@
+---
+title: "XXMI Launcher settings"
+description: "Every XXMI Launcher setting for Honkai: Star Rail explained: the SRMI tab, launch options for HoYoPlay and Epic, updates, repair, moving and uninstalling."
+category: "tools"
+patch: "4.7"
+keywords: ["xxmi launcher", "xxmi launcher settings", "srmi", "star rail mods"]
+---
+
+<LevelPill level="beginner" />
+
+<ToolHeader
+  name="XXMI Launcher"
+  icon="XXMILauncher"
+  badge="Required"
+  facts={["Free", "Open source (GPL-3.0)", "Windows", "v2.5.0"]}
+  primary={{
+    label: "Download",
+    href: "https://github.com/SpectrumQT/XXMI-Launcher/releases/latest",
+  }}
+  links={[
+    { label: "GitHub", href: "https://github.com/SpectrumQT/XXMI-Launcher" },
+  ]}
+>
+  Installs, updates, and starts SRMI, the Star Rail Model Importer. By
+  SpectrumQT.
+</ToolHeader>
+
+XXMI Launcher is the only app you need to load Honkai: Star Rail mods. It downloads SRMI and the XXMI DLL, keeps them up to date, and starts the game with your mods. This page explains every setting. For the first install, follow [Install mods with XXMI Launcher](/docs/honkai-star-rail/getting-started/install-with-xxmi-launcher).
+
+Written for XXMI Launcher 2.5.0, XXMI DLL 1.3.2, and SRMI 2.4.3 on Honkai: Star Rail 4.7. Launcher 2.5.0 and SRMI 2.4.3 were still the latest releases on GitHub in late November 2026.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="HonkaiStarRail" note="HoYoPlay or Epic Games">
+    Honkai: Star Rail
+  </Requirement>
+  <Requirement icon="Monitor">Windows PC</Requirement>
+  <Requirement icon="ShieldCheck">An administrator account</Requirement>
+</Requirements>
+
+The launcher needs admin rights, so Windows asks for permission each time it starts. XXMI Launcher is free. Never pay for it.
+
+## Get the real launcher
+
+Download it only from the [GitHub releases page](https://github.com/SpectrumQT/XXMI-Launcher/releases/latest). Each release has two files:
+
+- `XXMI-Launcher-Installer-Online-v2.5.0.msi`: the normal installer. Pick this one.
+- `XXMI-Launcher-Portable-v2.5.0.zip`: a portable copy. Install the Microsoft Visual C++ Redistributable (x64) first, extract it outside Program Files, and run `Resources\Bin\XXMI Launcher.exe`.
+
+<img
+  src="/wiki-images/honkai-star-rail-tools-xxmi-launcher-1.webp"
+  alt="The Assets list on the XXMI Launcher v2.5.0 release page, with the .msi installer and the portable .zip"
+/>
+
+The files are not code-signed. Windows SmartScreen and some antivirus apps warn about them. That is a known false alarm for this launcher, not a reason to turn your antivirus off. [XXMI Launcher problems](/docs/honkai-star-rail/errors/launcher-problems) shows how to restore files from quarantine.
+
+{/* NEEDS HANDS-ON TEST: the exact SmartScreen text shown for the unsigned XXMI Launcher 2.5.0 msi. */}
+
+## Where everything lives
+
+The installer puts the launcher in `%AppData%\XXMI Launcher`. SRMI and your mods sit in an `SRMI` folder inside it.
+
+<Files>
+  <Folder name="XXMI Launcher" defaultOpen>
+    <Folder name="Backups" />
+    <Folder name="Resources" />
+    <Folder name="SRMI" defaultOpen>
+      <Folder name="Core" />
+      <Folder name="Mods" />
+      <Folder name="ShaderFixes" />
+      <File name="d3dx.ini: written by the launcher" />
+      <File name="d3dx_user.ini: your saved mod toggles" />
+    </Folder>
+    <File name="XXMI Launcher Config.json: your settings" />
+    <File name="XXMI Launcher Log.txt: the log for bug reports" />
+  </Folder>
+</Files>
+
+- `SRMI\Mods` is where your mods go. Updates never touch it.
+- `SRMI\Core` holds SRMI itself: `main.ini`, `BatchedPose.ini` and the shaders that pose characters. Do not edit it: the next update replaces it.
+- `SRMI\ShaderFixes` holds shader files that SRMI ships. Never empty it.
+- `Backups` keeps a copy of your settings and of `d3dx.ini` before each SRMI update.
+
+## What Start does
+
+Each time you press **Start**, the launcher:
+
+1. Closes Honkai: Star Rail if it is already running.
+2. Puts the XXMI DLL in the `SRMI` folder and checks its signature.
+3. Writes your settings into `SRMI\d3dx.ini`.
+4. Checks your `Mods` folder for files that break other mods (the Mod Optimizer, below).
+5. Starts the game and loads SRMI into it.
+6. Closes itself, unless you changed that.
+
+Start changes no game setting for Honkai: Star Rail. Start also does not update the game. Update it in HoYoPlay or Epic Games first, then press **Start**.
+
+## The 3-dots menu
+
+The button with three dots next to **Start** opens these tools:
+
+| Item                     | What it does                                                                          |
+| ------------------------ | ------------------------------------------------------------------------------------- |
+| **Repair SRMI**          | Downloads SRMI and the XXMI DLL again and reinstalls them. Your mods stay.            |
+| **Check For Updates**    | Looks for new versions now. Shows "No updates available!" if there are none.          |
+| **Add Desktop Shortcut** | Adds an `SRMI Quick Start` shortcut that starts the game without the launcher window. |
+| **Optimize Mods**        | Runs the Mod Optimizer by hand. It also runs on every Start.                          |
+| **Open Mods Folder**     | Opens `SRMI\Mods` in File Explorer.                                                   |
+
+The Mod Optimizer turns off a stray `d3dx.ini` inside `Mods`, leftover helper files in `ShaderFixes` folders, and lines that slow the game down. It turns off a file by adding a `DISABLED_` prefix to its name, and a heavy line by making it a comment. It does not look for extra copies of RabbitFX, so keep only one copy in your `Mods` folder yourself.
+
+## The settings window
+
+Click the gear in the top-right corner to open the settings. The window has four tabs: **General**, **Launcher**, **SRMI**, and **Advanced**. Your changes save when you close the window.
+
+{/* SCREENSHOT: honkai-star-rail-tools-xxmi-launcher-2.webp, XXMI Launcher 2.5.0 settings window on the SRMI tab, with SRMI selected. No settings-window screenshot of launcher 2.4.1 or newer exists in the sources. */}
+
+### General tab
+
+| Setting                              | Default       | What to do                                                                                                              |
+| ------------------------------------ | ------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| **Game Launch**                      | `Direct`      | Keep `Direct` for HoYoPlay and for Epic Games. Honkai: Star Rail is not on Steam.                                       |
+| **Game Folder**                      | found for you | The folder that holds `StarRail.exe` and `StarRail_Data`. Use **Detect Installations** or **Browse...** if it is empty. |
+| **Launch Options**                   | empty         | Leave it empty.                                                                                                         |
+| **Game Executable Run Method**       | `Native`      | Keep the default.                                                                                                       |
+| **Process Priority**                 | `Normal`      | Keep the default.                                                                                                       |
+| **Game Process Launch Wait Timeout** | `30` seconds  | Raise it on a slow PC if the launcher says the game "did not start within 30s".                                         |
+
+With HoYoPlay, the game folder is named `Star Rail Games` unless you changed it.
+
+**Epic Games players:** keep `Direct` and point **Game Folder** at the Epic copy. Since XXMI Launcher 2.4.6, `Direct` starts the Epic version the way it needs. Older versions got stuck at the login screen. An `Epic Games` launch mode also exists.
+
+{/* NEEDS HANDS-ON TEST: whether Honkai: Star Rail from Epic Games starts with mods using Game Launch = Direct, Epic Games, or both, on launcher 2.5.0. */}
+
+**"Game initialisation error" after an update:** players saw this after version 4.6, only when they started with mods. They fixed it by setting **Game Launch** to `Manual`. The launcher then waits while you start the game yourself from HoYoPlay.
+
+{/* NEEDS HANDS-ON TEST: whether the 4.6 initialisation error still happens with XXMI Launcher 2.5.0 on Honkai: Star Rail 4.7, and whether Manual mode is still needed. */}
+
+SRMI has no "Configure Game Settings" option, so the launcher never changes your graphics. Set **Character Quality** to **High** yourself in game. The install guide explains why.
+
+### Launcher tab
+
+| Setting                             | Default           | What to do                                                                              |
+| ----------------------------------- | ----------------- | --------------------------------------------------------------------------------------- |
+| **Close Launcher After Game Start** | on                | Turn off to keep the window open.                                                       |
+| **UI Theme**, **Window Scale**      | `Default`, `Auto` | Change the look and size.                                                               |
+| **Auto Update**                     | on                | Keep it on. Turned off, an up-arrow button appears next to **Start** when updates wait. |
+| **Overwrite d3dx.ini**              | on                | Keep it on. Updates replace `d3dx.ini` after a backup.                                  |
+| **GitHub Token**                    | empty             | Add one only if you see "GitHub API requests limit reached".                            |
+| **Verify SSL**, **Use Proxy**       | on, off           | Change only if your network blocks GitHub.                                              |
+
+### SRMI tab
+
+| Setting                                         | Default                     | What to do                                                                             |
+| ----------------------------------------------- | --------------------------- | -------------------------------------------------------------------------------------- |
+| **SRMI Folder**                                 | `SRMI/` inside the launcher | Where `Mods`, `Core` and `d3dx.ini` live. It must be outside the game folder.          |
+| **XXMI DLL Injection Mode**                     | `Hook`                      | Keep the default.                                                                      |
+| **Manage XXMI DLL Config**                      | on                          | Keep it on. Off, the launcher stops writing `d3dx.ini`.                                |
+| **Configure XXMI DLL for SRMI**                 | on                          | Keep it on. It sets what SRMI needs to work.                                           |
+| **XXMI DLL Initialization Delay**               | `0` ms                      | If the game crashes at start even with no mods, raise it in steps of 50.               |
+| **Mute Warnings**                               | on                          | Turn off while you look for a broken mod. Error text then shows on screen after `F10`. |
+| **Clear Unknown Mod Settings**                  | on                          | Removes saved toggles of mods you deleted.                                             |
+| **Enable By Default**, **Input Disabling Mode** | on, `Mods`                  | Mod hotkeys work from the start. `Ctrl+Alt+Shift+End` turns them on or off.            |
+| **Enable Hunting**                              | off                         | Turn on only to make mods. It allows hunting mode on `Numpad 0`.                       |
+| **Dump Shaders**                                | off                         | For creators. Copying a hash also saves the shader.                                    |
+| **Log File Output Verbosity**                   | `Disabled`                  | Keep `Disabled`. Debug logs grow very large.                                           |
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check on Honkai: Star Rail that the SRMI tab in launcher 2.5.0 shows these labels and defaults, including Log File Output Verbosity in place of the older Calls Logging and Debug Logging boxes. */}
+
+### Advanced tab
+
+This tab runs extra commands or loads extra files with the game. Leave every option off. Mods do not need any of them. The one common exception is starting a mod manager with the game, which [Mod managers compared](/docs/honkai-star-rail/tools/mod-managers) explains.
+
+## Update, repair, move, and uninstall
+
+<Steps>
+<Step>
+
+### Update
+
+With **Auto Update** on, the launcher updates itself, the XXMI DLL, and SRMI when you open it. To check by hand, open the 3-dots menu and click **Check For Updates**. An update replaces `Core` and `d3dx.ini`, and never touches `Mods`.
+
+Star Rail updates often need a new SRMI. Open the launcher after every game update, and again a few days later. [Fix your mods after a game update](/docs/honkai-star-rail/getting-started/fix-mods-after-an-update) has the full order.
+
+</Step>
+<Step>
+
+### Repair
+
+Open the 3-dots menu and click **Repair SRMI**. Do this after you repair the game in HoYoPlay or Epic, or when SRMI files are missing. If you added your own files to `ShaderFixes`, remove only those first, then repair.
+
+</Step>
+<Step>
+
+### Move your mods
+
+1. Close the launcher.
+2. Copy the whole `SRMI` folder to the new place, for example `C:\Games\SRMI`.
+3. Open the settings, go to the **SRMI** tab, and set **SRMI Folder** to the new path.
+
+{/* NEEDS HANDS-ON TEST: whether changing SRMI Folder moves the files by itself, or expects you to copy the folder first as written. */}
+
+</Step>
+<Step>
+
+### Uninstall
+
+1. Back up `SRMI\Mods`, and `SRMI\d3dx_user.ini` if you want to keep your toggles.
+2. Open <MenuPath path="Windows Settings > Apps" />, find XXMI Launcher, and click **Uninstall**. For the portable copy, delete its folder and shortcuts.
+3. Delete the leftover `SRMI` folder if you no longer want your mods.
+
+The launcher changed no Honkai: Star Rail setting, so there is nothing to reset in game.
+
+{/* NEEDS HANDS-ON TEST: which folders the 2.5.0 msi uninstaller leaves behind (SRMI, Backups, XXMI Launcher Config.json). */}
+
+</Step>
+</Steps>
+
+## Hand edits to config files
+
+Use the launcher settings when one exists. Edits to files in `Core` are lost at the next SRMI update. Edits to `d3dx.ini` are lost too, unless you turn off **Overwrite d3dx.ini**, and the launcher rewrites some lines on every Start. The old file goes to `Backups\SRMI <date>` before each update.
+
+## Command line
+
+The `SRMI Quick Start` shortcut runs the launcher with options. You can use them in your own shortcut:
+
+```text
+"%AppData%\XXMI Launcher\Resources\Bin\XXMI Launcher.exe" --nogui --xxmi SRMI
+```
+
+- `--nogui --xxmi SRMI` starts Honkai: Star Rail with mods, with no launcher window.
+- `--update` checks for updates first.
+
+## Common problems
+
+Antivirus alerts, GitHub connection errors, and a launcher that will not open are on the launcher problems page linked above. If the game starts but your mods do not show, see [Mods not loading](/docs/honkai-star-rail/errors/mods-not-loading).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Add, turn off, and remove mods"
+    href="/docs/honkai-star-rail/getting-started/manage-mods"
+    icon={<Icon name="FolderOpen" />}
+    level="beginner"
+  >
+    Put mods in the Mods folder and switch them on and off.
+  </PremiumCard>
+  <PremiumCard
+    title="Update fix tools"
+    href="/docs/honkai-star-rail/tools/update-fixers"
+    icon={<Icon name="Wrench" />}
+    level="beginner"
+  >
+    The fix tools for Honkai: Star Rail mods that an update broke.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This page is based on the work of these creators. Check out their original pages.
+
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT. Setting names and defaults come from its source code and English locale file.
+- **Tool:** [SRMI-Package](https://github.com/SpectrumQT/SRMI-Package) by SpectrumQT and the SRMI maintainers.
+- **Guide:** [Launchers](https://leotorrez.github.io/modding/guides/launchers) by LeoTorreZ.
+- **Discussion:** [How to fix game initialisation error after patch?](https://gamebanana.com/questions/110554) on GameBanana.

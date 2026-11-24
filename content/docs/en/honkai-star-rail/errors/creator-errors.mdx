@@ -1,0 +1,356 @@
+---
+title: "Blender export and import errors"
+description: "XXMI Tools stopped your Honkai: Star Rail export or import with a message? Find the exact text, learn what it means, and fix it in Blender."
+category: "errors"
+patch: "4.7"
+keywords:
+  [
+    "xxmi tools error",
+    "cannot find match for name",
+    "hash.json does not exist",
+    "missing custom properties",
+    "star rail blender export error",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+XXMI Tools stopped with a message when you exported or imported a Honkai: Star Rail model. Find the message on this page, then follow its fix. Written for XXMI Tools 1.8.2 with the `Honkai Star Rail` game preset, on Blender 4.5 LTS. The messages are quoted from the add-on's source code.
+
+The export worked, but the model looks wrong in game? Go to [Model problems in game](/docs/honkai-star-rail/errors/model-problems).
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check that XXMI Tools 1.8.2 shows these message texts for a Honkai: Star Rail export and import. No written source covers Star Rail export errors. */}
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="Box"
+    href="/docs/honkai-star-rail/tools/blender-add-on"
+    note="1.8.2"
+  >
+    XXMI Tools
+  </Requirement>
+  <Requirement icon="Blender" note="4.5 LTS">
+    Blender
+  </Requirement>
+  <Requirement icon="FolderOpen" note="with its hash.json">
+    The original dump folder
+  </Requirement>
+</Requirements>
+
+## Read the whole message
+
+XXMI Tools shows each error in Blender's status bar, at the bottom of the window. Click it to see the full text in a **Report: Error** box.
+
+<img
+  src="/wiki-images/honkai-star-rail-errors-creator-errors-2.webp"
+  alt="A Blender Report: Error box with the message Hash file D:\blender\hash.json does not exist or is not a file"
+/>
+
+Long errors and Python errors are easier to read in the System Console. Open <MenuPath path="Window > Toggle System Console" />, then export again. The console window keeps every line.
+
+<img
+  src="/wiki-images/honkai-star-rail-errors-creator-errors-3.webp"
+  alt="Blender's Window menu open with Toggle System Console highlighted"
+/>
+
+The screenshot comes from an older Blender. The menu item is in the same place in 4.5 LTS. The System Console exists only on Windows.
+
+Export checks your scene in a fixed order. The first check that fails stops the export, so fix one message, export again, and see if a new one comes next.
+
+<img
+  src="/wiki-images/honkai-star-rail-errors-creator-errors-1.webp"
+  alt="Six checks in order: panel settings, hash.json in the dump folder, object names, each object's data, the TEXCOORD.xy UV map for tangents, and writing the mod folder"
+/>
+
+## Panel and folder errors
+
+These come from the **XXMI Tools** panel in the sidebar (`N` in the 3D Viewport).
+
+<Accordions type="multiple">
+<Accordion title='"Please select a valid game before continuing."' id="select-a-game">
+
+**Game to mod** is empty. Set it to `Honkai Star Rail`, then export again.
+
+</Accordion>
+<Accordion title='"Dump path not set"' id="dump-path-not-set">
+
+**Dump Folder** is empty. Set it to the folder you imported from: the one that holds `hash.json`. Importing a dump normally fills this in for you.
+
+</Accordion>
+<Accordion title={`"Destination path can't be the same as Dump path"`} id="same-path">
+
+**Output Folder** points to your dump folder. Pick a new, empty folder, for example one inside `%AppData%\XXMI Launcher\SRMI\Mods`.
+
+</Accordion>
+<Accordion title='"Hash file ... does not exist or is not a file."' id="no-hash-json">
+
+XXMI Tools cannot find `hash.json` in **Dump Folder**. You may have picked a finished mod folder, a `FrameAnalysis-...` folder, or a folder one level too high.
+
+1. Set **Dump Folder** to the character's own folder, such as `Kafka` from the asset repo, or the folder gui_collect made for you.
+2. Check that it holds `hash.json` and files with `-ib=` and `-vb0=` in their names.
+3. If `hash.json` is gone, download that folder again or extract your dump again.
+
+</Accordion>
+<Accordion title='"ERROR" and "Hash data is empty or invalid!"' id="hash-data-invalid">
+
+`hash.json` is empty or broken, often after someone edited it by hand. Get a fresh copy of the folder from the asset repo or from your own extraction. You never need to edit `hash.json`.
+
+</Accordion>
+<Accordion title='"Nothing to export" instead of the Export Mod button' id="nothing-to-export">
+
+**Write buffers**, **Write ini** and **Mod textures** are all off in **Export Settings**. Tick at least one. For a normal export, tick **Write buffers** and **Write ini**.
+
+</Accordion>
+<Accordion title='"Error writing file ..." or "Error copying file ..."' id="error-writing-file">
+
+Windows did not let XXMI Tools write the file. The file may be open in another program, the path may be too long, the folder may need other permissions, or the disk may be full.
+
+1. Close programs that have files from the output folder open, such as Paint.NET.
+2. Pick a shorter **Output Folder** path.
+3. Check that the disk has free space.
+
+</Accordion>
+</Accordions>
+
+## Name errors
+
+Export finds each part by name. Every object name starts with the dump folder name, then the component, then the part: `KafkaHairA`, `KafkaHeadB` or `KafkaBodyA`. Star Rail characters have three components, `Hair`, `Head` and `Body`, and `hash.json` lists their parts.
+
+<Accordions type="multiple">
+<Accordion title='"ERROR: Cannot find match for name. Make sure your dump and objects have matching names and that hash.json exists in the dump folder."' id="no-match-for-name">
+
+No object in the scene starts with the dump folder's name. This happens when:
+
+- the dump folder was renamed, for example from `Kafka` to `Kafka edit`, or
+- you renamed the objects, for example to `Coat` or `Kafka-Body`.
+
+**Fix:** rename the folder back to the name its files use (`KafkaBodyA-ib=...` means `Kafka`). Then check that every object name starts with that name.
+
+Some versions word this message differently: `ERROR: Cannot find match for name. Double check you are exporting as ObjectName.vb to the original data folder, that ObjectName exists in scene and that hash.json exists`. The fix is the same.
+
+</Accordion>
+<Accordion title='"Cannot find object ... in the scene."' id="cannot-find-object">
+
+A part of a component you export has no object. It was deleted or renamed, or it is hidden while **Ignore hidden objects** is on.
+
+**Fix:** bring the object back, or make it visible again with the eye icon in the Outliner. It may be empty: a part you want gone stays in the scene as an object with no vertices. Components you did not touch can be left out of the scene. Older guides say to edit `hash.json` for this. You no longer need to.
+
+{/* NEEDS HANDS-ON TEST: that XXMI Tools 1.8.2 exports a Honkai: Star Rail character with one untouched component left out, and stops with "Cannot find object" when one part of an exported component is deleted. A 2023 Star Rail guide said every part needs at least one face. */}
+
+</Accordion>
+<Accordion title='"Found multiple objects with the name ..."' id="multiple-objects">
+
+Two visible objects start with the same part name, such as `KafkaBodyA` and `KafkaBodyA.001`. Blender adds `.001` when you duplicate an object.
+
+**Fix:** pick one:
+
+- Hide the copy, or rename it so it no longer starts with the part name.
+- Join the copy into the part object with `Ctrl+J`.
+- Put both in a collection named after the part, such as `KafkaBodyA`. Export merges a collection into one part.
+
+</Accordion>
+<Accordion title='"ERROR: Found multiple collections with the name ... Ensure only one collection exists with that name."' id="multiple-collections">
+
+Two collections start with the same part name. Move everything into one of them and delete the other, or rename one so it no longer starts with the part name.
+
+</Accordion>
+<Accordion title='"No components found to export. Aborting export."' id="no-components">
+
+Nothing in the scene matched any component in `hash.json`. Check the folder name and the object names, and make sure the part objects are visible.
+
+</Accordion>
+</Accordions>
+
+## Mesh data errors
+
+These name one object. Fix that object, then export again.
+
+<Accordions type="multiple">
+<Accordion title='"Object(...) is missing custom properties required for export! Reimport the mesh from dump folder."' id="missing-custom-properties">
+
+Export only accepts objects made by the importer. They carry hidden `3DMigoto:` properties. A mesh you made yourself, or copied in from another `.blend`, does not have them.
+
+**Fix:** import the dump again, delete every vertex of the imported part object, then join your mesh into it with `Ctrl+J`. Your mesh then keeps the imported object's name and properties. The steps are under "Build on the imported objects" in [Export your mod from Blender](/docs/honkai-star-rail/models/export-your-mod).
+
+The same message can also read `... doesn't count with the custom properties required for export! ...`.
+
+</Accordion>
+<Accordion title='"Mesh(...) is missing the following UV layers: TEXCOORD1.xy. Please add them to the mesh before exporting."' id="missing-uv-layers">
+
+A UV map is missing, or its name changed: `texcoord.xy`, `UVMap`, or `TEXCOORD.xy.001`. The list in the message tells you which names export expects.
+
+**Fix:**
+
+1. Select the object and open <MenuPath path="Object Data Properties > UV Maps" />.
+2. Rename each map to the name of the original part's map, in capitals.
+3. Add a map for any name that is still missing.
+
+**Clean UV Names** in the **XXMI Toolbox** panel renames the maps by their order. [UV maps, vertex colors, and outlines](/docs/honkai-star-rail/models/uvs-and-vertex-colors) explains what each map does.
+
+</Accordion>
+<Accordion title='"Mesh(...) is missing the following vertex colors: COLOR. Please add them to the mesh before exporting."' id="missing-color">
+
+The object has no `COLOR` attribute. In Honkai: Star Rail it shapes outlines and shading.
+
+**Fix:**
+
+1. Open <MenuPath path="Object Data Properties > Color Attributes" /> and add one named `COLOR`, with domain **Face Corner** and data type **Byte Color**.
+2. Copy the values from the original part with a Data Transfer modifier, so outlines and shadows match the game.
+
+</Accordion>
+<Accordion title={`"Failed to calculate tangents! Ensure the mesh(...) has at least 1 UV map called 'TEXCOORD.xy'"`} id="failed-tangents">
+
+The object has no UV map named `TEXCOORD.xy`, or its UVs are broken. Rename the main UV map to `TEXCOORD.xy`. If the mesh has no UVs at all, unwrap it first.
+
+</Accordion>
+<Accordion title={`"Export doesn't support meshes without index buffer"`} id="no-index-buffer">
+
+The object came from a dump with no index buffer. This is rare, and happens with some NPC or effect dumps. Use another dump of that object.
+
+</Accordion>
+<Accordion title='A Python error: "ValueError: could not broadcast input array from shape ..."' id="broadcast-error">
+
+The import warned `Storing unhandled semantic TEXCOORD2 R16G16B16A16_UINT as vertex layer`, then export failed in `byte_buffer.py`. This comes from some NPC dumps with unusual data, and XXMI Tools does not support them yet. Try another dump of the same object.
+
+{/* NEEDS HANDS-ON TEST: whether this error happens with any Honkai: Star Rail NPC dump, and whether another dump or Semantic Remap gets it to export in XXMI Tools 1.8.2 */}
+
+</Accordion>
+</Accordions>
+
+## Warnings
+
+A warning does not stop the export. Read it anyway: some lead to a broken mod.
+
+| Warning                                                                                              | What to do                                                                                                                           |
+| ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `Destination path not set, defaulting to <path>`                                                     | Nothing. The mod goes to `<DumpName>Mod` next to the dump. Set **Output Folder** to choose.                                          |
+| `Mesh(<name>) requires vertex groups to be posed. ...`                                               | The part has no weights, so it will not move with the body. Copy weights from the original, then export again.                       |
+| `Mesh(<name>) has some vertex with more VGs than the amount supported by the buffer format (4). ...` | Keep **Normalize weights to format** on. Or run <MenuPath path="Weights > Limit Total" /> with a limit of 4, then **Normalize All**. |
+| `Semantic not found in the buffer layout. Skipping outline optimization.`                            | Nothing. That part keeps its outline data as it is.                                                                                  |
+
+[Weight paint a mesh](/docs/honkai-star-rail/models/weight-painting) shows how to copy and clean weights.
+
+## Import errors
+
+These come from <MenuPath path="File > Import > XXMI Dump(vb.txt + ib.txt)" />.
+
+<Accordions type="multiple">
+<Accordion title='"Simple mode can only export the specified games. Select one from the list to proceed or disable simple mode."' id="simple-mode-game">
+
+A red **You must select a game** box shows in the import window. Set **Game preset** to `Honkai Star Rail` and import again.
+
+</Accordion>
+<Accordion title='"Unable to find corresponding buffers from ... filename did not match vertex/index buffer pattern"' id="not-a-dump">
+
+You selected files that are not dump buffers, such as a finished mod's `.buf`, `.ib` or `.ini` files. A finished mod cannot be imported back into Blender. Import the original dump instead: a folder from the asset repo or from gui_collect. This is why you keep your `.blend` file.
+
+</Accordion>
+<Accordion title='"No files selected" or "Error: excess index buffers in dump?"' id="file-selection">
+
+- **No files selected:** you clicked import without choosing files. Go into the dump folder and select its `.txt` files.
+- **Excess index buffers:** the selection holds more than one index buffer for one part. Select one character folder's files only, or extract the dump again.
+
+</Accordion>
+<Accordion title='"Specified folder is missing hash.json! Expected at: ..."' id="import-missing-hash">
+
+The folder has no `hash.json`, and **Merge meshes** or **Create Materials** needs it. Import from a full dump folder. Without `hash.json` you also cannot export later.
+
+</Accordion>
+<Accordion title='"Specified folder is missing files for components!" or "Failed to determine vertex format for component ..."' id="broken-dump">
+
+The dump folder is empty, or its buffer files are damaged or cut short. The same goes for `Specified .fmt file for ... is missing vertex buffer layout!`. Download the folder again, or extract the dump again.
+
+</Accordion>
+<Accordion title='"Mesh merging enabled without loose geometry cleanup! ..."' id="clean-loose">
+
+**Merge meshes** is on and **Clean Loose** is off. Tick **Clean Loose** and import again.
+
+</Accordion>
+<Accordion title='Other import messages' id="other-import-messages">
+
+- `... No index buffer present, support for this case is highly experimental`: this dump has no index buffer. Expect problems: export will refuse it.
+- `File uses an unsupported DXGI Format: ...`: the dump uses an unusual format. Report it on the XXMI Tools GitHub page.
+- `Filename did not contain hash ... Using .buf files instead` or `Corresponding .buf files not found - using .txt files`: usually harmless.
+
+</Accordion>
+</Accordions>
+
+## Blender and add-on problems
+
+<Accordions type="multiple">
+<Accordion title="A Python error as soon as you turn on XXMI Tools" id="old-blender">
+
+XXMI Tools needs Blender 3.6 or newer. These guides use Blender 4.5 LTS. Install it and turn the add-on on again.
+
+</Accordion>
+<Accordion title={`"AttributeError: 'Mesh' object has no attribute 'vertex_layers_float'"`} id="old-plugin">
+
+This comes from the old 2023 Star Rail importer plugin for Blender. It worked only up to Blender 3.6. Remove it in <MenuPath path="Edit > Preferences > Add-ons" />, together with any other old 3DMigoto add-on, then install XXMI Tools.
+
+</Accordion>
+</Accordions>
+
+## Fix tool messages
+
+Creators also run the Star Rail fix tools on their own older mods. These are the messages the notes record. [Update fix tools](/docs/honkai-star-rail/tools/update-fixers) explains each tool.
+
+<Accordions type="multiple">
+<Accordion title='"No changes have been applied to ..."' id="no-changes-applied">
+
+The tool found nothing it could change in that `.ini`, so it left the mod as it was. The break may need another tool, or a new export with current XXMI Tools.
+
+</Accordion>
+<Accordion title="The tool stops and asks which section to keep" id="asks-which-section">
+
+The `.ini` has an unusual layout, often from a hand edit. Answer with the section that belongs to the character. If you are not sure, restore your copy and export again from your `.blend` instead.
+
+{/* NEEDS HANDS-ON TEST: the exact prompt Another v3.3 HSR Fix shows when it asks which section to keep */}
+
+</Accordion>
+<Accordion title="The .py version does not start" id="python-not-found">
+
+The source versions need Python 3.10 or newer, and Windows must find Python in `PATH`, its list of places to look for programs. Install Python 3.10 or newer, let the installer add it to `PATH`, then run the tool again. The `.exe` version needs no Python.
+
+</Accordion>
+</Accordions>
+
+## Still stuck
+
+1. Import the same dump into a new, empty `.blend` file.
+2. Compare your object with the fresh import: the object name, the vertex group list, the UV map names and the `COLOR` attribute.
+3. Fix what differs, and export again.
+
+Still no luck? Ask in the [Divine Discord](https://discord.gg/divineskins) or the [AGMG Discord](https://discord.gg/agmg). Post the full text from the System Console, your XXMI Tools and Blender versions, and the character you are working on.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Test and reload your mod"
+    href="/docs/honkai-star-rail/basics/test-your-mod"
+    icon={<Icon name="RefreshCw" />}
+    level="beginner"
+  >
+    Load your export in game with F10 and read SRMI's warnings.
+  </PremiumCard>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/honkai-star-rail/publishing/publishing-checklist"
+    icon={<Icon name="ListChecks" />}
+    level="beginner"
+  >
+    Clean the folder, credit others, and zip it.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Tool:** [XXMI Tools](https://github.com/leotorrez/XXMITools) by LeoTorreZ and contributors. The messages are quoted from its source code.
+- **Guide:** [Troubleshooting](https://github.com/SilentNightSound/SR-Model-Importer/blob/main/Guides/Troubleshooting.md) for the Star Rail Model Importer by SilentNightSound.
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ and contributors.
+- **Tool:** [Another v3.3 HSR Fix](https://gamebanana.com/tools/19559) by petrascyll: the fix tool messages.
+- **Images:** screenshot 2 from [I can't export the files](https://github.com/leotorrez/XXMITools/issues/107) by mopeywnt-lgtm. Screenshot 3 from [Troubleshooting](https://github.com/SilentNightSound/GI-Model-Importer/blob/main/Guides/Troubleshooting.md) by SilentNightSound.

@@ -1,0 +1,345 @@
+---
+title: "How a mod .ini works"
+description: "Read and edit any Honkai: Star Rail mod .ini: sections, hashes, textures, the two draw branches, and what each line of an XXMI Tools export does."
+category: "ini"
+patch: "4.7"
+keywords:
+  [
+    "star rail mod ini",
+    "srmi ini",
+    "textureoverride",
+    "draw_type",
+    "xxmi tools",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+Every Honkai: Star Rail mod runs on a `.ini` text file. It tells SRMI which hashes to watch for, which files to load, and what to draw instead. This page teaches you to read one line by line, so you can change it without breaking the mod. Written for SRMI 2.4.3 and XXMI Tools 1.8.2.
+
+<Accordions>
+<Accordion title="Coming from another game?">
+
+**From Genshin Impact.** Same language, same XXMI Tools. Star Rail binds each part texture in its own section, with the texture's `hash =` and a `this =` line. There is no `Resource\GIMI\...` line, no `CommandList\GIMI\SetTextures`, and no ORFix or NNFix. Bone weights sit in `vb2`, and the Blend section has two branches, `DRAW_TYPE == 1` and `DRAW_TYPE == 8`, because the game poses characters in compute shaders.
+
+**From Zenless Zone Zero.** Same XXMI Tools. Star Rail's Blend section adds a `DRAW_TYPE == 8` branch that hands your buffers to SRMI for compute shader posing. There is no SlotFix and no `Resource\ZZMI\...`: textures bind by hash with `this =`. Part sections match on the IB hash plus `match_first_index`, with no `match_index_count`.
+
+**From Wuthering Waves.** XXMI Tools writes Star Rail mods, not WWMI Tools, and creators edit them by hand. Parts match on the index buffer hash, not the VB0 hash. There is no `RegisterMod` line, and the on-screen flag is `$active`, not `$object_detected`.
+
+Other game sections: [Genshin Impact](/docs/genshin-impact), [Zenless Zone Zero](/docs/zenless-zone-zero), [Wuthering Waves](/docs/wuthering-waves).
+
+</Accordion>
+</Accordions>
+
+## What you need
+
+<Requirements>
+  <Requirement icon="NotepadPlusPlus" note="or any editor that saves UTF-8">
+    A text editor
+  </Requirement>
+  <Requirement icon="FolderOpen">
+    A mod you downloaded, or your own export
+  </Requirement>
+</Requirements>
+
+If hashes and mod folders are new to you, read [How Honkai: Star Rail mods work](/docs/honkai-star-rail/basics/how-mods-work) first.
+
+## Star Rail .ini files at a glance
+
+| What                     | In Honkai: Star Rail                                                                                 |
+| ------------------------ | ---------------------------------------------------------------------------------------------------- |
+| Importer                 | SRMI 2.4.3, installed by XXMI Launcher                                                               |
+| Who writes the `.ini`    | XXMI Tools 1.8.2 for Blender, game preset `Honkai Star Rail`                                         |
+| How a part is found      | Index buffer (IB) hash plus `match_first_index`                                                      |
+| How part textures bind   | One section per texture: the texture's `hash =` plus `this = Resource...`                            |
+| How characters are posed | In compute shaders since version 3.2. The mod hands its buffers to SRMI in a `DRAW_TYPE == 8` branch |
+| Bone weights             | The Blend buffer, in slot `vb2`                                                                      |
+| "Character on screen"    | `$active`, only in exports that have a credit name                                                   |
+| All mods on or off, `F6` | `$costume_mods`                                                                                      |
+| Libraries mods call      | SRMI's own posing files. RabbitFX is optional, a separate download                                   |
+
+## The rules of the file
+
+- A `.ini` is a list of **sections**. A section starts with a name in brackets, like `[TextureOverrideKafkaBodyA]`.
+- Each line under it is `key = value`. Spaces around `=` do not matter.
+- Section names and keys ignore case: `[KeySwap]` and `[KEYSWAP]` are the same section.
+- A line that starts with `;` is a comment. XXMI skips it.
+- A `;` in the middle of a line is **not** a comment. It becomes part of the value.
+
+```ini
+; This whole line is a comment
+hash = 1a2b3c4d
+
+hash = 1a2b3c4d ; this note breaks the hash
+```
+
+- The order of sections in the file does not matter. The order of lines inside one section does: they run from top to bottom.
+- Two sections with the same name: XXMI uses only the first and warns `Duplicate section found`.
+
+## Section types
+
+The start of a section's name decides what it does. The rest of the name is a free label.
+
+| Section starts with    | What it does                                                                          |
+| ---------------------- | ------------------------------------------------------------------------------------- |
+| `[Constants]`          | Declares variables. Runs once when mods load, and again after every `F10`.            |
+| `[Present]`            | Runs once every frame.                                                                |
+| `[TextureOverride...]` | Runs when the game uses a buffer or texture with this hash. The core of every mod.    |
+| `[Resource...]`        | Loads a file: a `.buf` or `.ib` buffer, or a `.dds` texture.                          |
+| `[CommandList...]`     | A named block of lines. Another section runs it with `run = CommandList...`.          |
+| `[Key...]`             | A key that changes variables when you press it.                                       |
+| `[ShaderOverride...]`  | Runs when the game uses a shader with this 16-digit hash. Effects and UI mods use it. |
+| `[CustomShader...]`    | Runs a shader that ships with the mod. Effects mods use it.                           |
+
+A typo in the start of the name, like `[TextureOveride...]`, gives `Unknown section type`.
+
+## A character mod, section by section
+
+This is what XXMI Tools 1.8.2 writes for a Star Rail character, shortened. The names follow Kafka's body, which has parts A to E. `aaaaaaaa` to `gggggggg` stand for real hashes from your dump, and `21000` stands for your vertex count.
+
+{/* NEEDS HANDS-ON TEST: export one Honkai: Star Rail 4.7 character with XXMI Tools 1.8.2 and the Honkai Star Rail preset, and compare the .ini with the blocks on this page */}
+
+### Constants and Present
+
+```ini
+[Constants]
+global $active = 0
+global $creditinfo = 0
+
+[Present]
+post $active = 0
+run = CommandListCreditInfo
+```
+
+- XXMI Tools writes these two sections, and the `$active = 1` line below, only when you fill in a credit name. Without one, the file starts with the buffer sections and has no `$active`.
+- `global $active = 0` declares a variable. Variable names start with `$`.
+- `$active` means "this character is on screen". The Blend section below sets it to `1` while the character is drawn. `post $active = 0` sets it back to `0` at the start of every frame.
+- Keys check `$active`, so they only work while their character is on screen.
+- `$creditinfo` and `CommandListCreditInfo` show the creator's "Created by" text once, through a text printer that SRMI keeps for this.
+
+### The buffer sections
+
+Each mesh (`Hair`, `Head`, `Body`) gets these three sections:
+
+```ini
+[TextureOverrideKafkaBodyBlend]
+hash = bbbbbbbb
+handling = skip
+vb2 = ResourceKafkaBodyBlend
+if DRAW_TYPE == 1
+    vb0 = ResourceKafkaBodyPosition
+    draw = 21000, 0
+elif DRAW_TYPE == 8
+    Resource\SRMI\PositionBuffer = ref ResourceKafkaBodyPositionCS
+    Resource\SRMI\BlendBuffer = ref ResourceKafkaBodyBlendCS
+    $\SRMI\vertex_count = 21000
+endif
+$active = 1
+
+[TextureOverrideKafkaBodyTexcoord]
+hash = cccccccc
+vb1 = ResourceKafkaBodyTexcoord
+
+[TextureOverrideKafkaBodyDraw]
+hash = dddddddd
+override_vertex_count = 21000
+override_byte_stride = 40
+uav_byte_stride = 4
+```
+
+| Section       | What it does                                                                                                                                     |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `...Blend`    | Skips the game's own pass and puts your bone weights in `vb2`. Then one of two branches runs, so your mesh moves with the character.             |
+| `...Texcoord` | Swaps the UV maps and vertex colors (`vb1`).                                                                                                     |
+| `...Draw`     | Makes the game's buffers big enough for a mesh with more vertices than the original. Keep `override_byte_stride = 40` and `uav_byte_stride = 4`. |
+
+The two branches in the Blend section:
+
+- **`DRAW_TYPE == 8`** is the compute shader path most PCs use. It hands your Position and Blend buffers to SRMI, which poses your mesh with the game's bones.
+- **`DRAW_TYPE == 1`** is the older path. It puts your positions in `vb0` and redraws with your vertex count. Intel GPUs reportedly draw through it since a hotfix after version 3.7.
+
+XXMI Tools writes both. Never delete either one.
+
+The numbers come from your export. Leave them as they are. If you ever set them by hand, the vertex count is the size of the Position `.buf` file in bytes, divided by 40. [Fix an old mod by hand](/docs/honkai-star-rail/ini/fix-an-old-mod) shows how.
+
+A mesh with no Blend buffer, like some props, gets a plain Position section with `this =` instead.
+
+### The part sections
+
+```ini
+[TextureOverrideKafkaBodyIB]
+hash = eeeeeeee
+handling = skip
+
+[TextureOverrideKafkaBodyA]
+hash = eeeeeeee
+match_first_index = 0
+ib = ResourceKafkaBodyAIB
+; KafkaBodyA (5000)
+drawindexed = 30000, 0, 0
+
+[TextureOverrideKafkaBodyB]
+hash = eeeeeeee
+match_first_index = 8787
+```
+
+- **One IB, several parts.** Kafka's body parts A to E share one index buffer. `match_first_index` tells them apart, because each part starts at its own index. The dump's `hash.json` lists these numbers under `object_indexes`, and [hunting mode](/docs/honkai-star-rail/basics/find-a-hash) finds the IB hash.
+- **`...IB` hides the original.** It has only the hash and `handling = skip`. It stops every part of the game's own mesh, so parts you deleted in Blender stay hidden.
+- **`ib =`** puts your own index buffer in place.
+- **`drawindexed`** draws your mesh. XXMI Tools writes one line per Blender object, with a comment above it: the object's name and its vertex count.
+- **No texture lines.** In Star Rail, textures have their own sections, below.
+
+<img
+  src="/wiki-images/honkai-star-rail-ini-how-a-mod-ini-works-1.webp"
+  alt="Five steps: Honkai: Star Rail draws body part B with its IB hash and first index 8787, the TextureOverride sections with that hash and first index run, the IB section's handling = skip hides the original part, ib binds your mesh while texture sections swap each texture by its hash with this =, and drawindexed draws one line per Blender object"
+/>
+
+### The texture sections
+
+```ini
+[TextureOverrideKafkaBodyADiffuse]
+hash = ffffffff
+this = ResourceKafkaBodyADiffuse
+
+[TextureOverrideKafkaBodyALightMap]
+hash = gggggggg
+this = ResourceKafkaBodyALightMap
+```
+
+- Here `hash` is the hash of the game's texture, not of a buffer. When the game uses that texture, `this =` swaps in your file.
+- The swap works in whatever slot the texture sits in. That is why mods made this way kept working when versions 3.4 and 3.5 moved texture slots.
+- Older mods bind textures with slot lines like `ps-t2 = ...`. Do not write those for Star Rail: slots move on low settings and in new maps.
+- A part can have a `Diffuse`, a `LightMap`, and sometimes a `StockingMap` or `MaterialMap`. The head adds `ExpressionMap` and `Shadow`.
+- To keep textures working when the game changes their hashes, see [stable textures](/docs/honkai-star-rail/textures/stable-textures). It needs the RabbitFX library.
+
+SRMI checks texture hashes in slots `ps-t0` to `ps-t5` on its own. A `StockingMap` or `MaterialMap` that sits in a higher slot needs extra `checktextureoverride` lines under the part's `ib =` line. Fix an old mod by hand shows them.
+
+{/* NEEDS HANDS-ON TEST: whether a StockingMap or MaterialMap bound with hash and this = changes in game with SRMI 2.4.3 only after adding checktextureoverride = ps-t6 to ps-t9 under the ib = line */}
+
+### The resource sections
+
+```ini
+[ResourceKafkaBodyPosition]
+type = Buffer
+stride = 40
+filename = KafkaBodyPosition.buf
+
+[ResourceKafkaBodyPositionCS]
+type = StructuredBuffer
+stride = 40
+filename = KafkaBodyPosition.buf
+
+[ResourceKafkaBodyAIB]
+type = Buffer
+format = DXGI_FORMAT_R32_UINT
+filename = KafkaBodyA.ib
+
+[ResourceKafkaBodyADiffuse]
+filename = KafkaBodyADiffuse.dds
+
+[ResourceCreditInfo]
+type = Buffer
+data = "Created by Me"
+```
+
+- The Position and Blend files load twice. Once as `Buffer` for the `DRAW_TYPE == 1` path, and once as `StructuredBuffer` (the `...CS` resources) for SRMI's compute shaders. Both point at the same file.
+- `filename` is a path from the folder this `.ini` is in. It must match the real file name, extension included.
+- `type`, `stride` and `format` describe the buffer. Keep the exporter's values. A wrong `stride` makes the mesh explode into spikes.
+- A file that is missing or misnamed gives `Failed to load custom texture resource` or `Failed to load custom buffer resource`, and that texture or part does not show.
+
+## How drawindexed draws one piece
+
+A mesh is a list of points joined into triangles. The `.ib` file says in which order to join them, like a connect-the-dots drawing. The ribbon is dots 1 to 9, the hair is dots 10 to 22.
+
+<img
+  src="/wiki-images/honkai-star-rail-ini-how-a-mod-ini-works-2.webp"
+  alt="A connect-the-dots drawing of a face with a ribbon and hair: on the left the numbered dots are joined into lines, on the right only the numbered dots are shown"
+/>
+
+`drawindexed = 252, 31530, 0` means: join 252 indices, starting at index 31530. Each Blender object has its own range, so each gets its own line:
+
+```ini
+; KafkaBodyA
+	; bow 1 (94)
+	drawindexed = 252, 31530, 0
+	; bow 2 (92)
+	drawindexed = 252, 31782, 0
+```
+
+Put an `if` block around one of these lines, and a key can hide that object. That is how toggles work.
+
+## When two sections match one hash
+
+Every matching section runs, not only one. They run in order of `match_priority`, lowest first, then by name. The last texture line wins, and every `drawindexed` in every section draws.
+
+That is why two mods for one character draw on top of each other. XXMI warns with this text:
+
+```text
+Possible Mod Conflict: Duplicate TextureOverride hash=...
+```
+
+Keep one mod per character. To switch between several, [combine them into one merged mod](/docs/honkai-star-rail/ini/merged-mods). Sections with `match_first_index` or `match_priority` never give this warning, so two mods can overlap on a part without any message.
+
+## Change a line without breaking the mod
+
+1. Copy the mod folder to a place outside `Mods`, as a backup.
+2. Open the `.ini` in your text editor.
+3. Make one change. Keep comments on their own lines.
+4. Save the file as UTF-8.
+5. In game, switch to another character, then press `F10`.
+6. Switch back and check the result.
+
+To see what went wrong, open the settings in [XXMI Launcher](/docs/honkai-star-rail/tools/xxmi-launcher), go to the **SRMI** tab and untick **Mute Warnings**. After that, `F10` shows each error with the section and the file it came from.
+
+{/* NEEDS HANDS-ON TEST: whether the "Failed to load custom ... resource" warnings show at F10 or only when the part is first drawn, with SRMI 2.4.3 */}
+
+<Callout type="warning" title="Edit your mod, not SRMI">
+  Change only files inside your mod's folder. Never edit `d3dx.ini` or the files
+  in `SRMI\Core`: the launcher rewrites parts of `d3dx.ini` on every start, and
+  SRMI updates replace `d3dx.ini` and `Core`.
+</Callout>
+
+## Common problems
+
+| Message or symptom                       | Usual cause                                                                 | Fix                                                                        |
+| ---------------------------------------- | --------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `Hash parse error`                       | A typo, a wrong length, or a `;` note after the hash                        | One hash per line, nothing after it                                        |
+| `Unknown section type`                   | A misspelt start, like `[Resouce...]`                                       | Fix the spelling                                                           |
+| `Duplicate section found`                | The same section name twice                                                 | Rename one                                                                 |
+| `Unrecognised entry`                     | A misspelt word, a `$variable` never declared, or a missing `[Resource...]` | Declare the variable or add the section                                    |
+| `Scope unbalanced`                       | An `if` without `endif`, or one `endif` too many                            | Give every `if` one `endif`                                                |
+| `Failed to load custom texture resource` | `filename` does not match the file                                          | Fix the name, the extension or the folder                                  |
+| The mod blinks or parts vanish at random | The vertex count is too low                                                 | Set it to the Position `.buf` size in bytes, divided by 40                 |
+| The mesh explodes in one animation       | That animation uses a second position hash                                  | In an old mod, add a Position section for it, as in Fix an old mod by hand |
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Add a toggle"
+    href="/docs/honkai-star-rail/ini/add-a-toggle"
+    icon={<Icon name="ToggleRight" />}
+    level="intermediate"
+  >
+    Hide a part or swap a texture with a key, and keep the choice saved.
+  </PremiumCard>
+  <PremiumCard
+    title="Change a mod's keys and saved settings"
+    href="/docs/honkai-star-rail/ini/change-mod-keys"
+    icon={<Icon name="Keyboard" />}
+    level="beginner"
+  >
+    Give a mod new keys and reset the choices it remembers.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Toggle Guide](https://gamebanana.com/tuts/18971) by gdsfdg. The connect-the-dots drawing is from this guide.
+- **Tool:** [XXMI Tools Honkai Star Rail template](https://github.com/leotorrez/XXMITools/blob/main/templates/Honkai%20Star%20Rail.ini.j2) by LeoTorreZ.
+- **Tool:** [SRMI-Package](https://github.com/SpectrumQT/SRMI-Package) by SpectrumQT, with leotorrez, petrascyll, sora935 and Gustav0, for the posing files and texture checks.
+- **Source:** [XXMI DLL `.ini` parser](https://github.com/SpectrumQT/XXMI-Libs-Package/blob/master/DirectX11/IniHandler.cpp) by SpectrumQT, for the rules and warning texts.
+- **Guide:** [Pipeline Convert Fix](https://gamebanana.com/tools/19978) by Gustav0\_ and petrascyll, for the vertex count rule.
+- **Guide:** [3dmigoto INI File Documentation](https://leotorrez.github.io/modding/docs/) on LeoTorreZ's modding site.

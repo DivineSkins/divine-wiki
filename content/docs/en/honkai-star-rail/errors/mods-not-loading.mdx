@@ -1,0 +1,304 @@
+---
+title: "Mods not loading"
+description: "Honkai: Star Rail starts but your mods do not show? Check the SRMI banner, NVIDIA Smooth Motion, the Mods folder, and Character Quality, one step at a time."
+category: "errors"
+patch: "4.7"
+keywords:
+  [
+    "star rail mods not working",
+    "srmi not loading",
+    "xxmi launcher mods not showing",
+    "f12 not working",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+The game starts, but your mods do not show. Work through the checks below in order: the first ones are the most common. This page was written for XXMI Launcher 2.5.0 and SRMI 2.4.3 on Honkai: Star Rail 4.7.
+
+Mods show up but look wrong, stretched, or like floating heads? Go to [Mods look broken](/docs/honkai-star-rail/errors/mods-look-broken).
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/honkai-star-rail/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="HonkaiStarRail" note="HoYoPlay or Epic Games">
+    Honkai: Star Rail on PC
+  </Requirement>
+  <Requirement icon="Package">A mod you downloaded</Requirement>
+</Requirements>
+
+## First check: did SRMI load?
+
+Start the game with the **Start** button in XXMI Launcher. For the first 30 seconds, look for this line in the bottom-left corner:
+
+```text
+SRMI 2.4.3 (PRESS F12 TO SHOW GUIDE)
+```
+
+You can also press `F12` at any time. It opens the SRMI user guide. On the very first start, the guide opens by itself. On a laptop, you may need to hold `Fn` with the key.
+
+{/* SCREENSHOT: honkai-star-rail-errors-mods-not-loading-2.webp, the SRMI 2.4.3 banner bottom-left on the Honkai: Star Rail loading screen, with the SRMI user guide open. UID hidden. */}
+
+- **No banner and `F12` does nothing:** SRMI did not load. Start with [SRMI does not load](#srmi-does-not-load).
+- **The banner shows, but a mod does not:** SRMI works. Go to [SRMI loads, but a mod does not show](#srmi-loads-but-a-mod-does-not-show).
+
+## Quick checklist
+
+Check these in order. Each one is explained below.
+
+1. You started the game from XXMI Launcher's **Start** button.
+2. NVIDIA **Smooth Motion** is off.
+3. Only XXMI injects into the game. No other start-up tool runs with it.
+4. The mod folder is extracted and sits inside `%AppData%\XXMI Launcher\SRMI\Mods`.
+5. No folder in the mod's path starts with `DISABLED`.
+6. You pressed `F10` while the modded character was off screen.
+7. You did not turn all mods off with `F6`.
+8. **Character Quality** is **High** in the game's graphics settings.
+9. The mod works on version 4.7.
+10. Only one mod is active for each character outfit.
+11. You turned **Mute Warnings** off and read the error text.
+
+## SRMI does not load
+
+<Accordions type="multiple">
+<Accordion title="No banner, and you started the game from HoYoPlay or Epic" id="started-from-the-wrong-launcher">
+
+**Cause:** SRMI loads only when XXMI Launcher starts the game. The HoYoPlay or Epic Games **Play** button starts the game without it.
+
+**Fix:**
+
+1. Close the game.
+2. Update the game in HoYoPlay or Epic Games first. XXMI Launcher does not update the game.
+3. Open XXMI Launcher and click the **SRMI** icon.
+4. Click **Start**.
+
+Keep **Game Launch** at its default, `Direct`, in the launcher's **General** settings. Check that **Game Folder** points to the folder that holds `StarRail.exe`.
+
+</Accordion>
+<Accordion title="No banner, and you have an NVIDIA graphics card" id="nvidia-smooth-motion">
+
+**Cause:** NVIDIA **Smooth Motion** is on. It came with NVIDIA driver 581.15 and blocks the mod loader. This is the most common reason for "game starts, no mods" in 2025 and 2026.
+
+**Fix:**
+
+1. Close the game.
+2. Open the NVIDIA App and find the settings for Honkai: Star Rail.
+3. Set **Smooth Motion** to **Off**.
+4. Start the game again from XXMI Launcher.
+
+<img
+  src="/wiki-images/honkai-star-rail-errors-mods-not-loading-1.webp"
+  alt="The NVIDIA Smooth Motion setting set to Off"
+/>
+
+{/* NEEDS HANDS-ON TEST: the exact place of the Smooth Motion setting in the current NVIDIA App (per-game profile or global settings), and whether XXMI DLL 1.3.2 still needs it off. */}
+
+One Star Rail player still had no mods after this. Turning off in-game anti-aliasing and NVIDIA low-latency mode as well made SRMI load.
+
+{/* NEEDS HANDS-ON TEST: whether in-game anti-aliasing or NVIDIA low-latency mode stop SRMI 2.4.3 from loading on Honkai: Star Rail 4.7 (one user report from 2025). */}
+
+</Accordion>
+<Accordion title="Black screen or no mods while another tool runs" id="another-tool-injects">
+
+**Cause:** another program that injects into the game at startup runs next to XXMI. Two tools that both inject at start clash. The game opens black or without mods.
+
+**Fix:** close the other program. Start the game only from XXMI Launcher.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Honkai: Star Rail */}
+
+</Accordion>
+<Accordion title="The Epic Games version gets stuck at the login screen" id="epic-login">
+
+**Cause:** the Epic Games version of Honkai: Star Rail needs to start from a different working folder. Launcher versions older than 2.4.6 do not do this, so the game stops at the login screen.
+
+**Fix:**
+
+1. Update XXMI Launcher to 2.4.6 or newer. Version 2.5.0 is current.
+2. Keep **Game Launch** on `Direct`.
+3. Click **Start** again.
+
+{/* NEEDS HANDS-ON TEST: on XXMI Launcher 2.5.0, confirm that Direct starts the Epic Games version of Honkai: Star Rail 4.7 past the login screen with SRMI loaded. */}
+
+</Accordion>
+</Accordions>
+
+## SRMI loads, but a mod does not show
+
+<Accordions type="multiple">
+<Accordion title="The mod is in the wrong folder, or still zipped" id="wrong-folder">
+
+**Cause:** SRMI reads only `.ini` files inside its own `Mods` folder. A `.zip`, `.7z` or `.rar` file there does nothing. Mods in the game folder do nothing either.
+
+**Fix:**
+
+1. In XXMI Launcher, click the 3-dots button next to **Start**, then **Open Mods Folder**. It opens `%AppData%\XXMI Launcher\SRMI\Mods`.
+2. Extract the archive.
+3. Put the extracted mod folder inside `Mods`. Each mod gets its own folder with its `.ini` file in it.
+
+<Files>
+  <Folder name="SRMI" defaultOpen>
+    <Folder name="Core" />
+    <Folder name="Mods" defaultOpen>
+      <Folder name="KafkaRecolor" defaultOpen>
+        <File name="KafkaRecolor.ini: any name ending in .ini" />
+        <File name="KafkaBodyADiffuse.dds" />
+      </Folder>
+      <File name="KafkaRecolor.zip: ignored, extract it" />
+    </Folder>
+    <Folder name="ShaderFixes" />
+    <File name="d3dx.ini" />
+  </Folder>
+</Files>
+
+An extra folder level, such as `Mods\KafkaRecolor\KafkaRecolor\KafkaRecolor.ini`, still loads. Never put a `d3dx.ini`, `d3d11.dll` or a whole old `Mods` folder inside `Mods`.
+
+</Accordion>
+<Accordion title="The mod folder or its .ini starts with DISABLED" id="disabled-prefix">
+
+**Cause:** SRMI skips every file and folder whose name starts with `DISABLED`, in any case. A parent folder with that prefix hides every mod inside it.
+
+**Fix:** rename the folder so its name no longer starts with `DISABLED`. Then press `F10` in game.
+
+The launcher also renames files to `DISABLED_...` on purpose, such as a stray `d3dx.ini` that a mod put inside `Mods`. Leave those renamed.
+
+</Accordion>
+<Accordion title="You added the mod while the game was running" id="not-reloaded">
+
+**Cause:** SRMI reads new mods only when it reloads.
+
+**Fix:**
+
+1. Switch to another character, so the modded one is off screen.
+2. Press `F10`. SRMI reloads all mods.
+3. Switch back to the character.
+
+If the character now looks half loaded, it was on screen during the reload. Switch away, press `F10` again, or restart the game.
+
+</Accordion>
+<Accordion title="Every mod vanished at once" id="mods-toggled-off">
+
+**Cause:** `F6` turns all mods on and off. You may have pressed it by mistake.
+
+**Fix:** press `F6` once. To compare a mod with the original look, hold `F9` instead.
+
+</Accordion>
+<Accordion title="The mod loads, but the character looks unmodded" id="character-quality">
+
+**Cause:** **Character Quality** is too low. Some mods stay unmodded until it is on **High**. Feixiao is a known case. XXMI Launcher changes no Star Rail setting for you, so set it yourself.
+
+**Fix:**
+
+1. In game, open the graphics settings.
+2. Set **Character Quality** to **High**.
+3. Swap characters or teleport, so the model reloads.
+
+{/* NEEDS HANDS-ON TEST: the exact menu path to Character Quality in Honkai: Star Rail 4.7, and whether any mod still needs it on High with SRMI 2.4.3. */}
+
+</Accordion>
+<Accordion title="A mod stopped working after a game update" id="outdated-mod">
+
+**Cause:** the update changed the character the mod is made for. Mods made before version 3.2 (April 2025) all need a fix. As of November 19, 2026, no break has been reported for version 4.7.
+
+**Fix:**
+
+1. Open XXMI Launcher and let it update SRMI. SRMI updates often come within a day or two of a game update.
+2. Check that the banner shows the newest SRMI version.
+3. Check the page where you got the mod for an update.
+4. Follow [Fix your mods after a game update](/docs/honkai-star-rail/getting-started/fix-mods-after-an-update).
+
+</Accordion>
+<Accordion title="Two mods change the same character" id="two-mods-one-character">
+
+**Cause:** two mod folders change the same character or outfit. Or a download holds several versions of one mod in subfolders, and all of them load at once. You then see a mix of both mods, or a tangle of shapes.
+
+With **Mute Warnings** off, SRMI shows a warning about a duplicate hash.
+
+{/* NEEDS HANDS-ON TEST: the exact overlay text SRMI 2.4.3 shows when two mods override the same hash on Honkai: Star Rail 4.7. */}
+
+**Fix:** keep one mod for each character or outfit. Rename the others so they start with `DISABLED_`. For a download with several versions, keep one version folder. Then press `F10`.
+
+</Accordion>
+<Accordion title="You see nothing, not even an error" id="show-warnings">
+
+**Cause:** XXMI Launcher hides mod errors by default. A mod with a wrong file name or a bad texture fails without a sign.
+
+**Fix:**
+
+1. In XXMI Launcher, click the gear in the top-right corner.
+2. Open the **SRMI** tab and untick **Mute Warnings**.
+3. Start the game and press `F10`.
+4. Read the text on screen. A beep also plays when a mod fails.
+
+An error that names a missing file or a texture format means the mod itself is broken. Check the mod's page for an update, or ask its creator.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Honkai: Star Rail */}
+
+</Accordion>
+</Accordions>
+
+## Still stuck: repair SRMI and test half your mods
+
+<Steps>
+<Step>
+
+### Repair SRMI
+
+1. Remove only the files you added to `SRMI\ShaderFixes` yourself. Do not empty the whole folder: SRMI keeps its own files there.
+2. In XXMI Launcher, click the 3-dots button next to **Start**, then **Repair SRMI**. It reinstalls SRMI and keeps your mods.
+3. Start the game and check the banner.
+
+</Step>
+<Step>
+
+### Test half your mods
+
+If SRMI loads but one mod still does not show, another mod may be in the way. Find it by halves.
+
+1. Rename half of your mod folders so they start with `DISABLED_`. Keep the mod you are testing.
+2. Switch to another character and press `F10`.
+3. Switch back and check the mod.
+4. If it shows now, the blocker is in the half you turned off. If not, it is in the half you kept.
+5. Keep halving that group until one mod is left.
+
+</Step>
+</Steps>
+
+Still nothing? Ask in the [Divine Skins Discord](https://discord.gg/divineskins) or the [AGMG Discord](https://discord.gg/agmg). Say what you see, your SRMI version from the banner, and which checks you did.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Crashes and launch errors"
+    href="/docs/honkai-star-rail/errors/game-crashes"
+    icon={<Icon name="Bug" />}
+    level="beginner"
+  >
+    The game closes or crashes at start, with or without mods.
+  </PremiumCard>
+  <PremiumCard
+    title="XXMI Launcher problems"
+    href="/docs/honkai-star-rail/errors/launcher-problems"
+    icon={<Icon name="XXMILauncher" />}
+    level="beginner"
+  >
+    The launcher will not install, open, update, or find the game.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ and contributors.
+- **Image:** screenshot 1 by [jatterjut-spec](https://github.com/jatterjut-spec) in [SRMI mods not loading](https://github.com/SpectrumQT/XXMI-Launcher/issues/235) on the XXMI Launcher issue tracker, which is also the source of the anti-aliasing report.
+- **Report:** the NVIDIA Smooth Motion incompatibility report on the [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) issue tracker.
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT.
+- **Tool:** [SRMI-Package](https://github.com/SpectrumQT/SRMI-Package) by SpectrumQT and the SRMI maintainers.
+- **Guide:** [Another v3.0 HSR Fix](https://gamebanana.com/tools/18925) by petrascyll, for the Character Quality advice.

@@ -1,0 +1,246 @@
+---
+title: "Replace character icons and portraits"
+description: "Put your own art on a Honkai: Star Rail character icon, portrait, phone wallpaper or light cone card with a small texture mod you write by hand."
+category: "ui"
+patch: "4.7"
+keywords:
+  [
+    "star rail icon mod",
+    "star rail ui mod",
+    "phone wallpaper mod",
+    "light cone art",
+    "texture override",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+You will swap a 2D image in Honkai: Star Rail, like a character icon or portrait, for your own art, with a small texture-only mod. No 3D work: you dump the screen, find the image, edit it and write a short `.ini`. Written for XXMI Launcher 2.5.0 and SRMI 2.4.3 on Honkai: Star Rail 4.7.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/honkai-star-rail/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement
+    icon="PaintNET"
+    href="/docs/honkai-star-rail/tools/texture-editors"
+    note="or Photoshop"
+  >
+    Paint.NET
+  </Requirement>
+  <Requirement icon="Image">Your own art</Requirement>
+</Requirements>
+
+Use art you made or have the right to use. A UI mod changes how the game looks, never what it tells you.
+
+## What you can replace
+
+Any image the game draws from a texture can be swapped by its hash. Star Rail creators make three kinds of UI mods:
+
+- **Character icons and portraits.** Each screen draws its own image, so dump the screen that shows the one you want. One texture can also appear on more than one screen.
+- **Phone wallpapers.** The background of the in-game phone. See [Phone wallpapers](#phone-wallpapers).
+- **Light cone card art.** A tool builds these for you. See [Light cone art](#light-cone-art).
+
+Text cannot be changed unless the game draws it as an image.
+
+{/* NEEDS HANDS-ON TEST: which Honkai: Star Rail 4.7 screens draw character icons and portraits, which of them share one texture, and the size and format of each */}
+
+<img
+  src="/wiki-images/honkai-star-rail-ui-replace-icons-1.webp"
+  alt="Four steps: press F8 on the screen with the image, read the hash and format from the dumped file name, edit the image upside down because the game stores it flipped, and write one override section per image"
+/>
+
+## Make the icon mod
+
+<Steps>
+<Step>
+
+### Set up
+
+1. In XXMI Launcher, click the gear, open the **SRMI** tab and tick **Enable Hunting**. [Find a hash with hunting mode](/docs/honkai-star-rail/basics/find-a-hash) shows the setting.
+2. Turn off any mod that already changes these images: rename its folder so it starts with `DISABLED`.
+3. In your `Mods` folder, make a folder such as `KafkaIcons`.
+4. Inside it, make a text file and rename it `KafkaIcons.ini`. Delete the `.txt` ending.
+
+</Step>
+<Step>
+
+### Dump the screen
+
+1. Start the game and open the screen that shows the image.
+2. Check for the green hunting text. If it is missing, press `Numpad 0`.
+3. Press `F8`. The game freezes for a moment while SRMI saves a `FrameAnalysis-...` folder in `%AppData%\XXMI Launcher\SRMI`.
+4. Rename that folder after the screen, like `FrameAnalysis-Portrait`, so you can find it later.
+5. Repeat for each screen you want.
+
+Full dumps take several gigabytes. Keep the screen simple, and delete the folders when you are done. [Make a frame dump](/docs/honkai-star-rail/basics/frame-dump) shows how to dump less, and how to make a dump save `.dds` files when it does not.
+
+</Step>
+<Step>
+
+### Find the image
+
+1. Open the dump folder, then `deduped`.
+2. Search for `BC7`.
+3. Look through the results for your image. It is upside down.
+4. Read the file name, which looks like `<hash>-BC7_UNORM.dds`. The start is the hash. The end is the format.
+5. Copy the file into your mod folder and give it a clear name, like `KafkaPortrait.dds`.
+
+Keep the exact width and height of the file you found.
+
+If `deduped` holds no `.dds` file of your image, the dump did not save it as DDS. Add `dds` to the dump options for that image, as the frame dump guide shows, and dump again.
+
+{/* NEEDS HANDS-ON TEST: whether a plain F8 dump with SRMI 2.4.3's shipped analyse_options (no dds option, jps_dds default) saves Honkai: Star Rail BC7 UI textures as <hash>-<FORMAT>.dds in deduped, or only as .jpg, so that this step needs the targeted dds dump */}
+
+</Step>
+<Step>
+
+### Edit the image
+
+1. Open the copied `.dds` in Paint.NET.
+2. Flip your own art vertically with <MenuPath path="Image > Flip Vertical" />, then paste it in. The file must stay upside down.
+3. Keep the alpha: transparent corners and edges must stay transparent.
+4. Save in the format from the file name: `BC7_UNORM` is `BC7 (Linear, DX 11+)`, `BC7_UNORM_SRGB` is `BC7 (sRGB, DX 11+)`. Tick **Generate Mip Maps**.
+
+Many guides say every UI image is Linear. Follow the file name instead: it is always right. [Save DDS textures the right way](/docs/honkai-star-rail/textures/save-dds-files) has every option.
+
+</Step>
+<Step>
+
+### Write the .ini
+
+Add one pair of sections per image. Put in the hash from your file name, and your own file name:
+
+```ini
+[TextureOverrideKafkaPortrait]
+hash = <hash from the file name>
+this = ResourceKafkaPortrait
+
+[ResourceKafkaPortrait]
+filename = KafkaPortrait.dds
+```
+
+The hash is the 8 characters before the dash. Never write a note after the hash on the same line. Each section name must be unique in the file.
+
+<Files>
+  <Folder name="Mods" defaultOpen>
+    <Folder name="KafkaIcons" defaultOpen>
+      <File name="KafkaIcons.ini" />
+      <File name="KafkaPortrait.dds" />
+      <File name="KafkaIcon.dds" />
+    </Folder>
+  </Folder>
+</Files>
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check on Honkai: Star Rail 4.7 that a hash and this = override replaces a character icon or portrait */}
+
+</Step>
+<Step>
+
+### Test it
+
+1. Press `F10` in game.
+2. Open each screen and check your art. It should be the right way up.
+3. Untick **Enable Hunting** when you are done.
+
+</Step>
+</Steps>
+
+## Phone wallpapers
+
+One guide, from 2024, covers a phone wallpaper for one background. Its settings:
+
+- The image is 1320x2048.
+- It is flipped vertically, like every Star Rail UI image.
+- It is saved as `BC7 (Linear, DX 11+)`.
+
+Other backgrounds may use another size or format. Read both from your own dump.
+
+<img
+  src="/wiki-images/honkai-star-rail-ui-replace-icons-2.webp"
+  alt="The Paint.NET DDS Save Configuration window set to BC7 (Linear, DX 11+), with a preview of a flipped phone wallpaper and Generate Mip Maps unticked"
+/>
+
+The screenshot shows **Generate Mip Maps** off. Tick it, as for every texture.
+
+{/* NEEDS HANDS-ON TEST: the phone wallpaper size and format on Honkai: Star Rail 4.7, from a guide written in 2024 */}
+
+## Light cone art
+
+Light cone cards use 904x1260 images. A generator builds the mod from your image or video. It was not tested for this guide.
+
+<ToolCard
+  name="Light Cone Generator"
+  href="https://gamebanana.com/tools/19147"
+  icon={<Icon name="GameBanana" />}
+>
+  By bruhaintnowayy. Builds a light cone art mod from an image or a video. Its
+  hash list needs an update after major game updates.
+</ToolCard>
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="My art is upside down in game" id="upside-down">
+
+The file was saved the normal way up. Flip it vertically and save again.
+
+</Accordion>
+<Accordion title="Nothing changed" id="nothing-changed">
+
+Check the hash and the `filename =` line. Make sure no other mod for that image is on. If the hash is right and nothing shows, the game may not check that texture on this screen. Hunt the pixel shader that draws the image, then add `checktextureoverride = ps-t0` in a `[ShaderOverride...]` section with that shader's hash.
+
+{/* NEEDS HANDS-ON TEST: whether any Honkai: Star Rail 4.7 UI image needs the checktextureoverride line */}
+
+</Accordion>
+<Accordion title="Colors look too dark or washed out" id="wrong-colors">
+
+The file was saved as sRGB when the original was Linear, or the other way round. Check the end of the dumped file name and save again.
+
+</Accordion>
+<Accordion title="Error text after F10" id="error-text">
+
+SRMI could not load the file. Check the file name, and keep the original width and height. SRMI hides warnings by default: untick **Mute Warnings** in the SRMI tab to see them.
+
+</Accordion>
+<Accordion title="The image broke after a game update" id="after-update">
+
+UI hashes can change with an update. Dump the screen again and put the new hash in your `.ini`.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Your first mod: recolor a character"
+    href="/docs/honkai-star-rail/textures/recolor-a-character"
+    icon={<Icon name="Palette" />}
+    level="beginner"
+  >
+    Change the colors of a character's outfit or hair.
+  </PremiumCard>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/honkai-star-rail/publishing/publishing-checklist"
+    icon={<Icon name="Package" />}
+    level="beginner"
+  >
+    Pack your icon mod with the right files and credits.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Custom Cellphone Background Tutorial](https://gamebanana.com/tuts/17293) by kenzium.
+- **Guide:** [3DMigoto Hunting & Dumping Tutorial](https://leotorrez.github.io/modding/guides/hunting) by Satan1c.
+- **Tool:** [Light Cone Generator](https://gamebanana.com/tools/19147) by bruhaintnowayy.
+- **Images:** the DDS save screenshot from [Custom Cellphone Background Tutorial](https://gamebanana.com/tuts/17293) by kenzium.

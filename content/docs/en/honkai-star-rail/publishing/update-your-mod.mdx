@@ -1,0 +1,205 @@
+---
+title: "Update your mod after a game update"
+description: "A Honkai: Star Rail update broke your mod? See what changed, fix hashes or the format from your .blend, test the scenes that break mods, and share the fix."
+category: "publishing"
+patch: "4.7"
+keywords:
+  [
+    "update star rail mod",
+    "star rail mod broke after update",
+    "new hashes",
+    "srmi update",
+    "rebuild mod",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+A game update broke a mod you made. This guide shows how to find what changed, fix it from your own files, test it, and share the fixed version. It is written for creators. Fixing a mod you downloaded is a player task with its own guide, linked in the next section.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Blender" note="the file you exported from">
+    Your .blend file
+  </Requirement>
+  <Requirement
+    icon="Box"
+    href="/docs/honkai-star-rail/tools/blender-add-on"
+    note="newest version"
+  >
+    XXMI Tools
+  </Requirement>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/honkai-star-rail/tools/xxmi-launcher"
+    note="updated SRMI"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement
+    icon="GitHub"
+    href="https://github.com/SilentNightSound/SR-Model-Importer-Assets"
+    note="or your own new dump"
+  >
+    The current original files
+  </Requirement>
+</Requirements>
+
+## Rule out the player side first
+
+Many "my mod broke" reports are not about the mod at all. Before you change anything, run the player checks in [Fix your mods after a game update](/docs/honkai-star-rail/getting-started/fix-mods-after-an-update). In short:
+
+1. **SRMI is up to date.** Open XXMI Launcher and let it update. The in-game banner shows the version, such as `SRMI 2.4.3`. SRMI updates often come within a day or two of a game update.
+2. **Character Quality is High** in the game's graphics settings. Some mods look unmodded on lower settings.
+3. **Your mod is the only one for that character,** and the `Mods` folder holds one copy of RabbitFX. Turn the others off and press `F10`.
+
+Still broken? Then the update changed something your mod depends on. Keep a zipped copy of the broken version before you start.
+
+## What updates break in Star Rail
+
+Honkai: Star Rail updates break mods often, in a few different ways. Each needs a different fix.
+
+| What you see                                               | What changed                             | Fix                                   |
+| ---------------------------------------------------------- | ---------------------------------------- | ------------------------------------- |
+| Your mod does not show, or the character turns into spikes | The character got new hashes             | [New hashes](#new-hashes)             |
+| Spikes on every character after a big update               | The game changed how it poses characters | [A changed format](#a-changed-format) |
+| A glitch only when two copies of the model are on screen   | Your `.ini` uses the first 3.2 format    | [A changed format](#a-changed-format) |
+| Wrong textures on low settings or in new maps              | The game moved its texture slots         | [Texture slots](#texture-slots)       |
+| Black or exploding characters for Intel players only       | Intel cards use the older draw path      | [A changed format](#a-changed-format) |
+
+Dates that matter, newest first:
+
+- **4.7 (2026-11-11):** as of November 19, 2026, nobody has reported a break.
+- **4.6 (2026-09-28):** Robin Summeretto mods broke. SRMI 2.4.3 came out shortly before.
+- **4.4 (2026-07-15):** Sparxie mods broke.
+- **4.2 (2026-04-22):** new skinning shaders and a new position layout. SRMI 2.4.0 followed the next day. Stelle mods needed a fix.
+- **4.1 (2026-03-25):** the game changed how it binds index buffers. SRMI 2.3.0 fixed it for every mod at once.
+- **3.7 (2025-11-05):** a hotfix about a day later made Intel graphics cards draw characters the older way.
+- **3.4 and 3.5 (2025):** the game moved its texture slots. Mods with `ps-t` slot lines broke.
+- **June 2025:** SRMI 2.1.0 replaced the first 3.2 format. `.ini` examples with `DrawCS` are out of date.
+- **3.2 (2025-04-09):** the game moved character posing to compute shaders. Every character mod made before it broke. Guides older than April 2025 are wrong for character mods.
+
+## Find what changed
+
+<img
+  src="/wiki-images/honkai-star-rail-publishing-update-your-mod-1.webp"
+  alt="The SRMI-Package releases page on GitHub, showing release v2.4.3 with the note Added Multi1VGs_24 skinning path"
+/>
+
+1. Read the [SRMI-Package release notes](https://github.com/SpectrumQT/SRMI-Package/releases). Each release says what it adds, such as `Added new skinning shaders for HSR 4.2` in v2.4.0. Checked on 2026-11-24: the newest release is v2.4.3.
+2. Read [sora\_'s 4.x fixes](https://gamebanana.com/mods/671436). Each script there is named after the character and the version that broke it, such as Sparxie for 4.4.
+3. Wait a few days if only some characters break. Fixes for the importer and for single characters often follow in the days after an update.
+
+## Update your tools
+
+1. Open XXMI Launcher. It updates SRMI when it starts.
+2. Update XXMI Tools in Blender to the newest version. This guide was written for 1.8.2.
+3. Get the current original files for your character. The asset repo stops at version 3.8. Characters and outfits from 4.0 on are in the [Astute4533 copy](https://github.com/Astute4533/SR-Model-Importer-Assets). Neither repo always has the newest hashes, so after an update make a new dump. [Make a frame dump](/docs/honkai-star-rail/basics/frame-dump) shows how.
+
+## Fix the mod
+
+### New hashes
+
+The character's data got new fingerprints, so SRMI no longer finds your mod's sections. Pick one way:
+
+- **Export again.** Keep the new folder's name the same as the old one. In the XXMI Tools panel, set **Dump Folder** to the new folder and click **Export Mod**. The export reads the hashes from the new `hash.json`.
+- **Replace the hashes by hand.** Open the old and new `hash.json` side by side. In your `.ini`, replace each old hash with the new one. Check the texture sections too: an update can change Diffuse and LightMap hashes.
+- **Run that character's fix script on a copy** of your mod, then compare the copy's `.ini` with yours to see which lines it changed.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check that XXMI Tools 1.8.2 writes the new hashes when a .blend imported from an old Honkai: Star Rail dump is exported with Dump Folder set to the new dump folder */}
+
+If the update also changed the mesh itself, the vertex count or the weights, new hashes are not enough. Import the new dump and move your edits onto the new objects.
+
+### A changed format
+
+When the game changes how it poses characters, as in 3.2 and 4.2, update XXMI Tools and export again from your `.blend`. The current export writes the format SRMI expects today:
+
+- both draw branches, `if DRAW_TYPE == 1` for Intel cards and `elif DRAW_TYPE == 8` for the rest,
+- `$\SRMI\vertex_count` and `override_vertex_count`, with `override_byte_stride = 40` and `uav_byte_stride = 4`,
+- no `DrawCS`, `$\SRMI\vertcount` or `$_blend_` lines, which glitch when two copies of the model are on screen.
+
+A finished mod cannot be imported back into Blender, so the `.blend` is your only way to rebuild. Without it, run the fix tools on a copy: Another v3.3 HSR Fix for a mod made before 3.2, and the Pipeline Convert Fix for a mod in the first 3.2 format. [Fix an old mod by hand](/docs/honkai-star-rail/ini/fix-an-old-mod) shows the same changes line by line.
+
+{/* NEEDS HANDS-ON TEST: which Honkai: Star Rail characters use the 56-byte position layout added in 4.2, and whether XXMI Tools 1.8.2 exports them correctly */}
+
+### Texture slots
+
+If your `.ini` binds textures with `ps-t` slot lines, the next slot move breaks it again. Bind each texture by its hash instead, with `hash =` and `this =`, as XXMI Tools writes. A `StockingMap` or `MaterialMap` also needs extra lines in the part's section: [What each texture map does](/docs/honkai-star-rail/textures/texture-maps) shows them.
+
+To stop texture hash changes from breaking your mod at all, see [Stable textures](/docs/honkai-star-rail/textures/stable-textures). Your mod then needs RabbitFX, so say so in your readme.
+
+## Test the risky moments
+
+A fix that looks right in the character screen can still break in action. Hide the character, press `F10`, bring it back, and check:
+
+1. The character screen, then running in the overworld and fighting a battle.
+2. The skill and the ultimate. Some animations use a second Position hash and explode on their own.
+3. A scene with two copies of the model on screen, such as Acheron's skill, The Herta's ultimate, or Tribbie with the other Tribbios.
+4. Low graphics settings, and a map that came with the update.
+5. Hold `F9` to compare with the original model.
+
+{/* NEEDS HANDS-ON TEST: whether these scenes still break modded Honkai: Star Rail characters on 4.7, and how a fixed mod looks on an Intel GPU */}
+
+## Share the fixed version
+
+1. Raise the version number, and add a line to the readme: `v1.1 (Honkai: Star Rail 4.7): new hashes for 4.7`.
+2. Change the "Tested on" line to the new game version and SRMI version.
+3. Say in the readme that this version needs no fix tool.
+4. Run the archive test from the publishing checklist again.
+5. Replace the old file in the same place you shared it first, not as a new mod. Players and mod managers look for updates there.
+6. Keep your `.blend` file and a copy of each version you shared.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The fixed mod still looks original" id="still-original">
+
+Some sections still hold old hashes, or the old version of your mod is still in `Mods`. Search the `.ini` for every old hash from `hash.json`. Keep only one copy of the mod in `Mods`, then press `F10`.
+
+</Accordion>
+<Accordion title="Players say the mod broke after they ran a fix tool" id="fixed-twice">
+
+A fix tool run on a mod that is already fixed, or run twice, can break it. In your readme, say the mod is fixed for the new version and needs no fix tool.
+
+</Accordion>
+<Accordion title="You lost your .blend file" id="lost-blend">
+
+XXMI Tools cannot import a finished mod. Hash fixes still work in the `.ini` by hand, and the fix tools can convert an old format. A changed mesh means you must rebuild the edit from a new import.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/honkai-star-rail/publishing/publishing-checklist"
+    icon={<Icon name="ListChecks" />}
+    level="beginner"
+    featured
+  >
+    Check the folder, the readme and the archive before you share the fix.
+  </PremiumCard>
+  <PremiumCard
+    title="Update fix tools"
+    href="/docs/honkai-star-rail/tools/update-fixers"
+    icon={<Icon name="Wrench" />}
+    level="beginner"
+  >
+    What each fix tool does, and how to spot a fake one.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **News:** [3.2 Star Rail Announcement (Modpocalypse)](https://gamebanana.com/news/21904) by SilentNightSound.
+- **Tool:** [SRMI-Package releases](https://github.com/SpectrumQT/SRMI-Package/releases) by SpectrumQT, with leotorrez, petrascyll, sora935 and Gustav0.
+- **Tool:** [Another v3.3 HSR Fix](https://gamebanana.com/tools/19559) by petrascyll and its key authors.
+- **Tool:** [Pipeline Convert Fix](https://gamebanana.com/tools/19978) by Gustav0\_, with a script by petrascyll.
+- **Tool:** [4.6 Fix Characters Mods](https://gamebanana.com/mods/671436) by sora\_.
+- **Tool:** [XXMI Tools](https://github.com/leotorrez/XXMITools) by LeoTorreZ and contributors.
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ and contributors.

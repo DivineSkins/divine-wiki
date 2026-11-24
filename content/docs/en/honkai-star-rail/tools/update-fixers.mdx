@@ -1,0 +1,208 @@
+---
+title: "Update fix tools"
+description: "Which tool fixes Honkai: Star Rail mods after a game update, in what order to run it, how to spot a fake fixer, and what no tool can fix."
+category: "tools"
+patch: "4.7"
+keywords:
+  [
+    "star rail mod fix",
+    "another v3.3 hsr fix",
+    "pipeline convert fix",
+    "star rail mods broken after update",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+<ToolHeader
+  name="Another v3.3 HSR Fix"
+  icon="GameBanana"
+  badge="Main fixer"
+  facts={["Free", "Windows exe or Python source", "Build 3.3D"]}
+  primary={{ label: "Download", href: "https://gamebanana.com/tools/19559" }}
+>
+  Updates old Honkai: Star Rail character mods to the format the game has used
+  since version 3.2. By petrascyll and its key authors.
+</ToolHeader>
+
+After a Honkai: Star Rail update, some mods stop working. Since version 3.2, most fixes arrive inside SRMI updates, which XXMI Launcher installs for you. For the rest, a few community tools help: one for old mods, one for a format change, and small scripts for single characters. This page explains which one each mod needs, how to make sure you have the real tool, and what no tool can fix.
+
+Written for Honkai: Star Rail 4.7 with SRMI 2.4.3. As of November 19, 2026, no break had been reported for version 4.7.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/honkai-star-rail/tools/xxmi-launcher"
+    note="updated"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="Archive">A zip backup of your Mods folder</Requirement>
+  <Requirement icon="Terminal" note="only for .py versions">
+    Python 3.10 or newer
+  </Requirement>
+</Requirements>
+
+## Most breaks need no tool
+
+Many "all my mods broke" moments fix themselves. Check these two things first:
+
+1. **SRMI is up to date.** Open XXMI Launcher and let it update. The game's load banner should read `SRMI 2.4.3 (PRESS F12 TO SHOW GUIDE)`. Fixed mods need SRMI 2.0.0 or newer, or every character shows only a floating head.
+2. **Character Quality is High.** Some mods stay unmodded on lower settings. Swap characters after you change it.
+
+Since 3.2, the SRMI team fixes changes in how the game draws characters inside SRMI itself. SRMI 2.3.0 fixed version 4.1, and SRMI 2.4.0 fixed the new skinning in 4.2. What SRMI cannot fix is a character whose hashes changed. Most versions change a few characters, and those need a script.
+
+## The Honkai: Star Rail fixers
+
+<ToolCard
+  name="Pipeline Convert Fix"
+  href="https://gamebanana.com/tools/19978"
+  icon={<Icon name="GameBanana" />}
+>
+  Converts mods from the first 3.2 format to the current one. Uploaded by
+  Gustav0_, script by petrascyll.
+</ToolCard>
+<ToolCard
+  name="4.6 Fix Characters Mods"
+  href="https://gamebanana.com/mods/671436"
+  icon={<Icon name="GameBanana" />}
+>
+  One small Python script per character that a 4.x update changed. By sora_.
+</ToolCard>
+<ToolCard
+  name="Mortenax Texcoord Updater"
+  href="https://github.com/failsafe42/modding-tools/tree/main/Mortenax-Texcoord-Updater"
+  badge="Untested"
+  icon={<Icon name="GitHub" />}
+>
+  A Python script that fixes Mortenax Blade mods after version 4.4. By
+  failsafe65.
+</ToolCard>
+
+| Tool                            | Run it when                                                                                                                                     | What it changes                                                                                                                                                                |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Another v3.3 HSR Fix** (3.3D) | The mod was made before 3.2 or 3.3, and it still looks stretched or unmodded after the SRMI update.                                             | Updates character mods from version 1.6 onward to the 3.2 format: hashes, sections, and buffers. Saves a backup named `DISABLED_BACKUP_<time>.<name>.ini` next to each `.ini`. |
+| **Pipeline Convert Fix**        | The mod was already updated for 3.2, and it glitches when two copies of the model are on screen, such as Acheron's skill or Tribbie's Tribbios. | Rewrites the first 3.2 format into the current one. For example, it renames the old vertex count line and adds `uav_byte_stride = 4`.                                          |
+| **sora\_'s 4.x scripts**        | One character broke in a 4.x update: Stelle (4.2), Sparxie (4.4), or Robin's Summeretto outfit (4.6).                                           | Fixes mods for that one character only.                                                                                                                                        |
+| **Mortenax Texcoord Updater**   | A Mortenax Blade mod breaks at the hair or face after 4.4.                                                                                      | Updates the hair and face hashes and converts their texcoord buffers to the new layout. It renames the old `.ini` and `.buf` files to timestamped `.bak` files first.          |
+
+{/* NEEDS HANDS-ON TEST: MortenaxTexcoordUpdater.py on a pre-4.4 Mortenax Blade mod with SRMI 2.4.3. Reading its code suggests it needs Python 3.12 or newer. */}
+
+The v3.3 fix mainly covers playable characters. It also does not fix a mod that was already edited by hand or by another script.
+
+## Run them in this order
+
+1. Back up: zip your whole `Mods` folder.
+2. Update the game, then let XXMI Launcher update SRMI. Set **Character Quality** to **High**.
+3. Press `F10` in game and see which mods are still broken.
+4. Run Another v3.3 HSR Fix on old mods only. Put `hsr_fix33d.exe` in the broken mod's folder and run it. It fixes that folder and every folder inside it.
+5. Run the Pipeline Convert Fix only on mods that glitch with two copies on screen. Put it in that mod's folder, not in the main `Mods` folder.
+6. Run sora\_'s script, or the Mortenax script, only on mods for the character it names.
+7. Press `F10` and test again.
+
+{/* NEEDS HANDS-ON TEST: run hsr_fix33d.exe inside one broken pre-3.2 mod folder with SRMI 2.4.3 on Honkai: Star Rail 4.7, and confirm it fixes that mod and leaves other folders alone. Also confirm how sora_'s per-character scripts are run (folder, command, Python version). */}
+
+Three rules keep this from going wrong:
+
+- **Use only the newest fixer.** The Pipeline Convert Fix author warns that an outdated copy breaks every mod.
+- **Fix only broken mods.** Running a fixer on working mods can cause conflicts.
+- **Never run a fixer twice** on the same mod. Start again from your backup instead.
+
+If you use a mod manager that edits `.ini` files, restore your mods in it first. Fix them, then add them back.
+
+## What no tool can fix
+
+- **Every 4.x character at once.** No all-character fixer has come out since the v3.3 fix in June 2025. Each 4.x break gets its own small script, or none.
+- **NPC, enemy, and weapon mods.** The fix scripts mostly cover playable characters.
+- **Complex and merged mods.** Scripts often miss parts of them. Expect a fix by hand or a creator update.
+- **Textures tied to slot numbers.** Some older mods show wrong textures on low settings or in new maps. The creator must move them to hash-based textures or to [stable textures](/docs/honkai-star-rail/textures/stable-textures).
+- **Old mods on Intel graphics.** Since a hotfix after 3.7, Intel cards need a draw branch that only current XXMI Tools exports write. The creator must export the mod again.
+
+If a tool cannot fix a mod, check the mod's page for an update from its creator. Creators who fix their own mods use [Update your mod after a game update](/docs/honkai-star-rail/publishing/update-your-mod).
+
+## Spot a fake fixer
+
+<Callout type="danger" title="Fake fixers have carried malware">
+
+In September 2025, after Genshin Impact 6.0, a new account uploaded a fake copy of a well-known Genshin fix tool under the real title. Its script asked for admin rights and downloaded a malicious program. Fake fixers show up after game updates, when players are in a hurry.
+
+</Callout>
+
+Before you run any fixer, check:
+
+1. **The link.** Use the links on this page, or the one in the SRMI team's news post for that version. Not a link from a video comment or a search result.
+2. **The author.** The real v3.3 page lists petrascyll as the author, with LeoMods\_, SinsOfSeven, SilentNightSound, Gustav0\_, SpectrumQT and sora\_ as key authors. It has a long update log and about 190,000 downloads.
+
+{/* SCREENSHOT: honkai-star-rail-tools-update-fixers-1.webp, the header of gamebanana.com/tools/19559 with the title "Another v3.3 HSR Fix", the key authors and the download count. Close the privacy pop-up first. */}
+
+3. **The checksum.** GameBanana shows an MD5 checksum and a scan result for each file. Compare the MD5 of your download with it.
+4. **The source.** Prefer the version you can read, such as the `.py` script or source `.zip`. For sora\_'s fixes, use the `.py` files on GameBanana.
+
+Red flags: a "fix" that replaces `d3d11.dll` or other XXMI files, asks for admin rights, comes in a password-protected archive, or comes from a new account with one upload. Also a "fix" that appears before the community has announced one.
+
+Antivirus apps sometimes flag the `.exe` versions of real fixers, because they rewrite many files at once. Use the `.py` version of the tool instead. Never turn your antivirus off.
+
+## Tools to skip
+
+| Skip this                                         | Why                                                                                                                    |
+| ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Fix pages for 2.x and 3.0                         | Outdated. The v3.3 fix includes all of them.                                                                           |
+| Any old fixer version                             | It breaks mods that a newer fixer already fixed.                                                                       |
+| Universal HSR Mod Fixer                           | Not recommended. It downloads its code from the internet each time it runs, so what it does can change without notice. |
+| The slot-to-RabbitFX converter                    | Not from a trusted fix author. Creators should move textures by hand.                                                  |
+| The Intel compatibility script                    | Unofficial and untested. It also edits SRMI's `d3dx.ini`.                                                              |
+| A `d3d11.dll` "fix" from anyone but XXMI Launcher | Real fixes never replace XXMI files.                                                                                   |
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Every character is a floating head" id="floating-heads">
+
+Your mods were fixed for 3.2, but SRMI is older than 2.0.0. Update XXMI Launcher. If the banner still shows an old version, click the 3-dots button next to **Start** and run **Repair SRMI**.
+
+</Accordion>
+<Accordion title="Every mod broke after I ran a fixer" id="all-broke">
+
+An outdated fixer, or a fixer run twice, can do this. Restore your `Mods` backup and follow the order above with the newest fixer.
+
+</Accordion>
+<Accordion title="The fixer says No changes have been applied" id="no-changes">
+
+The v3.3 fix found nothing it knows how to change, so it left the mod as it was. The break may be one that needs another tool from the table, or a creator update.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Fix your mods after a game update"
+    href="/docs/honkai-star-rail/getting-started/fix-mods-after-an-update"
+    icon={<Icon name="RefreshCw" />}
+    level="beginner"
+  >
+    The full player checklist for update day.
+  </PremiumCard>
+  <PremiumCard
+    title="Fix an old mod by hand"
+    href="/docs/honkai-star-rail/ini/fix-an-old-mod"
+    icon={<Icon name="Wrench" />}
+    level="intermediate"
+  >
+    Update an old mod's .ini yourself when a tool cannot.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This page is based on the work of these creators. Check out their original pages and tools.
+
+- **Tool:** [Another v3.3 HSR Fix](https://gamebanana.com/tools/19559) by petrascyll and its key authors.
+- **Tool:** [Pipeline Convert Fix](https://gamebanana.com/tools/19978) by Gustav0\_ and petrascyll.
+- **Tool:** [4.6 Fix Characters Mods](https://gamebanana.com/mods/671436) by sora\_.
+- **Tool:** [Mortenax Texcoord Updater](https://github.com/failsafe42/modding-tools/tree/main/Mortenax-Texcoord-Updater) by [failsafe65](https://discord.com/users/317448503226007554), shared in the [AGMG Discord](https://discord.gg/agmg).
+- **News:** [3.2 Star Rail Announcement](https://gamebanana.com/news/21904) by SilentNightSound.
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ and contributors.

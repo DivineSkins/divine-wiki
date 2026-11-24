@@ -1,0 +1,283 @@
+---
+title: "Fix your mods after a game update"
+description: "Get Honkai: Star Rail mods working again after an update: back up, update SRMI, and run the right fix tool only on the mods that broke."
+category: "getting-started"
+patch: "4.7"
+keywords:
+  [
+    "star rail mods broken",
+    "hsr mod fix",
+    "another v3.3 hsr fix",
+    "pipeline convert fix",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+Honkai: Star Rail updates break mods more often than most games. A new version comes out about every six weeks, and almost every one breaks a few characters. This page shows what to do, in order, so you fix the broken mods without breaking the ones that still work. Written for Honkai: Star Rail 4.7 with SRMI 2.4.3.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/honkai-star-rail/getting-started/install-with-xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="FileArchive" note="such as 7-Zip">
+    An archive tool
+  </Requirement>
+  <Requirement icon="Terminal" note="3.10 or newer, needed for some fixes">
+    Python
+  </Requirement>
+</Requirements>
+
+Python runs the readable source version (`.py`) of the fix tools. Some Star Rail fixes come only as `.py` files.
+
+## The order to follow
+
+<img
+  src="/wiki-images/honkai-star-rail-getting-started-fix-mods-after-an-update-1.webp"
+  alt="Six steps in a row: back up Mods, update XXMI Launcher, run the v3.3 HSR Fix on old mods, run Pipeline Convert on mods that glitch with two copies, run sora_'s script for one changed character, then wait for the creator"
+/>
+
+Many mods work again after step 2. Only use a fix tool when a mod is still broken after it.
+
+## What usually breaks in Honkai: Star Rail
+
+Star Rail updates break mods in three ways:
+
+- **The game changes a character's hashes.** Hashes are the fingerprints a mod uses to find a character. The mod stops finding it, so you see the original look or a mess of stretched spikes. Most versions change a few characters.
+- **The game changes how it draws characters.** The SRMI team fixes this in SRMI itself, and XXMI Launcher installs the fix for you. Examples: SRMI 2.3.0 for version 4.1, and SRMI 2.4.0 for the new skinning in 4.2.
+- **The game moves texture slots.** Mods that tie textures to slot numbers show wrong textures, often on low settings or in new maps.
+
+The last big change was version 3.2, on April 9, 2025. It changed how the game poses every character, and it broke every character mod. Players call it the "modpocalypse". Guides older than April 2025 are wrong for character mods. A second change in June 2025 replaced the first 3.2 mod format, so `.ini` examples with `DrawCS` are out of date too.
+
+As of November 19, 2026, no break has been reported for version 4.7.
+
+| What you see                                                                | Likely cause                                      | What to do                                                    |
+| --------------------------------------------------------------------------- | ------------------------------------------------- | ------------------------------------------------------------- |
+| Characters show only a floating head                                        | SRMI is older than 2.0.0                          | Update (step 2)                                               |
+| Stretched spikes, or the original look                                      | The mod is from before 3.2, or the hashes changed | Another v3.3 HSR Fix for old mods, or sora\_'s script for 4.x |
+| Glitches only when two copies are on screen, such as during Acheron's skill | The mod uses the first 3.2 format                 | Pipeline Convert Fix, for that mod only                       |
+| The mod loads, but the character looks unmodded                             | Character Quality is too low                      | Set it to **High** (step 3)                                   |
+| Wrong textures or black patches on low settings or in new maps              | The mod ties textures to slot numbers             | Raise your graphics settings, or wait for the creator         |
+| A character turns pink during skills                                        | Your RabbitFX is out of date                      | Replace it with the current version                           |
+
+## Fix your mods
+
+<Steps>
+<Step>
+
+### Back up your Mods folder before the update
+
+1. Open `%AppData%\XXMI Launcher\SRMI\Mods`.
+2. Zip the whole folder with your archive tool.
+3. Keep the zip outside the `Mods` folder.
+
+Fix tools change model files that you cannot undo by hand. The zip is your way back, and it gives you fresh, unfixed copies.
+
+</Step>
+<Step>
+
+### Update the game, then XXMI Launcher
+
+1. Update Honkai: Star Rail in HoYoPlay or Epic Games. XXMI Launcher does not update the game.
+2. Open XXMI Launcher. It checks for updates when it starts and offers to install new versions of SRMI.
+3. To check by hand, click the 3-dots button next to **Start**, then **Check For Updates**.
+4. Check the version in the bottom-left corner, for example `SRMI 2.4.3`.
+
+For Star Rail, the SRMI update is required: fixed mods do not work with an old SRMI. SRMI updates often come out within a day or two of a game update. Open the launcher again a few days later to get any follow-up fixes.
+
+{/* NEEDS HANDS-ON TEST: the exact update prompt XXMI Launcher 2.5.0 shows when a new SRMI version is out, and whether it installs it without asking. */}
+
+</Step>
+<Step>
+
+### Check Character Quality
+
+1. Start the game with **Start** in XXMI Launcher.
+2. Open the graphics settings.
+3. Check that **Character Quality** is **High**.
+
+Some mods stay unmodded until this is on High. Swap characters or teleport after you change it, so the model reloads.
+
+</Step>
+<Step>
+
+### Test your mods
+
+1. Switch to a different character so the modded one is off screen.
+2. Press `F10` to reload.
+3. Switch back and check each modded character.
+
+Write down which mods are still broken. Only those need a fix tool.
+
+</Step>
+<Step>
+
+### Run one fix tool on the broken mods only
+
+<Callout type="warning" title="Get fix tools only from these pages">
+  Fake fixers carrying malware have been uploaded after game updates. Download
+  only from the GameBanana pages below. Never use a "fix" that replaces
+  `d3d11.dll`, asks for admin rights, or comes in a password-protected archive.
+</Callout>
+
+<Tabs items={["Old mods: v3.3 HSR Fix", "Two copies: Pipeline Convert", "One character: sora_'s scripts"]}>
+<Tab value="Old mods: v3.3 HSR Fix">
+
+<ToolCard
+  name="Another v3.3 HSR Fix"
+  href="https://gamebanana.com/tools/19559"
+  icon={<Icon name="GameBanana" />}
+>
+  By petrascyll. Updates character mods from version 1.6 onward to the 3.2 and
+  3.3 format.
+</ToolCard>
+
+Use it on mods made before 3.2 or 3.3 that look stretched or unmodded after step 2.
+
+1. Download `hsr_fix33d.exe`, or the source `.zip` if you have Python 3.10 or newer.
+2. Make a copy of the broken mod's folder outside `Mods`.
+3. Put the fix inside the broken mod's folder.
+4. Run it. It fixes that folder and every folder inside it.
+5. Delete the fix from the mod folder.
+6. Press `F10` in game and check the character.
+
+It saves a backup file that starts with `DISABLED_BACKUP_` next to each `.ini`. If it cannot fix a file, it says `No changes have been applied` and leaves the mod as it was. It mainly covers playable characters: mods for NPCs, enemies and weapons often stay broken.
+
+{/* NEEDS HANDS-ON TEST: run hsr_fix33d.exe inside one broken pre-3.2 mod folder with SRMI 2.4.3 on Honkai: Star Rail 4.7, and confirm it fixes that mod and leaves other folders alone. */}
+
+</Tab>
+<Tab value="Two copies: Pipeline Convert">
+
+<ToolCard
+  name="Pipeline Convert Fix"
+  href="https://gamebanana.com/tools/19978"
+  icon={<Icon name="GameBanana" />}
+>
+  Uploaded by Gustav0_, script by petrascyll. Converts mods from the first 3.2
+  format to the current one.
+</ToolCard>
+
+Use it only on mods already updated for 3.2 that glitch when two copies of the same model are on screen. Known cases: Acheron during her skill, The Herta during her ultimate, Tribbie when the other Tribbios appear, and a character next to their NPC version.
+
+1. Make a copy of the affected mod's folder outside `Mods`.
+2. Put the tool inside that mod's folder, not in the main `Mods` folder.
+3. Run it, then delete it from the mod folder.
+4. Press `F10` in game and check the character.
+
+The tool's author warns that an outdated version of it breaks every mod. Always take the current file from its page.
+
+</Tab>
+<Tab value="One character: sora_'s scripts">
+
+<ToolCard
+  name="4.6 Fix Characters Mods"
+  href="https://gamebanana.com/mods/671436"
+  icon={<Icon name="GameBanana" />}
+>
+  By sora_. One small Python script per character that a 4.x update changed.
+</ToolCard>
+
+Since 3.2, most fixes arrive as SRMI updates. When an update changes one character, sora\_ releases a script for that character only. The page has scripts for Stelle (4.2), Sparxie (4.4) and Robin's Summeretto outfit (4.6).
+
+1. Make a copy of the broken mod's folder outside `Mods`.
+2. Download the `.py` script for that character from the page. You need Python.
+3. Run it as the page explains, once, on the unfixed mod.
+4. Press `F10` in game and check the character.
+
+{/* NEEDS HANDS-ON TEST: how sora_'s per-character scripts are run (folder, command), and whether they need a specific Python version. The notes only say: run each once, on unfixed mods, with a backup. */}
+
+</Tab>
+</Tabs>
+
+Run each tool once per mod. Running a tool twice, or an older tool after a newer one, can break the mod for good. If that happens, restore the mod from your copy and start again. No single tool fixes every character for the 4.x versions.
+
+Antivirus programs sometimes flag the `.exe` versions of fix tools, because they rewrite many files at once. That is one more reason to use the `.py` version when you can.
+
+</Step>
+<Step>
+
+### Still broken? Wait for the creator
+
+Some breaks no script can fix. Check the page where you got the mod for an update, and give creators a few days after a big update.
+
+To find which mod breaks things:
+
+1. Turn off half of your mods with the `DISABLED` prefix.
+2. Press `F10` and check whether the problem is still there.
+3. Keep halving the group that has the problem until one mod is left.
+
+</Step>
+</Steps>
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Every character is a floating head" id="floating-heads">
+
+Your mods were fixed for 3.2, but SRMI is older than 2.0.0. Update XXMI Launcher and check that the version in game is `SRMI 2.4.3` or newer. If it is not, click the 3-dots button next to **Start** and run **Repair SRMI**.
+
+</Accordion>
+<Accordion title="Mods are broken only on an Intel graphics card" id="intel-gpu">
+
+Since a hotfix after version 3.7, Intel graphics cards draw characters the older way. The mod needs both draw branches that current XXMI Tools exports write. Ask the creator to export the mod again with current XXMI Tools.
+
+{/* NEEDS HANDS-ON TEST: on an Intel integrated or Arc GPU with SRMI 2.4.3, confirm that a mod exported with XXMI Tools 1.8.2 shows correctly and that an older mod without the DRAW_TYPE == 1 branch breaks. */}
+
+</Accordion>
+<Accordion title="The world turns black after an update" id="black-world">
+
+This is a bug, reported once after 4.4. The cause is not known. Remove any files you added to `SRMI\ShaderFixes`, run **Repair SRMI** from the 3-dots button, then use the halves method above to find the mod that causes it.
+
+{/* NEEDS HANDS-ON TEST: reproduce the 4.4 "world turns black" report and confirm which mod or shader file causes it. */}
+
+</Accordion>
+<Accordion title="Someone shared a new d3d11.dll that fixes everything" id="random-dll">
+
+Never use it. SRMI and the XXMI DLL come only through XXMI Launcher. A loader file from anywhere else can carry malware.
+
+</Accordion>
+<Accordion title="I use a mod manager" id="mod-manager">
+
+Some managers edit mod `.ini` files. Use the manager's restore option on a mod before you run a fix tool on it.
+
+</Accordion>
+</Accordions>
+
+If you make mods yourself, [Update your mod after a game update](/docs/honkai-star-rail/publishing/update-your-mod) covers the creator side.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Mods look broken"
+    href="/docs/honkai-star-rail/errors/mods-look-broken"
+    icon={<Icon name="TriangleAlert" />}
+    level="beginner"
+  >
+    Match what you see in game to its cause and fix.
+  </PremiumCard>
+  <PremiumCard
+    title="Update fix tools"
+    href="/docs/honkai-star-rail/tools/update-fixers"
+    icon={<Icon name="Wrench" />}
+    level="intermediate"
+  >
+    Every fix tool for Honkai: Star Rail, and how to tell real ones from fakes.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **News:** [3.2 Star Rail Announcement](https://gamebanana.com/news/21904) by SilentNightSound.
+- **Tool:** [Another v3.3 HSR Fix](https://gamebanana.com/tools/19559) by petrascyll and its key authors.
+- **Tool:** [Pipeline Convert Fix](https://gamebanana.com/tools/19978) by Gustav0\_ and petrascyll.
+- **Tool:** [4.6 Fix Characters Mods](https://gamebanana.com/mods/671436) by sora\_.
+- **Tool:** [SRMI-Package releases](https://github.com/SpectrumQT/SRMI-Package/releases) by SpectrumQT and the SRMI maintainers.
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ.
