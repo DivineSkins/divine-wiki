@@ -13,6 +13,26 @@ import gamesIndex from "./draft/games-index.json";
 export const GAMES = [
   { slug: "lol", name: "League of Legends", cover: "/brand/games/lol.webp" },
   { slug: "deadlock", name: "Deadlock", cover: "/brand/games/deadlock.webp" },
+  {
+    slug: "genshin-impact",
+    name: "Genshin Impact",
+    cover: "/brand/games/genshin-impact.webp",
+  },
+  {
+    slug: "honkai-star-rail",
+    name: "Honkai: Star Rail",
+    cover: "/brand/games/honkai-star-rail.webp",
+  },
+  {
+    slug: "zenless-zone-zero",
+    name: "Zenless Zone Zero",
+    cover: "/brand/games/zenless-zone-zero.webp",
+  },
+  {
+    slug: "wuthering-waves",
+    name: "Wuthering Waves",
+    cover: "/brand/games/wuthering-waves.webp",
+  },
 ] as const;
 
 export type Game = (typeof GAMES)[number];
@@ -22,7 +42,13 @@ export type Game = (typeof GAMES)[number];
  * sidebar hides the language picker on their pages, since every locale would
  * show the same English text. Remove a slug once its translations land.
  */
-export const ENGLISH_ONLY_GAMES: ReadonlySet<string> = new Set(["deadlock"]);
+export const ENGLISH_ONLY_GAMES: ReadonlySet<string> = new Set([
+  "deadlock",
+  "genshin-impact",
+  "honkai-star-rail",
+  "zenless-zone-zero",
+  "wuthering-waves",
+]);
 
 /** Where a new draft goes when nothing names a game. */
 export const DEFAULT_GAME = "lol";

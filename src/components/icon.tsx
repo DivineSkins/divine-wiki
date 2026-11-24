@@ -8,6 +8,10 @@ import {
   YouTubeLogo,
   LeagueOfLegendsLogo,
   DeadlockLogo,
+  GenshinImpactLogo,
+  HonkaiStarRailLogo,
+  ZenlessZoneZeroLogo,
+  WutheringWavesLogo,
   FlintLogo,
   JadeLogo,
   QuartzLogo,
@@ -26,6 +30,8 @@ import {
   Source2ViewerLogo,
   DeadlockModManagerLogo,
   GrimoireLogo,
+  XXMILauncherLogo,
+  PaintNETLogo,
 } from "@/components/brand-logos";
 
 // Brand logos (Simple Icons) keyed by the names used in meta.json `icon`
@@ -43,6 +49,10 @@ const brandIcons = {
   Youtube: YouTubeLogo,
   LeagueOfLegends: LeagueOfLegendsLogo,
   Deadlock: DeadlockLogo,
+  GenshinImpact: GenshinImpactLogo,
+  HonkaiStarRail: HonkaiStarRailLogo,
+  ZenlessZoneZero: ZenlessZoneZeroLogo,
+  WutheringWaves: WutheringWavesLogo,
   Flint: FlintLogo,
   Jade: JadeLogo,
   Quartz: QuartzLogo,
@@ -63,6 +73,8 @@ const brandIcons = {
   Source2Viewer: Source2ViewerLogo,
   DeadlockModManager: DeadlockModManagerLogo,
   Grimoire: GrimoireLogo,
+  XXMILauncher: XXMILauncherLogo,
+  PaintNET: PaintNETLogo,
 };
 
 /**

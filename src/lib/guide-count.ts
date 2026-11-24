@@ -1,16 +1,21 @@
-import { source } from "@/lib/source";
+import { SHARED_SECTIONS, source } from "@/lib/source";
 import { GAMES, type GameEntry, type GameStatusLabels } from "@/lib/games";
 
 /**
  * English guides in a game segment. Index pages don't count: the segment's own
  * landing (`<slug>`) and each category landing (`<slug>/<category>`) sit at
- * depth 1 and 2, so a guide is anything deeper.
+ * depth 1 and 2, so a guide is anything deeper. Shared sections (contributing)
+ * are mounted in every game but aren't its guides, so they don't count either.
  */
 export function countGuides(slug: string): number {
   return source
     .getPages()
     .filter(
-      (p) => p.locale === "en" && p.slugs[0] === slug && p.slugs.length > 2,
+      (p) =>
+        p.locale === "en" &&
+        p.slugs[0] === slug &&
+        p.slugs.length > 2 &&
+        !SHARED_SECTIONS.includes(p.slugs[1]),
     ).length;
 }
 

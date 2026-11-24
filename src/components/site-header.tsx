@@ -66,6 +66,18 @@ const MENU_ITEM = menuItemClassName({
 const GAME_GLYPHS: Record<string, { src: string; size: string }> = {
   lol: { src: "/brand/games/lol-glyph.svg", size: "100%" },
   deadlock: { src: "/brand/games/deadlock-glyph.svg", size: "69.14%" },
+  "genshin-impact": {
+    src: "/brand/games/genshin-impact-glyph.svg",
+    size: "100%",
+  },
+  "zenless-zone-zero": {
+    src: "/brand/games/zenless-zone-zero-glyph.svg",
+    size: "100%",
+  },
+  "wuthering-waves": {
+    src: "/brand/games/wuthering-waves-glyph.svg",
+    size: "100%",
+  },
 };
 
 function GameIcon({ game }: { game: GameEntry }) {
