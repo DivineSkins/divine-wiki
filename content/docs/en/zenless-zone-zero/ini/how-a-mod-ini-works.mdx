@@ -1,0 +1,309 @@
+---
+title: "How a mod .ini works"
+description: "Read any Zenless Zone Zero mod .ini: sections, Blend and index buffer hashes, SlotFix texture lines and keys, and how to edit a line without breaking the mod."
+category: "ini"
+patch: "3.3"
+keywords:
+  ["zzz mod ini", "zzmi ini", "textureoverride", "slotfix", "xxmi tools"]
+---
+
+<LevelPill level="intermediate" />
+
+Every Zenless Zone Zero mod runs on a `.ini` text file. It tells ZZMI which hashes to watch for, which files to load, and what to draw instead. This page teaches you to read one line by line, so you can change it without breaking the mod. Written for ZZMI 1.5.2 and XXMI Tools 1.8.2.
+
+<Accordions>
+<Accordion title="Coming from another game?">
+
+**From Genshin Impact.** Same language, same XXMI Tools. Zenless Zone Zero binds part textures through SlotFix, with `Resource\ZZMI\...` lines plus `run = CommandList\ZZMI\SetTextures`. There is no ORFix or NNFix. The mesh follows the Blend hash inside `DRAW_TYPE` branches, and part sections add `match_index_count`.
+
+**From Honkai: Star Rail.** Same XXMI Tools, and Blend sits in `vb2` too. Zenless Zone Zero binds textures by their role through SlotFix, not with `this =` per texture hash. There is no compute skinning branch (`DRAW_TYPE == 8`).
+
+**From Wuthering Waves.** XXMI Tools writes Zenless Zone Zero mods, not WWMI Tools. Parts match on the index buffer hash, not the VB0 hash. There is no `RegisterMod` line, and the on-screen flag is `$active`, not `$object_detected`.
+
+Other game sections: [Genshin Impact](/docs/genshin-impact), [Honkai: Star Rail](/docs/honkai-star-rail), [Wuthering Waves](/docs/wuthering-waves).
+
+</Accordion>
+</Accordions>
+
+## What you need
+
+<Requirements>
+  <Requirement icon="NotepadPlusPlus" note="or any editor that saves UTF-8">
+    A text editor
+  </Requirement>
+  <Requirement icon="FolderOpen">
+    A mod you downloaded, or your own export
+  </Requirement>
+</Requirements>
+
+If hashes and mod folders are new to you, read [How Zenless Zone Zero mods work](/docs/zenless-zone-zero/basics/how-mods-work) first.
+
+## Zenless Zone Zero .ini files at a glance
+
+| What                     | In Zenless Zone Zero                                                                          |
+| ------------------------ | --------------------------------------------------------------------------------------------- |
+| Importer                 | ZZMI 1.5.2, installed by XXMI Launcher                                                        |
+| Who writes the `.ini`    | XXMI Tools 1.8.2 for Blender, **Game to mod** set to `Zenless Zone Zero`                      |
+| How the mesh is found    | The Blend hash, with `DRAW_TYPE` branches                                                     |
+| How a part is found      | Index buffer (IB) hash plus `match_first_index` and `match_index_count`                       |
+| How part textures bind   | `Resource\ZZMI\Diffuse = ref ...` plus `run = CommandList\ZZMI\SetTextures` (SlotFix)         |
+| Texture slots            | `Diffuse`, `NormalMap`, `LightMap`, `MaterialMap`, plus glow slots                            |
+| Bone weights             | The Blend buffer, in slot `vb2`                                                               |
+| "Agent on screen"        | `$active`                                                                                     |
+| All mods on or off, `F6` | `$costume_mods`                                                                               |
+| Libraries mods call      | SlotFix, TTLib and the HP library, in `ZZMI\Core\ZZMI\Libraries`. RabbitFX is a separate mod. |
+
+## The rules of the file
+
+- A `.ini` is a list of **sections**. A section starts with a name in brackets, like `[TextureOverrideEllenHairA]`.
+- Each line under it is `key = value`. Spaces around `=` do not matter.
+- Section names and keys ignore case: `[KeySwap]` and `[KEYSWAP]` are the same section.
+- A line that starts with `;` is a comment. ZZMI skips it.
+- A `;` in the middle of a line is **not** a comment. It becomes part of the value.
+
+```ini
+; This whole line is a comment
+hash = 1a2b3c4d
+
+hash = 1a2b3c4d ; this note breaks the hash
+```
+
+- The order of sections in the file does not matter. The order of lines inside one section does: they run from top to bottom.
+- Two sections with the same name: ZZMI uses only the first and warns `Duplicate section found`.
+
+## Section types
+
+The start of a section's name decides what it does. The rest of the name is a free label.
+
+| Section starts with    | What it does                                                                          |
+| ---------------------- | ------------------------------------------------------------------------------------- |
+| `[Constants]`          | Declares variables. Runs once when mods load, and again after every `F10`.            |
+| `[Present]`            | Runs once every frame.                                                                |
+| `[TextureOverride...]` | Runs when the game uses a buffer or texture with this hash. The core of every mod.    |
+| `[Resource...]`        | Loads a file: a `.buf` or `.ib` buffer, or a `.dds` texture.                          |
+| `[CommandList...]`     | A named block of lines. Another section runs it with `run = CommandList...`.          |
+| `[Key...]`             | A key that changes variables when you press it.                                       |
+| `[ShaderOverride...]`  | Runs when the game uses a shader with this 16-digit hash. Effects and UI mods use it. |
+| `[CustomShader...]`    | Runs a shader that ships with the mod. Effects mods use it.                           |
+
+A typo in the start of the name, like `[TextureOveride...]`, gives `Unknown section type`.
+
+## An agent mod, section by section
+
+This is what XXMI Tools 1.8.2 writes for one component of a Zenless Zone Zero agent, shortened: Ellen's `Hair`, with one part, `A`. `bbbbbbbb` to `eeeeeeee` stand for real hashes from the agent's `hash.json`, and the numbers stand for the ones your export writes.
+
+{/* NEEDS HANDS-ON TEST: export one Zenless Zone Zero 3.3 agent with XXMI Tools 1.8.2 and compare the .ini with the blocks on this page */}
+
+### Constants and Present
+
+```ini
+[Constants]
+global $active = 0
+global $creditinfo = 0
+
+[Present]
+post $active = 0
+run = CommandListCreditInfo
+```
+
+- `global $active = 0` declares a variable. Variable names start with `$`.
+- `$active` means "this agent is on screen". The Blend section below sets it to `1` while the agent is drawn. `post $active = 0` sets it back to `0` at the start of every frame.
+- Keys check `$active`, so they only work while their agent is on screen.
+- `$creditinfo` and `CommandListCreditInfo` show the creator's "Created by" text once.
+
+XXMI Tools writes all of these lines, `$active` included, only when you fill in a credit name. A mod exported without one has no `$active`. [Add a toggle](/docs/zenless-zone-zero/ini/add-a-toggle) shows how to add it.
+
+### The buffer sections
+
+```ini
+[TextureOverrideEllenHairBlend]
+hash = bbbbbbbb
+handling = skip
+$active = 1
+if DRAW_TYPE == 2 || DRAW_TYPE == 4
+    vb1 = ResourceEllenHairTexcoord
+    vb2 = ResourceEllenHairBlend
+    checktextureoverride = ib
+elif DRAW_TYPE == 1
+    vb0 = ResourceEllenHairPosition
+    vb2 = ResourceEllenHairBlend
+    Draw = 21000, 0
+endif
+
+[TextureOverrideEllenHairTexcoord]
+hash = cccccccc
+vb1 = ResourceEllenHairTexcoord
+
+[TextureOverrideEllenHairVertexLimitRaise]
+hash = dddddddd
+override_vertex_count = 21000
+override_byte_stride = 40
+```
+
+| Section               | What it does                                                                                                                                 |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `...Blend`            | Matches the agent's bone weight buffer. `handling = skip` stops the game's own draw. Then `DRAW_TYPE` tells the two passes apart, see below. |
+| `...Texcoord`         | Swaps the UV maps and vertex colors.                                                                                                         |
+| `...VertexLimitRaise` | Makes the game's buffer big enough for a mesh with more vertices than the original.                                                          |
+
+The game draws each component in two passes, and the Blend section handles both:
+
+- **`DRAW_TYPE == 1`** is a draw without an index buffer. It moves the mesh with the bones. Your `Position.buf` and `Blend.buf` go in, and `Draw` runs with your vertex count.
+- **`DRAW_TYPE == 2` or `4`** are indexed draws: the pass you see. Your Texcoord and Blend buffers go in, and `checktextureoverride = ib` runs the part sections below.
+
+Why Blend and not Position? Some agents share a Position hash, like Jane and Lucy, or Anby and Qingyi. A mod that hooks the Position hash also shows on the other agent. The Blend hash belongs to one agent only.
+
+The numbers come from your export. Leave them as they are.
+
+### The part sections
+
+```ini
+[TextureOverrideEllenHairA]
+hash = eeeeeeee
+match_first_index = 0
+match_index_count = 30000
+handling = skip
+ib = ResourceEllenHairAIB
+Resource\ZZMI\Diffuse = ref ResourceEllenHairADiffuse
+Resource\ZZMI\NormalMap = ref ResourceEllenHairANormalMap
+Resource\ZZMI\LightMap = ref ResourceEllenHairALightMap
+Resource\ZZMI\MaterialMap = ref ResourceEllenHairAMaterialMap
+run = CommandList\ZZMI\SetTextures
+; EllenHairA (5000)
+drawindexed = 30000, 0, 0
+```
+
+- **One IB, several parts.** Parts A and B of a component often share one index buffer. `match_first_index` and `match_index_count` tell them apart, because each part starts at its own index and has its own length. The dump's `hash.json` lists each part's first index under `object_indexes`, and [hunting mode](/docs/zenless-zone-zero/basics/find-a-hash) finds the IB hash. XXMI Tools writes both match lines for you.
+- **`handling = skip` hides the game's own part.** It belongs in the section that has both match lines. A `handling = skip` in a section with only the IB hash can make the sky glitch and the city flicker.
+- **`ib =`** puts your own index buffer in place.
+- **`Resource\ZZMI\...` lines** tell SlotFix what each texture is. `run = CommandList\ZZMI\SetTextures` then puts each one in the slot that the current draw expects: color, outline, face or glow. SlotFix ships inside ZZMI. [Make textures survive game updates](/docs/zenless-zone-zero/textures/stable-textures) explains it.
+- **`drawindexed`** draws your mesh. XXMI Tools writes one line per Blender object, with a comment above it: the object's name and its vertex count.
+- A part whose textures you changed, but not its mesh, gets a short section: the hash, the match lines, the `Resource\ZZMI\...` lines and `run = CommandList\ZZMI\SetTextures`.
+
+<img
+  src="/wiki-images/zenless-zone-zero-ini-how-a-mod-ini-works-1.webp"
+  alt="Five steps: the game draws Ellen's hair with its Blend hash and IB hash, the Blend section's handling = skip stops the game's own draw and DRAW_TYPE picks the pass, checktextureoverride = ib runs the matching part section, ib and SetTextures bind your mesh and textures, and drawindexed draws one line per Blender object"
+/>
+
+Mods made before mid-2025 often bind textures in older ways. [Fix an old mod by hand](/docs/zenless-zone-zero/ini/fix-an-old-mod) shows those forms and how to update them.
+
+### The resource sections
+
+```ini
+[ResourceEllenHairPosition]
+type = Buffer
+stride = 40
+filename = EllenHairPosition.buf
+
+[ResourceEllenHairAIB]
+type = Buffer
+format = DXGI_FORMAT_R32_UINT
+filename = EllenHairA.ib
+
+[ResourceEllenHairADiffuse]
+filename = EllenHairADiffuse.dds
+
+[ResourceCreditInfo]
+type = Buffer
+data = "Created by Me"
+```
+
+- `filename` is a path from the folder this `.ini` is in. It must match the real file name, extension included.
+- `type`, `stride` and `format` describe the buffer. Keep the exporter's values. A wrong `stride` makes the mesh explode into spikes.
+- A file that is missing or misnamed gives `Failed to load custom texture resource` or `Failed to load custom buffer resource`, and that texture or part does not show.
+
+## How drawindexed draws one piece
+
+A mesh is a list of points joined into triangles. The `.ib` file says in which order to join them, like a connect-the-dots drawing. The ribbon is dots 1 to 9, the hair is dots 10 to 22.
+
+<img
+  src="/wiki-images/zenless-zone-zero-ini-how-a-mod-ini-works-2.webp"
+  alt="A connect-the-dots drawing of a face with a ribbon and hair: on the left the numbered dots are joined into lines, on the right only the numbered dots are shown"
+/>
+
+`drawindexed = 252, 31530, 0` means: join 252 indices, starting at index 31530. Each Blender object has its own range, so each gets its own line:
+
+```ini
+; EllenBodyA
+	; bow 1 (94)
+	drawindexed = 252, 31530, 0
+	; bow 2 (92)
+	drawindexed = 252, 31782, 0
+```
+
+Put an `if` block around one of these lines, and a key can hide that object. That is how toggles work.
+
+## When two sections match one hash
+
+Every matching section runs, not only one. They run in order of `match_priority`, lowest first, then by name. The last texture line wins, and every `drawindexed` in every section draws.
+
+That is why two mods for one agent draw on top of each other. ZZMI warns with this text:
+
+```text
+Possible Mod Conflict: Duplicate TextureOverride hash=...
+```
+
+Keep one mod per agent or outfit. To switch between several, [combine them into one merged mod](/docs/zenless-zone-zero/ini/merged-mods). Sections with `match_first_index` or `match_priority` never give this warning, so two mods can overlap on a part without any message.
+
+## Change a line without breaking the mod
+
+1. Copy the mod folder to a place outside `Mods`, as a backup.
+2. Open the `.ini` in your text editor.
+3. Make one change. Keep comments on their own lines.
+4. Save the file as UTF-8.
+5. In game, switch to another agent, then press `F10`.
+6. Switch back and check the result.
+
+To see what went wrong, open the settings in [XXMI Launcher](/docs/zenless-zone-zero/tools/xxmi-launcher), go to the **ZZMI** tab and untick **Mute Warnings**. After that, `F10` shows each error with the section and the file it came from.
+
+{/* NEEDS HANDS-ON TEST: whether the "Failed to load custom ... resource" warnings show at F10 or only when the part is first drawn, with ZZMI 1.5.2 */}
+
+<Callout type="warning" title="Edit your mod, not ZZMI">
+  Change only files inside your mod's folder. Never edit `d3dx.ini` or the files
+  in `ZZMI\Core`: the launcher rewrites parts of `d3dx.ini` on every start, and
+  ZZMI updates replace `d3dx.ini` and `Core`.
+</Callout>
+
+## Common problems
+
+| Message or sign                               | Usual cause                                                                 | Fix                                                 |
+| --------------------------------------------- | --------------------------------------------------------------------------- | --------------------------------------------------- |
+| `Hash parse error`                            | A typo, a wrong length, or a `;` note after the hash                        | One hash per line, nothing after it                 |
+| `Unknown section type`                        | A misspelt start, like `[Resouce...]`                                       | Fix the spelling                                    |
+| `Duplicate section found`                     | The same section name twice                                                 | Rename one                                          |
+| `Unrecognised entry`                          | A misspelt word, a `$variable` never declared, or a missing `[Resource...]` | Declare the variable or add the section             |
+| `Scope unbalanced`                            | An `if` without `endif`, or one `endif` too many                            | Give every `if` one `endif`                         |
+| `Failed to load custom texture resource`      | `filename` does not match the file                                          | Fix the name, the extension or the folder           |
+| The sky glitches or parts of the city flicker | `handling = skip` in a section with only the IB hash                        | Move it into the part section with both match lines |
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Add a toggle"
+    href="/docs/zenless-zone-zero/ini/add-a-toggle"
+    icon={<Icon name="ToggleRight" />}
+    level="intermediate"
+  >
+    Hide a part or swap a texture with a key, and keep the choice saved.
+  </PremiumCard>
+  <PremiumCard
+    title="Change a mod's keys and saved settings"
+    href="/docs/zenless-zone-zero/ini/change-mod-keys"
+    icon={<Icon name="Keyboard" />}
+    level="beginner"
+  >
+    Give a mod new keys and reset the choices it remembers.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Toggle Guide](https://gamebanana.com/tuts/18971) by gdsfdg. The connect-the-dots drawing is from this guide.
+- **Tool:** [XXMI Tools Zenless Zone Zero template](https://github.com/leotorrez/XXMITools/blob/main/templates/Zenless%20Zone%20Zero.ini.j2) by leotorrez.
+- **Source:** [XXMI DLL `.ini` parser](https://github.com/SpectrumQT/XXMI-Libs-Package/blob/master/DirectX11/IniHandler.cpp) by SpectrumQT, for the rules and warning texts.
+- **Wiki:** [SlotFix](https://github.com/Satan1c/ZZMI_tools/wiki/SlotFix) by Satan1c.
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ and contributors, for why mods use the Blend hash.
+- **Guide:** [3dmigoto INI File Documentation](https://leotorrez.github.io/modding/docs/) on LeoTorreZ's modding site.

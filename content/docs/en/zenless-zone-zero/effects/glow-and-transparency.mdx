@@ -1,0 +1,234 @@
+---
+title: "Add glow and see-through parts"
+description: "Change or hide the glow on a Zenless Zone Zero agent with SlotFix, make glasses and other pieces see-through with TTLib, and follow the rules for RabbitFX."
+category: "effects"
+patch: "3.3"
+keywords: ["zzz glow mod", "wenginefx", "ttlib", "zzz transparency", "rabbitfx"]
+---
+
+<LevelPill level="intermediate" />
+
+You will change or hide the glow on your own mod, and make pieces like glass lenses see-through. Zenless Zone Zero has no single effects library: SlotFix handles the game's own glow textures, TTLib draws see-through pieces, and many creators add glow with RabbitFX. You need a mod you made yourself, with an `.ini` from the XXMI Tools export. Written for ZZMI 1.5.2, which includes TTLib 2.3.0.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/zenless-zone-zero/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement
+    icon="PaintNET"
+    href="/docs/zenless-zone-zero/tools/texture-editors"
+  >
+    Paint.NET
+  </Requirement>
+  <Requirement icon="FileCode">Your own mod's folder and .ini</Requirement>
+</Requirements>
+
+<Callout type="info" title="SlotFix and TTLib are already installed">
+  Both ship inside ZZMI, in `ZZMI\Core\ZZMI\Libraries`, and XXMI Launcher keeps
+  them up to date. Never download them, never put a copy in your `Mods` folder,
+  and never ship them inside your mod.
+</Callout>
+
+<Callout type="danger" title="Keep it fair">
+  Use glow and transparency only on your own agent's parts. Never make enemies,
+  walls, fog or effects see-through or easier to spot. That is a mod that gives
+  an unfair advantage.
+</Callout>
+
+<img
+  src="/wiki-images/zenless-zone-zero-effects-glow-and-transparency-1.webp"
+  alt="Three tools: SlotFix in ZZMI changes or hides the glow a part already has, RabbitFX is a separate library that reads a glow texture you paint, and TTLib in ZZMI draws one piece see-through"
+/>
+
+## The game's own glow
+
+Some parts already glow, with their own textures:
+
+- **WengineFx** glows only when the agent has their signature W-Engine. Some agents, like Yixuan, have only this one.
+- **GlowMap** glows without the signature W-Engine, for example in Jane's Passion state.
+
+SlotFix places both, like any other texture. [What each texture map does](/docs/zenless-zone-zero/textures/texture-maps) lists every glow slot.
+
+### Change a glow
+
+1. Get the part's original glow texture from a [frame dump](/docs/zenless-zone-zero/basics/frame-dump). The asset repository has almost no glow textures.
+2. Paint your version on the same layout. Keep the original's size and format.
+3. Put it in your mod folder and add a resource for it:
+
+```ini
+[ResourceBelleBodyAGlowMap]
+filename = BelleBodyAGlowMap.dds
+```
+
+4. In the part's section, add the slot line before `run = CommandList\ZZMI\SetTextures`:
+
+```ini
+Resource\ZZMI\GlowMap = ref ResourceBelleBodyAGlowMap
+```
+
+Use `Resource\ZZMI\WengineFx` instead for a signature W-Engine glow.
+
+5. Press `F10`. Test with and without the signature W-Engine, and in the state that shows the glow.
+
+{/* NEEDS HANDS-ON TEST: how GlowMap and WengineFx textures show up in a 3.3 frame dump, their format, and that a painted replacement set with Resource\ZZMI\GlowMap or WengineFx shows in game with ZZMI 1.5.2 */}
+
+### Hide a glow
+
+Point the slot at the empty glow map that ships inside ZZMI:
+
+```ini
+Resource\ZZMI\GlowMap = ref Resource\ZZMI\EmptyGlowMap
+```
+
+The same works for `WengineFx` and `GlowGradient`. Do this whenever you change a part's UVs and make no new glow textures. Otherwise the old glow shows in odd spots.
+
+## See-through parts with TTLib
+
+TTLib draws one piece of a part see-through. It replaces that piece's `drawindexed` line. Parts the game already draws see-through, like some glasses, use the red channel of the MaterialMap instead: keep it from the original.
+
+<Steps>
+<Step>
+
+### Find the piece's drawindexed line
+
+In your exported `.ini`, the part's section ends with one or more lines like this:
+
+```ini
+drawindexed = 2310, 41532, 0
+```
+
+The first number is the index count, the second the index offset. The numbers above are an example: use your own.
+
+If the piece shares one line with the rest of the part, it needs its own. Keep it a separate object in Blender. [Add a toggle](/docs/zenless-zone-zero/ini/add-a-toggle) shows how to get one `drawindexed` line per object.
+
+For glasses, creators model the lens and the frame as separate objects, weight both to the head bone of the hair component, and give the lens its own texture.
+
+</Step>
+<Step>
+
+### Replace it with TTLib
+
+Replace that `drawindexed` line with these lines:
+
+```ini
+$\TTL\_1 = 2310
+$\TTL\_2 = 41532
+$\TTL\alpha = 0.5
+run = CommandList\TTL\Draw
+```
+
+- `$\TTL\_1` takes the first number of the old `drawindexed` line, and `$\TTL\_2` the second.
+- `$\TTL\alpha` is how solid the piece is: `1` is solid, `0` is invisible, `0.5` is the default.
+
+TTLib resets its settings after each draw, so the next `drawindexed` lines draw as normal.
+
+</Step>
+<Step>
+
+### Add a mask (optional)
+
+Without a mask, the whole piece gets the same `alpha`. A mask makes only some areas see-through.
+
+1. Paint a black and white texture on the same UV layout as the piece's diffuse. Black follows `alpha`. The brighter an area, the more see-through it is. Pure white is not drawn at all.
+2. Save it in your mod folder as `BC7 (Linear, DX 11+)`, like other data textures, with **Generate Mip Maps** ticked.
+3. Add a resource for it, and two lines before `run = CommandList\TTL\Draw`:
+
+```ini
+Resource\TTL\TransparencyTex = ref ResourceBelleGlassesMask
+$\TTL\mask_channel = 0
+```
+
+`$\TTL\mask_channel` picks the channel TTLib reads: `0` red, `1` green, `2` blue, `3` alpha. Add `$\TTL\mask_invert = 1` to swap bright and dark.
+
+{/* NEEDS HANDS-ON TEST: TTLib 2.3.0 with ZZMI 1.5.2 on Zenless Zone Zero 3.3. Check the direction of $\TTL\alpha (1 solid), that bright mask areas turn see-through and pure white disappears, and which DDS format the mask needs. The behavior here is read from TTLib.ini and its CaptureMask shader. */}
+
+</Step>
+<Step>
+
+### Test it
+
+1. Switch to another agent and press `F10`.
+2. Switch back and check the piece in daylight, at night and indoors.
+3. Hold `F9` to compare with the original.
+
+</Step>
+</Steps>
+
+## Glow you paint, with RabbitFX
+
+RabbitFX is a separate glow and texture library by caverabbit. Many glow mods use it. This guide covers only its glow, and could not confirm every step for the current version. Here is what is known:
+
+- RabbitFX reads a glow texture you paint on the part's UV layout: the RGB is the glow color, and the alpha is the brightness.
+- Current versions use lines like `Resource\RabbitFX\GlowMap = ref ResourceX` and `run = CommandList\RabbitFX\Run`. `$\RabbitFX\brightness` sets the strength: creators use about 4 to 8.
+- Older guides and videos write `ps-t17 = ResourceX` and attach the glow to the diffuse's texture hash. That form is from before 2026.
+- Brightness lightens the colors, so paint the glow a little darker than you want it.
+
+Copy the exact names from the RabbitFX `.ini` you installed, not from a guide or a page: some published snippets have typos that do not load.
+
+{/* NEEDS HANDS-ON TEST: the current RabbitFX glow lines for Zenless Zone Zero 3.3: the exact resource name, where the lines go (part section or a separate section), and the brightness range */}
+
+The rules for RabbitFX:
+
+- Keep exactly one copy in the whole `Mods` folder. Two copies cause crashes.
+- Never ship RabbitFX inside your mod. If your mod needs it, say so on your mod's page.
+- RabbitFX can stutter the first time it meets each new shader.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Glow shows in the wrong place" id="wrong-glow">
+
+The part's UVs changed, but it still uses the game's glow textures. Point the slot at `Resource\ZZMI\EmptyGlowMap`, or paint glow textures for the new layout. If you changed nothing, update ZZMI: in XXMI Launcher, click the 3-dots button next to **Start**, then **Check For Updates**.
+
+</Accordion>
+<Accordion title="The see-through piece is gone completely" id="piece-gone">
+
+`$\TTL\alpha` is `0`, or the mask is pure white there. Check both. Also check that `$\TTL\_1` and `$\TTL\_2` match the old `drawindexed` line exactly.
+
+</Accordion>
+<Accordion title="Crashes or stutter after adding a glow mod" id="rabbitfx-crash">
+
+There is more than one RabbitFX in `Mods`. Search the `Mods` folder for `RabbitFX` and keep one. After a game update, an old RabbitFX can stutter or crash: update it, or remove it to test.
+
+</Accordion>
+<Accordion title="Nothing changes" id="nothing-changes">
+
+Check that every `filename =` line matches your file, and that the slot line sits before `run = CommandList\ZZMI\SetTextures`. Read the yellow text after `F10`: [Test and reload your mod](/docs/zenless-zone-zero/basics/test-your-mod) explains ZZMI's warnings.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="What each texture map does"
+    href="/docs/zenless-zone-zero/textures/texture-maps"
+    icon={<Icon name="Layers" />}
+    level="intermediate"
+  >
+    The diffuse, LightMap, MaterialMap and glow maps, channel by channel.
+  </PremiumCard>
+  <PremiumCard
+    title="How a mod .ini works"
+    href="/docs/zenless-zone-zero/ini/how-a-mod-ini-works"
+    icon={<Icon name="FileCode" />}
+    level="intermediate"
+  >
+    What each section and line in your mod's .ini does.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Best Way to Replace Textures - SlotFix Guide](https://gamebanana.com/tuts/18114) by hazelberry.
+- **Wiki:** [Texture Transparency Library](https://github.com/Satan1c/ZZMI_tools/wiki/Texture-Transparency-Library) and [SlotFix](https://github.com/Satan1c/ZZMI_tools/wiki/SlotFix) by Satan1c.
+- **Tool:** [TTLib](https://github.com/leotorrez/ZZMI-Package/tree/main/ZZMI/Core/ZZMI/Libraries/TTLib) by Rayvich, in ZZMI-Package.
+- **Guide:** [Glasses/Glasses Transparency Tutorial](https://gamebanana.com/tuts/19574) by \_IB\_.

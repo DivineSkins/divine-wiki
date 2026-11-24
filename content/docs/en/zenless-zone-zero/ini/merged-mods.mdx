@@ -1,0 +1,261 @@
+---
+title: "Combine mods into one merged mod"
+description: "Combine Zenless Zone Zero mods for one agent into one merged mod with a switch key, fix the line merge scripts miss, and keep it working with other mods."
+category: "ini"
+patch: "3.3"
+keywords:
+  ["zzz merged mod", "merge mods", "3dm_merge_mods.py", "swapvar", "merged.ini"]
+---
+
+<LevelPill level="intermediate" />
+
+Only one mod per agent can show at a time. A merged mod works with that: it puts several mods for one agent in one folder, and one key switches between them. This page shows how to make one with a merge script, the line you add by hand for Zenless Zone Zero, and how to keep it working. No merge script has been tested on Zenless Zone Zero for this guide, so check each step in game. Written for ZZMI 1.5.2.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="FileCode" note="Python 3">
+    Python
+  </Requirement>
+  <Requirement
+    icon="GitHub"
+    href="https://github.com/ShadowLemoon/3Dmigoto-mods-merger"
+  >
+    3Dmigoto Mods Merger
+  </Requirement>
+  <Requirement icon="FolderOpen">
+    Two or more mods for one agent, each working on its own
+  </Requirement>
+</Requirements>
+
+When you install Python, tick **Add python.exe to PATH** in the installer. It is off by default.
+
+## How a merged mod works
+
+<img
+  src="/wiki-images/zenless-zone-zero-ini-merged-mods-1.webp"
+  alt="An Ellen folder in Mods holds merged.ini, which loads, and the folders 0 Default, 1 Blue and 2 Red. In each, the original ini starts with DISABLED and is skipped, and Ellen.namespace.ini loads. Pressing K steps $swapvar, a section in merged.ini runs the lines of the chosen mod, and only that mod draws"
+/>
+
+- **One `merged.ini` matches the hashes.** Each of its sections runs one mod's lines, inside an `if $swapvar == N` block.
+- **Each mod keeps its own lines.** The script copies each mod's sections into a new file in that mod's folder, `<Name>.namespace.ini`, with its own namespace. The `.ib`, `.buf` and `.dds` files stay where they are.
+- **The original `.ini` files are switched off.** The script renames each one to start with `DISABLED`, so ZZMI skips it.
+- **One key switches.** `[KeySwap]` steps `$swapvar`, and `persist` saves the choice.
+
+This is a shortened `merged.ini` for two Ellen mods. `bbbbbbbb` stands for the Blend hash:
+
+```ini
+[Constants]
+global persist $swapvar = 0
+global $active = 0
+
+[KeySwap]
+condition = $active == 1
+key = k
+type = cycle
+$swapvar = 0,1
+
+[Present]
+post $active = 0
+
+[TextureOverrideEllenHairBlend]
+hash = bbbbbbbb
+if $swapvar == 0
+	run = CommandList\Ellen\0\TextureOverrideEllenHairBlend
+else if $swapvar == 1
+	run = CommandList\Ellen\1\TextureOverrideEllenHairBlend
+endif
+$active = 1
+```
+
+Each part section gets the same kind of block, with its own `match_first_index`. The last line, `$active = 1`, is the one you add yourself. Step 3 below explains why.
+
+## Before you merge
+
+1. **Check each mod alone.** Put it in `Mods` by itself, press `F10`, and check that it looks right. A mod that is broken alone stays broken in the merge.
+2. **Fix old mods first.** Mods made before mid-2025 may need SlotFix lines or the Blend hash. [Fix an old mod by hand](/docs/zenless-zone-zero/ini/fix-an-old-mod) shows both. Fixing each mod before you merge is much easier than fixing the merge.
+3. **Name the folders now.** Renaming a folder after the merge breaks the paths the merge relies on.
+4. **Back up** every mod folder.
+
+{/* NEEDS HANDS-ON TEST: whether renaming a mod's subfolder after the merge breaks it. 3Dmigoto Mods Merger writes no folder paths into merged.ini, and each .namespace.ini sits in its mod's own folder. The renaming advice here and under Common problems comes from the older script, which writes paths. */}
+
+## Make a merged mod
+
+<Steps>
+<Step>
+
+### Put the mods in one folder
+
+1. Make a new folder outside `Mods`, for example `Ellen`.
+2. Move each mod's folder into it. Each mod needs its own folder, with one `.ini` in it.
+3. Rename the folders with a number first: `0 Default`, `1 Blue`, `2 Red`. This makes them easy to tell apart when the script lists them.
+4. Put `3dm_merge_mods.py` in the `Ellen` folder, next to the mod folders.
+
+</Step>
+<Step>
+
+### Run the script
+
+1. Hold `Shift`, right-click an empty spot in the `Ellen` folder, and choose **Open PowerShell window here**.
+2. Type this and press `Enter`:
+
+   ```text
+   python 3dm_merge_mods.py
+   ```
+
+3. The script lists the `.ini` files it found. Press `Enter` to keep that order, or type the numbers in the order you want, like `1 0 2`. The first one shows by default.
+4. When it asks for a name, press `Enter` to accept its suggestion, or type one, like `Ellen`.
+5. When it asks for a key, type one letter or a key name like `VK_RIGHT`, and press `Enter`.
+6. When it asks for a back key, type one, or press `Enter` to skip it.
+
+{/* NEEDS HANDS-ON TEST: the right-click label for opening PowerShell in a folder on Windows 11 */}
+
+The script writes `merged.ini`, writes a `.namespace.ini` file into each mod's folder, and renames each mod's own `.ini` to start with `DISABLED`.
+
+</Step>
+<Step>
+
+### Add the on-screen line
+
+Open `merged.ini` and find the section with the Blend hash, the one whose name ends in `Blend`. Add `$active = 1` as its last line, after `endif`, as in the example above. If the agent has several components, like `Hair` and `Body`, one Blend section is enough.
+
+Why: the key only works while `$active` is `1`. The script sets it only in sections with `Position` in their name, and a ZZMI export has none. Without this line, the key never works.
+
+{/* NEEDS HANDS-ON TEST: run 3dm_merge_mods.py on two XXMI Tools 1.8.2 exports for one Zenless Zone Zero agent, check that the key needs the added $active = 1 line, and check whether the match_index_count lines left in the .namespace.ini files cause warnings on ZZMI 1.5.2. Also check that a mod with more vertices than the original still draws: the script moves the override_vertex_count and override_byte_stride lines of each VertexLimitRaise section into a command list. */}
+
+</Step>
+<Step>
+
+### Test it in game
+
+1. Move the whole `Ellen` folder into your `Mods` folder: `%AppData%\XXMI Launcher\ZZMI\Mods`.
+2. Remove the separate copies of these mods from `Mods`, if you had any.
+3. In game, press `F10`.
+4. Put the agent on screen and press your key. The mods switch in order.
+
+</Step>
+</Steps>
+
+## Script options
+
+Add an option after the script name, like `python 3dm_merge_mods.py -e`.
+
+| Option      | What it does                                                                            |
+| ----------- | --------------------------------------------------------------------------------------- |
+| `-e`        | Turns the original `.ini` files back on, so you can build the merge again.              |
+| `-s`        | Keeps the original `.ini` files on. Use it only if you know why: both copies then load. |
+| `-n <name>` | Gives the merged file another name than `merged.ini`.                                   |
+| `-k <key>`  | Sets the switch key, so the script does not ask.                                        |
+| `-b <key>`  | Sets a back key that steps to the previous mod.                                         |
+
+## The older merge script
+
+Many guides show `genshin_merge_mods.py` by SilentNightSound, a merge script from 2023 made for another game's mods. Its code does not fit ZZMI exports:
+
+- It keeps only one line of each name in a section. Repeated lines are lost: the extra `drawindexed` lines (one per Blender object) and the second `vb2` line of the Blend section.
+- It does not read `elif`, which every ZZMI Blend section uses.
+- In a texture section with the `if 0 == 1` guard, it can move `run = CommandList\ZZMI\SetTextures` inside the guard, where it never runs.
+- It drops every plain `else` line, and each mod's own `[Constants]` and `[Present]` sections.
+- It stops with an error on a mod that has its own `[Key...]` section with a `type =` line. Mods with their own toggles cannot be merged with it at all.
+
+This guide does not use it for Zenless Zone Zero.
+
+{/* NEEDS HANDS-ON TEST: run genshin_merge_mods.py V3.0 on two XXMI Tools 1.8.2 exports for one Zenless Zone Zero agent and confirm the lost lines, the dropped else, [Constants] and [Present], and the KeyError: 'header' stop on a mod with a [Key...] section */}
+
+## Change a merged mod later
+
+Edit the files that load: `merged.ini` and the `.namespace.ini` files. ZZMI skips the `DISABLED` files, so changes there do nothing.
+
+- **The hashes** are all in `merged.ini`. After a game update, replace changed hashes there.
+- **Each mod's lines** are in its own `.namespace.ini`, in that mod's folder, as `[CommandList...]` sections. Fix a texture or a toggle there.
+
+To rebuild the merge from scratch:
+
+1. Move the folder out of `Mods`.
+2. Run `python 3dm_merge_mods.py -e` to turn the original `.ini` files back on.
+3. Delete `merged.ini` and the `.namespace.ini` file in each mod's folder.
+4. Make your changes, run the script again without options, and add the `$active = 1` line again.
+
+{/* NEEDS HANDS-ON TEST: the rebuild steps with 3Dmigoto Mods Merger, including whether old .namespace.ini files must be deleted first */}
+
+## Use a merged mod with other mods
+
+- **Keep one merged mod per agent.** Two mods for the same agent both draw, and ZZMI shows `Possible Mod Conflict`.
+- **Do not keep the original mods turned on as well.** Every hash then loads twice.
+- **Mods for other parts can stay.** A hair or face mod works next to a merged outfit mod, as long as the outfit mods do not also change the hair or face hashes.
+- **Fix tools may not understand a merged mod.** After a game update, check each part, or wait for the creators' updates and merge again.
+
+## Other ways to switch mods
+
+- **A mod manager** can switch between mods for one agent without a `merged.ini`. Some, like No Reload Mod Manager, switch in game without `F10`. [Mod managers compared](/docs/zenless-zone-zero/tools/mod-managers) shows the main ones.
+- **ZZMI Multiple ini Merger** by Exomata is a merge tool made for Zenless Zone Zero. What it writes has not been checked for this guide, so this page does not link it.
+
+<Callout type="warning" title="Ask before you share a merge">
+  Merging mods for your own game is your choice. To upload a merge of other
+  creators' mods, you need permission from each creator.
+</Callout>
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The key does nothing" id="key-does-nothing">
+
+`merged.ini` never sets `$active = 1`. Add it to the Blend section, as in step 3. Then press `F10` with the agent off screen, and switch back.
+
+</Accordion>
+<Accordion title="The agent flickers, or ZZMI shows Possible Mod Conflict" id="merged-conflict">
+
+The original mods are still loading next to `merged.ini`. Check that every original `.ini` in the subfolders starts with `DISABLED`, and that no separate copy of these mods is in `Mods`.
+
+</Accordion>
+<Accordion title="My key switches another agent's merged mod too" id="keys-switch-other-mods">
+
+Check the `[KeySwap]` section in both `merged.ini` files. Each needs `condition = $active == 1`. If one has it and still reacts, give it a different key.
+
+</Accordion>
+<Accordion title="A part is missing after I renamed a folder" id="renamed-folder">
+
+The merge still points to the old folder name. Rename the folder back, or rebuild the merge.
+
+</Accordion>
+<Accordion title="The mod forgets which outfit I picked" id="merged-forgets-choice">
+
+ZZMI saves the choice under the path of `merged.ini`. Moving or renaming the main folder loses it.
+
+</Accordion>
+<Accordion title="One outfit has a mess of colors or flat shading" id="merged-colors">
+
+That mod uses old texture lines. Move them to SlotFix in its `.namespace.ini`, the same way as in a single mod.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Change a mod's keys and saved settings"
+    href="/docs/zenless-zone-zero/ini/change-mod-keys"
+    icon={<Icon name="Keyboard" />}
+    level="beginner"
+  >
+    Change the switch key and reset the outfit ZZMI remembers.
+  </PremiumCard>
+  <PremiumCard
+    title="Fix an old mod by hand"
+    href="/docs/zenless-zone-zero/ini/fix-an-old-mod"
+    icon={<Icon name="Wrench" />}
+    level="intermediate"
+  >
+    Update an old mod to SlotFix and the Blend hash before you merge it.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Tool:** [3Dmigoto Mods Merger](https://github.com/ShadowLemoon/3Dmigoto-mods-merger) by Qian2333, for the steps and the merged file layout, read from its code.
+- **Tool:** [genshin_merge_mods.py](https://github.com/SilentNightSound/GI-Model-Importer/blob/main/Tools/genshin_merge_mods.py) by SilentNightSound, Takoyaki and HazrateGolabi, read for the section on the older script.
+- **Tool:** [XXMI Tools Zenless Zone Zero template](https://github.com/leotorrez/XXMITools/blob/main/templates/Zenless%20Zone%20Zero.ini.j2) by leotorrez.
+- **Guide:** [On Mod Hygiene](https://gamebanana.com/tuts/20467) by Holley, for mods that work next to each other.

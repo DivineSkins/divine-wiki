@@ -1,0 +1,262 @@
+---
+title: "Mods look broken"
+description: "A Zenless Zone Zero mod loads but looks wrong? Match what you see, from a mess of triangles to glossy textures and vanishing parts, to its cause and the fix."
+category: "errors"
+patch: "3.3"
+keywords:
+  [
+    "zzz mod broken",
+    "zzz mod textures broken",
+    "high-precision character animation",
+    "zzz mod glossy",
+    "zzmi slotfix",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+Your mod loads, but the agent looks wrong. Find what you see in the table, then open the matching fix below. This page is written for Zenless Zone Zero 3.3 and ZZMI 1.5.2.
+
+No mod shows at all? Go to [Mods not loading](/docs/zenless-zone-zero/errors/mods-not-loading).
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/zenless-zone-zero/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="Wrench" href="/docs/zenless-zone-zero/tools/update-fixers">
+    Update fix tools
+  </Requirement>
+  <Requirement icon="FileText" note="such as Notepad">
+    A text editor
+  </Requirement>
+</Requirements>
+
+## Try this first
+
+These three steps fix most broken mods. Do them before anything else.
+
+1. In the game's graphics settings, set **Character Quality** to **High** and **High-Precision Character Animation** to **Disable**.
+2. Close the game and open XXMI Launcher. It updates ZZMI and its libraries.
+3. In game, switch to another agent, press `F10`, and switch back.
+
+## What do you see?
+
+| What you see                                                | Most likely cause                              | Fix                                                       |
+| ----------------------------------------------------------- | ---------------------------------------------- | --------------------------------------------------------- |
+| Every modded agent is a mess of triangles or spikes         | A graphics option is wrong                     | [Mess of triangles](#mess-of-triangles)                   |
+| One agent is a mess, or shows a mix of two mods             | Two mods for one agent                         | [Two mods on one agent](#two-mods-on-one-agent)           |
+| Parts missing or collapsed right after loading              | The agent was on screen during the reload      | [Missing or collapsed parts](#missing-or-collapsed-parts) |
+| The mod shows the original look after a game update         | The agent's hashes changed                     | [Old mod after an update](#old-mod-after-an-update)       |
+| Bent legs, scrambled textures, or a broken face since 3.2   | The game changed the agent's model data        | [Broken since version 3.2](#broken-since-3-2)             |
+| Textures are a mess of colors, or far too glossy            | ZZMI is out of date, or the mod is old         | [Rainbow or glossy textures](#rainbow-or-glossy-textures) |
+| Clothes and skin look flat after you ran a fix tool         | An old fix tool flattened the normal maps      | [Flat shading](#flat-shading)                             |
+| Textures look broken on your PC but fine for others         | Your graphics card has under 6 GB video memory | [Broken textures on some PCs](#low-video-memory)          |
+| The mod vanishes when the camera moves away                 | The mod does not cover the distance models     | [The mod vanishes at a distance](#vanishes-at-a-distance) |
+| Another agent's face breaks, sky glitches, stutter, or glow | A mod made the old way, or too many libraries  | [Other problems](#other-problems)                         |
+
+## Fixes
+
+<Accordions type="multiple">
+<Accordion title="Mess of triangles" id="mess-of-triangles">
+
+All modded agents turn into a mess of triangles or broken shapes.
+
+**Cause:** **High-Precision Character Animation** is on, or **Character Quality** is not **High**. The animation option came with version 1.3, and many mods do not work with it.
+
+**Fix:**
+
+1. In game, open <MenuPath path="Settings > Graphics" />.
+2. Set **Character Quality** to **High**.
+3. Set **High-Precision Character Animation** to **Disable**.
+4. Press `F10`.
+
+Keep **Configure Game Settings For ZZMI** ticked in XXMI Launcher. It sets both options before every start.
+
+{/* NEEDS HANDS-ON TEST: the exact English labels and values of the two graphics options in the 3.3 client. */}
+
+If only one agent looks like this, read the next fix.
+
+</Accordion>
+<Accordion title="Two mods on one agent" id="two-mods-on-one-agent">
+
+**Cause:** two mod folders change the same agent. Or a download holds several versions of one mod in subfolders, and all of them load.
+
+**Fix:**
+
+1. Keep one mod for each agent or outfit.
+2. Rename the other mod folders so they start with `DISABLED_`.
+3. For a download with several versions, keep one version folder and disable the rest.
+4. Press `F10`.
+
+</Accordion>
+<Accordion title="Missing or collapsed parts" id="missing-or-collapsed-parts">
+
+Parts are missing, or the model collapses into itself, the first time a mod loads.
+
+**Cause:** the agent was on screen when ZZMI loaded the mod.
+
+**Fix:** any of these:
+
+- Switch to another agent, press `F10`, and switch back.
+- Move so the agent is out of the camera's view, then press `F10`.
+- Restart the game.
+
+If a part always collapses into the body, the mod itself is broken. See [Model problems in game](/docs/zenless-zone-zero/errors/model-problems).
+
+</Accordion>
+<Accordion title="Old mod after an update" id="old-mod-after-an-update">
+
+The mod does nothing, and you see the agent's original look.
+
+**Cause:** a game update changed the agent's hashes, so the mod no longer finds the agent. Almost every update changes some agents. Version 3.3 changed only a few.
+
+**Fix:**
+
+1. Check the mod's page for an update first.
+2. Zip a copy of your `Mods` folder.
+3. Run the ZZZ Mod Fixer on the broken mods only, as shown in [Fix your mods after a game update](/docs/zenless-zone-zero/getting-started/fix-mods-after-an-update).
+4. Press `F10` in game.
+
+Never run a fixer twice on the same mod, or an older fixer after a newer one.
+
+Fake fixers carrying malware have been uploaded after game updates. Download the fixer only from its GitHub page. Warning signs: the file asks for admin rights, comes in a password-protected archive, comes from a brand-new account, or wants to replace `d3d11.dll`.
+
+</Accordion>
+<Accordion title="Broken since version 3.2" id="broken-since-3-2">
+
+Version 3.2 changed more than hashes for some agents. Each change gives its own symptom:
+
+| What you see                              | What changed in 3.2                    |
+| ----------------------------------------- | -------------------------------------- |
+| Bent or twisted legs, textures fine       | The bone data of the mesh              |
+| Scrambled textures, shape fine            | How the mesh stores its texture layout |
+| Broken face, black patches, or misaligned | The face model data                    |
+
+**Fix:** zip a copy of the mod, then try the ZZZ Mod Fixer on it. If the mod still looks wrong, the creator has to export it again. Check the mod's page for an update, and give creators a few days after a big update.
+
+Older breaks work the same way. Jane mods from before version 2.5 and Belle mods from before version 3.0 often need a new export from their creator.
+
+</Accordion>
+<Accordion title="Rainbow or glossy textures" id="rainbow-or-glossy-textures">
+
+The mod's textures look like a mess of colors, or the agent is far too shiny.
+
+**Cause:** most mods load their textures through SlotFix, the texture library inside ZZMI. If ZZMI or the XXMI DLL is out of date, those textures go wrong. Old mods made before SlotFix can break the same way.
+
+**Fix, in this order:**
+
+1. Close the game and open XXMI Launcher, so it updates ZZMI.
+2. Click the 3-dots button next to **Start**, then **Repair ZZMI**.
+3. Start the game and press `F10`.
+4. Check the mod's page for an update.
+
+Never add a copy of SlotFix to `Mods`: ZZMI already includes it. If the mod needs RabbitFX, keep exactly one copy of it in the whole `Mods` folder.
+
+Sometimes a new ZZMI version breaks textures for a few days. In September 2026, ZZMI 1.4.6 and 1.4.7 broke most SlotFix mods, and hotfixes followed within about a week. Open the launcher again after a few days.
+
+If you fix mods yourself, [Fix an old mod by hand](/docs/zenless-zone-zero/ini/fix-an-old-mod) shows how to move an old mod to SlotFix.
+
+</Accordion>
+<Accordion title="Flat shading" id="flat-shading">
+
+Clothes, skin or hair lose their detail and look flat, often after you ran a fix tool.
+
+<img
+  src="/wiki-images/zenless-zone-zero-errors-mods-look-broken-1.webp"
+  alt="The same agent twice, side by side: on the left, labeled Flattened, the clothes look flat; on the right, labeled Detailed, they show their folds and shading"
+/>
+
+**Cause:** since version 1.3, a mod cannot replace a normal map by its hash. Some older fix tools added `run = CommandListSkinTexture` lines to mods. That line flattens the normal maps.
+
+**Fix:**
+
+1. Restore the mod from your backup zip.
+2. Run the current ZZZ Mod Fixer instead. Its maintainer fixed this problem.
+3. Press `F10` in game.
+
+If you edit the mod by hand, wrap the line so it never runs:
+
+```ini
+if 0 == 1
+run = CommandListSkinTexture
+endif
+```
+
+{/* NEEDS HANDS-ON TEST: on ZZMI 1.5.2, that the if 0 == 1 guard around run = CommandListSkinTexture brings back the normal maps of a texture-only mod. */}
+
+</Accordion>
+<Accordion title="Broken textures on some PCs" id="low-video-memory">
+
+A mod looks right for other players, but its textures look broken on your PC.
+
+**Cause:** on graphics cards with less than 6 GB of video memory, the game uses lower-resolution textures. Those textures have other hashes. A mod made only for the normal textures then misses them.
+
+**Fix:**
+
+- Check the mod's page for a version that covers the lower-resolution textures.
+- Mods that load their textures through SlotFix do not depend on texture hashes, so they work on both.
+- Ask the mod's creator.
+
+</Accordion>
+<Accordion title="The mod vanishes at a distance" id="vanishes-at-a-distance">
+
+The mod shows up close, but the original look comes back when the camera moves away.
+
+**Cause:** the game swaps in simpler distance models, called LODs, far from the camera. They have their own hashes. If the mod does not cover them, the original model shows at a distance.
+
+**Fix:** this is a creator fix. The mod needs extra sections for the distance models. Check the mod's page for an update, or tell its creator.
+
+</Accordion>
+<Accordion title="Other problems" id="other-problems">
+
+**Another agent's face breaks when a mod is on:** for example, Jane's face breaks with a Lucy mod, or Qingyi's face with an Anby mod. The mod changes a model part through a hash that several agents share. Turn the mod off and tell its creator. Current mods made with XXMI Tools do not have this problem.
+
+**The sky glitches, or the city flickers or leaves after-images, in Sixth Street or Lumina Square:** a mod skips drawing a part in the wrong place. Find it with the halves method: rename half your mods to start with `DISABLED_`, press `F10`, and keep halving. Then tell the mod's creator.
+
+**A W-Engine glow shows in the wrong place, or the face glows too bright:** the mod uses the wrong glow or face texture. Update ZZMI first. If it stays, tell the mod's creator.
+
+**Stutter or crashes with many mods:** search your `Mods` folder for `RabbitFX`. Keep exactly one copy, and update it after a game update.
+
+{/* NEEDS HANDS-ON TEST: on Zenless Zone Zero 3.3, whether the sky and after-image glitch in Sixth Street and Lumina Square still comes from a mod with a stray handling = skip line. */}
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Crashes and launch errors"
+    href="/docs/zenless-zone-zero/errors/game-crashes"
+    icon={<Icon name="Bug" />}
+    level="beginner"
+  >
+    The game closes or crashes at start, with or without mods.
+  </PremiumCard>
+  <PremiumCard
+    title="Add, turn off, and remove mods"
+    href="/docs/zenless-zone-zero/getting-started/manage-mods"
+    icon={<Icon name="FolderOpen" />}
+    level="beginner"
+  >
+    Turn mods on and off, and keep one mod per agent.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Best Way to Replace Textures - SlotFix Guide](https://gamebanana.com/tuts/18114) by hazelberry.
+- **Image:** screenshot 1 from [Best Way to Replace Textures - SlotFix Guide](https://gamebanana.com/tuts/18114) by hazelberry.
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ and contributors.
+- **Tool page:** [ZZZ Index & Vertex Fix Tool](https://gamebanana.com/tools/24146) by GreenLzz, for its explanation of the 3.2 break.
+- **Tool:** [ZZZ-Mod-Fixer (Community Update)](https://github.com/Vonksdesu/ZZZ-Mod-Fixer) by Vonksdesu.
+- **Issue:** [Environmental texture issues 1.3.4](https://github.com/leotorrez/ZZMI-Package/issues/46), answered by Satan1c.
+- **Guide:** [Enable LOD Models to Load High-Precision Models](https://gamebanana.com/tuts/18763) by tifaforever.
+- **Tool:** [ZZMI-Package](https://github.com/leotorrez/ZZMI-Package) by leotorrez and the ZZMI maintainers.

@@ -1,0 +1,265 @@
+---
+title: "Change a mod's keys and saved settings"
+description: "Give a Zenless Zone Zero mod new keys, stop two mods reacting to one key, stop keys firing while you type, and reset the outfits and toggles ZZMI remembers."
+category: "ini"
+patch: "3.3"
+keywords:
+  [
+    "zzz mod keys",
+    "change toggle key",
+    "keyswap",
+    "d3dx_user.ini",
+    "reset mod settings",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+Many mods switch outfits or parts with keys. This page shows how to give a mod new keys, stop two mods from reacting to one key, and reset the choices a mod remembers. You change one line in a text file. Written for XXMI Launcher 2.5.0 and ZZMI 1.5.2.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/zenless-zone-zero/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="NotepadPlusPlus" note="or any editor that saves UTF-8">
+    A text editor
+  </Requirement>
+  <Requirement icon="FolderOpen">A mod with keys</Requirement>
+</Requirements>
+
+## Find a mod's keys
+
+1. In XXMI Launcher, click the 3-dots button next to **Start**, then **Open Mods Folder**.
+2. Open the mod's folder. Open its `.ini` file in your text editor. In a merged mod, the file is usually `merged.ini`.
+3. Search the file for `[Key`. Every section whose name starts with `Key` is one key.
+
+Some mods also list their keys in a readme file in the mod's folder.
+
+A key section looks like this:
+
+```ini
+[KeySwap]
+condition = $active == 1
+key = k
+type = cycle
+$swapvar = 0,1,2
+```
+
+| Line                       | What it means                                          |
+| -------------------------- | ------------------------------------------------------ |
+| `[KeySwap]`                | The section. Any name that starts with `Key` works.    |
+| `condition = $active == 1` | The key works only while this agent is on screen.      |
+| `key = k`                  | The key you press. This is the line you change.        |
+| `back = ...`               | Optional. A second key that steps backwards.           |
+| `type = cycle`             | Each press moves to the next value in the list.        |
+| `$swapvar = 0,1,2`         | The values the key steps through. Here: three outfits. |
+
+<img
+  src="/wiki-images/zenless-zone-zero-ini-change-mod-keys-1.webp"
+  alt="Four steps: you press K, the condition checks that $active is 1 so the agent is on screen, $swapvar steps from 0 to 1 and back, and persist values are saved to d3dx_user.ini on F10, on exit and every 60 seconds"
+/>
+
+## Change a key
+
+1. Copy the `.ini` to a place outside `Mods`, as a backup.
+2. Change the value after `key =`. Leave every other line as it is.
+3. Save the file as UTF-8.
+4. In game, press `F10` to reload mods.
+5. Put the agent on screen and press your new key.
+
+Write key names like this:
+
+| You want                           | Write                   |
+| ---------------------------------- | ----------------------- |
+| A letter or a digit                | `k`, `7`                |
+| A function key                     | `F5`                    |
+| An arrow key                       | `VK_LEFT`, `VK_RIGHT`   |
+| A number pad key                   | `VK_NUMPAD5`            |
+| A key combination                  | `shift q`, `ctrl alt k` |
+| The key with no Ctrl, Alt or Shift | `no_modifiers k`        |
+| A mouse side button                | `XBUTTON1`, `XBUTTON2`  |
+| A controller button                | `XB_A`, `XB_DPAD_UP`    |
+
+{/* NEEDS HANDS-ON TEST: XBUTTON1 and XBUTTON2 as toggle keys in ZZMI 1.5.2 */}
+
+- Put a space between the parts of a combination.
+- Two `key =` lines in one section both work, and they do the same thing.
+- Some mods use symbol keys such as `/` or `[`. On many keyboard layouts these need Shift or AltGr, so they may not work for you. A letter or a function key always works.
+
+{/* NEEDS HANDS-ON TEST: which symbol characters work as single keys in a key = line, and which need VK_OEM names */}
+
+### Pick keys that work on every keyboard
+
+Creators in the Zenless Zone Zero scene often use the arrow keys with Ctrl, Alt or Shift. Write the modifiers you do not want as `NO_` words, so two combinations never overlap:
+
+```ini
+key = NO_MODIFIERS VK_LEFT
+key = CTRL NO_SHIFT NO_ALT VK_LEFT
+key = CTRL SHIFT NO_ALT VK_LEFT
+```
+
+Each arrow gives 8 combinations this way. `VK_OEM_COMMA` and `VK_OEM_PERIOD` (the comma and period keys) are also likely to work on most layouts.
+
+Do not give a mod these keys:
+
+- ZZMI's own keys: `F6` (all mods off and on), `F8`, `F9`, `F10`, `F12`, `Ctrl+F9`, `Ctrl+F12` and `Ctrl+Alt+F10`.
+- The number pad, if you use hunting mode to make mods.
+- Keys the game uses for moving, skills and menus.
+
+## Two mods react to one key
+
+This happens when a mod's key section has no `condition = $active == 1` line. Without it, the key works for that mod all the time, even when its agent is not on screen.
+
+Fix it one of two ways:
+
+- **Give one mod a new key.** Follow the steps above. This always works.
+- **Add the condition.** Search the file for `$active = 1`. In Zenless Zone Zero mods it sits in the `[TextureOverride...Blend]` section. If you find it, add `condition = $active == 1` under the key section's name. If the file has no `$active` at all, change the key instead.
+
+The condition also needs `$active` to go back to `0` when the agent leaves the screen. Check that the file has this:
+
+```ini
+[Present]
+post $active = 0
+```
+
+If `[Present]` exists without that line, add it. If there is no `[Present]` section, add both lines.
+
+## Stop keys firing while you type
+
+Press `Ctrl+Alt+Shift+End` in game to turn all mod keys off. Press it again to turn them back on. This needs XXMI DLL 1.2.0 or newer. XXMI Launcher 2.5.0 comes with 1.3.2.
+
+Two launcher settings control it. Open the settings, go to the **ZZMI** tab, then the **Input** section:
+
+- **Enable By Default**: whether mod keys are on when the game starts.
+- **Input Disabling Mode**: `Mods` (the default) turns off only keys from mods. `All` also turns off ZZMI's own keys, except `Ctrl+Alt+Shift+End`.
+
+{/* NEEDS HANDS-ON TEST: the Input section labels and Ctrl+Alt+Shift+End in XXMI Launcher 2.5.0 with ZZMI 1.5.2 */}
+
+A community option is [SwapLock](https://github.com/NightLancer/ScriptTools/tree/main/SwapLock) by Nocturne. It puts every mod's keys behind one lock key, `\` by default. It is a Python script that edits your mods' `.ini` files and keeps a backup of each. Run it again after you update a mod. Put its `SwapLock.ini` in `Mods`. It is made for all XXMI games, but nobody has tested it on Zenless Zone Zero for this guide.
+
+{/* NEEDS HANDS-ON TEST: SwapLock on ZZMI 1.5.2, with SwapLock.ini placed in Mods */}
+
+## Saved choices
+
+ZZMI remembers the outfit or toggle you picked. It saves your choices in this file:
+
+```text
+%AppData%\XXMI Launcher\ZZMI\d3dx_user.ini
+```
+
+- ZZMI writes this file when you press `F10`, when the game closes, and every 60 seconds.
+- Only variables marked `persist` are saved, like `global persist $swapvar = 0`.
+- Do not edit this file by hand. ZZMI writes it for you.
+
+### Reset every saved choice
+
+Press `Ctrl+Alt+F10` in game. ZZMI deletes `d3dx_user.ini` and reloads. Every mod goes back to its default.
+
+### Change what a mod starts with
+
+The default is the number at the end of the `global persist` line, in `[Constants]`:
+
+```ini
+[Constants]
+global persist $swapvar = 0
+```
+
+Change `0` to `1` to start with the second outfit. A saved choice wins over the default, so press `Ctrl+Alt+F10` once to see your new default.
+
+### Make a mod remember your choice
+
+If a mod forgets your choice on every start, its variable has no `persist`. Change `global $swapvar = 0` to `global persist $swapvar = 0`, save, and press `F10`.
+
+### Why a mod forgot its choice
+
+- **You renamed or moved its folder.** ZZMI saves each choice under the mod's path, like `$\mods\ellen\merged.ini\swapvar = 1`. A new path is a new name, so the old choice no longer matches.
+- **You turned the mod off.** With **Clear Unknown Mod Settings** on, which is the default, ZZMI deletes the saved choices of mods that are not loaded after the second reload.
+- **You replaced the `ZZMI` folder by hand.** That also replaces `d3dx_user.ini`.
+- **The mod has no `persist`.** See above.
+
+{/* NEEDS HANDS-ON TEST: the exact line a merged mod's $swapvar gets in d3dx_user.ini with ZZMI 1.5.2 */}
+
+Creators can stop the rename problem. A `namespace` line at the very top of the `.ini`, before the first section, saves the choices under that name instead of the path:
+
+```ini
+namespace = AuthorName_AgentName_ModName
+```
+
+Keep version numbers out of the name, so an update keeps the saved choices. Adding a namespace to a mod that players already use resets their saved choices once.
+
+{/* NEEDS HANDS-ON TEST: add a namespace line to a ZZMI 1.5.2 mod with a persist toggle, rename its folder, and check that the toggle keeps its value */}
+
+To keep choices through a rename without editing the mod, [Global Persist Swapkey](https://github.com/NightLancer/ScriptTools) by Nocturne copies your current choices from `d3dx_user.ini` into each mod's `global persist` lines. Set your outfits in game, press `F10`, then run it in the mod's folder. It also comes as a standalone `.exe`. Like SwapLock, it is made for all XXMI games and untested on Zenless Zone Zero.
+
+{/* NEEDS HANDS-ON TEST: Global Persist Swapkey on a ZZMI 1.5.2 Mods folder */}
+
+## Use a mod manager instead
+
+Some mod managers list every mod's keys and let you change them without opening the `.ini`. No Reload Mod Manager has a key viewer and editor. Integrated Mod Manager has hotkey settings too. Managers that change keys edit your `.ini` files, so restore your mods in the manager before you share one. [Mod managers compared](/docs/zenless-zone-zero/tools/mod-managers) shows both side by side.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="My new key does nothing" id="new-key-does-nothing">
+
+- Put the agent on screen. Most keys only work then.
+- Press `F10` after you save the file.
+- Check the spelling of the key name against the table above.
+- Press `Ctrl+Alt+Shift+End` once, in case mod keys are off.
+- Pick another key, in case the game uses yours.
+
+</Accordion>
+<Accordion title="One key press changes two mods" id="one-key-two-mods">
+
+One of the mods has no `condition = $active == 1`, or never sets `$active` back to `0`. Give it a new key, or fix it as shown above.
+
+</Accordion>
+<Accordion title="The outfit goes back to the default every time I start the game" id="outfit-resets">
+
+The variable has no `persist`, or you renamed the mod's folder. See "Why a mod forgot its choice" above.
+
+</Accordion>
+<Accordion title="All my mods disappeared when I pressed a key" id="all-mods-gone">
+
+You pressed `F6`, ZZMI's key for all mods off and on. Press it again. Do not give a mod `F6`.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Add a toggle"
+    href="/docs/zenless-zone-zero/ini/add-a-toggle"
+    icon={<Icon name="ToggleRight" />}
+    level="intermediate"
+  >
+    Add your own keys that hide parts or swap textures.
+  </PremiumCard>
+  <PremiumCard
+    title="Combine mods into one merged mod"
+    href="/docs/zenless-zone-zero/ini/merged-mods"
+    icon={<Icon name="Layers" />}
+    level="intermediate"
+  >
+    Put several mods for one agent in one folder and switch with a key.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Toggle Guide](https://gamebanana.com/tuts/18971) by gdsfdg.
+- **Guide:** [On Mod Hygiene](https://gamebanana.com/tuts/20467) by Holley, for key choices and namespaces.
+- **Guide:** [Independent Shortcut fix](https://gamebanana.com/tuts/19809) by blazinggreen.
+- **Tool:** [ZZMI `d3dx.ini`](https://github.com/leotorrez/ZZMI-Package/blob/main/ZZMI/d3dx.ini) and [`main.ini`](https://github.com/leotorrez/ZZMI-Package/blob/main/ZZMI/Core/ZZMI/main.ini) in ZZMI-Package by leotorrez, for ZZMI's keys and saved settings.
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT, for the input settings.
+- **Tool:** [ScriptTools](https://github.com/NightLancer/ScriptTools) (SwapLock, Global Persist Swapkey) by Nocturne.
+- **Discord:** the mouse side button tip by [Nocturne](https://discord.com/users/219849253990825987) in the [AGMG Discord](https://discord.gg/agmg).

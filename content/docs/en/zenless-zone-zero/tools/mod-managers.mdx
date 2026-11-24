@@ -1,0 +1,240 @@
+---
+title: "Mod managers compared"
+description: "Do you need a mod manager for Zenless Zone Zero mods? Compare Integrated Mod Manager and No Reload Mod Manager, and connect one to XXMI Launcher."
+category: "tools"
+patch: "3.3"
+keywords:
+  [
+    "zzz mod manager",
+    "integrated mod manager",
+    "no reload mod manager",
+    "peakymodmanager",
+    "xxmi mod manager",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+You do not need a mod manager. XXMI Launcher, a few folders, and the `DISABLED_` prefix are the most reliable setup, and the fix tools expect it. A manager helps once you have many mods. Zenless Zone Zero has more managers than any other XXMI game. Two maintained ones work in different ways, so we show both and let you pick.
+
+<ToolCard
+  name="Integrated Mod Manager (IMM)"
+  href="https://github.com/jpbhatt21/integrated-mod-manager/releases/latest"
+  badge="Desktop app"
+  icon={<Icon name="GitHub" />}
+>
+  Keeps your mods in a library and links the ones you turn on. Presets, update
+  tracking, and a built-in mod browser.
+</ToolCard>
+<ToolCard
+  name="No Reload Mod Manager (NRMM)"
+  href="https://github.com/Aglglg/No-Reload-Mod-Manager/releases/latest"
+  badge="In-game overlay"
+  icon={<Icon name="GitHub" />}
+>
+  Lets you switch mods inside the game with `Alt+W`, without pressing `F10`.
+  Edits each mod's `.ini` to do it.
+</ToolCard>
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/zenless-zone-zero/tools/xxmi-launcher"
+    note="with ZZMI installed"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="Monitor">Windows PC</Requirement>
+</Requirements>
+
+## The no-manager setup
+
+ZZMI loads every `.ini` file in `%AppData%\XXMI Launcher\ZZMI\Mods` and its subfolders. It skips any file or folder whose name starts with `DISABLED`. That one rule is all a manager uses.
+
+<Files>
+  <Folder name="Mods" defaultOpen>
+    <Folder name="Ellen" defaultOpen>
+      <Folder name="EllenRecolor: loads" />
+      <Folder name="DISABLED_EllenOutfit: skipped" />
+    </Folder>
+    <Folder name="Miyabi" />
+    <Folder name="RabbitFX: one copy only" />
+  </Folder>
+</Files>
+
+1. Make one folder per agent inside `Mods`.
+2. Put each mod in its own folder inside it, with its `.ini` at the top of that folder.
+3. To turn a mod off, rename its folder to start with `DISABLED_`.
+4. Keep one active mod per agent or outfit.
+5. Press `F10` in game to reload.
+
+[Add, turn off, and remove mods](/docs/zenless-zone-zero/getting-started/manage-mods) has the full steps.
+
+## How managers work
+
+Every manager uses one of these methods. The method decides what it changes on your disk.
+
+| Method          | What it does                                                                 | Good to know                                                                |
+| --------------- | ---------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Rename          | Adds or removes `DISABLED_` on mod folders                                   | The same as doing it by hand. Needs `F10` after each change.                |
+| Links           | Keeps mods in a library folder and puts a link in `Mods` for each active one | Backing up `Mods` copies only the links. Back up the library.               |
+| `.ini` patching | Wraps each mod's `.ini` sections in `if` blocks, so you can switch in game   | Your mods are changed. Restore them before you share one or run a fix tool. |
+| Mixed           | Links, plus some `.ini` edits, for example for keys                          | Has the limits of both.                                                     |
+
+## IMM and NRMM side by side
+
+Versions checked on GitHub on November 24, 2026. Nobody has tested either manager on Zenless Zone Zero 3.3 for this wiki.
+
+|                                          | Integrated Mod Manager                              | No Reload Mod Manager               |
+| ---------------------------------------- | --------------------------------------------------- | ----------------------------------- |
+| Method                                   | Mixed: links, plus `.ini` edits for keys (believed) | `.ini` patching                     |
+| Switch mods without `F10`                | No                                                  | Yes, in an overlay (`Alt+W`)        |
+| Presets                                  | Yes, with hotkeys                                   | Groups                              |
+| Edit mod keys                            | Yes                                                 | Yes, with a keybind viewer          |
+| Built-in mod browser and update tracking | Yes                                                 | No                                  |
+| Warns about missing or extra libraries   | Not stated                                          | Yes, including RabbitFX and SlotFix |
+| Games                                    | Zenless Zone Zero and four other games              | Every XXMI game                     |
+| Linux build                              | Yes                                                 | Yes                                 |
+| Source                                   | Source available, no license file                   | Source available, no license file   |
+| Latest version                           | v4.0.0, July 21, 2026                               | v3.3.2, November 21, 2026           |
+
+{/* NEEDS HANDS-ON TEST: install IMM 4.0.0 and NRMM 3.3.2 with ZZMI 1.5.2, confirm the setup labels below, and check whether IMM edits .ini files for keybinds. */}
+
+## Integrated Mod Manager
+
+IMM is a desktop app by jpbhatt21. It moves your mods into a storage folder named `DISABLED - ALL MODS ARE STORED HERE (Managed by IMM)`, which ZZMI skips. Then it links each active mod into `DO NOT MODIFY (Managed by IMM)`.
+
+<img
+  src="/wiki-images/zenless-zone-zero-tools-mod-managers-1.webp"
+  alt="The Integrated Mod Manager v4.0.0 release on GitHub by jpbhatt21, with its list of major changes"
+/>
+
+To set it up:
+
+1. Start XXMI Launcher once, so the `ZZMI\Mods` folder exists.
+2. Download IMM from its GitHub releases page and install it.
+3. Pick Zenless Zone Zero and set the game or mods path in the settings.
+4. Make a restore point before big changes.
+
+Good to know:
+
+- Keep your mods on an internal drive. The author says IMM's links do not work on portable drives.
+- Do not make your own folders inside the two "(Managed by IMM)" folders. IMM throws those changes away.
+- Do not rename or delete the managed folders by hand.
+
+Download IMM only from GitHub (`jpbhatt21/integrated-mod-manager`). Another GitHub project uses the same name and is a different app.
+
+## No Reload Mod Manager
+
+NRMM is by agulag (Aglglg on GitHub). It keeps every mod in a group loaded and picks one with a variable, so you switch outfits in game with no reload. It also saves each mod's toggle states. It is the most-liked active manager on the Zenless Zone Zero tool pages.
+
+<img
+  src="/wiki-images/zenless-zone-zero-tools-mod-managers-2.webp"
+  alt="The No Reload Mod Manager v3.3.2 release on GitHub, with the Windows setup, Windows portable, and Linux AppImage files"
+/>
+
+To set it up:
+
+1. Download the Windows setup file from GitHub releases and install it.
+2. Run it. Open it from the system tray, or press `Alt+W` in game.
+3. In **Settings**, set **Mods path** to `ZZMI\Mods` by hand. The author says not to rely on auto-detect.
+4. Make group folders inside `Mods\_MANAGED_`: `group_1`, `group_2`, and so on. One group per agent works well.
+5. Put mods in the groups, then click **Update Mod Data**.
+
+Good to know:
+
+- More active mods means a slower `F10`. Turn off groups you rarely use.
+- In 2025 a player reported a limit of 48 groups and 40 mods per group. Check whether it still applies.
+- In 2025 a player reported broken Alice mods inside managed groups. If a mod looks wrong only in NRMM, test it outside the groups.
+- To stop using NRMM, or before you share a mod, drag the `Mods` folder onto the **Restorer** area in **Settings**. It removes only NRMM's lines.
+
+## Start a manager with the launcher
+
+XXMI Launcher can start your manager each time the game starts.
+
+1. Find the manager in the Start menu, right-click it, and choose **Open file location**. Repeat on the shortcut until you reach the `.exe`.
+2. Copy the path of the `.exe`.
+3. Open the launcher settings, go to the **Advanced** tab, and tick **Post-Load Command**.
+4. Paste the path into the box next to it.
+
+{/* NEEDS HANDS-ON TEST: that Post-Load Command in launcher 2.5.0 starts NRMM or IMM after Zenless Zone Zero loads. The only source is a 2025 video that shows an older launcher with a "Run post launch" option. */}
+
+## Rules for any manager
+
+<Callout type="warning" title="Use one manager per Mods folder">
+
+Each manager expects its own folder layout. A second manager sees renamed folders, links, or patched `.ini` files it did not make. Mods go missing or get patched twice. To switch, restore everything in the old manager first, then uninstall it.
+
+</Callout>
+
+- **Toggles reset when a mod is off.** Turning a mod off drops its saved toggle states from `d3dx_user.ini`. They come back at their default values.
+- **Restore before fixes.** Run update fix tools only on clean mods. Restore patched mods first, fix them, then add them back to the manager.
+- **No SlotFix in a manager folder.** ZZMI already has SlotFix in its `Core` folder. Delete any copy you find in `Mods` or in a manager's library.
+- **One RabbitFX only.** RabbitFX is a separate library. Keep exactly one active copy of it in the whole `Mods` folder.
+- **Expect the Mod Optimizer.** XXMI Launcher checks `Mods` on every start and can rename files inside a linked mod.
+
+{/* NEEDS HANDS-ON TEST: how the launcher's Mod Optimizer treats IMM's linked folders, and where RabbitFX should sit when a manager handles the Mods folder. */}
+
+## Other managers you may see
+
+| Manager          | Status                                                                                                                                                                                          |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| PeakyModManager  | Made only for Zenless Zone Zero. Keeps mods in a library and links them, like IMM. MIT license, v1.3.8 from November 2026 ([GitHub](https://github.com/Tian-W001/PeakyModManager_v3/releases)). |
+| JASM             | The original is no longer maintained. A community fork by Moonholder is active ([GitHub](https://github.com/Moonholder/JASM/releases)). It is Chinese-first, with an English interface.         |
+| FlairX           | Popular on Zenless Zone Zero, but its GitHub source page is gone. Its status is unclear.                                                                                                        |
+| SkinSelectImpact | Popular, but closed source. It needs .NET Core 3.1, which no longer gets updates.                                                                                                               |
+| XX Mod Manager   | Made with Zenless Zone Zero in mind, but it has had no release since July 2025.                                                                                                                 |
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="My mods vanished after I installed a manager" id="mods-moved">
+
+The manager moved them into its own folder. Look for its storage folder inside `Mods`. If you used two managers, restore in one, uninstall it, and keep the other.
+
+</Accordion>
+<Accordion title="A mod forgot its outfit or toggle settings" id="toggles-reset">
+
+Turning a mod off wipes its saved settings. Set them again in game, or ask the mod's creator for its default keys.
+
+</Accordion>
+<Accordion title="F10 takes a long time" id="slow-reload">
+
+Every active mod reloads on `F10`. Turn off mods or groups you do not use.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Change a mod's keys and saved settings"
+    href="/docs/zenless-zone-zero/ini/change-mod-keys"
+    icon={<Icon name="Keyboard" />}
+    level="beginner"
+  >
+    Move a toggle to another key, or reset what a mod remembers.
+  </PremiumCard>
+  <PremiumCard
+    title="Fix your mods after a game update"
+    href="/docs/zenless-zone-zero/getting-started/fix-mods-after-an-update"
+    icon={<Icon name="RefreshCw" />}
+    level="beginner"
+  >
+    What to do when a new Zenless Zone Zero version breaks your mods.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This page is based on the work of these creators. Check out their original pages and tools.
+
+- **Tool:** [Integrated Mod Manager](https://github.com/jpbhatt21/integrated-mod-manager) by jpbhatt21.
+- **Tool:** [No Reload Mod Manager](https://github.com/Aglglg/No-Reload-Mod-Manager) by agulag (Aglglg).
+- **Tool:** [PeakyModManager](https://github.com/Tian-W001/PeakyModManager_v3) by Peakyrin (Tian-W001).
+- **Tool:** [JASM fork](https://github.com/Moonholder/JASM) by Moonholder, based on JASM by Jorixon.
+- **Guide:** [Mod Managers](https://leotorrez.github.io/modding/guides/mod-managers) by LeoTorreZ.
+- **Video:** [No Reload Mod Manager | Zenless Zone Zero](https://www.youtube.com/watch?v=1a4SK0sGdNk) by Proxy Index, in Spanish, for starting a manager with the launcher.

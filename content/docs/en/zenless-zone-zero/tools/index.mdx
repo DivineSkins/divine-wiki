@@ -1,0 +1,161 @@
+---
+title: "Tools overview"
+description: "Every tool Zenless Zone Zero modders use, which ones to install first, which ones to skip, and how they fit together from the original model to a working mod."
+category: "tools"
+patch: "3.3"
+keywords: ["zzz modding tools", "xxmi launcher", "zzmi", "xxmi tools"]
+---
+
+A Zenless Zone Zero mod needs a few free tools. Each row below says what a tool does. Click it for the full guide.
+
+**New here?** Install XXMI Launcher first. It is the only tool a player needs.
+
+<Callout type="info" title="Every tool here is community-made">
+
+HoYoverse makes no modding tools for Zenless Zone Zero. The tools on these pages come from community creators, and all of them are free. XXMI Launcher is free too: never pay for it.
+
+</Callout>
+
+## How the tools fit together
+
+<img
+  src="/wiki-images/zenless-zone-zero-tools-index-1.webp"
+  alt="Five stages of a Zenless Zone Zero mod: get the original from the asset repo or a frame dump, edit it in Paint.NET or Blender, export with XXMI Tools, put it in the ZZMI Mods folder, and press F10 in game"
+/>
+
+Every mod passes through the same stages. A texture-only mod skips Blender: you write its short `.ini` by hand. [How Zenless Zone Zero mods work](/docs/zenless-zone-zero/basics/how-mods-work) explains what ZZMI does with these files.
+
+---
+
+## Player toolchain
+
+<ToolCard
+  name="XXMI Launcher"
+  href="/docs/zenless-zone-zero/tools/xxmi-launcher"
+  badge="Required"
+  icon={<Icon name="XXMILauncher" />}
+>
+  Installs and updates ZZMI 1.5.2 and starts the game with your mods. Version
+  2.5.0.
+</ToolCard>
+<ToolCard
+  name="Mod managers"
+  href="/docs/zenless-zone-zero/tools/mod-managers"
+  badge="Optional"
+  icon={<Icon name="FolderOpen" />}
+>
+  Integrated Mod Manager and No Reload Mod Manager. Useful once you have many
+  mods.
+</ToolCard>
+<ToolCard
+  name="Update fix tools"
+  href="/docs/zenless-zone-zero/tools/update-fixers"
+  icon={<Icon name="RefreshCw" />}
+>
+  The ZZZ Mod Fixer repairs old mods after a game update. Version 2.3.0, for
+  3.3.
+</ToolCard>
+
+ZZMI already includes SlotFix, TTLib and its other libraries. Never download them separately. RabbitFX is different: it is a separate library that many mods need, and you add exactly one copy yourself. [Add, turn off, and remove mods](/docs/zenless-zone-zero/getting-started/manage-mods) shows how.
+
+---
+
+## Creator toolchain
+
+Add these when you make your own mods.
+
+<ToolCard
+  name="Texture editors"
+  href="/docs/zenless-zone-zero/tools/texture-editors"
+  badge="Free"
+  icon={<Icon name="PaintNET" />}
+>
+  Paint.NET opens and saves DDS textures. Photoshop, GIMP and `texconv` work
+  too.
+</ToolCard>
+<ToolCard
+  name="XXMI Tools for Blender"
+  href="/docs/zenless-zone-zero/tools/blender-add-on"
+  badge="Models"
+  icon={<Icon name="Blender" />}
+>
+  Imports an agent into Blender and exports your mod with its `.ini`. Version
+  1.8.2.
+</ToolCard>
+<ToolCard
+  name="Blender"
+  href="https://www.blender.org/download/lts/"
+  badge="Free"
+  icon={<Icon name="Blender" />}
+>
+  The 3D editor for model mods. Use 4.5 LTS.
+</ToolCard>
+<ToolCard
+  name="ZZ-Model-Importer-Assets"
+  href="https://github.com/leotorrez/ZZ-Model-Importer-Assets"
+  icon={<Icon name="GitHub" />}
+>
+  Ready-made dumps of the agents, from version 3.2. It has no 3.3 agents and no
+  face meshes yet. Download single folders, never the whole repo.
+</ToolCard>
+<ToolCard
+  name="gui_collect"
+  href="https://github.com/Petrascyll/gui_collect"
+  icon={<Icon name="GitHub" />}
+>
+  Turns your own frame dump into a folder XXMI Tools can import. Version 1.4.2,
+  needs Python 3.9 or newer.
+</ToolCard>
+<ToolCard
+  name="VS Code"
+  href="https://code.visualstudio.com/"
+  icon={<Icon name="CodeXml" />}
+>
+  Text editor for `.ini` files. The `3dmigoto-ini-extensions` add-on colors the
+  syntax.
+</ToolCard>
+
+Hunting mode and frame dumps are built into ZZMI. Turn on **Enable Hunting** in the launcher's ZZMI tab to use them.
+
+---
+
+## Tools to skip
+
+| Skip this                                                             | Why                                             | Use instead                               |
+| --------------------------------------------------------------------- | ----------------------------------------------- | ----------------------------------------- |
+| Standalone ZZMI (2024)                                                | Deprecated. It gets no updates.                 | XXMI Launcher                             |
+| Separate SlotFix downloads, or SlotFix copies inside mods             | ZZMI ships SlotFix. Extra copies cause crashes. | Nothing. Delete stray copies from `Mods`. |
+| Old Blender plugins (`blender_3dmigoto` scripts, LeoTools scripts)    | Replaced, and they clash with XXMI Tools.       | XXMI Tools                                |
+| The 2024 "Zenless Zone Zero Asset Library"                            | Stale dumps from early versions.                | ZZ-Model-Importer-Assets                  |
+| Fix tools for old versions                                            | Outdated. Old fixers break newer mods.          | The current ZZZ Mod Fixer                 |
+| A `d3d11.dll` from any source but the launcher                        | Real fixes never swap XXMI files.               | XXMI Launcher's **Repair ZZMI**           |
+| GitHub "mod menus", "mod launchers", and skin packs with farmed stars | Tools for unfair play, or malware.              | Nothing. Never download them.             |
+| Lookalike 3DMigoto download sites                                     | Not official.                                   | XXMI Launcher                             |
+
+## How to spot a real tool
+
+- Real tools come from known community authors, most often on GitHub. GameBanana's upload bot has blocked some fix tool `.exe` files, so current Zenless Zone Zero fix tools link to GitHub.
+- Download each tool from the link on its wiki page, not from a search result or a video comment.
+- A tool can be an `.exe`. A mod never is: it holds `.ini`, `.buf`, `.ib` and `.dds` files. [What's allowed and how to stay safe](/docs/zenless-zone-zero/getting-started/stay-safe) explains how to check a mod download.
+
+## Next steps
+
+<PremiumCard
+  title="Set up your creator tools"
+  href="/docs/zenless-zone-zero/getting-started/creator-setup"
+  icon={<Icon name="Compass" />}
+  level="beginner"
+>
+  Install the texture and model tools step by step.
+</PremiumCard>
+
+## Credits
+
+This page is based on the work of these creators. Check out their original pages.
+
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT.
+- **Tool:** [ZZMI-Package](https://github.com/leotorrez/ZZMI-Package) by leotorrez and the ZZMI maintainers.
+- **Tool:** [XXMI Tools](https://github.com/leotorrez/XXMITools) by LeoTorreZ.
+- **Tool:** [ZZ-Model-Importer-Assets](https://github.com/leotorrez/ZZ-Model-Importer-Assets) by LeoTorreZ, maintained mostly by Satan1c.
+- **Tool:** [gui_collect](https://github.com/Petrascyll/gui_collect) by Petrascyll.
+- **Guide:** [Downloads](https://leotorrez.github.io/modding/downloads) on the modding guide site by LeoTorreZ.

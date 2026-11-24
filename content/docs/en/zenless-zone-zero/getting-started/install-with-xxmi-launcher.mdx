@@ -1,0 +1,348 @@
+---
+title: "Install mods with XXMI Launcher"
+description: "Install XXMI Launcher and ZZMI, keep the game in DirectX 11, set the two graphics options mods need, and add your first Zenless Zone Zero mod."
+category: "getting-started"
+patch: "3.3"
+keywords:
+  ["zzz mods", "zzmi", "xxmi launcher", "install zenless zone zero mods"]
+---
+
+<LevelPill level="beginner" />
+
+XXMI Launcher installs ZZMI, the Zenless Zone Model Importer, and starts the game with your mods. This guide is written for XXMI Launcher 2.5.0 and ZZMI 1.5.2 on Zenless Zone Zero 3.3. Read [What's allowed and how to stay safe](/docs/zenless-zone-zero/getting-started/stay-safe) first: mods break the game's terms.
+
+<Callout type="info" title="Looking for Celestial?">
+  Celestial, Divine's own launcher, does not install Zenless Zone Zero mods, so
+  this guide uses XXMI Launcher.
+</Callout>
+
+<Accordions>
+<Accordion title="Coming from another game?">
+
+**From Genshin Impact, Honkai: Star Rail or Wuthering Waves:** it is the same launcher. Click the Zenless Zone Zero tile and install ZZMI next to your other importer. What changes:
+
+- Mods go in `ZZMI\Mods`, not `GIMI`, `SRMI` or `WWMI`.
+- The game must run in DirectX 11. Its DX12 mode has no mod support.
+- Two graphics options matter: **Character Quality** and **High-Precision Character Animation**.
+- Zenless Zone Zero is on HoYoPlay, Epic Games and Steam.
+- ZZMI ships SlotFix, its texture library. Many mods also need RabbitFX, which you add once yourself.
+
+See the [Genshin Impact](/docs/genshin-impact), [Honkai: Star Rail](/docs/honkai-star-rail) and [Wuthering Waves](/docs/wuthering-waves) sections for those games.
+
+**From Deadlock or League of Legends:** nothing is packed or replaced on disk. XXMI swaps models and textures while the game draws them, and `F10` reloads your mods in game.
+
+</Accordion>
+</Accordions>
+
+## What you need
+
+<Requirements>
+  <Requirement icon="ZenlessZoneZero" note="HoYoPlay, Epic Games or Steam">
+    Zenless Zone Zero
+  </Requirement>
+  <Requirement icon="Monitor" note="64-bit">
+    Windows 10 or 11
+  </Requirement>
+  <Requirement icon="ShieldCheck">An admin account on your PC</Requirement>
+  <Requirement icon="FileArchive" note="such as 7-Zip">
+    An archive tool
+  </Requirement>
+</Requirements>
+
+Mods work on the Windows PC version only. Mobile, console, cloud and Mac versions cannot use mods. Old guides install "standalone ZZMI" by hand: that version is deprecated and gets no updates, so use XXMI Launcher.
+
+## Install XXMI Launcher and ZZMI
+
+<Steps>
+<Step>
+
+### Download XXMI Launcher
+
+<ToolCard
+  name="XXMI Launcher"
+  href="https://github.com/SpectrumQT/XXMI-Launcher/releases/latest"
+  badge="Required"
+  icon={<Icon name="XXMILauncher" />}
+>
+  Official releases on GitHub, by SpectrumQT. Free and open source (GPL-3.0).
+</ToolCard>
+
+1. Open the latest release page on GitHub.
+2. Scroll down to **Assets**.
+3. Click `XXMI-Launcher-Installer-Online-v2.5.0.msi` to download it. The version number changes with each release.
+
+<img
+  src="/wiki-images/zenless-zone-zero-getting-started-install-with-xxmi-launcher-1.webp"
+  alt="The Assets list on the XXMI Launcher v2.5.0 release page, with the .msi installer and the portable .zip"
+/>
+
+Get the launcher only from this GitHub page. Other sites with "XXMI" in the name are not official.
+
+</Step>
+<Step>
+
+### Install it
+
+<Tabs items={["Installer (.msi)", "Portable (.zip)"]}>
+<Tab value="Installer (.msi)">
+
+1. Double-click the `.msi` file.
+2. Windows may warn you because the launcher is not code-signed. Check that the file came from the GitHub page above before you go on.
+3. Click **Quick Installation**. It installs to `%AppData%\XXMI Launcher`.
+4. If Windows asks for an admin account, right-click the `.msi` and choose **Run as administrator**.
+
+Use **Custom Installation** only to pick another folder. Never pick a folder inside the game folder or inside Program Files.
+
+{/* NEEDS HANDS-ON TEST: the exact Windows SmartScreen wording and buttons for the unsigned XXMI-Launcher-Installer-Online-v2.5.0.msi, and whether the installer asks for admin rights by itself. */}
+
+</Tab>
+<Tab value="Portable (.zip)">
+
+Use this when the `.msi` will not install, for example when it says the Visual C++ Redistributable "was not installed correctly".
+
+1. Install the [Microsoft Visual C++ Redistributable (x64)](https://aka.ms/vs/17/release/vc_redist.x64.exe).
+2. Download `XXMI-Launcher-Portable-v2.5.0.zip` from the same release page.
+3. Extract it to a folder you own. Not inside Program Files, not inside the game folder, and with no `{` or `}` in the path.
+4. Run `Resources\Bin\XXMI Launcher.exe`. Make a desktop shortcut to it.
+
+</Tab>
+</Tabs>
+
+XXMI Launcher needs admin rights each time it starts the game, because it loads the mod loader into the game.
+
+</Step>
+<Step>
+
+### Start Zenless Zone Zero once in DirectX 11
+
+Mods need the game in DirectX 11. Since version 3.0, Zenless Zone Zero also has a DirectX 12 mode, and ZZMI does not work in it.
+
+1. Open HoYoPlay, the Epic Games Launcher or Steam.
+2. Update Zenless Zone Zero to the latest version. XXMI Launcher does not update the game.
+3. In HoYoPlay, find the **DX12** box under **Start Game** and leave it unticked.
+4. Start the game once, log in, and close it.
+
+With DX12 off, you lose ray tracing, DLSS and frame generation. The XXMI team says DirectX 12 support would take years of work. Never add `-use-d3d12` to the game's launch options.
+
+{/* NEEDS HANDS-ON TEST: on Zenless Zone Zero 3.3, confirm the DX12 box under Start Game in HoYoPlay, whether the Steam and Epic Games versions show the same box, and that the first start creates GENERAL_DATA.bin for the launcher's game settings step. */}
+
+{/* SCREENSHOT: zenless-zone-zero-getting-started-install-with-xxmi-launcher-3.webp, HoYoPlay with Zenless Zone Zero selected and the DX12 box under Start Game unticked. */}
+
+</Step>
+<Step>
+
+### Add Zenless Zone Zero and install ZZMI
+
+1. Open XXMI Launcher. You see **Select Games To Mod:** and a row of game tiles.
+2. Click the **Zenless Zone Zero** tile. The ZZMI icon appears in the top-left bar.
+3. Click the ZZMI icon, then click **Install**.
+4. When **Game Installation Found** appears, check the path and click **Confirm**.
+5. Wait while the launcher downloads ZZMI and the XXMI DLL. The button changes to **Start**.
+
+The bottom-left corner now shows the versions, such as `LAUNCHER 2.5.0`, `XXMI 1.3.2` and `ZZMI 1.5.2`.
+
+If you see **Game Installation Not Found**, click **Open Settings**. Under <MenuPath path="General > Game Folder" />, click **Browse...** and pick the `ZenlessZoneZero Game` folder, the one that holds `ZenlessZoneZero.exe` and `ZenlessZoneZero_Data`. On HoYoPlay it is usually here:
+
+```text
+C:\Program Files\HoYoPlay\games\ZenlessZoneZero Game
+```
+
+On Steam it looks like `...\steamapps\common\Zenless Zone Zero\games\ZenlessZoneZero Game`.
+
+{/* SCREENSHOT: zenless-zone-zero-getting-started-install-with-xxmi-launcher-4.webp, XXMI Launcher 2.5.0 on the ZZMI page after install, showing the Start button, the 3-dots button and the version text bottom-left. No current screenshot exists in any source. */}
+
+</Step>
+<Step>
+
+### Check the settings mods need
+
+1. Click the gear icon at the top right to open the settings.
+2. Open the **General** tab.
+3. Check **Game Folder**. It must point to the folder that holds `ZenlessZoneZero.exe`.
+4. Set **Game Launch** for your store, as shown below.
+5. Keep **Configure Game Settings For ZZMI** ticked. Before each start, it sets the two graphics options mods need.
+
+<Tabs items={["HoYoPlay", "Steam", "Epic Games"]}>
+<Tab value="HoYoPlay">
+
+Leave **Game Launch** on `Direct`. HoYoPlay is the most tested version.
+
+</Tab>
+<Tab value="Steam">
+
+1. Set **Game Launch** to `Steam`.
+2. Leave **Configure Launch Options on Steam** and **Skip HoYoPlay Launcher** ticked.
+3. Click **Start**. The launcher writes the Steam launch options for you, and Steam restarts if they changed.
+
+If Steam says "Please launch the game with the Steam Client", the game was started from its `.exe`. Start it from XXMI Launcher instead.
+
+<Accordions>
+<Accordion title="Advanced: start from Steam's Play button">
+
+You can put XXMI Launcher in the game's Steam **Launch Options** by hand instead. Set **Game Launch** to `Direct`, then use the form from the XXMI Launcher wiki, with your own launcher path:
+
+```text
+"C:\Path\To\XXMI Launcher\Resources\Bin\XXMI Launcher.exe" && %command% --nogui --xxmi ZZMI
+```
+
+Community posts put `--nogui --xxmi ZZMI` before `%command%` instead, and both orders are reported to work. The `Steam` option above avoids this.
+
+{/* NEEDS HANDS-ON TEST: on the Steam version of Zenless Zone Zero 3.3 with XXMI Launcher 2.5.0, which of the two Launch Options orders loads ZZMI. */}
+
+</Accordion>
+</Accordions>
+
+</Tab>
+<Tab value="Epic Games">
+
+1. Set **Game Launch** to `Epic Games`.
+2. Make sure the game runs in DirectX 11. The Epic version has started in DirectX 12 by default since a September 2026 update.
+
+If the game crashes at login or no banner shows, try this community fix: in the Epic Games Launcher, add `-force-d3d11` to the game's **Additional Command Line Arguments**.
+
+{/* NEEDS HANDS-ON TEST: on the Epic Games version of Zenless Zone Zero 3.3, whether Game Launch = Epic Games or Direct works best, whether either mode forces DirectX 11 by itself, and the exact place of Additional Command Line Arguments in the Epic Games Launcher. */}
+
+</Tab>
+</Tabs>
+
+Leave every other setting at its default. Settings that change how the launcher loads into the game are not covered here.
+
+{/* NEEDS HANDS-ON TEST: on XXMI Launcher 2.5.0, confirm the tab and label names (General, Game Folder, Game Launch, Configure Game Settings For ZZMI, Configure Launch Options on Steam, Skip HoYoPlay Launcher). No source has a screenshot of the 2.4.1+ settings window. */}
+
+{/* SCREENSHOT: zenless-zone-zero-getting-started-install-with-xxmi-launcher-5.webp, the General tab of XXMI Launcher 2.5.0 settings for ZZMI, showing Game Folder, Game Launch and Configure Game Settings For ZZMI. */}
+
+</Step>
+<Step>
+
+### Start the game and check that ZZMI loads
+
+1. Close HoYoPlay if it is open.
+2. Click **Start** in XXMI Launcher. It closes itself when the game window opens.
+3. Watch the lower-left corner while the game loads. For about 30 seconds you should see `ZZMI 1.5.2 (PRESS F12 TO SHOW GUIDE)`.
+4. Read the user guide that opens on the first start. Press `F10` to hide it for good. Press `F12` to open it again later.
+
+Some download pages still say `F1` opens the guide. That is outdated: the key is `F12`.
+
+{/* SCREENSHOT: zenless-zone-zero-getting-started-install-with-xxmi-launcher-6.webp, the ZZMI 1.5.2 banner in the lower-left corner of the Zenless Zone Zero loading screen, UID hidden. No current Zenless Zone Zero image of the banner or the user guide exists in the sources. */}
+
+No banner means ZZMI did not load, and no mod will show. Always start the game from XXMI Launcher, not from HoYoPlay or the Epic Games Launcher.
+
+</Step>
+<Step>
+
+### Check the graphics settings
+
+1. In game, open <MenuPath path="Settings > Graphics" />.
+2. Set **Character Quality** to **High**.
+3. Set **High-Precision Character Animation** to **Disable**.
+
+<img
+  src="/wiki-images/zenless-zone-zero-getting-started-install-with-xxmi-launcher-2.webp"
+  alt="The Zenless Zone Zero graphics settings with High-Precision Character Animation set to Disable, marked with red arrows"
+/>
+
+**Image Quality** then shows **Custom**. That is expected. With either option wrong, mods break. The launcher sets both on each start while **Configure Game Settings For ZZMI** is ticked.
+
+{/* NEEDS HANDS-ON TEST: the exact English labels and values in the 3.3 client (Character Quality, High, High-Precision Character Animation, Disable or Disabled, Image Quality, Custom). The screenshot is from the 1.3 menu. */}
+
+If you have an NVIDIA card, also turn off NVIDIA Smooth Motion and frame generation. Smooth Motion is the most common reason the banner never shows.
+
+If your graphics card has less than 6 GB of video memory, the game uses lower-resolution textures with different hashes. Mods made only for the normal textures then look broken.
+
+</Step>
+<Step>
+
+### Add your first mod
+
+1. In XXMI Launcher, click the 3-dots button next to **Start**, then **Open Mods Folder**. It opens `%AppData%\XXMI Launcher\ZZMI\Mods`.
+2. Open the mod you downloaded with your archive tool. Check that it holds only `.ini`, `.buf`, `.ib` and `.dds` files.
+3. Extract the mod's folder into `Mods`.
+4. Turn off any other mod for the same character.
+5. In game, switch to a different character so the modded one is off screen.
+6. Press `F10` to reload. Then switch back.
+
+<Files>
+  <Folder name="ZZMI" defaultOpen>
+    <Folder name="Core: ZZMI itself, do not edit" />
+    <Folder name="Mods" defaultOpen>
+      <Folder name="EllenRecolor: your mod" defaultOpen>
+        <File name="EllenRecolor.ini" />
+        <File name="EllenBodyADiffuse.dds" />
+      </Folder>
+    </Folder>
+    <Folder name="ShaderFixes: ZZMI's own files" />
+    <File name="d3dx.ini" />
+  </Folder>
+</Files>
+
+A `.zip` left inside `Mods` does nothing: always extract it. If the mod page says it needs SlotFix or "requires XXMI", you already have it. ZZMI includes SlotFix, so never add a copy to `Mods`. If the mod needs RabbitFX, keep exactly one copy of it in the whole `Mods` folder.
+
+{/* NEEDS HANDS-ON TEST: with a clean XXMI Launcher 2.5.0 install, add one character mod, press F10 with the character off screen, and confirm it appears. */}
+
+</Step>
+</Steps>
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The game starts, but there is no ZZMI banner" id="no-banner">
+
+1. Turn off NVIDIA Smooth Motion and frame generation.
+2. Check that the game runs in DirectX 11, with the DX12 box unticked.
+3. Close the game and start it again with **Start** in XXMI Launcher.
+4. Check that **Game Folder** points to the folder that holds `ZenlessZoneZero.exe`.
+5. Close any other program that hooks into the game at startup. Overwolf, Virtual Desktop and Oculus software have caused crashes with mods.
+
+[Mods not loading](/docs/zenless-zone-zero/errors/mods-not-loading) has the full checklist.
+
+</Accordion>
+<Accordion title="Mods look broken on every character" id="all-mods-broken">
+
+Check **Character Quality** and **High-Precision Character Animation** in <MenuPath path="Settings > Graphics" />, and keep **Configure Game Settings For ZZMI** ticked in the launcher. On a card with less than 6 GB of video memory, only mods that cover the lower-resolution textures look right.
+
+</Accordion>
+<Accordion title="Input lag after you install mods" id="input-lag">
+
+Change the **V-Sync** and frame limit options in the game's graphics settings, then test again. Lag of up to a second or two has been reported, often on AMD cards.
+
+</Accordion>
+<Accordion title='"Cannot start with d3dx.ini in Mods folder!"' id="d3dx-in-mods">
+
+A mod or an old setup put a `d3dx.ini` file inside `Mods`. Find it, delete it, and click **Start** again.
+
+</Accordion>
+</Accordions>
+
+Launcher errors and antivirus alerts are in [XXMI Launcher problems](/docs/zenless-zone-zero/errors/launcher-problems).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Add, turn off, and remove mods"
+    href="/docs/zenless-zone-zero/getting-started/manage-mods"
+    icon={<Icon name="FolderOpen" />}
+    level="beginner"
+  >
+    Turn mods on and off, reload them in game, and keep your Mods folder clean.
+  </PremiumCard>
+  <PremiumCard
+    title="Fix your mods after a game update"
+    href="/docs/zenless-zone-zero/getting-started/fix-mods-after-an-update"
+    icon={<Icon name="RefreshCw" />}
+    level="beginner"
+  >
+    What to do when an update breaks your mods.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT.
+- **Wiki:** [More Start Options](https://github.com/SpectrumQT/XXMI-Launcher/wiki/More-Start-Options) by SpectrumQT.
+- **Tool page:** [ZZMI - Zenless Zone Model Importer](https://gamebanana.com/tools/17467) by LeoMods\_.
+- **Tool:** [ZZMI user guide](https://github.com/leotorrez/ZZMI-Package/tree/main/ZZMI/Core/ZZMI/Notifications) by leotorrez.
+- **Guide:** [Getting Started](https://leotorrez.github.io/modding/guides/getting-started) by LeoTorreZ.
+- **Images:** screenshot 2 from [ZZZ 1.3 Character Fix](https://gamebanana.com/tools/18386) by petrascyll (CC BY-NC-ND 4.0).

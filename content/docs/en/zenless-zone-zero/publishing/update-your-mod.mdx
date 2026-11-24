@@ -1,0 +1,229 @@
+---
+title: "Update your mod after a game update"
+description: "A Zenless Zone Zero update broke your mod? See what changed, fix hashes, SlotFix lines or mesh data from your .blend, test risky moments, and share the fix."
+category: "publishing"
+patch: "3.3"
+keywords:
+  [
+    "update zzz mod",
+    "zzz mod broke after update",
+    "new hashes",
+    "slotfix",
+    "rebuild mod",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+A game update broke a mod you made. This guide shows how to find what changed, fix it from your own files, test it, and share the fixed version. It is written for creators. Fixing a mod you downloaded is a player task with its own guide, linked in the next section.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Blender" note="the file you exported from">
+    Your .blend file
+  </Requirement>
+  <Requirement
+    icon="Box"
+    href="/docs/zenless-zone-zero/tools/blender-add-on"
+    note="newest version"
+  >
+    XXMI Tools
+  </Requirement>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/zenless-zone-zero/tools/xxmi-launcher"
+    note="updated ZZMI"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement
+    icon="GitHub"
+    href="https://github.com/leotorrez/ZZ-Model-Importer-Assets"
+    note="or your own new dump"
+  >
+    The current original files
+  </Requirement>
+</Requirements>
+
+## Rule out the player side first
+
+Many "my mod broke" reports are not about the mod at all. Before you change anything, run the player checks in [Fix your mods after a game update](/docs/zenless-zone-zero/getting-started/fix-mods-after-an-update). In short:
+
+1. **The game runs in DirectX 11,** with **Character Quality** at **High** and **High-Precision Character Animation** at **Disable** in the graphics settings.
+2. **ZZMI is up to date.** Open XXMI Launcher and let it update. The in-game banner shows the version, such as `ZZMI 1.5.2`.
+3. **Your mod is the only one for that agent or outfit.** Turn the others off and press `F10`.
+
+{/* NEEDS HANDS-ON TEST: the exact English labels of Character Quality and High-Precision Character Animation in the 3.3 client */}
+
+Still broken? Then the update changed something your mod depends on. Keep a zipped copy of the broken version before you start.
+
+## What updates break in Zenless Zone Zero
+
+Zenless Zone Zero updates about every six weeks, and almost every update changes some agents. Each kind of break needs a different fix.
+
+| What you see                                      | What changed                                            | Fix                                     |
+| ------------------------------------------------- | ------------------------------------------------------- | --------------------------------------- |
+| Your mod does not show: the agent looks original  | The agent got new hashes                                | [New hashes](#new-hashes)               |
+| A mess of colors, far too glossy, or flat shading | ZZMI changed SlotFix, or your mod sets textures by hash | [Texture lines](#texture-lines)         |
+| Bent or twisted legs, textures fine               | The bone numbers in the mesh data                       | [Changed mesh data](#changed-mesh-data) |
+| Scrambled textures, shape fine                    | How the mesh stores its UVs                             | [Changed mesh data](#changed-mesh-data) |
+| A part missing, or the whole agent broken         | A component was split, or the agent was remade          | [Changed mesh data](#changed-mesh-data) |
+| Broken face, black patches on the face            | The face data                                           | [Face mods](#face-mods)                 |
+
+Dates that matter, newest first:
+
+- **3.3 (2026-10-21):** a few hashes changed. For example, the `SunnaKfc` outfit's `Body` Blend hash went from `89e781e6` to `ae086472`, and its `Hair` Blend hash from `a7fc2b98` to `c970fca0`. The asset repo still holds dumps from 3.2.
+- **3.2 (2026-09-09):** the last large break. Some meshes got new bone numbers and a new UV format, and the face data changed. ZZMI 1.4.6 and 1.4.7 also broke most SlotFix mods for about a week, until 1.4.8 and 1.4.9 fixed them.
+- **3.0 (2026-06-17):** Belle and her summer outfit were remade. Their mods need a new export.
+- **2.5 (2025-12-30):** Jane's `Hair` was split into `Hair` and `Arms`.
+- **2.0 (2025-06-06):** many texture hashes changed, and creators moved to SlotFix.
+- **1.3 (2024-11-06):** normal maps can no longer be replaced by hash.
+
+## Find what changed
+
+<img
+  src="/wiki-images/zenless-zone-zero-publishing-update-your-mod-1.webp"
+  alt="The ZZMI-Package v1.5.2 release page on GitHub, with the note SlotFix: Rokudo KFC skin, Phoenix, Yixuan"
+/>
+
+1. Read the [ZZMI-Package release notes](https://github.com/leotorrez/ZZMI-Package/releases). Each release lists what it fixed, such as `SlotFix: Rokudo KFC skin, Phoenix, Yixuan` in 1.5.2.
+2. Compare the old and new `hash.json` of your agent. The new one comes from the asset repo or from your own new dump. Every hash that differs needs a fix in your `.ini`.
+3. Wait a few days if many SlotFix mods broke at once, yours included. ZZMI often gets hotfixes in the weeks after an update, and XXMI Launcher installs them for everyone.
+
+## Update your tools
+
+1. Open XXMI Launcher. It updates ZZMI and its libraries when it starts.
+2. Update XXMI Tools in Blender to the newest version. This guide was written for XXMI Tools 1.8.2.
+3. Get the current original files for your agent. Download the agent's folder from the asset repo again. For anything 3.3 changed, the repo is not updated yet: [make a frame dump](/docs/zenless-zone-zero/basics/frame-dump) of the agent yourself.
+
+## Fix the mod
+
+### New hashes
+
+The agent's data got new fingerprints, so ZZMI no longer finds your mod's sections. Pick one way:
+
+- **Export again.** Keep the new folder's name the same as the old one. In the XXMI Tools panel, set **Dump Folder** to the new folder and click **Export Mod**. The export reads the hashes from the new `hash.json`.
+- **Replace the hashes by hand.** Open the old and new `hash.json` side by side. In your `.ini`, replace each old hash with the new one, like the `SunnaKfc` example above. Check that `match_first_index` and `match_index_count` still match too.
+- **Run the ZZZ Mod Fixer on a copy** of your mod, then compare the copy's `.ini` with yours to see which lines it changed. Version 2.3.0 is the first with a build for 3.3.
+
+{/* NEEDS HANDS-ON TEST: that XXMI Tools 1.8.2 writes the new hashes when a .blend imported from an old Zenless Zone Zero dump is exported with Dump Folder set to the new dump folder */}
+
+If the update also changed the mesh itself, new hashes are not enough. See [Changed mesh data](#changed-mesh-data).
+
+### Texture lines
+
+A mod exported with XXMI Tools 1.8.2 already has the right lines: each part hands its textures to SlotFix with `run = CommandList\ZZMI\SetTextures`. ZZMI updates SlotFix for everyone, so these mods usually need nothing.
+
+If your mod sets textures by texture hash or with `ps-t3` slot lines, move them to SlotFix. Those break on updates and on graphics cards with less than 6 GB of video memory:
+
+```ini
+Resource\ZZMI\Diffuse = ref ResourceEllenBodyADiffuse
+Resource\ZZMI\NormalMap = ref ResourceEllenBodyANormalMap
+run = CommandList\ZZMI\SetTextures
+```
+
+- Put any `run = CommandListSkinTexture` line inside `if 0 == 1` and `endif`. A live one flattens the normal maps.
+- Never copy SlotFix into your mod. ZZMI already has it.
+
+[Fix an old mod by hand](/docs/zenless-zone-zero/ini/fix-an-old-mod) walks through every line, with merged mods.
+
+### Changed mesh data
+
+Version 3.2 changed the bone numbers and the UV format of some meshes. Version 2.5 split Jane's hair, and 3.0 remade Belle. No hash replacement fixes these. Rebuild from your `.blend`:
+
+1. Import the new dump into your `.blend`, next to your old objects.
+2. Move your edits onto the new objects. Copy weights from the new import, not from the old one.
+3. Delete the old objects, check the names against the new `hash.json`, and export.
+
+A finished mod cannot be imported back into Blender, so the `.blend` is your only way to rebuild. Without it, the remappers in the ZZZ Mod Fixer cover some agents, such as Jane and Dialyn.
+
+{/* NEEDS HANDS-ON TEST: rebuild a 3.1 Zenless Zone Zero body mod on a 3.2 dump with XXMI Tools 1.8.2 by copying weights from the new import, and check that the legs no longer bend */}
+
+### Face mods
+
+Face meshes cannot be modded, but face textures can. Version 3.2 changed the face data, and old face mods showed black patches or misaligned faces. Take the face's new hashes and its new diffuse texture from a new dump, redo your changes on it, and test again.
+
+{/* NEEDS HANDS-ON TEST: what a creator must change in a face texture mod made before 3.2 so it shows correctly on 3.3 */}
+
+## Test the risky moments
+
+A fix that looks right in the agent screen can still break in action. Switch to another agent, press `F10`, switch back, and check:
+
+1. The agent screen, then running, dodging and attacking.
+2. The agent from far away, where the game draws simpler distance models.
+3. The signature W-Engine glow, if the agent has one.
+4. Every key from your readme, and every toggle state.
+5. On a graphics card with less than 6 GB of video memory, if a tester has one. The game uses other texture hashes there.
+6. Hold `F9` to compare with the original model.
+
+These moments use other models or textures, so they break first after an update.
+
+{/* NEEDS HANDS-ON TEST: which of these moments break first for a modded Zenless Zone Zero agent after a 3.x update */}
+
+## Share the fixed version
+
+1. Raise the version number, and add a line to the readme: `v1.1 (Zenless Zone Zero 3.3): new hashes for 3.3`.
+2. Change the "Tested on" line to the new game version.
+3. Run the archive test from the publishing checklist again.
+4. Replace the old file in the same place you shared it first, not as a new mod. Players and mod managers look for updates there.
+5. Keep your `.blend` file and a copy of each version you shared.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The fixed mod still looks original" id="still-original">
+
+Some sections still hold old hashes, or the old version of your mod is still in `Mods`. Search the `.ini` for every old hash from `hash.json`. Keep only one copy of the mod in `Mods`, then press `F10`.
+
+</Accordion>
+<Accordion title="Players say the mod broke after they ran a fix tool" id="fixed-twice">
+
+A fix tool run on a mod that is already fixed, or run twice, can break it. In your readme, say the mod is fixed for the new version and needs no fix tool.
+
+</Accordion>
+<Accordion title="Many SlotFix mods broke at once, yours included" id="slotfix-broke">
+
+ZZMI itself broke them. This happened with ZZMI 1.4.6 and 1.4.7. Do not change your mod: open XXMI Launcher again after a few days, and it installs the hotfix.
+
+</Accordion>
+<Accordion title="You lost your .blend file" id="lost-blend">
+
+XXMI Tools cannot import a finished mod. Hash and SlotFix fixes still work in the `.ini` by hand. A changed mesh means you must rebuild the edit from a new import.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/zenless-zone-zero/publishing/publishing-checklist"
+    icon={<Icon name="ListChecks" />}
+    level="beginner"
+    featured
+  >
+    Check the folder, the readme and the archive before you share the fix.
+  </PremiumCard>
+  <PremiumCard
+    title="Update fix tools"
+    href="/docs/zenless-zone-zero/tools/update-fixers"
+    icon={<Icon name="Wrench" />}
+    level="beginner"
+  >
+    What each fix tool does, and how to spot a fake one.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Tool:** [ZZMI-Package releases](https://github.com/leotorrez/ZZMI-Package/releases) by leotorrez and the ZZMI maintainers.
+- **Tool:** [ZZZ-Mod-Fixer (Community Update)](https://github.com/Vonksdesu/ZZZ-Mod-Fixer) by Vonksdesu.
+- **Tool:** [ZZMI_tools](https://github.com/Satan1c/ZZMI_tools) by Satan1c, for the hash updater, the remappers and the Jane 2.5 notes.
+- **Tool page:** [ZZZ Index & Vertex Fix Tool](https://gamebanana.com/tools/24146) by GreenLzz, for its explanation of the 3.2 break.
+- **Guide:** [Best Way to Replace Textures - SlotFix Guide](https://gamebanana.com/tuts/18114) by hazelberry.
+- **Tool:** [ZZ-Model-Importer-Assets](https://github.com/leotorrez/ZZ-Model-Importer-Assets) by LeoTorreZ, maintained mostly by Satan1c.
+- **Tool:** [XXMI Tools](https://github.com/leotorrez/XXMITools) by LeoTorreZ and contributors.

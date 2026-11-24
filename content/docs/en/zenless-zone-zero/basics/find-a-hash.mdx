@@ -1,0 +1,224 @@
+---
+title: "Find a hash with hunting mode"
+description: "Turn on ZZMI's hunting mode in Zenless Zone Zero, step through what is on screen, and copy the hash of a mesh, vertex buffer or shader."
+category: "basics"
+patch: "3.3"
+keywords: ["zzmi hunting mode", "zzz hash", "numpad 0", "enable hunting"]
+---
+
+<LevelPill level="intermediate" />
+
+Hunting mode lets you step through everything Zenless Zone Zero draws and copy its hash. Use it to check whether a mod's hash still matches after an update, to get a part's index buffer hash for a frame dump, or to find the shader that draws an icon or an effect. Written for XXMI Launcher 2.5.0 and ZZMI 1.5.2.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/zenless-zone-zero/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="Keyboard" note="or the Windows On-Screen Keyboard">
+    A number pad
+  </Requirement>
+  <Requirement icon="NotebookPen">A text file to paste hashes into</Requirement>
+</Requirements>
+
+If hashes are new to you, read [How Zenless Zone Zero mods work](/docs/zenless-zone-zero/basics/how-mods-work) first. For agents in the asset repo, `hash.json` already lists every hash: you hunt only for what the repo lacks, or to check a hash after an update.
+
+## Turn on hunting
+
+Hunting is off by default. Turn it on before you start the game:
+
+1. Close Zenless Zone Zero if it is running.
+2. In XXMI Launcher, click the gear at the top right.
+3. Open the **ZZMI** tab.
+4. Under **Shader Hunting**, tick **Enable Hunting**.
+5. Leave **Dump Shaders** off. You need it only to save shader files.
+6. Close the settings.
+
+{/* SCREENSHOT: zenless-zone-zero-basics-find-a-hash-4.webp, XXMI Launcher 2.5.0 settings, ZZMI tab, with Enable Hunting ticked. The only source screenshot shows an old launcher version. */}
+
+{/* NEEDS HANDS-ON TEST: the button that saves and closes the settings window in XXMI Launcher 2.5.0 */}
+
+No number pad? `d3dx.ini` in the `ZZMI` folder lets you move the hunting keys. A ZZMI update can undo changes to that file, so note what you changed.
+
+## Turn off mods for your target
+
+Rename the folder of every mod for that agent so it starts with `DISABLED`, then press `F10` in game. A mod hides the original, and you want the game's own hashes.
+
+`F6` is not enough here: it does not turn off shader and effect mods.
+
+## Hunt a hash
+
+Press `Ctrl+F12` in game to see every hunting key. The right half of this screen is the hunting guide:
+
+<img
+  src="/wiki-images/zenless-zone-zero-basics-find-a-hash-1.webp"
+  alt="The ZZMI user guide and the hunting mode guide side by side, listing Numpad 0 for hunting mode, Numpad plus to reset, F8 for a frame dump, and the previous, next and copy keys for vertex buffers, index buffers and vertex, pixel and compute shaders"
+/>
+
+1. Press **Start** in XXMI Launcher.
+2. Put your target on screen. The agent screen works well, because it draws few other things.
+3. Press `Numpad 0`. Green text appears at the top and the bottom of the screen.
+4. Press `Numpad 8` again and again until the part you want disappears. Press `Numpad 7` to go back one.
+5. Press `Numpad 9`. The index buffer (IB) hash is now on your clipboard.
+6. Paste it into your text file right away. Write down what it is, like `Ellen Body IB`.
+7. If the overlay shows a `FirstIndex` value, note it too. That is the number a mod's `match_first_index` line uses. If it shows only `IB` and the hash, read the first index from `hash.json` instead.
+
+The selected item disappears because hunting hides it by default. That is how you know you have the right one. Here Qingyi loses her hair, then her body, then looks normal again:
+
+<img
+  src="/wiki-images/zenless-zone-zero-basics-find-a-hash-2.webp"
+  alt="Qingyi three times in hunting mode: once with her hair index buffer hidden, once with her body index buffer hidden, and once with nothing hidden"
+/>
+
+<Callout type="info" title="Everything vanishes at once">
+  When the whole agent, or everything on screen, vanishes at once, the selected
+  IB is usually the agent's hair. Look at the agent's shadow: it goes bald. One
+  hair IB can also hold other pieces, such as Burnice's skirt.
+</Callout>
+
+{/* NEEDS HANDS-ON TEST: on Zenless Zone Zero 3.3, that selecting a hair index buffer blanks the whole screen, and how to confirm it is the hair */}
+
+Too many items to step through? Press `Numpad +` to reset the lists. This cuts down the number of items you step through.
+
+## Which keys for which hash
+
+| You want                                | Previous      | Next          | Copy       |
+| --------------------------------------- | ------------- | ------------- | ---------- |
+| A mesh part: index buffer (IB)          | `Numpad 7`    | `Numpad 8`    | `Numpad 9` |
+| A vertex buffer (VB)                    | `Numpad /`    | `Numpad *`    | `Numpad -` |
+| A pixel shader (PS): icons, UI, effects | `Numpad 1`    | `Numpad 2`    | `Numpad 3` |
+| A vertex shader (VS)                    | `Numpad 4`    | `Numpad 5`    | `Numpad 6` |
+| A compute shader (CS)                   | `.` + `1`     | `.` + `2`     | `.` + `3`  |
+| The VB slot the VB keys look at         | `Enter` + `/` | `Enter` + `*` |            |
+
+For compute shaders, hold `Numpad .` and press the number. A mesh has several vertex buffers in different slots. Change the slot to reach the one you want.
+
+{/* NEEDS HANDS-ON TEST: in ZZMI 1.5.2, that Enter plus / and * change the vertex buffer slot, and whether it is the main Enter key or Numpad Enter */}
+
+You rarely need to hunt the Position, Blend or Texcoord hashes of an agent. `hash.json` in the asset repo, or a frame dump, lists them.
+
+## Read the overlay
+
+<img
+  src="/wiki-images/zenless-zone-zero-basics-find-a-hash-3.webp"
+  alt="Qingyi on the agent select screen in hunting mode, with the counter line VS:1/29 PS:2/45 CS:0/0 VB:2/29 IB:1/11 skip at the top and the selected VB, IB, VS and PS hashes in the top-left corner, marked with red arrows"
+/>
+
+The top line counts what you have stepped through, as selected out of total. In the screenshot:
+
+```text
+VS:1/29 PS:2/45 CS:0/0 VB:2/29 IB:1/11 skip
+```
+
+`skip` means the selected item is not drawn. The top-left corner lists the hash of each selected item: `VB`, `IB`, `VS` and `PS`. The bottom line reads `Stereo disabled` in the screenshot. Some versions show `Shader Hunting Mode (marking: skip)` there instead.
+
+The XXMI DLL can also add the index count and first index to the IB line, like this, with your own numbers:
+
+```text
+IB 1a2b3c4d (IndexCount: 12345, FirstIndex: 0)
+```
+
+If your overlay shows only the hash, read the first index from `hash.json` or from the dump's `-ib=...txt` file instead.
+
+{/* NEEDS HANDS-ON TEST: the exact overlay layout and text in Zenless Zone Zero 3.3 with ZZMI 1.5.2 and XXMI DLL 1.3.2, including whether the IB line shows IndexCount and FirstIndex */}
+
+## What Zenless Zone Zero creators usually hunt
+
+<Accordions type="multiple">
+<Accordion title="A part's index buffer, for a frame dump" id="ib-for-dump">
+
+Hunt the IB of each part you want, for example the body and the hair. Paste the hashes into gui_collect to extract the agent from a frame dump. This is how you get agents the asset repo does not have yet. The frame dump guide under Next steps shows the rest.
+
+</Accordion>
+<Accordion title="Whether a mod still matches after an update" id="check-after-update">
+
+Turn the mod off, then step through the IBs with the agent on screen. If the hash in the mod's `.ini` never shows up, the game changed it. The mod needs new hashes from a fix tool or its creator.
+
+</Accordion>
+<Accordion title="The face, for a face texture" id="face-texture">
+
+Step through the IBs until the agent's face disappears, and copy that hash. Then get the face texture from a frame dump:
+
+1. Press `F8` on the agent screen, with hunting on and mods off.
+2. Open the new `FrameAnalysis-...` folder.
+3. Search the folder for `srgb`. Diffuse textures are saved as `BC7_UNORM_SRGB`, so the face diffuse is among the results.
+4. Open the candidates in your texture editor to confirm.
+5. The start of the file name, before the first `-`, is the texture hash.
+
+Edit the face's texture only. Face meshes cannot be modded yet.
+
+{/* NEEDS HANDS-ON TEST: on Zenless Zone Zero 3.3, that the face diffuse shows up in a search for srgb in the dump folder, and how many results a typical agent screen gives */}
+
+</Accordion>
+<Accordion title="The shader behind an icon or effect" id="pixel-shader">
+
+Step through pixel shaders with `Numpad 1` and `Numpad 2` until the icon or effect disappears. Copy the hash with `Numpad 3`. This 16-digit hash goes in a `[ShaderOverride]` section of your mod.
+
+</Accordion>
+</Accordions>
+
+This video shows hunting on Zenless Zone Zero, from turning it on to the face disappearing. It is in Spanish and recorded on an older version, but the keys are the same:
+
+<YouTube
+  id="J1viMYwsqdY"
+  start={322}
+  title="Makeup and texture hunting from zero, by Proxy Index"
+/>
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Numpad 0 does nothing" id="numpad-0-nothing">
+
+Check that **Enable Hunting** is ticked in the **ZZMI** tab, and that you started the game after you ticked it. Check that Num Lock is on.
+
+</Accordion>
+<Accordion title="There are hundreds of items to step through" id="too-many-items">
+
+Go to the agent screen, where the game draws less. Press `Numpad +` to reset the lists, then step through again.
+
+</Accordion>
+<Accordion title="My hash never shows up" id="hash-missing">
+
+The game may draw a different model than you think. At a distance, agents switch to LOD models with their own hashes. On a card with less than 6 GB of video memory, textures use other hashes too. Stand close, on the agent screen, and step through again.
+
+</Accordion>
+</Accordions>
+
+When you finish, untick **Enable Hunting**, so `Numpad 0` cannot turn the overlay on by accident.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Make a frame dump"
+    href="/docs/zenless-zone-zero/basics/frame-dump"
+    icon={<Icon name="Camera" />}
+    level="intermediate"
+  >
+    Capture one frame with F8 and turn an agent into a folder Blender can
+    import.
+  </PremiumCard>
+  <PremiumCard
+    title="How a mod .ini works"
+    href="/docs/zenless-zone-zero/ini/how-a-mod-ini-works"
+    icon={<Icon name="FileCode" />}
+    level="intermediate"
+  >
+    Where each hash goes in a mod's .ini file.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [3DMigoto Hunting & Dumping Tutorial](https://leotorrez.github.io/modding/guides/hunting) by Satan1c, on LeoTorreZ's modding site.
+- **Tool:** the hunting mode guide and `d3dx.ini` from [ZZMI-Package](https://github.com/leotorrez/ZZMI-Package) by leotorrez and Satan1c.
+- **Video:** [MAQUILLAJE y TEXTURE HUNTING desde CERO](https://www.youtube.com/watch?v=J1viMYwsqdY) by Proxy Index.
+- **Guide:** [Mini Tutorials](https://docs.google.com/document/d/1-lzqEUu4QoKrQ0OTCM-9lKOlryg5wy7JJxbZMh3u_fE) by [cora](https://discord.com/users/1132443509329244222) in the [AGMG Discord](https://discord.gg/agmg): the hair IB tip.
+- **Images:** screenshots 1, 2 and 3 from [3DMigoto Hunting & Dumping Tutorial](https://leotorrez.github.io/modding/guides/hunting) by Satan1c.

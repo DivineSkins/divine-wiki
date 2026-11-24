@@ -1,0 +1,303 @@
+---
+title: "Your first mod: recolor a character"
+description: "Change the colors of a Zenless Zone Zero agent's outfit or hair in Paint.NET, keep the alpha intact, save the DDS the right way, and see it in game."
+category: "textures"
+patch: "3.3"
+keywords:
+  [
+    "zzz recolor mod",
+    "zzz texture mod",
+    "zzmi recolor",
+    "slotfix",
+    "paint.net dds",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+You will change the colors of one agent's outfit or hair, save the texture the way the game expects, and see it in game. No 3D work. ZZMI must already load your mods. Written for XXMI Launcher 2.5.0 and ZZMI 1.5.2 on Zenless Zone Zero 3.3.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/zenless-zone-zero/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement
+    icon="PaintNET"
+    href="/docs/zenless-zone-zero/tools/texture-editors"
+    note="free"
+  >
+    Paint.NET
+  </Requirement>
+  <Requirement icon="Puzzle" note="free Paint.NET plugins">
+    Modify Channels and BoltBait's Plugin Pack
+  </Requirement>
+  <Requirement icon="FileImage">The agent's diffuse texture</Requirement>
+</Requirements>
+
+Keep the game in DirectX 11, with **Character Quality** set to **High** and **High-Precision Character Animation** set to **Disable** in <MenuPath path="Settings > Graphics" />. With other settings, mods draw wrong or not at all. If your tools are not set up yet, start with [Set up your creator tools](/docs/zenless-zone-zero/getting-started/creator-setup).
+
+{/* NEEDS HANDS-ON TEST: the exact English labels of Character Quality and High-Precision Character Animation in the 3.3 client */}
+
+## How a recolor works
+
+Each agent part uses four textures. Only the **diffuse** holds the colors you see. ZZMI swaps the game's diffuse for your edited copy while the game draws the agent. No game file changes.
+
+| Texture file                | What it holds                 | Edit it for a recolor?       |
+| --------------------------- | ----------------------------- | ---------------------------- |
+| `BelleBodyADiffuse.dds`     | The colors                    | Yes                          |
+| `BelleBodyALightMap.dds`    | Shadow steps, metal and shine | No                           |
+| `BelleBodyAMaterialMap.dds` | More shine and metal data     | No                           |
+| `BelleBodyANormalMap.dds`   | Small surface bumps           | No                           |
+| `BelleFaceADiffuse.dds`     | The face colors               | Only if you change skin tone |
+
+The names come from the game: `Body`, `Hair` and `Face` are components, and the letter is the part inside the component. [Character names and parts](/docs/zenless-zone-zero/basics/character-names-and-parts) explains every name.
+
+<Callout type="warning" title="Keep the alpha as it is">
+  The alpha channel of a Zenless Zone Zero diffuse is data the game reads, not
+  plain see-through. The game can show the colors under transparent-looking
+  pixels, and creators have not documented what every alpha value does. Paint
+  and flatten over those areas and hair draws wrong. Split the alpha off first
+  and paste it back last.
+</Callout>
+
+<img
+  src="/wiki-images/zenless-zone-zero-textures-recolor-a-character-1.webp"
+  alt="Six steps of a Zenless Zone Zero recolor: get the diffuse, copy its alpha to its own layer, recolor in Paint.NET, paste the alpha back, save as BC7 sRGB with mipmaps, and press F10 in game"
+/>
+
+## Make the recolor
+
+<Steps>
+<Step>
+
+### Get the texture
+
+Pick one route. The paint steps after this are the same for both.
+
+<Tabs items={["Practice on a mod you have", "Make your own mod"]}>
+
+<Tab value="Practice on a mod you have">
+
+The fastest first project. You change a texture inside a mod you downloaded.
+
+1. Open your `Mods` folder: in XXMI Launcher, click the 3-dots button next to **Start**, then **Open Mods Folder**.
+2. Copy the mod's whole folder to your desktop as a backup.
+3. In the mod folder, find the diffuse of the part you want. Most mods have one for `Body` and one for `Hair`, and some for `Face`. If the names are unclear, open the mod's `.ini` and look for the `filename =` lines.
+
+Leave the `NormalMap`, `LightMap` and `MaterialMap` files alone. A mod with no `Face` diffuse uses the game's own face.
+
+Keep the result for yourself. The mod is someone else's work, so never share your edited copy.
+
+</Tab>
+
+<Tab value="Make your own mod">
+
+You start from the game's original texture and write a tiny `.ini` yourself. Belle is the example, because every player has her.
+
+1. Open [ZZ-Model-Importer-Assets](https://github.com/leotorrez/ZZ-Model-Importer-Assets) on GitHub, then `PlayerCharacterData`, then `Belle`.
+2. Download only two files: the diffuse you want, for example `BelleBodyADiffuse.dds`, and `hash.json`. Do not clone the repository. It is over 2 GB.
+3. Open `hash.json` in a text editor and find the block whose `component_name` is `Body`. Copy its `ib` value. Under `object_indexes`, each number is the first index of one part, in the order of `object_classifications`. For Belle's `Body`, `0` is part A and `31275` is part B.
+4. In your `Mods` folder, make a folder named `MyFirstRecolor` and put the `.dds` in it.
+5. In that folder, make a text file and rename it `MyFirstRecolor.ini`. Paste this, with your own hash, first index and file name:
+
+```ini
+[TextureOverrideBelleBodyA]
+hash = c2b4ce3a
+match_first_index = 0
+if 0 == 1
+    run = CommandListSkinTexture
+endif
+Resource\ZZMI\Diffuse = ref ResourceBelleBodyADiffuse
+run = CommandList\ZZMI\SetTextures
+
+[ResourceBelleBodyADiffuse]
+filename = BelleBodyADiffuse.dds
+```
+
+<Files>
+  <Folder name="Mods" defaultOpen>
+    <Folder name="MyFirstRecolor" defaultOpen>
+      <File name="MyFirstRecolor.ini" />
+      <File name="BelleBodyADiffuse.dds: your edited texture" />
+    </Folder>
+  </Folder>
+</Files>
+
+What the lines do:
+
+- `hash` is the index buffer hash of Belle's `Body` in the asset repository. It is not a texture hash.
+- `match_first_index = 0` picks part A. Use `31275` for part B.
+- The `Resource\ZZMI\Diffuse` line and `run = CommandList\ZZMI\SetTextures` hand your texture to SlotFix, which ships inside ZZMI. SlotFix puts it in every slot the game uses for that part, including the outline.
+- The `if 0 == 1` block never runs. It stops old fix tools from adding a line there that flattens normal maps. Keep it.
+
+Never write a note after the hash on the same line. In a `.ini`, `;` starts a comment only at the start of a line.
+
+The repository holds dumps from version 3.2 and older, and has no agents from 3.3 such as Phoenix and Severian. For those, get the texture and the IB hash from a [frame dump](/docs/zenless-zone-zero/basics/frame-dump).
+
+{/* NEEDS HANDS-ON TEST: this SlotFix texture-only override on Belle's BodyA (IB c2b4ce3a, match_first_index 0, from the asset repo hash.json) in Zenless Zone Zero 3.3 with ZZMI 1.5.2. Check that the hash still matches and that the recolor shows in every pass, including the outline and the agent screen. */}
+
+</Tab>
+
+</Tabs>
+
+</Step>
+<Step>
+
+### Split off the alpha
+
+Work on a copy: keep a backup of the original `.dds`.
+
+1. Open the `.dds` in Paint.NET.
+2. Choose <MenuPath path="Layers > Duplicate Layer" />.
+3. With the top layer selected, open <MenuPath path="Adjustments > Modify Channels" />.
+4. Set line 1 to `Greyscale`, `Identity`, source `Alpha`. Click `+` and set line 2 to `Alpha`, `Constant`, `255`. Tick `Enabled`, then click **OK**. The top layer now shows the alpha in black and white.
+5. Hide the top layer: untick its box in the Layers panel.
+6. Select the bottom layer and open **Modify Channels** again. Use one line: `Alpha`, `Constant`, `255`. Now you see every color, with nothing transparent.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check the Modify Channels plugin labels and these two settings in the current Paint.NET 5.x release on a Zenless Zone Zero diffuse */}
+
+</Step>
+<Step>
+
+### Recolor the part
+
+1. Select the bottom layer and pick the **Magic Wand**. Set **Tolerance** to about 20%, never above 25%.
+2. Hold `Shift` and click a color. This selects that color everywhere on the image. Hold `Ctrl` and click to add more colors.
+3. Choose <MenuPath path="Adjustments > Black and White" />. Only the selected area turns grey.
+4. Choose <MenuPath path="Layers > Add New Layer" />.
+5. Pick your new color as the primary color, then press `Backspace` to fill the selection on the new layer.
+6. Double-click the new layer and set **Blend mode** to **Overlay**. The grey shading shows through your color.
+7. Repeat for each color you want to change.
+
+Use a dark grey instead of pure black: black does nothing in Overlay mode. Select areas that looked transparent before, too. The game can show them at the edges, for example on the hair fringe.
+
+<YouTube
+  id="nhiiWEpuTB8"
+  start={1195}
+  title="Magic Wand, Black and White and Overlay recolor in Paint.NET, by Proxy Index"
+/>
+
+Watch only the clothing recolor, from 19:55 to about 24:00. This video uses Zenless Zone Zero files and is in Spanish, with an English audio track. It copies the selection to its own layer before the Black and White step. Both ways work.
+
+</Step>
+<Step>
+
+### Put the alpha back
+
+1. Show the alpha layer, select it, then press `Ctrl+A` and `Ctrl+C`.
+2. Choose <MenuPath path="Layers > Delete Layer" /> to remove the alpha layer. It stays on your clipboard.
+3. Choose <MenuPath path="Image > Flatten" />.
+4. Choose <MenuPath path="Effects > Object > Paste Alpha" />. This comes from BoltBait's Plugin Pack.
+
+The transparent-looking areas are back. That is correct.
+
+{/* NEEDS HANDS-ON TEST: the menu location of Paste Alpha from BoltBait's Plugin Pack in the current Paint.NET 5.x release */}
+
+</Step>
+<Step>
+
+### Save as DDS
+
+1. Choose <MenuPath path="File > Save As" />. Keep the exact file name and the `.dds` ending.
+2. In the DDS window, pick `BC7 (sRGB, DX 11+)`.
+3. Tick **Generate Mip Maps**.
+4. Click **OK** and replace the old file.
+
+{/* NEEDS HANDS-ON TEST: whether mod textures need mipmaps in Zenless Zone Zero 3.3. Tutorials say tick Generate Mip Maps; asset repo files have one mip level. Check that both load and look the same at a distance. */}
+
+[Save DDS textures the right way](/docs/zenless-zone-zero/textures/save-dds-files) explains every option.
+
+</Step>
+<Step>
+
+### Test it in game
+
+1. Switch to another agent in your squad.
+2. Press `F10` to reload mods.
+3. Switch back and look at your recolor.
+4. Hold `F9` to see the original, then let go to compare.
+5. Check day and night, indoors, the agent screen and combat.
+
+</Step>
+</Steps>
+
+Changed the skin color? Recolor the face too, `BelleFaceADiffuse.dds`, with the same steps and settings. Otherwise the face will not match the body. In your own mod it needs its own `[TextureOverride...]` and `[Resource...]` pair, in the same form, with the `ib` of the component named `Face` in `hash.json` and `match_first_index = 0`. Face textures can be modded. Face meshes cannot.
+
+{/* NEEDS HANDS-ON TEST: the SlotFix form on Belle's Face IB (9a9780a7, part A) in Zenless Zone Zero 3.3, and whether the face expressions still work */}
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Hair edges or the fringe show the wrong color" id="wrong-edges">
+
+Color under transparent-looking pixels still shows in game. Select those areas too when you recolor. If the hair draws wrong, the alpha changed: start again from your backup and paste the alpha back before you save.
+
+</Accordion>
+<Accordion title="Colors look washed out, too dark or too strong" id="wrong-colors">
+
+The file was saved in the wrong format. A diffuse must be `BC7 (sRGB, DX 11+)`. Save again.
+
+</Accordion>
+<Accordion title="Nothing changed in game" id="nothing-changed">
+
+Check that the `filename =` line matches your file name exactly. Turn off other mods for that agent: rename their folders so they start with `DISABLED`. Check the game settings above. Then check the hash and the first index against `hash.json`. They may have changed since the asset repository was made. Get the current ones from a frame dump.
+
+</Accordion>
+<Accordion title="Yellow error text after F10" id="yellow-text">
+
+ZZMI could not load the texture. A typo in the file name, a missing file, or a size that is not a power of two causes this. Keep the original width and height.
+
+</Accordion>
+<Accordion title="The old colors still show in the outline or in some scenes" id="old-colors">
+
+The mod sets its textures with slot lines such as `ps-t3 = ...`. Those reach only the main color draw. Use the SlotFix form shown above. [Make textures survive game updates](/docs/zenless-zone-zero/textures/stable-textures) explains why.
+
+</Accordion>
+</Accordions>
+
+More symptoms and fixes are in [Mods look broken](/docs/zenless-zone-zero/errors/mods-look-broken).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Test and reload your mod"
+    href="/docs/zenless-zone-zero/basics/test-your-mod"
+    icon={<Icon name="Eye" />}
+    level="beginner"
+  >
+    Read ZZMI's warnings and check your mod before you share it.
+  </PremiumCard>
+  <PremiumCard
+    title="What each texture map does"
+    href="/docs/zenless-zone-zero/textures/texture-maps"
+    icon={<Icon name="Layers" />}
+    level="intermediate"
+  >
+    Learn what the light map, material map and normal map hold.
+  </PremiumCard>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/zenless-zone-zero/publishing/publishing-checklist"
+    icon={<Icon name="Package" />}
+    level="beginner"
+  >
+    Pack your own mod with the right files and credits.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Video:** [Tu PRIMER MOD de ZENLESS ZONE ZERO | Tutorial COMPLETO | TEXTURAS PARTE 1](https://www.youtube.com/watch?v=nhiiWEpuTB8) by Proxy Index.
+- **Guide:** [Best Way to Replace Textures - SlotFix Guide](https://gamebanana.com/tuts/18114) by hazelberry.
+- **Wiki:** [SlotFix](https://github.com/Satan1c/ZZMI_tools/wiki/SlotFix) by Satan1c.
+- **Guide:** [Tutorial - Preserve alpha channels on Paint.net / how to handle .dds textures properly](https://docs.google.com/document/d/1DktYSbYMx-Bc4PKNF1XonvBAIRiC74pgNkMieQhd2jc/edit) by Anilyan.
+- **Assets:** [ZZ-Model-Importer-Assets](https://github.com/leotorrez/ZZ-Model-Importer-Assets) by LeoTorreZ, maintained mostly by Satan1c.
+- **Discord:** Modify Channels settings from guides by [cora](https://discord.com/users/1132443509329244222) and [bestie andrew](https://discord.com/users/518851482032930834) in the [AGMG Discord](https://discord.gg/agmg).

@@ -1,0 +1,229 @@
+---
+title: "Test and reload your mod"
+description: "Reload a Zenless Zone Zero mod with F10, compare it with the original, read ZZMI's warnings, find a broken mod, and check everything before you share."
+category: "basics"
+patch: "3.3"
+keywords:
+  ["zzmi f10 reload", "zzz mod not working", "zzmi hotkeys", "mute warnings"]
+---
+
+<LevelPill level="beginner" />
+
+You never need to restart Zenless Zone Zero to see a change to your mod. This page shows how to reload in seconds, compare your mod with the original, read ZZMI's messages, and check every state before you share. Written for XXMI Launcher 2.5.0 and ZZMI 1.5.2.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/zenless-zone-zero/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement
+    icon="ZenlessZoneZero"
+    note="started from XXMI Launcher, in DirectX 11"
+  >
+    Zenless Zone Zero
+  </Requirement>
+  <Requirement icon="FolderOpen">Your mod in the Mods folder</Requirement>
+</Requirements>
+
+Your mod goes in its own folder inside `%AppData%\XXMI Launcher\ZZMI\Mods`.
+
+## Check that ZZMI loaded
+
+1. Press **Start** in XXMI Launcher. Starting the game from HoYoPlay, Steam or Epic Games loads no mods, unless you set up Steam or Epic Games in the launcher's settings.
+2. Look for this text in the lower-left corner in the first 30 seconds:
+
+   ```text
+   ZZMI 1.5.2 (PRESS F12 TO SHOW GUIDE)
+   ```
+
+3. On your first start, ZZMI shows a full-screen user guide. Press `F10` to hide it for good. Press `F12` to see it again.
+
+<img
+  src="/wiki-images/zenless-zone-zero-basics-test-your-mod-2.webp"
+  alt="The ZZZ Model Importer user guide on the left, with mod installation steps and the F12, F6, F10, F9, Ctrl+F9 and Ctrl+F12 hotkeys, and the hunting mode guide on the right"
+/>
+
+The left panel is the user guide. The right panel is the hunting guide that `Ctrl+F12` opens.
+
+{/* NEEDS HANDS-ON TEST: that the ZZMI 1.5.2 user guide still shows this text and these hotkeys */}
+
+No text at all? The XXMI DLL did not load, so no mod can work. [Mods not loading](/docs/zenless-zone-zero/errors/mods-not-loading) goes through the causes in order.
+
+## The keys you test with
+
+| Key            | What it does                                                                                                          |
+| -------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `F10`          | Reload all mods and save mod settings                                                                                 |
+| `F9` (hold)    | Show the original game while you hold it                                                                              |
+| `F6`           | Turn all mods off or on                                                                                               |
+| `F12`          | Show or hide the user guide                                                                                           |
+| `Ctrl+Alt+F10` | Reset all saved mod settings (toggles) and reload                                                                     |
+| `Ctrl+F9`      | Show the performance monitor: which mod costs the most time                                                           |
+| `Ctrl+F12`     | Show the hunting mode guide (needs **Enable Hunting**, see [Find a hash](/docs/zenless-zone-zero/basics/find-a-hash)) |
+
+Some download pages still list `F1` for the guide. The key is `F12`.
+
+## Reload your mod
+
+<img
+  src="/wiki-images/zenless-zone-zero-basics-test-your-mod-1.webp"
+  alt="The reload loop: save your change, switch to another agent, press F10, then switch back and hold F9 to compare with the original"
+/>
+
+1. Save your change: a new export from Blender, an `.ini` edit, or a new texture.
+2. Switch to another agent in your squad, so the modded one leaves the screen.
+3. Press `F10`.
+4. Switch back to the modded agent.
+
+Why switch first: a mod that reloads while its agent is on screen can draw only partly, or look collapsed. If that happens, switch away and press `F10` again. Do the switch where the problem shows: the field, menus and combat each load the agent on their own. Restarting the game also fixes it.
+
+{/* NEEDS HANDS-ON TEST: on Zenless Zone Zero 3.3, whether a switch in the field also refreshes the agent in combat and in menus, or each place needs its own switch */}
+
+If your mod has a credit line, `Created by ...` pops up the first time the agent appears.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Zenless Zone Zero: the credit line pop-up with ZZMI 1.5.2 */}
+
+### A faster loop from Blender
+
+1. In XXMI Tools, export straight into your mod's folder inside `Mods`.
+2. After your first export, untick **Mod textures**, so re-exports do not overwrite textures you edited.
+3. If you edit the `.ini` by hand, untick **Write ini**. Re-exports then refresh only the buffers.
+4. Tick **Write ini** again when you add or remove vertices. The vertex and index counts live in the `.ini`.
+
+{/* NEEDS HANDS-ON TEST: the exact labels of the Mod textures and Write ini options in XXMI Tools 1.8.2 with Game to mod set to Zenless Zone Zero */}
+
+## Compare with the original
+
+- **Hold `F9`.** Your mod disappears while you hold the key. Let go and it comes back. Use it to compare colors and shape side by side.
+- **Press `F6`.** It turns every character mod off. Press it again to turn them back on. `F6` does not turn off shader and effect mods.
+
+## Read warnings and errors
+
+XXMI Launcher hides mod warnings by default. Turn them on while you test:
+
+1. In XXMI Launcher, click the gear at the top right.
+2. Open the **ZZMI** tab.
+3. Untick **Mute Warnings**.
+4. Start the game and press `F10`.
+
+Each message names the section and the file it comes from, like `@ [Mods\MyMod\MyMod.ini]`. Common ones:
+
+| Message                                                     | What it means                                                    |
+| ----------------------------------------------------------- | ---------------------------------------------------------------- |
+| `Possible Mod Conflict: Duplicate TextureOverride hash=...` | Two mods change the same agent. Turn one off.                    |
+| An error that names a missing file                          | A file name in the `.ini` does not match the file in the folder. |
+| `Entry outside of section`                                  | A line sits above the first `[section]` in an `.ini`.            |
+| A message that you reloaded shaders                         | Information only. `F10` also reloads the `ShaderFixes` folder.   |
+
+{/* SCREENSHOT: zenless-zone-zero-basics-test-your-mod-3.webp, ZZMI 1.5.2 in game with Mute Warnings off, showing a Possible Mod Conflict warning after F10 */}
+
+{/* NEEDS HANDS-ON TEST: in XXMI Launcher 2.5.0, confirm the ZZMI tab holds Mute Warnings and Log File Output Verbosity */}
+
+Messages fade after a few seconds. To keep them, write them to a log:
+
+1. In the **ZZMI** tab, set **Log File Output Verbosity** to **Warning**.
+2. Start the game, press `F10`, then close the game.
+3. Open `d3d11_log.txt` in `%AppData%\XXMI Launcher\ZZMI`.
+
+Set it back to **Disabled** when you are done. Detailed logging slows the game, and the log file can grow very large.
+
+{/* NEEDS HANDS-ON TEST: in XXMI Launcher 2.5.0, confirm the ZZMI tab shows Log File Output Verbosity (Disabled, Warning, Info, Debug) and not the older Calls Logging and Debug Logging boxes, and that d3d11_log.txt is written to %AppData%\XXMI Launcher\ZZMI. */}
+
+Toggles stuck or acting strange? Press `Ctrl+Alt+F10`. It deletes `d3dx_user.ini`, the file that saves every mod's toggle settings, and reloads.
+
+## Find a broken mod with the halves method
+
+A mod you downloaded breaks your own, or the game acts up and you do not know why? Split the `Mods` folder in halves:
+
+1. Move half of your mod folders out of `Mods`, to your desktop for example.
+2. Restart the game, or switch agents and press `F10`.
+3. Check if the problem is gone. If yes, it is in the half you moved out. If no, it is in the half that stayed.
+4. Repeat with the half that has the problem, until one mod is left.
+
+About seven rounds find one mod among a hundred. Keep RabbitFX in `Mods` while you test mods that need it.
+
+Still broken with an empty `Mods` folder? Remove only the files you added to `ShaderFixes` yourself. Then click the three dots next to **Start** in XXMI Launcher and choose **Repair ZZMI**. Never empty `ShaderFixes`: ZZMI ships its own files there.
+
+## Check everything before you share
+
+Test each state, with **Character Quality** on **High** and **High-Precision Character Animation** on **Disable** in the game's graphics settings:
+
+- [ ] The agent screen and the field
+- [ ] Idle, walking, running, dodges and basic attacks
+- [ ] Every skill and the Ultimate
+- [ ] Switching agents in combat, if your mod has glow
+- [ ] With and without the agent's signature W-Engine, if your mod changes `WengineFx` glow
+- [ ] Glowing states such as Jane's Passion state, if your mod changes `GlowMap`
+- [ ] Far away from the camera: LOD models have their own hashes
+- [ ] Day and night, indoors and outdoors
+- [ ] If you used texture hashes: the 1K textures that cards under 6 GB of video memory get
+- [ ] Hold `F9`: the original looks normal
+- [ ] Warnings on: no message points at your mod
+
+{/* NEEDS HANDS-ON TEST: which of these states break a typical Zenless Zone Zero 3.3 agent mod, and whether the list misses one */}
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The agent looks half drawn after F10" id="half-drawn">
+
+The agent was on screen while you reloaded. Switch to another agent, press `F10`, and switch back. Restarting also fixes it.
+
+</Accordion>
+<Accordion title="Every modded agent turns into a mess of triangles" id="triangles">
+
+**High-Precision Character Animation** is on, or **Character Quality** is not **High**. Fix both in <MenuPath path="Settings > Graphics" />, and keep **Configure Game Settings For ZZMI** ticked in XXMI Launcher.
+
+</Accordion>
+<Accordion title="Flat shading or wrong colors on one part" id="wrong-colors">
+
+Check the part's texture lines. New mods use `Resource\ZZMI\...` lines plus `run = CommandList\ZZMI\SetTextures`. A live `run = CommandListSkinTexture` line, added by some fix tools, flattens normal maps. [Mods look broken](/docs/zenless-zone-zero/errors/mods-look-broken) shows each symptom and its fix.
+
+</Accordion>
+<Accordion title="The mod shows in town but not in combat or far away" id="lod">
+
+The game uses simpler LOD models at a distance, with their own hashes. A mod that does not cover them shows the original agent there. On a card with less than 6 GB of video memory, a mod built on 2K texture hashes also fails, because the game uses 1K textures.
+
+</Accordion>
+<Accordion title="Toggles reset every time I start the game" id="toggles-reset">
+
+The mod saves its toggles only if they are declared `global persist`. Without `persist`, they reset on every start. Check the `[Constants]` section of the mod's `.ini`.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/zenless-zone-zero/publishing/publishing-checklist"
+    icon={<Icon name="Upload" />}
+    level="beginner"
+  >
+    Clean the folder, add credits, and pack it so it works for everyone.
+  </PremiumCard>
+  <PremiumCard
+    title="How Zenless Zone Zero mods work"
+    href="/docs/zenless-zone-zero/basics/how-mods-work"
+    icon={<Icon name="Layers" />}
+    level="beginner"
+  >
+    Hashes, the Mods folder, and why updates break mods.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Tool:** [ZZMI-Package](https://github.com/leotorrez/ZZMI-Package) by leotorrez and Satan1c: the in-game [user guide](https://github.com/leotorrez/ZZMI-Package/tree/main/ZZMI/Core/ZZMI/Notifications) and [main.ini](https://github.com/leotorrez/ZZMI-Package/blob/main/ZZMI/Core/ZZMI/main.ini).
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) and the [XXMI DLL](https://github.com/SpectrumQT/XXMI-Libs-Package) by SpectrumQT.
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ and contributors: the reload rule, LODs and the halves method.
+- **Guide:** [Best Way to Replace Textures - SlotFix Guide](https://gamebanana.com/tuts/18114) by hazelberry.
+- **Video:** [La ÚNICA GUÍA que NECESITAS para INSTALAR MODS en 2025](https://www.youtube.com/watch?v=LJ1gKQ-d2Iw) by Proxy Index: the graphics settings check and where to switch agents.
+- **Images:** screenshot 2 from [3DMigoto Hunting & Dumping Tutorial](https://leotorrez.github.io/modding/guides/hunting) by Satan1c, on LeoTorreZ's modding site.

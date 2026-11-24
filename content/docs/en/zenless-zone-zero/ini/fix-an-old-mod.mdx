@@ -1,0 +1,276 @@
+---
+title: "Fix an old mod by hand"
+description: "Update an old Zenless Zone Zero mod's .ini by hand when no fix tool handles it: the Blend hash, SlotFix lines, changed hashes, and what no edit can fix."
+category: "ini"
+patch: "3.3"
+keywords:
+  [
+    "fix old zzz mod",
+    "zzz mod broken",
+    "slotfix",
+    "zzz blend hash",
+    "zzz 3.3 fix",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+Fix tools repair most old mods. When they cannot, for example on merged mods or mods with many toggles, you can fix the `.ini` yourself. This page covers the old forms that still show up in Zenless Zone Zero mods: meshes on the Position hash, textures set by hash or slot, the old normal map bandaid, and changed hashes. Written for ZZMI 1.5.2 on version 3.3.
+
+<Accordions>
+<Accordion title="Coming from another game?">
+
+Each game broke its mods in its own way, so the fixes differ.
+
+- **Zenless Zone Zero:** no single big break. Hashes change in most updates, version 1.3 stopped normal maps by hash, and version 3.2 changed bones, UVs and faces. Textures bind through SlotFix, which ships inside ZZMI.
+- **Genshin Impact:** the big break is 6.1. Every character part needs an ORFix or NNFix line. There is no ORFix in Zenless Zone Zero.
+- **Honkai: Star Rail:** version 3.2 moved skinning to compute shaders, and textures bind by hash.
+- **Wuthering Waves:** old mods usually need a new export from WWMI Tools, not hand edits.
+
+Other game sections: [Genshin Impact](/docs/genshin-impact), [Honkai: Star Rail](/docs/honkai-star-rail), [Wuthering Waves](/docs/wuthering-waves).
+
+</Accordion>
+</Accordions>
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/zenless-zone-zero/tools/xxmi-launcher"
+    note="ZZMI up to date"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="NotepadPlusPlus" note="or any editor that saves UTF-8">
+    A text editor
+  </Requirement>
+  <Requirement icon="Archive">A backup copy of the mod</Requirement>
+</Requirements>
+
+If the layout of a mod `.ini` is new to you, read [How a mod .ini works](/docs/zenless-zone-zero/ini/how-a-mod-ini-works) first.
+
+## Try the fix tools first
+
+Three things fix many "broken" mods with no edit at all: set **Character Quality** to **High** and **High-Precision Character Animation** to **Disable** in the game's graphics settings, keep the game in DirectX 11, and let XXMI Launcher update ZZMI. [Fix your mods after a game update](/docs/zenless-zone-zero/getting-started/fix-mods-after-an-update) covers that, and [Update fix tools](/docs/zenless-zone-zero/tools/update-fixers) covers the ZZZ Mod Fixer.
+
+{/* NEEDS HANDS-ON TEST: the exact English labels of Character Quality and High-Precision Character Animation in the 3.3 client */}
+
+Fix by hand when:
+
+- the tool cannot read the mod: merged mods, mods with many toggles, or mods with several `.ini` files;
+- the tool fixed most of it, but one part still looks wrong;
+- you want to know what the tool changed.
+
+## Find what the mod needs
+
+| What you see                                                     | Why                                                                                                | Fix                                            |
+| ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| The agent looks unmodded                                         | The update changed the agent's hashes. Version 3.3 changed a few, like the `SunnaKfc` Blend hashes | Replace the hashes                             |
+| The mod also shows on another agent, or breaks that agent's face | The mod hooks a Position hash that two agents share, like Jane and Lucy                            | Move the mesh to the Blend hash                |
+| A mess of colors, too glossy, or broken only on some PCs         | Textures set by texture hash or by slot number                                                     | Move the textures to SlotFix                   |
+| Flat shading with no surface detail                              | A live `run = CommandListSkinTexture` line                                                         | Guard the old normal map line                  |
+| The sky glitches, or parts of the city flicker                   | `handling = skip` in a section with only the IB hash                                               | Move `handling = skip`                         |
+| Bent legs, scrambled textures or black patches on a face         | Version 3.2 changed bone numbers, UVs and face data on some meshes                                 | A fix tool or a new export. No edit fixes this |
+| Jane mods from before 2.5, Belle mods from before 3.0            | Jane's `Hair` was split into `Hair` and `Arms`, and Belle was remade                               | The fixer's Jane remapper, or a new export     |
+
+<img
+  src="/wiki-images/zenless-zone-zero-ini-fix-an-old-mod-1.webp"
+  alt="Three old forms and their current form: a Position section with draw becomes a section on the Blend hash with the draw inside if DRAW_TYPE == 1; this = and ps-t3 = lines become Resource\ZZMI\Diffuse = ref plus run = CommandList\ZZMI\SetTextures; a live run = CommandListSkinTexture goes inside if 0 == 1 and endif"
+/>
+
+## Fix it by hand
+
+<Steps>
+<Step>
+
+### Back up and turn on warnings
+
+1. Copy the mod's folder to a place outside `Mods`.
+2. In XXMI Launcher, open the settings, go to the **ZZMI** tab and untick **Mute Warnings**. Now `F10` shows errors in game.
+3. Open the mod's `.ini` in your text editor.
+
+</Step>
+<Step>
+
+### Delete copies of ZZMI's libraries
+
+Look in the mod's folder and anywhere in `Mods` for a copy of SlotFix, TTLib or the HP library. Delete it. ZZMI 1.5.2 already loads these from `ZZMI\Core\ZZMI\Libraries`, and a second copy conflicts with it. When XXMI Launcher finds a copy, it offers to turn it off: say yes.
+
+Keep exactly one RabbitFX in the whole `Mods` folder, never one inside each mod.
+
+</Step>
+<Step>
+
+### Move the mesh to the Blend hash
+
+Mods from 2024 often draw a component through its Position hash. Some agents share a Position hash, so the mod shows on the other agent too. A Lucy mod, for example, broke Jane's face. Look for a section like this:
+
+```ini
+[TextureOverrideLucyHairPosition]
+hash = ...
+handling = skip
+vb0 = ResourceLucyHairPosition
+vb2 = ResourceLucyHairBlend
+draw = 3079,0
+```
+
+Change it like this:
+
+```ini
+[TextureOverrideLucyHairPosition]
+hash = 5315f036
+handling = skip
+vb2 = ResourceLucyHairBlend
+if DRAW_TYPE == 1
+    vb0 = ResourceLucyHairPosition
+    draw = 3079,0
+endif
+```
+
+1. Replace the hash with the component's Blend hash. It is the `blend_vb` value in the agent's `hash.json`. `5315f036` is the Lucy hair Blend hash given in the source guide. Check it against the current `hash.json`.
+2. Move the `vb0` line and the `draw` line into an `if DRAW_TYPE == 1` block.
+3. Leave the numbers as they are. Keep any `$active = 1` line outside the block.
+
+{/* NEEDS HANDS-ON TEST: this Position to Blend change on a 2024 Lucy hair mod with ZZMI 1.5.2 on Zenless Zone Zero 3.3, and whether 5315f036 is still the current Lucy hair Blend hash */}
+
+A fresh export from XXMI Tools writes a longer form with two `DRAW_TYPE` branches. "How a mod .ini works", linked above, shows it.
+
+</Step>
+<Step>
+
+### Move the textures to SlotFix
+
+Old mods set textures in two ways. Both break on updates and on PCs with less than 6 GB of video memory.
+
+- **Texture hash sections:** a `[TextureOverride...]` section with only a texture `hash =` and a `this = Resource...` line. Note the resource name, then delete the whole section.
+- **Slot lines** in a part section: `ps-t3` is the diffuse, `ps-t4` the normal map, `ps-t5` the light map and `ps-t6` the material map.
+
+In the part section, the one with the IB hash and `match_first_index`, write each texture by its role, then run SlotFix before `drawindexed`:
+
+```ini
+Resource\ZZMI\Diffuse = ref ResourceEllenBodyADiffuse
+Resource\ZZMI\NormalMap = ref ResourceEllenBodyANormalMap
+run = CommandList\ZZMI\SetTextures
+```
+
+In NPC mods, leave `ps-t7` and `ps-t8` alone. They hold helper textures, not yours. [Make textures survive game updates](/docs/zenless-zone-zero/textures/stable-textures) has every slot name and the full steps.
+
+</Step>
+<Step>
+
+### Guard the old normal map line
+
+Since version 1.3, ZZMI has a bandaid: a live `run = CommandListSkinTexture` line swaps in a blank normal map. Old fix tools added this line to many mods, and the shading turns flat. Delete it, or put it in a block that never runs:
+
+```ini
+if 0 == 1
+    run = CommandListSkinTexture
+endif
+```
+
+The guard also stops a fix tool from adding the line again.
+
+<img
+  src="/wiki-images/zenless-zone-zero-ini-fix-an-old-mod-2.webp"
+  alt="The same agent twice, side by side: on the left, labeled Flattened, the clothes look flat; on the right, labeled Detailed, they show their folds and shading"
+/>
+
+</Step>
+<Step>
+
+### Put handling = skip in the right section
+
+Search for `handling = skip`. In a part section, it belongs with both `match_first_index` and `match_index_count`. A section with only the IB hash and `handling = skip` can make the sky glitch and parts of the city flicker. Move the line into the part section that has both match lines, then delete the bare section if nothing else is left in it.
+
+{/* NEEDS HANDS-ON TEST: a mod with handling = skip on a bare IB section in ZZMI 1.5.2, before and after the move */}
+
+</Step>
+<Step>
+
+### In a merged mod, edit where the lines live
+
+In a merged mod, each `[TextureOverride...]` section in `merged.ini` only picks which mod's lines run. Make the texture and normal map fixes in those lines, inside the `[CommandList...]` blocks or the `.namespace.ini` files. Replace changed hashes in `merged.ini`. [Combine mods into one merged mod](/docs/zenless-zone-zero/ini/merged-mods) explains the layout.
+
+</Step>
+<Step>
+
+### Replace changed hashes
+
+Do this only if the agent still looks unmodded. The ZZZ Mod Fixer covers the hash changes up to 3.3, so try it first. By hand:
+
+1. Get the new hashes. Each agent folder in the public asset repo [ZZ-Model-Importer-Assets](https://github.com/leotorrez/ZZ-Model-Importer-Assets) has a `hash.json`. The repo holds dumps from version 3.2. For anything 3.3 changed, [find the hashes in hunting mode](/docs/zenless-zone-zero/basics/find-a-hash) or a frame dump.
+2. Replace each old hash in the `.ini` with the new one.
+3. Check that the `match_first_index` and `match_index_count` values still match the new dump.
+
+For example, version 3.3 changed the Blend hash of the `SunnaKfc` outfit's `Body` from `89e781e6` to `ae086472`, and of its `Hair` from `a7fc2b98` to `c970fca0`.
+
+</Step>
+<Step>
+
+### Test
+
+1. Save the file as UTF-8.
+2. In game, switch to another agent, then press `F10`.
+3. Switch back. Read any warning text, fix the line it names, and reload.
+4. Check every part while the agent moves: the agent screen, combat, the outline and any glow. Hold `F9` to compare with the original.
+
+</Step>
+</Steps>
+
+## When a new export beats hand edits
+
+If you made the mod, or you have its `.blend` file, export it again with XXMI Tools 1.8.2. Every part then comes out in the current form, with no lines to fix. The 3.2 changes to bones, UVs and faces, Jane's split hair and the remade Belle all need this, or a fix tool made for that change. Creators updating their own mod for others can follow [Update your mod after a game update](/docs/zenless-zone-zero/publishing/update-your-mod).
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Still a mess of colors after I moved to SlotFix" id="still-messy">
+
+- Check that you deleted every texture hash section. SlotFix reads the textures the game has bound, and these sections get in its way.
+- Check that `run = CommandList\ZZMI\SetTextures` comes after the `Resource\ZZMI\...` lines and before `drawindexed`.
+- Check that XXMI Launcher updated ZZMI. If many SlotFix mods broke at once, a ZZMI update usually fixes it within days.
+
+</Accordion>
+<Accordion title="Still flat after I guarded the line" id="still-flat">
+
+Another section still has a live `run = CommandListSkinTexture`. Search the whole file, and guard or delete every one.
+
+</Accordion>
+<Accordion title="The signature W-Engine glow shows in the wrong place" id="wrong-glow">
+
+The mod changed the part's UVs but kept the game's glow textures. Point the slot at the empty glow map: `Resource\ZZMI\WengineFx = ref Resource\ZZMI\EmptyGlowMap`.
+
+</Accordion>
+<Accordion title="Only this agent looks scrambled" id="one-agent-scrambled">
+
+Another mod for the same agent is loaded. Keep one mod per agent or outfit.
+
+</Accordion>
+</Accordions>
+
+More symptoms and their fixes are on [Mods look broken](/docs/zenless-zone-zero/errors/mods-look-broken).
+
+## Next steps
+
+<PremiumCard
+  title="Add a toggle"
+  href="/docs/zenless-zone-zero/ini/add-a-toggle"
+  icon={<Icon name="ToggleRight" />}
+  level="intermediate"
+>
+  Once the mod works again, add keys that hide parts or swap textures.
+</PremiumCard>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ and contributors, for the Position to Blend change.
+- **Guide:** [Best Way to Replace Textures - SlotFix Guide](https://gamebanana.com/tuts/18114) by hazelberry.
+- **Images:** the flat and detailed comparison from [Best Way to Replace Textures - SlotFix Guide](https://gamebanana.com/tuts/18114) by hazelberry.
+- **Wiki:** [SlotFix](https://github.com/Satan1c/ZZMI_tools/wiki/SlotFix) by Satan1c.
+- **Source:** Satan1c's advice on `handling = skip` in [ZZMI-Package issue 46](https://github.com/leotorrez/ZZMI-Package/issues/46).
+- **Tool:** [ZZZ-Mod-Fixer (Community Update)](https://github.com/Vonksdesu/ZZZ-Mod-Fixer) by Vonksdesu.
+- **Tool page:** [ZZZ Index & Vertex Fix Tool](https://gamebanana.com/tools/24146) by GreenLzz, for its explanation of the 3.2 break.
+- **Assets:** [ZZ-Model-Importer-Assets](https://github.com/leotorrez/ZZ-Model-Importer-Assets) by leotorrez and Satan1c.

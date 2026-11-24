@@ -1,0 +1,277 @@
+---
+title: "Add or swap clothing parts"
+description: "Put a new piece on a Zenless Zone Zero agent in Blender: fit it, weight it, give it its own textures in the .ini, and make glasses with see-through lenses."
+category: "models"
+patch: "3.3"
+keywords:
+  ["zzz outfit mod", "add glasses", "kitbash", "add clothing", "xxmi tools"]
+---
+
+<LevelPill level="intermediate" />
+
+This guide puts a new piece on a Zenless Zone Zero agent. The example adds glasses to Zhao, with see-through lenses, following \_IB\_'s glasses tutorial. The glasses come from another agent's dump, Yanagi's `YanagiGlassesA`, but any mesh works the same way. Written for XXMI Tools 1.8.2 on Blender 4.5 LTS and ZZMI 1.5.2.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="Blender"
+    href="/docs/zenless-zone-zero/tools/blender-add-on"
+  >
+    Blender 4.5 LTS with XXMI Tools
+  </Requirement>
+  <Requirement
+    icon="Box"
+    href="/docs/zenless-zone-zero/models/import-into-blender"
+  >
+    Dumps of both agents
+  </Requirement>
+  <Requirement icon="FileCode" note="for the .ini edits">
+    A code editor
+  </Requirement>
+</Requirements>
+
+You should already know how to [remove a part](/docs/zenless-zone-zero/models/remove-a-part) and export a mod.
+
+<Callout type="info" title="Parts from Zenless Zone Zero only">
+  This guide uses parts from other Zenless Zone Zero agents and NPCs. Models
+  from other games, films or anime are not covered. Each outfit, paid ones
+  included, is its own model with its own hashes: never put a paid outfit over
+  its free version.
+</Callout>
+
+## Plan where the piece goes
+
+You cannot add a new part to an agent. Your piece goes into a part the agent already has, like `ZhaoHairA` or `ZhaoBodyA`.
+
+- **Pick the part that moves the right way.** Glasses and hats go with the hair, because the hair follows the head. Clothing goes with the body.
+- **Pick how the piece gets its textures.** In this game the `.ini` can give each mesh in a part its own texture set. The glasses below keep Yanagi's glasses textures, so nothing has to fit on Zhao's textures.
+- **Or share the part's textures.** Then the piece needs room on all four of the part's textures, at the same size as the original. Scale both meshes' UVs into separate blocks, so each mesh uses its own block. [UV maps, vertex colors, and outlines](/docs/zenless-zone-zero/models/uvs-and-vertex-colors) shows the atlas steps. This costs texture detail, so the own-texture way is usually better.
+
+## Add the glasses
+
+<Steps>
+<Step>
+
+### Set up the part's collection
+
+1. Import Zhao's dump with the `Zenless Zone Zero` preset. You get `ZhaoHairA`, `ZhaoHairB` and `ZhaoBodyA`.
+2. Find the hair part at the front of the head: click the eye icon of `ZhaoHairA`, then of `ZhaoHairB`, and watch which hair disappears. Show both again. The steps below call it `ZhaoHairA`.
+3. Right-click in the Outliner, choose **New Collection**, and name it `ZhaoHairA`.
+4. Select the `ZhaoHairA` object, press `Ctrl+C`, then `Ctrl+V`. Move the copy into the new collection with `M`, and rename it `Hair`.
+5. Select the original `ZhaoHairA` object, press `Tab`, `A`, then `X` > **Vertices**, and `Tab` again. Keep this empty object outside the collection.
+
+Export now merges everything in the `ZhaoHairA` collection into that part, and writes one `drawindexed` line per object.
+
+{/* NEEDS HANDS-ON TEST: on the ZZ-Model-Importer-Assets Zhao folder, which of ZhaoHairA and ZhaoHairB is the front hair, and that the collection setup, with the emptied ZhaoHairA object outside the collection, exports with XXMI Tools 1.8.2 */}
+
+</Step>
+<Step>
+
+### Bring in and fit the glasses
+
+1. Import Yanagi's dump into the same scene. Delete every Yanagi object except `YanagiGlassesA`.
+2. Move, rotate and scale the glasses with `G`, `R` and `S` until they sit right on Zhao's face.
+3. Press `Ctrl+A` > **All Transforms**.
+4. For a close fit, use the **Grab** brush in Sculpt Mode.
+
+**Dump Folder** in the XXMI Tools sidebar keeps the first dump you import, so import Zhao's dump first, as above. Before you export, check that it still points to Zhao's folder.
+
+</Step>
+<Step>
+
+### Give the glasses the hair's data
+
+The glasses still carry Yanagi's vertex groups, which mean nothing on Zhao. Borrow the hair's data instead:
+
+1. Select the glasses. In **Object Data** > **Vertex Groups**, open the down arrow menu and choose **Delete All Groups**.
+2. Click the glasses, then `Shift+click` the `Hair` copy so it is active, and press `Ctrl+J`.
+3. Press `Tab`. Hover over the glasses and press `L` until all of them are selected.
+4. Press `P` > **Selection**. The glasses are their own object again, now with the hair's vertex groups, UV map names and properties.
+5. In Edit Mode on the glasses, select both lenses with `L` and press `P` > **Selection** again. You now have a frame and a lens object.
+6. Rename them `GlassesFrame` and `GlassesLens`, and move both into the `ZhaoHairA` collection.
+
+Check that **UV Maps** on both lists only `TEXCOORD.xy` to `TEXCOORD3.xy`.
+
+</Step>
+<Step>
+
+### Weight them to the head
+
+Glasses must not bend, so all of them follow one bone. On Zhao that is group `4`, the main head group of the hair.
+
+1. Select `GlassesFrame` and press `Tab`, then `A`.
+2. In **Vertex Groups**, click group `4`, set **Weight** to `1.000`, and click **Assign**.
+3. Do the same for `GlassesLens`.
+4. Press `Ctrl+Tab` for Weight Paint mode and click group `4`. The glasses should be fully red.
+
+<img
+  src="/wiki-images/zenless-zone-zero-models-add-clothing-parts-1.webp"
+  alt="Weight Paint mode on Zhao's head with the lenses of the glasses shown in red, and vertex group 4 selected in the Vertex Groups list"
+/>
+
+For another agent, find the head group yourself: in Weight Paint mode on the hair, click through the groups until the head turns red. [Weight paint a mesh](/docs/zenless-zone-zero/models/weight-painting) covers pieces that must bend, like a skirt or a coat.
+
+</Step>
+<Step>
+
+### Export
+
+1. Hide `ZhaoBodyA`, so the mod leaves the body alone. Keep both hair parts visible.
+2. Hide or delete the Yanagi leftovers.
+3. Check that **Dump Folder** points to Zhao's folder and **Game to mod** says `Zenless Zone Zero`.
+4. Set **Output Folder** to `%AppData%\XXMI Launcher\ZZMI\Mods\ZhaoGlasses`.
+5. Keep **Mod textures** on, so the `.ini` gets the hair's own texture lines. The next step builds on them.
+6. Click **Export Mod**.
+7. Copy Yanagi's four glasses textures, from `YanagiGlassesADiffuse.dds` to `YanagiGlassesAMaterialMap.dds`, into the mod folder.
+
+{/* NEEDS HANDS-ON TEST: that hiding ZhaoBodyA leaves the body component out of the export with XXMI Tools 1.8.2 */}
+
+</Step>
+<Step>
+
+### Give the glasses their own textures
+
+Open `Zhao.ini` in your code editor and find the `[TextureOverrideZhaoHairA]` section. It holds one `drawindexed` line per object, each with its object's name in a comment. Move the glasses' lines to the end of the section, and add their textures above them:
+
+```ini
+[TextureOverrideZhaoHairA]
+hash = <ib hash>
+match_first_index = <first index>
+match_index_count = <index count>
+handling = skip
+ib = ResourceZhaoHairAIB
+Resource\ZZMI\Diffuse = ref ResourceZhaoHairADiffuse
+Resource\ZZMI\NormalMap = ref ResourceZhaoHairANormalMap
+Resource\ZZMI\LightMap = ref ResourceZhaoHairALightMap
+Resource\ZZMI\MaterialMap = ref ResourceZhaoHairAMaterialMap
+run = CommandList\ZZMI\SetTextures
+drawindexed = <hair count>, <hair offset>, 0
+Resource\ZZMI\Diffuse = ref ResourceGlassesDiffuse
+Resource\ZZMI\NormalMap = ref ResourceGlassesNormalMap
+Resource\ZZMI\LightMap = ref ResourceGlassesLightMap
+Resource\ZZMI\MaterialMap = ref ResourceGlassesMaterialMap
+run = CommandList\ZZMI\SetTextures
+drawindexed = <frame count>, <frame offset>, 0
+drawindexed = <lens count>, <lens offset>, 0
+
+[ResourceGlassesDiffuse]
+filename = YanagiGlassesADiffuse.dds
+```
+
+Add `[ResourceGlassesNormalMap]`, `[ResourceGlassesLightMap]` and `[ResourceGlassesMaterialMap]` the same way. Keep the numbers the export wrote: only move the lines.
+
+The hair's textures stay above the hair's `drawindexed` line, and the glasses' textures above the glasses' lines. Each `run = CommandList\ZZMI\SetTextures` hands the textures above it to SlotFix for the draws below it.
+
+{/* NEEDS HANDS-ON TEST: the comment format XXMI Tools 1.8.2 writes next to each drawindexed line, and that a second SetTextures call in one part section gives the glasses their own textures on ZZMI 1.5.2 */}
+
+</Step>
+<Step>
+
+### Make the lenses see-through
+
+Add this section to the `.ini`, with the lens's `drawindexed` line from above:
+
+```ini
+[CustomShaderTransparency]
+blend = ADD BLEND_FACTOR INV_BLEND_FACTOR
+blend_factor[0] = 0.6
+blend_factor[1] = 0.6
+blend_factor[2] = 0.6
+blend_factor[3] = 1
+handling = skip
+drawindexed = <lens count>, <lens offset>, 0
+```
+
+Then, in `[TextureOverrideZhaoHairA]`, replace the lens's `drawindexed` line with:
+
+```ini
+run = CustomShaderTransparency
+```
+
+Try values from `0.1` to `1` for the three `0.6` lines to change how see-through the lenses are. ZZMI also ships TTLib, another way to draw a piece see-through. [Add glow and see-through parts](/docs/zenless-zone-zero/effects/glow-and-transparency) explains it.
+
+</Step>
+<Step>
+
+### Test it
+
+1. Press `F10` in game, with Zhao off screen, then switch back to Zhao.
+2. Look at the glasses in the agent screen, then while running and attacking.
+
+<img
+  src="/wiki-images/zenless-zone-zero-models-add-clothing-parts-2.webp"
+  alt="The result of the glasses tutorial in game: the agent wearing thin glasses with orange-tinted lenses that the eyes show through"
+/>
+
+Before you export again, untick **Write ini** in the export settings. Otherwise the export overwrites your `.ini` edits. If you change the number of vertices, tick it again and redo the edits.
+
+</Step>
+</Steps>
+
+## Keep pieces separate for toggles
+
+Because each object in the collection gets its own `drawindexed` line, the glasses can go inside a toggle. Wrap their lines in an `if` block, and a key turns them on and off. [Add a toggle](/docs/zenless-zone-zero/ini/add-a-toggle) shows how. Hidden objects are skipped when **Ignore hidden objects** is on, so show every piece before you export.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The piece floats or stays behind when the agent moves" id="piece-floats">
+
+It follows the wrong bone. Pick the group that is fully red right where the piece sits, and assign the piece to it again.
+
+</Accordion>
+<Accordion title="The glasses have the hair's colors, or the hair has the glasses' colors" id="wrong-textures">
+
+A texture block sits in the wrong place. Each part's textures and `run = CommandList\ZZMI\SetTextures` must come right above that part's own `drawindexed` lines.
+
+</Accordion>
+<Accordion title="The export fails after importing the second agent" id="second-dump">
+
+**Dump Folder** points to the second agent's folder. It keeps the first dump you import, so this happens when the piece's dump went in first. Set **Dump Folder** to the folder of the agent you are modding. A leftover object from the second dump that starts with a part name also stops the export: remove the leftovers.
+
+</Accordion>
+<Accordion title="The body pokes through new clothing" id="clipping">
+
+The body under the clothing is still drawn, or the two layers have different weights. Delete the body faces that the clothing covers. On tight clothing, a **Displace** modifier with a strength of `0.001` pushes it out a little. Weight both layers the same way.
+
+</Accordion>
+<Accordion title="The new piece shades differently from the agent" id="piece-shading">
+
+Its `TEXCOORD1.xy` outline data does not fit. Export with **Outline Optimization** on, or set that UV map to zero as the UV maps page shows.
+
+</Accordion>
+</Accordions>
+
+More symptoms are on [Model problems in game](/docs/zenless-zone-zero/errors/model-problems).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Add a toggle"
+    href="/docs/zenless-zone-zero/ini/add-a-toggle"
+    icon={<Icon name="ToggleRight" />}
+    level="intermediate"
+  >
+    Switch your new piece on and off with a key.
+  </PremiumCard>
+  <PremiumCard
+    title="Add glow and see-through parts"
+    href="/docs/zenless-zone-zero/effects/glow-and-transparency"
+    icon={<Icon name="Sparkles" />}
+    level="intermediate"
+  >
+    More ways to make parts glow or let light through.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide and images:** [Glasses/Glasses Transparency Tutorial](https://gamebanana.com/tuts/19574) by \_IB\_.
+- **Guide:** [Best Way to Replace Textures - SlotFix Guide](https://gamebanana.com/tuts/18114) by hazelberry: several texture sets in one part.
+- **Guide:** [Modding Tutorial - Add parts of one character into another \[Beginner Level\]](https://docs.google.com/document/d/1IwXhZNKWOJLz1FG9P8WsEMxgL_1O6c42-ZddkdYftQA) by [Anilyan](https://discord.com/users/301273867618484235): cutting and fitting a piece.
+- **Tool:** [XXMI Tools](https://github.com/leotorrez/XXMITools) by LeoTorreZ.
+- **Tool:** [ZZ-Model-Importer-Assets](https://github.com/leotorrez/ZZ-Model-Importer-Assets) by LeoTorreZ, maintained mostly by Satan1c.
