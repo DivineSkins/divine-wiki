@@ -188,52 +188,13 @@ Star Rail characters have three components, so you get one set of buffers per co
 
 {/* NEEDS HANDS-ON TEST: the exact file names XXMI Tools 1.8.2 writes for Kafka with the Honkai Star Rail preset, including the .ini name */}
 
-Each component gets sections like these in the `.ini`, shortened here. The names in `<>` stand for the real hashes and counts:
-
-```ini
-[TextureOverrideKafkaBodyBlend]
-hash = <blend vb hash>
-handling = skip
-vb2 = ResourceKafkaBodyBlend
-if DRAW_TYPE == 1
-    vb0 = ResourceKafkaBodyPosition
-    draw = <vertex count>, 0
-elif DRAW_TYPE == 8
-    Resource\SRMI\PositionBuffer = ref ResourceKafkaBodyPositionCS
-    Resource\SRMI\BlendBuffer = ref ResourceKafkaBodyBlendCS
-    $\SRMI\vertex_count = <vertex count>
-endif
-
-[TextureOverrideKafkaBodyDraw]
-hash = <draw vb hash>
-override_vertex_count = <vertex count>
-override_byte_stride = 40
-uav_byte_stride = 4
-
-[TextureOverrideKafkaBodyA]
-hash = <ib hash>
-match_first_index = 0
-ib = ResourceKafkaBodyAIB
-drawindexed = <index count>, <offset>, 0
-
-[TextureOverrideKafkaBodyADiffuse]
-hash = <diffuse texture hash>
-this = ResourceKafkaBodyADiffuse
-```
-
-What matters here:
+The `.ini` holds a few sections per component and one section per texture. [How a mod .ini works](/docs/honkai-star-rail/ini/how-a-mod-ini-works) shows each of them line by line. What matters here:
 
 - **Two branches.** `DRAW_TYPE == 8` hands your buffers to SRMI, which poses them in compute shaders. `DRAW_TYPE == 1` is the older path, which Intel graphics cards reportedly use again. Never delete either branch. [How Honkai: Star Rail mods work](/docs/honkai-star-rail/basics/how-mods-work) explains why.
 - **Textures bind by hash.** Each texture has its own section with `hash =` and `this =`. Never replace them with `ps-t` slot lines: Star Rail moves textures between slots.
 - **Nothing else goes in the folder.** A mod never holds `d3dx.ini`, `d3d11.dll`, a `ShaderFixes` folder, SRMI's own `BatchedPose.ini`, or a copy of RabbitFX.
 
-If you edit the `.ini` by hand, keep these rules:
-
-- `$\SRMI\vertex_count` and `override_vertex_count` are the size of the Position `.buf` file in bytes, divided by `40`. For example, `2161720 / 40 = 54043`. Use the file size, not "size on disk". Too low a number makes the mod blink.
-- Keep `override_byte_stride = 40` and `uav_byte_stride = 4`.
-- Never use `DrawCS`, `$\SRMI\vertcount` or `$_blend_`. They belong to the first 3.2 format, which glitches when two copies of the model are on screen.
-
-[How a mod .ini works](/docs/honkai-star-rail/ini/how-a-mod-ini-works) explains every line.
+If you edit the `.ini` by hand, [Fix an old mod by hand](/docs/honkai-star-rail/ini/fix-an-old-mod) shows how to set the vertex count. Keep `override_byte_stride = 40` and `uav_byte_stride = 4`, and never add the `DrawCS`, `$\SRMI\vertcount` or `$_blend_` lines from older guides.
 
 ## Export again, faster
 

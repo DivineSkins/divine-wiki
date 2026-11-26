@@ -1,0 +1,99 @@
+---
+title: "Replace sounds and music"
+description: "How Honkai: Star Rail sound mods differ from XXMI mods, what a game update or a file check does to them, and which tools cover Star Rail."
+category: "more-mods"
+patch: "4.7"
+keywords: ["star rail sound mods", "star rail voice mods", "xxar", "srar"]
+---
+
+<LevelPill level="intermediate" />
+
+Sound mods change voice lines, sound effects, or music. They work in a different way from every other mod on this wiki. This page explains the difference, the risks, and the tools. It is an overview, not a step-by-step guide.
+
+<Callout type="warning" title="Sound mods change the game's own files">
+  XXMI mods stay in their own folder and leave the game alone. Sound mods
+  replace audio files inside the Honkai: Star Rail game folder. That changes the
+  game itself, which is a different kind of risk from XXMI mods, and nobody has
+  measured it. Read [What's allowed and how to stay
+  safe](/docs/honkai-star-rail/getting-started/stay-safe) first.
+</Callout>
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Monitor">Honkai: Star Rail on Windows PC</Requirement>
+  <Requirement icon="HardDrive" note="before any change">
+    A backup of the files a tool changes
+  </Requirement>
+</Requirements>
+
+## How sound mods differ
+
+<img
+  src="/wiki-images/honkai-star-rail-more-mods-sound-mods-1.webp"
+  alt="Two columns: XXMI mods live in the SRMI Mods folder and never change game files, while sound mods overwrite the game's .pck audio files under StarRail_Data and vanish after a game update or file check"
+/>
+
+- Honkai: Star Rail keeps its sounds in Wwise audio packages: `.pck` files that hold `.wem` sounds, inside the game's `StarRail_Data` folder.
+- A Star Rail sound mod replaces some of those `.pck` files. Sound tools rewrite them on disk. They do not use XXMI Launcher or SRMI.
+- So `F6`, `F10`, and the `DISABLED_` folder name do nothing to sound mods.
+
+Some sound mods come as loose `.pck` files that you copy over the game's own. This wiki does not cover that way.
+
+## What updates and file checks do
+
+- **A game update** replaces the changed audio files with new originals. Your sound mods are gone, and you must apply them again.
+- **A file check**, when you repair the game in HoYoPlay or Epic Games, also puts the original files back. Repairing the game is a common crash fix, so expect to lose your sound mods when you do it.
+- **Editing by hand** can damage a `.pck` file, one guide warns. Keep a copy of every file before you or a tool changes it.
+
+{/* NEEDS HANDS-ON TEST: that a Honkai: Star Rail 4.7 update and a HoYoPlay file repair both remove sound mods applied with XXAR 1.1.6. */}
+
+## The tools
+
+Written for XXAR 1.1.6. Nobody has tested these tools on Honkai: Star Rail 4.7 for this wiki.
+
+<ToolCard
+  name="XXAR (Hoyo Games Audio Replacer)"
+  href="https://github.com/Entity378/XXAR"
+  badge="Untested"
+  icon={<Icon name="GitHub" />}
+>
+  A sound mod manager and creator. Packs Honkai: Star Rail sound mods as `.srar`
+  files. Version 1.1.6, GPL-3.0.
+</ToolCard>
+<ToolCard
+  name="HoyoAudioTools"
+  href="https://github.com/failsafe42/HoyoAudioTools"
+  badge="Creators"
+  icon={<Icon name="GitHub" />}
+>
+  Python scripts that unpack the sounds in a `.pck` file and pack them again.
+  The low-level path for creators. Needs vgmstream and Wwise.
+</ToolCard>
+
+Good to know:
+
+- **XXAR** lists full support for Honkai: Star Rail in its README (checked on 2026-11-24). If it does not find the game by itself, it asks for the game's `StarRail_Data` folder.
+- **XXAR** is a fork of ZZAR by Pucas01. The original has had no update since March 2026 and does not pack Star Rail mods.
+- **Wwise** is Audiokinetic's audio tool. It turns your sound files into `.wem`. It needs a free Audiokinetic account.
+
+{/* NEEDS HANDS-ON TEST: HoyoAudioTools unpack and repack on a Honkai: Star Rail 4.7 .pck file, and whether the game plays the repacked file. */}
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="More mod types"
+    href="/docs/honkai-star-rail/more-mods"
+    icon={<Icon name="Puzzle" />}
+  >
+    Other kinds of Honkai: Star Rail mods, and what makes each one different.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This page is based on the work of these creators. Check out their original tools.
+
+- **Tool:** [XXAR](https://github.com/Entity378/XXAR) by Entity378, based on [ZZAR](https://github.com/Pucas01/ZZAR) by Pucas01.
+- **Tool:** [HoyoAudioTools](https://github.com/failsafe42/HoyoAudioTools) by [failsafe65](https://discord.com/users/317448503226007554), shared in the [AGMG Discord](https://discord.gg/agmg).
