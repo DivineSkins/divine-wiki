@@ -76,6 +76,17 @@ export function isDuplicateCopy(slugs: string[]): boolean {
 }
 
 /**
+ * True when a locale has no translation of the page, so the loader serves the
+ * English file under that locale's URL. `path` keeps the file's own locale
+ * folder ("en/deadlock/tools/index.mdx") while `locale` is the one asked for.
+ * These views are for readers, not search engines: they canonicalize to the
+ * English URL and stay out of hreflang and the sitemap.
+ */
+export function isFallbackPage(page: { path: string; locale?: string }) {
+  return page.locale !== undefined && !page.path.startsWith(`${page.locale}/`);
+}
+
+/**
  * Content links a shared section game-agnostically ("/docs/contributing/x").
  * On a game's page, point them at that game's copy so the reader keeps the
  * sidebar; anywhere else the edge redirect sends them to the default game.

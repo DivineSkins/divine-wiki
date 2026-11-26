@@ -1,5 +1,10 @@
 import { baseUrl } from "@/lib/config";
-import { contentPath, isDuplicateCopy, source } from "@/lib/source";
+import {
+  contentPath,
+  isDuplicateCopy,
+  isFallbackPage,
+  source,
+} from "@/lib/source";
 import { homePath, i18n } from "@/lib/i18n";
 import pageDates from "@/lib/page-dates.json";
 import type { MetadataRoute } from "next";
@@ -28,6 +33,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     if (!page.url || page.slugs.length === 0) continue;
     // Shared sections appear in every game; only one copy is indexed.
     if (isDuplicateCopy(page.slugs)) continue;
+    // A locale without a translation shows the English file; the English URL
+    // is the one to index.
+    if (isFallbackPage(page)) continue;
     const lastModified = dates[contentPath(page.path)];
     sitemap.push({
       url: `${baseUrl}${page.url}`,
