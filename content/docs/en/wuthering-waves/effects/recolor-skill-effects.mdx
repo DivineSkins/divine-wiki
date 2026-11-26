@@ -1,0 +1,253 @@
+---
+title: "Recolor skill effects"
+description: "Change the color of your own Wuthering Waves Resonator's skill effects by editing the effect's pixel shader, and pack the edit as a normal mod."
+category: "effects"
+patch: "3.8"
+keywords:
+  [
+    "wuthering waves effect mod",
+    "skill effect recolor",
+    "ps_replace",
+    "shaderoverride",
+    "wwmi shader",
+  ]
+---
+
+<LevelPill level="advanced" />
+
+You will give your Resonator's skill effect a new color. A Resonator is a playable character. You find the pixel shader that draws the effect, add one line to it, and pack it into a mod folder. You should already know hunting mode. Written for XXMI Launcher 2.5.0 and WWMI 1.1.0.
+
+No guide shows this whole method on Wuthering Waves yet. A Wuthering Waves guide shows how to find an effect's shader. The edit and the packing come from the shared XXMI method, so test each step.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/wuthering-waves/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="Crosshair" href="/docs/wuthering-waves/basics/find-a-hash">
+    Hunting mode, and how to copy a pixel shader hash
+  </Requirement>
+  <Requirement icon="NotepadPlusPlus" note="or any code editor">
+    A text editor
+  </Requirement>
+</Requirements>
+
+<Callout type="danger" title="Your Resonator only, and keep it readable">
+  Change only your own Resonator's effects. Never hide, fade or recolor enemy
+  attacks, warnings or fog to see more than the normal game shows. That is a mod
+  that gives an unfair advantage. Keep your new colors as easy to see as the
+  original.
+</Callout>
+
+<Callout type="warning" title="Hashes change">
+  Shader hashes change between game versions, so find each one again on your
+  current version. The hashes on this page are placeholders.
+</Callout>
+
+## How an effect recolor works
+
+The game draws each effect with small programs called pixel shaders. Each one ends by writing its color to `o0`. You save a copy of the shader and change `o0` right before the end. Your mod then draws the effect with your copy instead of the game's.
+
+<img
+  src="/wiki-images/wuthering-waves-effects-recolor-skill-effects-1.webp"
+  alt="Four steps: the game draws an effect with a pixel shader, your mod's ShaderOverride matches its hash, it checks that your Resonator is on screen, and your edited copy with an o0 line draws the new color"
+/>
+
+- One skill uses many shaders. Expect to edit several.
+- One shader is often shared with other Resonators, and maybe with enemies. You limit the change to your Resonator, and you check that nothing else changes.
+
+## Find and edit the shader
+
+<Steps>
+<Step>
+
+### Turn on hunting and shader dumping
+
+1. Close the game.
+2. In XXMI Launcher, click the gear and open the **WWMI** tab.
+3. Under **Shader Hunting**, tick **Enable Hunting** and **Dump Shaders**.
+4. Turn off other effect mods for this Resonator: rename their folders so they start with `DISABLED`.
+
+{/* NEEDS HANDS-ON TEST: that Dump Shaders in the WWMI tab of XXMI Launcher 2.5.0 makes Numpad 3 save a -ps_replace.txt file for a Wuthering Waves 3.8 effect */}
+
+</Step>
+<Step>
+
+### Put the effect on screen
+
+Use the skill in an empty spot, where few other things are drawn. A Wuthering Waves effect guide also lowers the graphics preset and turns DLSS off while hunting, so there are fewer shaders to step through. If you do that, test your finished mod at your normal settings too.
+
+</Step>
+<Step>
+
+### Copy the shader
+
+1. Press `Numpad 0` to turn hunting on.
+2. Press `Numpad 2` again and again until the part of the effect you want disappears. `Numpad 1` goes back one.
+3. Press `Numpad 3`. This copies the hash and saves the shader as `<hash>-ps_replace.txt` in `%AppData%\XXMI Launcher\WWMI\ShaderFixes`.
+4. Note the 16-digit hash and what it draws, like `flame trail`.
+
+</Step>
+<Step>
+
+### Change the color
+
+Open the new file. Find the last `return;` in `main`, and add one line right above it:
+
+| Line                                    | Result                                                     |
+| --------------------------------------- | ---------------------------------------------------------- |
+| `o0.xz = o0.zx;`                        | Swaps red and blue. Orange turns blue and keeps its detail |
+| `o0.xyz = float3(1,0,1);`               | One flat color, here purple. Detail is lost                |
+| `if (o0.z > o0.y) { o0.xyz = o0.yzx; }` | Changes only one color in a shared shader                  |
+
+If the file holds assembly code instead of lines with `o0` and `return;`, this method does not work for that shader.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: whether effect shaders dumped by WWMI 1.1.0 come out as HLSL with o0 and return;, and whether the three lines change the color */}
+
+</Step>
+<Step>
+
+### Reload and check
+
+1. Press `F10`.
+2. Press `Numpad +` to reset the hunting lists.
+3. Use the skill again. The part you edited has the new color.
+
+</Step>
+<Step>
+
+### Repeat for every part
+
+Hunt and edit each shader of the effect until the whole skill has the new color.
+
+</Step>
+</Steps>
+
+## Pack it as a mod
+
+A loose file in `ShaderFixes` changes every draw that uses that shader, and you cannot turn it off per mod. Never ship a `ShaderFixes` folder. Move your edits into a normal mod folder instead.
+
+1. Make a mod folder, like `Mods\ZaniNewFlame`, with a `Shaders` folder inside.
+2. Move your edited `-ps_replace.txt` files from `ShaderFixes` into `Shaders`. Keep their names.
+3. Make `ZaniNewFlame.ini` with one pair of sections per shader:
+
+```ini
+[ShaderOverrideFlame]
+hash = aaaaaaaaaaaaaaaa
+allow_duplicate_hash = true
+run = CustomShaderFlame
+
+[CustomShaderFlame]
+ps = ./Shaders/aaaaaaaaaaaaaaaa-ps_replace.txt
+handling = skip
+draw = from_caller
+```
+
+- `handling = skip` stops the game's own draw.
+- `draw = from_caller` draws it again with your edited shader.
+- `allow_duplicate_hash = true` lets another mod use the same shader without a warning.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: the ShaderOverride and CustomShader pattern with a relative ps = path under WWMI 1.1.0 */}
+
+4. Press `F10` and check the effect.
+
+<Files>
+  <Folder name="Mods" defaultOpen>
+    <Folder name="ZaniNewFlame" defaultOpen>
+      <File name="ZaniNewFlame.ini" />
+      <Folder name="Shaders" defaultOpen>
+        <File name="aaaaaaaaaaaaaaaa-ps_replace.txt" />
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+
+## Limit it to your Resonator
+
+Run your shader only while your Resonator is on screen. Effect recolor mods for Wuthering Waves do this with the Resonator's VB0 hash. That hash is the name of the folder WWMI Tools made when you extracted the Resonator from a [frame dump](/docs/wuthering-waves/basics/frame-dump).
+
+```ini
+[Constants]
+global $zani = 0
+
+[Present]
+post $zani = 0
+
+[TextureOverrideZaniVB0]
+hash = bbbbbbbb
+match_priority = 1
+$zani = 1
+
+[ShaderOverrideFlame]
+hash = aaaaaaaaaaaaaaaa
+allow_duplicate_hash = true
+if $zani == 1
+    run = CustomShaderFlame
+endif
+```
+
+- WWMI checks the VB0 hash on every draw, so `$zani` turns `1` whenever the Resonator is drawn.
+- `match_priority = 1` keeps this section apart from a model mod for the same Resonator.
+- While the flag is `0`, the game draws its own effect.
+
+{/* NEEDS HANDS-ON TEST: a VB0-hash flag gating a CustomShader run in a ShaderOverride on Wuthering Waves 3.8 with WWMI 1.1.0, during skills and Liberation forms */}
+
+The flag only tells you that your Resonator is on screen. If an enemy or a teammate uses the same shader at that moment, it changes too. Fight a few enemies with the mod on. If any enemy attack or warning looks different, leave that shader out of your mod.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Effects or other mods broke after I edited shaders" id="shaderfixes-broke">
+
+Remove the files you added to `ShaderFixes`. Do not empty the folder. Then click the 3-dots button next to **Start** in XXMI Launcher and choose **Repair WWMI**.
+
+</Accordion>
+<Accordion title="Every Resonator's effect changed color" id="every-resonator">
+
+The shader is shared, and your mod runs it all the time. Add the flag from [Limit it to your Resonator](#limit-it-to-your-resonator).
+
+</Accordion>
+<Accordion title="My edit stopped working after a game update" id="after-update">
+
+The game changed the shader, so its hash changed. Hunt the effect again and copy the new file. Then copy your color line into it.
+
+</Accordion>
+<Accordion title="Two effect mods use the same ShaderFixes file" id="two-mods-one-shader">
+
+Only one file per shader can sit in `ShaderFixes`, so one of the two mods stops working. Move both into mod folders as shown above, each with `allow_duplicate_hash = true`.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Add glow and see-through parts"
+    href="/docs/wuthering-waves/effects/glow-and-transparency"
+    icon={<Icon name="Sparkles" />}
+    level="intermediate"
+  >
+    Make parts of your Resonator's model glow with a RabbitFX glow map.
+  </PremiumCard>
+  <PremiumCard
+    title="Sliders, animated textures, and help text"
+    href="/docs/wuthering-waves/ini/advanced-tricks"
+    icon={<Icon name="SlidersHorizontal" />}
+    level="advanced"
+  >
+    Add help text and slider keys to your mod.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Remove Unnecessary Effects (XXMI)](https://gamebanana.com/tuts/18726) by KaReoo, for hunting an effect's pixel shader in Wuthering Waves.
+- **Guide:** [Shader Effect Modding Techniques](https://github.com/SilentNightSound/GI-Model-Importer/blob/main/Guides/EffectModdingTechniques.md) by complex31, for the color lines.
+- **Discord:** the ShaderFixes to mod folder pattern by [SinsOfSeven](https://discord.com/users/178340582991724545) in the [AGMG Discord](https://discord.gg/agmg).

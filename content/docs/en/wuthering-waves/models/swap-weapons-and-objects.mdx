@@ -1,0 +1,215 @@
+---
+title: "Swap weapons and objects"
+description: "Replace a Wuthering Waves weapon model in Blender with WWMI Tools and the Per-Component skeleton, and learn what is known about props, echoes and other objects."
+category: "models"
+patch: "3.8"
+keywords:
+  ["wuthering waves weapon mod", "weapon swap", "wwmi tools", "per-component"]
+---
+
+<LevelPill level="intermediate" />
+
+A weapon is the simplest whole model to swap in Wuthering Waves: one object, usually moved by one bone. This guide replaces a weapon's model, then says what is known about props, echoes and other objects. Written for WWMI Tools 1.8.0 on Blender 4.5 LTS, with WWMI 1.1.0.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Blender" href="/docs/wuthering-waves/tools/blender-add-on">
+    Blender 4.5 LTS with WWMI Tools
+  </Requirement>
+  <Requirement icon="Box" href="/docs/wuthering-waves/basics/frame-dump">
+    The weapon, extracted from a frame dump
+  </Requirement>
+  <Requirement icon="Swords" note="your own, or one whose license allows it">
+    The model you want to use
+  </Requirement>
+</Requirements>
+
+<Callout type="info" title="Your own or licensed models only">
+  Use a model you made, or one whose license lets you use it in a game mod and
+  share it. Models from other games, films or anime are not covered.
+</Callout>
+
+## What you can swap
+
+| Object                      | What is known                                                                                      |
+| --------------------------- | -------------------------------------------------------------------------------------------------- |
+| Weapons                     | Import them **Per-Component**. Most use one vertex group, `0`. The steps below.                    |
+| Props a Resonator holds     | Their own objects, like Brant's compass or Encore's puppet. Dump the Resonator while it holds one. |
+| Echoes                      | WWMI Tools extracts them. **Merged** suits echoes with complex weights.                            |
+| Open-world objects and NPCs | WWMI Tools 1.3.5 and newer extract them. NPCs share models, so a mod changes every copy.           |
+| Gliders                     | Glider mods exist, but no tested steps for this game yet. Not covered here.                        |
+
+A Resonator is the game's name for a playable character. Per-Component also avoids a known limit of the Merged skeleton: two copies of the same modded object on screen glitch.
+
+## Get the weapon
+
+1. Remove any mod for that weapon from your `Mods` folder and press `F10`.
+2. Equip the weapon on a Resonator and open the weapon screen.
+3. Make a frame dump and extract it, as [Make a frame dump](/docs/wuthering-waves/basics/frame-dump) shows.
+4. Import the extracted folders one by one to find the weapon. Rename its folder to something readable.
+
+[WWMI-Assets](https://github.com/SpectrumQT/WWMI-Assets) has ready weapons in `WeaponData`, such as `AugustaSword` or `LupaSpear`. It stops at game version 2.7, so use it for practice only.
+
+{/* NEEDS HANDS-ON TEST: on Wuthering Waves 3.8 with WWMI Tools 1.8.0, a frame dump from the weapon screen extracts the weapon as its own object folder */}
+
+## Replace a weapon model
+
+<img
+  src="/wiki-images/wuthering-waves-models-swap-weapons-and-objects-1.webp"
+  alt="Six steps: dump the weapon from the weapon screen, import it Per-Component with your own model, line your model up over the original, weight it to group 0 at full weight, join it into the emptied original, and export Per-Component and test with F10"
+/>
+
+<Steps>
+<Step>
+
+### Import both models
+
+1. Import the weapon's folder with **Import Object** and the **Per-Component** skeleton, as [Get a model into Blender](/docs/wuthering-waves/models/import-into-blender#merged-or-per-component) shows.
+2. Check the weapon object's **Vertex Groups** list in the **Object Data** tab. Most weapons have only `0`.
+3. Import your model with <MenuPath path="File > Import" /> as FBX, OBJ or glTF.
+4. Remove what the game cannot use: extra objects, bones and shape keys. One object with one texture is easiest.
+
+</Step>
+<Step>
+
+### Line it up
+
+1. Move, rotate and scale your model with `G`, `R` and `S` over the original. Put the grip where the hand holds the original.
+2. Keep the size close to the original, or it clips through the Resonator.
+3. Leave the original's rotation and scale as they are. Export applies your model's rotation and scale for you.
+
+</Step>
+<Step>
+
+### Weight it to one bone
+
+1. Delete your model's own vertex groups.
+2. Add a group named `0`, select everything in Edit Mode, set **Weight** to `1.000` and click **Assign**.
+3. In Weight Paint mode, run **Weights** > **Normalize All**.
+
+[Weight paint a mesh](/docs/wuthering-waves/models/weight-painting#give-a-rigid-piece-one-bone) shows these steps with images. If the original weapon has more groups with weight, copy its weights with Data Transfer instead, as that page shows.
+
+</Step>
+<Step>
+
+### Match the names and colors
+
+1. Name your UV maps exactly like the original's: `TEXCOORD.xy`, `TEXCOORD1.xy` and `TEXCOORD2.xy`.
+2. Copy `COLOR` and `COLOR1` from the original weapon, as [UV maps, vertex colors, and outlines](/docs/wuthering-waves/models/uvs-and-vertex-colors) shows. They control the outline.
+
+</Step>
+<Step>
+
+### Join it into the original
+
+1. Select the original weapon object, press `Tab`, press `A`, then `X` > **Vertices**. The object is now empty but keeps its name and data.
+2. In Object Mode, select your model, then `Shift+click` the empty original so it is active.
+3. Press `Ctrl+J`. Your model now has the original's name, such as `Component 0`.
+
+</Step>
+<Step>
+
+### Make the textures
+
+1. Paint the diffuse for your model's UVs and save it as BC7 sRGB. Keep an alpha channel like the original's.
+2. Fill the light map with one color picked from the original weapon's light map. Save it and the normal map as BC7 linear.
+3. Give each file the name of the original texture it replaces. The `t=` part of the name is the hash the mod matches.
+
+[Save DDS textures the right way](/docs/wuthering-waves/textures/save-dds-files) has the save settings.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: what the diffuse alpha does on a weapon in 3.8, and whether a one-color light map picked from the original looks right */}
+
+</Step>
+<Step>
+
+### Export and test
+
+1. Export with the **Per-Component** skeleton and the weapon's folder as **Object Sources**, as [Export your mod from Blender](/docs/wuthering-waves/models/export-your-mod) shows.
+2. Copy your textures over the exported ones in the mod's `Textures` folder.
+3. In game, equip the weapon, switch to another Resonator, press `F10`, and switch back.
+4. Check the weapon standing, attacking, and when it appears and disappears.
+
+{/* SCREENSHOT: wuthering-waves-models-swap-weapons-and-objects-2.webp, a Resonator in the Wuthering Waves 3.8 weapon screen holding a replaced weapon after F10 */}
+
+{/* NEEDS HANDS-ON TEST: a weapon replaced with these steps on Wuthering Waves 3.8, WWMI Tools 1.8.0 and WWMI 1.1.0: the join keeps the original's data and the weapon follows the hand */}
+
+</Step>
+</Steps>
+
+## Who sees your weapon
+
+A mod matches the weapon's model, not the Resonator who holds it. So every Resonator who equips that weapon will most likely show your mod. Say so in your mod's description.
+
+No tested way exists yet to limit a weapon mod to one Resonator in Wuthering Waves.
+
+{/* NEEDS HANDS-ON TEST: on Wuthering Waves 3.8, a weapon mod shows on every Resonator who equips the weapon */}
+
+## Props, echoes and other objects
+
+These use the same pipeline as a Resonator: dump, extract, import, edit, export. No step-by-step guide for them exists yet, so test each one.
+
+- **Props.** Dump the Resonator while it holds the prop. Extraction gives you a second folder for the prop. Import that folder, not the Resonator's.
+- **Echoes.** Pick **Merged** when you weight parts to other bones, **Per-Component** for simple edits and retextures. Some echoes have a simpler skeleton, which WWMI Tools supports since 1.3.5.
+- **Open-world objects and NPCs.** Lower the game resolution before you dump. Busy scenes with many characters can make extraction fail. The frame dump page covers that case.
+
+{/* NEEDS HANDS-ON TEST: on Wuthering Waves 3.8 with WWMI Tools 1.8.0, export and in-game result for a prop, an echo and an open-world object, and which skeleton mode each needs */}
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The weapon looks broken or stretched" id="broken-weapon">
+
+The export **Skeleton** does not match the import. Set it to **Per-Component**, the mode you imported with, and export again.
+
+</Accordion>
+<Accordion title="The weapon does not follow the hand" id="weapon-floats">
+
+Some vertices have no weight, or weights from your old model. Remove all vertex groups, assign group `0` at `1.000` to everything, and run **Normalize All**.
+
+</Accordion>
+<Accordion title="The texture is blank or scrambled" id="blank-texture">
+
+A UV map name does not match the original's, or the texture file has another name than the original. Check both, then export again.
+
+</Accordion>
+<Accordion title="Parts of the weapon are black" id="black-parts">
+
+Some faces point inward. Turn on the **Face Orientation** overlay, select the red faces, and press `Alt+N` > **Flip**.
+
+</Accordion>
+</Accordions>
+
+More symptoms are on [Model problems in game](/docs/wuthering-waves/errors/model-problems).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Add a toggle"
+    href="/docs/wuthering-waves/ini/add-a-toggle"
+    icon={<Icon name="ToggleRight" />}
+    level="intermediate"
+  >
+    Switch between your weapon and the original with a key.
+  </PremiumCard>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/wuthering-waves/publishing/publishing-checklist"
+    icon={<Icon name="Upload" />}
+    level="beginner"
+  >
+    Clean up the folder, credit your sources, and say who shows the weapon.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [【鸣潮MOD制作】三，入门-教学长刃MOD制作/贴图权重](https://kfsll.com/231.html) by 林离 (Lin Li), for the weapon replacement steps.
+- **Guide:** [WWMI Tools Modder Guide](https://github.com/SpectrumQT/WWMI-Tools/blob/main/guides/modder_guide.md) by SpectrumQT, for the skeleton modes.
+- **Guide:** [Beginner's Guide to Wuthering Waves modding](https://gamebanana.com/tuts/19096) by Denwarenji, for props and textures.
+- **Guide:** [Custom Weapon Modding Walkthrough](https://leotorrez.github.io/modding/guides/weapon-banana) by SilentNightSound, for lining up a weapon and its light map.
+- **Assets:** [WWMI-Assets](https://github.com/SpectrumQT/WWMI-Assets) by SpectrumQT.
+- **Tool:** [WWMI Tools](https://github.com/SpectrumQT/WWMI-Tools) by SpectrumQT.

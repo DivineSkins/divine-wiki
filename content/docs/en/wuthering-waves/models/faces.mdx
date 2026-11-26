@@ -1,0 +1,194 @@
+---
+title: "Faces and shape keys"
+description: "Keep Wuthering Waves face expressions working with WWMI Tools: reshape a face without breaking them, add your own shape keys, and give a face you made matching keys."
+category: "models"
+patch: "3.8"
+keywords:
+  ["wuthering waves face mod", "shape keys", "wwmi tools", "face expressions"]
+---
+
+<LevelPill level="advanced" />
+
+In Wuthering Waves, faces move with shape keys. A Resonator, the game's name for a playable character, blinks, talks and frowns because the game blends these keys on the head. This page shows how to edit a face without breaking that, how to add your own shape keys, and how to give a face you made the keys it needs. Written for WWMI Tools 1.8.0 on Blender 4.5 LTS, with WWMI 1.1.0.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Blender" href="/docs/wuthering-waves/tools/blender-add-on">
+    Blender 4.5 LTS with WWMI Tools
+  </Requirement>
+  <Requirement
+    icon="Box"
+    href="/docs/wuthering-waves/models/import-into-blender"
+    note="from a dump with face data"
+  >
+    The Resonator, imported
+  </Requirement>
+  <Requirement
+    icon="NotepadPlusPlus"
+    href="/docs/wuthering-waves/getting-started/creator-setup"
+    note="for custom shape keys"
+  >
+    A text editor
+  </Requirement>
+</Requirements>
+
+You should already be able to [export a mod](/docs/wuthering-waves/models/export-your-mod) and [weight paint a mesh](/docs/wuthering-waves/models/weight-painting).
+
+## How faces move in Wuthering Waves
+
+A shape key is a saved version of a mesh with some vertices moved, like closed eyes. The game blends each key in by an amount from 0 to 1. Head and shoulder components carry shape keys: the head for expressions, the shoulders for shoulder movement. WWMI hooks the game's shape key shaders, so the keys also work on your edited mesh.
+
+Open the component under <MenuPath path="Object Data Properties > Shape Keys" /> to see them. WWMI Tools imports them as `Basis` plus one key per expression, named `Deform` and a number, like `Deform 12`. The number is the game's ID for that key. At export, WWMI Tools reads the number from any key whose name holds `deform` or `custom`, and writes the `ShapeKey...` files into `Meshes`.
+
+{/* SCREENSHOT: wuthering-waves-models-faces-3.webp, the Shape Keys list of a WWMI Tools 1.8.0 import in Blender 4.5, showing Basis and several Deform N keys on the face component */}
+
+Four rules keep faces working:
+
+| Rule                                    | What happens if you break it                                                      |
+| --------------------------------------- | --------------------------------------------------------------------------------- |
+| Keep every shape key of the original    | The face stops blinking or talking, or the shoulders move wrong.                  |
+| Keep every key ticked                   | **Ignore Muted Shape Keys** is on by default, so an unticked key is not exported. |
+| Keep the numbers                        | A renamed key drives another expression, or none.                                 |
+| Dump the Resonator while its face moves | Extraction skips the object with `Frame dump is missing shapekeys data!`.         |
+
+If extraction skips your Resonator, dump again while it blinks, as [Make a frame dump](/docs/wuthering-waves/basics/frame-dump#missing-shapekeys) shows.
+
+## Reshape a face and keep its expressions
+
+Use the add-on's multi sculpt tools to change the shape of a face. They move every shape key by the same amount as your edit, so each expression plays on the new shape.
+
+1. Press `N` in the 3D Viewport, open the **WWMI Tools** tab, and set **Mode** to **Toolbox**.
+2. Select the objects you want to reshape, such as the face and the hair around it.
+3. Click **Create Merged Object**. The add-on joins copies of them into one object.
+4. Sculpt or edit that merged object.
+5. Click **Apply Merged Object Sculpt (Shape Keys)**. It copies your change back to the original objects and shifts every shape key by the same amount.
+6. Delete the merged object and export.
+
+Do not add or delete vertices in the original objects while the merged object exists.
+
+{/* NEEDS HANDS-ON TEST: on WWMI Tools 1.8.0 and Blender 4.5, Create Merged Object and Apply Merged Object Sculpt (Shape Keys) on a face component: the expressions follow the new shape in game */}
+
+Modifiers are the other trap. Blender refuses to apply a modifier to a mesh with shape keys. Click **Apply Modifiers For Object With Shape Keys** in the Toolbox, or tick **Apply All Modifiers** at export.
+
+## Add your own shape key
+
+Your own keys work like the game's, but nothing in the game blends them in. You set their value from `mod.ini`. In SpectrumQT's example below, a custom key makes Taoqi's hair ornaments larger.
+
+<img
+  src="/wiki-images/wuthering-waves-models-faces-1.webp"
+  alt="Taoqi in the Resonators menu with a custom shape key at its lowest value, her hair ornaments at their normal size"
+/>
+
+<img
+  src="/wiki-images/wuthering-waves-models-faces-2.webp"
+  alt="The same Taoqi view with the custom shape key at its highest value, set from mod.ini, and the hair ornaments clearly larger"
+/>
+
+### Make the key in Blender
+
+1. Open the Shape Keys list of every object in the component. Find the highest number used.
+2. Select your object and click `+` in the Shape Keys list.
+3. Name the new key with `custom` or `deform` and the next number, like `custom 86`. Case and the words around it do not matter: `My defOrm 86 Bow` is valid.
+4. Select the key, press `Tab`, and move the vertices into the new shape.
+5. If the component has no shape keys in the game, open **Advanced** in the **Export Mod** mode and tick **Unrestricted Custom Shape Keys**.
+6. Export the mod.
+
+Objects with more than 127 shape keys, such as Sigrika's, export in batches. They need WWMI 1.0.0 or newer. XXMI Launcher keeps WWMI up to date.
+
+### Set its value in mod.ini
+
+WWMI's `API.ini`, in the `Core\WWMI` folder, documents the command. This is its own example, which sets key 86 to half strength (checked on 2026-11-24):
+
+```ini
+$shapekeys_update_required = 1
+$\WWMIv1\shapekey_id = 86
+$\WWMIv1\shapekey_value = 0.5
+cs-u5 = ResourceCustomShapeKeyValuesRW
+run = CommandList\WWMIv1\SetShapeKey
+```
+
+- `shapekey_id` is the number in your key's name, from 0 to 127.
+- `shapekey_value` goes from `0.0` to `1.0`.
+- The same command also overrides one of the game's own keys. `run = CommandList\WWMIv1\DisableShapeKeyOverride` with the same ID gives it back to the game.
+
+WWMI Tools' guides do not show yet where in `mod.ini` to run these lines, for example from a key you press. Ask in [Divine's Discord](https://discord.gg/divineskins) or the [AGMG Discord](https://discord.gg/agmg) before you ship a mod that uses them. [How a mod .ini works](/docs/wuthering-waves/ini/how-a-mod-ini-works) explains the sections.
+
+{/* NEEDS HANDS-ON TEST: on WWMI 1.1.0, where in a WWMI Tools 1.8.0 mod.ini the SetShapeKey lines must run, whether $shapekeys_update_required needs the WWMI namespace when called from a mod, and whether a custom key's value in Blender is exported */}
+
+## Give a face you made the game's expressions
+
+To use your own face, it needs shape keys with the game's numbers. Use a face you made yourself, or one whose license allows it. The steps come from a 2024 video for an older WWMI Tools, so test each one.
+
+1. Import the Resonator and find the face object. Set each `Deform` key to `1` to see which expression it holds, then back to `0`.
+2. On your face, rename the base key to `Basis`. Rename each expression that looks the same as a game key to that key's name, like `Deform 12`.
+3. Make each missing expression yourself. Add a key, name it after the game's key, and move the vertices in Edit Mode. Mirror brow and eye moves to the other side.
+4. The eyes are a separate part in this game. Split your eyes off with `P` > **Selection** and give them their own keys to match the game's eye keys.
+5. Remove your face's vertex groups and give the whole face and the eyes the head's group at full weight. The head is usually `0`: check it on the original.
+6. In the original face object, delete the faces of the old face in Edit Mode. Keep the object.
+7. Select your face, then `Shift+click` the original face object so it is active, and press `Ctrl+J`.
+8. Turn on the **Face Orientation** overlay and flip red faces with `Alt+N`. Run <MenuPath path="Mesh > Clean Up > Merge by Distance" /> on parts you split earlier.
+9. Line your face's UVs up with the face texture, or paint a new face texture.
+10. Export, press `F10` in game, and watch the face in the Resonators menu.
+
+{/* NEEDS HANDS-ON TEST: on WWMI Tools 1.8.0 and Wuthering Waves 3.8, a face made in Blender with keys renamed to the game's Deform numbers and joined into the face object: expressions play, the eyes move, and group 0 is the head */}
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The face stops moving" id="face-frozen">
+
+A shape key was deleted, renamed or unticked. Import the original again and compare its key list with yours. See [Model problems in game](/docs/wuthering-waves/errors/model-problems#face) for more causes.
+
+</Accordion>
+<Accordion title="Expressions broke after a game update" id="after-update">
+
+Version 2.6 broke faces in every mod, and a WWMI update fixed it the same day. Version 3.8 changed facial expressions again. Update XXMI Launcher first, then follow [Update your mod after a game update](/docs/wuthering-waves/publishing/update-your-mod#face-expressions).
+
+</Accordion>
+<Accordion title="Your own shape key does nothing" id="custom-key-silent">
+
+Check the name: it needs `custom` or `deform` and a number that no other key uses. On a component without game shape keys, tick **Unrestricted Custom Shape Keys**. Then check that `mod.ini` sets its value.
+
+</Accordion>
+<Accordion title='"Modifier cannot be applied to a mesh with shape keys"' id="modifier-shape-keys">
+
+Blender cannot apply a modifier to a mesh with shape keys. Use **Apply Modifiers For Object With Shape Keys** in the Toolbox, or **Apply All Modifiers** at export. [Blender export and import errors](/docs/wuthering-waves/errors/creator-errors#modifier-shape-keys) has the steps.
+
+</Accordion>
+<Accordion title="The new face is black or has holes" id="black-face">
+
+Some faces point inward. Turn on the **Face Orientation** overlay, select the red faces, and press `Alt+N` > **Flip**.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Replace a whole character model"
+    href="/docs/wuthering-waves/models/replace-a-character"
+    icon={<Icon name="UserRound" />}
+    level="advanced"
+  >
+    Put your own model on a Resonator and keep the face moving.
+  </PremiumCard>
+  <PremiumCard
+    title="Add a toggle"
+    href="/docs/wuthering-waves/ini/add-a-toggle"
+    icon={<Icon name="ToggleRight" />}
+    level="intermediate"
+  >
+    Switch parts of your mod on and off with a key.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [WWMI Tools Modder Guide](https://github.com/SpectrumQT/WWMI-Tools/blob/main/guides/modder_guide.md) by SpectrumQT, for shape keys and custom keys.
+- **Tool:** [WWMI Tools](https://github.com/SpectrumQT/WWMI-Tools) by SpectrumQT, for the Toolbox and how keys are named. Images 1 and 2 are from its repository.
+- **Tool:** [WWMI API](https://github.com/SpectrumQT/WWMI-Package/blob/main/WWMI/Core/WWMI/API.ini) by SpectrumQT, for setting shape key values.
+- **Video:** [千欢 - 换脸教程（结尾的脸部阴影是遮罩图的问题与换脸无关）](https://www.youtube.com/watch?v=EsmqDm2Y788) by 千欢, uploaded by 燈皇, for matching expression keys on a new face.
