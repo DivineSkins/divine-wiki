@@ -220,10 +220,10 @@ At the top of the shader file, above `void main`, add:
 Then use it above `return;`. This makes the effect pulse:
 
 ```cpp
-o0.xyz = o0.xyz * (sin(TIME * 2) + 1) * 0.5;
+o0.xyz = o0.xyz * (0.75 + 0.25 * sin(TIME * 2));
 ```
 
-A bigger number than `2` makes it pulse faster. IniParams like `x180` are shared by all mods, so pick one no other mod of yours uses.
+The effect swings between half and full brightness, so it never goes black. A bigger number than `2` makes it pulse faster. IniParams like `x180` are shared by all mods, so pick one no other mod of yours uses.
 
 {/* NEEDS HANDS-ON TEST: x180 = time in a ShaderOverride driving a pulse in an edited pixel shader on GIMI 8.9.4 */}
 
