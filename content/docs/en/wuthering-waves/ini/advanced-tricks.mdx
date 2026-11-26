@@ -15,7 +15,7 @@ keywords:
 
 <LevelPill level="advanced" />
 
-These tricks build on toggles. You will show help text on screen, move a custom shape key with a slider, make a texture animate, and resize a Resonator. A Resonator is a playable character. You need your own mod, exported with WWMI Tools. Written for WWMI 1.1.0 and WWMI Tools 1.8.0.
+These tricks build on toggles. You will show help text on screen, move a custom shape key with a slider, make a texture animate, and resize a Resonator. A Resonator is a playable character. You need your own mod, exported with WWMI Tools. Written for WWMI 1.2.2 and WWMI Tools 1.9.4.
 
 ## What you need
 
@@ -114,7 +114,7 @@ Save, switch to another Resonator, press `F10`, switch back and press `Ctrl+H`.
 </Step>
 </Steps>
 
-{/* NEEDS HANDS-ON TEST: CommandList\WWMIv1\PrintText run from a command list in the mod's [Present] with pre lines, on WWMI 1.1.0, and whether a Help.txt with several lines prints each line */}
+{/* NEEDS HANDS-ON TEST: CommandList\WWMIv1\PrintText run from a command list in the mod's [Present] with pre lines, on WWMI 1.2.2 with a mod exported by WWMI Tools 1.9.4, and whether a Help.txt with several lines prints each line */}
 
 The 18 numbers in `ResourceHelpParams` set the box, in this order. The comments in WWMI's `API.ini` explain them:
 
@@ -143,9 +143,9 @@ Shape keys move the face and shoulders. You can add your own in Blender and set 
 5. Leave the new shape key ticked. **Ignore Muted Shape Keys** is on by default, so an unticked shape key is left out of the export.
 6. Export your mod.
 
-{/* NEEDS HANDS-ON TEST: a custom shape key named custom 86 on a WWMI Tools 1.8.0 export, with and without Unrestricted Custom Shape Keys, on Wuthering Waves 3.8 */}
+{/* NEEDS HANDS-ON TEST: a custom shape key named custom 86 on a WWMI Tools 1.9.4 export on WWMI 1.2.2, with and without Unrestricted Custom Shape Keys, on Wuthering Waves 3.8 */}
 
-{/* SCREENSHOT: wuthering-waves-ini-advanced-tricks-2.webp, the Advanced sub-panel of Export Mod in WWMI Tools 1.8.0, showing Unrestricted Custom Shape Keys and Skeleton Scale */}
+{/* SCREENSHOT: wuthering-waves-ini-advanced-tricks-2.webp, the Advanced sub-panel of Export Mod in WWMI Tools 1.9.4, showing Unrestricted Custom Shape Keys and Skeleton Scale */}
 
 ### Add the slider
 
@@ -193,7 +193,7 @@ Then add `run = CommandListBowSlider` to `[Present]`, on the line under `run = C
 - `persist` keeps the slider's position after a restart.
 - The value steps once per frame, so the slider moves faster at a higher frame rate. For fixed steps, use a cycle key instead, like `$bow = 0, 0.5, 1.0`.
 
-{/* NEEDS HANDS-ON TEST: SetShapeKey from the WWMI 1.1.0 API.ini run every frame from [Present] after CommandListUpdateMergedSkeleton. API.ini's own example also sets $shapekeys_update_required = 1, a variable no WWMI file reads: check whether it is needed. */}
+{/* NEEDS HANDS-ON TEST: SetShapeKey from the WWMI 1.2.2 API.ini run every frame from [Present] after CommandListUpdateMergedSkeleton. API.ini's own example also sets $shapekeys_update_required = 1, a variable no WWMI file reads: check whether it is needed. */}
 
 The same lines can hold one of the game's own shape keys at a fixed value. To give control back to the game, set `$\WWMIv1\shapekey_id` and `cs-u5` the same way and run `CommandList\WWMIv1\DisableShapeKeyOverride` instead.
 
@@ -210,33 +210,32 @@ The same lines can hold one of the game's own shape keys at a fixed value. To gi
 
 1. Save each frame as its own `.dds` in the mod's `Textures` folder, in the same format and size as the original texture.
 2. Add one resource per frame, like `[ResourceBodyFrame0]` with `filename = Textures/BodyFrame0.dds`.
-3. Find the texture's `[TextureOverrideTextureN]` section. Replace its `this =` line with this block, inside the existing `if $object_detected`:
+3. In the component section, find the texture's `ps-t[FilterTextureN] = ref ResourceTextureN` line. Replace it with this block, and keep the filter the same:
 
 ```ini
-[TextureOverrideTexture0]
-hash = cccccccc
-match_priority = 0
-if $object_detected
-    if time % 1.0 < 0.25
-        this = ResourceBodyFrame0
-    else if time % 1.0 < 0.5
-        this = ResourceBodyFrame1
-    else if time % 1.0 < 0.75
-        this = ResourceBodyFrame2
-    else
-        this = ResourceBodyFrame3
-    endif
+if time % 1.0 < 0.25
+    ps-t[FilterTexture0] = ref ResourceBodyFrame0
+else if time % 1.0 < 0.5
+    ps-t[FilterTexture0] = ref ResourceBodyFrame1
+else if time % 1.0 < 0.75
+    ps-t[FilterTexture0] = ref ResourceBodyFrame2
+else
+    ps-t[FilterTexture0] = ref ResourceBodyFrame3
 endif
 ```
 
-`cccccccc` stands for the real texture hash from your export. For a slower loop, use `time % 2.0` and twice the limits. If your mod binds this texture with RabbitFX, wrap its `Resource\RabbitFX\...` line the same way.
+4. If that line is in more than one component section, replace it in each one.
 
-{/* NEEDS HANDS-ON TEST: a time-based frame swap of this = inside TextureOverrideTextureN with WWMI 1.1.0, and the same with a Resource\RabbitFX\Diffuse line. No tested Wuthering Waves mod with this layout was found. */}
+For a slower loop, use `time % 2.0` and twice the limits. If your mod binds this texture with RabbitFX, wrap its `Resource\RabbitFX\...` line the same way.
+
+In a mod exported with WWMI Tools 1.8.0 or older, the texture has a `[TextureOverrideTextureN]` section instead. There, put the same `if` block around `this = ResourceBodyFrame0` to `this = ResourceBodyFrame3`, inside its existing `if $object_detected`.
+
+{/* NEEDS HANDS-ON TEST: on WWMI 1.2.2, a time-based frame swap of ps-t[FilterTextureN] inside the component section of a WWMI Tools 1.9.4 export, the same with this = inside TextureOverrideTextureN of a WWMI Tools 1.8.0 export, and the same with a Resource\RabbitFX\Diffuse line. No tested Wuthering Waves mod with these layouts was found. */}
 
 What to expect:
 
 - Every frame is a full texture in video memory. Keep the frame count low and the textures no larger than the original.
-- The frames replace the texture by its hash. At a distance the game can switch to a smaller copy with another hash, and the animation stops there. [Make textures survive game updates](/docs/wuthering-waves/textures/stable-textures) explains these texture hashes.
+- In a WWMI Tools 1.9.4 export, the filter finds the game's texture by its look, so the animation should keep running at a distance. In an older export, the frames replace the texture by its hash: at a distance the game can switch to a smaller copy with another hash, and the animation stops there. [Make textures survive game updates](/docs/wuthering-waves/textures/stable-textures) explains both.
 
 ### Many frames in one file
 
@@ -260,7 +259,7 @@ For a quick test, change both lines by hand and press `F10`. Keep both values th
 
 To change the size with a key, add `global persist $size = 1.0` to `[Constants]`, change both lines to `$\WWMIv1\custom_mesh_scale = $size`, and add a cycle key with `$size = 1.0, 1.2, 0.8`. A new export with **Write Mod INI** on removes these edits.
 
-{/* NEEDS HANDS-ON TEST: Skeleton Scale 1.2 and 0.8 on a WWMI Tools 1.8.0 export on Wuthering Waves 3.8: whether the feet stay on the ground, and the cycle key driving $\WWMIv1\custom_mesh_scale through a variable */}
+{/* NEEDS HANDS-ON TEST: Skeleton Scale 1.2 and 0.8 on a WWMI Tools 1.9.4 export on WWMI 1.2.2 and Wuthering Waves 3.8: whether the feet stay on the ground, and the cycle key driving $\WWMIv1\custom_mesh_scale through a variable */}
 
 What to expect:
 
@@ -269,7 +268,7 @@ What to expect:
 
 ## Switch by itself
 
-[Add a toggle](/docs/wuthering-waves/ini/add-a-toggle) shows two WWMI variables that switch a part with no key: one for the Resonators screen and one for the outfit screen. WWMI 1.1.0 has no variable for your Resonator's HP, and no guide shows an outfit switch on low HP for Wuthering Waves.
+[Add a toggle](/docs/wuthering-waves/ini/add-a-toggle) shows two WWMI variables that switch a part with no key: one for the Resonators screen and one for the outfit screen. WWMI 1.2.2 has no variable for your Resonator's HP, and no guide shows an outfit switch on low HP for Wuthering Waves.
 
 Use these tricks only to change how your Resonator looks. Never show HP, damage or cooldown numbers on screen: that is a mod that gives an unfair advantage.
 
@@ -292,7 +291,9 @@ Use these tricks only to change how your Resonator looks. Never show HP, damage 
 </Accordion>
 <Accordion title="The animation stops far away or after an update" id="animation-stops">
 
-The texture hash changed: at a distance, or because the game updated the texture. Update the hash in the section, or bind the frames by role with RabbitFX.
+In an export from WWMI Tools 1.8.0 or older, the texture hash changed: at a distance, or because the game updated the texture. Update the hash in the section, bind the frames by role with RabbitFX, or export the mod again with WWMI Tools 1.9.4.
+
+In a WWMI Tools 1.9.4 export, the game's texture may look too different after an update. Put the new `d=` value of that texture from a fresh dump after `match_dhash =`.
 
 </Accordion>
 <Accordion title="The game stutters or runs out of video memory" id="vram">

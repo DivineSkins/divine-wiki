@@ -15,7 +15,7 @@ keywords:
 
 <LevelPill level="intermediate" />
 
-Every mesh you export needs UV maps with the right names and vertex colors with sensible values. UV maps place the texture. The `COLOR` and `COLOR1` attributes control outlines and which areas shade as skin. Get them wrong and the part turns blank, loses its outline, or shades like the wrong material. Written for WWMI Tools 1.8.0 on Blender 4.5 LTS.
+Every mesh you export needs UV maps with the right names and vertex colors with sensible values. UV maps place the texture. The `COLOR` and `COLOR1` attributes control outlines and which areas shade as skin. Get them wrong and the part turns blank, loses its outline, or shades like the wrong material. Written for WWMI Tools 1.9.4 on Blender 4.5 LTS.
 
 ## What you need
 
@@ -49,7 +49,7 @@ A Resonator is the game's name for a playable character. Keep a hidden, untouche
 
 The names are case-sensitive. Compare your mesh with the original in the **Object Data** tab (the green triangle), under **UV Maps** and **Color Attributes**.
 
-{/* SCREENSHOT: wuthering-waves-models-uvs-and-vertex-colors-2.webp, the Object Data tab of a WWMI Tools 1.8.0 import in Blender 4.5, showing UV Maps TEXCOORD.xy, TEXCOORD1.xy and TEXCOORD2.xy, and Color Attributes COLOR and COLOR1. */}
+{/* SCREENSHOT: wuthering-waves-models-uvs-and-vertex-colors-2.webp, the Object Data tab of a WWMI Tools 1.9.4 import in Blender 4.5, showing UV Maps TEXCOORD.xy, TEXCOORD1.xy and TEXCOORD2.xy, and Color Attributes COLOR and COLOR1. */}
 
 Keep **Vertex Colors** on `Linear` when you import. If you have an older `.blend` made with `sRGB (legacy)`, select its objects and run <MenuPath path="Toolbox > Convert Vertex Colors To Linear" /> in the **WWMI Tools** tab.
 
@@ -71,11 +71,11 @@ WWMI Tools has no button that renames UV maps, so do it by hand. A mesh can hold
 
 A new mesh with no `TEXCOORD1.xy` gets a copy of `TEXCOORD.xy` at export. The inside then shows the same texture as the outside.
 
-{/* NEEDS HANDS-ON TEST: on Wuthering Waves 3.8 with WWMI Tools 1.8.0, that the inner side of cloth follows TEXCOORD1.xy, and what happens when TEXCOORD1.xy does not match TEXCOORD.xy. */}
+{/* NEEDS HANDS-ON TEST: on Wuthering Waves 3.8 with WWMI Tools 1.9.4, that the inner side of cloth follows TEXCOORD1.xy, and what happens when TEXCOORD1.xy does not match TEXCOORD.xy. */}
 
 ### Fit several materials into one texture
 
-Each component draws with its own textures. The file names in the object folder tell you which: `Components-4 t=...` belongs to component 4, and `Components-0-1-2-3-4` is shared. [Character names and parts](/docs/wuthering-waves/basics/character-names-and-parts) explains the names. A new model with several materials must share one texture per component, called an atlas.
+Each component draws with its own textures. The `c=` part of each file name in the object folder tells you which: `c=4 f=... t=... d=....dds` belongs to component 4, and `c=0-1-2-3-4 ...` is shared. Folders extracted with WWMI Tools 1.8.0 or older name them `Components-4 t=...` instead. [Character names and parts](/docs/wuthering-waves/basics/character-names-and-parts) explains the names. A new model with several materials must share one texture per component, called an atlas.
 
 1. Build the atlas image in your texture editor. Keep each side a power of two. For the 2 by 2 grid below, four 2048 images make one 4096 by 4096 image. Do not go up to 8K.
 2. In Blender's UV Editor, set **Pivot Point** to **2D Cursor** and put the cursor at `0, 0`. Turn **UV Sync Selection** off.
@@ -86,7 +86,7 @@ Each component draws with its own textures. The file names in the object folder 
 
 Make the normal map and light map atlases with the same layout. Keep the diffuse alpha channel: this game uses it for shadows. [Save DDS textures the right way](/docs/wuthering-waves/textures/save-dds-files) covers the formats.
 
-{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: a two-material model atlased into one component's textures exports and shows right with WWMI Tools 1.8.0. */}
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: a two-material model atlased into one component's textures exports and shows right with WWMI Tools 1.9.4. */}
 
 ## Vertex colors
 
@@ -122,7 +122,7 @@ A new mesh sometimes draws with no outline even after the copy. The add-on's aut
 4. Press `Shift+K` to fill the whole mesh with that color.
 5. Export and check in game.
 
-{/* NEEDS HANDS-ON TEST: the Blender 4.5 label of the Shift+K fill in Vertex Paint mode, and on Wuthering Waves 3.8, that a black COLOR1 brings back missing outlines on a new mesh exported with WWMI Tools 1.8.0. */}
+{/* NEEDS HANDS-ON TEST: the Blender 4.5 label of the Shift+K fill in Vertex Paint mode, and on Wuthering Waves 3.8, that a black COLOR1 brings back missing outlines on a new mesh exported with WWMI Tools 1.9.4. */}
 
 ### What the channels do
 
@@ -151,7 +151,7 @@ Normals light the mesh and shape the outline around it. Check them before every 
 
 On a faceted look after an edit, merge with `M` > **By Distance** and tick **Sharp Edges**, so hard edges stay hard. On a dented area, use <MenuPath path="Mesh > Normals > Smooth Vectors" />. Old guides tell you to use **Auto Smooth**. Blender 4.1 removed it, so skip those steps.
 
-{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: whether normals edited in Blender come through a WWMI Tools 1.8.0 export unchanged. */}
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: whether normals edited in Blender come through a WWMI Tools 1.9.4 export unchanged. */}
 
 ## Common problems
 

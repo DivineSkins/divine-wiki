@@ -14,7 +14,7 @@ keywords:
 
 <LevelPill level="beginner" />
 
-The game starts, but your mods do not show. Work through the checks below in order: the first ones are the most common. Written for XXMI Launcher 2.5.0 and WWMI 1.1.0 on Wuthering Waves 3.8.
+The game starts, but your mods do not show. Work through the checks below in order: the first ones are the most common. Written for XXMI Launcher 2.5.0, XXMI DLL 1.3.3 and WWMI 1.2.2 on Wuthering Waves 3.8.
 
 Mods show up but look wrong, white, or turn back to the original look at a distance? Go to [Mods look broken](/docs/wuthering-waves/errors/mods-look-broken). The game will not start at all? Go to [Crashes and launch errors](/docs/wuthering-waves/errors/game-crashes).
 
@@ -41,12 +41,12 @@ Mods show up but look wrong, white, or turn back to the original look at a dista
 Start the game with the **Start** button in XXMI Launcher. For the first 30 seconds, look at the bottom-left corner of the screen for this line:
 
 ```text
-WWMI 1.1.0 (PRESS F12 TO SHOW GUIDE)
+WWMI 1.2.2 (PRESS F12 TO SHOW GUIDE)
 ```
 
 You can also press `F12` at any time. It opens the WWMI user guide. On the very first start, the guide opens by itself.
 
-{/* SCREENSHOT: wuthering-waves-errors-mods-not-loading-2.webp, Wuthering Waves 3.8 loading screen with the white WWMI 1.1.0 (PRESS F12 TO SHOW GUIDE) text bottom-left. No current screenshot exists in any source. */}
+{/* SCREENSHOT: wuthering-waves-errors-mods-not-loading-2.webp, Wuthering Waves 3.8 loading screen with the white WWMI 1.2.2 (PRESS F12 TO SHOW GUIDE) text bottom-left. No current screenshot exists in any source. */}
 
 - **No text and `F12` does nothing:** WWMI did not load. Start with [WWMI does not load](#wwmi-does-not-load).
 - **The text shows, but a mod does not:** WWMI works. Go to [WWMI loads, but a mod does not show](#wwmi-loads-but-a-mod-does-not-show).
@@ -63,7 +63,7 @@ Check these in order. Each one is explained below.
 6. No folder in the mod's path starts with `DISABLED`.
 7. You pressed `F10` while the modded Resonator was off screen.
 8. You did not turn all mods off with `F6`.
-9. No red `Mod Loading Error` box shows on screen.
+9. No `Mod Loading Error` or `WWMI Integrity Error` box shows on screen.
 10. The launcher and game settings mods need are set.
 11. The mod works on version 3.8.
 12. Only one mod is on for each Resonator.
@@ -121,7 +121,7 @@ Unofficial DirectX 12 loaders exist. They are not supported and not covered here
   alt="The NVIDIA Smooth Motion setting set to Off"
 />
 
-{/* NEEDS HANDS-ON TEST: the exact place of the Smooth Motion setting in the current NVIDIA App (per-game profile or global settings), and whether XXMI DLL 1.3.2 still needs it off for Wuthering Waves. */}
+{/* NEEDS HANDS-ON TEST: the exact place of the Smooth Motion setting in the current NVIDIA App (per-game profile or global settings), and whether XXMI DLL 1.3.3 still needs it off for Wuthering Waves. */}
 
 </Accordion>
 <Accordion title="Black screen with sound, or no mods while another tool runs" id="overlays-and-other-tools">
@@ -153,7 +153,7 @@ Old guides start mods with `WWMI Loader.exe` and set up the game by hand. That l
 
 {/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: which files an old WWMI Loader.exe setup holds, and that copying only the mod folders into WWMI\Mods works. */}
 
-Mods made for the first WWMI versions, from mid 2024, may then show a red `Mod Loading Error` box. See [the error messages](#mod-loading-error) below.
+Mods made for the first WWMI versions, from mid 2024, may then show a `Mod Loading Error` box. See [the error messages](#mod-loading-error) below.
 
 </Accordion>
 </Accordions>
@@ -220,17 +220,44 @@ If the Resonator now looks half loaded, it was on screen during the reload. Swit
 **Fix:** press `F6` once. The text changes to `Mods Display: Enabled`. To compare a mod with the original look, hold `F9` instead.
 
 </Accordion>
-<Accordion title="A red Mod Loading Error box shows" id="mod-loading-error">
+<Accordion title="A Mod Loading Error box shows" id="mod-loading-error">
 
 **Cause:** the mod and your WWMI version do not match. The box names the problem:
 
-| Message                                                                                                         | What it means                                | Fix                                                                                                             |
-| --------------------------------------------------------------------------------------------------------------- | -------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| `Mod is incompatible with current WWMI version!` and `Please check out the mod's page for any updates!`         | The mod was made for the first WWMI versions | Look for a new version of the mod. Old ones cannot load. Press `X` to hide the box.                             |
-| `Mod is incompatible with current WWMI version!` and `Enable Compatibility Mode [Alt]+[F12]->[F10] to load it.` | The mod uses an old WWMI format              | Press `Alt+F12`, then `F10`. A version re-exported by its creator is better: compatibility mode costs some FPS. |
-| `Installed WWMI version is below minimally required!`                                                           | The mod needs a newer WWMI than you have     | Open XXMI Launcher and let it update WWMI.                                                                      |
+| Message                                                                                                         | What it means                                                                                 | Fix                                                                                                             |
+| --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `Mod is incompatible with current WWMI version!` and `Please check out the mod's page for any updates!`         | The mod was made for the first WWMI versions                                                  | Look for a new version of the mod. Old ones cannot load. Press `X` to hide the box.                             |
+| `Mod is incompatible with current WWMI version!` and `Enable Compatibility Mode [Alt]+[F12]->[F10] to load it.` | The mod uses an old WWMI format                                                               | Press `Alt+F12`, then `F10`. A version re-exported by its creator is better: compatibility mode costs some FPS. |
+| `Installed WWMI version is below minimally required!`                                                           | The mod needs a newer WWMI than you have. Mods exported with WWMI Tools 1.9.4 need WWMI 1.2.2 | Open XXMI Launcher and let it update WWMI.                                                                      |
 
 If the launcher does not update by itself, click the 3-dots button next to **Start**, then **Check For Updates**.
+
+</Accordion>
+<Accordion title="A WWMI Integrity Error box shows" id="wwmi-integrity-error">
+
+**Cause:** your XXMI DLL is too old for WWMI 1.2.2. The box reads:
+
+```text
+WWMI Integrity Error:
+
+Installed XXMI DLL version is below minimally required!
+
+Textures replacement using dHash-based filters is unavailable.
+
+Please update XXMI DLL to v1.3.3+.
+
+Press X to hide this message
+```
+
+Mods exported with WWMI Tools 1.9.4 find their textures with this part of the XXMI DLL, so their textures cannot change. Older mods do not use it.
+
+**Fix:**
+
+1. Close the game.
+2. Open XXMI Launcher and let it update. If it does not update by itself, click the 3-dots button next to **Start**, then **Check For Updates**.
+3. Start the game again. Press `X` to hide the box if it still shows.
+
+{/* NEEDS HANDS-ON TEST: on WWMI 1.2.2 with an XXMI DLL older than 1.3.3, whether this box shows, whether mods exported with WWMI Tools 1.9.4 then draw their mesh without their textures, and whether an XXMI Launcher 2.5.0 update clears it */}
 
 </Accordion>
 <Accordion title="Check the settings mods need" id="settings-mods-need">
@@ -288,7 +315,7 @@ If the mod shows up close but turns back to the original look at a distance, or 
 
 An error that names a missing file or a broken line means the mod itself is broken. Check the mod's page for an update, or ask its creator.
 
-{/* NEEDS HANDS-ON TEST: the exact on-screen look and wording of .ini warnings in WWMI 1.1.0 with Mute Warnings off. No source quotes them. */}
+{/* NEEDS HANDS-ON TEST: the exact on-screen look and wording of .ini warnings in WWMI 1.2.2 with Mute Warnings off. No source quotes them. */}
 
 </Accordion>
 </Accordions>
@@ -353,4 +380,4 @@ This guide is based on the work of these creators. Check out their original guid
 - **Tool:** [WWMI-Package](https://github.com/SpectrumQT/WWMI-Package) by SpectrumQT: the load text, key bindings and Mod Loading Error messages.
 - **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT.
 - **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ and contributors.
-- **Image:** screenshot 1 by [jatterjut-spec](https://github.com/jatterjut-spec) in [XXMI Launcher issue 235](https://github.com/SpectrumQT/XXMI-Launcher/issues/235).
+- **Image:** screenshot 1 by [jatterjut-spec](https://github.com/jatterjut-spec), from a report on the [XXMI Launcher issue tracker](https://github.com/SpectrumQT/XXMI-Launcher).

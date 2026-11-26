@@ -15,7 +15,7 @@ keywords:
 
 <LevelPill level="intermediate" />
 
-Every Wuthering Waves mod runs on a `mod.ini` text file. It tells WWMI which parts of a Resonator to replace, which files to load, and what to draw instead. WWMI Tools writes this file for you, so you never write one from scratch. This page teaches you to read it, so you can change keys, add toggles or fix a line without breaking the mod. Written for WWMI 1.1.0 and WWMI Tools 1.8.0.
+Every Wuthering Waves mod runs on a `mod.ini` text file. It tells WWMI which parts of a Resonator to replace, which files to load, and what to draw instead. WWMI Tools writes this file for you, so you never write one from scratch. This page teaches you to read it, so you can change keys, add toggles or fix a line without breaking the mod. Written for WWMI 1.2.2 and WWMI Tools 1.9.4.
 
 <Accordions>
 <Accordion title="Coming from another game?">
@@ -26,7 +26,7 @@ Every Wuthering Waves mod runs on a `mod.ini` text file. It tells WWMI which par
 - Components match on the VB0 hash plus `match_first_index` and `match_index_count`, not on the index buffer hash.
 - Every mod registers with WWMI through `CommandList\WWMIv1\RegisterMod` and stays off until WWMI accepts it.
 - The on-screen flag is `$object_detected`, not `$active`.
-- Textures bind with `this =` by texture hash. There is no ORFix, no SlotFix and no `Resource\GIMI\...` line.
+- Textures bind by how they look, with `[FilterTexture...]` sections, in WWMI Tools 1.9.4 exports. Older exports bind them with `this =` by texture hash. There is no ORFix, no SlotFix and no `Resource\GIMI\...` line.
 
 Other game sections: [Genshin Impact](/docs/genshin-impact), [Honkai: Star Rail](/docs/honkai-star-rail), [Zenless Zone Zero](/docs/zenless-zone-zero).
 
@@ -48,18 +48,18 @@ If hashes, components and mod folders are new to you, read [How Wuthering Waves 
 
 ## Wuthering Waves .ini files at a glance
 
-| What                            | In Wuthering Waves                                                                  |
-| ------------------------------- | ----------------------------------------------------------------------------------- |
-| Importer                        | WWMI 1.1.0, installed by XXMI Launcher                                              |
-| Who writes the `.ini`           | WWMI Tools 1.8.0 for Blender. The file is `mod.ini`, first line `; WWMI BETA-9 INI` |
-| How a component is found        | VB0 hash plus `match_first_index` and `match_index_count`                           |
-| How textures bind               | By texture hash: `this = ResourceTextureN`, only while the Resonator is on screen   |
-| Skeleton                        | **Merged** (WWMI builds one skeleton for all components) or **Per-Component**       |
-| Face and shoulder movement      | Shape key sections, written by WWMI Tools                                           |
-| Registration                    | `CommandListRegisterMod` with `$required_wwmi_version`                              |
-| "Resonator on screen"           | `$object_detected`                                                                  |
-| All mods on or off, `F6`        | `$enable_mods`, inside WWMI. Mods do not touch it                                   |
-| Optional library some mods call | RabbitFX, a separate download, for textures by role and glow                        |
+| What                            | In Wuthering Waves                                                                                                                                                                                          |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Importer                        | WWMI 1.2.2, installed by XXMI Launcher                                                                                                                                                                      |
+| Who writes the `.ini`           | WWMI Tools 1.9.4 for Blender. The file is `mod.ini`, first line `; WWMI BETA-11 INI`                                                                                                                        |
+| How a component is found        | VB0 hash plus `match_first_index` and `match_index_count`                                                                                                                                                   |
+| How textures bind               | By look: `ps-t[FilterTextureN] = ref ResourceTextureN` inside each component section. Exports from WWMI Tools 1.8.0 and older: by texture hash, `this = ResourceTextureN`, while the Resonator is on screen |
+| Skeleton                        | **Merged** (WWMI builds one skeleton for all components) or **Per-Component**                                                                                                                               |
+| Face and shoulder movement      | Shape key sections, written by WWMI Tools                                                                                                                                                                   |
+| Registration                    | `CommandListRegisterMod` with `$required_wwmi_version`                                                                                                                                                      |
+| "Resonator on screen"           | `$object_detected`                                                                                                                                                                                          |
+| All mods on or off, `F6`        | `$enable_mods`, inside WWMI. Mods do not touch it                                                                                                                                                           |
+| Optional library some mods call | RabbitFX, a separate download, for textures by role and glow                                                                                                                                                |
 
 A Resonator is a playable character. A component is one piece of its model, numbered from `Component 0`. [Character names and parts](/docs/wuthering-waves/basics/character-names-and-parts) explains them.
 
@@ -72,9 +72,11 @@ A Resonator is a playable character. A component is one piece of its model, numb
     Index.buf  Position.buf  Blend.buf  Vector.buf  Color.buf  TexCoord.buf
     ShapeKey... .buf files        (only if the model has shape keys)
   Textures\
-    Components-0 t=cccccccc.dds   (one file per texture)
+    c=0 f=BC7_UNORM_SRGB t=cccccccc d=0123456789abcdef.dds   (one file per texture)
     Logo.dds                      (only if the creator added a logo)
 ```
+
+Exports from WWMI Tools 1.8.0 and older name the textures like `Components-0 t=cccccccc.dds`.
 
 The `mod.ini` points to every other file with a path from its own folder, like `Meshes/Position.buf`.
 
@@ -106,6 +108,7 @@ The start of a section's name decides what it does. The rest of the name is a fr
 | `[Present]`            | Runs once every frame.                                                                  |
 | `[TextureOverride...]` | Runs when the game uses a buffer or texture with this hash. The core of every mod.      |
 | `[Resource...]`        | Loads a file: a `.buf` buffer or a `.dds` texture. Some hold text, like the mod's name. |
+| `[Filter...]`          | Describes a game texture by its look. WWMI Tools 1.9.4 writes one per texture.          |
 | `[CommandList...]`     | A named block of lines. Another section runs it with `run = CommandList...`.            |
 | `[Key...]`             | A key that changes variables when you press it. WWMI Tools names them `[KeySwap...]`.   |
 | `[ShaderOverride...]`  | Runs when the game uses a shader with this 16-digit hash. Effects and UI mods use it.   |
@@ -115,19 +118,19 @@ A typo in the start of the name, like `[TextureOveride...]`, gives `Unknown sect
 
 ## A Resonator mod, section by section
 
-This is what WWMI Tools 1.8.0 writes for a Resonator with the **Merged** skeleton, shortened. `aaaaaaaa` to `cccccccc` stand for real hashes from your dump.
+This is what WWMI Tools 1.9.4 writes for a Resonator with the **Merged** skeleton, shortened. `aaaaaaaa` to `cccccccc` and `0123456789abcdef` stand for real values from your dump.
 
-{/* NEEDS HANDS-ON TEST: export one Wuthering Waves 3.8 Resonator with WWMI Tools 1.8.0 and compare the mod.ini with the blocks on this page */}
+{/* NEEDS HANDS-ON TEST: export one Wuthering Waves 3.8 Resonator with WWMI Tools 1.9.4 and compare the mod.ini with the blocks on this page, on WWMI 1.2.2 */}
 
 To make your own file easier to read, tick **Comment INI code** before you export. WWMI Tools then explains every line in a comment.
 
 ### Constants and Present
 
 ```ini
-; WWMI BETA-9 INI
+; WWMI BETA-11 INI
 
 [Constants]
-global $required_wwmi_version = 1.10
+global $required_wwmi_version = 1.22
 global $object_guid = 141759
 global $mesh_vertex_count = 50142
 global $mod_id = -1000
@@ -148,7 +151,7 @@ endif
 ```
 
 - `global $... = ...` declares a variable. Variable names start with `$`.
-- `$required_wwmi_version` is the oldest WWMI the mod works with. With an older WWMI, the mod stays off and WWMI shows `Installed WWMI version is below minimally required!`.
+- `$required_wwmi_version` is the oldest WWMI the mod works with. WWMI Tools 1.9.4 writes `1.22`, for WWMI 1.2.2. WWMI Tools 1.8.0 wrote `1.10`, and those mods still load on WWMI 1.2.2. With an older WWMI, the mod stays off and WWMI shows `Installed WWMI version is below minimally required!`.
 - `$object_guid` is the index count of the original model. WWMI gets it when the mod registers.
 - `$object_detected` means "this Resonator is on screen". Every component section sets it to `1`, and `post $object_detected = 0` sets it back to `0` each frame. Keys check it.
 - `$mod_enabled` stays `0` until WWMI accepts the mod. While it is `0`, the mod changes nothing.
@@ -184,6 +187,7 @@ if $mod_enabled
         handling = skip
         run = CommandListTriggerResourceOverrides
         run = CommandListOverrideSharedResources
+        ps-t[FilterTexture0] = ref ResourceTexture0
         ; Draw Component 0
         drawindexed = 42495, 0, 0
         run = CommandListCleanupSharedResources
@@ -193,17 +197,36 @@ endif
 
 - **One VB0 hash, several components.** All components of a Resonator share one VB0 hash. It is also the name of the folder WWMI Tools extracted. `match_first_index` and `match_index_count` tell the components apart.
 - **`handling = skip`** stops the game's own draw of this component.
-- **`CommandListTriggerResourceOverrides`** checks the texture slots `ps-t0` to `ps-t8`, so the texture sections below can fire. It also finds the bone data.
-- **`CommandListOverrideSharedResources`** puts your buffers in place: `ib` the index buffer, `vb0` positions, `vb1` normals, `vb2` UVs, `vb3` vertex colors, `vb4` bone weights, plus the merged skeleton. `CommandListCleanupSharedResources` puts the game's `vb0` back, so the next component still matches.
+- **`CommandListTriggerResourceOverrides`** runs `SnapshotInitialTextures`, which saves the textures the game put in place for this draw. It also finds the bone data. In an export from WWMI Tools 1.8.0 or older, it checks the texture slots `ps-t0` to `ps-t8` instead, so the old texture sections can fire.
+- **`CommandListOverrideSharedResources`** puts your buffers in place: `ib` the index buffer, `vb0` positions, `vb1` normals, `vb2` UVs, `vb3` vertex colors, `vb4` bone weights, plus the merged skeleton.
+- **`ps-t[FilterTexture0] = ref ResourceTexture0`** puts your texture where the game's texture looks like the one `[FilterTexture0]` describes. WWMI Tools writes one such line for each texture this component uses.
+- **`CommandListCleanupSharedResources`** puts the game's `vb0` back, so the next component still matches. It also runs `RestoreInitialTextures`, which puts the game's textures back.
 - **`drawindexed`** draws your mesh. WWMI Tools writes one line per Blender object, with a `; Draw <object name>` comment above it.
 - A component with no objects left in Blender gets no draw. Its lines come out as comments, with `; Draw skipped: No matching custom components found`.
 
 <img
   src="/wiki-images/wuthering-waves-ini-how-a-mod-ini-works-1.webp"
-  alt="Five steps: the game draws Component 0 with its VB0 hash, first index and index count, TextureOverrideComponent0 matches and sets $object_detected, handling = skip hides the original, your buffers and the merged skeleton are bound and textures swap by hash, and drawindexed draws one line per Blender object"
+  alt="Five steps for Component 0 of a WWMI Tools 1.9.4 export: the game draws Component 0 with its VB0 hash, first index and index count, TextureOverrideComponent0 matches and sets $object_detected, handling = skip hides the original, your buffers and the merged skeleton are bound and textures swap by look with FilterTexture0, and drawindexed draws one line per Blender object"
 />
 
 ### The texture sections
+
+```ini
+[ResourceTexture0]
+filename = Textures/c=0 f=BC7_UNORM_SRGB t=cccccccc d=0123456789abcdef.dds
+[FilterTexture0]
+match_format = BC7_UNORM_SRGB
+match_dhash = 0123456789abcdef
+```
+
+- Each texture gets a pair of sections with the same number: `[ResourceTextureN]` loads your file, and `[FilterTextureN]` describes the game's texture it replaces.
+- `match_dhash` is the dHash: a fingerprint of how the original texture looks. `match_format` is its format. The file name keeps both, after `d=` and `f=`.
+- The XXMI DLL swaps your file in only during your own component's draw, in the slot whose texture is at least 75% alike. Other Resonators that share the texture are not touched.
+- An optional `match_confidence` line, from `0.0` to `1.0`, sets how alike the texture must be. WWMI Tools does not write it, so the default `0.75` applies.
+
+{/* NEEDS HANDS-ON TEST: on WWMI 1.2.2 with a mod exported by WWMI Tools 1.9.4, that each texture shows on its own components only, and that a texture shared with another Resonator stays unchanged on that Resonator */}
+
+A mod exported with WWMI Tools 1.8.0 or older has the old pair instead:
 
 ```ini
 [ResourceTexture0]
@@ -217,10 +240,9 @@ if $object_detected
 endif
 ```
 
-- Each texture gets a pair of sections with the same number: `[ResourceTextureN]` loads the file, `[TextureOverrideTextureN]` swaps it in.
 - `hash` is the game's texture hash. The file name keeps it after `t=`.
 - `this =` replaces the texture wherever the game uses it while your Resonator is on screen. If another Resonator on screen shares that texture, it changes too.
-- Texture hashes are what game updates break most often. [Fix an old mod by hand](/docs/wuthering-waves/ini/fix-an-old-mod) shows how to update one. [Make textures survive game updates](/docs/wuthering-waves/textures/stable-textures) shows the RabbitFX way, which binds textures by role instead of by hash.
+- Texture hashes are what game updates break most often. [Fix an old mod by hand](/docs/wuthering-waves/ini/fix-an-old-mod) shows how to update one. [Make textures survive game updates](/docs/wuthering-waves/textures/stable-textures) compares matching by look with the RabbitFX way, which binds textures by role.
 
 ### Buffers, skeleton and shape keys
 
@@ -252,9 +274,9 @@ A mesh is a list of points joined into triangles. The index buffer says in which
 
 Every matching section runs, not only one. Every `drawindexed` in every matching section draws.
 
-That is why two mods for one Resonator draw on top of each other. WWMI mods match components with `match_first_index` and mark texture sections with `match_priority = 0`, so XXMI may show no `Possible Mod Conflict` warning for them. You may only see the mix in game.
+That is why two mods for one Resonator draw on top of each other. WWMI mods match components with `match_first_index`, so XXMI may show no `Possible Mod Conflict` warning for them. Older exports also mark their texture sections with `match_priority = 0`, which skips the warning too. You may only see the mix in game.
 
-{/* NEEDS HANDS-ON TEST: whether two WWMI Tools 1.8.0 mods for one Resonator print Possible Mod Conflict with Mute Warnings off. The XXMI DLL parser exempts sections with match_first_index or match_priority from the duplicate-hash warning, while basics/how-mods-work and basics/test-your-mod expect the warning */}
+{/* NEEDS HANDS-ON TEST: whether two WWMI Tools 1.9.4 mods for one Resonator print Possible Mod Conflict on WWMI 1.2.2 with Mute Warnings off. The XXMI DLL parser exempts sections with match_first_index or match_priority from the duplicate-hash warning, while basics/how-mods-work and basics/test-your-mod expect the warning */}
 
 Keep one mod per Resonator. To switch between several, read [Combine mods into one merged mod](/docs/wuthering-waves/ini/merged-mods).
 
@@ -269,7 +291,7 @@ Keep one mod per Resonator. To switch between several, read [Combine mods into o
 
 To see what went wrong, open the settings in [XXMI Launcher](/docs/wuthering-waves/tools/xxmi-launcher), go to the **WWMI** tab and untick **Mute Warnings**. After that, `F10` shows each error with the section and the file it came from.
 
-{/* NEEDS HANDS-ON TEST: the on-screen look of .ini warnings in WWMI 1.1.0 with Mute Warnings off, and whether "Failed to load custom ... resource" shows at F10 or only when the part is first drawn */}
+{/* NEEDS HANDS-ON TEST: the on-screen look of .ini warnings in WWMI 1.2.2 with Mute Warnings off, and whether "Failed to load custom ... resource" shows at F10 or only when the part is first drawn */}
 
 If it is your own mod, keep a copy of your edited `mod.ini`. An export with **Write Mod INI** on writes a new `mod.ini` over your edits.
 
@@ -280,15 +302,16 @@ If it is your own mod, keep a copy of your edited `mod.ini`. An export with **Wr
 
 ## Common problems
 
-| Message                                                                       | Usual cause                                                                 | Fix                                                                                     |
-| ----------------------------------------------------------------------------- | --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| `Hash parse error`                                                            | A typo, a wrong length, or a `;` note after the hash                        | One hash per line, nothing after it                                                     |
-| `Unknown section type`                                                        | A misspelt start, like `[Resouce...]`                                       | Fix the spelling                                                                        |
-| `Duplicate section found`                                                     | The same section name twice                                                 | Rename one                                                                              |
-| `Unrecognised entry`                                                          | A misspelt word, a `$variable` never declared, or a missing `[Resource...]` | Declare the variable or add the section                                                 |
-| `Scope unbalanced`                                                            | An `if` without `endif`, or one `endif` too many                            | Give every `if` one `endif`                                                             |
-| `Failed to load custom texture resource`                                      | `filename` does not match the file                                          | Fix the name, the extension or the folder                                               |
-| Red `Mod Loading Error` box: `Mod is incompatible with current WWMI version!` | The mod was exported for an old WWMI format                                 | See [Add, turn off, and remove mods](/docs/wuthering-waves/getting-started/manage-mods) |
+| Message                                                                               | Usual cause                                                                 | Fix                                                                                     |
+| ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `Hash parse error`                                                                    | A typo, a wrong length, or a `;` note after the hash                        | One hash per line, nothing after it                                                     |
+| `Unknown section type`                                                                | A misspelt start, like `[Resouce...]`                                       | Fix the spelling                                                                        |
+| `Duplicate section found`                                                             | The same section name twice                                                 | Rename one                                                                              |
+| `Unrecognised entry`                                                                  | A misspelt word, a `$variable` never declared, or a missing `[Resource...]` | Declare the variable or add the section                                                 |
+| `Scope unbalanced`                                                                    | An `if` without `endif`, or one `endif` too many                            | Give every `if` one `endif`                                                             |
+| `Failed to load custom texture resource`                                              | `filename` does not match the file                                          | Fix the name, the extension or the folder                                               |
+| Red `Mod Loading Error` box: `Mod is incompatible with current WWMI version!`         | The mod was exported for an old WWMI format                                 | See [Add, turn off, and remove mods](/docs/wuthering-waves/getting-started/manage-mods) |
+| `WWMI Integrity Error` box: `Installed XXMI DLL version is below minimally required!` | The XXMI DLL is older than 1.3.3, so textures matched by look cannot load   | Update XXMI Launcher                                                                    |
 
 ## Next steps
 
@@ -318,5 +341,6 @@ This guide is based on the work of these creators. Check out their original guid
 - **Tool:** [WWMI Tools](https://github.com/SpectrumQT/WWMI-Tools) by SpectrumQT, and its [mod.ini template](https://github.com/SpectrumQT/WWMI-Tools/blob/main/wwmi-tools/templates/merged.ini.j2), for every section on this page.
 - **Tool:** [WWMI-Package](https://github.com/SpectrumQT/WWMI-Package) by SpectrumQT, for mod registration and the error messages.
 - **Source:** [XXMI DLL `.ini` parser](https://github.com/SpectrumQT/XXMI-Libs-Package/blob/master/DirectX11/IniHandler.cpp) by SpectrumQT, for the rules and warning texts.
+- **Source:** [XXMI DLL texture filtering docs](https://github.com/SpectrumQT/XXMI-Libs-Package/blob/master/docs/ini-language-extensions/filters/texture-filtering.md) by SpectrumQT, for the `[Filter...]` sections.
 - **Guide:** [Toggle Guide](https://gamebanana.com/tuts/18971) by gdsfdg. The connect-the-dots drawing is from this guide.
 - **Guide:** [3dmigoto INI File Documentation](https://leotorrez.github.io/modding/docs/) on LeoTorreZ's modding site.

@@ -15,7 +15,7 @@ keywords:
 
 <LevelPill level="beginner" />
 
-Every texture you edit goes back into the game as a `.dds` file, in the same format as the original. Get the format wrong and the colors shift, the shading breaks, or the texture does not load. This page shows how to find the format and save it in Paint.NET, Photoshop or texconv. Written for WWMI 1.1.0 and WWMI Tools 1.8.0 on Wuthering Waves 3.8.
+Every texture you edit goes back into the game as a `.dds` file, in the same format as the original. Get the format wrong and the colors shift, the shading breaks, or the texture does not load. This page shows how to find the format and save it in Paint.NET, Photoshop or texconv. Written for XXMI DLL 1.3.3, WWMI 1.2.2 and WWMI Tools 1.9.4 on Wuthering Waves 3.8.
 
 ## What you need
 
@@ -34,13 +34,15 @@ Every texture you edit goes back into the game as a `.dds` file, in the same for
 
 ## Find the original's format
 
-Wuthering Waves texture names do not show the format. A file from WWMI Tools or from a mod is named after its components and its hash, like `Components-3 t=<hash>.dds`. The frame dump you extracted it from still knows the format:
+A texture extracted with WWMI Tools 1.9.4 shows its format in its name, after `f=`. In `c=3 f=BC7_UNORM_SRGB t=<hash> d=<dhash>.dds`, the format is `BC7_UNORM_SRGB`. Mods exported with 1.9.4 keep these names in their `Textures` folder.
+
+Older files, from WWMI Tools 1.8.0 or older or from an older mod, are named only after their components and hash, like `Components-3 t=<hash>.dds`. The frame dump you extracted them from still knows the format:
 
 1. Open the `FrameAnalysis-...` folder of your dump, then its `deduped` folder.
 2. Search for the hash, the part after `t=`.
 3. Read the end of the file name, for example `<hash>-BC7_UNORM_SRGB.dds`. That is the format.
 
-{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: the deduped folder of a WWMI 1.1.0 dump names each texture <hash>-<FORMAT>.dds, with the same hash as the t= part of the extracted file */}
+{/* NEEDS HANDS-ON TEST: on a dump made with XXMI DLL 1.3.3, that the deduped folder names each texture <hash>-<FORMAT>.dds with the same hash as the t= part of the extracted file, and that the f= part of a WWMI Tools 1.9.4 file name reads like BC7_UNORM_SRGB */}
 
 <img
   src="/wiki-images/wuthering-waves-textures-save-dds-files-1.webp"
@@ -67,14 +69,14 @@ The BC1 file has an older kind of header that does not say sRGB or Linear. So it
 
 - **Same format** as the original.
 - **Same width and height.** Sizes must be powers of two, like 1024x1024 or 2048x2048. Most Resonator textures are 2048x2048.
-- **Mipmaps on.** Tick **Generate Mip Maps**, or use `-m 0` in texconv. Dumped textures have only one mip level, but both load.
+- **Mipmaps on.** Tick **Generate Mip Maps**, or use `-m 0` in texconv. Dumps made with XXMI DLL 1.3.3 or newer save the originals with their mip maps too. Older dumps, and the WWMI-Assets folders, hold one mip level. Textures with and without mip maps both load.
 - **Keep the alpha.** In a Wuthering Waves diffuse, the alpha holds shading data. Pick BC1 only when the original is BC1: it cannot hold a full alpha channel.
-- **Same file name**, `t=` hash included. The `mod.ini` loads the file by that name.
+- **Same file name**, every part included. The `mod.ini` loads the file by that name, and WWMI Tools 1.9.4 reads the components, format and dHash from it at export.
 - **Outside art goes upside down.** Dumped textures are stored flipped compared with normal pictures. If you start from a normal picture, flip it vertically before you save.
 
-{/* NEEDS HANDS-ON TEST: whether a Wuthering Waves texture saved with mipmaps looks different in game from one with a single mip level, like the dumped originals; and whether Paint.NET's Use gamma correction option, ticked by default once mipmaps are on, should stay ticked (one Wuthering Waves video turns it off) */}
+{/* NEEDS HANDS-ON TEST: whether a Wuthering Waves texture saved with mipmaps looks different in game from one with a single mip level, like originals dumped before XXMI DLL 1.3.3; whether textures dumped with XXMI DLL 1.3.3 hold a full mip chain; and whether Paint.NET's Use gamma correction option, ticked by default once mipmaps are on, should stay ticked (one Wuthering Waves video turns it off) */}
 
-{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: whether textures in a WWMI 1.1.0 dump are stored upside down */}
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: whether textures in a dump made with XXMI DLL 1.3.3 are stored upside down */}
 
 ## Save the file
 
@@ -128,13 +130,13 @@ texconv.exe -f BC7_UNORM_SRGB -m 0 -sepalpha -y diffuse.png
 texconv.exe -f BC7_UNORM -m 0 -sepalpha -y normalmap.png
 ```
 
-- `-f` sets the format. Copy it from the dump's file name.
+- `-f` sets the format. Copy it from the `f=` part of the name, or from the dump's file name.
 - `-m 0` makes a full set of mipmaps.
 - `-sepalpha` treats the alpha as data when it makes mipmaps, so the shading data stays clean.
 - `-y` overwrites an older output file.
 - Add `-vflip` to flip outside art.
 
-Rename the new `.dds` to the original's file name, `t=` hash included.
+Rename the new `.dds` to the original's full file name.
 
 {/* NEEDS HANDS-ON TEST: these texconv lines on a Wuthering Waves 3.8 diffuse and normal map, checking colors and shading against the original in game */}
 
@@ -150,7 +152,7 @@ Rename the new `.dds` to the original's file name, `t=` hash included.
 | Shading or shadows look wrong on the part         | The diffuse alpha was lost or filled                 | Paste the original alpha back, then save again     |
 | Shading looks off after a light map edit          | A light map saved as sRGB, or its channels changed   | Save light maps as Linear. Keep the other channels |
 | Mostly black image with a few colored pixels      | The image was resized before the alpha was split off | Split off the alpha first, then resize             |
-| Texture missing after `F10`                       | Wrong file name, missing file, or a bad size         | Keep the original name, `t=` hash and size         |
+| Texture missing after `F10`                       | Wrong file name, missing file, or a bad size         | Keep the original full name and the size           |
 | Shading data gone from a part                     | Saved as BC1, which drops the alpha                  | Save in the original format                        |
 | Colors look wrong in another viewer, fine in game | That viewer reads the sRGB flag differently          | Nothing. Trust the game                            |
 

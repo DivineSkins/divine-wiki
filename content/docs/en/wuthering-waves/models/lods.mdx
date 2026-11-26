@@ -15,7 +15,7 @@ keywords:
 
 <LevelPill level="advanced" />
 
-Wuthering Waves swaps in simpler models and lower-detail textures when the camera is far away. A mod is made for the full-detail versions, so it can turn back to the original look, or its textures break. This page explains the settings that keep mods visible, what they cannot fix, and what creators can do. Written for XXMI Launcher 2.5.0, WWMI 1.1.0 and WWMI Tools 1.8.0.
+Wuthering Waves swaps in simpler models and lower-detail textures when the camera is far away. A mod is made for the full-detail versions, so it can turn back to the original look, or its textures break. This page explains the settings that keep mods visible, what they cannot fix, and what creators can do. Written for XXMI Launcher 2.5.0, WWMI 1.2.2 and WWMI Tools 1.9.4.
 
 ## What you need
 
@@ -42,11 +42,11 @@ LOD means level of detail. Games keep simpler versions of models and textures fo
 - **A simpler model.** The game swaps the Resonator you play to a simpler model when the camera is far away. A Resonator is the game's name for a playable character.
 - **Lower-detail textures.** Since mid-2025, the game loads smaller versions of textures, mostly in the open world.
 
-Each lower-detail version has its own hash. A mod matches the full-detail model and textures by their hashes, so it misses the simpler ones. [How Wuthering Waves mods work](/docs/wuthering-waves/basics/how-mods-work) explains hashes.
+Each lower-detail version has its own hash. A mod matches the full-detail model by its hash, so it misses the simpler one. Mods exported with WWMI Tools 1.8.0 and older match textures by hash too. Mods exported with WWMI Tools 1.9.4 match textures by how they look, which is meant to catch the smaller copies. [How Wuthering Waves mods work](/docs/wuthering-waves/basics/how-mods-work) explains hashes.
 
 <img
   src="/wiki-images/wuthering-waves-models-lods-1.webp"
-  alt="Two boxes. Lower-detail model: happens when the camera is far, the original look comes back, players keep Mesh LOD Base FOV at 165, creators have no export for it yet. Lower-detail textures: happen mostly in the open world, textures look white or patchy, players set LOD Bias to Ultra High, creators bind textures with RabbitFX texture slots"
+  alt="Two boxes. Lower-detail model: happens when the camera is far, the original look comes back, players keep Mesh LOD Base FOV at 165, creators have no export for it yet. Lower-detail textures: happen mostly in the open world, textures look white or patchy, players set LOD Bias to Ultra High, creators export with WWMI Tools 1.9.4, or use RabbitFX texture slots for older exports"
 />
 
 Texture hashes can also differ between the UHD, HD and SD resource qualities, and they change when an update edits a texture.
@@ -85,7 +85,7 @@ What the launcher changes in the game's settings, and what Kuro's terms say abou
 
 ## What the settings cannot fix
 
-- **Textures in the open world.** Since version 3.5, the launcher has no option left that stops lower-detail textures. **LOD Bias** at **Ultra High** helps, but a mod's textures can still break in the open world while they look fine in menus.
+- **Textures in the open world.** Since version 3.5, the launcher has no option left that stops lower-detail textures. **LOD Bias** at **Ultra High** helps, but a mod's textures can still break in the open world while they look fine in menus. Mods exported with WWMI Tools 1.9.4 match textures by look and may hold up better, but nobody has tested that on this game yet.
 - **Very long camera distances.** At `165` the full model stays for most scenes, not all of them.
 
 When textures break, check the mod's page for an update first. Many creators now bind textures in a way that survives this. If there is none, try a fix tool on a copy of the mod, as [Fix your mods after a game update](/docs/wuthering-waves/getting-started/fix-mods-after-an-update) shows, or wait for the creator. [Mods look broken](/docs/wuthering-waves/errors/mods-look-broken) matches each symptom to its fix.
@@ -106,16 +106,20 @@ Make your frame dump close up, in the Resonators menu, with the settings above. 
 </Step>
 <Step>
 
-### Bind textures by role
+### Match textures by look, or by role
 
-A mod exported by WWMI Tools replaces each texture by its hash. A lower-detail texture, another resource quality or a game update gives the texture a new hash, and your texture stops showing. RabbitFX texture slots bind textures by their role instead: diffuse, normal map, light map. [Make textures survive game updates](/docs/wuthering-waves/textures/stable-textures) shows how to set it up.
+WWMI Tools 1.9.4 finds each texture by its dHash, a fingerprint of how it looks, instead of its hash. The XXMI DLL's docs name smaller copies of a texture and resource quality tiers as the cases this is built for. Export with 1.9.4 from a new dump, and test at a distance as below.
+
+A mod exported with WWMI Tools 1.8.0 or older replaces each texture by its hash. A lower-detail texture, another resource quality or a game update gives the texture a new hash, and your texture stops showing. Export it again with 1.9.4, or bind its textures by their role with RabbitFX texture slots: diffuse, normal map, light map. [Make textures survive game updates](/docs/wuthering-waves/textures/stable-textures) explains both.
+
+{/* NEEDS HANDS-ON TEST: on WWMI 1.2.2 with a mod exported by WWMI Tools 1.9.4, whether its textures still show far away, in the open world, with LOD Bias below Ultra High, and on UHD, HD and SD clients */}
 
 </Step>
 <Step>
 
 ### Know the limit for distance models
 
-WWMI Tools 1.8.0 does not export the simpler distance model. Its author has said mesh LOD support is planned, with no date. Some creators ship a second `.ini` with buffers for the distance model, but no public guide explains how to make one yet.
+WWMI Tools 1.9.4 does not export the simpler distance model. Its author has said mesh LOD support is planned, with no date. Some creators ship a second `.ini` with buffers for the distance model, but no public guide explains how to make one yet.
 
 {/* NEEDS HANDS-ON TEST: how creators build the second .ini and buffers for the distance model on Wuthering Waves 3.8 (dump at a distance and extract the simpler model?). */}
 

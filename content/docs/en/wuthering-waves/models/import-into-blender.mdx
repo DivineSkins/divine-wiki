@@ -14,7 +14,7 @@ keywords:
 
 <LevelPill level="intermediate" />
 
-Every model mod starts from the Resonator's original model. A Resonator is the game's name for a playable character. This page loads that model into Blender with WWMI Tools, the right way, so it can export later. You need Blender, WWMI Tools and an extracted object folder. Written for WWMI Tools 1.8.0 on Blender 4.5 LTS.
+Every model mod starts from the Resonator's original model. A Resonator is the game's name for a playable character. This page loads that model into Blender with WWMI Tools, the right way, so it can export later. You need Blender, WWMI Tools and an extracted object folder. Written for WWMI Tools 1.9.4 on Blender 4.5 LTS.
 
 ## What you need
 
@@ -29,11 +29,11 @@ Every model mod starts from the Resonator's original model. A Resonator is the g
   <Requirement
     icon="Box"
     href="/docs/wuthering-waves/tools/blender-add-on"
-    note="1.8.0"
+    note="1.9.4"
   >
     WWMI Tools
   </Requirement>
-  <Requirement icon="FolderOpen" note="frame dump or WWMI-Assets">
+  <Requirement icon="FolderOpen" note="from your own frame dump">
     An extracted object folder
   </Requirement>
 </Requirements>
@@ -42,7 +42,7 @@ Nothing installed yet? [Set up your creator tools](/docs/wuthering-waves/getting
 
 <img
   src="/wiki-images/wuthering-waves-models-import-into-blender-1.webp"
-  alt="Brant's object folder with its Component files, TextureUsage.json and Metadata.json, imported with Import Object and the Merged skeleton, gives one collection with Component 0 to Component 5, each with numbered vertex groups, three UV maps, COLOR and COLOR1, and shape keys on some components"
+  alt="Brant's object folder with its Component files, textures named by component, format, hash and dHash, TextureUsage.json and Metadata.json, imported with Import Object and the Merged skeleton, gives one collection with Component 0 to Component 5, each with numbered vertex groups, three UV maps, COLOR and COLOR1, and shape keys on some components"
 />
 
 ## Get the original model
@@ -50,7 +50,15 @@ Nothing installed yet? [Set up your creator tools](/docs/wuthering-waves/getting
 You import an **object folder**: one object from a frame dump, with each component's buffers, its textures, `TextureUsage.json` and `Metadata.json`. It comes from one of two places:
 
 - **Your own frame dump.** This is the main way. [Make a frame dump](/docs/wuthering-waves/basics/frame-dump) captures the Resonator with `F8` and turns the dump into object folders with **Extract Objects From Dump**.
-- **WWMI-Assets.** [WWMI-Assets](https://github.com/SpectrumQT/WWMI-Assets) has ready folders in `PlayerCharacterData`, for example `Brant`. It stops at version 2.7, so newer Resonators are missing and many models changed since. Use it for practice. Download only the one folder you need.
+- **WWMI-Assets.** [WWMI-Assets](https://github.com/SpectrumQT/WWMI-Assets) has ready folders in `PlayerCharacterData`, for example `Brant`. It stops at version 2.7, so newer Resonators are missing and many models changed since. Its folders were extracted with an older WWMI Tools: version 1.9.4 imports them, but a full export from them stops with an error. Use them to practice importing and editing only. Download only the one folder you need.
+
+<Callout type="warning" title="Extracted with WWMI Tools 1.8.0 or older? Extract again">
+
+WWMI Tools 1.9.4 gives textures new file names, like `c=4 f=BC7_UNORM_SRGB t=cccccccc d=0123456789abcdef.dds`. Older folders have names like `Components-4 t=cccccccc.dds`. They still import, but export refuses them. Before you start a mod you want to export, make a new frame dump with the XXMI DLL that XXMI Launcher installs today, and extract it with WWMI Tools 1.9.4.
+
+</Callout>
+
+{/* NEEDS HANDS-ON TEST: on WWMI Tools 1.9.4, that an object folder extracted with WWMI Tools 1.8.0 or taken from WWMI-Assets imports without errors and that a full export from it stops with the outdated name format error */}
 
 Put the folder somewhere it can stay, for example `Modding\Dumps\Brant`. Export reads it again later. Then follow two rules:
 
@@ -79,7 +87,7 @@ Put the folder somewhere it can stay, for example `Modding\Dumps\Brant`. Export 
 ### Open the WWMI Tools tab
 
 1. Press `N` in the 3D Viewport to open the sidebar.
-2. Click the **WWMI Tools** tab. Its header shows the version, `v1.8.0`.
+2. Click the **WWMI Tools** tab. Its header shows the version, `v1.9.4`.
 3. Set **Mode** to **Import Object**.
 
 </Step>
@@ -96,9 +104,9 @@ Put the folder somewhere it can stay, for example `Modding\Dumps\Brant`. Export 
 
 Import also sets the **Skeleton** of **Export Mod** to the same mode, and fills its **Object Sources** with this folder.
 
-{/* SCREENSHOT: wuthering-waves-models-import-into-blender-2.webp, Blender 4.5 sidebar with the WWMI Tools v1.8.0 tab, Mode set to Import Object, Object Sources set to a Brant folder, Vertex Colors Linear, Skeleton Merged, Skip Empty Vertex Groups ticked, Mirror Mesh off. The beginner guide screenshot shows the older 1.3.5 layout. */}
+{/* SCREENSHOT: wuthering-waves-models-import-into-blender-2.webp, Blender 4.5 sidebar with the WWMI Tools v1.9.4 tab, Mode set to Import Object, Object Sources set to a Brant folder, Vertex Colors Linear, Skeleton Merged, Skip Empty Vertex Groups ticked, Mirror Mesh off. The beginner guide screenshot shows the older 1.3.5 layout. */}
 
-{/* NEEDS HANDS-ON TEST: Import Object with the Merged skeleton on the WWMI-Assets Brant folder (game version 2.7) and on a fresh 3.8 dump in WWMI Tools 1.8.0 on Blender 4.5 LTS: no errors, six Component objects */}
+{/* NEEDS HANDS-ON TEST: Import Object with the Merged skeleton on the WWMI-Assets Brant folder (game version 2.7) and on a fresh 3.8 dump in WWMI Tools 1.9.4 on Blender 4.5 LTS: no errors, six Component objects */}
 
 </Step>
 <Step>
@@ -154,7 +162,7 @@ Three more things look odd but are normal:
 
 Work on the imported model as it appears. Do not rotate, scale or mirror it, whatever old guides say. Place anything you add on top of the imported original, so it lines up in Blender. Export applies each object's rotation and scale for you.
 
-{/* NEEDS HANDS-ON TEST: that a part lined up in Blender with a WWMI Tools 1.8.0 import sits in the same place in game, without mirroring or applying transforms first */}
+{/* NEEDS HANDS-ON TEST: that a part lined up in Blender with a WWMI Tools 1.9.4 import sits in the same place in game, without mirroring or applying transforms first */}
 
 ## Keep a clean reference copy
 

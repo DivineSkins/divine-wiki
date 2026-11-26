@@ -1,6 +1,6 @@
 ---
 title: ".ini reference"
-description: "Look up the section types, keys, variables, operators, commands, key options, WWMI names and warning messages a Wuthering Waves mod.ini uses with WWMI 1.1.0."
+description: "Look up the section types, keys, variables, operators, commands, key options, WWMI names and warning messages a Wuthering Waves mod.ini uses with WWMI 1.2.2."
 category: "ini"
 patch: "3.8"
 keywords:
@@ -15,7 +15,7 @@ keywords:
 
 <LevelPill level="advanced" />
 
-A lookup page for the `.ini` language Wuthering Waves mods are written in. Use it next to your own `mod.ini`. For a guided tour of one file, read [How a mod .ini works](/docs/wuthering-waves/ini/how-a-mod-ini-works) first. Written for WWMI 1.1.0 with the XXMI DLL 1.3.2, and WWMI Tools 1.8.0.
+A lookup page for the `.ini` language Wuthering Waves mods are written in. Use it next to your own `mod.ini`. For a guided tour of one file, read [How a mod .ini works](/docs/wuthering-waves/ini/how-a-mod-ini-works) first. Written for WWMI 1.2.2 with the XXMI DLL 1.3.3, and WWMI Tools 1.9.4.
 
 ## What you need
 
@@ -45,28 +45,33 @@ WWMI Tools writes the whole `mod.ini` for you. Hand edits are for toggles, trick
 
 The start of the name decides the type. The rest is a free label.
 
-| Section                | Runs                                                      | Used for                                              |
-| ---------------------- | --------------------------------------------------------- | ----------------------------------------------------- |
-| `[Constants]`          | Once at load, and after every `F10`                       | Declaring variables                                   |
-| `[Present]`            | Every frame                                               | Resetting flags, registering the mod, drawing text    |
-| `[TextureOverride...]` | When a section checks a buffer or texture with this hash  | Every component and texture of a mod                  |
-| `[ShaderOverride...]`  | For every draw that uses a shader with this 16-digit hash | Effect and UI work                                    |
-| `[Resource...]`        | Never: it holds data                                      | Buffers, textures, text, empty slots                  |
-| `[CommandList...]`     | When another section calls `run = CommandList...`         | Reusable blocks of lines                              |
-| `[CustomShader...]`    | When called with `run = CustomShader...`                  | Drawing or computing with your own shader             |
-| `[Key...]`             | When its key is pressed                                   | Toggles and sliders. WWMI Tools writes `[KeySwap...]` |
-| `[ShaderRegex...]`     | On game shaders that match a pattern                      | WWMI's own hook. Not for mods                         |
-| `[Include...]`         | At load                                                   | WWMI loads its own files this way                     |
-| `[Preset...]`          | While a shader override activates it                      | Rare                                                  |
+| Section                | Runs                                                      | Used for                                                                   |
+| ---------------------- | --------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `[Constants]`          | Once at load, and after every `F10`                       | Declaring variables                                                        |
+| `[Present]`            | Every frame                                               | Resetting flags, registering the mod, drawing text                         |
+| `[TextureOverride...]` | When a section checks a buffer or texture with this hash  | Every component and texture of a mod                                       |
+| `[ShaderOverride...]`  | For every draw that uses a shader with this 16-digit hash | Effect and UI work                                                         |
+| `[Resource...]`        | Never: it holds data                                      | Buffers, textures, text, empty slots                                       |
+| `[Filter...]`          | Never: a `ps-t[Filter...]` line reads it                  | Matching a texture by its look. WWMI Tools 1.9.4 writes `[FilterTextureN]` |
+| `[CommandList...]`     | When another section calls `run = CommandList...`         | Reusable blocks of lines                                                   |
+| `[CustomShader...]`    | When called with `run = CustomShader...`                  | Drawing or computing with your own shader                                  |
+| `[Key...]`             | When its key is pressed                                   | Toggles and sliders. WWMI Tools writes `[KeySwap...]`                      |
+| `[ShaderRegex...]`     | On game shaders that match a pattern                      | WWMI's own hook. Not for mods                                              |
+| `[Include...]`         | At load                                                   | WWMI loads its own files this way                                          |
+| `[Preset...]`          | While a shader override activates it                      | Rare                                                                       |
 
-XXMI DLL 1.3.2 also knows newer `[Filter...]` and `[Pool...]` sections. WWMI Tools 1.8.0 does not write them, and this page does not cover them. Any other name gives `Unknown section type`. `[Loader]`, `[System]`, `[Hunting]` and the other settings sections belong in WWMI's `d3dx.ini`, not in a mod. XXMI Launcher manages `d3dx.ini`: never edit it.
+`[Filter...]` sections need XXMI DLL 1.3.3 or newer. The DLL also knows newer `[Pool...]` sections. WWMI Tools 1.9.4 does not write them, and this page does not cover them. Any other name gives `Unknown section type`. `[Loader]`, `[System]`, `[Hunting]` and the other settings sections belong in WWMI's `d3dx.ini`, not in a mod. XXMI Launcher manages `d3dx.ini`: never edit it.
 
 ## How WWMI decides what runs
 
 This is where Wuthering Waves differs most from other games:
 
 - WWMI hooks every vertex shader and checks only `vb0`, the vertex buffer in slot 0, on each draw. So a mod's component sections match on the VB0 hash.
-- A `[TextureOverride...]` for a texture runs only if something checks the slot that texture is in. In a WWMI Tools export, each component section runs `CommandListTriggerResourceOverrides`, which checks `ps-t0` to `ps-t8`. Copy that pattern if you add texture sections by hand.
+- In a WWMI Tools 1.9.4 export, textures need no check of their own. Each component section runs `CommandListTriggerResourceOverrides`, which saves the game's textures with `SnapshotInitialTextures`. Then one `ps-t[FilterTextureN] = ref ResourceTextureN` line per texture swaps in your files, and `CommandListCleanupSharedResources` puts the game's textures back with `RestoreInitialTextures`. Copy that pattern if you add a texture by hand.
+- In an export from WWMI Tools 1.8.0 or older, a `[TextureOverride...]` for a texture runs only if something checks the slot that texture is in. There, `CommandListTriggerResourceOverrides` checks `ps-t0` to `ps-t8`. WWMI 1.2.2 still runs these mods this way: it does not switch them to matching by look.
+
+{/* NEEDS HANDS-ON TEST: on WWMI 1.2.2, a hand-added texture in a WWMI Tools 1.9.4 export with its own [FilterTextureN] and ps-t[FilterTextureN] line, and an export from WWMI Tools 1.8.0 still binding its textures by hash */}
+
 - `$\WWMIv1\enable_ib_callbacks = 1` makes WWMI also check `ib` on every draw. It costs about 2.5% of your frame rate, and only some UI mods need it.
 
 ## TextureOverride keys
@@ -84,6 +89,22 @@ Every other line in the section is a command.
 | `override_byte_stride`  | Bytes per vertex for that resize                                                                                                          |
 
 When two sections match the same draw, both run, lowest `match_priority` first. Every `drawindexed` line of both is drawn, so two full mods on one Resonator overlap.
+
+## Filter keys
+
+A `[Filter...]` section describes a game texture by its look. It does nothing by itself: a `ps-t[FilterName] = ref ResourceName` line uses it.
+
+| Key                | Default        | What it does                                                                                                      |
+| ------------------ | -------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `match_dhash`      | none, required | The dHash of the game's texture: 16 hex digits, a fingerprint of how it looks. WWMI Tools copies it from the dump |
+| `match_format`     | none           | Only textures in this format can match, like `BC7_UNORM_SRGB`                                                     |
+| `match_confidence` | `0.75`         | How alike the texture must be, from `0.0` to `1.0`. `0.75` lets 16 of the 64 bits differ. Higher is stricter      |
+
+- The line searches the texture slots the current pixel shader reads, and puts your resource where the best match is. It works on `ps-t` slots only.
+- WWMI Tools 1.9.4 writes `match_format` and `match_dhash`, not `match_confidence`.
+- Raise `match_confidence` if two similar textures get mixed up. Lower it only if the right texture never matches, after you checked `match_dhash` and `match_format`.
+
+{/* NEEDS HANDS-ON TEST: on WWMI 1.2.2 with a mod exported by WWMI Tools 1.9.4, the effect of match_confidence 0.9 and 0.6 on one Resonator texture, and whether match_format values in the export look like BC7_UNORM_SRGB */}
 
 ## Resource keys
 
@@ -173,22 +194,25 @@ Functions, with brackets: `sin`, `cos`, `tan`, `abs`, `sign`, `floor`, `ceil`, `
 
 These lines go inside any section that runs commands.
 
-| Command                                  | Meaning                                                   | Example                                         |
-| ---------------------------------------- | --------------------------------------------------------- | ----------------------------------------------- |
-| `<slot> = <resource>`                    | Put a resource in a slot                                  | `vb0 = ResourcePositionBuffer`                  |
-| `this = <resource>`                      | Replace the texture or buffer that matched, in its slot   | `this = ResourceTexture0`                       |
-| `ref`, `copy`, `unless_null`             | How to assign: a reference, a real copy, or skip if empty | `Resource\WWMIv1\ModName = ref ResourceModName` |
-| `<slot> = null`                          | Empty a slot                                              | `cs-u5 = null`                                  |
-| `run = ...`                              | Call a command list or custom shader                      | `run = CommandList\WWMIv1\RegisterMod`          |
-| `checktextureoverride = <slot>`          | Run the TextureOverride sections for what is in a slot    | `checktextureoverride = ps-t0`                  |
-| `handling = skip`                        | Do not draw the game's original                           |                                                 |
-| `handling = abort`                       | Stop running this section                                 |                                                 |
-| `drawindexed = <count>, <start>, <base>` | Draw part of the bound index buffer                       | `drawindexed = 42495, 0, 0`                     |
-| `drawindexed = auto`                     | Draw the whole bound index buffer                         |                                                 |
-| `draw = <count>, <start>`                | Draw without an index buffer                              | `draw = 4096, 0`                                |
-| `draw = from_caller`                     | Repeat the draw that called this section                  |                                                 |
-| `dispatch = <x>, <y>, <z>`               | Run a compute shader                                      | `dispatch = 1, 1, 1`                            |
-| `$var = ...`, `x88 = ...`                | Set a variable or IniParam. Math is allowed               | `$mod_id = $\WWMIv1\mod_id`                     |
+| Command                                  | Meaning                                                                                                              | Example                                         |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| `<slot> = <resource>`                    | Put a resource in a slot                                                                                             | `vb0 = ResourcePositionBuffer`                  |
+| `this = <resource>`                      | Replace the texture or buffer that matched, in its slot. Exports from WWMI Tools 1.8.0 and older use it for textures | `this = ResourceTexture0`                       |
+| `ps-t[<filter>] = ref <resource>`        | Put a resource in the pixel shader slot whose texture best matches a filter                                          | `ps-t[FilterTexture0] = ref ResourceTexture0`   |
+| `run = SnapshotInitialTextures`          | Save the textures in the pixel shader's slots. Only the first call in a draw counts                                  |                                                 |
+| `run = RestoreInitialTextures`           | Put the saved textures back                                                                                          |                                                 |
+| `ref`, `copy`, `unless_null`             | How to assign: a reference, a real copy, or skip if empty                                                            | `Resource\WWMIv1\ModName = ref ResourceModName` |
+| `<slot> = null`                          | Empty a slot                                                                                                         | `cs-u5 = null`                                  |
+| `run = ...`                              | Call a command list or custom shader                                                                                 | `run = CommandList\WWMIv1\RegisterMod`          |
+| `checktextureoverride = <slot>`          | Run the TextureOverride sections for what is in a slot                                                               | `checktextureoverride = ps-t0`                  |
+| `handling = skip`                        | Do not draw the game's original                                                                                      |                                                 |
+| `handling = abort`                       | Stop running this section                                                                                            |                                                 |
+| `drawindexed = <count>, <start>, <base>` | Draw part of the bound index buffer                                                                                  | `drawindexed = 42495, 0, 0`                     |
+| `drawindexed = auto`                     | Draw the whole bound index buffer                                                                                    |                                                 |
+| `draw = <count>, <start>`                | Draw without an index buffer                                                                                         | `draw = 4096, 0`                                |
+| `draw = from_caller`                     | Repeat the draw that called this section                                                                             |                                                 |
+| `dispatch = <x>, <y>, <z>`               | Run a compute shader                                                                                                 | `dispatch = 1, 1, 1`                            |
+| `$var = ...`, `x88 = ...`                | Set a variable or IniParam. Math is allowed                                                                          | `$mod_id = $\WWMIv1\mod_id`                     |
 
 Slots: `ib`, `vb0` to `vb31`, textures like `ps-t0` and `cs-t33`, constant buffers like `vs-cb4`, compute outputs like `cs-u5`, render targets `o0` to `o7`.
 
@@ -250,7 +274,7 @@ A file's namespace is its path from the `WWMI` folder, unless the first line set
 | `$object_detected`                                        | `1` while the Resonator is on screen. Every component section sets it                                     |
 | `$mod_enabled`                                            | `1` once WWMI accepts the mod. While `0`, the mod changes nothing                                         |
 | `$mod_id`                                                 | The ID WWMI gives the mod. `-1000` before it registers, `-1` if it does not fit the installed WWMI        |
-| `$required_wwmi_version`                                  | The oldest WWMI the mod works with. WWMI Tools 1.8.0 writes `1.10`                                        |
+| `$required_wwmi_version`                                  | The oldest WWMI the mod works with. WWMI Tools 1.9.4 writes `1.22`. WWMI Tools 1.8.0 wrote `1.10`         |
 | `$object_guid`                                            | The index count of the original model                                                                     |
 | `$mesh_vertex_count`                                      | The vertex count of your model                                                                            |
 | `$swapvar_<name>`, `$draw_<object>`                       | Toggle variables written by Ini Toggles                                                                   |
@@ -260,7 +284,8 @@ A file's namespace is its path from the `WWMI` folder, unless the first line set
 | `$\WWMIv1\shapekey_id`, `$\WWMIv1\shapekey_value`         | Input for the shape key API: a number from `0` to `127`, and a value from `0.0` to `1.0`                  |
 | `$\WWMIv1\enable_ib_callbacks`                            | `1` also checks `ib` on every draw. Default `0`                                                           |
 | `ib`, `vb0` to `vb4`                                      | Your mesh: indices, positions, normals and tangents, UVs, vertex colors, bone weights                     |
-| `ps-t0` to `ps-t8`                                        | The texture slots a component section checks                                                              |
+| `[FilterTextureN]`, `ps-t[FilterTextureN]`                | WWMI Tools 1.9.4: one filter per texture, used in each component section that needs the texture           |
+| `ps-t0` to `ps-t8`                                        | The texture slots a component section checks in exports from WWMI Tools 1.8.0 and older                   |
 | `vs-cb3`, `vs-cb4`                                        | The bone data the merged skeleton is built from                                                           |
 | `filter_index` `3381.7777`                                | The mark a WWMI Tools mod puts on the bone data buffer                                                    |
 | `cs == 3381.3333`, `cs == 3381.4444`                      | WWMI's marks on the two game compute shaders that load and scale shape keys. Shape key sections test them |
@@ -290,15 +315,16 @@ With **Mute Warnings** off in the launcher's **WWMI** tab, these show after `F10
 | `Initial data and filename cannot be used together`         | `data =` and `filename =` in one resource                                 | Keep one                                                                                          |
 | `NOTICE: Detected N unknown user settings in d3dx_user.ini` | Saved settings of mods you removed                                        | Harmless. It clears after two reloads                                                             |
 
-WWMI shows its own red **Mod Loading Error** box, whatever the **Mute Warnings** setting. Press `X` to hide it.
+WWMI shows its own red **Mod Loading Error** box, whatever the **Mute Warnings** setting. WWMI 1.2.2 adds a **WWMI Integrity Error** box for an XXMI DLL that is too old. Press `X` to hide a box.
 
-| Message in the box                                    | Usual cause                                 | Fix                                                      |
-| ----------------------------------------------------- | ------------------------------------------- | -------------------------------------------------------- |
-| `Installed WWMI version is below minimally required!` | The mod needs a newer WWMI than you have    | Update WWMI in XXMI Launcher                             |
-| `Mod is incompatible with current WWMI version!`      | The mod was exported for an old WWMI format | Get an update from the mod's creator, or export it again |
-| The same, with `Enable Compatibility Mode`            | A mod from WWMI 0.6.x                       | Press `Alt+F12`, then `F10`                              |
+| Message in the box                                        | Usual cause                                                                            | Fix                                                      |
+| --------------------------------------------------------- | -------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| `Installed WWMI version is below minimally required!`     | The mod needs a newer WWMI than you have, like a WWMI Tools 1.9.4 export on WWMI 1.1.0 | Update WWMI in XXMI Launcher                             |
+| `Mod is incompatible with current WWMI version!`          | The mod was exported for an old WWMI format                                            | Get an update from the mod's creator, or export it again |
+| The same, with `Enable Compatibility Mode`                | A mod from WWMI 0.6.x                                                                  | Press `Alt+F12`, then `F10`                              |
+| `Installed XXMI DLL version is below minimally required!` | The XXMI DLL is older than 1.3.3, so `[Filter...]` sections cannot work                | Update XXMI Launcher                                     |
 
-{/* NEEDS HANDS-ON TEST: whether the Mod Loading Error box shows with Mute Warnings on, in WWMI 1.1.0 */}
+{/* NEEDS HANDS-ON TEST: whether the Mod Loading Error and WWMI Integrity Error boxes show with Mute Warnings on, in WWMI 1.2.2 */}
 
 [Test and reload your mod](/docs/wuthering-waves/basics/test-your-mod) shows how to read these on screen.
 

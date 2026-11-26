@@ -15,7 +15,7 @@ keywords:
 
 <LevelPill level="intermediate" />
 
-WWMI Tools stopped with a message when you extracted, imported or exported a Wuthering Waves object. Find the message on this page, then follow its fix. Messages are quoted from the source code of WWMI Tools 1.8.0. Written for WWMI Tools 1.8.0 on Blender 4.5 LTS.
+WWMI Tools stopped with a message when you extracted, imported or exported a Wuthering Waves object. Find the message on this page, then follow its fix. Messages are quoted from the source code of WWMI Tools 1.9.4. Written for WWMI Tools 1.9.4 on Blender 4.5 LTS.
 
 WWMI Tools has its own messages. Error texts from guides for other games, such as `hash.json` errors, do not apply here.
 
@@ -27,7 +27,7 @@ The export worked, but the model looks wrong in game? Go to [Model problems in g
   <Requirement
     icon="Box"
     href="/docs/wuthering-waves/tools/blender-add-on"
-    note="1.8.0"
+    note="1.9.4"
   >
     WWMI Tools
   </Requirement>
@@ -43,9 +43,9 @@ The export worked, but the model looks wrong in game? Go to [Model problems in g
 
 WWMI Tools shows an error in red in its panel, next to the field that caused it. Open the **WWMI Tools** tab in the sidebar (`N` in the 3D Viewport) and look under the field.
 
-{/* SCREENSHOT: wuthering-waves-errors-creator-errors-3.webp, the WWMI Tools 1.8.0 panel in Export Mod mode on Blender 4.5 LTS, with a red error under Object Sources */}
+{/* SCREENSHOT: wuthering-waves-errors-creator-errors-3.webp, the WWMI Tools 1.9.4 panel in Export Mod mode on Blender 4.5 LTS, with a red error under Object Sources */}
 
-{/* NEEDS HANDS-ON TEST: in WWMI Tools 1.8.0 on Blender 4.5 LTS, whether every export error shows in red next to its field, or some show only as a Blender report or in the System Console */}
+{/* NEEDS HANDS-ON TEST: in WWMI Tools 1.9.4 on Blender 4.5 LTS, whether every export error shows in red next to its field, or some show only as a Blender report or in the System Console */}
 
 Long errors and Python errors are easier to read in the System Console. Open <MenuPath path="Window > Toggle System Console" />, then run the action again. The console keeps every line, and a full export ends with `Total mod export time`.
 
@@ -116,7 +116,16 @@ The System Console shows a Python error with a line such as `No outputs for shad
 2. Press `F10` in game.
 3. Dump again where only your object is on screen, such as the Resonators menu. Story scenes with many characters often fail.
 
-{/* NEEDS HANDS-ON TEST: on WWMI Tools 1.8.0 and Wuthering Waves 3.8, that a dump made with RabbitFX in the Mods folder fails extraction, and a dump of the Resonators menu with an empty Mods folder works */}
+{/* NEEDS HANDS-ON TEST: on WWMI Tools 1.9.4 and Wuthering Waves 3.8, that a dump made with RabbitFX in the Mods folder fails extraction, and a dump of the Resonators menu with an empty Mods folder works */}
+
+</Accordion>
+<Accordion title='"WARNING! Texture dhash mismatch" in the System Console' id="dhash-mismatch">
+
+WWMI Tools 1.9.4 prints this, or `WARNING! Texture format mismatch`, when one texture shows two different dHashes or formats in the same dump. A dHash is a fingerprint of how a texture looks. It is a warning, not an error: extraction goes on and keeps the last value it read.
+
+**Fix:** nothing, as long as that texture shows in game after export. If it does not, make a new dump and extract again.
+
+{/* NEEDS HANDS-ON TEST: on WWMI Tools 1.9.4 with a Wuthering Waves 3.8 dump, whether the dhash or format mismatch warning shows, and whether a texture it names still matches in game */}
 
 </Accordion>
 </Accordions>
@@ -168,6 +177,30 @@ The full message adds `Most likely it contains sources for other object.`
 **Fix:** set **Object Sources** back to the folder of your base model. Check that every object name uses a number the model has.
 
 </Accordion>
+<Accordion title='"Specified sources folder contains textures with unknown or outdated name format!"' id="outdated-names">
+
+The message goes on with `Please extract the object again from a new frame dump with this WWMI Tools version.` and ends with `Error: Failed to parse texture filename` and the name of the file it could not read.
+
+**Cause:** WWMI Tools 1.9.4 reads each texture's components, format, hash and dHash from its file name, like `c=4 f=BC7_UNORM_SRGB t=cccccccc d=0123456789abcdef.dds`. Every `.dds` and `.jpg` in **Object Sources** must have such a name. This fails when:
+
+- The folder was extracted with WWMI Tools 1.8.0 or older, or comes from WWMI-Assets. Its names look like `Components-4 t=cccccccc.dds`.
+- The names hold `d=None`. The dump was made with an XXMI DLL that writes no dHashes. WWMI asks for XXMI DLL 1.3.3 or newer.
+- You saved your own image in the folder, under a name of your own.
+
+**Fix:**
+
+1. Update XXMI Launcher, so the XXMI DLL is current.
+2. Make a new frame dump with `F8`.
+3. Extract it with WWMI Tools 1.9.4.
+4. Set **Object Sources** to the new object folder, and export again.
+
+A **Partial Export** skips this check, because it copies no textures. Your first full export still needs the new folder.
+
+Textures you edited for an older export keep their old names, and the new `mod.ini` does not use them. For each one, find the new file with the same `t=` part in your mod's `Textures` folder and save your edit over it, under the new name. **Copy Textures** then leaves it alone, because it skips any file whose name already exists.
+
+{/* NEEDS HANDS-ON TEST: on WWMI Tools 1.9.4, the full error text and where it shows with an object folder extracted by WWMI Tools 1.8.0; the texture names an extraction gives from a dump made with an XXMI DLL older than 1.3.3; and whether the old and new names of one texture share the same t= part on a fresh Wuthering Waves 3.8 dump */}
+
+</Accordion>
 <Accordion title='"Failed to write files to mod folder:"' id="write-failed">
 
 Windows did not let WWMI Tools write into **Mod Folder**.
@@ -212,7 +245,7 @@ Some weights are extreme or broken, so export cannot store them in 8 bits.
 </Accordion>
 <Accordion title='"cannot convert float NaN to integer"' id="nan-weights">
 
-Broken weights stopped an old version of WWMI Tools. Version 1.3.2 fixed it. Update WWMI Tools to 1.8.0 and export again.
+Broken weights stopped an old version of WWMI Tools. Version 1.3.2 fixed it. Update WWMI Tools to 1.9.4 and export again.
 
 </Accordion>
 </Accordions>
@@ -222,7 +255,7 @@ Broken weights stopped an old version of WWMI Tools. Version 1.3.2 fixed it. Upd
 <Accordions type="multiple">
 <Accordion title={`"KeyError: 'bpy_prop_collection[key]: key "COLOR" not found'"`} id="missing-color">
 
-A new mesh has no `COLOR` attribute, and your WWMI Tools is older than 1.6.0. Update to 1.8.0: **Fill Missing Mesh Data** under **Advanced** adds missing colors and UV maps for you.
+A new mesh has no `COLOR` attribute, and your WWMI Tools is older than 1.6.0. Update to 1.9.4: **Fill Missing Mesh Data** under **Advanced** adds missing colors and UV maps for you.
 
 Filled-in values are a default, not the original's. Copy `COLOR` from the original part, so outlines and skin shading match the game. [UV maps, vertex colors, and outlines](/docs/wuthering-waves/models/uvs-and-vertex-colors) shows how.
 
@@ -250,7 +283,7 @@ The pieces you joined stored their custom normals in different ways. Blender may
 
 **Fix:** before you join, transfer the normals so every piece uses the same kind. Then join and export again.
 
-{/* NEEDS HANDS-ON TEST: on Blender 4.5 LTS with WWMI Tools 1.8.0, how a second custom normal attribute shows after joining, and which normal transfer gives one format before export */}
+{/* NEEDS HANDS-ON TEST: on Blender 4.5 LTS with WWMI Tools 1.9.4, how a second custom normal attribute shows after joining, and which normal transfer gives one format before export */}
 
 </Accordion>
 <Accordion title='"Failed to build mod.ini from ini template: Ini Template filling error: list object has no element 1"' id="template-element">
@@ -258,6 +291,8 @@ The pieces you joined stored their custom normals in different ways. Blender may
 This is an open bug, reported in August 2026. It shows when you merge objects in `Component 0` of an alternate outfit.
 
 **Fix:** keep those objects separate in `Component 0`, and export again.
+
+{/* NEEDS HANDS-ON TEST: whether WWMI Tools 1.9.4, which changed how its mod.ini templates number items, still shows this error when objects in Component 0 of an alternate outfit are merged */}
 
 </Accordion>
 </Accordions>
@@ -269,7 +304,7 @@ This is an open bug, reported in August 2026. It shows when you merge objects in
 3. If it works, compare your objects with the fresh import: the `component` number in each name, the vertex group names, the UV map names, and `COLOR` and `COLOR1`.
 4. Fix what differs, and export again.
 
-{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: that comparing with a fresh WWMI Tools 1.8.0 import finds the cause of a failed export */}
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: that comparing with a fresh WWMI Tools 1.9.4 import finds the cause of a failed export */}
 
 Still no luck? Ask in the [Divine Discord](https://discord.gg/divineskins) or the [AGMG Discord](https://discord.gg/agmg). Post the full text from the System Console, your WWMI Tools and Blender versions, and the Resonator you are working on.
 

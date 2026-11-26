@@ -14,7 +14,7 @@ keywords:
 
 <LevelPill level="intermediate" />
 
-Export turns your Blender collection into a mod folder that WWMI loads, with its `mod.ini`. Most failed exports break one of a few rules about names, the collection or the skeleton. This page lists those rules, then runs the export. Written for WWMI Tools 1.8.0 on Blender 4.5 LTS and WWMI 1.1.0.
+Export turns your Blender collection into a mod folder that WWMI loads, with its `mod.ini`. Most failed exports break one of a few rules about names, the collection or the skeleton. This page lists those rules, then runs the export. Written for WWMI Tools 1.9.4 on Blender 4.5 LTS and WWMI 1.2.2.
 
 <Accordions>
 <Accordion title="Coming from another game?">
@@ -39,9 +39,12 @@ See the [Genshin Impact](/docs/genshin-impact), [Honkai: Star Rail](/docs/honkai
   <Requirement
     icon="Box"
     href="/docs/wuthering-waves/tools/blender-add-on"
-    note="1.8.0"
+    note="1.9.4"
   >
     WWMI Tools
+  </Requirement>
+  <Requirement icon="FolderOpen" note="extracted with WWMI Tools 1.9.4">
+    Your object folder
   </Requirement>
   <Requirement
     icon="Blender"
@@ -82,6 +85,7 @@ See the [Genshin Impact](/docs/genshin-impact), [Honkai: Star Rail](/docs/honkai
 ### Object Sources and the skeleton
 
 - **Object Sources** is the extracted folder you imported, the one with `Metadata.json`. Export reads its hashes and copies its textures.
+- **Object Sources must be extracted with WWMI Tools 1.9.4.** Export reads each texture's format and dHash from its file name, such as `c=4 f=BC7_UNORM_SRGB t=cccccccc d=0123456789abcdef.dds`. A folder extracted with 1.8.0 or older, or taken from WWMI-Assets, has names like `Components-4 t=cccccccc.dds` and stops the export. So does any other `.dds` or `.jpg` you saved in the folder under your own name. Make a new frame dump, extract it again, and point **Object Sources** at the new folder.
 - **Importing another model changes Object Sources** to that model's folder, and changes **Skeleton** to that import's mode. Set both back before you export.
 - **Skeleton** must match the mode you imported your base model with. A mismatch exports, but the mod looks broken in game.
 
@@ -117,7 +121,7 @@ Export normalizes the weights for you and drops very small ones. [Weight paint a
 
 Errors show in red in the panel, next to the field that caused them.
 
-{/* SCREENSHOT: wuthering-waves-models-export-your-mod-2.webp, Blender 4.5 sidebar with the WWMI Tools v1.8.0 tab in Export Mod mode: Components set to Brant, Object Sources and Mod Folder filled in, Skeleton Merged, the options below, and the Advanced and Mod Info sub-panels open. The beginner guide screenshot shows the older 1.3.5 layout. */}
+{/* SCREENSHOT: wuthering-waves-models-export-your-mod-2.webp, Blender 4.5 sidebar with the WWMI Tools v1.9.4 tab in Export Mod mode: Components set to Brant, Object Sources and Mod Folder filled in, Skeleton Merged, the options below, and the Advanced and Mod Info sub-panels open. The beginner guide screenshot shows the older 1.3.5 layout. */}
 
 </Step>
 <Step>
@@ -126,16 +130,16 @@ Errors show in red in the panel, next to the field that caused them.
 
 The options under the four fields:
 
-| Option                        | Default | What to know                                                                                                                    |
-| ----------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| **Mirror Mesh**               | off     | Leave it off, as on import.                                                                                                     |
-| **Apply All Modifiers**       | off     | Tick it if you use modifiers. It applies them on temporary copies, also on meshes with shape keys. Your scene stays as it is.   |
-| **Copy Textures**             | on      | Copies the textures from **Object Sources** into `Textures`. It skips a file that already exists, so your edited textures stay. |
-| **Write Mod INI**             | on      | Writes `mod.ini`. Untick it to keep a `mod.ini` you edited by hand.                                                             |
-| **Comment INI code**          | off     | Adds a comment that explains each line of `mod.ini`. Good for learning.                                                         |
-| **Ignore Nested Collections** | on      | Skips objects in collections inside your collection. Untick it if you sort parts into sub-collections.                          |
-| **Ignore Hidden Objects**     | off     | Tick it, so hidden objects such as a removed hat are skipped.                                                                   |
-| **Ignore Muted Shape Keys**   | on      | Skips shape keys whose checkbox is off.                                                                                         |
+| Option                        | Default | What to know                                                                                                                                                                               |
+| ----------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Mirror Mesh**               | off     | Leave it off, as on import.                                                                                                                                                                |
+| **Apply All Modifiers**       | off     | Tick it if you use modifiers. It applies them on temporary copies, also on meshes with shape keys. Your scene stays as it is.                                                              |
+| **Copy Textures**             | on      | Copies the textures from **Object Sources** into `Textures`. It skips a file that already exists under the same name, so your edited textures stay. `mod.ini` points at these exact names. |
+| **Write Mod INI**             | on      | Writes `mod.ini`. Untick it to keep a `mod.ini` you edited by hand.                                                                                                                        |
+| **Comment INI code**          | off     | Adds a comment that explains each line of `mod.ini`. Good for learning.                                                                                                                    |
+| **Ignore Nested Collections** | on      | Skips objects in collections inside your collection. Untick it if you sort parts into sub-collections.                                                                                     |
+| **Ignore Hidden Objects**     | off     | Tick it, so hidden objects such as a removed hat are skipped.                                                                                                                              |
+| **Ignore Muted Shape Keys**   | on      | Skips shape keys whose checkbox is off.                                                                                                                                                    |
 
 Leave the **Advanced** sub-panel at its defaults for now. The WWMI Tools page, linked under What you need, explains every option.
 
@@ -153,7 +157,7 @@ In the **Mod Info** sub-panel, type a **Mod Name** and your **Author Name**. WWM
 
 Click **Export Mod** at the bottom of the panel. To watch the export, open <MenuPath path="Window > Toggle System Console" /> first. It lists each step and ends with `Total mod export time`.
 
-{/* NEEDS HANDS-ON TEST: export an unchanged Brant with WWMI Tools 1.8.0 defaults plus Ignore Hidden Objects into a folder inside WWMI\Mods, and confirm the folder contents and that WWMI 1.1.0 loads it */}
+{/* NEEDS HANDS-ON TEST: export an unchanged Brant from a fresh 3.8 dump with WWMI Tools 1.9.4 defaults plus Ignore Hidden Objects into a folder inside WWMI\Mods, and confirm the folder contents and that WWMI 1.2.2 loads it with its textures */}
 
 </Step>
 <Step>
@@ -180,7 +184,7 @@ On your first export, export the unchanged model and press `F6` a few times. A s
       <File name="ShapeKeyOffset.buf, ShapeKeyVertexId.buf, ShapeKeyVertexOffset.buf: only with shape keys" />
     </Folder>
     <Folder name="Textures" defaultOpen>
-      <File name="Components-4 t=152d68e6.dds: copied from Object Sources" />
+      <File name="c=4 f=BC7_UNORM_SRGB t=cccccccc d=0123456789abcdef.dds: copied from Object Sources" />
       <File name="Logo.dds: only with a Mod Logo" />
     </Folder>
   </Folder>
@@ -195,24 +199,26 @@ match_first_index = <first index>
 match_index_count = <index count>
 $object_detected = 1
 handling = skip
+ps-t[FilterTexture0] = ref ResourceTexture0
 ; Draw Component 4
 drawindexed = <index count>, <offset>, 0
 ; Draw Component 4 Hat
 drawindexed = <index count>, <offset>, 0
 ```
 
-Each texture gets a section that swaps it by its hash, only while your object is on screen:
+Each texture gets a pair of sections. `[ResourceTexture0]` loads your file. `[FilterTexture0]` describes the game texture it replaces, by its format and its dHash, a fingerprint of how it looks:
 
 ```ini
-[TextureOverrideTexture0]
-hash = <texture hash>
-match_priority = 0
-if $object_detected
-    this = ResourceTexture0
-endif
+[ResourceTexture0]
+filename = Textures/c=4 f=BC7_UNORM_SRGB t=cccccccc d=0123456789abcdef.dds
+[FilterTexture0]
+match_format = BC7_UNORM_SRGB
+match_dhash = 0123456789abcdef
 ```
 
-The `mod.ini` also sets `$required_wwmi_version`. WWMI keeps the mod off when your WWMI is older than that. A mod folder never holds `d3dx.ini`, `d3d11.dll`, a `ShaderFixes` folder or RabbitFX. [How a mod .ini works](/docs/wuthering-waves/ini/how-a-mod-ini-works) explains each part.
+The `ps-t[FilterTexture0] = ref ResourceTexture0` line in each component that uses the texture swaps it in during that component's draw only. Exports from WWMI Tools 1.8.0 and older have no such lines. They swap each texture by its hash, with `this = ResourceTexture0` in a `[TextureOverrideTexture0]` section, while your object is on screen.
+
+The `mod.ini` starts with `; WWMI BETA-11 INI` and sets `$required_wwmi_version = 1.22`. WWMI keeps the mod off when your WWMI is older than 1.2.2, and shows `Installed WWMI version is below minimally required!`. Textures matched by look also need XXMI DLL 1.3.3 or newer, which XXMI Launcher installs. A mod folder never holds `d3dx.ini`, `d3d11.dll`, a `ShaderFixes` folder or RabbitFX. [How a mod .ini works](/docs/wuthering-waves/ini/how-a-mod-ini-works) explains each part.
 
 ## Export again, faster
 
@@ -242,6 +248,18 @@ No object in the collection has `component` and a number in its name, or every s
 <Accordion title='"Component<N> 256 VG limit exceeded!"' id="vg-limit">
 
 One component uses more than 256 weighted vertex groups across its objects. Remove weights you do not need, or move some objects into another component.
+
+</Accordion>
+<Accordion title='"Specified sources folder contains textures with unknown or outdated name format!"' id="outdated-names">
+
+**Object Sources** holds a texture whose name WWMI Tools 1.9.4 cannot read. The message ends with `Error: Failed to parse texture filename` and the file's name.
+
+- **The folder was extracted with WWMI Tools 1.8.0 or older, or comes from WWMI-Assets.** Make a new frame dump, extract it with WWMI Tools 1.9.4, and point **Object Sources** at the new folder. Export again.
+- **You saved your own image in the folder.** Move it out, or give it the full name of the original it replaces.
+
+Textures you edited for an older export keep their old names, so the new `mod.ini` does not use them. For each one, find the new file with the same `t=` part in your mod's `Textures` folder, and save your edit over it, under the new name. If no new file has that `t=` part, the texture changed since your old dump. Find the new file that shows the same image, and make your edit again.
+
+{/* NEEDS HANDS-ON TEST: on WWMI Tools 1.9.4, the export error with an object folder extracted by WWMI Tools 1.8.0, and whether the old and new file names of one texture share the same t= part on a fresh Wuthering Waves 3.8 dump */}
 
 </Accordion>
 <Accordion title='"Failed to write files to mod folder:"' id="write-failed">

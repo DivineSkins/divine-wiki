@@ -14,7 +14,7 @@ keywords:
 
 <LevelPill level="beginner" />
 
-Dump folders, the asset repository and Blender objects all use the same names for Resonators and their parts. A Resonator is the game's name for a playable character. Learn the names once here, so you pick the right folder and the right object every time.
+Dump folders, the asset repository and Blender objects all use the same names for Resonators and their parts. A Resonator is the game's name for a playable character. Learn the names once here, so you pick the right folder and the right object every time. Written for WWMI Tools 1.9.4.
 
 <Accordions>
 <Accordion title="Coming from another game?">
@@ -100,7 +100,7 @@ How the vertex group numbers work across components depends on the skeleton mode
 
 ## Inside an object folder
 
-An extracted folder, and every folder in the asset repository, looks like this:
+A folder extracted with WWMI Tools 1.9.4 looks like this. Folders in the asset repository hold the same files, with older texture names:
 
 <Files>
   <Folder name="Aalto (was 93bbbdc0)" defaultOpen>
@@ -108,30 +108,36 @@ An extracted folder, and every folder in the asset repository, looks like this:
     <File name="Component 0.vb" />
     <File name="Component 0.fmt" />
     <File name="Component 1.ib, .vb, .fmt: one set per component" />
-    <File name="Components-0 t=3dcf2a5e.dds" />
-    <File name="Components-0-1-2-3 t=4eba0ca3.dds" />
+    <File name="c=0 f=<format> t=3dcf2a5e d=<dhash>.dds" />
+    <File name="c=0-1-2-3 f=<format> t=4eba0ca3 d=<dhash>.dds" />
     <File name="TextureUsage.json" />
     <File name="Metadata.json" />
   </Folder>
 </Files>
 
-| File                        | What it is                                                                                                                         |
-| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `Component N.ib`            | The triangle list of one component.                                                                                                |
-| `Component N.vb`            | Its vertices: position, normals, bone weights, vertex colors, UVs.                                                                 |
-| `Component N.fmt`           | The layout of the vertex data.                                                                                                     |
-| `Components-... t=hash.dds` | One texture. The name says which components use it and what its hash is.                                                           |
-| `TextureUsage.json`         | Which texture slot (`ps-t0`, `ps-t1` and so on) of each component used which texture hash.                                         |
-| `Metadata.json`             | The VB0 hash, the bone data hash, and for each component its index range, vertex count and vertex groups. Also the shape key data. |
+| File                                    | What it is                                                                                                                                         |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Component N.ib`                        | The triangle list of one component.                                                                                                                |
+| `Component N.vb`                        | Its vertices: position, normals, bone weights, vertex colors, UVs.                                                                                 |
+| `Component N.fmt`                       | The layout of the vertex data.                                                                                                                     |
+| `c=N f=<format> t=<hash> d=<dhash>.dds` | One texture. The name says which components use it (`c=`), its format (`f=`), its hash (`t=`) and its dHash (`d=`), a fingerprint of how it looks. |
+| `TextureUsage.json`                     | Which texture slot (`ps-t0`, `ps-t1` and so on) of each component used which texture hash.                                                         |
+| `Metadata.json`                         | The VB0 hash, the bone data hash, and for each component its index range, vertex count and vertex groups. Also the shape key data.                 |
 
 <img
   src="/wiki-images/wuthering-waves-basics-character-names-and-parts-1.webp"
-  alt="The texture file name Components-0-1-2-3 t=4eba0ca3.dds split into the prefix Components, the components that use it 0-1-2-3, the texture hash t=4eba0ca3 and the file type .dds"
+  alt="A texture file name from WWMI Tools 1.9.4 split into the components that use it c=0-1-2-3, the format f=, the texture hash t=4eba0ca3, the dHash d= and the file type .dds, with the older name Components-0-1-2-3 t=4eba0ca3.dds below"
 />
 
-A texture shared by several components appears once, with all their numbers in its name. To find a component's textures, look for its number anywhere in the name: `Components-4` and `Components-0-1-2-3-4` both belong to component 4.
+A texture shared by several components appears once, with all their numbers in its name. To find a component's textures, look for its number anywhere in the `c=` part: `c=4` and `c=0-1-2-3-4` both belong to component 4.
 
-When you edit a texture, keep its file name. The `t=` part is what the exported `mod.ini` matches. [What each texture map does](/docs/wuthering-waves/textures/texture-maps) explains how to tell the diffuse, normal map and light map apart with `TextureUsage.json`.
+When you edit a texture, keep its whole file name. At export, WWMI Tools 1.9.4 reads the components, the format and the dHash from the name, and the `mod.ini` finds the texture in game by its format and dHash.
+
+Folders extracted with WWMI Tools 1.8.0 or older, and the asset repository, use the old names, like `Components-0-1-2-3 t=4eba0ca3.dds`. WWMI Tools 1.9.4 imports them, but stops with an error when you export from them. Extract the object again from a new frame dump.
+
+{/* NEEDS HANDS-ON TEST: on WWMI Tools 1.9.4, the exact f= and d= parts of real extracted texture names, and that Export Mod stops on a folder with Components- names */}
+
+[What each texture map does](/docs/wuthering-waves/textures/texture-maps) explains how to tell the diffuse, normal map and light map apart with `TextureUsage.json`.
 
 <Callout type="warning" title="Keep Metadata.json">
   WWMI Tools reads `Metadata.json` when you import, and again at export, where

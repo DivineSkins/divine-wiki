@@ -19,7 +19,7 @@ A Wuthering Waves mod never changes the game's files. It swaps what the game dra
 - Creators use WWMI Tools in Blender, not XXMI Tools. It extracts the model from a frame dump itself and writes the whole `mod.ini`.
 - A part is matched by its VB0 hash plus `match_first_index` and `match_index_count`, not by an index buffer hash.
 - The game skins characters in compute shaders, and WWMI builds one merged skeleton for the whole character.
-- There is no `hash.json`, no ORFix and no SlotFix. Textures bind with `this =` while `$object_detected` is set.
+- There is no `hash.json`, no ORFix and no SlotFix. Mods exported with WWMI Tools 1.9.4 find each texture by how it looks, with `[FilterTexture...]` sections. Older exports bind textures by hash with `this =` while `$object_detected` is set.
 
 Other game sections: [Genshin Impact](/docs/genshin-impact), [Honkai: Star Rail](/docs/honkai-star-rail), [Zenless Zone Zero](/docs/zenless-zone-zero).
 
@@ -56,15 +56,17 @@ The XXMI DLL sits between the game and DirectX. It is a file named `d3d11.dll`, 
   alt="Wuthering Waves asks DirectX 11 to draw a mesh, the XXMI DLL hashes it and checks the Mods folder, a matching mod.ini skips the original and binds its own buffers and textures, and the GPU draws the result"
 />
 
-**WWMI** (Wuthering Waves Model Importer) is the Wuthering Waves part of XXMI. It is a folder with a main config file (`d3dx.ini`), a `Core\WWMI` folder of shared files and compute shaders, and a `ShaderFixes` folder. XXMI Launcher installs and updates WWMI for you. This page was written for XXMI Launcher 2.5.0, XXMI DLL 1.3.2 and WWMI 1.1.0.
+**WWMI** (Wuthering Waves Model Importer) is the Wuthering Waves part of XXMI. It is a folder with a main config file (`d3dx.ini`), a `Core\WWMI` folder of shared files and compute shaders, and a `ShaderFixes` folder. XXMI Launcher installs and updates WWMI for you. This page was written for XXMI Launcher 2.5.0, XXMI DLL 1.3.3, WWMI 1.2.2 and WWMI Tools 1.9.4.
 
 When WWMI loads, the bottom-left corner shows this text for the first 30 seconds:
 
 ```text
-WWMI 1.1.0 (PRESS F12 TO SHOW GUIDE)
+WWMI 1.2.2 (PRESS F12 TO SHOW GUIDE)
 ```
 
-No text means the DLL did not load, so no mod can work.
+No text means the DLL did not load, so no mod can work. If the XXMI DLL is too old for WWMI 1.2.2, a **WWMI Integrity Error** box asks you to update it to 1.3.3 or newer. Update XXMI Launcher.
+
+{/* NEEDS HANDS-ON TEST: on WWMI 1.2.2, the exact banner text and how long it shows, and whether the WWMI Integrity Error box appears when the XXMI DLL is older than 1.3.3 */}
 
 <Callout type="info" title="Who sees your mod">
   Mods change only what your own PC draws. Other players see the normal models.
@@ -90,7 +92,9 @@ So a WWMI mod does more than swap a mesh. For each part of the Resonator it:
 1. **Skips the original draw** and draws its own buffers instead.
 2. **Builds one merged skeleton.** WWMI collects the bones of every part each frame and merges them, so any vertex can follow any bone. This costs one frame of delay. It also means two copies of the same modded Resonator on screen glitch, a known limit that will not be fixed.
 3. **Keeps the shape keys working.** Shape keys drive face expressions and shoulder movement. WWMI hooks the game's shape key shaders so they work on your mesh too.
-4. **Registers with WWMI.** Every mod states the WWMI version it needs in a `$required_wwmi_version` line. If your WWMI is too old for the mod, or the mod is too old for WWMI, WWMI keeps the mod off and shows a red **Mod Loading Error** box.
+4. **Registers with WWMI.** Every mod states the WWMI version it needs in a `$required_wwmi_version` line. If your WWMI is too old for the mod, or the mod is too old for WWMI, WWMI keeps the mod off and shows a **Mod Loading Error** box. A mod exported with WWMI Tools 1.9.4 needs WWMI 1.2.2 or newer. Mods from older WWMI Tools versions still load on WWMI 1.2.2.
+
+{/* NEEDS HANDS-ON TEST: on WWMI 1.2.2, that a mod exported by WWMI Tools 1.8.0 (required version 1.10) loads with no box, and that a mod exported by WWMI Tools 1.9.4 (required version 1.22) shows Installed WWMI version is below minimally required on WWMI 1.1.0 */}
 
 You never write this by hand. WWMI Tools, the Blender add-on, writes the whole `mod.ini` when you export. You edit it only to add toggles or fix an old mod.
 
@@ -103,10 +107,11 @@ XXMI gives every buffer, texture and shader a **hash**: a short code computed fr
 | Vertex buffer 0 (VB0)       | 8 hex digits  | The vertex data of a whole object. All parts of one Resonator share one VB0 hash. |
 | Index buffer (IB)           | 8 hex digits  | A triangle list.                                                                  |
 | Texture                     | 8 hex digits  | One image, like a diffuse or light map.                                           |
+| Texture dHash               | 16 hex digits | A fingerprint of how a texture looks. WWMI Tools 1.9.4 matches textures by it.    |
 | Bone data (constant buffer) | 8 hex digits  | The bones of a part. WWMI Tools records it so WWMI can build the merged skeleton. |
 | Shader                      | 16 hex digits | One small GPU program.                                                            |
 
-In a `mod.ini` from WWMI Tools, the core of one part looks like this. `1a2b3c4d` and `5e6f7a8b` stand for real hashes, and the real file has many more lines:
+In a `mod.ini` from WWMI Tools 1.9.4, the core of one part looks like this. `1a2b3c4d` and `0123456789abcdef` stand for real values, and the real file has many more lines:
 
 ```ini
 [TextureOverrideComponent0]
@@ -114,28 +119,29 @@ hash = 1a2b3c4d
 match_first_index = 0
 match_index_count = 12345
 handling = skip
+ps-t[FilterTexture0] = ref ResourceTexture0
 drawindexed = 12345, 0, 0
 
-[TextureOverrideTexture0]
-hash = 5e6f7a8b
-if $object_detected
-    this = ResourceTexture0
-endif
+[FilterTexture0]
+match_format = BC7_UNORM_SRGB
+match_dhash = 0123456789abcdef
 ```
 
-[How a mod .ini works](/docs/wuthering-waves/ini/how-a-mod-ini-works) goes through every section.
+A mod exported with WWMI Tools 1.8.0 or older has a `[TextureOverrideTexture0]` section instead, with the texture's `hash =` and a `this = ResourceTexture0` line. [How a mod .ini works](/docs/wuthering-waves/ini/how-a-mod-ini-works) goes through every section.
+
+{/* NEEDS HANDS-ON TEST: export one Resonator with WWMI Tools 1.9.4 and compare its component and FilterTexture sections with this block on WWMI 1.2.2 */}
 
 Three things follow from hashes:
 
 - **A part is found by the VB0 hash plus its index range.** Wuthering Waves splits a Resonator into numbered **components**. They share one VB0 hash, so `match_first_index` and `match_index_count` tell them apart.
-- **Textures change only while your Resonator is on screen.** The `if $object_detected` line does that. A texture that several Resonators share still changes on the others while yours is visible.
+- **Textures change only on your mod.** In a WWMI Tools 1.9.4 export, the `ps-t[FilterTexture...]` line sits inside the component section, so only your own parts get the new texture. An older export swaps a texture by its hash while `$object_detected` is set: a texture that several Resonators share then also changes on the others while yours is visible.
 - **Each outfit is its own model.** An alternate outfit has its own hashes. A mod for the default outfit does not change the other one, and the other way round.
 
 {/* NEEDS HANDS-ON TEST: on Wuthering Waves 3.8, a mod for a Resonator's default outfit does not show on that Resonator's alternate outfit */}
 
-A texture can also have more than one hash. The game streams lower-detail versions of a texture at a distance or on lower settings, and each version has its own hash. The resource quality you installed (UHD, HD or SD) may change texture hashes too. That is why the launcher's level-of-detail settings matter for mods.
+A texture can also have more than one hash. The game streams lower-detail versions of a texture at a distance or on lower settings, and each version has its own hash. The resource quality you installed (UHD, HD or SD) may change texture hashes too. That is why the launcher's level-of-detail settings matter for mods. Matching by look, in WWMI Tools 1.9.4 exports, is built for exactly these copies, but nobody has tested it on this game yet.
 
-{/* NEEDS HANDS-ON TEST: whether a texture mod made on an HD client shows on UHD and SD clients without extra texture hashes */}
+{/* NEEDS HANDS-ON TEST: on WWMI 1.2.2, whether the textures of a mod exported by WWMI Tools 1.9.4 on an HD client show on UHD and SD clients, far away and with LOD Bias below Ultra High, and whether a texture shared with another Resonator stays unchanged on that Resonator */}
 
 ## How WWMI finds your mods
 
@@ -163,7 +169,7 @@ What that means for you:
 - A mod finds its `.buf` and `.dds` files by the paths written in its `.ini`, starting from the `.ini`'s own folder. Rename one file and that part breaks.
 - Each `.ini` gets its own namespace. Two mods can use the same section names without clashing.
 
-{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: whether a mod file named with an upper-case .INI extension loads in XXMI DLL 1.3.2 */}
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: whether a mod file named with an upper-case .INI extension loads in XXMI DLL 1.3.3 with WWMI 1.2.2 */}
 
 ## One mod per Resonator
 
@@ -177,7 +183,7 @@ Possible Mod Conflict: Duplicate TextureOverride hash=...
 
 Two mods exported with WWMI Tools may show no warning at all. You may only see the mix in game.
 
-{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: the exact conflict warning text with two mods for one Resonator and Mute Warnings off, and whether two mods exported with WWMI Tools 1.8.0 show it at all (sections with match_first_index or match_priority skip the duplicate check) */}
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: the exact conflict warning text with two mods for one Resonator and Mute Warnings off, and whether two mods exported with WWMI Tools 1.9.4 show it at all on WWMI 1.2.2 (sections with match_first_index or match_priority skip the duplicate check, and 1.9.4 exports have no texture hash sections) */}
 
 XXMI Launcher mutes warnings by default. Turn them on in its settings while you test your mod.
 
@@ -201,24 +207,24 @@ A Resonator mod exported with WWMI Tools looks like this:
         <File name="ShapeKeyOffset.buf: only with shape keys" />
       </Folder>
       <Folder name="Textures" defaultOpen>
-        <File name="Components-0 t=<hash>.dds" />
-        <File name="Components-0-1-2 t=<hash>.dds" />
+        <File name="c=0 f=<format> t=<hash> d=<dhash>.dds" />
+        <File name="c=0-1-2 f=<format> t=<hash> d=<dhash>.dds" />
       </Folder>
     </Folder>
   </Folder>
 </Files>
 
-| File               | What it does                                                                                                                        |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `mod.ini`          | The mod's instructions: which hashes to watch and what to swap in. Plain text, save it as UTF-8.                                    |
-| `Index.buf`        | The triangle list of every part.                                                                                                    |
-| Other `.buf` files | Vertex data: `Position` (shape), `Blend` (bone weights), `Vector` (normals), `Color` (vertex colors), `TexCoord` (UVs).             |
-| `ShapeKey...buf`   | Face expression and shoulder data. Only when the mod has shape keys.                                                                |
-| `.dds`             | Textures. The `t=` part of the name is the original texture hash.                                                                   |
-| `.hlsl`            | Shader code. Only some effect mods have it.                                                                                         |
-| `Metadata.json`    | In an extracted object folder, not in a mod. Lists each component, its hashes and counts. WWMI Tools reads it at import and export. |
-| `d3dx_user.ini`    | In the `WWMI` folder, not in a mod. Saves toggle settings. Never edit it by hand.                                                   |
-| `ShaderFixes`      | A folder in `WWMI`, not in a mod. WWMI ships its own files there.                                                                   |
+| File               | What it does                                                                                                                                                                                                         |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `mod.ini`          | The mod's instructions: which hashes to watch and what to swap in. Plain text, save it as UTF-8.                                                                                                                     |
+| `Index.buf`        | The triangle list of every part.                                                                                                                                                                                     |
+| Other `.buf` files | Vertex data: `Position` (shape), `Blend` (bone weights), `Vector` (normals), `Color` (vertex colors), `TexCoord` (UVs).                                                                                              |
+| `ShapeKey...buf`   | Face expression and shoulder data. Only when the mod has shape keys.                                                                                                                                                 |
+| `.dds`             | Textures. The name lists the components that use it (`c=`), its format (`f=`), the original texture hash (`t=`) and its dHash (`d=`). Exports from WWMI Tools 1.8.0 and older name them `Components-0 t=<hash>.dds`. |
+| `.hlsl`            | Shader code. Only some effect mods have it.                                                                                                                                                                          |
+| `Metadata.json`    | In an extracted object folder, not in a mod. Lists each component, its hashes and counts. WWMI Tools reads it at import and export.                                                                                  |
+| `d3dx_user.ini`    | In the `WWMI` folder, not in a mod. Saves toggle settings. Never edit it by hand.                                                                                                                                    |
+| `ShaderFixes`      | A folder in `WWMI`, not in a mod. WWMI ships its own files there.                                                                                                                                                    |
 
 [Character names and parts](/docs/wuthering-waves/basics/character-names-and-parts) explains components and the extracted object folder.
 
@@ -242,7 +248,9 @@ Wuthering Waves updates about every six weeks, and small patches between version
 4. **A new way of drawing characters.** Versions 1.1, 2.6 and 3.0 changed how the game draws. WWMI has to update, and sometimes every mod must be exported again with a current WWMI Tools. Merged-skeleton mods exported before the 3.0 fix in WWMI Tools 1.5.1 may misbehave.
 5. **A new way of starting the game.** Version 3.7 added the UHD, HD and SD resource packages. The launcher has to update.
 
-XXMI Launcher updates itself and WWMI, which fixes drawing and start-up breaks for everyone. New hashes and vertex groups need a fix tool or an update from the mod's creator. WWMI does not rewrite a mod's hashes for you. [Fix your mods after a game update](/docs/wuthering-waves/getting-started/fix-mods-after-an-update) walks through it.
+Breaks 2 and 3 hit textures bound by hash. Mods exported with WWMI Tools 1.9.4 match textures by look, so they should survive these breaks more often. Nobody has tested that on this game yet.
+
+XXMI Launcher updates itself and WWMI, which fixes drawing and start-up breaks for everyone. New hashes and vertex groups need a fix tool or an update from the mod's creator. WWMI does not rewrite a mod's hashes for you, and WWMI 1.2.2 does not switch older mods to matching by look. [Fix your mods after a game update](/docs/wuthering-waves/getting-started/fix-mods-after-an-update) walks through it.
 
 ## Next steps
 

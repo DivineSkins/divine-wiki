@@ -15,7 +15,7 @@ keywords:
 
 <LevelPill level="beginner" />
 
-Your mod works in your game. This checklist turns it into an archive that works for every player who downloads it, credits everyone it builds on, and follows the community's rules. Written for XXMI Launcher 2.5.0, WWMI 1.1.0, WWMI Tools 1.8.0 and Wuthering Waves 3.8.
+Your mod works in your game. This checklist turns it into an archive that works for every player who downloads it, credits everyone it builds on, and follows the community's rules. Written for XXMI Launcher 2.5.0, XXMI DLL 1.3.3, WWMI 1.2.2, WWMI Tools 1.9.4 and Wuthering Waves 3.8.
 
 ## What you need
 
@@ -63,7 +63,7 @@ WWMI Tools writes your mod's name and author into `mod.ini`. WWMI shows the name
 5. Optional: pick a **Mod Logo**, a 512x512 `.dds` saved as BC7 sRGB. Export copies it to `Textures\Logo.dds`.
 6. Export again.
 
-The export also writes `$required_wwmi_version` into `mod.ini`. Leave it as it is: WWMI uses it to tell players when their WWMI is too old for your mod. [Export your mod from Blender](/docs/wuthering-waves/models/export-your-mod) explains every export option.
+The export also writes `$required_wwmi_version` into `mod.ini`. Leave it as it is: WWMI uses it to tell players when their WWMI is too old for your mod. WWMI Tools 1.9.4 writes `1.22`, so your mod needs WWMI 1.2.2 or newer. Its textures also need XXMI DLL 1.3.3 or newer. WWMI Tools 1.8.0 wrote `1.10`. [Export your mod from Blender](/docs/wuthering-waves/models/export-your-mod) explains every export option.
 
 ## Clean the mod folder
 
@@ -72,13 +72,15 @@ The export also writes `$required_wwmi_version` into `mod.ini`. Leave it as it i
   alt="A mod archive with one top folder BrantNoHat holding mod.ini, the Meshes and Textures folders, a readme and an optional preview. d3dx.ini, d3d11.dll, a RabbitFX folder, a ShaderFixes folder, programs, the .blend file and the object folder are marked to leave out"
 />
 
+The diagram shows a texture with the older file name. A mod exported with WWMI Tools 1.9.4 names its textures like `c=4 f=<format> t=<hash> d=<dhash>.dds`.
+
 1. **Use one top folder, named after the mod,** such as `BrantNoHat`. A player drops that folder into `Mods` and is done.
 2. **Keep only mod files:** `mod.ini`, the `Meshes` folder and the `Textures` folder from the export. A readme and preview images are fine too.
-3. **Ship only the textures you changed.** Some textures, such as face shadow and light maps, are shared by many Resonators. After an update, a mod that still ships an old shared texture breaks every Resonator that uses it. To leave a texture out, delete it from your **Object Sources** folder and from the mod's `Textures` folder, then export again.
+3. **Ship only the textures you changed.** Some textures, such as face shadow and light maps, are shared by many Resonators. In a mod exported with WWMI Tools 1.8.0 or older, an old shared texture breaks every Resonator that uses it after an update. WWMI Tools 1.9.4 swaps textures only on your mod's own parts, but unchanged textures still make the mod larger. To leave a texture out, delete it from your **Object Sources** folder and from the mod's `Textures` folder, then export again.
 4. **Start no file or folder name with `DISABLED`.** WWMI skips anything named that way, so that part of your mod would never load.
 5. **Remove manager changes.** No Reload Mod Manager writes lines into mod `.ini` files. Drag your `Mods` folder onto the **Restorer** area in its **Settings** before you share. Other managers may change keys, so check the `.ini` by eye.
 
-{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: that WWMI 1.1.0 skips a file or subfolder whose name starts with DISABLED inside a mod folder */}
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: that WWMI 1.2.2 skips a file or subfolder whose name starts with DISABLED inside a mod folder */}
 
 ### What never goes in a mod
 
@@ -128,7 +130,7 @@ Keys
 <key>   <what it does>
 
 Requires
-XXMI Launcher with WWMI 1.1.0 or newer
+XXMI Launcher with WWMI 1.2.2 or newer
 (https://github.com/SpectrumQT/XXMI-Launcher/releases)
 RabbitFX for WWMI by caverabbit, one copy in Mods
 (only if your mod uses it: delete these two lines if not)
@@ -149,12 +151,12 @@ Changes
 v1.0 (Wuthering Waves 3.8): first release
 ```
 
-- **Requirements:** name XXMI Launcher and the WWMI version you tested with. If the mod binds textures or glow through RabbitFX, name RabbitFX too, so players install it once. [Make textures survive game updates](/docs/wuthering-waves/textures/stable-textures) explains what it does.
-- **Resource quality:** players install the game at one of three tiers: UHD, HD or SD. Texture hashes differ between tiers, so a texture made on one tier may not show on another. Name the tier you tested on. [Install mods with XXMI Launcher](/docs/wuthering-waves/getting-started/install-with-xxmi-launcher) explains **Client Resource Quality**.
+- **Requirements:** name XXMI Launcher and the WWMI version your mod needs. Read it from the `$required_wwmi_version` line in your `mod.ini`: `1.22` means WWMI 1.2.2, `1.10` means WWMI 1.1.0. If the mod binds textures or glow through RabbitFX, name RabbitFX too, so players install it once. [Make textures survive game updates](/docs/wuthering-waves/textures/stable-textures) explains what it does.
+- **Resource quality:** players install the game at one of three tiers: UHD, HD or SD. Texture hashes differ between tiers, so a texture made on one tier may not show on another. Mods exported with WWMI Tools 1.9.4 find textures by how they look, which may cover this, but nobody has tested it yet. Name the tier you tested on. [Install mods with XXMI Launcher](/docs/wuthering-waves/getting-started/install-with-xxmi-launcher) explains **Client Resource Quality**.
 - **Outfits and forms:** say which outfit the mod is for. An alternate form, such as a Liberation form, is its own object, so say whether your mod covers it.
 - **Game version:** players use it to tell whether your mod may need a fix after an update.
 
-{/* NEEDS HANDS-ON TEST: on Wuthering Waves 3.8, whether a texture mod exported on the HD tier shows its textures on a UHD or SD install */}
+{/* NEEDS HANDS-ON TEST: on Wuthering Waves 3.8 with WWMI 1.2.2, whether a texture mod exported on the HD tier shows its textures on a UHD or SD install, with WWMI Tools 1.8.0 and with WWMI Tools 1.9.4 */}
 
 ## Take preview shots
 
@@ -202,9 +204,9 @@ Test the file you will share, not the folder on your disk.
 2. Extract the archive into `%AppData%\XXMI Launcher\WWMI\Mods`, as a player would. The path should read `Mods\BrantNoHat\mod.ini`, with your own names.
 3. Start the game from XXMI Launcher, switch Resonators, and press `F10`.
 4. Check the mod in the Resonators menu and in motion. Press every key from your readme.
-5. Look for a red `Mod Loading Error` box or any warning text. Untick **Mute Warnings** in the launcher's **WWMI** settings to see warnings. Do not count on a `Possible Mod Conflict` warning: it may not show for two mods made with WWMI Tools. That is why step 1 turns the other mods off.
+5. Look for a `Mod Loading Error` box, a `WWMI Integrity Error` box, or any warning text. Untick **Mute Warnings** in the launcher's **WWMI** settings to see warnings. Do not count on a `Possible Mod Conflict` warning: it may not show for two mods made with WWMI Tools. That is why step 1 turns the other mods off.
 
-{/* NEEDS HANDS-ON TEST: with two WWMI Tools 1.8.0 exports for the same Resonator in Mods and Mute Warnings off, whether WWMI 1.1.0 shows a Possible Mod Conflict warning after F10 */}
+{/* NEEDS HANDS-ON TEST: with two WWMI Tools 1.9.4 exports for the same Resonator in Mods and Mute Warnings off, whether WWMI 1.2.2 shows a Possible Mod Conflict warning after F10 */}
 
 [Test and reload your mod](/docs/wuthering-waves/basics/test-your-mod) has the full list of states to check, such as zooming the camera out, and explains each message.
 

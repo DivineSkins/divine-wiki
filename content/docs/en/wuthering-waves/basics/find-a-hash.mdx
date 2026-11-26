@@ -9,7 +9,7 @@ keywords:
 
 <LevelPill level="intermediate" />
 
-Hunting mode lets you step through everything Wuthering Waves draws and copy its hash. For most Wuthering Waves mods you never need it: WWMI Tools reads every hash from a frame dump and writes the whole `mod.ini` for you. Use hunting to check what is on screen after an update, or to find the shader behind a UI element or an effect. Written for XXMI Launcher 2.5.0 and WWMI 1.1.0.
+Hunting mode lets you step through everything Wuthering Waves draws and copy its hash. For most Wuthering Waves mods you never need it: WWMI Tools reads every hash from a frame dump and writes the whole `mod.ini` for you. Use hunting to check what is on screen after an update, or to find the shader behind a UI element or an effect. Written for XXMI Launcher 2.5.0, XXMI DLL 1.3.3 and WWMI 1.2.2.
 
 ## What you need
 
@@ -102,7 +102,7 @@ Before you select anything, each counter shows `0/0`, and the `IB` and `VB` coun
   alt="Brant in the Crossing Stars gallery right after hunting mode is turned on: the green top line reads VS:0/0 PS:0/0 CS:0/0 GS:0/0 and the bottom line reads Shader Hunting Mode (marking: skip)"
 />
 
-{/* NEEDS HANDS-ON TEST: the exact overlay layout and text in Wuthering Waves 3.8 with WWMI 1.1.0 */}
+{/* NEEDS HANDS-ON TEST: the exact overlay layout and text in Wuthering Waves 3.8 with XXMI DLL 1.3.3 and WWMI 1.2.2 */}
 
 {/* SCREENSHOT: wuthering-waves-basics-find-a-hash-2.webp, Wuthering Waves Resonators menu in hunting mode, overlay counters at the top and one component hidden */}
 
@@ -127,8 +127,10 @@ Hunting steps through buffers and shaders, not textures. Get texture hashes from
 
 1. Make a frame dump and extract it with WWMI Tools.
 2. Open your Resonator's folder.
-3. Read the file names. In `Components-0-1-2-3 t=4eba0ca3.dds`, the hash is `4eba0ca3`.
+3. Read the file names. In `c=0-1-2-3 f=<format> t=4eba0ca3 d=<dhash>.dds`, the hash is `4eba0ca3`. The 16-digit code after `d=` is the dHash, a fingerprint of how the texture looks.
 4. Open `TextureUsage.json` to see which slot of which component used that texture.
+
+A mod exported with WWMI Tools 1.9.4 finds its textures by dHash and format, not by the `t=` hash. Folders extracted with WWMI Tools 1.8.0 or older use the old name, `Components-0-1-2-3 t=4eba0ca3.dds`, with the hash in the same `t=` part.
 
 </Accordion>
 <Accordion title="The shader behind a UI element or an effect" id="pixel-shader">

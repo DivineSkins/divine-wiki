@@ -15,7 +15,7 @@ keywords:
 
 <LevelPill level="intermediate" />
 
-A toggle lets a player press a key to hide a part or switch between versions of an outfit. In Wuthering Waves, WWMI Tools writes toggles for you with its **Ini Toggles** panel, and WWMI remembers the choice between sessions. You can also add a toggle by hand. Written for WWMI Tools 1.8.0 and WWMI 1.1.0.
+A toggle lets a player press a key to hide a part or switch between versions of an outfit. In Wuthering Waves, WWMI Tools writes toggles for you with its **Ini Toggles** panel, and WWMI remembers the choice between sessions. You can also add a toggle by hand. Written for WWMI Tools 1.9.4 and WWMI 1.2.2.
 
 ## What you need
 
@@ -63,8 +63,8 @@ This is the way to go for your own mod. WWMI Tools keeps the toggles in your Ble
 2. Open the **Ini Toggles** panel. It is closed by default.
 3. Tick **Use Ini Toggles**.
 
-{/* NEEDS HANDS-ON TEST: where the Ini Toggles panel sits in the WWMI Tools 1.8.0 sidebar, and the exact labels of its buttons */}
-{/* SCREENSHOT: wuthering-waves-ini-add-a-toggle-3.webp, the Ini Toggles panel of WWMI Tools 1.8.0 with one var named Hat, its hotkey, and states 0 and 1, with Component 1 Hat in state 1 */}
+{/* NEEDS HANDS-ON TEST: where the Ini Toggles panel sits in the WWMI Tools 1.9.4 sidebar, and the exact labels of its buttons */}
+{/* SCREENSHOT: wuthering-waves-ini-add-a-toggle-3.webp, the Ini Toggles panel of WWMI Tools 1.9.4 with one var named Hat, its hotkey, and states 0 and 1, with Component 1 Hat in state 1 */}
 
 </Step>
 <Step>
@@ -101,7 +101,7 @@ With the default condition, an object shows only while the var has the value of 
 </Step>
 </Steps>
 
-{/* NEEDS HANDS-ON TEST: one Ini Toggles var with two states on a WWMI Tools 1.8.0 export, in Wuthering Waves 3.8 with WWMI 1.1.0 */}
+{/* NEEDS HANDS-ON TEST: one Ini Toggles var with two states on a WWMI Tools 1.9.4 export, in Wuthering Waves 3.8 with WWMI 1.2.2 */}
 
 The export writes these lines into `mod.ini`, shortened:
 
@@ -174,7 +174,7 @@ Use this for a quick test, or for a mod you did not export yourself. The three p
 - The key name must start with `Key` and be unique in the file.
 - Every `if` needs exactly one `endif`. The spaces are only for reading.
 
-{/* NEEDS HANDS-ON TEST: a hand-written toggle around one drawindexed line in a WWMI Tools 1.8.0 mod.ini, with WWMI 1.1.0 */}
+{/* NEEDS HANDS-ON TEST: a hand-written toggle around one drawindexed line in a WWMI Tools 1.9.4 mod.ini, with WWMI 1.2.2 */}
 
 Each `drawindexed` line draws one range of the mesh. Skip a line, and that range is not drawn. In this drawing, only dots 1 to 9 are drawn, so only the ribbon shows:
 
@@ -203,9 +203,38 @@ Use `else` for the last variant, not `else if`. Then a part always draws, even i
 
 ## Swap a texture
 
-Ini Toggles switches objects, not textures. No guide shows a texture toggle for Wuthering Waves yet. The same `if` rules should work in the texture's own section: wrap the `this =` line in `[TextureOverrideTextureN]` and point it at a second `[Resource...]`. Treat it as untested. Save the second texture in the same format as the first: [Save DDS textures the right way](/docs/wuthering-waves/textures/save-dds-files) has the formats.
+Ini Toggles switches objects, not textures. No guide shows a texture toggle for Wuthering Waves yet, so treat both ways below as untested. Save the second texture in the same format as the first: [Save DDS textures the right way](/docs/wuthering-waves/textures/save-dds-files) has the formats.
 
-{/* NEEDS HANDS-ON TEST: a texture toggle that wraps this = ResourceTextureN in an if block inside TextureOverrideTextureN, with WWMI 1.1.0 */}
+How you swap depends on the WWMI Tools version that exported the mod. A `mod.ini` from WWMI Tools 1.9.4 starts with `; WWMI BETA-11 INI`.
+
+**Exported with WWMI Tools 1.9.4.** Each texture is bound by one `ps-t[FilterTextureN] = ref ResourceTextureN` line inside the component section. Keep the filter and switch the resource:
+
+1. Save the second texture in the mod's `Textures` folder, for example as `BodyRed.dds`.
+2. Add a resource for it:
+
+   ```ini
+   [ResourceBodyRed]
+   filename = Textures/BodyRed.dds
+   ```
+
+3. Add a variable and a key, as in "Add a toggle by hand" above. Here the variable is `$body`.
+4. In the component section, find the texture's line, for example `ps-t[FilterTexture0] = ref ResourceTexture0`. Replace it with this block:
+
+   ```ini
+           if $body == 1
+               ps-t[FilterTexture0] = ref ResourceBodyRed
+           else
+               ps-t[FilterTexture0] = ref ResourceTexture0
+           endif
+   ```
+
+5. If the same line is in more than one component section, replace it in each one.
+
+{/* NEEDS HANDS-ON TEST: on WWMI 1.2.2 with XXMI DLL 1.3.3, a texture toggle that switches the resource of one ps-t[FilterTextureN] line with if and else inside the component sections of a WWMI Tools 1.9.4 export */}
+
+**Exported with WWMI Tools 1.8.0 or older.** The mod has no `ps-t[Filter...]` lines. Each texture has its own `[TextureOverrideTextureN]` section with a `this = ResourceTextureN` line. Wrap that line in an `if` block, inside the existing `if $object_detected`, and point the other branch at the second `[Resource...]`.
+
+{/* NEEDS HANDS-ON TEST: on WWMI 1.2.2, a texture toggle that wraps this = ResourceTextureN in an if block inside TextureOverrideTextureN of a WWMI Tools 1.8.0 export */}
 
 ## Toggles that switch by themselves
 
@@ -216,7 +245,7 @@ WWMI tells mods two things about the screen, with no key needed:
 
 Use them in an `if`, or as a `Custom` condition in Ini Toggles, to show a part only in menus.
 
-{/* NEEDS HANDS-ON TEST: the values of $\WWMIv1\in_character_menu and $\WWMIv1\in_dressing_room in Wuthering Waves 3.8 with WWMI 1.1.0 */}
+{/* NEEDS HANDS-ON TEST: the values of $\WWMIv1\in_character_menu and $\WWMIv1\in_dressing_room in Wuthering Waves 3.8 with WWMI 1.2.2 */}
 
 ## Keep your toggles when you change the model
 

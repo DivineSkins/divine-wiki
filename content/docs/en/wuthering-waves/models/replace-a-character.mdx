@@ -14,7 +14,7 @@ keywords:
 
 <LevelPill level="advanced" />
 
-This guide puts a whole new model on a Resonator, the game's name for a playable character. The Resonator keeps its skeleton and animations. Your model replaces the mesh and the textures. Written for WWMI Tools 1.8.0 on Blender 4.5 LTS, with WWMI 1.1.0.
+This guide puts a whole new model on a Resonator, the game's name for a playable character. The Resonator keeps its skeleton and animations. Your model replaces the mesh and the textures. Written for WWMI Tools 1.9.4 on Blender 4.5 LTS, with WWMI 1.2.2.
 
 <Callout type="warning" title="Your own or licensed models only">
   Use a model you made yourself, or one whose license lets you use it in a game
@@ -65,7 +65,7 @@ This page only covers what a full replacement adds. You should already be able t
 
 Pick a target whose body is close to your model in shape and size. A very different body cannot follow the game's bones in a sensible way.
 
-{/* NEEDS HANDS-ON TEST: the vertex count at which a replaced Resonator starts to cost noticeable performance on Wuthering Waves 3.8 with WWMI 1.1.0 */}
+{/* NEEDS HANDS-ON TEST: the vertex count at which a replaced Resonator starts to cost noticeable performance on Wuthering Waves 3.8 with WWMI 1.2.2 */}
 
 ## Prepare your model
 
@@ -103,7 +103,7 @@ On an imported component, each vertex group is named after a game bone: `0`, `1`
 5. Delete the **Armature** modifier from your mesh. In game, the Resonator's own skeleton moves it.
 6. Fix the joints by hand: shoulders, armpits, hips and knees.
 
-{/* NEEDS HANDS-ON TEST: on WWMI Tools 1.8.0, Data Transfer from a joined copy of all Merged components onto a whole-body mesh, and that the copied group numbers move the right bones in game */}
+{/* NEEDS HANDS-ON TEST: on WWMI Tools 1.9.4, Data Transfer from a joined copy of all Merged components onto a whole-body mesh, and that the copied group numbers move the right bones in game */}
 
 ### Rename the bones by hand
 
@@ -118,7 +118,7 @@ This is slow, but it keeps your model's own weights.
 
 Group numbers differ for every Resonator, so always read them from your own target.
 
-{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: renaming a custom rig's bones to Merged group numbers from a WWMI Tools 1.8.0 import, then exporting without the armature */}
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: renaming a custom rig's bones to Merged group numbers from a WWMI Tools 1.9.4 import, then exporting without the armature */}
 
 ### Clean up the groups
 
@@ -143,14 +143,14 @@ The component with the face carries shape keys for expressions. Find it under <M
 
 The shoulders carry shape keys too. A new mesh in their place has none, so watch the shoulders closely when you test.
 
-{/* NEEDS HANDS-ON TEST: on Wuthering Waves 3.8 with WWMI Tools 1.8.0, a new body next to the kept face: whether a gap shows at the neck while the face animates, and what a new shoulder mesh without shape keys looks like in motion */}
+{/* NEEDS HANDS-ON TEST: on Wuthering Waves 3.8 with WWMI Tools 1.9.4, a new body next to the kept face: whether a gap shows at the neck while the face animates, and what a new shoulder mesh without shape keys looks like in motion */}
 
 ## Texture and export
 
 1. Copy `COLOR` and `COLOR1` from the original component onto each new object, and check that the UV maps are named `TEXCOORD.xy`, `TEXCOORD1.xy` and `TEXCOORD2.xy`. [UV maps, vertex colors, and outlines](/docs/wuthering-waves/models/uvs-and-vertex-colors) shows both. Without them, outlines and skin shading look wrong.
-2. Pack each component's materials into the textures that component uses. A file named `Components-2 t=...` belongs to component 2.
-3. Export with the **Merged** skeleton and the target's folder as **Object Sources**, as [Export your mod from Blender](/docs/wuthering-waves/models/export-your-mod) shows. Tick **Apply All Modifiers** if you still use modifiers.
-4. Copy your textures over the exported ones, with the same file names. Save the diffuse as BC7 sRGB, the normal map and light map as BC7 linear.
+2. Pack each component's materials into the textures that component uses. The `c=` part of a texture's file name lists its components: `c=2 f=... t=... d=....dds` belongs to component 2.
+3. Export with the **Merged** skeleton and the target's folder, extracted with WWMI Tools 1.9.4, as **Object Sources**, as [Export your mod from Blender](/docs/wuthering-waves/models/export-your-mod) shows. Tick **Apply All Modifiers** if you still use modifiers.
+4. Copy your textures over the exported ones, with the exact same file names: `mod.ini` points at them. Save the diffuse as BC7 sRGB, the normal map and light map as BC7 linear.
 
 Three texture rules matter more on a full replacement:
 
@@ -171,7 +171,7 @@ Three texture rules matter more on a full replacement:
 
 [Test and reload your mod](/docs/wuthering-waves/basics/test-your-mod) has the full test list.
 
-{/* NEEDS HANDS-ON TEST: a full replacement of a Resonator with a custom model on Wuthering Waves 3.8, WWMI Tools 1.8.0 and WWMI 1.1.0, from import to a working mod in motion */}
+{/* NEEDS HANDS-ON TEST: a full replacement of a Resonator with a custom model on Wuthering Waves 3.8, WWMI Tools 1.9.4 and WWMI 1.2.2, from import to a working mod in motion */}
 
 ## Common problems
 

@@ -9,7 +9,7 @@ keywords:
 
 <LevelPill level="intermediate" />
 
-This guide puts a piece from one Resonator onto another. A Resonator is the game's name for a playable character. The example moves Phoebe's hat onto Brant. The same steps work for glasses, a coat or an ornament. Written for WWMI Tools 1.8.0 on Blender 4.5 LTS.
+This guide puts a piece from one Resonator onto another. A Resonator is the game's name for a playable character. The example moves Phoebe's hat onto Brant. The same steps work for glasses, a coat or an ornament. Written for WWMI Tools 1.9.4 on Blender 4.5 LTS.
 
 ## What you need
 
@@ -17,7 +17,11 @@ This guide puts a piece from one Resonator onto another. A Resonator is the game
   <Requirement icon="Blender" href="/docs/wuthering-waves/tools/blender-add-on">
     Blender 4.5 LTS with WWMI Tools
   </Requirement>
-  <Requirement icon="Box" href="/docs/wuthering-waves/basics/frame-dump">
+  <Requirement
+    icon="Box"
+    href="/docs/wuthering-waves/basics/frame-dump"
+    note="the target's extracted with WWMI Tools 1.9.4"
+  >
     Extracted objects of both Resonators
   </Requirement>
   <Requirement
@@ -41,7 +45,7 @@ You cannot add a new component to a Resonator. Your piece joins one of the compo
 
 - **The number in the name decides the component.** An object named `Component 4 Hat` goes into component 4. WWMI Tools merges it with the other objects of that component at export, so you do not need to join it.
 - **Pick a component that suits the piece.** Each component draws with its own shaders and textures. Put the piece in the component that held a similar part, like the old hat.
-- **Check which textures that component uses.** A texture file named `Components-4 t=...` belongs to component 4. One named `Components-0-1-2-3-4` is shared by five components. You will make room on these textures.
+- **Check which textures that component uses.** The `c=` part of a texture's file name lists its components. A file named `c=4 f=... t=... d=....dds` belongs to component 4. One named `c=0-1-2-3-4 ...` is shared by five components. You will make room on these textures. Folders extracted with WWMI Tools 1.8.0 or older use `Components-4 t=...` names, and export no longer accepts them.
 - **Use the Merged skeleton.** With a Merged import, the piece can follow any bone of the Resonator. Per-Component limits it to the bones of its own component.
 
 ## Add the piece
@@ -61,7 +65,7 @@ You cannot add a new component to a Resonator. Your piece joins one of the compo
 8. Move, rotate and scale the piece with `G`, `R` and `S` until it sits right. Then press `Ctrl+A` > **All Transforms**.
 9. Remove the target's old piece, like Brant's hat, the way you remove a part.
 
-{/* NEEDS HANDS-ON TEST: on WWMI Tools 1.8.0, that a second Import Object changes the Object Sources field of the Export Mod mode as well, and the component number of the hat in the Brant example. */}
+{/* NEEDS HANDS-ON TEST: on WWMI Tools 1.9.4, that a second Import Object changes the Object Sources field of the Export Mod mode as well, and the component number of the hat in the Brant example. */}
 
 </Step>
 <Step>
@@ -95,7 +99,7 @@ The piece's vertex groups belong to the donor's skeleton. Even when a number loo
 3. Paste the donor's texture into the empty right half.
 4. Copy the donor's alpha channel into the same half. This game uses the diffuse alpha for shadows.
 5. Do the same for the normal map and the light map, with the same layout. Double each one's own width, even if their sizes differ.
-6. Save each file under its original name. The diffuse is BC7 sRGB, the normal map and light map are BC7 linear. [Save DDS textures the right way](/docs/wuthering-waves/textures/save-dds-files) shows the dialogs.
+6. Save each file under its original name, every part of it: `mod.ini` points at that exact name. The diffuse is BC7 sRGB, the normal map and light map are BC7 linear. [Save DDS textures the right way](/docs/wuthering-waves/textures/save-dds-files) shows the dialogs.
 
 <img
   src="/wiki-images/wuthering-waves-models-add-clothing-parts-1.webp"
@@ -111,7 +115,7 @@ Then move the UVs to match, in Blender's UV Editor:
 
 Each mesh now uses its own half of the wide texture: the target component the left half, the piece the right half. Sizes stay powers of two: 4096 by 2048 is fine.
 
-If the texture is shared, for example `Components-0-1-2-3-4`, every component in its name now draws from the wide image. Scale their UVs into the left half too.
+If the texture is shared, for example `c=0-1-2-3-4 ...`, every component in its name now draws from the wide image. Scale their UVs into the left half too.
 
 {/* NEEDS HANDS-ON TEST: on Wuthering Waves 3.8, that a widened diffuse, normal map and light map with UVs scaled into halves show right in game, and that TEXCOORD1.xy needs the same scaling. */}
 

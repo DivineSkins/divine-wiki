@@ -14,7 +14,7 @@ keywords:
 
 <LevelPill level="intermediate" />
 
-A frame dump saves every buffer, texture and shader the game used to draw one frame. In Wuthering Waves, WWMI Tools turns the dump into one folder per object, ready to import into Blender. It is the main way to get a Resonator's original model, because the asset repository stops at version 2.7. Written for XXMI Launcher 2.5.0, WWMI 1.1.0 and WWMI Tools 1.8.0.
+A frame dump saves every buffer, texture and shader the game used to draw one frame. In Wuthering Waves, WWMI Tools turns the dump into one folder per object, ready to import into Blender. It is the main way to get a Resonator's original model, because the asset repository stops at version 2.7. Written for XXMI Launcher 2.5.0, XXMI DLL 1.3.3, WWMI 1.2.2 and WWMI Tools 1.9.4.
 
 ## What you need
 
@@ -30,7 +30,7 @@ A frame dump saves every buffer, texture and shader the game used to draw one fr
     href="/docs/wuthering-waves/tools/blender-add-on"
     note="Blender 4.5 LTS"
   >
-    WWMI Tools 1.8.0
+    WWMI Tools 1.9.4
   </Requirement>
   <Requirement icon="HardDrive" note="several GB per dump">
     Free disk space
@@ -100,9 +100,9 @@ Old guides say the dump lands next to `WWMI Loader.exe`. That loader is gone. XX
 5. Leave the texture filters as they are for your first try.
 6. Click **Extract Objects From Dump**.
 
-{/* NEEDS HANDS-ON TEST: the Extract Objects From Dump panel of WWMI Tools 1.8.0 in Blender 4.5: field names Frame Dump and Output Folder, and the button label, read from the add-on source */}
+{/* NEEDS HANDS-ON TEST: the Extract Objects From Dump panel of WWMI Tools 1.9.4 in Blender 4.5: field names Frame Dump and Output Folder, and the button label, read from the add-on source */}
 
-{/* SCREENSHOT: wuthering-waves-basics-frame-dump-3.webp, the WWMI Tools 1.8.0 sidebar in Blender 4.5 with Mode set to Extract Objects From Dump, Frame Dump and Output Folder filled in. The repository GIF shows an old 2024 layout. */}
+{/* SCREENSHOT: wuthering-waves-basics-frame-dump-3.webp, the WWMI Tools 1.9.4 sidebar in Blender 4.5 with Mode set to Extract Objects From Dump, Frame Dump and Output Folder filled in. The repository GIF shows an old 2024 layout. */}
 
 </Step>
 <Step>
@@ -130,17 +130,23 @@ Keep every texture you want to change. If you are not sure, keep it.
 
 ## What you get
 
-A folder per object, in the same layout as the folders in WWMI-Assets:
+A folder per object. It has the same files as the folders in WWMI-Assets, but the textures have new names:
 
 <Files>
   <Folder name="Aalto (was 93bbbdc0)" defaultOpen>
     <File name="Component 0.ib, .vb, .fmt: one set per component" />
-    <File name="Components-0 t=<hash>.dds" />
-    <File name="Components-0-1-2-3 t=<hash>.dds" />
+    <File name="c=0 f=<format> t=<hash> d=<dhash>.dds" />
+    <File name="c=0-1-2-3 f=<format> t=<hash> d=<dhash>.dds" />
     <File name="TextureUsage.json: which slot used which texture" />
     <File name="Metadata.json: hashes, counts and vertex groups" />
   </Folder>
 </Files>
+
+A texture name lists the components that use it (`c=`), its format (`f=`), its hash (`t=`) and its dHash (`d=`), a fingerprint of how it looks. WWMI Tools 1.9.4 reads the format and dHash from the dump's `log.txt`, so the dump must come from XXMI DLL 1.3.3 or newer. Dumps from XXMI DLL 1.3.3 also save each texture with its mip maps, and skip texture slots the pixel shader does not use. You get fewer unrelated textures in the folder.
+
+Folders extracted with WWMI Tools 1.8.0 or older name textures `Components-0 t=<hash>.dds`. WWMI Tools 1.9.4 refuses them at export. Make a new dump and extract it again with 1.9.4.
+
+{/* NEEDS HANDS-ON TEST: on XXMI DLL 1.3.3 with WWMI Tools 1.9.4, the exact f= and d= parts of extracted texture names, that dumped textures hold mip maps, and that unused texture slots are left out */}
 
 **Import Object** reads this folder into Blender, and **Export Mod** reads it again as **Object Sources**. [Character names and parts](/docs/wuthering-waves/basics/character-names-and-parts) explains each file and the numbered components. The next step is [Get a model into Blender](/docs/wuthering-waves/models/import-into-blender).
 
@@ -179,7 +185,7 @@ You do not need this for a Resonator. It helps for UI and effects that WWMI Tool
 - **Find its textures:** files with the same draw number and `-ps-t0=`, `-ps-t1=` and so on are the textures of that draw.
 - **Find a texture file:** the `deduped` folder holds each texture once, named `<hash>-<FORMAT>.dds`. Search for `BC7_UNORM_SRGB` to find color textures.
 
-{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: the deduped folder and texture file names in a WWMI 1.1.0 dump */}
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: the deduped folder and texture file names in a dump made with XXMI DLL 1.3.3 and WWMI 1.2.2 */}
 
 ## Delete old dumps
 

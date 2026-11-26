@@ -15,12 +15,12 @@ keywords:
 
 <LevelPill level="intermediate" />
 
-Each component of a Resonator uses several textures, and each color channel in them does its own job. A Resonator is the game's name for a playable character. This page shows how to tell the textures apart and what is known about each one, so you change only what you mean to. Read [Your first mod: recolor a character](/docs/wuthering-waves/textures/recolor-a-character) first if you have not edited a texture yet.
+Each component of a Resonator uses several textures, and each color channel in them does its own job. A Resonator is the game's name for a playable character. This page shows how to tell the textures apart and what is known about each one, so you change only what you mean to. Read [Your first mod: recolor a character](/docs/wuthering-waves/textures/recolor-a-character) first if you have not edited a texture yet. Written for WWMI Tools 1.9.4.
 
 <Accordions>
 <Accordion title="Coming from another game?" id="from-another-game">
 
-**From Genshin Impact, Honkai: Star Rail or Zenless Zone Zero.** Wuthering Waves texture files have no readable names like `BodyDiffuse.dds`. A name tells you only which components use the texture and its hash. `TextureUsage.json` tells you which slot each texture filled. WWMI binds textures with `this =` per texture hash, and has no library like ORFix or SlotFix. RabbitFX is an optional library for binding textures by role.
+**From Genshin Impact, Honkai: Star Rail or Zenless Zone Zero.** Wuthering Waves texture files have no readable names like `BodyDiffuse.dds`. A name tells you only which components use the texture, its format and its hashes. `TextureUsage.json` tells you which slot each texture filled. Mods exported with WWMI Tools 1.9.4 find each texture by how it looks, with `[FilterTexture...]` sections. Older exports bind textures with `this =` per texture hash. There is no library like ORFix or SlotFix. RabbitFX is an optional library for binding textures by role.
 
 Other game sections: [Genshin Impact](/docs/genshin-impact), [Honkai: Star Rail](/docs/honkai-star-rail), [Zenless Zone Zero](/docs/zenless-zone-zero).
 
@@ -38,7 +38,7 @@ Copy every channel you do not mean to change from the original. No WWMI source d
 
 ## The textures of a component
 
-An extracted object folder, or the `Textures` folder of a mod, holds every texture of the object in one place. Find a component's textures by its number in the file name: `Components-3 t=<hash>.dds` and `Components-0-1-2-3 t=<hash>.dds` both belong to component 3. [Character names and parts](/docs/wuthering-waves/basics/character-names-and-parts) explains the names.
+An extracted object folder, or the `Textures` folder of a mod, holds every texture of the object in one place. Find a component's textures by its number in the `c=` part of the file name: `c=3 f=<format> t=<hash> d=<dhash>.dds` and `c=0-1-2-3 f=<format> t=<hash> d=<dhash>.dds` both belong to component 3. Folders from WWMI Tools 1.8.0 or older, and WWMI-Assets, use names like `Components-3 t=<hash>.dds`. [Character names and parts](/docs/wuthering-waves/basics/character-names-and-parts) explains the names.
 
 | Type            | What to know                                                               | Usual format                                               |
 | --------------- | -------------------------------------------------------------------------- | ---------------------------------------------------------- |
@@ -49,7 +49,7 @@ An extracted object folder, or the `Textures` folder of a mod, holds every textu
 | Face shadow map | Used for face shadows. Not described in the guides                         | Read it from the dump                                      |
 | Glow map        | Mostly black, only the glowing parts show                                  | Read it from the dump                                      |
 
-Some Resonators, such as Hiyuki, also have cut-out or special effect maps. [Save DDS textures the right way](/docs/wuthering-waves/textures/save-dds-files) shows how to read any texture's format from the dump.
+Some Resonators, such as Hiyuki, also have cut-out or special effect maps. The `f=` part of a file name from WWMI Tools 1.9.4 holds the format. [Save DDS textures the right way](/docs/wuthering-waves/textures/save-dds-files) shows how to read it from the dump for older files.
 
 {/* NEEDS HANDS-ON TEST: what a Wuthering Waves 3.8 material map, face shadow map and glow map look like, their formats, and which Resonators have them */}
 
@@ -83,16 +83,18 @@ WWMI Tools writes `TextureUsage.json` into every extracted object folder. Open i
 - Each `ps-t` line is a texture slot of the pixel shader. Under it is every texture that filled the slot.
 - Each entry is the texture hash, then the two shaders of that draw: `vs=` and `ps=`.
 - Entries with the same `ps=` hash belong to one draw. Here `98a883e4`, `184f22fd` and `f47bc395` are read together by shader `b62f7a5cd90e47a1`: that is one material set.
-- The texture hash is the `t=` part of a file name. `184f22fd` is the file `Components-3 t=184f22fd.dds`.
+- The texture hash is the `t=` part of a file name. In a folder from WWMI Tools 1.9.4, `184f22fd` is the file `c=3 f=BC7_UNORM_SRGB t=184f22fd d=<dhash>.dds`. In WWMI-Assets it is `Components-3 t=184f22fd.dds`.
 
-A hash with no file in the folder was skipped by the texture filters at extraction.
+A hash with no file in the folder was skipped by the texture filters at extraction. Dumps made with XXMI DLL 1.3.3 leave out texture slots the pixel shader does not use, so a new `TextureUsage.json` can list fewer slots than this older example.
+
+{/* NEEDS HANDS-ON TEST: a TextureUsage.json written by WWMI Tools 1.9.4 from a dump made with XXMI DLL 1.3.3: whether its layout matches this example, and which slots drop out */}
 
 </Step>
 <Step>
 
 ### Check the format
 
-Within one material set, the `BC7_UNORM_SRGB` texture usually holds the colors: that is the diffuse. The linear ones hold data: the normal map and the light map. In Aalto's set above, `184f22fd` is BC7 sRGB and `98a883e4` is BC7 Linear.
+Read the format from the `f=` part of the name, or from the dump. Within one material set, the `BC7_UNORM_SRGB` texture usually holds the colors: that is the diffuse. The linear ones hold data: the normal map and the light map. In Aalto's set above, `184f22fd` is BC7 sRGB and `98a883e4` is BC7 Linear.
 
 Slot numbers do not tell you the type. In Aalto's folder, the BC7 sRGB texture of the main draw sits in `ps-t1` for component 3, but in `ps-t2` for component 2. Checked in WWMI-Assets on 2026-11-24.
 
@@ -174,7 +176,7 @@ The texture filters skipped it at extraction, usually because it is small. Extra
 </Accordion>
 <Accordion title="Two textures in a set look like a diffuse" id="two-diffuse">
 
-Check the format of both in the dump: only one is usually sRGB. If both are, do the in-game test above on each.
+Check the format of both, in the `f=` part of their names or in the dump: only one is usually sRGB. If both are, do the in-game test above on each.
 
 </Accordion>
 </Accordions>

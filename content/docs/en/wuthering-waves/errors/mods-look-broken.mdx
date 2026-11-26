@@ -14,7 +14,7 @@ keywords:
 
 <LevelPill level="beginner" />
 
-Your mod loads, but the Resonator looks wrong. A Resonator is a playable character. Find what you see in the table, then open the matching fix below. Written for Wuthering Waves 3.8 with XXMI Launcher 2.5.0 and WWMI 1.1.0.
+Your mod loads, but the Resonator looks wrong. A Resonator is a playable character. Find what you see in the table, then open the matching fix below. Written for Wuthering Waves 3.8 with XXMI Launcher 2.5.0, XXMI DLL 1.3.3 and WWMI 1.2.2.
 
 No mod shows at all? Go to [Mods not loading](/docs/wuthering-waves/errors/mods-not-loading).
 
@@ -56,6 +56,7 @@ These steps fix many broken mods. Do them before anything else.
 | What you see                                                           | Most likely cause                             | Fix                                                         |
 | ---------------------------------------------------------------------- | --------------------------------------------- | ----------------------------------------------------------- |
 | White, patchy or wrong textures, mostly in the open world              | The game loads lower-detail textures          | [White or patchy textures](#white-or-patchy-textures)       |
+| Original textures on a new mod, and a `WWMI Integrity Error` box       | The XXMI DLL is older than 1.3.3              | [WWMI Integrity Error](#wwmi-integrity-error)               |
 | Textures break after the Resonator takes a few hits                    | The Wounded Effect is on                      | [Textures break in a fight](#textures-break-in-a-fight)     |
 | The mod turns back to the original look when the camera zooms out      | The game swaps in a lower-detail model        | [Original look at a distance](#original-look-at-a-distance) |
 | The original look even up close, after a game update                   | The Resonator's data changed                  | [Old mod after an update](#old-mod-after-an-update)         |
@@ -73,19 +74,30 @@ The model is right, but its textures look white, patchy, blurry or wrong. Often 
 
 {/* SCREENSHOT: wuthering-waves-errors-mods-look-broken-2.webp, a modded Resonator in the Wuthering Waves 3.8 open world with white or patchy textures, next to the same mod looking right in the Resonators menu. No usable current image exists in any source. */}
 
-**Cause:** the game loads lower-detail versions of textures, mostly in the open world. A mod only knows the full-detail textures, so it no longer matches. Updates also change texture data: version 2.6 changed the textures of every Resonator, weapon and glider. Since version 3.5, the launcher can no longer stop this for every mod.
+**Cause:** the game loads lower-detail versions of textures, mostly in the open world. A mod exported with WWMI Tools 1.8.0 or older knows only the hashes of the full-detail textures, so it no longer matches. Mods exported with WWMI Tools 1.9.4 find textures by how they look, so they should break less often here. Nobody has tested that on this game yet. Updates also change texture data: version 2.6 changed the textures of every Resonator, weapon and glider. Since version 3.5, the launcher can no longer stop this for every mod.
 
 **Fix, in this order:**
 
 1. Set **LOD Bias** to **Ultra High** in the game's graphics settings.
 2. Close the game and open XXMI Launcher, so it updates.
-3. Check the mod's page for an update. Many creators now bind textures through RabbitFX texture slots, which survive updates better.
+3. Check the mod's page for an update. Many creators now bind textures through RabbitFX texture slots, or export with WWMI Tools 1.9.4. Both should survive updates better.
 4. If the mod is still broken, run one fix tool on a copy of it. [Fix your mods after a game update](/docs/wuthering-waves/getting-started/fix-mods-after-an-update) shows both tools and the steps.
 5. Still broken? Wait for the mod's creator.
 
 Guides and videos that tell you to type lines into the game's config files are stale since version 3.2. Skip those steps and use the settings above.
 
-{/* NEEDS HANDS-ON TEST: on Wuthering Waves 3.8 with XXMI Launcher 2.5.0, whether LOD Bias at Ultra High alone stops open-world texture breaks for a mod made without RabbitFX. */}
+{/* NEEDS HANDS-ON TEST: on Wuthering Waves 3.8 with XXMI Launcher 2.5.0, whether LOD Bias at Ultra High alone stops open-world texture breaks for a mod made without RabbitFX, and whether a mod exported with WWMI Tools 1.9.4 keeps its textures in the open world on WWMI 1.2.2. */}
+
+</Accordion>
+<Accordion title="WWMI Integrity Error" id="wwmi-integrity-error">
+
+A mod shows its shape but keeps the original textures, and a box in the middle of the screen starts with `WWMI Integrity Error:`.
+
+**Cause:** your XXMI DLL is older than 1.3.3. Mods exported with WWMI Tools 1.9.4 need it to find their textures. Older mods are not affected.
+
+**Fix:** close the game and open XXMI Launcher, so it updates. Then start the game again. Press `X` to hide the box.
+
+{/* NEEDS HANDS-ON TEST: on WWMI 1.2.2 with an XXMI DLL older than 1.3.3, whether a mod exported with WWMI Tools 1.9.4 draws its mesh with the original textures, and whether the WWMI Integrity Error box shows */}
 
 </Accordion>
 <Accordion title="Textures break in a fight" id="textures-break-in-a-fight">
@@ -131,7 +143,7 @@ Some mods come with a second `.ini` file for the distance model. Keep it in the 
 4. Run it once. Never run a tool twice on the same mod, and never run both tools on it.
 5. Press `F10` in game.
 
-Mods made for the first WWMI versions, from mid 2024, show a red `Mod Loading Error` box instead. No tool fixes those: they need a new export from their creator.
+Mods made for the first WWMI versions, from mid 2024, show a `Mod Loading Error` box instead. No tool fixes those: they need a new export from their creator.
 
 Fake fixers carrying malware have been uploaded after game updates. Get fix tools only from their GitHub pages. Warning signs: the file asks for admin rights, comes in a password-protected archive, or wants to replace `d3d11.dll`.
 
@@ -140,7 +152,7 @@ Fake fixers carrying malware have been uploaded after game updates. Get fix tool
 
 After an update, the faces or shading of several Resonators look wrong, even ones you never modded.
 
-**Cause:** some textures, such as face shadow and light maps, are shared by many Resonators. One outdated mod that still ships the old shared texture breaks all of them.
+**Cause:** some textures, such as face shadow and light maps, are shared by many Resonators. One outdated mod, exported with WWMI Tools 1.8.0 or older, that still ships the old shared texture breaks all of them. Mods exported with WWMI Tools 1.9.4 swap a texture only on their own parts, so they should not cause this.
 
 **Fix:** find that mod and update it, run a fix tool on it, or turn it off. To find it, use the halves method:
 
