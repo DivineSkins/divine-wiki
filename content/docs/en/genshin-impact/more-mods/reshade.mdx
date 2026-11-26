@@ -1,0 +1,117 @@
+---
+title: "Use ReShade with mods"
+description: "Run ReShade next to XXMI Launcher without breaking your Genshin Impact mods: the two tools people use, where ReShade files must not go, and what to skip."
+category: "more-mods"
+patch: "7.2"
+keywords:
+  ["genshin reshade", "reshade xxmi", "reshade gimi", "reshade mods crash"]
+---
+
+<LevelPill level="intermediate" />
+
+ReShade is a separate tool that filters the whole picture: colors, sharpness, and depth effects, including the UI. It is not a mod, because it changes no single model or texture. This page covers only how to run it next to XXMI Launcher without breaking your mods. It does not teach presets or effects.
+
+<Callout type="warning" title="Third-party software, not tested here">
+  ReShade is one more program that hooks into the game, next to the mod loader.
+  The account risk on [What's allowed and how to stay
+  safe](/docs/genshin-impact/getting-started/stay-safe) applies to it too.
+  Nobody has tested ReShade with GIMI 8.9.4 for this wiki.
+</Callout>
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/genshin-impact/tools/xxmi-launcher"
+    note="with GIMI installed"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="CircleCheck" note="test them first">
+    Mods that load without ReShade
+  </Requirement>
+</Requirements>
+
+Written for XXMI Launcher 2.5.0 and GIMI 8.9.4.
+
+## Two ways to run ReShade with XXMI
+
+<ToolCard
+  name="XXMI Launcher ReShade Addon (GIMI)"
+  href="https://gamebanana.com/tools/18079"
+  badge="Untested"
+  icon={<Icon name="GameBanana" />}
+>
+  A launch script by caverabbit that reads XXMI Launcher's settings, so ReShade
+  and GIMI start together. Version 4.0, September 2026.
+</ToolCard>
+<ToolCard
+  name="StarLuxe"
+  href="https://github.com/Dimitri-Matheus/StarLuxe"
+  badge="Beta"
+  icon={<Icon name="GitHub" />}
+>
+  A ReShade launcher by Dimit that downloads presets and can start XXMI Launcher
+  next to it. Version 1.0.98 beta, GPL-3.0.
+</ToolCard>
+
+- LeoTorreZ's guide site lists the ReShade Addon as the ReShade option for XXMI games. It replaced caverabbit's older Rabbit Reshade Injector, which is deprecated.
+- In StarLuxe, `Insert` opens the ReShade menu in game.
+- Set up each tool with the steps on its own page.
+
+{/* NEEDS HANDS-ON TEST: whether ReShade Addon (GIMI) 4.0 or StarLuxe 1.0.98 changes any XXMI Launcher injection setting, and whether GIMI 8.9.4 mods still load with each. */}
+
+## Rules that keep your mods working
+
+1. **Keep ReShade files out of `Mods`.** That includes presets. A ReShade preset in the `Mods` folder can crash the game, or leave only ReShade running.
+2. **Keep the launcher's injection settings at their defaults.** This wiki does not cover changing them.
+3. **Keep presets cosmetic.** Change colors and light only. Skip any preset or ReShade add-on that removes fog or shows anything the normal game hides.
+
+<Files>
+  <Folder name="XXMI Launcher" defaultOpen>
+    <Folder name="GIMI" defaultOpen>
+      <Folder name="Mods: mod folders only, no ReShade files" defaultOpen>
+        <Folder name="FurinaRecolor" />
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+
+## If something breaks
+
+1. Move every ReShade file out of `%AppData%\XXMI Launcher\GIMI\Mods`.
+2. Turn ReShade off, and start the game from XXMI Launcher's **Start** button.
+3. If your mods load now, the ReShade setup is the problem. Check the tool's own page.
+4. If they still do not load, ReShade is not the cause. Go to [Mods not loading](/docs/genshin-impact/errors/mods-not-loading).
+
+Crashes with ReShade or overlays are also covered on [Crashes and launch errors](/docs/genshin-impact/errors/game-crashes#overlays-and-reshade).
+
+## What to skip
+
+| Skip this               | Why                                                         |
+| ----------------------- | ----------------------------------------------------------- |
+| Genshin Stella Mod      | A paid tier, and it bundles tools this wiki does not cover. |
+| Rabbit Reshade Injector | Deprecated. The ReShade Addon replaced it.                  |
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="More mod types"
+    href="/docs/genshin-impact/more-mods"
+    icon={<Icon name="Puzzle" />}
+  >
+    Other kinds of Genshin Impact mods, and what makes each one different.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This page is based on the work of these creators. Check out their original pages and tools.
+
+- **Tool:** [XXMI Launcher ReShade Addon (GIMI)](https://gamebanana.com/tools/18079) by caverabbit.
+- **Tool:** [StarLuxe](https://github.com/Dimitri-Matheus/StarLuxe) by Dimit (Dimitri-Matheus).
+- **Guide:** [How to Use ReShade Shaders (StarLuxe & XXMI)](https://gamebanana.com/tuts/18994) by Dimit.
+- **Guide:** [Downloads](https://leotorrez.github.io/modding/downloads) on the modding guide site by LeoTorreZ.
+- **Tool:** [ReShade](https://github.com/crosire/reshade) by crosire.

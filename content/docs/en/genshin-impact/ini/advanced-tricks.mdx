@@ -1,0 +1,341 @@
+---
+title: "Sliders, animated textures, and help text"
+description: "Add on-screen help text, a slider key, a texture that animates over time, and a resize to your own Genshin Impact mod with a few hand-written .ini lines."
+category: "ini"
+patch: "7.2"
+keywords:
+  [
+    "genshin mod help text",
+    "gimi printtext",
+    "animated texture",
+    "texture2darray",
+    "genshin resize mod",
+  ]
+---
+
+<LevelPill level="advanced" />
+
+These tricks build on toggles. You will show help text on screen, add a slider key, make a texture animate, and resize a character. You need your own mod with a working toggle. Written for GIMI 8.9.4 and XXMI Tools 1.8.2.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="FileCode" href="/docs/genshin-impact/ini/add-a-toggle">
+    Your own mod with a working toggle
+  </Requirement>
+  <Requirement icon="NotepadPlusPlus" note="or any editor that saves UTF-8">
+    A text editor
+  </Requirement>
+  <Requirement icon="Terminal" note="for the animated texture array only">
+    texassemble and texconv
+  </Requirement>
+</Requirements>
+
+Every example uses `$active`, the "character on screen" flag your toggle already uses. Keep a backup of your `.ini` before you start: a new export with **Write ini** on replaces your edits.
+
+## Show help text on screen
+
+### The credit pop-up
+
+Fill in the **Credit** field when you export with XXMI Tools. The mod then shows `Created by` and your name for 5 seconds, once, when the character first appears. You write no lines yourself.
+
+### Your own help box
+
+GIMI 8.9.4 has a text API in the `GIMIv8` namespace. It draws any text you give it in a box. This example shows the box while a key is on.
+
+<Steps>
+<Step>
+
+### Add the text and the box settings
+
+Add two resources at the end of the `.ini`:
+
+```ini
+[ResourceHelpText]
+type = Buffer
+data = "1: hat on or off   2: next hair"
+
+[ResourceHelpParams]
+type = StructuredBuffer
+array = 1
+data = R32_FLOAT  -0.25 +0.15 +0.25 -0.05   1.00 1.00 1.00 1.00   0.00 0.00 0.00 0.95   0.02  0.05   2 1   1   1.0
+```
+
+For longer text, load it from a file instead:
+
+```ini
+[ResourceHelpText]
+type = buffer
+format = R8_UINT
+filename = Help.txt
+```
+
+</Step>
+<Step>
+
+### Add a key that shows the box
+
+```ini
+[Constants]
+global $help = 0
+
+[KeyHelp]
+key = 9
+condition = $active == 1
+type = cycle
+$help = 0,1
+```
+
+Put the `global` line in the `[Constants]` section you already have. Do not make a second one.
+
+</Step>
+<Step>
+
+### Draw the box every frame
+
+Add `run = CommandListHelp` to your existing `[Present]` section, then add the command list:
+
+```ini
+[Present]
+post $active = 0
+run = CommandListHelp
+
+[CommandListHelp]
+if $help == 1 && $active == 1
+	pre Resource\GIMIv8\Text = ref ResourceHelpText
+	pre Resource\GIMIv8\TextParams = ref ResourceHelpParams
+	pre run = CommandList\GIMIv8\PrintText
+endif
+```
+
+</Step>
+<Step>
+
+### Test it
+
+Save, switch to another character, press `F10`, switch back and press `9`.
+
+</Step>
+</Steps>
+
+{/* NEEDS HANDS-ON TEST: CommandList\GIMIv8\PrintText run from a command list in [Present] with pre lines, on GIMI 8.9.4, and whether a Help.txt with several lines prints each line */}
+
+The 18 numbers in `ResourceHelpParams` set the box, in this order. The comments in GIMI's `API.ini` explain them:
+
+| Numbers | What they set                                                                      |
+| ------- | ---------------------------------------------------------------------------------- |
+| 1 to 4  | The box corners x1, y1, x2, y2, each from `-1` to `+1`                             |
+| 5 to 8  | Text color as red, green, blue, alpha, from `0` to `1`                             |
+| 9 to 12 | Background color, the same way                                                     |
+| 13, 14  | Border, across and down                                                            |
+| 15, 16  | Anchor across and down: `0` none, `1` left or top, `2` center, `3` right or bottom |
+| 17      | Text alignment: `0` left, `1` center, `2` right                                    |
+| 18      | Font scale                                                                         |
+
+Many players dislike pop-ups. Keep help text behind a key, never on all the time.
+
+## Add a slider
+
+A slider changes a value a little every frame while you hold a key. This one stores a strength from `0` to `1`:
+
+```ini
+[Constants]
+global persist $strength = 1.0
+global $held_up = 0
+global $held_down = 0
+
+[KeyStrengthDown]
+key = VK_LEFT
+condition = $active == 1
+type = hold
+$held_down = 1
+
+[KeyStrengthUp]
+key = VK_RIGHT
+condition = $active == 1
+type = hold
+$held_up = 1
+
+[Present]
+post $active = 0
+if $held_up
+	run = CommandListStrengthUp
+else if $held_down
+	run = CommandListStrengthDown
+endif
+
+[CommandListStrengthUp]
+if $strength < 1.0
+	$strength = $strength + 0.01
+else
+	$strength = 1.0
+endif
+
+[CommandListStrengthDown]
+if $strength > 0.0
+	$strength = $strength - 0.01
+else
+	$strength = 0.0
+endif
+```
+
+- `type = hold` sets the value only while the key is down. On release it goes back to `0`.
+- Merge these lines into your existing `[Constants]` and `[Present]` sections.
+
+A value does nothing until something reads it. Shaders read values through IniParams, the shared slots `x`, `y`, `z`, `w` with a number. Pass the slider into the section that runs your edited shader, then read it in the shader:
+
+```ini
+x88 = $strength
+```
+
+```cpp
+#define STRENGTH IniParams[88].x
+o0.xyz = o0.xyz * STRENGTH;
+```
+
+The second line goes right before `return;`. It makes the effect fade as the strength drops. [Recolor skill effects](/docs/genshin-impact/effects/recolor-skill-effects) shows where an edited shader lives in your mod.
+
+{/* NEEDS HANDS-ON TEST: the hold-key slider driving IniParams x88 into an edited pixel shader on GIMI 8.9.4 */}
+
+The value steps once per frame, so the slider moves faster at a higher frame rate. For fixed steps, use a cycle key instead, like `$strength = 0.25,0.5,0.75,1.0`.
+
+## Animate a texture
+
+### Swap frames over time
+
+`time` holds the seconds since the game started. `time % 1.0` counts from `0` to `1` once every second, so it can pick a frame:
+
+<img
+  src="/wiki-images/genshin-impact-ini-advanced-tricks-1.webp"
+  alt="A timeline: time modulo 1.0 runs from 0 to 1 every second, and each quarter second picks the next of four frames, from if time % 1.0 below 0.25 for frame 0 to else for frame 3, then repeats"
+/>
+
+1. Save each frame as its own `.dds`, in the same format and size as the original diffuse.
+2. Add one resource per frame, like `[ResourceBodyFrame0]` with `filename = BodyFrame0.dds`.
+3. In the part section, replace the `Resource\GIMI\Diffuse` line with this block. Keep `run = CommandList\GIMI\SetTextures` after the `endif`:
+
+```ini
+if time % 1.0 < 0.25
+	Resource\GIMI\Diffuse = ref ResourceBodyFrame0
+else if time % 1.0 < 0.5
+	Resource\GIMI\Diffuse = ref ResourceBodyFrame1
+else if time % 1.0 < 0.75
+	Resource\GIMI\Diffuse = ref ResourceBodyFrame2
+else
+	Resource\GIMI\Diffuse = ref ResourceBodyFrame3
+endif
+run = CommandList\GIMI\SetTextures
+```
+
+For a slower loop, use `time % 2.0` and twice the limits. In a texture-only mod, wrap the `this =` line the same way.
+
+{/* NEEDS HANDS-ON TEST: a time-based frame swap through Resource\GIMI\Diffuse and SetTextures on GIMI 8.9.4. No tested mod with exactly this layout was found. */}
+
+Every frame is a full texture in video memory. Keep the frame count low and the textures no larger than the original.
+
+### Many frames in one file
+
+A Texture2DArray holds every frame in one `.dds`. It needs only one texture slot, but a custom shader must pick the frame. DiXiao's Texture2DArray tutorial, linked under Credits, has the full `.ini` and shader. It builds the file from numbered PNG frames with Microsoft's texassemble and texconv:
+
+```text
+texassemble.exe array -o animation.dds -stripmips 0.png 1.png 2.png
+texconv.exe -f BC7_UNORM_SRGB -ft dds -srgbi -m 1 -y animation.dds
+```
+
+List every frame in order after `-stripmips`.
+
+## Make a character bigger or smaller
+
+LeoTools' resize guide scales the character with a script, then moves it up or down with the Offset library so the feet stay on the ground. Offset ships inside GIMI, so you install nothing.
+
+1. Export your mod as usual. Make a copy of `CharacterBlend.buf`, with your character's name in place of `Character`.
+2. Copy `multiplyweight.py` from the LeoTools repository into the mod folder and run it.
+3. Enter a factor: `1` keeps the size, `1.2` is bigger, `0.8` is smaller. The factor applies to the current size, so restore your backup to start over.
+4. Add `global $offset = 0` to `[Constants]`.
+5. Add these two lines to each part section (Head, Body, Dress, Extra):
+
+   ```ini
+   $\global\offset\offset = $offset
+   run = CommandList\global\offset\Offset
+   ```
+
+6. Press `F10` in game. Change the `$offset` value until the feet touch the ground, pressing `F10` after each change.
+
+{/* NEEDS HANDS-ON TEST: the resize steps with the Offset library bundled in GIMI 8.9.4, and the unit of $offset */}
+
+What to expect:
+
+- Only the look changes. The camera, hitboxes and animations stay the same.
+- Faces do not resize yet. The guide marks face resizing as not working.
+- `F6` shows a resized character as spiky shapes. Hold `F9` to compare with the original instead.
+- Turn motion blur off and use a high render resolution if the character looks fuzzy.
+
+## Switch an outfit by itself
+
+A mod can switch a part when the player's state changes, with no key. [Add a toggle](/docs/genshin-impact/ini/add-a-toggle) shows the libraries for swimming, gliding and region.
+
+GIMI also ships a HealthBar library. It reads your own active character's HP from the bar the game already draws, as `$\global\HealthBar\health`. You can use it to change an outfit when HP is low. Its value range is not documented yet, so this guide has no tested example.
+
+{/* NEEDS HANDS-ON TEST: the range of $\global\HealthBar\health in Genshin Impact 7.2, before any example is added */}
+
+Use it only to change how your character looks. Never show HP or damage numbers on screen: that is a mod that gives an unfair advantage.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The help box never shows" id="help-not-showing">
+
+- Check that `[Present]` has `run = CommandListHelp`.
+- Check that the key's `condition` uses `$active` and that the character is on screen.
+- Read the yellow text after `F10`. `Unrecognised entry` often means a misspelt resource name.
+
+</Accordion>
+<Accordion title="The slider or effect changes when another mod is on" id="iniparam-clash">
+
+IniParams are shared by every mod. Two mods that both write `x88` change each other's value. Move your mod to a slot no other mod uses, in the `.ini` and in the shader.
+
+</Accordion>
+<Accordion title="The game stutters or runs out of video memory" id="vram">
+
+Each animation frame is a full texture. Use fewer frames, or smaller ones.
+
+</Accordion>
+<Accordion title="The character floats or sinks after a resize" id="resize-floats">
+
+Change `$offset` and press `F10`. Check that every part section has both Offset lines.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title=".ini reference"
+    href="/docs/genshin-impact/ini/ini-reference"
+    icon={<Icon name="BookOpen" />}
+    level="advanced"
+  >
+    Every section, key type, operator and warning in one place.
+  </PremiumCard>
+  <PremiumCard
+    title="Combine mods into one merged mod"
+    href="/docs/genshin-impact/ini/merged-mods"
+    icon={<Icon name="Layers" />}
+    level="intermediate"
+  >
+    Switch between whole mods for one character with one key.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Toggle Guide](https://gamebanana.com/tuts/18971) by gdsfdg, for the hold-key slider.
+- **Guide:** [In-Game Toggle Display Tutorial](https://gamebanana.com/tuts/19429) by bunar21.
+- **Guide:** [Texture2DArray in 3DMigoto and how to use them](https://gamebanana.com/tuts/16557) by DiXiao.
+- **Guide:** 3DMigoto GIMI Effect and Shader Tutorial (2023) by SilentNightSound, for `time` in an `.ini`.
+- **Guide:** [ChangeSizeGuide](https://github.com/leotorrez/LeoTools/blob/main/guides/ChangeSizeGuide.md) in LeoTools, by leotorrez.
+- **Tool:** [GIMI `API.ini`](https://github.com/SilentNightSound/GIMI-Package/blob/main/GIMI/Core/GIMI/API.ini) by SilentNightSound and the GIMI team, for the text API.
+- **Tool:** [XXMI Tools Genshin Impact template](https://github.com/leotorrez/XXMITools/blob/main/templates/Genshin%20Impact.ini.j2) by leotorrez, for the credit pop-up.

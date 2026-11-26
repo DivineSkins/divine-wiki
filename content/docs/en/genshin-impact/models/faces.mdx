@@ -1,0 +1,267 @@
+---
+title: "Edit a face"
+description: "Reshape a Genshin Impact character's eyes, brows or mouth with Face Modding Tools and Blender, keep the face's expressions, and retexture the face the current way."
+category: "models"
+patch: "7.2"
+keywords:
+  ["genshin face mod", "face modding tools", "face shape", "facemodtools"]
+---
+
+<LevelPill level="advanced" />
+
+This guide changes the shape of a character's face: the eyes, the brows or the mouth. A normal model export cannot do this, so you use a separate tool, Genshin Face Modding Tools, next to XXMI Tools. Written for Face Modding Tools 2.0 and XXMI Tools 1.8.2 on Blender 4.5 LTS, with GIMI 8.9.4.
+
+{/* NEEDS HANDS-ON TEST: a Face Modding Tools 2.0 face mod made from a fresh dump loads and keeps its expressions on Genshin Impact 7.2 with GIMI 8.9.4 */}
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="GitHub"
+    href="https://github.com/gdsfdg/facemodtools/releases"
+    note="2.0"
+  >
+    Genshin Face Modding Tools
+  </Requirement>
+  <Requirement
+    icon="Blender"
+    href="/docs/genshin-impact/tools/blender-add-on"
+    note="1.8.2"
+  >
+    Blender 4.5 LTS with XXMI Tools
+  </Requirement>
+  <Requirement
+    icon="FolderOpen"
+    href="/docs/genshin-impact/basics/frame-dump"
+    note="with gui_collect"
+  >
+    A frame dump of the face
+  </Requirement>
+</Requirements>
+
+Download the first zip from the tool's releases page, unzip the whole folder, and start the `.exe`. Remove any old 3DMigoto Blender add-on before you start: keep only XXMI Tools.
+
+## How face mods work
+
+A Genshin Impact face is a separate mesh in three parts: the eyebrows, the eye area and the mouth area. The game moves it with its own expressions. That is why a normal mesh mod leaves the face out: a replaced face would lose its expressions.
+
+Face Modding Tools works around this. You export the untouched face once as `base` and your edited face as `key`. The mod does not replace the face. A small shader moves each vertex by the difference between `key` and `base`, so the game can still animate it.
+
+This gives the rules for every face mod:
+
+- **Never add or delete vertices.** The vertex count must stay the same. No subdivide, no remesh, no merge.
+- **Never scale vertices to 0.**
+- **You cannot swap in a different face mesh.** You only move the vertices that are there.
+- **Face meshes are shared.** Several characters can use the same face mesh. The tool limits your mod to one character with that character's face texture hash. Two characters with the same face on screen can still affect each other.
+
+## Dump the face
+
+<Steps>
+<Step>
+
+### Hunt the face parts
+
+1. Turn off any mod for this character. Rename its folder so it starts with `DISABLED`.
+2. Open a screen where the face is large and still, like the character screen.
+3. Hunt the hash of each face part you want to edit, as [Find a hash with hunting mode](/docs/genshin-impact/basics/find-a-hash) shows. The part you picked disappears when you have the right one.
+4. In gui_collect, open the Genshin Impact page and paste each hash into its own field. Give each one a clear name, like `KiraraFace`.
+
+Dump only the face parts. Leave the rest of the character out: the face tools can get confused by a dump that mixes both.
+
+{/* NEEDS HANDS-ON TEST: whether the face parts are found with the IB keys (Numpad 7, 8, 9) or the VB keys (Numpad /, *, -), and which gui_collect 1.4.2 field takes the hash */}
+
+</Step>
+<Step>
+
+### Extract it
+
+1. Press `F8` and wait until the game moves again.
+2. In gui_collect, pick the new `FrameAnalysis-...` folder.
+3. Leave **Delete frame analysis after extraction** unticked. The face tool needs that folder in the next step.
+4. Click **Extract**.
+5. Click the face's color texture and mark it as `Diffuse`, so it is part of the dump. Then click **Done**.
+
+The result is a folder with `.txt` files and `hash.json`, like any dump. Keep its name as it is.
+
+</Step>
+</Steps>
+
+## Set up the face tool
+
+<img
+  src="/wiki-images/genshin-impact-models-faces-1.webp"
+  alt="The Genshin Face Modding Tools window with Dump Folder and Mod Folder paths at the top, Setup and Create Mod buttons, and the Mod textures, Reorder and Write ini options"
+/>
+
+1. Click **Dump Folder** and pick your extracted face folder: the one with `hash.json`, not the `FrameAnalysis-...` folder.
+2. Make a new, empty folder for the mod inside `%AppData%\XXMI Launcher\GIMI\Mods`, for example `Mods\faces\Kirara`. Click **Mod Folder** and pick it. The screenshot shows an older path. Use your own `Mods` folder.
+3. Click **Setup**. Paste the path of your `FrameAnalysis-...` folder and click **OK**.
+
+Setup copies the original face buffers and makes one sub-folder per face part in your mod folder, such as `Eyebrows`, `Eyes` and `Mouth`. You run it once per dump. After that you can delete the `FrameAnalysis-...` folder to free space.
+
+## Edit the face in Blender
+
+<Steps>
+<Step>
+
+### Import with the classic importer
+
+1. Start a new, empty Blender scene.
+2. Choose <MenuPath path="File > Import > 3DMigoto frame analysis dump (vb.txt + ib.txt)" /> and select the `.txt` files of the face parts in your dump folder.
+
+Do not use the **XXMI Dump** importer here. It blocks the export that face mods need.
+
+The face may lie on its side. Leave it there: do not move, rotate or scale the objects.
+
+{/* NEEDS HANDS-ON TEST: that XXMI Tools 1.8.2 still offers the 3DMigoto frame analysis dump importer and the 3DMigoto raw buffers exporter, with these exact labels */}
+
+</Step>
+<Step>
+
+### Export the untouched face as base
+
+Do this before you change anything:
+
+1. In Object Mode, select one face part, for example `KiraraFaceEyesA`.
+2. Choose <MenuPath path="File > Export > 3DMigoto raw buffers (.vb + .ib)" />.
+3. Go into that part's sub-folder in your mod folder, here `Eyes`.
+4. Name the file `base` and export.
+5. Repeat for each face part, each into its own sub-folder.
+
+A safer way: add a shape key and sculpt on it. Turn the shape key off to export `base`, and on to export `key`. Your original shape is always one click away.
+
+<img
+  src="/wiki-images/genshin-impact-models-faces-2.webp"
+  alt="Blender with an imported face split into eyebrows, eyes and mouth objects, and the Shape Keys panel used to keep the original shape"
+/>
+
+</Step>
+<Step>
+
+### Reshape it
+
+1. Select the part and switch to **Sculpt Mode**. Sculpting mirrors more cleanly than Edit Mode.
+2. Turn on mirror for the axis that splits the face in half. Because the face lies on its side, it may not be `X`.
+3. Use the **Grab** and **Smooth** brushes to move the eyes, brows or mouth.
+
+To edit two parts together, select both and join them with `Ctrl+J`. When you are done, split them again with `P` > **By Material**, so each part exports on its own.
+
+</Step>
+<Step>
+
+### Export your face as key
+
+1. Select one edited part in Object Mode.
+2. Choose <MenuPath path="File > Export > 3DMigoto raw buffers (.vb + .ib)" /> again.
+3. Save it in the same sub-folder, named `key`.
+4. Repeat for each part you changed.
+
+</Step>
+</Steps>
+
+## Create the mod
+
+1. Back in Face Modding Tools, check the options:
+   - **Mod textures:** off, unless you also want to edit the face texture. On copies the dumped face texture into your mod.
+   - **Reorder:** keep it on. It puts your vertices back in the game's order when the export changed it.
+   - **Write ini:** on for the first run. It overwrites the `.ini` and shader files, so turn it off once you edit the `.ini` by hand.
+2. Click **Create Mod**. The tool strips your exports down to positions, saves them as `.buf` files, and writes the `.ini` and the shader.
+3. In game, switch to another character, press `F10`, and switch back.
+
+<img
+  src="/wiki-images/genshin-impact-models-faces-3.webp"
+  alt="A face mod folder inside GIMI's Mods folder with the sub-folders Eyebrows, Eyes and Mouth, created by Face Modding Tools"
+/>
+
+To change the face again, sculpt some more, export `key` again, and click **Create Mod**. The tool keeps your `base` in the dump folder, so you only export `key`.
+
+<YouTube
+  id="h7RMkdKWXEE"
+  start={8507}
+  title="A face shape mod with Face Modding Tools, from dump to reload, by Aotani"
+/>
+
+The clip starts at 2:21:47. It shows an older version of the tool with more buttons. In version 2.0, **Setup** and **Create Mod** do the same work.
+
+## Make it show in cutscenes
+
+Some screens draw the face with a different hash: cutscenes, the talent screen and the Serenitea Pot. Your mod then disappears there.
+
+1. Hunt the face part again on that screen and copy its hash.
+2. In your mod's `.ini`, copy the `[TextureOverride...]` section of that part.
+3. Give the copy a new name, like `[TextureOverrideBrows2]`, and put the new hash in its `hash =` line.
+4. Press `F10`.
+
+{/* NEEDS HANDS-ON TEST: on Genshin Impact 7.2, which screens use another face hash, and that a copied TextureOverride section with the new hash makes a Face Modding Tools 2.0 mod show there */}
+
+## Change the face texture
+
+Face colors, makeup and blush live in the face diffuse, like `FurinaFaceHeadDiffuse.dds`. Edit it like any diffuse and save it as `BC7 (sRGB, DX 11+)`. Keep its alpha.
+
+The face texture uses its own line since version 6.1: `this =`. Never add an ORFix or NNFix line to a face section:
+
+```ini
+[TextureOverrideHuTaoFaceHeadDiffuse]
+hash = d00bb0ef
+this = ResourceHuTaoFaceHeadDiffuse
+```
+
+If your edit shows upside down in game, flip the image vertically and save again.
+
+{/* NEEDS HANDS-ON TEST: which line Face Modding Tools 2.0 writes for the face texture when Mod textures is on, and whether the dumped face texture is stored upside down */}
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The face looks torn or scrambled" id="scrambled-face">
+
+The vertex order of your export does not match the game's. Turn on **Reorder** and click **Create Mod** again. Use the same dump for every step, from Setup to the last export.
+
+</Accordion>
+<Accordion title="Nothing changes in game" id="no-change">
+
+Check that each `base` and `key` file is in its own part's sub-folder. Then switch characters and press `F10`. If you dumped the face while another face mod was on, your hashes belong to that mod: turn it off and dump again.
+
+</Accordion>
+<Accordion title="Results look wrong after many edits" id="start-over">
+
+The tool keeps your first `base.buf` in the dump folder. Delete it to start clean, export a new `base` from an untouched import, then export `key` and click **Create Mod**.
+
+</Accordion>
+<Accordion title="The face is white or shows round marks on the cheeks" id="white-face">
+
+That is a face texture line problem, not a shape problem. [Mods look broken](/docs/genshin-impact/errors/mods-look-broken) shows the fix.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Add a toggle"
+    href="/docs/genshin-impact/ini/add-a-toggle"
+    icon={<Icon name="ToggleRight" />}
+    level="intermediate"
+  >
+    Switch your face edit on and off with a key.
+  </PremiumCard>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/genshin-impact/publishing/publishing-checklist"
+    icon={<Icon name="Upload" />}
+    level="beginner"
+  >
+    Clean the folder, credit the tools, and pack it up.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Creating Face Mods with Face Modding Tools](https://gamebanana.com/tuts/18672) by RainEndings. Images 2 and 3 come from this guide.
+- **Tool:** [Genshin Face Modding Tools](https://github.com/gdsfdg/facemodtools) by gdsfdg, with RainEndings. Image 1 comes from its GitHub page.
+- **Video:** [How to make Genshin mods the Aotani way (Intermediate)](https://www.youtube.com/watch?v=h7RMkdKWXEE) by Aotani.
+- **Background:** how face mods work, from face modding notes by [Anilyan](https://discord.com/users/301273867618484235) in the [AGMG Discord](https://discord.gg/agmg). The method was first worked out by DiXiao.
+- **Tools:** [XXMI Tools](https://github.com/leotorrez/XXMITools) by LeoTorreZ, [gui_collect](https://github.com/Petrascyll/gui_collect) by Petrascyll.

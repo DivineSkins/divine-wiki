@@ -1,0 +1,183 @@
+---
+title: "Linux and Steam Deck"
+description: "Can you use Genshin Impact mods on Linux or a Steam Deck? What is known to work with XXMI Launcher under Wine or Proton, what is not known, and where to ask."
+category: "errors"
+patch: "7.2"
+keywords:
+  [
+    "genshin mods linux",
+    "genshin mods steam deck",
+    "xxmi launcher linux",
+    "gimi wine",
+    "twintail xxmi",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+Genshin Impact and XXMI Launcher are made for Windows. Some players run both on Linux or a Steam Deck through Wine or Proton, which translate the Windows game. This page says what is known to work, what is not known yet, and where to ask for help.
+
+<Callout type="warning" title="Unofficial, and not tested here">
+  XXMI Launcher's author offers Linux support "as is", in the hope that Wine and
+  Proton do the job. The launcher's issue tracker does not take Linux bug
+  reports. Nobody has tested the steps on this page with Genshin Impact 7.2 for
+  this wiki.
+</Callout>
+
+{/* NEEDS HANDS-ON TEST: both routes on this page with Genshin Impact 7.2, XXMI Launcher 2.5.0 and GIMI 8.9.4, on a Linux PC and on a Steam Deck. */}
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Linux" note="or a Steam Deck in Desktop Mode">
+    A Linux PC
+  </Requirement>
+  <Requirement icon="Layers" note="Wine 9.22 or newer">
+    Wine or Proton
+  </Requirement>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/genshin-impact/tools/xxmi-launcher"
+    note="the portable build, or Twintail's copy"
+  >
+    XXMI Launcher
+  </Requirement>
+</Requirements>
+
+Written for XXMI Launcher 2.5.0 and GIMI 8.9.4.
+
+## The risk is the same as on Windows
+
+Mods break the Terms of Service of Genshin Impact. HoYoverse can ban any account that uses third-party software. Genshin Impact's anti-cheat detects the mod loader, and its "Illegal tool detected" kicks have hit Linux players too, since August 2025. Linux is not a way around them. Use mods only on an account you can afford to lose.
+
+["Illegal tool detected" and 4001 errors](/docs/genshin-impact/errors/illegal-tool-detected) explains the error and your choices.
+
+## What is known to work
+
+<img
+  src="/wiki-images/genshin-impact-errors-linux-steam-deck-1.webp"
+  alt="A Wine prefix folder tree that holds both the official HoYoPlay launcher with Genshin Impact and the portable XXMI Launcher with its GIMI Mods folder, next to four rules for Linux"
+/>
+
+One rule matters most: XXMI Launcher must run in the same Wine or Proton prefix as the game. A prefix is the folder where Wine keeps one fake Windows install. Two routes do this.
+
+<Tabs defaultValue="official-launcher">
+<TabsList>
+<TabsTrigger value="official-launcher"><Icon name="AppWindow" className="size-4" />Official launcher in Wine</TabsTrigger>
+<TabsTrigger value="twintail"><Icon name="Linux" className="size-4" />Twintail Launcher</TabsTrigger>
+</TabsList>
+<TabsContent value="official-launcher">
+
+Run the official HoYoPlay launcher and the portable XXMI Launcher in one prefix. A Wine manager such as Lutris makes this easier.
+
+1. Install HoYoPlay into a Wine prefix, then install Genshin Impact through it. Start the game once.
+2. Download `XXMI-Launcher-Portable-vX.X.X.zip` from the [XXMI Launcher releases](https://github.com/SpectrumQT/XXMI-Launcher/releases/latest) on GitHub.
+3. Extract it to a folder inside the same prefix. Keep it out of `Program Files`, and use no `{` or `}` in the path.
+4. Install the Microsoft Visual C++ Redistributable (x64) in that prefix. The portable build needs it.
+5. Add `Resources\Bin\XXMI Launcher.exe` as a second program in the same prefix. In Lutris, duplicate the HoYoPlay entry and change its executable.
+6. Start XXMI Launcher, pick Genshin Impact, and install GIMI. If it does not find the game, set **Game Folder** to the folder that holds the game's `.exe`.
+7. Put your mods in `GIMI\Mods` inside the launcher folder. Start the game from XXMI Launcher.
+
+The steps after the install are the same as on Windows: [Install mods with XXMI Launcher](/docs/genshin-impact/getting-started/install-with-xxmi-launcher).
+
+<YouTube
+  id="7vaMUdY1E6E"
+  title="Install and mod HoYoverse games on Linux with Lutris, by MrLGamer"
+/>
+
+This video is from early 2025 and shows XXMI Launcher 1.3.4, so the labels differ today. It puts the launcher in `Program Files`: the launcher's own README says to avoid those folders. The creator's pinned comment updates the Wine advice: Wine Staging-Tkg 10.0, not Wine 10.1. The "Illegal tool detected" kicks reached Linux players after this video was made.
+
+</TabsContent>
+<TabsContent value="twintail">
+
+Twintail Launcher installs and starts the game on Linux and has a built-in XXMI option. It downloads XXMI and GIMI itself and starts them in the game's prefix.
+
+1. Install Twintail from Flathub (`app.twintaillauncher.ttl`), or from Copr, AUR or Nix.
+2. Install or import Genshin Impact inside Twintail.
+3. Turn on the game's XXMI option.
+4. If Twintail says your runner does not support modding, pick another runner.
+5. Put your mods in the `GIMI\Mods` folder that Twintail made, and start the game from Twintail.
+
+{/* NEEDS HANDS-ON TEST: Twintail 2.5.3 menu labels for the XXMI option, where it puts GIMI\Mods, and whether its XXMI copy is the official package. */}
+
+In September 2026 a player reported mods loading under Twintail in another XXMI game. We found no such report for Genshin Impact yet.
+
+</TabsContent>
+</Tabs>
+
+## Steam Deck
+
+Genshin Impact is not on Steam. On a Steam Deck, switch to Desktop Mode and use one of the routes above. The video above runs on a Steam Deck and adds shortcuts you can start from Game Mode.
+
+XXMI's folder picker does not show hidden folders, such as `.local`. Type the path into the picker's address bar instead.
+
+{/* NEEDS HANDS-ON TEST: a Steam Deck from start to finish with Genshin Impact 7.2 and GIMI 8.9.4, in Desktop Mode and from a Game Mode shortcut. */}
+
+## What is not known
+
+- Whether mods load on Linux today with Genshin Impact 7.2 and GIMI 8.9.4. No report from 2026 confirms it.
+- Which Wine or Proton version works best now.
+- Twintail's exact labels, and whether its copy of XXMI is the official package.
+- A full Steam Deck setup, from install to a mod in game.
+
+Tested it? Tell us on Discord, and we will update this page.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title='"d3d11.dll is missing expected entry point"' id="entry-point">
+
+**Cause:** on Linux, this error comes from the graphics layers of Wine or Proton, VKD3D or NVAPI.
+
+**Fix:** turn off VKD3D and NVAPI in your Wine runner's settings, then start again. If it stays, ask in the AGMG Discord's Linux channel.
+
+{/* NEEDS HANDS-ON TEST: that turning off VKD3D and NVAPI clears this error for GIMI on Linux */}
+
+</Accordion>
+<Accordion title="XXMI Launcher cannot find the game" id="game-not-found">
+
+1. Check that the launcher and the game run in the same prefix.
+2. In the launcher settings, set **Game Folder** to the folder that directly holds the game's `.exe`.
+3. If the folder sits under a hidden folder such as `.local`, type its path by hand.
+
+</Accordion>
+<Accordion title='The game kicks me with "Illegal tool detected"' id="kicked">
+
+This is the same kick that Windows players get. There is no supported fix on any system. Read the page linked in [The risk is the same as on Windows](#the-risk-is-the-same-as-on-windows).
+
+</Accordion>
+</Accordions>
+
+## Where to ask
+
+- The XXMI Launcher tracker does not take Linux bug reports. Its author points Linux players to the Linux channel in the [AGMG Discord](https://discord.gg/agmg).
+- You can also ask in [Divine's Discord](https://discord.gg/divineskins).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Install mods with XXMI Launcher"
+    href="/docs/genshin-impact/getting-started/install-with-xxmi-launcher"
+    icon={<Icon name="XXMILauncher" />}
+    level="beginner"
+  >
+    Set the one game setting mods need, and add your first mod.
+  </PremiumCard>
+  <PremiumCard
+    title="Mods not loading"
+    href="/docs/genshin-impact/errors/mods-not-loading"
+    icon={<Icon name="PackageX" />}
+    level="beginner"
+  >
+    The checks to run when the game starts but your mods don't show.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This page is based on the work of these creators. Check out their original pages.
+
+- **Video:** [[Lutris] HOW TO Install and Mod Hoyoverse Games on Linux - ULTIMATE GUIDE](https://www.youtube.com/watch?v=7vaMUdY1E6E) by MrLGamer.
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT, for the portable build and its Wine notes.
+- **Tool:** [Twintail Launcher](https://github.com/TwintailTeam/TwintailLauncher) by TwintailTeam.

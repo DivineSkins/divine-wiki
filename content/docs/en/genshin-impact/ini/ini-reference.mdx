@@ -1,0 +1,308 @@
+---
+title: ".ini reference"
+description: "Look up the section types, keys, variables, operators, commands, key options and warning messages a Genshin Impact mod .ini uses with GIMI 8.9.4."
+category: "ini"
+patch: "7.2"
+keywords:
+  [
+    "gimi ini reference",
+    "3dmigoto ini",
+    "textureoverride",
+    "key types",
+    "genshin mod ini",
+  ]
+---
+
+<LevelPill level="advanced" />
+
+A lookup page for the `.ini` language Genshin Impact mods are written in. Use it next to your own `.ini`. For a guided tour of one file, read [How a mod .ini works](/docs/genshin-impact/ini/how-a-mod-ini-works) first. Written for GIMI 8.9.4 with the XXMI DLL 1.3.2, and XXMI Tools 1.8.2.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="FileCode">A mod .ini to read or edit</Requirement>
+  <Requirement icon="NotepadPlusPlus" note="or any editor that saves UTF-8">
+    A text editor
+  </Requirement>
+</Requirements>
+
+When the community docs and the XXMI DLL's source code disagree, this page follows the source code.
+
+## File rules
+
+| Rule                     | Detail                                                                            |
+| ------------------------ | --------------------------------------------------------------------------------- |
+| Comments                 | Only a line that starts with `;`. A `;` later in a line becomes part of the value |
+| Case                     | Section names and keys ignore case                                                |
+| Spaces                   | Spaces and tabs at the start and end of a line, and around `=`, are ignored       |
+| Order                    | Section order does not matter. Lines inside one section run from top to bottom    |
+| Before the first section | Only `namespace = ...` or `condition = ...`                                       |
+| Same section twice       | Only the first is used                                                            |
+| Same key twice           | Only the first is used, except in command lists, where every line runs            |
+| Encoding                 | Save as UTF-8. Other encodings garble any text that is not plain English          |
+
+## Section types
+
+The start of the name decides the type. The rest is a free label.
+
+| Section                | Runs                                                      | Used for                                              |
+| ---------------------- | --------------------------------------------------------- | ----------------------------------------------------- |
+| `[Constants]`          | Once at load, and after every `F10`                       | Declaring variables                                   |
+| `[Present]`            | Every frame                                               | Resetting flags, drawing overlays                     |
+| `[TextureOverride...]` | When the game uses a buffer or texture with this hash     | Every mesh and texture mod                            |
+| `[ShaderOverride...]`  | For every draw that uses a shader with this 16-digit hash | Effect recolors, hiding UI                            |
+| `[Resource...]`        | Never: it holds data                                      | Files, text, empty slots                              |
+| `[CommandList...]`     | When another section calls `run = CommandList...`         | Reusable blocks of lines                              |
+| `[CustomShader...]`    | When called with `run = CustomShader...`                  | Drawing with your own shader                          |
+| `[Key...]`             | When its key is pressed                                   | Toggles and sliders                                   |
+| `[ShaderRegex...]`     | On game shaders that match a pattern                      | Libraries. Old 2023 mods used it for a reflection fix |
+| `[Include...]`         | At load                                                   | Libraries that load more files                        |
+| `[Preset...]`          | While a shader override activates it                      | Rare in Genshin mods                                  |
+
+Any other name gives `Unknown section type`. `[Loader]`, `[System]`, `[Hunting]` and the other settings sections belong in GIMI's `d3dx.ini`, not in a mod.
+
+## TextureOverride keys
+
+Every other line in the section is a command.
+
+| Key                     | What it does                                                                                                      |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `hash`                  | The 8-digit hash to match                                                                                         |
+| `match_first_index`     | Match only the draw that starts at this index. Splits one index buffer into parts                                 |
+| `match_index_count`     | Match only draws with this many indices                                                                           |
+| `match_priority`        | Order when several sections match: higher runs later and wins. Also silences duplicate-hash warnings. Default `0` |
+| `filter_index`          | A number other sections can read back from the slot                                                               |
+| `override_vertex_count` | Makes the game's buffer hold this many vertices. Needs `override_byte_stride`                                     |
+| `override_byte_stride`  | Bytes per vertex for that resize                                                                                  |
+
+When two sections match the same draw, both run, lowest `match_priority` first. Every `drawindexed` line of both is drawn, so two full mods on one character overlap.
+
+## Resource keys
+
+| Key        | Meaning                                                                               |
+| ---------- | ------------------------------------------------------------------------------------- |
+| `filename` | File path, relative to the `.ini`'s folder: `.dds`, `.buf`, `.ib` or `.txt`           |
+| `type`     | `Buffer`, `StructuredBuffer`, `Texture2D` and other names from HLSL                   |
+| `format`   | A DXGI format, like `DXGI_FORMAT_R32_UINT` or `R8_UINT`                               |
+| `stride`   | Bytes per element, the vertex size for vertex buffers                                 |
+| `data`     | Inline data: a quoted string, or a format and numbers. Cannot be used with `filename` |
+| `array`    | Number of elements in a created buffer                                                |
+
+An empty `[ResourceSomething]` is valid. It holds a reference you fill later.
+
+## ShaderOverride and CustomShader keys
+
+| Section               | Key                    | Meaning                                                                 |
+| --------------------- | ---------------------- | ----------------------------------------------------------------------- |
+| `[ShaderOverride...]` | `hash`                 | The 16-digit shader hash                                                |
+| `[ShaderOverride...]` | `allow_duplicate_hash` | `true` on every copy, or `overrule` on one, silences duplicate warnings |
+| `[CustomShader...]`   | `vs`, `ps`, `gs` ...   | A shader file path, relative to the `.ini`, or `null`                   |
+| `[CustomShader...]`   | `blend`                | Blend state, like `add src_alpha inv_src_alpha`, or `disable`           |
+| `[CustomShader...]`   | `cull`                 | `none`, `front` or `back`                                               |
+| `[CustomShader...]`   | `topology`             | `triangle_list`, `triangle_strip`, `point_list` and others              |
+
+## Variables
+
+| Declaration             | Where            | Meaning                                                                               |
+| ----------------------- | ---------------- | ------------------------------------------------------------------------------------- |
+| `global $x = 0`         | `[Constants]`    | Lives for the session. The value is optional and starts at `0`                        |
+| `global persist $x = 1` | `[Constants]`    | Also saved, on `F10`, on exit and every 60 seconds. `Ctrl+Alt+F10` wipes saved values |
+| `global locked $x = 1`  | `[Constants]`    | Read-only. Writes are ignored with a warning                                          |
+| `local $x`              | Inside a section | Exists for one run of that section only                                               |
+
+- Values are 32-bit floats. Whole numbers are exact up to 16,777,216.
+- Names are `$`, then a letter or `_`, then letters, digits or `_`. `$1x`, `$my-var` and `$x.y` are illegal.
+- Each `.ini` has its own namespace, so `$swapvar` in two mods is two different variables.
+- Read another file's variable with `$\<namespace>\<name>`, like `$\global\region\regioncheck`.
+
+### Built-in values
+
+| Name                                                       | Value                                 |
+| ---------------------------------------------------------- | ------------------------------------- |
+| `time`                                                     | Seconds since the game started        |
+| `frame_time`, `fps`, `frame_number`                        | Timing and frame counters             |
+| `res_width`, `res_height`, `window_width`, `window_height` | Resolution and window size            |
+| `vertex_count`, `index_count`, `first_index`               | The current draw call                 |
+| `cursor_x`, `cursor_y`, `cursor_showing`                   | The mouse                             |
+| `hunting`, `frame_analysis`                                | Whether hunting or a frame dump is on |
+
+### IniParams
+
+`x`, `y`, `z`, `w`, then `x1` to `w1`, and so on, are values passed to shaders. A shader reads `x88` as `IniParams[88].x`. They are **shared by every mod**: if two mods write the same one, they interfere. GIMI uses some itself, like `x140`. Never write an IniParam name without `$` by mistake, or you change it for every mod.
+
+## Conditions and operators
+
+```ini
+if $swapvar == 0
+	Resource\GIMI\Diffuse = ref ResourceBodyDiffuse.0
+else if $swapvar == 1
+	Resource\GIMI\Diffuse = ref ResourceBodyDiffuse.1
+endif
+```
+
+- `if`, `elif` or `else if`, `else`, `endif`. Blocks can nest. There are no loops.
+- Any value that is not `0` counts as true: `if $costume_mods`.
+- Every `if` needs exactly one `endif`, or GIMI shows `Scope unbalanced`.
+
+Operators, from first to last in the order they are worked out:
+
+- Unary: `!` (not), `-`, `+`, `~`
+- Power: `**`
+- Multiply: `*`, `/`, `//` (divide and round down), `%` (remainder)
+- Add: `+`, `-`
+- Shift: `<<`, `>>`
+- Compare: `<`, `<=`, `>`, `>=`
+- Equal: `==`, `!=`, and `===`, `!==` for an exact match, used to test a resource against `null`
+- Bitwise: `&`, `^`, `|`
+- Logic: `&&` (both), `||` (either)
+- Brackets: `( )`
+
+Functions, with brackets: `sin`, `cos`, `tan`, `abs`, `sign`, `floor`, `ceil`, `round`, `frac`, `sqrt`, `saturate`, `random` and a few more.
+
+## Commands
+
+These lines go inside any section that runs commands.
+
+| Command                                  | Meaning                                                   | Example                              |
+| ---------------------------------------- | --------------------------------------------------------- | ------------------------------------ |
+| `<slot> = <resource>`                    | Put a resource in a slot                                  | `vb0 = ResourceCharPosition`         |
+| `this = <resource>`                      | Replace the texture or buffer that matched, in its slot   | `this = ResourceIcon`                |
+| `ref`, `copy`, `unless_null`             | How to assign: a reference, a real copy, or skip if empty | `ps-t0 = ref ResourceDiffuse`        |
+| `<slot> = null`                          | Empty a slot                                              | `ps-t69 = null`                      |
+| `run = ...`                              | Call a command list or custom shader                      | `run = CommandList\GIMI\SetTextures` |
+| `checktextureoverride = <slot>`          | Run the TextureOverride sections for what is in a slot    | `checktextureoverride = ib`          |
+| `handling = skip`                        | Do not draw the game's original                           |                                      |
+| `handling = abort`                       | Stop running this section                                 |                                      |
+| `drawindexed = <count>, <start>, <base>` | Draw part of the bound index buffer                       | `drawindexed = 31530, 0, 0`          |
+| `drawindexed = auto`                     | Draw the whole bound index buffer                         |                                      |
+| `draw = <count>, <start>`                | Draw without an index buffer                              | `draw = 21000, 0`                    |
+| `draw = from_caller`                     | Repeat the draw that called this section                  |                                      |
+| `$var = ...`, `x88 = ...`                | Set a variable or IniParam. Math is allowed               | `$frame = $frame + 1`                |
+
+Slots: `ib`, `vb0` to `vb31`, textures like `ps-t0` and `vs-t10`, constant buffers like `vs-cb3`, render targets `o0` to `o7`.
+
+### pre and post
+
+Every section has a **pre** part (before the draw, or at the end of the frame in `[Present]`) and a **post** part (after the draw, or the start of the next frame). Start a line with `pre` or `post` to choose. Without one, assignments and draws go to pre. `run` and `checktextureoverride` go to both, so the called section's own `pre` and `post` lines run at the right time.
+
+## Key sections
+
+```ini
+[KeySwap]
+key = k
+condition = $active == 1
+type = cycle
+$swapvar = 0,1
+```
+
+| Key                   | Meaning                                                                        |
+| --------------------- | ------------------------------------------------------------------------------ |
+| `key`                 | The key. You can write several `key =` lines                                   |
+| `back`                | A key that cycles backwards                                                    |
+| `type`                | `activate`, `hold`, `toggle` or `cycle` (see below)                            |
+| `condition`           | Works only while this is true. Use `$active == 1` in every character mod       |
+| `run`                 | A command list to run on press                                                 |
+| `wrap`                | `false` stops a cycle at the last value. Default `true`                        |
+| `delay`, `transition` | Wait before the change, or fade between values. `delay` works with `hold` only |
+
+| `type =`   | What a press does                                                 |
+| ---------- | ----------------------------------------------------------------- |
+| `activate` | Sets the values. The default                                      |
+| `hold`     | Sets the values while held, and puts the old ones back on release |
+| `toggle`   | First press sets the values, second press puts the old ones back  |
+| `cycle`    | Moves to the next value in each comma list                        |
+
+Key names:
+
+- Letters and digits as one character: `k`, `0`.
+- Other keys by their Windows name, with or without `VK_`: `VK_LEFT`, `RIGHT`, `F6`, `VK_NUMPAD5`.
+- Combinations with spaces: `Shift Q`, `ctrl alt F10`. `no_modifiers F6` means no Ctrl, Alt, Shift or Windows key may be held.
+- Controller buttons: `XB_A`, `XB_LEFT_TRIGGER`, `XB_DPAD_UP`.
+
+[Change a mod's keys and saved settings](/docs/genshin-impact/ini/change-mod-keys) shows how to pick keys that do not clash.
+
+## Namespaces
+
+A file's namespace is its path from the GIMI folder, unless the first line sets `namespace = Some\Name`. Sections from another namespace are reached as `Resource\Some\Name`, `CommandList\Some\Name` and `$\Some\Name`. Pick a unique namespace, like your name plus the character. Two files with the same namespace clash with `Duplicate section found`.
+
+Namespaces of GIMI's built-in libraries that mods call:
+
+| Namespace         | Library and use                                                                           |
+| ----------------- | ----------------------------------------------------------------------------------------- |
+| `GIMI`            | `Resource\GIMI\Diffuse`, `NormalMap`, `LightMap` and `run = CommandList\GIMI\SetTextures` |
+| `global\ORFix`    | `run = CommandList\global\ORFix\ORFix` or `...\NNFix` in older mods                       |
+| `TexFx`           | Glow, transparency and outlines: `CommandList\TexFx\Transparency`, `$\TexFx\_1`           |
+| `GIMIv8`          | The text API: `CommandList\GIMIv8\PrintText`                                              |
+| `global\offset`   | Height offset: `$\global\offset\offset`, `CommandList\global\offset\Offset`               |
+| `global\region`   | The current region: `$\global\region\regioncheck`                                         |
+| `global\tracking` | Player state: `$\global\tracking\swimming` and others                                     |
+
+These libraries ship inside GIMI. Never copy them into your `Mods` folder or your mod.
+
+## Genshin Impact names
+
+| Name            | Meaning                                                                                                         |
+| --------------- | --------------------------------------------------------------------------------------------------------------- |
+| `$active`       | `1` while the character is on screen. Set in the Position section, reset with `post $active = 0` in `[Present]` |
+| `$costume_mods` | GIMI's all-mods switch on `F6`                                                                                  |
+| `vb0`, `vb1`    | Position buffer, and the Blend buffer with bone weights                                                         |
+| `ps-t69`        | TexFx effects mask                                                                                              |
+| `ps-t70`        | TexFx outline color map                                                                                         |
+
+## Warning messages
+
+GIMI shows these in yellow or red after `F10`. Each ends with the section and file it came from.
+
+| Message                                                     | Usual cause                                                               | Fix                                                   |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------- |
+| `Possible Mod Conflict: Duplicate TextureOverride hash=...` | Two mods for one character, or a merged mod with its source mods still on | Turn one off, or add `match_priority` if you meant it |
+| `Possible Mod Conflict: Duplicate ShaderOverride hash=...`  | Two mods edit one shader                                                  | Add `allow_duplicate_hash`, as the message says       |
+| `Hash parse error`                                          | A typo, or a `; note` after the hash                                      | One hash per line, nothing after it                   |
+| `Section missing Hash=`                                     | A TextureOverride with no `hash`                                          | Add the hash                                          |
+| `Duplicate section found`                                   | The same section name twice                                               | Rename one                                            |
+| `Duplicate key found`                                       | Two `hash =` or two `filename =` lines                                    | Remove one                                            |
+| `Unknown section type`                                      | A typo in the name, like `[TextureOveride...]`                            | Fix the spelling                                      |
+| `Unrecognised entry`                                        | A misspelt word, an undeclared variable, or a missing resource            | Declare it, add it, or fix the name                   |
+| `Scope unbalanced`                                          | An `if` without `endif`, or one `endif` too many                          | Balance them                                          |
+| `Entry outside of section`                                  | Lines before the first section                                            | Move them into a section                              |
+| `Illegal Global Variable Name`                              | A name with `-`, `.`, a leading digit, or no `$`                          | Rename it                                             |
+| `Redeclaration of ...`                                      | `global $x` twice in one file                                             | Remove one                                            |
+| `Missing Key=`                                              | A key section with no `key =`                                             | Add one                                               |
+| `Failed to load custom texture resource`                    | The file in `filename =` is missing or misnamed                           | Fix the name, extension or folder                     |
+| `Failed to detect stride for override_vertex_count`         | No `override_byte_stride`                                                 | Add it                                                |
+| `Initial data and filename cannot be used together`         | `data =` and `filename =` in one resource                                 | Keep one                                              |
+| `NOTICE: Detected N unknown user settings in d3dx_user.ini` | Saved settings of mods you removed                                        | Harmless. It clears after two reloads                 |
+
+[Test and reload your mod](/docs/genshin-impact/basics/test-your-mod) shows how to read these on screen.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Sliders, animated textures, and help text"
+    href="/docs/genshin-impact/ini/advanced-tricks"
+    icon={<Icon name="SlidersHorizontal" />}
+    level="advanced"
+  >
+    Put these sections and commands to work in your own mod.
+  </PremiumCard>
+  <PremiumCard
+    title="Add a toggle"
+    href="/docs/genshin-impact/ini/add-a-toggle"
+    icon={<Icon name="ToggleRight" />}
+    level="intermediate"
+  >
+    The first trick most creators add to a mod.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This reference is based on the work of these creators. Check out their original documents.
+
+- **Tool:** [XXMI DLL source code](https://github.com/SpectrumQT/XXMI-Libs-Package) by SpectrumQT and the 3DMigoto developers: `IniHandler.cpp` and `CommandList.cpp` for every rule and warning text.
+- **Tool:** [XXMI DLL ini language extensions](https://github.com/SpectrumQT/XXMI-Libs-Package/tree/master/docs/ini-language-extensions) by SpectrumQT.
+- **Tool:** [GIMI `d3dx.ini`](https://github.com/SilentNightSound/GIMI-Package/blob/main/GIMI/d3dx.ini) by SilentNightSound and the GIMI team, for key types and comments on every option.
+- **Tool:** [XXMI Tools Genshin Impact template](https://github.com/leotorrez/XXMITools/blob/main/templates/Genshin%20Impact.ini.j2) by leotorrez.
+- **Guide:** [3dmigoto INI File Documentation](https://leotorrez.github.io/modding/docs/) by leotorrez and the community.
+- **Guide:** [Toggle Guide](https://gamebanana.com/tuts/18971) by gdsfdg.

@@ -1,0 +1,307 @@
+---
+title: "Recolor skill effects"
+description: "Change the color of your own Genshin Impact character's skill and burst effects by editing the effect's shader, and package the edit as a normal mod."
+category: "effects"
+patch: "7.2"
+keywords:
+  [
+    "genshin effect mod",
+    "skill effect recolor",
+    "ps_replace",
+    "shaderoverride",
+    "customshader",
+  ]
+---
+
+<LevelPill level="advanced" />
+
+You will turn your character's skill effect a new color, like orange fire into blue fire. You find the shader that draws the effect, add one line to it, and pack it into a mod folder. You should already know hunting mode. Written for XXMI Launcher 2.5.0 and GIMI 8.9.4.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/genshin-impact/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="Crosshair" href="/docs/genshin-impact/basics/find-a-hash">
+    Hunting mode, and how to copy a pixel shader hash
+  </Requirement>
+  <Requirement icon="NotepadPlusPlus" note="or any code editor">
+    A text editor
+  </Requirement>
+</Requirements>
+
+<Callout type="danger" title="Your character only, and keep it readable">
+  Change only your own character's effects. Never hide, fade or recolor enemy
+  attacks, warnings or fog to see more than the normal game shows. That is a mod
+  that gives an unfair advantage. Keep your new colors as easy to see as the
+  original.
+</Callout>
+
+<Callout type="warning" title="Old hashes do not work">
+  Every shader hash in older effect guides is from Genshin 3.x or 4.x. Shader
+  hashes change between game versions, so find each one again on your current
+  version. The hashes on this page are placeholders.
+</Callout>
+
+<img
+  src="/wiki-images/genshin-impact-effects-recolor-skill-effects-1.webp"
+  alt="Diluc using his skill in Genshin Impact, with an orange fire arc and flames, two areas circled, and the hunting overlay text at the top"
+/>
+
+<img
+  src="/wiki-images/genshin-impact-effects-recolor-skill-effects-2.webp"
+  alt="The same moment after a shader edit: Diluc's fire arc and flames are blue"
+/>
+
+## How an effect recolor works
+
+The game draws each effect with small programs called pixel shaders. Each one ends by writing its color to `o0`. You save a copy of the shader, change `o0` right before the end, and GIMI uses your copy in place of the game's.
+
+- One skill uses many shaders. Expect to edit several.
+- One shader is often shared. All Pyro flames can share one, so you limit the change to your character.
+
+## Find and edit the shader
+
+<Steps>
+<Step>
+
+### Turn on hunting and shader dumping
+
+1. Close the game.
+2. In XXMI Launcher, click the gear and open the **GIMI** tab.
+3. Under **Shader Hunting**, tick **Enable Hunting** and **Dump Shaders**.
+4. Turn off other effect mods for this character: rename their folders so they start with `DISABLED`.
+
+{/* NEEDS HANDS-ON TEST: the Dump Shaders label in the GIMI tab of XXMI Launcher 2.5.0, and that it makes Numpad 3 save an HLSL file */}
+
+</Step>
+<Step>
+
+### Put the effect on screen
+
+Use the skill in an empty spot, where few other things are drawn. For a burst, stand against a wall or in shallow water, so the burst camera does not take over. Some creators use the Kamera gadget to freeze a moment.
+
+</Step>
+<Step>
+
+### Copy the shader
+
+1. Press `Numpad 0` to turn hunting on.
+2. Press `Numpad 2` again and again until the part of the effect you want disappears. `Numpad 1` goes back one.
+3. Press `Numpad 3`. This copies the hash and saves the shader as `<hash>-ps_replace.txt` in the `ShaderFixes` folder, next to your `Mods` folder.
+4. Note the 16-digit hash and what it draws, like `skill fire arc`.
+
+</Step>
+<Step>
+
+### Change the color
+
+Open the new file. Find the last `return;` in `main`, and add one line right above it:
+
+| Line                                    | Result                                                     |
+| --------------------------------------- | ---------------------------------------------------------- |
+| `o0.xz = o0.zx;`                        | Swaps red and blue. Orange turns blue and keeps its detail |
+| `o0.xyz = float3(1,0,1);`               | One flat color, here purple. Detail is lost                |
+| `if (o0.z > o0.y) { o0.xyz = o0.yzx; }` | Changes only one color in a shared shader                  |
+
+The last line comes from a guide that turned Keqing's purple attacks green and left her yellow normal attacks alone.
+
+If the file holds assembly code instead of lines with `o0` and `return;`, this method does not work for that shader.
+
+</Step>
+<Step>
+
+### Reload and check
+
+1. Press `F10`.
+2. Press `Numpad +` to reset the hunting lists.
+3. Use the skill again. The part you edited has the new color.
+
+{/* NEEDS HANDS-ON TEST: whether F10 reloads an edited -ps_replace.txt with Enable Hunting off on XXMI DLL 1.3.2 */}
+
+</Step>
+<Step>
+
+### Repeat for every part
+
+Hunt and edit each shader of the effect until the whole skill has the new color.
+
+</Step>
+</Steps>
+
+## Pack it as a mod
+
+A loose file in `ShaderFixes` changes every character that uses that shader, and you cannot turn it off per mod. Never ship a `ShaderFixes` folder. Move your edits into a normal mod folder instead.
+
+1. Make a mod folder, like `Mods\DilucBlueFire`, with a `Shaders` folder inside.
+2. Move your edited `-ps_replace.txt` files from `ShaderFixes` into `Shaders`. Keep their names.
+3. Make `DilucBlueFire.ini` with one pair of sections per shader:
+
+```ini
+[ShaderOverrideFireArc]
+hash = aaaaaaaaaaaaaaaa
+allow_duplicate_hash = true
+run = CustomShaderFireArc
+
+[CustomShaderFireArc]
+ps = ./Shaders/aaaaaaaaaaaaaaaa-ps_replace.txt
+handling = skip
+draw = from_caller
+```
+
+- `handling = skip` stops the game's own draw.
+- `draw = from_caller` draws it again with your edited shader.
+- `allow_duplicate_hash = true` lets another mod use the same shader without a warning.
+
+{/* NEEDS HANDS-ON TEST: the ShaderOverride and CustomShader pattern with a relative ps = path under XXMI DLL 1.3.2, and two mods with allow_duplicate_hash on one shader */}
+
+4. Press `F10` and check the effect.
+
+<Files>
+  <Folder name="Mods" defaultOpen>
+    <Folder name="DilucBlueFire" defaultOpen>
+      <File name="DilucBlueFire.ini" />
+      <Folder name="Shaders" defaultOpen>
+        <File name="aaaaaaaaaaaaaaaa-ps_replace.txt" />
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+
+## Limit it to your character
+
+Run your shader only while your character is on screen. Set a flag from the character's position buffer hash, from the asset repo's `hash.json` or your own dump:
+
+```ini
+[Constants]
+global $diluc = 0
+
+[Present]
+post $diluc = 0
+
+[TextureOverrideDilucPosition]
+hash = bbbbbbbb
+match_priority = 1
+$diluc = 1
+
+[ShaderOverrideFireArc]
+hash = aaaaaaaaaaaaaaaa
+allow_duplicate_hash = true
+if $diluc == 1
+	run = CustomShaderFireArc
+endif
+```
+
+- `match_priority = 1` keeps this section from clashing with a model mod for the same character.
+- While the flag is `0`, the game draws its own effect.
+
+Some characters disappear during parts of a burst, so the flag drops and the old color comes back. For those, also set the flag from the texture hash of the character's skill icon, which stays on screen.
+
+{/* NEEDS HANDS-ON TEST: the position-hash flag gating a CustomShader run in a ShaderOverride on Genshin Impact 7.2, during skills and bursts */}
+
+## Make the color move
+
+Pass the time to your shader, then use it in the color line. Add this line to the shader override, above the `run` line:
+
+```ini
+x180 = time
+```
+
+At the top of the shader file, above `void main`, add:
+
+```cpp
+#define TIME IniParams[180].x
+```
+
+Then use it above `return;`. This makes the effect pulse:
+
+```cpp
+o0.xyz = o0.xyz * (sin(TIME * 2) + 1) * 0.5;
+```
+
+A bigger number than `2` makes it pulse faster. IniParams like `x180` are shared by all mods, so pick one no other mod of yours uses.
+
+{/* NEEDS HANDS-ON TEST: x180 = time in a ShaderOverride driving a pulse in an edited pixel shader on GIMI 8.9.4 */}
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Effects or other mods broke after I edited shaders" id="shaderfixes-broke">
+
+Remove the files you added to `ShaderFixes`. Do not empty the folder: GIMI ships its own files there. Then run **Repair GIMI** from the three-dots menu next to **Start** in XXMI Launcher.
+
+</Accordion>
+<Accordion title="Every character's effect changed color" id="every-character">
+
+The shader is shared, and your mod runs it all the time. Add the character flag from [Limit it to your character](#limit-it-to-your-character).
+
+</Accordion>
+<Accordion title="My edit stopped working after a game update" id="after-update">
+
+The game changed the shader, so its hash changed. Hunt the effect again and copy the new file. Then copy your color line into it.
+
+</Accordion>
+<Accordion title="Two old effect mods use the same ShaderFixes file" id="two-mods-one-shader">
+
+Only one file per shader can sit in `ShaderFixes`, so one of the two mods stops working. Move both into mod folders as shown above. If you must keep one loose file, merge them by hand:
+
+1. Keep one file. In the other, find the line that links the effect to its character, like `#define ACTIVE IniParams[160].x`.
+2. Copy it under the kept file's own `#define` line, and give it a new name, like `QACTIVE`.
+3. Copy the other file's color block, the `if (... && ACTIVE == 1) { ... }` right before `return;`, and paste it after the kept file's block.
+4. Change the pasted `if` to `else if`, and its `ACTIVE` to `QACTIVE`.
+5. Delete the other file and press `F10`.
+
+The result looks like this:
+
+```cpp
+if (o0.x < o0.z && ACTIVE == 1) {
+  o0.x = o0.z * 0.3;
+} else if (o0.x > o0.z && QACTIVE == 1) {
+  float orig = o0.z;
+  o0.z = o0.x;
+  o0.x = orig;
+}
+return;
+```
+
+This works only when the two mods' `.ini` files use different IniParams, like `x160` and `x171`.
+
+{/* NEEDS HANDS-ON TEST: merging two -ps_replace.txt files with else if on GIMI 8.9.4, and the case where both mods use the same IniParam */}
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Add glow and see-through parts"
+    href="/docs/genshin-impact/effects/glow-and-transparency"
+    icon={<Icon name="Sparkles" />}
+    level="intermediate"
+  >
+    Make parts of your character's model glow in any color.
+  </PremiumCard>
+  <PremiumCard
+    title="Sliders, animated textures, and help text"
+    href="/docs/genshin-impact/ini/advanced-tricks"
+    icon={<Icon name="SlidersHorizontal" />}
+    level="advanced"
+  >
+    Drive your shader with a slider key.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** 3DMigoto GIMI Effect and Shader Tutorial (2023) by SilentNightSound.
+- **Guide:** Shader Effect Modding Techniques (2023) by complex31, for the color lines and the pulse.
+- **Images:** the two Diluc screenshots from Shader Effect Modding Techniques by complex31 ([ComplexSignal31](https://discord.com/users/495669995678990376) in the AGMG Discord).
+- **Discord:** merging two effect mods on one shader by [dotfritz](https://discord.com/users/645799602670534667) in the [AGMG Discord](https://discord.gg/agmg).
+- **Discord:** the ShaderFixes to mod folder pattern by [SinsOfSeven](https://discord.com/users/178340582991724545) in the [AGMG Discord](https://discord.gg/agmg).
