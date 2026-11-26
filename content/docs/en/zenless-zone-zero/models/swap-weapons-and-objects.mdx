@@ -1,0 +1,239 @@
+---
+title: "Swap weapons and objects"
+description: "Replace a Zenless Zone Zero agent's weapon or prop, a Bangboo or another object in Blender, get the original from your own frame dump, and cover agents that share a weapon."
+category: "models"
+patch: "3.3"
+keywords: ["zzz weapon mod", "bangboo mod", "zzz prop mod", "xxmi tools"]
+---
+
+<LevelPill level="intermediate" />
+
+The weapons and props agents hold, Bangboo and other objects are model mods, made like an agent's outfit. This guide shows where each original comes from, how to put your model in its place, and what is different from an agent. Written for XXMI Tools 1.8.2 on Blender 4.5 LTS and ZZMI 1.5.2.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="Blender"
+    href="/docs/zenless-zone-zero/tools/blender-add-on"
+  >
+    Blender 4.5 LTS with XXMI Tools
+  </Requirement>
+  <Requirement icon="Camera" href="/docs/zenless-zone-zero/basics/frame-dump">
+    A frame dump of the object, extracted with gui_collect
+  </Requirement>
+  <Requirement icon="Swords" note="your own, or one whose license allows it">
+    The model you want to use
+  </Requirement>
+</Requirements>
+
+You should already know how to [remove a part](/docs/zenless-zone-zero/models/remove-a-part) and export a mod.
+
+## What you can replace
+
+| Object                     | How               | Where the original comes from                                                                                        |
+| -------------------------- | ----------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Agents' weapons and props  | Mesh and textures | Your own frame dump. The asset repo has no weapons. Some props are components of the agent, like Billy's `RightGun`. |
+| W-Engines                  | Glow only         | A W-Engine mod changes the extra glow a signature W-Engine turns on for its agent: the `WengineFx` textures.         |
+| Bangboo                    | Mesh and textures | The asset repo, in `BangbooData`.                                                                                    |
+| NPCs                       | Mesh and textures | The asset repo, in `NPCData`. Generic parts are shared by many NPCs, so a mod changes all of them.                   |
+| Posters, screens, wall art | Textures only     | Your own frame dump: see [Retexture objects and the world](/docs/zenless-zone-zero/textures/world-textures).         |
+
+For W-Engine glow, see [Add glow and see-through parts](/docs/zenless-zone-zero/effects/glow-and-transparency).
+
+<img
+  src="/wiki-images/zenless-zone-zero-models-swap-weapons-and-objects-1.webp"
+  alt="Five steps: hunt the weapon's IB hash with Numpad 7 and 8 and copy it with 9, press F8 and extract it with gui_collect into a folder with hash.json, import both models with XXMI Tools and apply transforms, join your model into the emptied original and copy COLOR, then export, press F10 and test in combat"
+/>
+
+## Get the original weapon
+
+The asset repo leaves out weapons: there are too many to keep up to date. Dump the one you want yourself.
+
+1. In hunting mode, press `Numpad 7` and `Numpad 8` until the weapon disappears. Press `Numpad 9` to copy its IB hash. [Find a hash with hunting mode](/docs/zenless-zone-zero/basics/find-a-hash) shows the keys.
+2. Make a frame dump with `F8` and extract the weapon with gui_collect, as [Make a frame dump](/docs/zenless-zone-zero/basics/frame-dump) shows. You get a folder with the weapon's buffers, textures and `hash.json`.
+3. Import that folder with XXMI Tools, as [Get a model into Blender](/docs/zenless-zone-zero/models/import-into-blender) shows.
+
+{/* NEEDS HANDS-ON TEST: on Zenless Zone Zero 3.3, that gui_collect 1.4.2 extracts an agent's weapon into a folder that XXMI Tools 1.8.2 imports and exports, and whether most weapons are their own component */}
+
+## Replace the model
+
+<Steps>
+<Step>
+
+### Import both models
+
+1. Import the weapon's dump with XXMI Tools.
+2. Check the weapon object's **Vertex Groups** list in the **Object Data** tab. Note which groups it has.
+3. Import your model with <MenuPath path="File > Import" /> as FBX, OBJ or glTF.
+4. Remove what the game cannot use: extra objects, shape keys and bones. One object with one texture is easiest.
+
+</Step>
+<Step>
+
+### Line it up
+
+1. Move, rotate and scale your model over the original. Put the grip where the hand holds the original.
+2. Keep the size close to the original, or it clips through the agent.
+3. Press `Ctrl+A` > **All Transforms**. Without this, the weapon shows at the wrong angle and size in game.
+
+</Step>
+<Step>
+
+### Join it into the original
+
+1. Select the original weapon object, press `Tab`, press `A`, then `X` > **Vertices**. The object is now empty but keeps its name and properties.
+2. In Object Mode, select your model, then `Shift+click` the empty original so it is active.
+3. Press `Ctrl+J`. Your model now has the original's name and properties.
+
+</Step>
+<Step>
+
+### Set the UV maps and colors
+
+1. Name the texture UV map `TEXCOORD.xy`. Keep every other UV map the original has, with the same names, up to `TEXCOORD3.xy`.
+2. Copy `COLOR` from the original with a **Data Transfer** modifier. Its red channel sets the outline thickness.
+3. Keep **Outline Optimization** on at export. It writes the outline data in `TEXCOORD1.xy`.
+
+[UV maps, vertex colors, and outlines](/docs/zenless-zone-zero/models/uvs-and-vertex-colors) explains these values.
+
+{/* NEEDS HANDS-ON TEST: on Zenless Zone Zero 3.3, that a replaced weapon shows outlines like the original with Outline Optimization on and COLOR copied from the original */}
+
+</Step>
+<Step>
+
+### Weight it, if the original has groups
+
+Skip this step if the original weapon had no vertex groups. Otherwise copy its groups, or put a rigid model on the one group that carries the original with weight `1`. Every group the original had must stay in the list, even with no weight in it.
+
+[Weight paint a mesh](/docs/zenless-zone-zero/models/weight-painting) shows both ways.
+
+{/* NEEDS HANDS-ON TEST: whether Zenless Zone Zero 3.3 agent weapons have vertex groups, and which group carries a rigid weapon */}
+
+</Step>
+<Step>
+
+### Make the textures
+
+1. Give your model the same four textures as the original: Diffuse, NormalMap, LightMap and MaterialMap. SlotFix places all four on weapons.
+2. Start the LightMap and MaterialMap from colors picked in the original's maps.
+3. If the weapon had glow and your UVs changed, make a new glow texture or point the slot at `Resource\ZZMI\EmptyGlowMap`.
+4. Give the files the names the export writes, so they replace the originals.
+
+[Save DDS textures the right way](/docs/zenless-zone-zero/textures/save-dds-files) has the format for each map.
+
+{/* NEEDS HANDS-ON TEST: SlotFix with glow textures on a replaced weapon in ZZMI 1.5.2: its support list marks weapon glow as untested */}
+
+</Step>
+<Step>
+
+### Export and test
+
+1. [Export your mod](/docs/zenless-zone-zero/models/export-your-mod) and copy your textures over the exported ones.
+2. In game, switch to another agent, press `F10`, and switch back.
+3. Check it on the agent screen, in the field and in combat, with every skill and the Ultimate.
+
+</Step>
+</Steps>
+
+## Agents that share a weapon
+
+Two versions of one agent can share one weapon model, with new hashes for the second one. Starlight Billy, the S-rank version of Billy, uses the same gun model as base Billy, with its own Blend and Texcoord hashes. A gun mod made for one of them then shows only on that one. To cover both:
+
+1. In your `.ini`, find the gun's Blend and Texcoord sections, `[TextureOverrideBillyRightGunBlend]` and `[TextureOverrideBillyRightGunTexcoord]`.
+2. Copy both sections. Give the copies new names, and put the other version's Blend and Texcoord hashes on their `hash =` lines.
+3. Keep the copies at the bottom of the section list.
+
+Get the hashes from a dump of the other version, or from the creator's guide in Credits.
+
+{/* NEEDS HANDS-ON TEST: on Zenless Zone Zero 3.3, one gun mod on both Billy versions with the copied sections, and what happens when the copies are not at the bottom */}
+
+## Small props in a hand-edited .ini
+
+For small props, such as Miyabi's hairpin, Yidhari's RGB bars or Sunna's screen, the ZZMI maintainers advise matching the part on its Blend hash, with both `match_first_index` and `match_index_count`.
+
+Put `handling = skip` only in a part section that has both match lines. A `handling = skip` on a bare index buffer section can make the sky glitch and the streets of Sixth Street or Lumina Square flicker.
+
+{/* NEEDS HANDS-ON TEST: a hand-edited prop section matched on the Blend hash with match_first_index and match_index_count, on ZZMI 1.5.2 */}
+
+## Bangboo
+
+Bangboo mods work like agent mods. Each Bangboo folder in the asset repo has one `BodyA` part with the four usual textures. Import it, edit it and export it with the same steps. SlotFix knows Bangboo textures, small maps included, so the export's texture lines work as they do for agents. A Bangboo normal map is `BC7_UNORM`, not uncompressed like an agent's.
+
+{/* NEEDS HANDS-ON TEST: a Bangboo mesh mod exported with XXMI Tools 1.8.2 on Zenless Zone Zero 3.3, from a 3.2 asset repo folder */}
+
+## World props without XXMI Tools
+
+<ToolCard
+  name="ZZZ Object Export"
+  href="https://gist.github.com/litho9/bacf2eb1de1367d2803f7116749df86f"
+  badge="Untested"
+  icon={<Icon name="GitHub" />}
+>
+  A short Blender script by Lioh. It writes an index buffer and one vertex
+  buffer for the selected object. Made for Zenless Zone Zero 1.5.
+</ToolCard>
+
+World props in this game draw from one vertex buffer that holds position, normal, tangent and UV. The script writes `<name>-ib.buf` and `<name>-vb0.buf` in that layout. You run it from Blender's **Text Editor**, in Object Mode, with the faces triangulated, after you change the output folder written in the script.
+
+It writes no `.ini`, and loading its buffers is not covered here. Version 3.2 changed some buffer formats, so the layout may be out of date.
+
+{/* NEEDS HANDS-ON TEST: whether the ZZZ Object Export script still matches world prop buffers on Zenless Zone Zero 3.3, and whether XXMI Tools 1.8.2 exports these props itself */}
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The weapon is rotated, huge, or tiny" id="wrong-transform">
+
+The transforms were not applied. Line the model up with the original again, press `Ctrl+A` > **All Transforms**, and export.
+
+</Accordion>
+<Accordion title="Glow shows in the wrong places" id="wrong-glow">
+
+The original glow texture still follows the old UVs. Make a new glow texture, or point the slot at `Resource\ZZMI\EmptyGlowMap`.
+
+</Accordion>
+<Accordion title="Outlines are too thick, missing or odd" id="outlines">
+
+`COLOR` was not copied from the original, or `TEXCOORD1.xy` has no outline data. Copy `COLOR` again and export with **Outline Optimization** on.
+
+</Accordion>
+<Accordion title="The mod shows on one version of the agent only" id="one-version-only">
+
+The other version uses other hashes for the same model. Add its sections as shown in "Agents that share a weapon".
+
+</Accordion>
+</Accordions>
+
+More symptoms are on [Model problems in game](/docs/zenless-zone-zero/errors/model-problems).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Add a toggle"
+    href="/docs/zenless-zone-zero/ini/add-a-toggle"
+    icon={<Icon name="ToggleRight" />}
+    level="intermediate"
+  >
+    Switch between your weapon and the original with a key.
+  </PremiumCard>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/zenless-zone-zero/publishing/publishing-checklist"
+    icon={<Icon name="Upload" />}
+    level="beginner"
+  >
+    Clean up the folder, credit your sources, and note which versions it covers.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Custom Weapon Modding Walkthrough](https://leotorrez.github.io/modding/guides/weapon-banana) by SilentNightSound, for lining up and joining a weapon.
+- **Guide:** [Guns for both Billy](https://gamebanana.com/tuts/19915) by Qwoso.
+- **Guide:** [Environmental texture issues 1.3.4](https://github.com/leotorrez/ZZMI-Package/issues/46), with the answer by Satan1c, for small props and `handling = skip`.
+- **Tools:** [ZZZ Object Export](https://gist.github.com/litho9/bacf2eb1de1367d2803f7116749df86f) by Lioh, [gui_collect](https://github.com/Petrascyll/gui_collect) by Petrascyll.
+- **Assets:** [ZZ-Model-Importer-Assets](https://github.com/leotorrez/ZZ-Model-Importer-Assets) by LeoTorreZ and Satan1c.

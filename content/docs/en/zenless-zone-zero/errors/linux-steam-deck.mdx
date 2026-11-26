@@ -1,0 +1,203 @@
+---
+title: "Linux and Steam Deck"
+description: "Can you use Zenless Zone Zero mods on Linux or a Steam Deck? What is known to work with XXMI Launcher under Wine or Proton, what breaks, and where to ask."
+category: "errors"
+patch: "3.3"
+keywords:
+  [
+    "zzz mods linux",
+    "zzz mods steam deck",
+    "xxmi launcher linux",
+    "zzmi wine",
+    "twintail xxmi",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+Zenless Zone Zero and XXMI Launcher are made for Windows. Some players run both on Linux or a Steam Deck through Wine or Proton, which translate the Windows game. This page says what is known to work, what breaks, what is not known yet, and where to ask for help.
+
+<Callout type="warning" title="Unofficial, and not tested here">
+  XXMI Launcher's author offers Linux support "as is", in the hope that Wine and
+  Proton do the job. The launcher's issue tracker does not take Linux bug
+  reports. Nobody has tested the steps on this page with Zenless Zone Zero 3.3
+  for this wiki.
+</Callout>
+
+{/* NEEDS HANDS-ON TEST: both routes on this page with Zenless Zone Zero 3.3, XXMI Launcher 2.5.0 and ZZMI 1.5.2, on a Linux PC and on a Steam Deck. */}
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Linux" note="or a Steam Deck in Desktop Mode">
+    A Linux PC
+  </Requirement>
+  <Requirement icon="Layers" note="Wine 9.22 or newer">
+    Wine or Proton
+  </Requirement>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/zenless-zone-zero/tools/xxmi-launcher"
+    note="the portable build, or Twintail's copy"
+  >
+    XXMI Launcher
+  </Requirement>
+</Requirements>
+
+Written for XXMI Launcher 2.5.0 and ZZMI 1.5.2.
+
+## The risk is the same as on Windows
+
+Mods break the Terms of Service of Zenless Zone Zero. HoYoverse can suspend or permanently ban any account that uses third-party software. The game's kernel anti-cheat runs under Wine and Proton too, and since about June 2026 it has crashed the game for some Linux players who use XXMI. Linux is not a way around the anti-cheat or the rules. Use mods only on an account you can afford to lose.
+
+[What's allowed and how to stay safe](/docs/zenless-zone-zero/getting-started/stay-safe) explains the risk in full.
+
+## Where it stands
+
+| Platform   | Mods                                                                                   |
+| ---------- | -------------------------------------------------------------------------------------- |
+| Linux PC   | Partly. Some setups work. Since version 3.0, some players crash after login with XXMI. |
+| Steam Deck | Partly. Same routes as a Linux PC. One report of the Steam version failing with XXMI.  |
+
+## What is known to work
+
+<img
+  src="/wiki-images/zenless-zone-zero-errors-linux-steam-deck-1.webp"
+  alt="A Wine prefix folder tree that holds both the official HoYoPlay launcher with Zenless Zone Zero and the portable XXMI Launcher with its ZZMI Mods folder, next to five rules for Linux"
+/>
+
+One rule matters most: XXMI Launcher must run in the same Wine or Proton prefix as the game. A prefix is the folder where Wine keeps one fake Windows install. Two routes do this.
+
+<Tabs defaultValue="official-launcher">
+<TabsList>
+<TabsTrigger value="official-launcher"><Icon name="AppWindow" className="size-4" />Official launcher in Wine</TabsTrigger>
+<TabsTrigger value="twintail"><Icon name="Linux" className="size-4" />Twintail Launcher</TabsTrigger>
+</TabsList>
+<TabsContent value="official-launcher">
+
+Run the official HoYoPlay launcher and the portable XXMI Launcher in one prefix. A Wine manager such as Lutris makes this easier.
+
+1. Install HoYoPlay into a Wine prefix, then install Zenless Zone Zero through it. Start the game once.
+2. In HoYoPlay, leave the **DX12** box under **Start Game** unticked. Mods only work in DirectX 11.
+3. Download `XXMI-Launcher-Portable-vX.X.X.zip` from the [XXMI Launcher releases](https://github.com/SpectrumQT/XXMI-Launcher/releases/latest) on GitHub.
+4. Extract it to a folder inside the same prefix. Keep it out of `Program Files`, and use no `{` or `}` in the path.
+5. Install the Microsoft Visual C++ Redistributable (x64) in that prefix. The portable build needs it.
+6. Add `Resources\Bin\XXMI Launcher.exe` as a second program in the same prefix. In Lutris, duplicate the HoYoPlay entry and change its executable.
+7. Start XXMI Launcher, pick Zenless Zone Zero, and install ZZMI. If it does not find the game, set **Game Folder** to the `ZenlessZoneZero Game` folder, the one that holds `ZenlessZoneZero.exe`.
+8. Put your mods in `ZZMI\Mods` inside the launcher folder. Start the game from XXMI Launcher.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check on Zenless Zone Zero 3.3 that the portable launcher in the HoYoPlay prefix installs ZZMI and that the banner shows. */}
+
+The steps after the install are the same as on Windows: [Install mods with XXMI Launcher](/docs/zenless-zone-zero/getting-started/install-with-xxmi-launcher).
+
+<YouTube
+  id="7vaMUdY1E6E"
+  title="Install and mod HoYoverse games on Linux with Lutris, by MrLGamer"
+/>
+
+This video is from early 2025 and shows XXMI Launcher 1.3.4, so the labels differ today. It puts the launcher in `Program Files`: the launcher's own README says to avoid those folders. The creator's pinned comment updates the Wine advice: Wine Staging-Tkg 10.0, not Wine 10.1. In the video, Zenless Zone Zero works with this route without extra steps. That was before version 3.0 and before the crash reports below.
+
+</TabsContent>
+<TabsContent value="twintail">
+
+Twintail Launcher installs and starts the game on Linux and has a built-in XXMI option. It downloads XXMI and ZZMI itself and starts them in the game's prefix.
+
+1. Install Twintail from Flathub (`app.twintaillauncher.ttl`), or from Copr, Terra, AUR or Nix.
+2. Install or import Zenless Zone Zero inside Twintail.
+3. Turn on the game's XXMI option. Twintail then starts the game in DirectX 11 for you.
+4. Keep a runner whose name does not start with `dw`. Twintail refuses mods with "dw" runners.
+5. Put your mods in the `ZZMI\Mods` folder that Twintail made, and start the game from Twintail.
+
+{/* NEEDS HANDS-ON TEST: Twintail 2.5.3 menu labels for the XXMI option, where it puts ZZMI\Mods, and whether its XXMI copy is the official package. */}
+
+In September 2026 a player reported mods loading under Twintail in another XXMI game. We found no such report for Zenless Zone Zero yet.
+
+</TabsContent>
+</Tabs>
+
+## Steam version and Steam Deck
+
+Zenless Zone Zero is on Steam since version 3.0. XXMI Launcher's Steam option is documented for Windows. On Linux, we found no confirmed way to use mods with the Steam version. The video above does not cover Steam copies either.
+
+On a Steam Deck, switch to Desktop Mode and use one of the routes above. The video above runs on a Steam Deck and adds shortcuts you can start from Game Mode. One player who tried the Steam version with XXMI on a Steam Deck got "unable to connect to steam servers".
+
+XXMI's folder picker does not show hidden folders, such as `.local`. Type the path into the picker's address bar instead.
+
+{/* NEEDS HANDS-ON TEST: a Steam Deck from start to finish with Zenless Zone Zero 3.3 and ZZMI 1.5.2, in Desktop Mode and from a Game Mode shortcut, and whether the Steam version can load mods at all. */}
+
+## What is not known
+
+- Whether mods load on Linux today with Zenless Zone Zero 3.3 and ZZMI 1.5.2. Reports from 2026 are few, and they disagree.
+- Why the crash after login hits some players and not others.
+- Which Wine or Proton version works best now.
+- Twintail's exact labels, and whether its copy of XXMI is the official package.
+- A working route for the Steam version, and a full Steam Deck setup.
+
+Tested it? Tell us on Discord, and we will update this page.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The game crashes right after login" id="crash-after-login">
+
+**Cause:** since about June 2026, some players see the game close right after login when XXMI runs under Wine or Proton. The log points at the game's anti-cheat driver.
+
+**Fix:** none is confirmed. XXMI Launcher's author treats it as outside the launcher's scope. Never use a tool or setting that works around the anti-cheat. Ask in the AGMG Discord's Linux channel.
+
+</Accordion>
+<Accordion title='"d3d11.dll is missing expected entry point"' id="entry-point">
+
+**Cause:** on Linux, this error comes from the graphics layers of Wine or Proton, VKD3D or NVAPI. It was reported with the portable XXMI Launcher in plain Wine and the Steam version of the game.
+
+**Fix:** turn off VKD3D and NVAPI in your Wine runner's settings, then start again. If it stays, ask in the AGMG Discord's Linux channel.
+
+{/* NEEDS HANDS-ON TEST: that turning off VKD3D and NVAPI clears this error for ZZMI on Linux */}
+
+</Accordion>
+<Accordion title="XXMI Launcher cannot find the game" id="game-not-found">
+
+1. Check that the launcher and the game run in the same prefix.
+2. In the launcher settings, set **Game Folder** to the folder that directly holds `ZenlessZoneZero.exe`.
+3. If the folder sits under a hidden folder such as `.local`, type its path by hand.
+
+</Accordion>
+<Accordion title="The game starts, but mods do not show" id="no-mods">
+
+Check that the **DX12** box is unticked, then go through [Mods not loading](/docs/zenless-zone-zero/errors/mods-not-loading). Its checks, such as the two graphics options, apply on Linux too.
+
+</Accordion>
+</Accordions>
+
+## Where to ask
+
+- The XXMI Launcher tracker does not take Linux bug reports. Its author points Linux players to the Linux channel in the [AGMG Discord](https://discord.gg/agmg).
+- You can also ask in [Divine's Discord](https://discord.gg/divineskins).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Install mods with XXMI Launcher"
+    href="/docs/zenless-zone-zero/getting-started/install-with-xxmi-launcher"
+    icon={<Icon name="XXMILauncher" />}
+    level="beginner"
+  >
+    Keep the game in DirectX 11, set two graphics options, and add your first
+    mod.
+  </PremiumCard>
+  <PremiumCard
+    title="Errors and fixes"
+    href="/docs/zenless-zone-zero/errors"
+    icon={<Icon name="TriangleAlert" />}
+  >
+    Every error page for Zenless Zone Zero mods, by symptom.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This page is based on the work of these creators. Check out their original pages.
+
+- **Video:** [[Lutris] HOW TO Install and Mod Hoyoverse Games on Linux - ULTIMATE GUIDE](https://www.youtube.com/watch?v=7vaMUdY1E6E) by MrLGamer.
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT, for the portable build and its Wine notes. Linux statements by SpectrumQT, maintainer of [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher).
+- **Tool:** [Twintail Launcher](https://github.com/TwintailTeam/TwintailLauncher) by TwintailTeam.

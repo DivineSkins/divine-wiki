@@ -1,0 +1,156 @@
+---
+title: "Make mods show at a distance"
+description: "Why Zenless Zone Zero mods turn back to the original look far from the camera, what players can check, and how creators cover the LOD1 and LOD2 models."
+category: "models"
+patch: "3.3"
+keywords:
+  ["zzz lod", "mod disappears at distance", "lod1 lod2", "zzmi lod", "lod fix"]
+---
+
+<LevelPill level="advanced" />
+
+Far from the camera, Zenless Zone Zero swaps an agent to simpler models. A mod made for the full model does not cover them, so the original look comes back. This page explains why, what players can check, and what creators can do. Written for XXMI Launcher 2.5.0 and ZZMI 1.5.2.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/zenless-zone-zero/tools/xxmi-launcher"
+  >
+    XXMI Launcher with ZZMI
+  </Requirement>
+  <Requirement
+    icon="Crosshair"
+    href="/docs/zenless-zone-zero/basics/find-a-hash"
+    note="creators only"
+  >
+    Hunting mode
+  </Requirement>
+</Requirements>
+
+## What LODs are
+
+LOD means level of detail. Games keep simpler versions of models for things far from the camera, because they cost less to draw. Agents in this game switch to an `LOD1` model and then an `LOD2` model as the camera moves away.
+
+Each distance model has its own hashes. A mod matches the full model by its hashes, so it misses the distance models. The asset repo has no distance models either: you find their hashes in your own frame dump. [How Zenless Zone Zero mods work](/docs/zenless-zone-zero/basics/how-mods-work) explains hashes.
+
+<img
+  src="/wiki-images/zenless-zone-zero-models-lods-1.webp"
+  alt="Four boxes: close up the full model shows the mod; far away the LOD1 model has its own hashes, so the original shows; farther away the LOD2 model does the same; the fix is to add sections for the LOD1 and LOD2 hashes"
+/>
+
+Distance textures have their own hashes too. A mod that sets its textures through SlotFix does not depend on texture hashes. A mod built on texture hashes can break at a distance, and on graphics cards with less than 6 GB of video memory, which get 1K textures with other hashes.
+
+## What players can check
+
+Mods break without these settings. None of them is known to stop the switch to distance models. [Install mods with XXMI Launcher](/docs/zenless-zone-zero/getting-started/install-with-xxmi-launcher) sets them up the first time.
+
+| Setting                                | Where                                            | Value       | What it does                                                                                                        |
+| -------------------------------------- | ------------------------------------------------ | ----------- | ------------------------------------------------------------------------------------------------------------------- |
+| **Configure Game Settings For ZZMI**   | XXMI Launcher settings                           | on          | Sets the two graphics options below before every start.                                                             |
+| **Character Quality**                  | In game, <MenuPath path="Settings > Graphics" /> | **High**    | Mods are made for this. One creator's LOD guide uses **Low** on purpose, to make the game draw the distance models. |
+| **High-Precision Character Animation** | In game, <MenuPath path="Settings > Graphics" /> | **Disable** | Breaks many mods when it is on.                                                                                     |
+
+{/* NEEDS HANDS-ON TEST: the exact English labels and values of Character Quality and High-Precision Character Animation in the 3.3 client, and whether any setting moves the distance where agents switch to LOD1 and LOD2 */}
+
+If a mod with the right settings still turns back to the original look far away, the mod does not cover the distance models. Check the mod's page for an update, or tell its creator. [Mods look broken](/docs/zenless-zone-zero/errors/mods-look-broken) matches other symptoms to their fixes.
+
+Some mods come with extra `.ini` files for the distance models, like `lod1.ini` and `lod2.ini`. Keep them in the mod's folder.
+
+## For creators: cover the distance models
+
+There are two ways. A texture mod needs only a few extra sections. A mesh mod needs the scripts from tifaforever's guide.
+
+### Texture mods: run the same lines for each distance model
+
+Move the texture lines of a part into one `[CommandList...]` section. Run it from the part's own section, and from one new section for each distance model's hash:
+
+```ini
+[CommandListEllenBodyATextures]
+Resource\ZZMI\Diffuse = ref ResourceEllenBodyADiffuse
+run = CommandList\ZZMI\SetTextures
+
+[TextureOverrideEllenBodyALOD1]
+hash = <the LOD1 hash from your dump>
+if 0 == 1
+    run = CommandListSkinTexture
+endif
+run = CommandListEllenBodyATextures
+
+[TextureOverrideEllenBodyALOD2]
+hash = <the LOD2 hash from your dump>
+if 0 == 1
+    run = CommandListSkinTexture
+endif
+run = CommandListEllenBodyATextures
+```
+
+In the part's own section, `[TextureOverrideEllenBodyA]`, replace the moved lines with `run = CommandListEllenBodyATextures`. The `if 0 == 1` block never runs: it stops old fix tools from adding a line that flattens normal maps. To find each hash, move the camera away until your mod turns back to the original look, then hunt the part with `Numpad 7` and `Numpad 8` and copy it with `Numpad 9`.
+
+{/* NEEDS HANDS-ON TEST: on Zenless Zone Zero 3.3 with ZZMI 1.5.2, that LOD1 and LOD2 sections calling one shared CommandList keep a texture mod visible at a distance, which hash they need, and whether they need match_first_index */}
+
+### Mesh mods: draw your model at a distance too
+
+<ToolCard
+  name="LOD Configuration Generator"
+  href="https://gamebanana.com/tools/19967"
+  badge="Untested"
+  icon={<Icon name="GameBanana" />}
+>
+  Python scripts by tifaforever that read the distance models' hashes and write
+  extra .ini files, so your full model also draws at a distance.
+</ToolCard>
+
+tifaforever's guide, in Credits, runs these steps:
+
+1. Press `F6` to turn mods off.
+2. Move the camera to the LOD1 distance, press `Numpad 0` for hunting mode, then `F8` to dump. With **Character Quality** on **Low**, one dump holds LOD1 and LOD2 together. Set it back to **High** afterwards.
+3. Read the dump into a CSV log with [3DMigotoTools](https://github.com/Nintynuts/3DMigotoTools), and note each part's vertex buffer hash for LOD1 and LOD2.
+4. Write the hashes into `input.txt`: a `lod1` line, then one line per part like `Body:abcd1234`, then `lod2` and its lines.
+5. Run `create_json.py`. Copy your mod's `<character_name>.ini` next to the scripts and run `create_lod.py`.
+6. Move the `lod1.ini` and `lod2.ini` it writes into your mod's main folder.
+7. Test at several distances.
+
+For some agents, like Caesar, the distance model's buffer differs. The guide's `buf_converter_gui.py` converts a buffer from the full model's hash to the LOD1 hash. If you import a distance model into Blender, it comes in with other axes than the full model.
+
+{/* NEEDS HANDS-ON TEST: the LOD Configuration Generator (2026-08) on Zenless Zone Zero 3.3: whether it still uses input.txt, create_json.py and create_lod.py, and that lod1.ini and lod2.ini keep a mesh mod visible at a distance */}
+
+### Test at a distance
+
+1. Check the mod close up on the agent screen.
+2. In the field, move the camera away step by step. Watch for the original look.
+3. Check in town and in combat, then switch to another agent and back.
+
+[Test and reload your mod](/docs/zenless-zone-zero/basics/test-your-mod) has the full test list.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/zenless-zone-zero/publishing/publishing-checklist"
+    icon={<Icon name="ListChecks" />}
+    level="beginner"
+  >
+    Check files, names and settings before you share your mod.
+  </PremiumCard>
+  <PremiumCard
+    title="Update your mod after a game update"
+    href="/docs/zenless-zone-zero/publishing/update-your-mod"
+    icon={<Icon name="RefreshCw" />}
+    level="intermediate"
+  >
+    Fix your own mod when a game update changes hashes or models.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Enable LOD Models to Load High-Precision Models](https://gamebanana.com/tuts/18763) by tifaforever.
+- **Tool:** [LOD Configuration Generator](https://gamebanana.com/tools/19967) by tifaforever.
+- **Guide:** [Best Way to Replace Textures - SlotFix Guide](https://gamebanana.com/tuts/18114) by hazelberry, for one shared CommandList for the LOD sections.
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ and contributors, for why mods vanish at a distance.
+- **Tool:** [3DMigotoTools](https://github.com/Nintynuts/3DMigotoTools) by Nintynuts.
