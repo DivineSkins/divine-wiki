@@ -35,12 +35,13 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
       </section>
 
       {/* The game row is the hero's call to action, so it sits right under
-          the tagline. Five 178px cards and four 14px gaps fill the 944px, so
-          the heading lines up with the first card. Narrower screens scroll the
-          row instead. Search lives in the header (and ⌘K / Ctrl K). */}
+          the tagline. Six 178px cards and five 14px gaps fill the 1138px, so
+          the heading lines up with the first card. When the cards don't fit
+          (a narrower screen, or more games) the row scrolls itself slowly and
+          by hand. Search lives in the header (and ⌘K / Ctrl K). */}
       <section
         aria-labelledby="games-heading"
-        className="mx-auto mt-12 w-full max-w-[992px] px-6 md:mt-14"
+        className="mx-auto mt-12 w-full max-w-[1186px] px-6 md:mt-14"
       >
         <h2
           id="games-heading"
@@ -53,17 +54,14 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
 
       <section
         aria-labelledby="contributors-heading"
-        className="mx-auto mt-16 mb-8 w-full max-w-[992px] px-6 md:mt-20"
+        className="mx-auto mt-16 mb-8 w-full max-w-[1186px] px-6 md:mt-20"
       >
         <h2
           id="contributors-heading"
-          className="text-divine-text font-[family-name:var(--font-hero)] text-lg font-bold tracking-tight md:text-xl"
+          className="text-divine-text mb-4 font-[family-name:var(--font-hero)] text-lg font-bold tracking-tight md:text-xl"
         >
           {t.contributorsHeading}
         </h2>
-        <p className="text-divine-text-muted mt-1 mb-4 text-sm font-medium">
-          {t.contributorsTagline}
-        </p>
         <ContributorMarquee
           contributors={CONTRIBUTORS}
           lang={lang}
