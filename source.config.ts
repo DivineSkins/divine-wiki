@@ -45,7 +45,16 @@ export const docs = defineDocs({
     postprocess: {
       includeProcessedMarkdown: true,
     },
-    async: true,
+    // Compile each guide from its file when it is rendered, instead of
+    // bundling every compiled guide into the server. Guides are prerendered
+    // at build time (generateStaticParams), so the Worker serves them from
+    // the static cache and never needs their compiled bodies. Bundled, they
+    // were in the Worker twice (pages and route handlers) and grew it with
+    // every guide: past Cloudflare's 64 MiB script limit, and past the
+    // 128 MB isolate memory limit well before that.
+    // The Worker has no filesystem, so a guide can only be rendered at build
+    // time: every docs page must stay in generateStaticParams.
+    dynamic: true,
   },
   meta: {
     schema: metaSchema,
