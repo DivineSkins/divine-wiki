@@ -1,0 +1,272 @@
+---
+title: "Crashes and launch errors"
+description: "Honkai: Star Rail crashes, beeps and closes, or shows an initialisation error with mods? Find the mod or setting behind it with the official crash checklist."
+category: "errors"
+patch: "4.7"
+keywords:
+  [
+    "star rail crash mods",
+    "srmi crash",
+    "xxmi launcher crash",
+    "game initialisation error",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+The game closes, crashes, or shows an error when you start it with mods. First match your problem below. If none fits, work through the crash checklist. This page was written for XXMI Launcher 2.5.0 and SRMI 2.4.3 on Honkai: Star Rail 4.7.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/honkai-star-rail/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="HonkaiStarRail" note="HoYoPlay or Epic Games">
+    Honkai: Star Rail on PC
+  </Requirement>
+  <Requirement icon="FolderOpen">A folder on your desktop</Requirement>
+</Requirements>
+
+The desktop folder is a place to park mods while you test.
+
+## Known crashes
+
+<Accordions type="multiple">
+<Accordion title="Beeps, then the game closes" id="two-beeps">
+
+**Cause:** the mod loader, a mod, or a shader file crashed the game while it started.
+
+**Fix:** follow [the crash checklist](#the-crash-checklist) below. It finds the file behind it.
+
+</Accordion>
+<Accordion title='"Game initialisation error" only when you start with mods' id="initialisation-error">
+
+Players saw this after the 4.6 update, in September 2026. The game starts fine without mods.
+
+**Fix:**
+
+1. In XXMI Launcher, click the gear in the top-right corner.
+2. Open the **General** tab and set **Game Launch** to `Manual`.
+3. Click **Start** in XXMI Launcher. It waits for the game.
+4. Start the game yourself from HoYoPlay.
+
+With the Epic Games version, update XXMI Launcher to 2.4.6 or newer first. It starts the Epic Games version the way it needs.
+
+{/* NEEDS HANDS-ON TEST: whether the 4.6 initialisation error still happens with XXMI Launcher 2.5.0 on Honkai: Star Rail 4.7, and whether Manual mode is still needed. */}
+
+</Accordion>
+<Accordion title="The Epic Games version stops at the login screen" id="epic-login">
+
+**Cause:** the Epic Games version needs to start from a different working folder. Launcher versions older than 2.4.6 do not do this.
+
+**Fix:** update XXMI Launcher to 2.4.6 or newer, keep **Game Launch** on `Direct`, and start the game again.
+
+</Accordion>
+<Accordion title="Crashes when a modded character appears" id="modded-character-crash">
+
+The game runs until one character comes on screen, then it closes.
+
+**Cause:** one mod is broken. A common case is a texture name in the mod's `.ini` without its `.dds` ending.
+
+**Fix:**
+
+1. Move that character's mod into the folder on your desktop.
+2. Start the game and check that the crash stops.
+3. Check the mod's page for an update, or tell its creator.
+
+If you made the mod, check every `filename =` line in its `.ini`. Each one must end in its file type, such as `.dds`.
+
+{/* NEEDS HANDS-ON TEST: confirm on SRMI 2.4.3 that a filename = line without its .dds ending crashes Honkai: Star Rail 4.7 when the character appears (one report from November 2026). */}
+
+</Accordion>
+<Accordion title="Crashes after you add RabbitFX" id="rabbitfx-crash">
+
+**Cause:** two copies of RabbitFX, an old copy, or a clash with another shader mod. RabbitFX is a helper library that many Star Rail mods use.
+
+**Fix:**
+
+1. Search your whole `Mods` folder for RabbitFX.
+2. Keep one copy. Delete any copy inside another mod's folder.
+3. Replace that copy with the current version of RabbitFX (SRMI) by caverabbit.
+4. If it still crashes, turn off your other shader mods one by one.
+
+</Accordion>
+<Accordion title="Crashes at start, even with no mods" id="initialization-delay">
+
+**Fix:**
+
+1. In XXMI Launcher, click the gear in the top-right corner.
+2. Open the **SRMI** tab.
+3. Raise **XXMI DLL Initialization Delay** in steps of 50.
+4. Start the game after each change.
+
+{/* NEEDS HANDS-ON TEST: whether raising XXMI DLL Initialization Delay stops start-up crashes for Honkai: Star Rail 4.7 with SRMI 2.4.3. The launcher's own tooltip suggests steps of 50 for games that crash with no mods, but every user report found is from another game. */}
+
+If it still crashes, follow the crash checklist.
+
+</Accordion>
+<Accordion title="The launcher says the game did not start within 30 seconds" id="process-timeout">
+
+The launcher shows a message like this:
+
+```text
+Game process StarRail.exe did not start within 30s.
+```
+
+**Cause:** your PC or drive is slow, so the game window took too long. Or the game crashed while it started.
+
+**Fix:**
+
+1. In the launcher settings, open the **General** tab.
+2. Raise **Game Process Launch Wait Timeout**, for example to `60`.
+3. Start the game again.
+
+If the game still closes, it crashed. Follow the crash checklist.
+
+{/* NEEDS HANDS-ON TEST: the exact process name the timeout message shows for Honkai: Star Rail on launcher 2.5.0. */}
+
+</Accordion>
+<Accordion title="The launcher will not start because of d3dx.ini" id="d3dx-ini-in-mods">
+
+The launcher shows:
+
+```text
+Cannot start with d3dx.ini in Mods folder!
+```
+
+**Cause:** a mod came with its own `d3dx.ini`, or an old setup was copied into `Mods`. These files break the loader's settings and can crash the game.
+
+**Fix:** when the launcher shows the "Stability Warning", click **Disable Ini Files**. It renames the stray files to start with `DISABLED_`. Or delete the stray `d3dx.ini` yourself.
+
+</Accordion>
+<Accordion title="Crashes with overlays or ReShade" id="overlays-and-reshade">
+
+**Cause:** programs that draw over the game can clash with the mod loader.
+
+**Fix:**
+
+1. Turn NVIDIA **Smooth Motion** off. It must stay off for mods.
+2. Turn off the NVIDIA overlay and other overlays while you test.
+3. Keep ReShade files and presets out of `Mods`. A ReShade preset in `Mods` can crash the game.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Honkai: Star Rail */}
+
+</Accordion>
+<Accordion title="An error about VCRUNTIME140.dll or Visual C++" id="vc-runtime">
+
+**Cause:** the Microsoft Visual C++ runtime is missing or damaged. XXMI Launcher and its loader need it.
+
+**Fix:** download and run the [Visual C++ Redistributable for x64](https://aka.ms/vs/17/release/vc_redist.x64.exe) from Microsoft. If it is already installed, choose **Repair**. Then restart your PC.
+
+</Accordion>
+</Accordions>
+
+## The crash checklist
+
+This follows the official order from XXMI Launcher's crash report form, with two changes. You remove only your own shader files, and you skip the step that deletes files in `SRMI\Core`: **Repair SRMI** puts those files back anyway. Start the game after each step. Stop when the crash stops: the last thing you changed was the cause.
+
+<img
+  src="/wiki-images/honkai-star-rail-errors-game-crashes-1.webp"
+  alt="Six steps in a row: reboot the PC, repair the game, repair SRMI, remove your own shader files, empty Mods, then put mods back half at a time"
+/>
+
+<Steps>
+<Step>
+
+### Reboot and repair the game
+
+1. Restart your PC.
+2. Repair the game in HoYoPlay or Epic Games.
+
+</Step>
+<Step>
+
+### Repair SRMI
+
+1. Open XXMI Launcher and click the **SRMI** icon.
+2. Click the 3-dots button next to **Start**, then **Repair SRMI**.
+
+It downloads SRMI and the mod loader again. Your mods stay.
+
+</Step>
+<Step>
+
+### Remove your own shader files
+
+1. Open `%AppData%\XXMI Launcher\SRMI\ShaderFixes`.
+2. Remove only the files you added yourself.
+
+<Callout type="warning" title="Do not empty ShaderFixes">
+  Old guides say to delete everything in this folder. Remove only your own
+  files. If you deleted files you did not add, run **Repair SRMI** again to get
+  them back.
+</Callout>
+
+</Step>
+<Step>
+
+### Empty the Mods folder
+
+1. In XXMI Launcher, click the 3-dots button, then **Open Mods Folder**.
+2. Move every mod folder into the folder on your desktop.
+3. Start the game.
+
+If the game still crashes with an empty `Mods` folder, a mod is not the cause. Go to [If nothing helps](#if-nothing-helps).
+
+</Step>
+<Step>
+
+### Find the mod by halves
+
+1. Move half of your mods back into `Mods`.
+2. Start the game.
+3. If it crashes, the bad mod is in that half. If not, it is in the other half.
+4. Keep halving the group that crashes until one mod is left.
+
+Keep that mod out, and check its page for an update.
+
+</Step>
+</Steps>
+
+## If nothing helps
+
+If the game crashes after every step, ask for help or report it:
+
+- Ask in the [Divine Skins Discord](https://discord.gg/divineskins) or the [AGMG Discord](https://discord.gg/agmg). Say which steps you did and what you see.
+- Report the crash with the [Game Crash Report form](https://github.com/SpectrumQT/XXMI-Launcher/blob/main/.github/ISSUE_TEMPLATE/game-crash-report.md) on the XXMI Launcher issue tracker. Do every step above first: the form asks for them.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Mods not loading"
+    href="/docs/honkai-star-rail/errors/mods-not-loading"
+    icon={<Icon name="TriangleAlert" />}
+    level="beginner"
+  >
+    The game runs, but your mods do not show.
+  </PremiumCard>
+  <PremiumCard
+    title="XXMI Launcher problems"
+    href="/docs/honkai-star-rail/errors/launcher-problems"
+    icon={<Icon name="XXMILauncher" />}
+    level="beginner"
+  >
+    The launcher will not install, open, update, or find the game.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Game Crash Report template and Crash Isolation Checklist](https://github.com/SpectrumQT/XXMI-Launcher/blob/main/.github/ISSUE_TEMPLATE/game-crash-report.md) by SpectrumQT.
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT.
+- **Tool:** [SRMI-Package](https://github.com/SpectrumQT/SRMI-Package) by SpectrumQT and the SRMI maintainers.
+- **Tool:** RabbitFX (SRMI) by caverabbit, for the one-copy rule.
+- **Discussion:** [How to fix game initialisation error after patch?](https://gamebanana.com/questions/110554) on GameBanana.
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ and contributors, for the halves method.

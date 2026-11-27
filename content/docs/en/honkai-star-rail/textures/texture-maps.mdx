@@ -1,0 +1,208 @@
+---
+title: "What each texture map does"
+description: "Learn what the Diffuse, LightMap, StockingMap and face maps of a Honkai: Star Rail character hold, channel by channel, so you change only what you mean to."
+category: "textures"
+patch: "4.7"
+keywords:
+  [
+    "star rail lightmap",
+    "star rail texture channels",
+    "stockingmap",
+    "material id",
+    "diffuse alpha glow",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+Each Honkai: Star Rail character part uses two to four textures, and each color channel in them does its own job. This page shows what each channel controls, so a recolor or a new part looks right in every light. Read [Your first mod: recolor a character](/docs/honkai-star-rail/textures/recolor-a-character) first if you have not edited a texture yet.
+
+<Accordions>
+<Accordion title="Coming from another game?" id="from-another-game">
+
+- **From [Genshin Impact](/docs/genshin-impact):** you know the diffuse and light map pair. Star Rail character dumps have no normal map. Some bodies add a `StockingMap` or a `MaterialMap`, and the face has its own `Shadow` and `ExpressionMap`. The light map's red channel is rim light, not metal. Textures bind with one `this =` section per texture hash, and glow extras come from RabbitFX, a library you add yourself.
+- **From [Zenless Zone Zero](/docs/zenless-zone-zero):** Star Rail has no normal map and no separate glow map in the dumps. Glow comes from the diffuse alpha. There is no SlotFix: textures bind by texture hash.
+- **From [Wuthering Waves](/docs/wuthering-waves):** Star Rail textures have readable names, like `KafkaBodyADiffuse.dds`. You do not need a usage file to tell them apart.
+
+</Accordion>
+</Accordions>
+
+## The one rule
+
+Copy every channel you do not mean to change from the original. The channel meanings below are community understanding, built from one creator's light map guide and a fan project that rebuilds the game's shader. They may be incomplete. A channel you leave alone cannot break.
+
+<img
+  src="/wiki-images/honkai-star-rail-textures-texture-maps-1.webp"
+  alt="Three boxes: the Diffuse holds colors in RGB and the glow mask in alpha; the LightMap holds rim light in red, shadow in green, shine in blue and material ID in alpha; the StockingMap, on some bodies only, holds the stocking area in red and stocking shine in green"
+/>
+
+## The textures of a part
+
+A character folder in the asset repository holds files like these. The example is Kafka:
+
+| File                          | Format                 | Used for                                    |
+| ----------------------------- | ---------------------- | ------------------------------------------- |
+| `KafkaBodyADiffuse.dds`       | `BC7_UNORM_SRGB`       | Colors, plus the glow mask in the alpha     |
+| `KafkaBodyALightMap.dds`      | `BC7_UNORM`            | Rim light, shadow, shine and material types |
+| `KafkaBodyAStockingMap.dds`   | `BC7_UNORM` in Kafka's | Stocking shading, on some bodies only       |
+| `KafkaHeadADiffuse.dds`       | `BC7_UNORM_SRGB`       | Face colors                                 |
+| `KafkaHeadAShadow.dds`        | `BC7_UNORM`            | The face shadow map                         |
+| `KafkaHeadAExpressionMap.dds` | BC1                    | Blush and other expressions on the face     |
+
+Newer characters usually have one `Diffuse` and one `LightMap` for the whole body. Older characters with many parts can have several pairs, each with its own hash. A few characters also have a `MaterialMap`, a black and white mask for see-through areas and special effects such as The Herta's starry hat. Its name varies.
+
+## Diffuse
+
+- **RGB:** the colors you see. This is what a recolor changes.
+- **Alpha:** the glow mask. Black means no glow, and brighter areas glow. On some materials the alpha is a cut-out instead.
+
+A diffuse with no alpha, or a white alpha, makes the whole part glow.
+
+## LightMap
+
+Creators describe the light map as mostly orange, with transparent areas from its alpha. Its four channels:
+
+| Channel | What it controls                                                                                           | Values creators use                                                         | What to do                                      |
+| ------- | ---------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- | ----------------------------------------------- |
+| **A**   | Material ID. It picks the shadow color and the outline color of each area. Each character has its own set. | Pick them from the original                                                 | Keep the original                               |
+| **R**   | Rim light. Marks where the rim light at the edge of the model shows.                                       | `0` no rim light, `100` rim light. Painted shadows, seams and lines use `0` | Paint it only to add or remove rim light        |
+| **G**   | Shadow, also called ambient occlusion. How quickly an area falls into shadow.                              | `39` follows the real light. `0` always in shadow. `100` always lit         | Keep the original                               |
+| **B**   | Shine, also called specular. Higher is shinier.                                                            | `0` to `100`. The same material looks alike on every character              | Copy values from a character with that material |
+
+The guide does not name its scale. Its numbers look like Paint.NET's **V** (value) number in the Colors window, from 0 to 100, not the 0 to 255 RGB numbers. In its screenshot, V `39` shows as RGB `100`, hex `646464`.
+
+Blue is not tied to one character. If your outfit has fur and the original has none, look at the blue channel of a character who wears fur and copy those values. To give a new area the same look as an existing one, pick the light map color from an area that already looks right, alpha included, and paint with it.
+
+{/* NEEDS HANDS-ON TEST: the LightMap channel roles and the values 0, 39 and 100 (Paint.NET V scale) on Honkai: Star Rail 4.7, from one 2026 creator guide that matches a fan shader reconstruction. Check rim light, shadow and outline color on an edited light map in game. */}
+
+## Edit a LightMap channel by channel
+
+This method splits the light map into four black and white layers, one per channel, then joins them again.
+
+<img
+  src="/wiki-images/honkai-star-rail-textures-texture-maps-2.webp"
+  alt="Paint.NET 5.1.11 with KafkaBodyALightMap.dds open as four layers, the Modify Channels window set to Greyscale, Identity, source Green plus Alpha, Constant, 255, and the Colors window showing V 39, RGB 100, hex 646464"
+/>
+
+<Steps>
+<Step>
+
+### Split the channels
+
+1. Open the light map in Paint.NET. Duplicate the layer three times, so you have four layers.
+2. On the top layer, open <MenuPath path="Adjustments > Modify Channels" />. Set line 1 to `Greyscale`, `Identity`, source `Red`. Click `+` and set line 2 to `Alpha`, `Constant`, `255`. Tick `Enabled` and click **OK**.
+3. Hide that layer and do the same on the next three layers, with source `Green`, `Blue` and `Alpha`.
+4. Edit each channel layer. Add the character's diffuse as a layer to see where things are, and delete it when you are done.
+
+</Step>
+<Step>
+
+### Join them again
+
+1. Hide the alpha layer.
+2. On the red layer, open <MenuPath path="Adjustments > Curves" /> and set **Transfer Map** to `RGB`. Untick `Red`, then drag the middle of the line to the bottom right corner. Click **OK**.
+3. Do the same on the green layer (untick `Green`) and the blue layer (untick `Blue`). Press **Reset** in the Curves window before each one.
+4. Set the blend mode of the three color layers to **Additive**, then merge them into one layer. Leave the alpha layer out.
+5. Select the alpha layer and press `Ctrl+C`. Select the color layer and paste it back as the alpha. The guide uses an alpha mask plugin. **Paste Alpha** from BoltBait's Plugin Pack does the same job.
+6. Save as `BC7 (Linear, DX 11+)` with **Generate Mip Maps** ticked.
+
+<img
+  src="/wiki-images/honkai-star-rail-textures-texture-maps-3.webp"
+  alt="The Paint.NET Curves window with Transfer Map set to RGB, Red unticked, Green and Blue ticked, and a hand-drawn arrow from the middle of the line to the bottom right corner"
+/>
+
+</Step>
+</Steps>
+
+{/* NEEDS HANDS-ON TEST: the Curves and Additive recombine in Paint.NET 5.x, and that Paste Alpha gives the same result as the guide's alpha mask plugin */}
+
+## StockingMap and MaterialMap
+
+The `StockingMap` controls the sheer look of stockings. Creators describe it as blue and black stripes, with pink and yellow gradients where the stockings are. Red marks the stocking area and green its shine. Its format differs between characters, so read it from the dumped file name.
+
+SRMI only checks texture overrides in the first six texture slots of a character. The `StockingMap` and the `MaterialMap` often sit in a higher slot. To replace one by its hash, add these lines to the part's section, under its `ib =` line:
+
+```ini
+CheckTextureOverride = ps-t6
+CheckTextureOverride = ps-t7
+CheckTextureOverride = ps-t8
+CheckTextureOverride = ps-t9
+```
+
+These lines only tell SRMI where to look. You still replace the texture with a `hash =` and `this =` section, as in the recolor guide.
+
+{/* NEEDS HANDS-ON TEST: StockingMap and MaterialMap hash overrides with these CheckTextureOverride lines on Honkai: Star Rail 4.7 with SRMI 2.4.3 */}
+
+## Face textures
+
+The face is the `Head` component, part `A`.
+
+- **Diffuse:** the face colors. Recolor it when you change the skin tone.
+- **Shadow:** the face shadow map. It shapes how light falls across the face. Keep the original, and keep the face's UV layout if you edit the mesh, or the face shading breaks.
+- **ExpressionMap:** blush and other expression overlays. It is saved as BC1.
+
+## Look at one channel
+
+In Paint.NET, use **Modify Channels** as in "Split the channels" above. In Photoshop, open the **Channels** panel and click one channel. With Intel Texture Works, tick **Load Transparency as Alpha Channel** when you open the file, or the alpha does not show.
+
+## Textures you cannot change
+
+The warm and cool shadow ramps belong to the game, not to the character. They are not part of a dump, and a normal character mod does not replace them.
+
+RabbitFX, a separate glow and texture library, reads extra textures you make yourself, such as a glow map. [Add glow and see-through parts](/docs/honkai-star-rail/effects/glow-and-transparency) shows what is known.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Skin or cloth looks too shiny" id="shiny">
+
+Light map blue is too high there, or the light map comes from another character. Lower blue on that area, or use the character's own light map.
+
+</Accordion>
+<Accordion title="Shadows are dark or in the wrong place after an edit" id="wrong-shadows">
+
+Light map green or alpha was changed, or the light map was saved as sRGB. Copy green and alpha back from the original and save as `BC7 (Linear, DX 11+)`.
+
+</Accordion>
+<Accordion title="Outlines changed color after an edit" id="outline-color">
+
+The light map alpha picks the outline color. Copy the alpha back from the original, or pick the value of an area whose outline looks right.
+
+</Accordion>
+<Accordion title="Black blocks or a starry effect on the body" id="black-blocks">
+
+A `StockingMap` or `MaterialMap` is missing from the mod, or it is tied to a numbered slot that moved. Replace it by its hash, with the `CheckTextureOverride` lines above.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Save DDS textures the right way"
+    href="/docs/honkai-star-rail/textures/save-dds-files"
+    icon={<Icon name="Save" />}
+    level="beginner"
+  >
+    Save each map in its own format so the channels stay correct.
+  </PremiumCard>
+  <PremiumCard
+    title="UV maps, vertex colors, and outlines"
+    href="/docs/honkai-star-rail/models/uvs-and-vertex-colors"
+    icon={<Icon name="Brush" />}
+    level="intermediate"
+  >
+    The mesh data that sets outline width and shading.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Bestie Andrew's HSR Lightmapping Course (Google Docs Edition)](https://docs.google.com/document/d/1s9Cd6EPVZ4yr5CBgNBkhtUtW5mZlR7nTZImrZ1aYce8) by [bestie andrew](https://discord.com/users/518851482032930834), shared in the [AGMG Discord](https://discord.gg/agmg).
+- **Guide:** [关于星铁贴图错误的问题如何手动修复 (how to fix Star Rail texture errors by hand)](https://gamebanana.com/tuts/18999) by sora\_, for the StockingMap, MaterialMap and texture slot rules.
+- **Project:** HoyoToon by the HoyoToon team, the fan shader project behind the channel meanings.
+- **Assets:** [SR-Model-Importer-Assets](https://github.com/SilentNightSound/SR-Model-Importer-Assets) by SilentNightSound and contributors, for file names and formats.
+- **Images:** screenshots 2 and 3 from [Bestie Andrew's HSR Lightmapping Course (Google Docs Edition)](https://docs.google.com/document/d/1s9Cd6EPVZ4yr5CBgNBkhtUtW5mZlR7nTZImrZ1aYce8) by bestie andrew.

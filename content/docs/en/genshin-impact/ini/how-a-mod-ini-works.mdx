@@ -1,0 +1,306 @@
+---
+title: "How a mod .ini works"
+description: "Read any Genshin Impact mod .ini: sections, hashes, textures and keys, what each XXMI Tools export line does, and how to edit a line without breaking it."
+category: "ini"
+patch: "7.2"
+keywords:
+  [
+    "genshin mod ini",
+    "gimi ini",
+    "textureoverride",
+    "drawindexed",
+    "xxmi tools",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+Every Genshin Impact mod runs on a `.ini` text file. It tells GIMI which hashes to watch for, which files to load, and what to draw instead. This page teaches you to read one line by line, so you can change it without breaking the mod. Written for GIMI 8.9.4 and XXMI Tools 1.8.2.
+
+<Accordions>
+<Accordion title="Coming from another game?">
+
+**From Honkai: Star Rail.** Same language, same XXMI Tools. Genshin binds part textures with `Resource\GIMI\...` lines plus `run = CommandList\GIMI\SetTextures`, not `this =` per texture hash. Bone weights sit in `vb1`, and there is no compute skinning branch (`DRAW_TYPE == 8`).
+
+**From Zenless Zone Zero.** Same file layout. Genshin uses `Resource\GIMI\...` and `CommandList\GIMI\SetTextures` instead of SlotFix's `Resource\ZZMI\...`. Part sections match on the IB hash plus `match_first_index`, with no `match_index_count`.
+
+**From Wuthering Waves.** XXMI Tools writes Genshin mods, not WWMI Tools, and creators edit them by hand. Parts match on the index buffer hash, not the VB0 hash. There is no `RegisterMod` line, and the on-screen flag is `$active`, not `$object_detected`.
+
+Other game sections: [Honkai: Star Rail](/docs/honkai-star-rail), [Zenless Zone Zero](/docs/zenless-zone-zero), [Wuthering Waves](/docs/wuthering-waves).
+
+</Accordion>
+</Accordions>
+
+## What you need
+
+<Requirements>
+  <Requirement icon="NotepadPlusPlus" note="or any editor that saves UTF-8">
+    A text editor
+  </Requirement>
+  <Requirement icon="FolderOpen">
+    A mod you downloaded, or your own export
+  </Requirement>
+</Requirements>
+
+If hashes and mod folders are new to you, read [How Genshin Impact mods work](/docs/genshin-impact/basics/how-mods-work) first.
+
+## Genshin Impact .ini files at a glance
+
+| What                     | In Genshin Impact                                                                |
+| ------------------------ | -------------------------------------------------------------------------------- |
+| Importer                 | GIMI 8.9.4, installed by XXMI Launcher                                           |
+| Who writes the `.ini`    | XXMI Tools 1.8.2 for Blender, game preset `Genshin Impact`                       |
+| How a part is found      | Index buffer (IB) hash plus `match_first_index`                                  |
+| How part textures bind   | `Resource\GIMI\Diffuse = ref ...` plus `run = CommandList\GIMI\SetTextures`      |
+| Fix line in older mods   | `run = CommandList\global\ORFix\ORFix` or `run = CommandList\global\ORFix\NNFix` |
+| Bone weights             | The Blend buffer, in slot `vb1`                                                  |
+| "Character on screen"    | `$active`                                                                        |
+| All mods on or off, `F6` | `$costume_mods`                                                                  |
+| Libraries mods call      | ORFix, ORFixAPI, TexFx, Offset, Region and others, in `GIMI\Core\GIMI\Libraries` |
+
+## The rules of the file
+
+- A `.ini` is a list of **sections**. A section starts with a name in brackets, like `[TextureOverrideFurinaBody]`.
+- Each line under it is `key = value`. Spaces around `=` do not matter.
+- Section names and keys ignore case: `[KeySwap]` and `[KEYSWAP]` are the same section.
+- A line that starts with `;` is a comment. GIMI skips it.
+- A `;` in the middle of a line is **not** a comment. It becomes part of the value.
+
+```ini
+; This whole line is a comment
+hash = 1a2b3c4d
+
+hash = 1a2b3c4d ; this note breaks the hash
+```
+
+- The order of sections in the file does not matter. The order of lines inside one section does: they run from top to bottom.
+- Two sections with the same name: GIMI uses only the first and warns `Duplicate section found`.
+
+## Section types
+
+The start of a section's name decides what it does. The rest of the name is a free label.
+
+| Section starts with    | What it does                                                                          |
+| ---------------------- | ------------------------------------------------------------------------------------- |
+| `[Constants]`          | Declares variables. Runs once when mods load, and again after every `F10`.            |
+| `[Present]`            | Runs once every frame.                                                                |
+| `[TextureOverride...]` | Runs when the game uses a buffer or texture with this hash. The core of every mod.    |
+| `[Resource...]`        | Loads a file: a `.buf` or `.ib` buffer, or a `.dds` texture.                          |
+| `[CommandList...]`     | A named block of lines. Another section runs it with `run = CommandList...`.          |
+| `[Key...]`             | A key that changes variables when you press it.                                       |
+| `[ShaderOverride...]`  | Runs when the game uses a shader with this 16-digit hash. Effects and UI mods use it. |
+| `[CustomShader...]`    | Runs a shader that ships with the mod. Effects mods use it.                           |
+
+A typo in the start of the name, like `[TextureOveride...]`, gives `Unknown section type`.
+
+## A character mod, section by section
+
+This is what XXMI Tools 1.8.2 writes for a Genshin Impact character, shortened. `Char` stands for the character's name. `aaaaaaaa` to `eeeeeeee` stand for real hashes from your dump.
+
+{/* NEEDS HANDS-ON TEST: export one Genshin Impact 7.2 character with XXMI Tools 1.8.2 and compare the .ini with the blocks on this page */}
+
+### Constants and Present
+
+```ini
+[Constants]
+global $active = 0
+global $creditinfo = 0
+
+[Present]
+post $active = 0
+run = CommandListCreditInfo
+```
+
+- `global $active = 0` declares a variable. Variable names start with `$`.
+- `$active` means "this character is on screen". The Position section below sets it to `1` while the character is drawn. `post $active = 0` sets it back to `0` at the start of every frame.
+- Keys check `$active`, so they only work while their character is on screen.
+- `$creditinfo` and `CommandListCreditInfo` show the creator's "Created by" text once.
+- XXMI Tools writes these two sections and the `$active = 1` line below only when you fill in a credit name. Without one, add them by hand before you add a key.
+
+### The buffer sections
+
+```ini
+[TextureOverrideCharPosition]
+hash = aaaaaaaa
+vb0 = ResourceCharPosition
+$active = 1
+
+[TextureOverrideCharBlend]
+hash = bbbbbbbb
+handling = skip
+vb1 = ResourceCharBlend
+draw = 21000, 0
+
+[TextureOverrideCharTexcoord]
+hash = cccccccc
+vb1 = ResourceCharTexcoord
+
+[TextureOverrideCharVertexLimitRaise]
+hash = dddddddd
+override_vertex_count = 21000
+override_byte_stride = 40
+```
+
+| Section               | What it does                                                                                                                                                         |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `...Position`         | Swaps the game's vertex positions (slot `vb0`) for your `Position.buf`, and sets `$active = 1`.                                                                      |
+| `...Blend`            | Swaps the bone weights (`vb1`) for your `Blend.buf`, skips the game's own pass, and redraws it with your vertex count. This makes your mesh move with the character. |
+| `...Texcoord`         | Swaps the UV maps and vertex colors.                                                                                                                                 |
+| `...VertexLimitRaise` | Makes the game's buffer big enough for a mesh with more vertices than the original.                                                                                  |
+
+The numbers come from your export. Leave them as they are.
+
+### The part sections
+
+```ini
+[TextureOverrideCharIB]
+hash = eeeeeeee
+handling = skip
+
+[TextureOverrideCharHead]
+hash = eeeeeeee
+match_first_index = 0
+ib = ResourceCharHeadIB
+Resource\GIMI\NormalMap = ref ResourceCharHeadNormalMap
+Resource\GIMI\Diffuse = ref ResourceCharHeadDiffuse
+Resource\GIMI\LightMap = ref ResourceCharHeadLightMap
+run = CommandList\GIMI\SetTextures
+; CharHead (5000)
+drawindexed = 30000, 0, 0
+
+[TextureOverrideCharBody]
+hash = eeeeeeee
+match_first_index = 30000
+```
+
+- **One IB, several parts.** The head, body and dress often share one index buffer. `match_first_index` tells them apart, because each part starts at its own index. The dump's `hash.json` lists these numbers under `object_indexes`, and [hunting mode](/docs/genshin-impact/basics/find-a-hash) finds the IB hash.
+- **`...IB` hides the original.** It has only the hash and `handling = skip`. It stops every part of the game's own mesh, so parts you deleted in Blender stay hidden.
+- **`ib =`** puts your own index buffer in place.
+- **`Resource\GIMI\...` lines** hand your three textures to GIMI. `run = CommandList\GIMI\SetTextures` then passes them to ORFix, which puts each texture in the slot the current shader expects. This is the current form since version 6.1.
+- **`drawindexed`** draws your mesh. XXMI Tools writes one line per Blender object, with a comment above it: the object's name and its vertex count.
+- Textures that XXMI Tools does not know by name come out as commented lines, like `; ps-t3 = ...`. You place those by hand.
+
+<img
+  src="/wiki-images/genshin-impact-ini-how-a-mod-ini-works-1.webp"
+  alt="Five steps: the game draws the head with its IB hash and first index, the TextureOverride sections with that hash and first index run, the IB section's handling = skip hides the original head, ib and SetTextures bind your mesh and textures, and drawindexed draws one line per Blender object"
+/>
+
+Mods made before version 6.1 bind textures in an older way. [Fix an old mod by hand](/docs/genshin-impact/ini/fix-an-old-mod) shows that form and how to update it.
+
+### The resource sections
+
+```ini
+[ResourceCharPosition]
+type = Buffer
+stride = 40
+filename = CharPosition.buf
+
+[ResourceCharHeadIB]
+type = Buffer
+format = DXGI_FORMAT_R32_UINT
+filename = CharHead.ib
+
+[ResourceCharHeadDiffuse]
+filename = CharHeadDiffuse.dds
+
+[ResourceCreditInfo]
+type = Buffer
+data = "Created by Me"
+```
+
+- `filename` is a path from the folder this `.ini` is in. It must match the real file name, extension included.
+- `type`, `stride` and `format` describe the buffer. Keep the exporter's values. A wrong `stride` makes the mesh explode into spikes.
+- A file that is missing or misnamed gives `Failed to load custom texture resource` or `Failed to load custom buffer resource`, and that texture or part does not show.
+
+## How drawindexed draws one piece
+
+A mesh is a list of points joined into triangles. The `.ib` file says in which order to join them, like a connect-the-dots drawing. The ribbon is dots 1 to 9, the hair is dots 10 to 22.
+
+<img
+  src="/wiki-images/genshin-impact-ini-how-a-mod-ini-works-2.webp"
+  alt="A connect-the-dots drawing of a face with a ribbon and hair: on the left the numbered dots are joined into lines, on the right only the numbered dots are shown"
+/>
+
+`drawindexed = 252, 31530, 0` means: join 252 indices, starting at index 31530. Each Blender object has its own range, so each gets its own line:
+
+```ini
+; amberBody
+	; bow 1 (94)
+	drawindexed = 252, 31530, 0
+	; bow 2 (92)
+	drawindexed = 252, 31782, 0
+```
+
+Put an `if` block around one of these lines, and a key can hide that object. That is how toggles work.
+
+## When two sections match one hash
+
+Every matching section runs, not only one. They run in order of `match_priority`, lowest first, then by name. The last texture line wins, and every `drawindexed` in every section draws.
+
+That is why two mods for one character draw on top of each other. GIMI warns with this text:
+
+```text
+Possible Mod Conflict: Duplicate TextureOverride hash=...
+```
+
+Keep one mod per character. To switch between several, [combine them into one merged mod](/docs/genshin-impact/ini/merged-mods). Sections with `match_first_index` or `match_priority` never give this warning, so two mods can overlap on a part without any message.
+
+## Change a line without breaking the mod
+
+1. Copy the mod folder to a place outside `Mods`, as a backup.
+2. Open the `.ini` in your text editor.
+3. Make one change. Keep comments on their own lines.
+4. Save the file as UTF-8.
+5. In game, switch to another character, then press `F10`.
+6. Switch back and check the result.
+
+To see what went wrong, open the settings in [XXMI Launcher](/docs/genshin-impact/tools/xxmi-launcher), go to the **GIMI** tab and untick **Mute Warnings**. After that, `F10` shows each error with the section and the file it came from.
+
+{/* NEEDS HANDS-ON TEST: whether the "Failed to load custom ... resource" warnings show at F10 or only when the part is first drawn */}
+
+<Callout type="warning" title="Edit your mod, not GIMI">
+  Change only files inside your mod's folder. Never edit `d3dx.ini` or the files
+  in `GIMI\Core`: the launcher rewrites `d3dx.ini` on every start and replaces
+  `Core` on updates.
+</Callout>
+
+## Common problems
+
+| Message                                  | Usual cause                                                                 | Fix                                       |
+| ---------------------------------------- | --------------------------------------------------------------------------- | ----------------------------------------- |
+| `Hash parse error`                       | A typo, a wrong length, or a `;` note after the hash                        | One hash per line, nothing after it       |
+| `Unknown section type`                   | A misspelt start, like `[Resouce...]`                                       | Fix the spelling                          |
+| `Duplicate section found`                | The same section name twice                                                 | Rename one                                |
+| `Unrecognised entry`                     | A misspelt word, a `$variable` never declared, or a missing `[Resource...]` | Declare the variable or add the section   |
+| `Scope unbalanced`                       | An `if` without `endif`, or one `endif` too many                            | Give every `if` one `endif`               |
+| `Failed to load custom texture resource` | `filename` does not match the file                                          | Fix the name, the extension or the folder |
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Add a toggle"
+    href="/docs/genshin-impact/ini/add-a-toggle"
+    icon={<Icon name="ToggleRight" />}
+    level="intermediate"
+  >
+    Hide a part or swap a texture with a key, and keep the choice saved.
+  </PremiumCard>
+  <PremiumCard
+    title="Change a mod's keys and saved settings"
+    href="/docs/genshin-impact/ini/change-mod-keys"
+    icon={<Icon name="Keyboard" />}
+    level="beginner"
+  >
+    Give a mod new keys and reset the choices it remembers.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Toggle Guide](https://gamebanana.com/tuts/18971) by gdsfdg. The connect-the-dots drawing is from this guide.
+- **Tool:** [XXMI Tools Genshin Impact template](https://github.com/leotorrez/XXMITools/blob/main/templates/Genshin%20Impact.ini.j2) by leotorrez.
+- **Source:** [XXMI DLL `.ini` parser](https://github.com/SpectrumQT/XXMI-Libs-Package/blob/master/DirectX11/IniHandler.cpp) by SpectrumQT, for the rules and warning texts.
+- **Guide:** [3dmigoto INI File Documentation](https://leotorrez.github.io/modding/docs/) on LeoTorreZ's modding site.

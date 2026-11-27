@@ -1,0 +1,237 @@
+---
+title: "Replace a whole character model"
+description: "Put your own or a licensed 3D model on a Wuthering Waves Resonator with WWMI Tools: weight it to the game's bones, split it into components, keep the face moving and test it."
+category: "models"
+patch: "3.8"
+keywords:
+  [
+    "wuthering waves custom model",
+    "replace character model",
+    "wwmi tools",
+    "merged skeleton",
+  ]
+---
+
+<LevelPill level="advanced" />
+
+This guide puts a whole new model on a Resonator, the game's name for a playable character. The Resonator keeps its skeleton and animations. Your model replaces the mesh and the textures. Written for WWMI Tools 1.9.4 on Blender 4.5 LTS, with WWMI 1.2.2.
+
+<Callout type="warning" title="Your own or licensed models only">
+  Use a model you made yourself, or one whose license lets you use it in a game
+  mod and share it. This guide does not cover porting characters from other
+  games, films or anime, and never models taken out of any game's files with
+  extraction tools.
+</Callout>
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Blender" href="/docs/wuthering-waves/tools/blender-add-on">
+    Blender 4.5 LTS with WWMI Tools
+  </Requirement>
+  <Requirement
+    icon="Box"
+    href="/docs/wuthering-waves/models/import-into-blender"
+    note="Merged skeleton, with a hidden reference copy"
+  >
+    The target Resonator, imported
+  </Requirement>
+  <Requirement icon="UserRound" note="FBX or glTF, with an armature">
+    Your rigged model
+  </Requirement>
+  <Requirement
+    icon="PaintNET"
+    href="/docs/wuthering-waves/tools/texture-editors"
+  >
+    A texture editor with DDS support
+  </Requirement>
+</Requirements>
+
+This page only covers what a full replacement adds. You should already be able to export a mod, weight paint a mesh, and set up UV maps and vertex colors. The pages for each are linked where you need them.
+
+<img
+  src="/wiki-images/wuthering-waves-models-replace-a-character-1.webp"
+  alt="Six stages: prepare your model, match its pose and size to the original, copy weights so every group has a game number, split it into components with at most 256 weighted groups each, keep the face and its shape keys, and test in motion"
+/>
+
+## Know the limits first
+
+- **The skeleton stays the game's.** You cannot add bones. Your model moves with the target's animations, so new hair or cloth can only sway on bones the Resonator already has.
+- **Use the Merged skeleton.** It gives the whole Resonator one list of bone numbers, so any piece can follow any bone. Import and export with it.
+- **The components stay the game's.** You fill the components the target already has. You cannot add one.
+- **At most 256 weighted groups per component.** A whole body copied into one component often goes over. You spread your model over several components.
+- **The face moves with shape keys.** Keep the game's face, or give your own face matching shape keys. A head without them loses every expression.
+- **Stay near the original vertex count.** WWMI lifts the limits of the original component layout, but very heavy meshes, with hundreds of thousands of vertices, cost performance.
+
+Pick a target whose body is close to your model in shape and size. A very different body cannot follow the game's bones in a sensible way.
+
+{/* NEEDS HANDS-ON TEST: the vertex count at which a replaced Resonator starts to cost noticeable performance on Wuthering Waves 3.8 with WWMI 1.2.2 */}
+
+## Prepare your model
+
+1. Import the target with the **Merged** skeleton and keep a hidden reference copy, as [Get a model into Blender](/docs/wuthering-waves/models/import-into-blender) shows.
+2. Import your model with <MenuPath path="File > Import > FBX" />, or glTF.
+3. Delete what the game cannot use: physics and dummy bones, extra objects, and shape keys you will not use.
+4. Read your model's license again if you did not make it. Many downloadable models, such as MMD or avatar models, forbid use in other games.
+
+## Match the pose and size
+
+Weight copying compares positions. The closer your model sits on the original, the better it works.
+
+1. Move, rotate and scale your model with `G`, `R` and `S` until it overlaps the imported original. Work on the original as it appears after import: do not rotate, scale or mirror it.
+2. Select your armature, press `Ctrl+Tab` for Pose Mode, and rotate the arms and legs until they match the original's pose.
+3. Make that pose the new rest pose. Apply the **Armature** modifier on your mesh to keep the posed shape, then choose <MenuPath path="Pose > Apply > Apply Pose as Rest Pose" /> on the armature, and add the **Armature** modifier back.
+4. Turn on the **Face Orientation** overlay. Blue faces point out, red faces point in. Select the red ones and flip them with `Alt+N` > **Flip**. Flipped faces show black in game.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: the order and exact labels for applying a pose as the rest pose in Blender 4.5 while keeping the mesh in the new pose */}
+
+## Give every group a game number
+
+On an imported component, each vertex group is named after a game bone: `0`, `1`, `2` and so on. With the Merged skeleton, a bone has the same number in every component. Your model's groups are named after its own bones, like `UpperArm.L`. Every group must get the game number for the same body area.
+
+| Your model                             | Method                                                            |
+| -------------------------------------- | ----------------------------------------------------------------- |
+| Any model, and the safest first pass   | [Copy weights from the original](#copy-weights-from-the-original) |
+| Has a rig with good weights of its own | [Rename the bones by hand](#rename-the-bones-by-hand)             |
+
+### Copy weights from the original
+
+1. Show your reference copy for a moment. Select all its objects, press `Shift+D`, and right-click so the duplicates stay in place.
+2. Press `Ctrl+J` to join the duplicates into one object. Rename it `WeightSource` and hide the reference copy again. Keep this object outside your mod's collection.
+3. On your model, delete its own vertex groups.
+4. Add a **Data Transfer** modifier with `WeightSource` as **Source**, as [Weight paint a mesh](/docs/wuthering-waves/models/weight-painting#copy-weights-with-data-transfer) shows, and apply it.
+5. Delete the **Armature** modifier from your mesh. In game, the Resonator's own skeleton moves it.
+6. Fix the joints by hand: shoulders, armpits, hips and knees.
+
+{/* NEEDS HANDS-ON TEST: on WWMI Tools 1.9.4, Data Transfer from a joined copy of all Merged components onto a whole-body mesh, and that the copied group numbers move the right bones in game */}
+
+### Rename the bones by hand
+
+This is slow, but it keeps your model's own weights.
+
+1. On the reference copy, enter Weight Paint mode and click through its groups. Note which number moves which body area: hips, spine, chest, neck, upper arms, forearms, hands, thighs, knees, feet.
+2. Select your armature and press `Tab` for Edit Mode.
+3. Click a bone, press `F2`, and type the game number for the same area. Blender renames the matching vertex group too.
+4. For a bone the game has no match for, type the number of the bone it should follow. Blender names it like `12.001`.
+5. Hair, skirt and coat bones go to the target's own hair, skirt and coat groups. Otherwise use the nearest body bone.
+6. Delete the **Armature** modifier before you export.
+
+Group numbers differ for every Resonator, so always read them from your own target.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: renaming a custom rig's bones to Merged group numbers from a WWMI Tools 1.9.4 import, then exporting without the armature */}
+
+### Clean up the groups
+
+Run the clean-up from the weight painting page on every finished object: **Merge Vertex Groups** folds `12.001` into `12`, then limit each vertex to 4 weights and normalize. Every group name must be a number.
+
+## Split your model into components
+
+1. Hide the original's components one by one to see what each holds. Each component draws with its own shaders and textures, so skin, cloth and hair often sit in different ones.
+2. In Edit Mode, select the pieces of your model that belong in one component and press `P` > **Selection**.
+3. Name each new object with its component number, like `Component 2 Body`. WWMI Tools merges all objects of one component at export, and each keeps its own draw.
+4. Delete the original's objects you replace. A component with no objects is skipped and does not show in game.
+5. Delete body faces that your clothing hides. They cost performance and poke through when the Resonator moves.
+
+Then mind the 256 rule. Export counts the weighted groups of all objects in a component together. Over 256, it stops with `Component<N> 256 VG limit exceeded!`. Move some pieces into another component and export again.
+
+## Keep the face working
+
+The component with the face carries shape keys for expressions. Find it under <MenuPath path="Object Data Properties > Shape Keys" />. You have two choices:
+
+- **Keep the game's face.** In that object, keep the face and the eyes with all their shape keys, and delete only the parts your model replaces. Delete your model's head above the neck and line your neck up with the game's.
+- **Use your own face.** Your face needs shape keys named like the game's expressions. [Faces and shape keys](/docs/wuthering-waves/models/faces) shows how.
+
+The shoulders carry shape keys too. A new mesh in their place has none, so watch the shoulders closely when you test.
+
+{/* NEEDS HANDS-ON TEST: on Wuthering Waves 3.8 with WWMI Tools 1.9.4, a new body next to the kept face: whether a gap shows at the neck while the face animates, and what a new shoulder mesh without shape keys looks like in motion */}
+
+## Texture and export
+
+1. Copy `COLOR` and `COLOR1` from the original component onto each new object, and check that the UV maps are named `TEXCOORD.xy`, `TEXCOORD1.xy` and `TEXCOORD2.xy`. [UV maps, vertex colors, and outlines](/docs/wuthering-waves/models/uvs-and-vertex-colors) shows both. Without them, outlines and skin shading look wrong.
+2. Pack each component's materials into the textures that component uses. The `c=` part of a texture's file name lists its components: `c=2 f=... t=... d=....dds` belongs to component 2.
+3. Export with the **Merged** skeleton and the target's folder, extracted with WWMI Tools 1.9.4, as **Object Sources**, as [Export your mod from Blender](/docs/wuthering-waves/models/export-your-mod) shows. Tick **Apply All Modifiers** if you still use modifiers.
+4. Copy your textures over the exported ones, with the exact same file names: `mod.ini` points at them. Save the diffuse as BC7 sRGB, the normal map and light map as BC7 linear.
+
+Three texture rules matter more on a full replacement:
+
+- **Keep an alpha channel on the diffuse.** This game uses it for shadows.
+- **Build the light map from the original.** Orange marks skin and green marks cloth. Pick the original's colors and paint them on your layout.
+- **Remake the extra maps.** Resonators released after version 3.0 also have a material map. It must fit your UV layout too.
+
+[What each texture map does](/docs/wuthering-waves/textures/texture-maps) explains each map, and [Save DDS textures the right way](/docs/wuthering-waves/textures/save-dds-files) has the save settings.
+
+## Check it in game
+
+1. Turn off other mods for this Resonator.
+2. Switch to another Resonator, press `F10`, and switch back.
+3. In the Resonators menu, watch the face blink and the shoulders move.
+4. Run, stop a sprint, attack and use every skill. Some animations stretch parts that look fine when standing.
+5. Look closely at the neck, the shoulders, the hips and the knees.
+6. Fix what you see in Blender, export again, and press `F10`.
+
+[Test and reload your mod](/docs/wuthering-waves/basics/test-your-mod) has the full test list.
+
+{/* NEEDS HANDS-ON TEST: a full replacement of a Resonator with a custom model on Wuthering Waves 3.8, WWMI Tools 1.9.4 and WWMI 1.2.2, from import to a working mod in motion */}
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title='"Component<N> 256 VG limit exceeded!"' id="vg-limit">
+
+One component uses more than 256 weighted groups across all its objects. Move some pieces into another component, or remove weights you do not need.
+
+</Accordion>
+<Accordion title="The face does not move" id="face-frozen">
+
+The face lost its shape keys, or your own face's keys do not match the game's names. Keep the game's face, or rename your keys, as [Keep the face working](#keep-the-face-working) explains. Unticked shape keys are skipped at export.
+
+</Accordion>
+<Accordion title="An area follows the wrong bone" id="wrong-bone">
+
+The weights near it came from the wrong place, or the pose did not match when you copied. Copy that area's weights again from the original component it sits on, smooth it, and run **Normalize All**.
+
+</Accordion>
+<Accordion title="Two copies of the Resonator glitch" id="two-copies">
+
+This happens in co-op, photo mode and some story scenes. It is a known limit of the Merged skeleton and will not be fixed.
+
+</Accordion>
+<Accordion title="The original shows when the camera is far away" id="distance">
+
+The game swaps in a simpler model at a distance. [Make mods show at a distance](/docs/wuthering-waves/models/lods) explains what helps.
+
+</Accordion>
+</Accordions>
+
+More symptoms are on [Model problems in game](/docs/wuthering-waves/errors/model-problems).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Faces and shape keys"
+    href="/docs/wuthering-waves/models/faces"
+    icon={<Icon name="Smile" />}
+    level="advanced"
+  >
+    Keep expressions working, or give your own face matching shape keys.
+  </PremiumCard>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/wuthering-waves/publishing/publishing-checklist"
+    icon={<Icon name="Upload" />}
+    level="beginner"
+  >
+    Credit the model's creator and follow its license when you share.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [WWMI Tools Modder Guide](https://github.com/SpectrumQT/WWMI-Tools/blob/main/guides/modder_guide.md) by SpectrumQT, for the Merged skeleton, shape keys and components.
+- **Guide:** [Beginner's Guide to Wuthering Waves modding](https://gamebanana.com/tuts/19096) by Denwarenji, for weights and textures.
+- **Guide:** AnimeGame model importing annotated transcript by SinsOfSeven, for pose matching.
+- **Video:** [Model import/creation tut 2](https://www.youtube.com/watch?v=5RqyUWm4i1I) by Cybertron's Gaming World, for the bone renaming method.
+- **Tool:** [WWMI Tools](https://github.com/SpectrumQT/WWMI-Tools) by SpectrumQT.

@@ -1,0 +1,189 @@
+---
+title: "Add glow and see-through parts"
+description: "Make parts of your own Wuthering Waves mod glow in a color you choose with a RabbitFX glow map, and learn what is known about see-through parts."
+category: "effects"
+patch: "3.8"
+keywords:
+  ["wuthering waves glow mod", "rabbitfx glow map", "wwmi glow", "glowmap"]
+---
+
+<LevelPill level="intermediate" />
+
+You will make parts of your own mod glow, in a color you choose. WWMI has no glow library of its own: Wuthering Waves mods use RabbitFX, a separate texture and glow library. You need a mod you made with WWMI Tools. Written for RabbitFX for WWMI 8.5, WWMI Tools 1.9.4 and WWMI 1.2.2 on Wuthering Waves 3.8.
+
+This page is shorter than most. No current guide covers glow in Wuthering Waves step by step, so parts of it rest on one creator's mod and still need a hands-on check. See-through parts have no source for this game yet.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Layers" note="installed once">
+    RabbitFX for WWMI
+  </Requirement>
+  <Requirement
+    icon="PaintNET"
+    href="/docs/wuthering-waves/tools/texture-editors"
+  >
+    Paint.NET
+  </Requirement>
+  <Requirement icon="FileCode">Your own mod's folder and mod.ini</Requirement>
+</Requirements>
+
+<Callout type="info" title="RabbitFX goes in Mods once">
+  Every mod that uses RabbitFX needs it in the player's `Mods` folder, exactly
+  once. Never ship it inside your mod. [Make textures survive game
+  updates](/docs/wuthering-waves/textures/stable-textures) has the download and
+  install steps.
+</Callout>
+
+<Callout type="danger" title="Keep it fair">
+  Use glow only on your own Resonator's parts. Never make enemies, walls, fog or
+  effects see-through or easier to spot. That is a mod that gives an unfair
+  advantage.
+</Callout>
+
+## How a glow map works
+
+A glow map is an extra texture you paint yourself, on the same UV layout as the part's diffuse. RabbitFX reads it like this:
+
+- **RGB:** the glow color.
+- **Alpha:** the glow brightness.
+- **Black:** no glow. Most of a glow map is black, with only the glowing parts showing.
+
+The `$\RabbitFX\brightness` line sets the overall strength for the component.
+
+<img
+  src="/wiki-images/wuthering-waves-effects-glow-and-transparency-1.webp"
+  alt="Left, the glow map: RGB is the glow color, alpha is the glow brightness, black means no glow. Right, three lines in the component section before $object_detected = 1: the brightness value, Resource\RabbitFX\GlowMap pointing at your glow map, and run = CommandList\RabbitFX\Run"
+/>
+
+{/* NEEDS HANDS-ON TEST: with RabbitFX for WWMI 8.5, that RGB sets the glow color, alpha sets the brightness, and black with zero alpha gives no glow */}
+
+## Make a part glow
+
+<Steps>
+<Step>
+
+### Paint the glow map
+
+1. Open the part's diffuse in Paint.NET. You use it only as a guide for where things are.
+2. Add a new layer and fill it with pure black.
+3. Paint the areas that should glow, in the glow color.
+4. For a softer glow in one area, paint it in a darker shade of the color. Do not rely on layer opacity for this: after you flatten onto black, every pixel is fully opaque.
+5. Delete the diffuse layer, then flatten the image.
+6. Save it in your mod's `Textures` folder as `GlowMap.dds`, with **Generate Mip Maps** ticked. Keep the diffuse's width and height.
+
+Which BC7 variant RabbitFX expects is not documented. Start with `BC7 (sRGB, DX 11+)`, because the RGB is a color, and judge the result in game. [Save DDS textures the right way](/docs/wuthering-waves/textures/save-dds-files) explains both variants.
+
+{/* NEEDS HANDS-ON TEST: whether a RabbitFX for WWMI glow map should be saved as BC7 sRGB or BC7 Linear, and how Paint.NET layer opacity ends up in the saved alpha; whether a glow map with mipmaps looks different from one with a single mip level */}
+
+</Step>
+<Step>
+
+### Add it to mod.ini
+
+1. Add a resource for your glow map at the end of `mod.ini`:
+
+```ini
+[ResourceGlowMap]
+filename = Textures/GlowMap.dds
+```
+
+2. Find the `[TextureOverrideComponentN]` section of the part's component.
+3. Add three lines right before `$object_detected = 1`:
+
+```ini
+$\RabbitFX\brightness = 50
+Resource\RabbitFX\GlowMap = ref ResourceGlowMap
+run = CommandList\RabbitFX\Run
+$object_detected = 1
+```
+
+If you already switched the component to RabbitFX textures, the `run = CommandList\RabbitFX\Run` line is there. Do not add it twice.
+
+This is how one creator's mod does it:
+
+<img
+  src="/wiki-images/wuthering-waves-effects-glow-and-transparency-2.webp"
+  alt="A mod.ini component section with $\RabbitFX\brightness = 50, Resource\RabbitFX\GlowMap = ref ResourceFX, a Resource\RabbitFX\FXMap line and run = CommandList\RabbitFX\Run, placed before $object_detected = 1"
+/>
+
+That mod names its glow resource `ResourceFX`. The `FXMap` line belongs to a RabbitFX feature this page does not cover, and the `swapvar` condition belongs to that mod's own toggles.
+
+A new export from WWMI Tools writes a fresh `mod.ini`. Keep a copy of these lines and add them again after each export.
+
+{/* NEEDS HANDS-ON TEST: this placement and these line names on a WWMI Tools 1.9.4 export with RabbitFX for WWMI 8.5 on WWMI 1.2.2, whether they work next to the export's ps-t[FilterTextureN] lines, compared with the example on the current RabbitFX page, and the useful range of $\RabbitFX\brightness */}
+
+</Step>
+<Step>
+
+### Test it
+
+1. Switch to another Resonator and press `F10`.
+2. Switch back and check the glow in daylight, at night and indoors.
+3. Hold `F9` to compare with the original.
+4. Too strong or too weak? Change the `$\RabbitFX\brightness` value, or repaint the glow areas in a lighter or darker shade, and press `F10` again.
+
+</Step>
+</Steps>
+
+## See-through parts
+
+No guide or tool note covers see-through parts for Wuthering Waves character mods. This page does not teach them until a tested method exists. To hide a part completely, remove it in Blender instead: [Your first model edit: remove a part](/docs/wuthering-waves/models/remove-a-part) shows how.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Nothing glows" id="nothing-glows">
+
+- Check that RabbitFX is in `Mods`, exactly once.
+- Check that the `ref` name matches your `[ResourceGlowMap]` section, and that `filename =` matches the file in `Textures`.
+- Check that the three lines sit in the right component's section, before `$object_detected = 1`.
+
+</Accordion>
+<Accordion title="The whole part glows" id="whole-part">
+
+The glow map has color where it should be black. Fill every area that should not glow with pure black and save again.
+
+</Accordion>
+<Accordion title="The game crashes or acts strangely" id="two-copies">
+
+There is more than one copy of RabbitFX in `Mods`. Some mods ship their own. Keep exactly one RabbitFX folder.
+
+</Accordion>
+<Accordion title="A short stutter the first time" id="stutter">
+
+RabbitFX rewrites each new shader once, the first time it meets it. The stutter goes away after that.
+
+</Accordion>
+</Accordions>
+
+[Test and reload your mod](/docs/wuthering-waves/basics/test-your-mod) explains how to read WWMI's messages after `F10`.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="What each texture map does"
+    href="/docs/wuthering-waves/textures/texture-maps"
+    icon={<Icon name="Layers" />}
+    level="intermediate"
+  >
+    The diffuse, light map and normal map, and what is known about each.
+  </PremiumCard>
+  <PremiumCard
+    title="How a mod .ini works"
+    href="/docs/wuthering-waves/ini/how-a-mod-ini-works"
+    icon={<Icon name="FileCode" />}
+    level="intermediate"
+  >
+    What each section and line in your mod's .ini does.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Tool:** "RabbitFX for WWMI" by caverabbit: the glow map, its channels and the line names.
+- **Guide:** [Fix Broken Character Textures (RabbitFX Stable Textures)](https://gamebanana.com/tuts/20005) by JessyJames84: the glow lines in a real mod.
+- **Images:** the component section screenshot from [Fix Broken Character Textures (RabbitFX Stable Textures)](https://gamebanana.com/tuts/20005) by JessyJames84.

@@ -1,0 +1,191 @@
+---
+title: "What each texture map does"
+description: "Learn what the diffuse, LightMap, MaterialMap, NormalMap and glow maps of a Zenless Zone Zero agent hold, so you change only what you mean to."
+category: "textures"
+patch: "3.3"
+keywords:
+  [
+    "zzz lightmap",
+    "zzz materialmap",
+    "zzz texture channels",
+    "wenginefx",
+    "slotfix",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+Each Zenless Zone Zero agent part uses four textures, and some parts add glow maps. Each color channel in them does its own job. This page shows what each channel controls, so a recolor or a new part looks right in every light. Read [Your first mod: recolor a character](/docs/zenless-zone-zero/textures/recolor-a-character) first if you have not edited a texture yet.
+
+<Accordions>
+<Accordion title="Coming from another game?" id="from-another-game">
+
+- **From [Genshin Impact](/docs/genshin-impact):** Zenless Zone Zero adds a MaterialMap and separate glow maps (GlowMap and WengineFx). Do not treat the diffuse alpha as a glow mask: what it does here is not documented. SlotFix places every texture, so there is no ORFix or NNFix, and no TexFx.
+- **From [Honkai: Star Rail](/docs/honkai-star-rail):** there is no stocking map. Textures bind through SlotFix by their role, not with `this =` per texture hash.
+- **From [Wuthering Waves](/docs/wuthering-waves):** textures have readable names, like `BelleBodyADiffuse.dds`. You do not need a usage file to tell them apart.
+
+</Accordion>
+</Accordions>
+
+## The one rule
+
+Copy every channel you do not mean to change from the original. The channel meanings below are community understanding. They come from one creator's page, written for an early version of the game, whose author says some names are not technically exact. They may be incomplete. A channel you leave alone cannot break.
+
+<img
+  src="/wiki-images/zenless-zone-zero-textures-texture-maps-1.webp"
+  alt="Four boxes: the diffuse holds colors in RGB; the LightMap holds shadow steps in red, metal in green and gloss in blue; the MaterialMap holds the see-through amount in red, another metal value in green and shine in blue; the NormalMap holds surface direction in red and green and an occlusion mask in blue"
+/>
+
+## The textures of a part
+
+An agent folder in the asset repository holds files like these, for each part:
+
+| File                        | Format           | Used for                                  |
+| --------------------------- | ---------------- | ----------------------------------------- |
+| `BelleBodyADiffuse.dds`     | `BC7_UNORM_SRGB` | The colors you see                        |
+| `BelleBodyALightMap.dds`    | `BC7_UNORM`      | Shadow steps, metal and gloss             |
+| `BelleBodyAMaterialMap.dds` | `BC7_UNORM`      | See-through areas, metal and shine        |
+| `BelleBodyANormalMap.dds`   | `R8G8B8A8_UNORM` | Small surface detail, uncompressed        |
+| `BelleFaceADiffuse.dds`     | `BC7_UNORM_SRGB` | Face colors. Faces have only this texture |
+
+You can tell them apart at a glance: the LightMap looks mostly red, and the MaterialMap mostly pink or orange.
+
+<img
+  src="/wiki-images/zenless-zone-zero-textures-texture-maps-2.webp"
+  alt="Nicole's BodyA textures open side by side in Blender: the diffuse with the outfit colors, the grey-green NormalMap, the mostly red LightMap and the mostly pink MaterialMap"
+/>
+
+The panel on the right of this screenshot belongs to an add-on for another game. Only the four textures matter here.
+
+You never point a texture at a slot number yourself. In your `.ini`, each texture goes to SlotFix by its role, such as `Resource\ZZMI\LightMap = ref ...`, and SlotFix places it for every way the game draws the part. [How Zenless Zone Zero mods work](/docs/zenless-zone-zero/basics/how-mods-work) explains SlotFix.
+
+## Diffuse
+
+- **RGB:** the colors you see. This is what a recolor changes.
+- **Alpha:** not documented. The game can still show colors under transparent-looking pixels, for example at hair edges. Keep the alpha exactly as it was.
+
+## LightMap
+
+| Channel | What it controls                                                    | What to do                             |
+| ------- | ------------------------------------------------------------------- | -------------------------------------- |
+| **R**   | Shadow steps and where the outline changes, in up to about 5 levels | Keep the original                      |
+| **G**   | How metallic an area is                                             | Paint it only to add or remove metal   |
+| **B**   | How glossy an area is                                               | Keep the original unless you changed G |
+| **A**   | Not documented                                                      | Keep the original                      |
+
+To give a new area the same look as an existing one, pick the LightMap color from an area that already looks right, and paint with it.
+
+{/* NEEDS HANDS-ON TEST: LightMap R, G and B meanings on Zenless Zone Zero 3.3 shaders, and what LightMap alpha does */}
+
+## MaterialMap
+
+| Channel | What it controls                                                                     | What to do        |
+| ------- | ------------------------------------------------------------------------------------ | ----------------- |
+| **R**   | How see-through an area is. Only some parts use it, like glasses or Anby's glass box | Keep the original |
+| **G**   | Another metal-like value                                                             | Keep the original |
+| **B**   | Shine, a specular-like value                                                         | Keep the original |
+| **A**   | Not documented                                                                       | Keep the original |
+
+{/* NEEDS HANDS-ON TEST: MaterialMap R, G, B and A meanings on Zenless Zone Zero 3.3 shaders */}
+
+## NormalMap
+
+- **R and G:** the direction of the surface, for small bumps and folds.
+- **B:** an occlusion mask. Keep the original.
+
+Agent normal maps are uncompressed, not BC7. Save them in their own format, as [Save DDS textures the right way](/docs/zenless-zone-zero/textures/save-dds-files) shows.
+
+Since version 1.3, normal maps cannot be replaced by texture hash. SlotFix can set them. If you changed a part's UVs and its normal map no longer fits, point the slot at the flat normal map that ships inside ZZMI:
+
+```ini
+Resource\ZZMI\NormalMap = ref Resource\ZZMI\FlatNormalMap
+```
+
+{/* NEEDS HANDS-ON TEST: this FlatNormalMap line in a part section with ZZMI 1.5.2 on Zenless Zone Zero 3.3 */}
+
+## Glow maps
+
+Some parts have extra textures for glow. The asset repository has almost none of them, so dump them yourself with a [frame dump](/docs/zenless-zone-zero/basics/frame-dump).
+
+| Texture                                 | When it glows                                                                      |
+| --------------------------------------- | ---------------------------------------------------------------------------------- |
+| `GlowMap`, `GlowMap2`, `GlowMap3`       | Without the agent's signature W-Engine, for example Jane's Passion state           |
+| `WengineFx`, `WengineFx2`, `WengineFx3` | Only with the agent's signature W-Engine. Some agents, like Yixuan, have only this |
+| `GlowGradient`                          | A color gradient used together with a glow texture. Not well understood            |
+
+If you changed a part's UVs and made no new glow textures, the old glow shows in odd spots. Blank it with the empty glow map that ships inside ZZMI:
+
+```ini
+Resource\ZZMI\GlowMap = ref Resource\ZZMI\EmptyGlowMap
+```
+
+The same works for `WengineFx` and `GlowGradient`. [Add glow and see-through parts](/docs/zenless-zone-zero/effects/glow-and-transparency) covers glow in your own mods.
+
+## Look at one channel
+
+In Paint.NET, duplicate the layer, then open <MenuPath path="Adjustments > Modify Channels" />. Set line 1 to `Greyscale`, `Identity`, and the channel you want as the source. Add line 2: `Alpha`, `Constant`, `255`. Tick `Enabled`. The layer now shows that one channel in black and white. Delete the layer when you are done.
+
+In Photoshop, open the **Channels** panel and click one channel. With Intel Texture Works, tick **Load Transparency as Alpha Channel** when you open the file, or the alpha does not show.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check these Modify Channels settings on a Zenless Zone Zero LightMap and MaterialMap */}
+
+## Data that is not in a texture
+
+Outline thickness and some shadows live in the mesh, as vertex colors, not in a texture. Leave them as the original unless you mean to change outlines. [UV maps, vertex colors, and outlines](/docs/zenless-zone-zero/models/uvs-and-vertex-colors) explains them.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Shadows are dark or in the wrong place after an edit" id="wrong-shadows">
+
+LightMap R was changed, or the LightMap was saved as sRGB. Copy R back from the original and save as `BC7 (Linear, DX 11+)`.
+
+</Accordion>
+<Accordion title="An area looks too shiny or like metal" id="shiny-area">
+
+The LightMap or MaterialMap came from another agent, or their G and B channels changed. Use the agent's own maps, and copy G and B back from the original.
+
+</Accordion>
+<Accordion title="Glow shows in odd spots" id="odd-glow">
+
+The part's UVs changed, but the glow maps still use the old layout. Make new glow textures, or blank them with `EmptyGlowMap` as shown above.
+
+</Accordion>
+<Accordion title="Normal maps look flat after running a fix tool" id="flat-normals">
+
+Some old fix tools add `run = CommandListSkinTexture` to a part, which swaps in a blank normal map. Remove that line, or keep it inside an `if 0 == 1` block, where it never runs.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Save DDS textures the right way"
+    href="/docs/zenless-zone-zero/textures/save-dds-files"
+    icon={<Icon name="Save" />}
+    level="beginner"
+  >
+    Save each map in its own format so the channels stay correct.
+  </PremiumCard>
+  <PremiumCard
+    title="Make textures survive game updates"
+    href="/docs/zenless-zone-zero/textures/stable-textures"
+    icon={<Icon name="ShieldCheck" />}
+    level="intermediate"
+  >
+    Why SlotFix binds textures by role, and how to keep your mod working.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [ZZZ Textures and properties](https://leotorrez.github.io/modding/guides/zzz-textures) by LeoTorreZ.
+- **Guide:** [Best Way to Replace Textures - SlotFix Guide](https://gamebanana.com/tuts/18114) by hazelberry.
+- **Wiki:** [SlotFix](https://github.com/Satan1c/ZZMI_tools/wiki/SlotFix) by Satan1c.
+- **Tool:** [SlotFix format rules](https://github.com/leotorrez/ZZMI-Package/tree/main/ZZMI/Core/ZZMI/Libraries/SlotFix) by Satan1c, in ZZMI-Package.
+- **Images:** screenshot 2 from [ZZZ Textures and properties](https://leotorrez.github.io/modding/guides/zzz-textures) by LeoTorreZ.
+- **Discord:** the Modify Channels settings by [bestie andrew](https://discord.com/users/518851482032930834) in the [AGMG Discord](https://discord.gg/agmg).

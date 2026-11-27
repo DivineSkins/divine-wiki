@@ -1,0 +1,328 @@
+---
+title: "Mods not loading"
+description: "Genshin Impact starts but your mods do not show? Check the GIMI banner, NVIDIA Smooth Motion, the Mods folder, and your settings, one step at a time."
+category: "errors"
+patch: "7.2"
+keywords:
+  [
+    "genshin mods not working",
+    "gimi not loading",
+    "xxmi launcher mods not showing",
+    "f12 not working",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+The game starts, but your mods do not show. Work through the checks below in order: the first ones are the most common. This page was written for XXMI Launcher 2.5.0 and GIMI 8.9.4.
+
+Mods show up but look wrong, green, or stretched? Go to [Mods look broken](/docs/genshin-impact/errors/mods-look-broken).
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/genshin-impact/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="GenshinImpact" note="HoYoPlay or Epic Games">
+    Genshin Impact on PC
+  </Requirement>
+  <Requirement icon="Package">A mod you downloaded</Requirement>
+</Requirements>
+
+## First check: did GIMI load?
+
+Start the game with the **Start** button in XXMI Launcher. For the first 30 seconds, look for this line on screen:
+
+```text
+GIMI 8.9.4 F12 TO SHOW GUIDE
+```
+
+You can also press `F12` at any time. It opens the GIMI user guide. On the very first start, the guide opens by itself.
+
+<img
+  src="/wiki-images/genshin-impact-errors-mods-not-loading-1.webp"
+  alt="The GIMI user guide over the game's loading screen, with mod install steps and the F12, F6, F10 and F9 hotkeys"
+/>
+
+- **No banner and `F12` does nothing:** GIMI did not load. Start with [GIMI does not load](#gimi-does-not-load).
+- **The banner shows, but a mod does not:** GIMI works. Go to [GIMI loads, but a mod does not show](#gimi-loads-but-a-mod-does-not-show).
+
+## Quick checklist
+
+Check these in order. Each one is explained below.
+
+1. You started the game from XXMI Launcher's **Start** button.
+2. NVIDIA **Smooth Motion** is off.
+3. Only XXMI injects into the game. No other start-up tool runs with it.
+4. The mod folder is extracted and sits inside `%AppData%\XXMI Launcher\GIMI\Mods`.
+5. No folder in the mod's path starts with `DISABLED`.
+6. You pressed `F10` while the modded character was off screen.
+7. You did not turn all mods off with `F6`.
+8. **Dynamic Character Resolution** is **Off** in the game's graphics settings.
+9. The mod works on version 7.2.
+10. Only one mod is active for each character.
+11. You turned **Mute Warnings** off and read the error text.
+
+## GIMI does not load
+
+<Accordions type="multiple">
+<Accordion title="No banner, and you started the game from HoYoPlay or Epic" id="started-from-the-wrong-launcher">
+
+**Cause:** GIMI loads only when XXMI Launcher starts the game. The HoYoPlay or Epic Games **Play** button starts the game without it.
+
+**Fix:**
+
+1. Close the game.
+2. Update the game in HoYoPlay or Epic Games first. XXMI Launcher does not update the game.
+3. Open XXMI Launcher and click the **GIMI** icon.
+4. Click **Start**.
+
+Keep **Game Launch** at its default, `Direct`, in the launcher's **General** settings.
+
+</Accordion>
+<Accordion title="No banner, and you have an NVIDIA graphics card" id="nvidia-smooth-motion">
+
+**Cause:** NVIDIA **Smooth Motion** is on. It came with NVIDIA driver 581.15 and blocks the mod loader. This is the most common reason for "game starts, no mods" in 2025 and 2026.
+
+**Fix:**
+
+1. Close the game.
+2. Open the NVIDIA App and find the settings for Genshin Impact.
+3. Set **Smooth Motion** to **Off**.
+4. Start the game again from XXMI Launcher.
+
+<img
+  src="/wiki-images/genshin-impact-errors-mods-not-loading-3.webp"
+  alt="The NVIDIA Smooth Motion setting set to Off"
+/>
+
+{/* NEEDS HANDS-ON TEST: the exact place of the Smooth Motion setting in the current NVIDIA App (per-game profile or global settings), and whether XXMI DLL 1.3.2 still needs it off. */}
+
+Turn frame generation off too. Mods need the game to draw with DirectX 11, and frame generation does not work with XXMI.
+
+</Accordion>
+<Accordion title="Black screen or no mods while another tool runs" id="another-tool-injects">
+
+**Cause:** another program that injects into the game at startup runs next to XXMI. Two tools that both inject at start clash. The game opens black or without mods.
+
+**Fix:** close the other program. Start the game only from XXMI Launcher.
+
+</Accordion>
+<Accordion title="The launcher says it failed to detect the game window" id="failed-to-detect-window">
+
+The launcher shows:
+
+```text
+Failed to detect window of game process genshinimpact.exe!
+```
+
+**Cause:** an earlier copy of the game is still running in the background.
+
+**Fix:**
+
+1. Open Task Manager with `Ctrl+Shift+Esc`.
+2. End every Genshin Impact process.
+3. Click **Start** in XXMI Launcher again.
+
+</Accordion>
+<Accordion title="You followed an old guide with 3DMigoto Loader.exe or F1" id="old-standalone-gimi">
+
+Standalone GIMI from 2023 (`3DMigoto Loader.exe`, `F1` for help) is deprecated. Move to XXMI Launcher. To bring your mods over:
+
+1. In XXMI Launcher, click the 3-dots button next to **Start**, then **Open Mods Folder**.
+2. Copy only the mod folders from the old `Mods` folder into the new one.
+3. Do not copy `d3dx.ini`, `d3d11.dll`, `d3dcompiler_47.dll`, `ShaderFixes`, `ShaderCache`, or `3DMigoto Loader.exe`.
+4. If the old setup sits inside the game folder, delete it there.
+5. Delete `ORFix.ini`, `ORFixAPI.ini`, `Region.ini` and `Offset.ini` from `Mods` and `Mods\BufferValues`. GIMI already includes them.
+
+On the first start, the launcher may offer to disable duplicate libraries. Accept it.
+
+</Accordion>
+</Accordions>
+
+## GIMI loads, but a mod does not show
+
+<Accordions type="multiple">
+<Accordion title="The mod is in the wrong folder, or still zipped" id="wrong-folder">
+
+**Cause:** GIMI reads only `.ini` files inside its own `Mods` folder. A `.zip`, `.7z` or `.rar` file there does nothing. Mods in the game folder do nothing either.
+
+**Fix:**
+
+1. In XXMI Launcher, click the 3-dots button next to **Start**, then **Open Mods Folder**. It opens `%AppData%\XXMI Launcher\GIMI\Mods`.
+2. Extract the archive.
+3. Put the extracted mod folder inside `Mods`. Each mod gets its own folder with its `.ini` file in it.
+
+<Files>
+  <Folder name="GIMI" defaultOpen>
+    <Folder name="Core" />
+    <Folder name="Mods" defaultOpen>
+      <Folder name="Your mod" defaultOpen>
+        <File name="mod.ini: any name ending in .ini" />
+        <File name="Body.buf" />
+        <File name="Diffuse.dds" />
+      </Folder>
+      <File name="mod.zip: ignored, extract it" />
+    </Folder>
+    <Folder name="ShaderFixes" />
+    <File name="d3dx.ini" />
+  </Folder>
+</Files>
+
+An extra folder level, such as `Mods\Your mod\Your mod\mod.ini`, still loads. Never put a `d3dx.ini`, `d3d11.dll` or a whole old `Mods` folder inside `Mods`.
+
+</Accordion>
+<Accordion title="The mod folder or its .ini starts with DISABLED" id="disabled-prefix">
+
+**Cause:** GIMI skips every file and folder whose name starts with `DISABLED`, in any case. A parent folder with that prefix hides every mod inside it.
+
+**Fix:** rename the folder so its name no longer starts with `DISABLED`. Then press `F10` in game.
+
+The launcher also renames files to `DISABLED_...` on purpose. It does this to a stray `d3dx.ini` and to copies of libraries that GIMI already includes, such as `ORFix.ini`. Leave those renamed.
+
+</Accordion>
+<Accordion title="You added the mod while the game was running" id="not-reloaded">
+
+**Cause:** GIMI reads new mods only when it reloads.
+
+**Fix:**
+
+1. Switch to another character, so the modded one is off screen.
+2. Press `F10`. GIMI reloads all mods.
+3. Switch back to the character.
+
+If the character now looks half loaded, it was on screen during the reload. Switch away, press `F10` again, or restart the game.
+
+</Accordion>
+<Accordion title="Every mod vanished at once" id="mods-toggled-off">
+
+**Cause:** `F6` turns all mods on and off. You may have pressed it by mistake.
+
+**Fix:** press `F6` once. To compare a mod with the original look, hold `F9` instead.
+
+</Accordion>
+<Accordion title="Check Dynamic Character Resolution" id="dynamic-character-resolution">
+
+Mods need **Dynamic Character Resolution** set to **Off**. With it on, modded characters break apart.
+
+XXMI Launcher sets it to **Off** before every start while **Configure Game Settings For GIMI** is on. A GPU driver update or a game update can turn it back on.
+
+**Fix:**
+
+1. In game, open <MenuPath path="Settings > Graphics" />.
+2. Set **Dynamic Character Resolution** to **Off**.
+3. Press `F10`.
+
+<img
+  src="/wiki-images/genshin-impact-errors-mods-not-loading-2.webp"
+  alt="Genshin Impact graphics settings with Dynamic Character Resolution set to Off"
+/>
+
+If the setting is missing from your menu, your PC does not support it, and it is already off.
+
+</Accordion>
+<Accordion title="A mod stopped working after a game update" id="outdated-mod">
+
+**Cause:** the update changed the character the mod is made for. Version 7.2 changed only Odette and Vesna. Older mods for other characters may need a fix too.
+
+**Fix:**
+
+1. Open XXMI Launcher and let it update GIMI. GIMI updates often come on update day or a few days later.
+2. Check that the banner shows the newest GIMI version.
+3. Check the mod's page for an update.
+4. Follow [Fix your mods after a game update](/docs/genshin-impact/getting-started/fix-mods-after-an-update).
+
+</Accordion>
+<Accordion title="Two mods change the same character" id="two-mods-one-character">
+
+**Cause:** two mod folders change the same character or outfit. Or a download holds several versions of one mod in subfolders, and all of them load at once. You then see a mix of both mods, or a mess of shapes.
+
+With **Mute Warnings** off, GIMI prints a message like this:
+
+```text
+Possible Mod Conflict: Duplicate TextureOverride hash=...
+```
+
+**Fix:** keep one mod for each character or outfit. Rename the others so they start with `DISABLED_`. For a download with several versions, keep one version folder. Then press `F10`.
+
+</Accordion>
+<Accordion title="You see nothing, not even an error" id="show-warnings">
+
+**Cause:** XXMI Launcher hides mod errors by default. A mod with a wrong file name or a bad texture fails without a sign.
+
+**Fix:**
+
+1. In XXMI Launcher, click the gear in the top-right corner.
+2. Open the **GIMI** tab and untick **Mute Warnings**.
+3. Start the game and press `F10`.
+4. Read the text on screen. A beep also plays when a mod fails.
+
+An error that names a missing file or a texture format means the mod itself is broken. Check the mod's page for an update, or ask its creator.
+
+</Accordion>
+</Accordions>
+
+## Still stuck: repair GIMI and test half your mods
+
+<Steps>
+<Step>
+
+### Repair GIMI
+
+1. Remove only the files you added to `GIMI\ShaderFixes` yourself. Never empty the folder: GIMI ships its own files there.
+2. In XXMI Launcher, click the 3-dots button next to **Start**, then **Repair GIMI**. It reinstalls GIMI and keeps your mods.
+3. Start the game and check the banner.
+
+</Step>
+<Step>
+
+### Test half your mods
+
+If GIMI loads but one mod still does not show, another mod may be in the way. Find it by halves.
+
+1. Rename half of your mod folders so they start with `DISABLED_`. Keep the mod you are testing.
+2. Switch to another character and press `F10`.
+3. Switch back and check the mod.
+4. If it shows now, the blocker is in the half you turned off. If not, it is in the half you kept.
+5. Keep halving that group until one mod is left.
+
+</Step>
+</Steps>
+
+Still nothing? Ask in the [Divine Skins Discord](https://discord.gg/divineskins) or the [AGMG Discord](https://discord.gg/agmg). Say what you see, your GIMI version from the banner, and which checks you did.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Crashes and launch errors"
+    href="/docs/genshin-impact/errors/game-crashes"
+    icon={<Icon name="Bug" />}
+    level="beginner"
+  >
+    The game closes or crashes at start, with or without mods.
+  </PremiumCard>
+  <PremiumCard
+    title="XXMI Launcher problems"
+    href="/docs/genshin-impact/errors/launcher-problems"
+    icon={<Icon name="XXMILauncher" />}
+    level="beginner"
+  >
+    The launcher will not install, open, update, or find the game.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ and contributors.
+- **Images:** screenshot 1 from [Getting started](https://leotorrez.github.io/modding/guides/getting-started) and screenshot 2 from [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ, GPL-3.0.
+- **Image:** screenshot 3 by [jatterjut-spec](https://github.com/jatterjut-spec) in [XXMI Launcher issue 235](https://github.com/SpectrumQT/XXMI-Launcher/issues/235).
+- **Report:** the NVIDIA Smooth Motion incompatibility report on the [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) issue tracker.
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT.
+- **Tool:** [GIMI-Package](https://github.com/SilentNightSound/GIMI-Package) by SilentNightSound and the GIMI maintainers.

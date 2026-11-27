@@ -1,0 +1,195 @@
+---
+title: "Hide your UID and the HUD for screenshots"
+description: "Keep your Honkai: Star Rail UID out of shared screenshots and clips, and hide the HUD with one key for clean shots, using an image editor or a small mod."
+category: "ui"
+patch: "4.7"
+keywords:
+  [
+    "star rail hide uid",
+    "hide hud",
+    "star rail screenshot mod",
+    "hide ui mod",
+    "shaderoverride",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+Your UID shows in screenshots and clips you take, next to your mods. You will cover it before you share, and hide the HUD with one key for clean shots. Written for XXMI Launcher 2.5.0 and SRMI 2.4.3.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Crop" note="any editor that can crop or blur">
+    An image or video editor
+  </Requirement>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/honkai-star-rail/tools/xxmi-launcher"
+    note="for the HUD mod only"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="NotepadPlusPlus" note="for the HUD mod only">
+    A text editor
+  </Requirement>
+</Requirements>
+
+<Callout type="warning" title="Privacy, not protection">
+  Hiding your UID stops strangers from finding your account from a picture. It
+  does not hide mod use from HoYoverse, and it does not protect your account.
+  Never post modded screenshots or clips in official channels: the official
+  Discord, HoYoLAB or official subreddits. [What's allowed and how to stay
+  safe](/docs/honkai-star-rail/getting-started/stay-safe) explains the risk.
+</Callout>
+
+## Cover your UID in the picture
+
+This works for every screenshot and needs no mod.
+
+1. Open the screenshot in your image editor.
+2. Find the UID text on screen.
+3. Crop it out, or paint or blur over it until no digit can be read.
+4. Save a copy, and share only the copy.
+
+For videos and streams, blur the UID area in your video editor or streaming app for the whole clip.
+
+## Hide the HUD with your own mod
+
+SRMI can skip any shader you name. Skip the shaders that draw the HUD, and put them on a key so you can bring the HUD back. This method comes from the shared XXMI workflow. Nobody has tested it on Honkai: Star Rail 4.7 for this wiki yet.
+
+<img
+  src="/wiki-images/honkai-star-rail-ui-hide-ui-for-screenshots-1.webp"
+  alt="Three steps and a result: hunt the HUD's pixel shader with Numpad 2 and copy it with Numpad 3, a KeyHideHUD section where ctrl alt H flips $hidehud between 0 and 1, and a ShaderOverride section that skips the shader while $hidehud is 1, so that shader draws nothing until you press the key again"
+/>
+
+<Steps>
+<Step>
+
+### Find the HUD's shader
+
+1. In XXMI Launcher, click the gear, open the **SRMI** tab and tick **Enable Hunting**.
+2. Start the game and stand where the HUD piece you want to hide is on screen.
+3. Press `Numpad 0` to turn hunting on.
+4. Press `Numpad 2` again and again until that HUD piece disappears. `Numpad 1` goes back one.
+5. Press `Numpad 3` to copy the 16-digit hash. Paste it into a text file with a note, like `minimap`.
+
+[Find a hash with hunting mode](/docs/honkai-star-rail/basics/find-a-hash) explains the keys and the overlay.
+
+</Step>
+<Step>
+
+### Write the mod
+
+1. In your `Mods` folder, make a folder named `HideHUD`.
+2. Inside it, make a text file and rename it `HideHUD.ini`. Delete the `.txt` ending.
+3. Paste this, with your own hash in place of the placeholder `aaaaaaaaaaaaaaaa`:
+
+```ini
+[Constants]
+global $hidehud = 0
+
+[KeyHideHUD]
+key = ctrl alt H
+type = cycle
+$hidehud = 0,1
+
+[ShaderOverrideHUD1]
+hash = aaaaaaaaaaaaaaaa
+if $hidehud == 1
+	handling = skip
+endif
+```
+
+Add one `[ShaderOverrideHUD2]`, `HUD3` and so on for each extra hash you found. Each section name must be unique.
+
+The variable has no `persist`, so the HUD is always back when you start the game.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check on Honkai: Star Rail 4.7 with SRMI 2.4.3 that handling = skip inside an if block in a ShaderOverride, toggled by a key, hides a HUD piece */}
+
+</Step>
+<Step>
+
+### Test it
+
+1. Save the file as UTF-8.
+2. Press `Numpad 0` to leave hunting mode, then press `F10`.
+3. Press `Ctrl+Alt+H`. The HUD piece should disappear. Press it again to bring it back.
+4. When you are done, untick **Enable Hunting** in XXMI Launcher.
+
+</Step>
+</Steps>
+
+{/* SCREENSHOT: honkai-star-rail-ui-hide-ui-for-screenshots-2.webp, Honkai: Star Rail 4.7 overworld with the HideHUD key on, HUD hidden */}
+
+One shader can draw many HUD pieces, so one hash may hide all of them. That is fine for screenshots. Bring the HUD back before you play: you need it.
+
+### What about the UID
+
+Hunt the UID text the same way. If skipping its shader also hides other text you want to keep, cover the UID in the picture instead.
+
+Ready-made "hide UID" mods for Star Rail also exist. They replace the texture the UID text uses, or draw a box over it. A box must match your screen size, and some do not work on every graphics card.
+
+{/* NEEDS HANDS-ON TEST: whether the Honkai: Star Rail 4.7 UID text has its own pixel shader, or shares one with other HUD text */}
+
+<Callout type="danger" title="Hide only the UI">
+  Use shader skips only on HUD and menu pieces. Never skip the shaders for fog,
+  enemy effects, walls or anything else that makes the game show more than it
+  normally does. That is a mod that gives an unfair advantage.
+</Callout>
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Ctrl+Alt+H does nothing" id="key-does-nothing">
+
+- Press `F10` after you save the file.
+- Check that the hash has 16 digits and nothing after it on the line.
+- Untick **Mute Warnings** in the SRMI tab of XXMI Launcher and read the text after `F10`. [Test and reload your mod](/docs/honkai-star-rail/basics/test-your-mod) explains SRMI's warnings.
+
+</Accordion>
+<Accordion title="Something in the world disappeared too" id="world-disappeared">
+
+That shader also draws part of the world. Remove its section and hunt the HUD piece again. Pick the hash that hides only the HUD.
+
+</Accordion>
+<Accordion title="SRMI shows Possible Mod Conflict: Duplicate ShaderOverride" id="duplicate-shader">
+
+Another mod also changes that shader. Two mods on one shader often means only one works. Turn the other hide-UI or shader mod off, or add `allow_duplicate_hash = true` to the section in both mods.
+
+</Accordion>
+<Accordion title="The HUD came back after a game update" id="after-update">
+
+The update changed the shader, so its hash changed. Hunt the HUD piece again and replace the hash.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Replace character icons and portraits"
+    href="/docs/honkai-star-rail/ui/replace-icons"
+    icon={<Icon name="SquareUser" />}
+    level="beginner"
+  >
+    Swap a character's icon or portrait for your own art.
+  </PremiumCard>
+  <PremiumCard
+    title=".ini reference"
+    href="/docs/honkai-star-rail/ini/ini-reference"
+    icon={<Icon name="BookOpen" />}
+    level="advanced"
+  >
+    Every section, key type and warning a mod .ini can use.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** Frequently Asked Questions by leotorrez, on why players hide their UID.
+- **Guide:** [Using 3Dmigoto to find and fix shaders](https://github.com/bo3b/3Dmigoto/wiki/Using-3Dmigoto-to-find-and-fix-shaders) by bo3b, for skipping a shader.
+- **Tool:** [SRMI `d3dx.ini`](https://github.com/SpectrumQT/SRMI-Package/blob/main/SRMI/d3dx.ini) by SpectrumQT, for the hunting keys and key types.

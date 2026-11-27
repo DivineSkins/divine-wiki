@@ -1,0 +1,288 @@
+---
+title: "XXMI Launcher settings"
+description: "Every XXMI Launcher setting for Zenless Zone Zero explained: the ZZMI tab, Game Launch for each store, game settings, updates, repair, moving and uninstalling."
+category: "tools"
+patch: "3.3"
+keywords: ["xxmi launcher", "xxmi launcher settings", "zzmi", "zzz mods"]
+---
+
+<LevelPill level="beginner" />
+
+<ToolHeader
+  name="XXMI Launcher"
+  icon="XXMILauncher"
+  badge="Required"
+  facts={["Free", "Open source (GPL-3.0)", "Windows", "v2.5.0"]}
+  primary={{
+    label: "Download",
+    href: "https://github.com/SpectrumQT/XXMI-Launcher/releases/latest",
+  }}
+  links={[
+    { label: "GitHub", href: "https://github.com/SpectrumQT/XXMI-Launcher" },
+  ]}
+>
+  Installs, updates, and starts ZZMI, the Zenless Zone Model Importer. By
+  SpectrumQT.
+</ToolHeader>
+
+XXMI Launcher is the only app you need to load Zenless Zone Zero mods. It downloads ZZMI and the XXMI DLL, keeps them up to date, and starts the game with your mods. This page explains every setting. For the first install, follow [Install mods with XXMI Launcher](/docs/zenless-zone-zero/getting-started/install-with-xxmi-launcher).
+
+Written for XXMI Launcher 2.5.0, XXMI DLL 1.3.2, and ZZMI 1.5.2 on Zenless Zone Zero 3.3.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="ZenlessZoneZero" note="HoYoPlay, Epic Games or Steam">
+    Zenless Zone Zero
+  </Requirement>
+  <Requirement icon="Monitor">Windows PC</Requirement>
+  <Requirement icon="ShieldCheck">An administrator account</Requirement>
+</Requirements>
+
+The launcher needs admin rights, so Windows asks for permission each time it starts. XXMI Launcher is free. Never pay for it.
+
+## Get the real launcher
+
+Download it only from the [GitHub releases page](https://github.com/SpectrumQT/XXMI-Launcher/releases/latest). Each release has two files:
+
+- `XXMI-Launcher-Installer-Online-v2.5.0.msi`: the normal installer. Pick this one.
+- `XXMI-Launcher-Portable-v2.5.0.zip`: a portable copy. Install the Microsoft Visual C++ Redistributable (x64) first, extract it outside Program Files, and run `Resources\Bin\XXMI Launcher.exe`.
+
+<img
+  src="/wiki-images/zenless-zone-zero-tools-xxmi-launcher-1.webp"
+  alt="The Assets list on the XXMI Launcher v2.5.0 release page, with the .msi installer and the portable .zip"
+/>
+
+The files are not code-signed. Windows SmartScreen and some antivirus apps warn about them. That is a known false alarm for this launcher, not a reason to turn your antivirus off. [XXMI Launcher problems](/docs/zenless-zone-zero/errors/launcher-problems) shows how to restore files from quarantine.
+
+{/* NEEDS HANDS-ON TEST: the exact SmartScreen text shown for the unsigned XXMI Launcher 2.5.0 msi. */}
+
+## Where everything lives
+
+The installer puts the launcher in `%AppData%\XXMI Launcher`. ZZMI and your mods sit in a `ZZMI` folder inside it. Nothing goes in the game folder.
+
+<Files>
+  <Folder name="XXMI Launcher" defaultOpen>
+    <Folder name="Backups" />
+    <Folder name="Resources" />
+    <Folder name="ZZMI" defaultOpen>
+      <Folder name="Core" />
+      <Folder name="Mods" />
+      <Folder name="ShaderFixes" />
+      <File name="d3dx.ini: written by the launcher" />
+      <File name="d3dx_user.ini: your saved mod toggles" />
+    </Folder>
+    <File name="XXMI Launcher Config.json: your settings" />
+    <File name="XXMI Launcher Log.txt: the log for bug reports" />
+  </Folder>
+</Files>
+
+- `ZZMI\Mods` is where your mods go. Updates never touch it.
+- `ZZMI\Core` holds ZZMI itself, including its libraries (SlotFix, TTLib and others). Do not edit it: the next update replaces it.
+- `ZZMI\ShaderFixes` holds files that ZZMI ships. Never empty it.
+- `Backups` keeps a copy of your settings and of `d3dx.ini` before each ZZMI update.
+
+## What Start does
+
+Each time you press **Start**, the launcher:
+
+1. Closes Zenless Zone Zero if it is already running.
+2. Puts the XXMI DLL in the `ZZMI` folder and checks its signature.
+3. Writes your settings into `ZZMI\d3dx.ini`, with the render settings ZZMI needs.
+4. Checks your `Mods` folder for files that break other mods (the Mod Optimizer, below).
+5. Sets the game's graphics options for mods, if **Configure Game Settings For ZZMI** is on.
+6. Starts the game, directly or through Steam or Epic Games, and loads ZZMI into it.
+7. Closes itself, unless you changed that.
+
+Start does not update the game. Update Zenless Zone Zero in HoYoPlay, Epic Games or Steam first, then press **Start**.
+
+## The 3-dots menu
+
+The button with three dots next to **Start** opens these tools:
+
+| Item                     | What it does                                                                         |
+| ------------------------ | ------------------------------------------------------------------------------------ |
+| **Repair ZZMI**          | Downloads ZZMI and the XXMI DLL again and reinstalls them. Your mods stay.           |
+| **Check For Updates**    | Looks for new versions now. Shows "No updates available!" if there are none.         |
+| **Add Desktop Shortcut** | Adds a `ZZMI Quick Start` shortcut that starts the game without the launcher window. |
+| **Optimize Mods**        | Runs the Mod Optimizer by hand. It also runs on every Start.                         |
+| **Open Mods Folder**     | Opens `ZZMI\Mods` in File Explorer.                                                  |
+
+The Mod Optimizer turns off a stray `d3dx.ini` inside `Mods`, extra copies of ZZMI's libraries, and lines that slow the game down. It turns off a file by adding a `DISABLED_` prefix to its name, and a heavy line by making it a comment. If it finds a copy of SlotFix in your `Mods` folder, it offers to turn it off: say yes, ZZMI already has it. RabbitFX is not part of ZZMI, so keep exactly one copy of it in `Mods`.
+
+## The settings window
+
+Click the gear in the top-right corner to open the settings. The window has four tabs: **General**, **Launcher**, **ZZMI**, and **Advanced**. Your changes save when you close the window.
+
+{/* SCREENSHOT: zenless-zone-zero-tools-xxmi-launcher-3.webp, XXMI Launcher 2.5.0 settings window on the ZZMI tab, with ZZMI selected. No settings-window screenshot of launcher 2.4.1 or newer exists in the sources. */}
+
+### General tab
+
+| Setting                               | Default       | What to do                                                                                                                                     |
+| ------------------------------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Game Launch**                       | `Direct`      | Pick the store you play on. See the table below.                                                                                               |
+| **Game Folder**                       | found for you | The folder that directly holds `ZenlessZoneZero.exe` and `ZenlessZoneZero_Data`. Use **Detect Installations** or **Browse...** if it is empty. |
+| **Launch Options**                    | empty         | Leave it empty. Never add `-use-d3d12`: ZZMI does not work in DirectX 12.                                                                      |
+| **Game Executable Run Method**        | `Native`      | Keep the default.                                                                                                                              |
+| **Game Process Launch Wait Timeout**  | `30` seconds  | Raise it on a slow PC if the launcher says the game "did not start within 30s".                                                                |
+| **Configure Game Settings For ZZMI**  | on            | Keep it on. It sets the graphics options mods need before every start.                                                                         |
+| **Configure Launch Options on Steam** | on            | Shown with `Steam` only. Keep it on.                                                                                                           |
+| **Skip HoYoPlay Launcher**            | on            | Shown with `Steam` only. Keep it on.                                                                                                           |
+
+**Game Launch** for each store:
+
+| Store      | Game Launch  | What happens                                                                                                                                 |
+| ---------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| HoYoPlay   | `Direct`     | The launcher runs `ZenlessZoneZero.exe` itself. HoYoPlay stays closed. This is the most tested setup.                                        |
+| Steam      | `Steam`      | The launcher writes the game's Steam launch options, restarts Steam if they changed, and starts the game through Steam.                      |
+| Epic Games | `Epic Games` | The launcher starts the game through the Epic Games Launcher. The Epic version starts in DirectX 12 by default, so check it uses DirectX 11. |
+
+With `Direct`, the launcher also handles the Epic Games copy: it starts the game from the right working folder, which stops a crash at login. The Bilibili client for China works with `Direct` since launcher 2.4.1.
+
+{/* NEEDS HANDS-ON TEST: on the Epic Games version of Zenless Zone Zero 3.3, whether Game Launch = Epic Games or Direct works best on launcher 2.5.0, and whether either one forces DirectX 11. */}
+
+`Configure Game Settings For ZZMI` edits the game's own settings file, `ZenlessZoneZero_Data\Persistent\LocalStorage\GENERAL_DATA.bin`. It works with the `Direct`, `Steam` and `Epic Games` modes. Start the game once from its own launcher before your first modded start, so the game creates this file. Before every start, it sets these options:
+
+| Option in <MenuPath path="Settings > Graphics" /> | Set to      |
+| ------------------------------------------------- | ----------- |
+| **Character Quality**                             | **High**    |
+| **High-Precision Character Animation**            | **Disable** |
+| **Image Quality**                                 | **Custom**  |
+
+<img
+  src="/wiki-images/zenless-zone-zero-tools-xxmi-launcher-2.webp"
+  alt="The Zenless Zone Zero graphics settings with High-Precision Character Animation set to Disable, marked with red arrows"
+/>
+
+With either of the first two options wrong, mods break. **Image Quality** shows **Custom** because the other two changed. If the game resets your language or other options on each start, update the launcher. If it still happens, turn this setting off and set the two options by hand in game.
+
+{/* NEEDS HANDS-ON TEST: the exact English labels and values in the 3.3 client (Character Quality, High, High-Precision Character Animation, Disable or Disabled, Image Quality, Custom), and that the first start creates GENERAL_DATA.bin. The screenshot is from the 1.3 menu. */}
+
+### Launcher tab
+
+| Setting                             | Default           | What to do                                                                              |
+| ----------------------------------- | ----------------- | --------------------------------------------------------------------------------------- |
+| **Close Launcher After Game Start** | on                | Turn off to keep the window open.                                                       |
+| **UI Theme**, **Window Scale**      | `Default`, `Auto` | Change the look and size.                                                               |
+| **Auto Update**                     | on                | Keep it on. Turned off, an up-arrow button appears next to **Start** when updates wait. |
+| **Overwrite d3dx.ini**              | on                | Keep it on. Updates replace `d3dx.ini` after a backup.                                  |
+| **GitHub Token**                    | empty             | Add one only if you see "GitHub API requests limit reached".                            |
+| **Verify SSL**, **Use Proxy**       | on, off           | Change only if your network blocks GitHub.                                              |
+
+### ZZMI tab
+
+| Setting                                         | Default                     | What to do                                                                             |
+| ----------------------------------------------- | --------------------------- | -------------------------------------------------------------------------------------- |
+| **ZZMI Folder**                                 | `ZZMI/` inside the launcher | Where `Mods`, `Core` and `d3dx.ini` live. It must be outside the game folder.          |
+| **XXMI DLL Injection Mode**                     | `Hook`                      | Keep the default.                                                                      |
+| **Manage XXMI DLL Config**                      | on                          | Keep it on. Off, the launcher stops writing `d3dx.ini`.                                |
+| **Configure XXMI DLL for ZZMI**                 | on                          | Keep it on. It sets the render settings ZZMI needs to work.                            |
+| **XXMI DLL Initialization Delay**               | `0` ms                      | If the game crashes at start even with no mods, raise it in steps of 50.               |
+| **Mute Warnings**                               | on                          | Turn off while you look for a broken mod. Error text then shows on screen after `F10`. |
+| **Clear Unknown Mod Settings**                  | on                          | Removes saved toggles of mods you deleted.                                             |
+| **Enable By Default**, **Input Disabling Mode** | on, `Mods`                  | Mod hotkeys work from the start. `Ctrl+Alt+Shift+End` turns them on or off.            |
+| **Enable Hunting**                              | off                         | Turn on only to make mods. It allows hunting mode on `Numpad 0`.                       |
+| **Dump Shaders**                                | off                         | For creators. Copying a hash also saves the shader.                                    |
+| **Log File Output Verbosity**                   | `Disabled`                  | Keep `Disabled`. Debug logs grow very large.                                           |
+
+{/* NEEDS HANDS-ON TEST: XXMI DLL Initialization Delay. The launcher's own tooltip suggests steps of 50 for any game that crashes with no mods, but every user report found is from another game. Check on Zenless Zone Zero 3.3 whether raising it stops a crash at start. */}
+
+{/* NEEDS HANDS-ON TEST: in XXMI Launcher 2.5.0, confirm the ZZMI tab labels, including Log File Output Verbosity (Disabled, Warning, Info, Debug) in place of the older Calls Logging and Debug Logging boxes. */}
+
+### Advanced tab
+
+This tab runs extra commands or loads extra files with the game. Leave every option off. Mods do not need any of them. The one common exception is starting a mod manager with the game, which [Mod managers compared](/docs/zenless-zone-zero/tools/mod-managers) explains.
+
+## Update, repair, move, and uninstall
+
+<Steps>
+<Step>
+
+### Update
+
+With **Auto Update** on, the launcher updates itself, the XXMI DLL, and ZZMI when you open it. To check by hand, open the 3-dots menu and click **Check For Updates**. An update replaces `Core` and `d3dx.ini`, and never touches `Mods`. ZZMI often gets small fixes in the weeks after a game update, so open the launcher every few days.
+
+</Step>
+<Step>
+
+### Repair
+
+Open the 3-dots menu and click **Repair ZZMI**. Do this after you repair the game in its own launcher, or when ZZMI files are missing. If you added your own files to `ShaderFixes`, remove only those first, then repair.
+
+</Step>
+<Step>
+
+### Move your mods
+
+1. Close the launcher.
+2. Copy the whole `ZZMI` folder to the new place, for example `C:\Games\ZZMI`.
+3. Open the settings, go to the **ZZMI** tab, and set **ZZMI Folder** to the new path.
+
+{/* NEEDS HANDS-ON TEST: whether changing ZZMI Folder moves the files by itself, or expects you to copy the folder first as written. */}
+
+</Step>
+<Step>
+
+### Uninstall
+
+1. Back up `ZZMI\Mods`, and `ZZMI\d3dx_user.ini` if you want to keep your toggles.
+2. Open <MenuPath path="Windows Settings > Apps" />, find XXMI Launcher, and click **Uninstall**. For the portable copy, delete its folder and shortcuts.
+3. Delete the leftover `ZZMI` folder if you no longer want your mods.
+4. If you used `Steam` for **Game Launch**, clear the game's launch options in Steam.
+
+The graphics options the launcher set stay as they are until you change them in game.
+
+{/* NEEDS HANDS-ON TEST: which folders the 2.5.0 msi uninstaller leaves behind (ZZMI, Backups, XXMI Launcher Config.json). */}
+
+</Step>
+</Steps>
+
+## Hand edits to config files
+
+Use the launcher settings when one exists. Edits to files in `Core` are lost at the next ZZMI update. Edits to `d3dx.ini` are lost too, unless you turn off **Overwrite d3dx.ini**, and the launcher rewrites some lines on every Start, such as the render settings ZZMI needs. The old file goes to `Backups\ZZMI <date>` before each update.
+
+## Command line
+
+The `ZZMI Quick Start` shortcut runs the launcher with options. You can use them in your own shortcut:
+
+```text
+"%AppData%\XXMI Launcher\Resources\Bin\XXMI Launcher.exe" --nogui --xxmi ZZMI
+```
+
+- `--nogui --xxmi ZZMI` starts Zenless Zone Zero with mods, with no launcher window.
+- `--update` checks for updates first.
+
+## Common problems
+
+If the game starts but no ZZMI banner shows, turn off NVIDIA Smooth Motion and frame generation first, and check that the game runs in DirectX 11. [Mods not loading](/docs/zenless-zone-zero/errors/mods-not-loading) has the full checklist. Antivirus alerts, GitHub connection errors, and a launcher that will not open are on the launcher problems page linked above.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Add, turn off, and remove mods"
+    href="/docs/zenless-zone-zero/getting-started/manage-mods"
+    icon={<Icon name="FolderOpen" />}
+    level="beginner"
+  >
+    Put mods in the Mods folder and switch them on and off.
+  </PremiumCard>
+  <PremiumCard
+    title="Fix your mods after a game update"
+    href="/docs/zenless-zone-zero/getting-started/fix-mods-after-an-update"
+    icon={<Icon name="RefreshCw" />}
+    level="beginner"
+  >
+    What to do when a new Zenless Zone Zero version breaks your mods.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This page is based on the work of these creators. Check out their original pages.
+
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT. Setting names and defaults come from its source code and English locale file.
+- **Wiki:** [More Start Options](https://github.com/SpectrumQT/XXMI-Launcher/wiki/More-Start-Options) by SpectrumQT.
+- **Tool:** [ZZMI-Package](https://github.com/leotorrez/ZZMI-Package) by leotorrez and the ZZMI maintainers.
+- **Guide:** [Launchers](https://leotorrez.github.io/modding/guides/launchers) by LeoTorreZ.
+- **Images:** screenshot 2 from [ZZZ 1.3 Character Fix](https://gamebanana.com/tools/18386) by petrascyll (CC BY-NC-ND 4.0).

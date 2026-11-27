@@ -1,0 +1,200 @@
+---
+title: "Test and reload your mod"
+description: "Reload a Genshin Impact mod in seconds with F10, compare it with the original, read GIMI's warnings, find a broken mod, and check everything before you share."
+category: "basics"
+patch: "7.2"
+keywords:
+  [
+    "gimi f10 reload",
+    "genshin mod not working",
+    "gimi hotkeys",
+    "mute warnings",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+You never need to restart Genshin Impact to see a change to your mod. This page shows how to reload in seconds, compare your mod with the original, read GIMI's messages, and check every state before you share. Written for XXMI Launcher 2.5.0 and GIMI 8.9.4.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/genshin-impact/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="GenshinImpact" note="started from XXMI Launcher">
+    Genshin Impact
+  </Requirement>
+  <Requirement icon="FolderOpen">Your mod in the Mods folder</Requirement>
+</Requirements>
+
+Your mod goes in its own folder inside `%AppData%\XXMI Launcher\GIMI\Mods`.
+
+## Check that GIMI loaded
+
+1. Press **Start** in XXMI Launcher. Starting the game from HoYoPlay or Epic loads no mods.
+2. Look for this text in the first 30 seconds:
+
+   ```text
+   GIMI 8.9.4 F12 TO SHOW GUIDE
+   ```
+
+3. On your first start, GIMI shows a full-screen user guide. Press `F10` to hide it for good. Press `F12` to see it again.
+
+<img
+  src="/wiki-images/genshin-impact-basics-test-your-mod-1.webp"
+  alt="The GIMI user guide over the Genshin Impact loading screen, listing how to install mods and the F12, F6, F10, F9 and Ctrl+F12 hotkeys"
+/>
+
+No text at all? The XXMI DLL did not load, so no mod can work. [Mods not loading](/docs/genshin-impact/errors/mods-not-loading) goes through the causes in order.
+
+## The keys you test with
+
+| Key            | What it does                                                                                                       |
+| -------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `F10`          | Reload all mods and save mod settings                                                                              |
+| `F9` (hold)    | Show the original game while you hold it                                                                           |
+| `F6`           | Turn all mods off or on                                                                                            |
+| `F12`          | Show or hide the user guide                                                                                        |
+| `Ctrl+Alt+F10` | Reset all saved mod settings (toggles) and reload                                                                  |
+| `Ctrl+F9`      | Show the performance monitor: which mod costs the most time                                                        |
+| `Ctrl+F12`     | Show the hunting mode guide (needs **Enable Hunting**, see [Find a hash](/docs/genshin-impact/basics/find-a-hash)) |
+
+## Reload your mod
+
+1. Save your change: a new export from Blender, an `.ini` edit, or a new texture.
+2. Switch to another character in your party, so the modded one leaves the screen.
+3. Press `F10`.
+4. Switch back to the modded character.
+
+Why switch first: a mod that reloads while its character is on screen can draw only partly, or look collapsed. If that happens, switch away and press `F10` again. Teleporting or restarting the game also fixes it.
+
+If your mod has a credit line, `Created by ...` pops up the first time the character appears.
+
+### A faster loop from Blender
+
+1. In XXMI Tools, export straight into your mod's folder inside `Mods`.
+2. After your first export, untick **Mod textures**, so re-exports do not overwrite textures you edited.
+3. If you edit the `.ini` by hand, untick **Write ini**. Re-exports then refresh only the buffers.
+4. Tick **Write ini** again when you add or remove vertices. The vertex and index counts live in the `.ini`.
+
+{/* NEEDS HANDS-ON TEST: the exact labels of the Mod textures and Write ini options in XXMI Tools 1.8.2 */}
+
+## Compare with the original
+
+- **Hold `F9`.** Your mod disappears while you hold the key. Let go and it comes back. Use it to compare colors and shape side by side.
+- **Press `F6`.** It turns every character mod off. Press it again to turn them back on. `F6` does not turn off shader and effect mods.
+
+## Read warnings and errors
+
+XXMI Launcher hides mod warnings by default. Turn them on while you test:
+
+1. In XXMI Launcher, click the gear at the top right.
+2. Open the **GIMI** tab.
+3. Untick **Mute Warnings**.
+4. Start the game and press `F10`.
+
+Each message names the section and the file it comes from, like `@ [Mods\MyMod\MyMod.ini]`. Common ones:
+
+| Message                                                     | What it means                                                    |
+| ----------------------------------------------------------- | ---------------------------------------------------------------- |
+| `Possible Mod Conflict: Duplicate TextureOverride hash=...` | Two mods change the same character. Turn one off.                |
+| An error that names a missing file                          | A file name in the `.ini` does not match the file in the folder. |
+| `Entry outside of section`                                  | A line sits above the first `[section]` in an `.ini`.            |
+| A message that you reloaded shaders                         | Information only. `F10` also reloads the `ShaderFixes` folder.   |
+
+{/* SCREENSHOT: genshin-impact-basics-test-your-mod-2.webp, GIMI 8.9.4 in game with Mute Warnings off, showing a Possible Mod Conflict warning after F10 */}
+
+Messages fade after a few seconds. To keep them, write them to a log:
+
+1. In the **GIMI** tab, set **Log File Output Verbosity** to **Warning**.
+2. Start the game, press `F10`, then close the game.
+3. Open `d3d11_log.txt` in `%AppData%\XXMI Launcher\GIMI`.
+
+Set it back to **Disabled** when you are done. Detailed logging slows the game, and the log file can grow very large.
+
+{/* NEEDS HANDS-ON TEST: the logging control in the GIMI tab of XXMI Launcher 2.5.0. The launcher code has a "Log File Output Verbosity" list (Disabled, Warning, Info, Debug), but a 2026 screenshot of the same tab for another game shows "Calls Logging" and "Debug Logging" checkboxes instead. Also confirm where d3d11_log.txt is written. */}
+
+Toggles stuck or acting strange? Press `Ctrl+Alt+F10`. It deletes `d3dx_user.ini`, the file that saves every mod's toggle settings, and reloads.
+
+## Find a broken mod with the halves method
+
+A mod you downloaded breaks your own, or the game acts up and you do not know why? Split the `Mods` folder in halves:
+
+1. Move half of your mod folders out of `Mods`, to your desktop for example.
+2. Restart the game, or switch characters and press `F10`.
+3. Check if the problem is gone. If yes, it is in the half you moved out. If no, it is in the half that stayed.
+4. Repeat with the half that has the problem, until one mod is left.
+
+About seven rounds find one mod among a hundred.
+
+Still broken with an empty `Mods` folder? Remove only the files you added to `ShaderFixes` yourself. Then click the three dots next to **Start** in XXMI Launcher and choose **Repair GIMI**. Never empty `ShaderFixes`: GIMI ships its own files there.
+
+## Check everything before you share
+
+Test each state, with **Dynamic Character Resolution** off in the game's graphics settings:
+
+- [ ] The character screen and the open world
+- [ ] Idle, walking, running, the end of a sprint, and normal attacks
+- [ ] The Elemental Skill and the Elemental Burst
+- [ ] Natlan characters: in and out of the Nightsoul state
+- [ ] Day and night, indoors and outdoors
+- [ ] Combat, if your mod has glow
+- [ ] Low graphics settings
+- [ ] Hold `F9`: the original looks normal
+- [ ] Warnings on: no message points at your mod
+
+{/* NEEDS HANDS-ON TEST: which of these states break a typical Genshin 7.2 character mod, and whether the list misses one */}
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The character looks half drawn after F10" id="half-drawn">
+
+The character was on screen while you reloaded. Switch to another character, press `F10`, and switch back. Teleporting or restarting also fixes it.
+
+</Accordion>
+<Accordion title="Green skin, wrong colors or a multicolored face" id="wrong-colors">
+
+The part is missing its ORFix or NNFix line, or has it in the wrong place. [Mods look broken](/docs/genshin-impact/errors/mods-look-broken) shows each symptom and its fix.
+
+</Accordion>
+<Accordion title="Toggles reset every time I start the game" id="toggles-reset">
+
+The mod saves its toggles only if they are declared `global persist`. Without `persist`, they reset on every start. Check the `[Constants]` section of the mod's `.ini`.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/genshin-impact/publishing/publishing-checklist"
+    icon={<Icon name="Upload" />}
+    level="beginner"
+  >
+    Clean the folder, add credits, and pack it so it works for everyone.
+  </PremiumCard>
+  <PremiumCard
+    title="How Genshin Impact mods work"
+    href="/docs/genshin-impact/basics/how-mods-work"
+    icon={<Icon name="Layers" />}
+    level="beginner"
+  >
+    Hashes, the Mods folder, and why updates break mods.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Tool:** [GIMI-Package](https://github.com/SilentNightSound/GIMI-Package) by SilentNightSound and the GIMI team: the in-game [user guide](https://github.com/SilentNightSound/GIMI-Package/blob/main/GIMI/Core/GIMI/Notifications/UserGuide.md) and [key bindings](https://github.com/SilentNightSound/GIMI-Package/blob/main/GIMI/Core/GIMI/KeyBindings.ini).
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) and the [XXMI DLL](https://github.com/SpectrumQT/XXMI-Libs-Package) by SpectrumQT.
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorrez and contributors: the reload rule and the halves method.
+- **Images:** screenshot 1 from [Getting Started](https://leotorrez.github.io/modding/guides/getting-started) by LeoTorreZ.

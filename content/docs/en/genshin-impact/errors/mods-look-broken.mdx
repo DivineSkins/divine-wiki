@@ -1,0 +1,278 @@
+---
+title: "Mods look broken"
+description: "A Genshin Impact mod loads but looks wrong? Match what you see, from green skin to exploded models and white faces, to its cause and the fix."
+category: "errors"
+patch: "7.2"
+keywords:
+  [
+    "genshin mod green",
+    "orfix",
+    "genshin mod broken",
+    "dynamic character resolution",
+    "white face mod",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+Your mod loads, but the character looks wrong. Find what you see in the table, then open the matching fix below. This page was written for Genshin Impact 7.2 and GIMI 8.9.4.
+
+No mod shows at all? Go to [Mods not loading](/docs/genshin-impact/errors/mods-not-loading).
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/genshin-impact/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="Wrench" href="/docs/genshin-impact/tools/update-fixers">
+    Update fix tools
+  </Requirement>
+  <Requirement icon="FileText" note="such as Notepad">
+    A text editor
+  </Requirement>
+</Requirements>
+
+## Try this first
+
+These three steps fix most broken mods. Do them before anything else.
+
+1. Set **Dynamic Character Resolution** to **Off** in the game's graphics settings.
+2. Close the game and open XXMI Launcher. It updates GIMI and its libraries.
+3. In game, switch to another character, press `F10`, and switch back.
+
+## What do you see?
+
+| What you see                                                  | Most likely cause                             | Fix                                                       |
+| ------------------------------------------------------------- | --------------------------------------------- | --------------------------------------------------------- |
+| Every modded character is a mess of spikes or shapes          | Dynamic Character Resolution is on            | [Exploded model](#exploded-model)                         |
+| One character is a mess, or flickers between two looks        | Two mods for one character                    | [Two mods on one character](#two-mods-on-one-character)   |
+| Green, yellow, purple or neon skin, clothes or reflections    | ORFix is missing, old, or on the wrong part   | [Green or neon parts](#green-or-neon-parts)               |
+| White face, missing face makeup, or round marks on the cheeks | An old face texture line                      | [Face problems](#face-problems)                           |
+| Missing arms or legs, or parts stretched right after loading  | The character was on screen during the reload | [Missing or stretched parts](#missing-or-stretched-parts) |
+| An old mod looks wrong or does not show on its character      | The character changed in a game update        | [Old mod after an update](#old-mod-after-an-update)       |
+| Bright blue outlines on many characters                       | An old GIMI version                           | [Other problems](#other-problems)                         |
+| The character sinks into the floor, or the outline floats     | The mod needs the Offset library              | [Other problems](#other-problems)                         |
+
+## Fixes
+
+<Accordions type="multiple">
+<Accordion title="Exploded model" id="exploded-model">
+
+All modded characters look like a mess of broken shapes. Sometimes only from some angles, or in reflections.
+
+<img
+  src="/wiki-images/genshin-impact-errors-mods-look-broken-1.webp"
+  alt="A modded character broken into large red and dark shapes that fill the screen"
+/>
+
+**Cause:** **Dynamic Character Resolution** is on. It changes how the game draws characters, and mods do not work with it. A game update, a GPU driver update, or a graphics app can turn it back on.
+
+**Fix:**
+
+1. In game, open <MenuPath path="Settings > Graphics" />.
+2. Set **Dynamic Character Resolution** to **Off**.
+3. Press `F10`.
+
+Keep **Configure Game Settings For GIMI** on in XXMI Launcher. It sets this option to **Off** before every start.
+
+If only one character looks like this, read the next fix.
+
+</Accordion>
+<Accordion title="Two mods on one character" id="two-mods-on-one-character">
+
+**Cause:** two mod folders change the same character. Or a download holds several versions of one mod in subfolders, and all of them load.
+
+**Fix:**
+
+1. Keep one mod for each character or outfit.
+2. Rename the other mod folders so they start with `DISABLED_`.
+3. For a download with several versions, keep one version folder and disable the rest.
+4. Press `F10`.
+
+</Accordion>
+<Accordion title="Green or neon parts" id="green-or-neon-parts">
+
+Skin, clothes or hair turn green, yellow, purple or neon. Or reflections and outlines have the wrong color. This is most common right after a game update.
+
+<img
+  src="/wiki-images/genshin-impact-errors-mods-look-broken-2.webp"
+  alt="A modded character whose dress, veil and skin are all bright green"
+/>
+
+**Cause:** the mod's ORFix lines are missing, old, or on the wrong part. ORFix is a library inside GIMI that fixes reflections and outlines. Since version 6.1 every character part except the face needs it.
+
+**Fix, in this order:**
+
+1. Close the game and open XXMI Launcher, so it updates GIMI. ORFix updates come on update day or a few days later.
+2. Download the [ORFix Applier](https://gamebanana.com/tools/16472). Make a copy of the broken mod's folder first.
+3. Run the Applier inside the broken mod's folder. It adds or removes ORFix lines for each part and saves a backup named `Backup_ORFIX_Applier_...`.
+4. Press `F10` in game.
+
+The Applier cannot fix merged mods or mods with many toggles. For those, check the mod's page for an update, or follow [Fix an old mod by hand](/docs/genshin-impact/ini/fix-an-old-mod).
+
+<Callout type="warning" title="Do not add ORFix.ini to your Mods folder">
+  XXMI already includes ORFix, ORFixAPI, Offset and Region. Delete any
+  `ORFix.ini`, `ORFixAPI.ini`, `Region.ini` or `Offset.ini` you find in `Mods`
+  or `Mods\BufferValues`. Many videos and guides say to download them: those are
+  for the old standalone GIMI.
+</Callout>
+
+**If a part stays green after the Applier:** each part's `.ini` section needs one line at its end. Use `ORFix` on a part that has a normal map, and `NNFix` on a part without one. Never put either line in a face section.
+
+```ini
+run = CommandList\global\ORFix\ORFix
+```
+
+```ini
+run = CommandList\global\ORFix\NNFix
+```
+
+ORFix also expects the textures in this slot order:
+
+| Part                 | `ps-t0`   | `ps-t1`  | `ps-t2`  |
+| -------------------- | --------- | -------- | -------- |
+| With a normal map    | NormalMap | Diffuse  | LightMap |
+| Without a normal map | Diffuse   | LightMap | none     |
+
+**Green only during a skill or burst:** ORFix does not cover that effect yet. Wait for the next GIMI update.
+
+**Still green:** another mod may change shared textures for everyone. Turn every other mod off with a `DISABLED_` prefix, press `F10`, and check again.
+
+This video shows how to find the broken part of a mod by moving its texture files out, one part at a time.
+
+<YouTube
+  id="jn14OocfzEI"
+  title="How to Fix Mods That ORFix Applier Can't Fix, by RJ XEN"
+  start={41}
+/>
+
+The video later swaps `ps-t0` and `ps-t1` by trial. Run the ORFix Applier first, then compare the slots with the table above.
+
+</Accordion>
+<Accordion title="Face problems" id="face-problems">
+
+The body has the mod's colors but the face is white or the original. Or face makeup disappears. Or round pink marks show on the cheeks.
+
+<img
+  src="/wiki-images/genshin-impact-errors-mods-look-broken-3.webp"
+  alt="A character's face with round pale marks on both cheeks"
+/>
+
+**Cause:** version 6.1 changed how face textures load. Old mods still use the old line. An ORFix line in a face section also gives a white face.
+
+**Fix with a tool:** run [Face Fix Updated](https://gamebanana.com/tools/21052) inside the mod folder. It rewrites the face sections and makes a backup. Run the ORFix Applier first, as its page says.
+
+**Fix by hand:**
+
+1. Open the mod's `.ini` in a text editor.
+2. Find the section whose name ends in `FaceHeadDiffuse`.
+3. Change `ps-t0 =` to `this =`.
+4. Delete any `ORFix` or `NNFix` line from that section.
+5. Save and press `F10`.
+
+```ini
+[TextureOverrideHuTaoFaceHeadDiffuse]
+hash = d00bb0ef
+this = ResourceHuTaoFaceHeadDiffuse
+```
+
+Newer mods use this form, which also passes the face light map:
+
+```ini
+[TextureOverrideGanyuFaceHeadADiffuse]
+hash = b2657593
+Resource\GIMI\LightMap = ref ResourceGanyuFaceHeadALightmap
+Resource\GIMI\Diffuse = ref ResourceGanyuFaceHeadADiffuse
+run = CommandList\GIMI\SetTextures
+```
+
+{/* NEEDS HANDS-ON TEST: that changing ps-t0 to this = in FaceHeadDiffuse still fixes white faces and cheek marks with the ORFix shipped in GIMI 8.9.4. */}
+
+</Accordion>
+<Accordion title="Missing or stretched parts" id="missing-or-stretched-parts">
+
+Arms or legs are missing, or spikes stretch out of the body, the first time a mod loads.
+
+**Cause:** the character was on screen when GIMI loaded the mod. GIMI then draws it with the original model's vertex count, so parts go missing.
+
+**Fix:** any of these:
+
+- Switch to another character, press `F10`, and switch back.
+- Teleport, or enter a domain.
+- In the party setup, take the character out, deploy, then put them back and deploy again.
+
+{/* NEEDS HANDS-ON TEST: the party setup redeploy on 7.2. */}
+
+If a part always collapses into the body, the mod itself is broken. See [Model problems in game](/docs/genshin-impact/errors/model-problems).
+
+</Accordion>
+<Accordion title="Old mod after an update" id="old-mod-after-an-update">
+
+**Cause:** a game update changed the character's data, so the mod no longer matches. Version 7.2 changed only Odette and Vesna. Mods from 2023 or 2024 often need a fix too.
+
+**Fix:**
+
+1. Check the mod's page for an update first.
+2. Zip a copy of the mod folder.
+3. Download [7.2 Fix All Character Mods!](https://gamebanana.com/tools/16433) and put `gifixversion72.exe` in the broken mod's folder.
+4. Run it once. Never run a fixer twice on the same mod.
+5. Run the ORFix Applier on the mod.
+6. Press `F10` in game.
+
+Mods made between versions 5.0 and 5.4 with their own normal maps need new maps from their creator. No tool fixes those.
+
+Fake fixers carrying malware have been uploaded after game updates. Download fixers only from the pages linked here. Warning signs: the file asks for admin rights, comes in a password-protected archive, comes from a brand-new account, or wants to replace `d3d11.dll`. The full steps are in [Fix your mods after a game update](/docs/genshin-impact/getting-started/fix-mods-after-an-update).
+
+</Accordion>
+<Accordion title="Other problems" id="other-problems">
+
+**Bright blue outlines on many characters:** an outline bug in older GIMI versions, fixed in GIMI 8.7.7. Open XXMI Launcher so it updates GIMI.
+
+**The character sinks into the floor, or the outline floats:** the mod changes the character's height and needs the Offset library. GIMI includes it. Update GIMI, and delete any `Offset.ini` copy from `Mods`.
+
+**A grid shows on moss or water:** a TexFx setting was changed. TexFx is the glow, transparency and outline library inside GIMI. Keep its default settings.
+
+**The whole model is covered in shadow after a reload in a domain or at night:** this is a lighting glitch, not a mod problem. Open the menu and close it again.
+
+{/* NEEDS HANDS-ON TEST: the shadow glitch after F10 in a domain or at night on 7.2, and whether opening and closing the menu clears it. */}
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Crashes and launch errors"
+    href="/docs/genshin-impact/errors/game-crashes"
+    icon={<Icon name="Bug" />}
+    level="beginner"
+  >
+    The game closes or crashes at start, with or without mods.
+  </PremiumCard>
+  <PremiumCard
+    title="Add, turn off, and remove mods"
+    href="/docs/genshin-impact/getting-started/manage-mods"
+    icon={<Icon name="FolderOpen" />}
+    level="beginner"
+  >
+    Turn mods on and off, and keep one mod per character.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Images:** screenshots 1 to 3 from [fixing broken genshin mods master doc (for mod users)](https://docs.google.com/document/d/1VOZKqlIz5I1nnEG97QQLzOiboQa1mixuWN-aexbg5pc) by [kaichume](https://discord.com/users/524385380871438366) in the [AGMG Discord](https://discord.gg/agmg). The mods shown are credited in that document.
+- **Video:** [Genshin Impact 6.1-6.2 | How to Fix Mods That ORFix Applier Can't Fix](https://www.youtube.com/watch?v=jn14OocfzEI) by RJ XEN.
+- **Guide:** [Genshin 6.1 Mod Break Info + Rule Updates](https://gamebanana.com/news/21936) by SilentNightSound and Gustav0.
+- **Guide:** [How To Fix: ORFix](https://gamebanana.com/tuts/19552) by veritas921.
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ and contributors.
+- **Tool:** [Outline/Reflection fix (ORFix) Applier](https://gamebanana.com/tools/16472) by golanah921 and LeoMods\_.
+- **Tool:** [Face Fix Updated](https://gamebanana.com/tools/21052) by Sanddino.
+- **Tool:** [7.2 Fix All Character Mods!](https://gamebanana.com/tools/16433) by SilentNightSound and Gustav0.

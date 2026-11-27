@@ -1,0 +1,97 @@
+---
+title: "Replace sounds and music"
+description: "How Zenless Zone Zero sound mods differ from XXMI mods, what a game update or a file check does to them, and which tools make and apply them."
+category: "more-mods"
+patch: "3.3"
+keywords: ["zzz sound mods", "zzz voice mods", "zzar", "xxar"]
+---
+
+<LevelPill level="intermediate" />
+
+Sound mods change voice lines, sound effects, or music. They work in a different way from every other mod on this wiki. This page explains the difference, the risks, and the tools. It is an overview, not a step-by-step guide.
+
+<Callout type="warning" title="Sound mods change the game's own files">
+  XXMI mods stay in their own folder and leave the game alone. Sound mods
+  rewrite audio files inside the Zenless Zone Zero game folder. That changes the
+  game itself, which is a different kind of risk from XXMI mods, and nobody has
+  measured it. Read [What's allowed and how to stay
+  safe](/docs/zenless-zone-zero/getting-started/stay-safe) first.
+</Callout>
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Monitor">Zenless Zone Zero on Windows PC</Requirement>
+  <Requirement icon="HardDrive" note="before any change">
+    A backup of the files a tool changes
+  </Requirement>
+</Requirements>
+
+## How sound mods differ
+
+<img
+  src="/wiki-images/zenless-zone-zero-more-mods-sound-mods-1.webp"
+  alt="Two columns: XXMI mods live in the ZZMI Mods folder and never change game files, while sound mods rewrite the game's .pck audio files and vanish after a game update or file check"
+/>
+
+- Zenless Zone Zero keeps its sounds in Wwise audio packages: `.pck` files that hold `.wem` sounds.
+- Sound tools rewrite those `.pck` files on disk. They do not use XXMI Launcher or ZZMI.
+- So `F6`, `F10`, and the `DISABLED_` folder name do nothing to sound mods.
+
+## What updates and file checks do
+
+- **A game update** replaces the changed audio files with new originals. Your sound mods are gone, and you must apply them again with your tool.
+- **A file check**, when you repair or verify the game in HoYoPlay, Steam or Epic Games, also puts the original files back. Repairing the game is a common crash fix, so expect to lose your sound mods when you do it.
+- **Editing by hand** can damage a `.pck` file, one guide warns. Keep a copy of every file before you or a tool changes it.
+
+{/* NEEDS HANDS-ON TEST: that a Zenless Zone Zero 3.3 update and a file repair in HoYoPlay, Steam and Epic Games each remove sound mods applied with ZZAR or XXAR 1.1.6. */}
+
+## The tools
+
+Written for XXAR 1.1.6. Nobody has tested these tools on Zenless Zone Zero 3.3 for this wiki.
+
+<ToolCard
+  name="XXAR (Hoyo Games Audio Replacer)"
+  href="https://github.com/Entity378/XXAR"
+  badge="Untested"
+  icon={<Icon name="GitHub" />}
+>
+  A sound mod manager and creator for Zenless Zone Zero and other HoYoverse
+  games. The maintained fork of ZZAR. Version 1.1.6, GPL-3.0.
+</ToolCard>
+<ToolCard
+  name="ZZAR"
+  href="https://github.com/Pucas01/ZZAR"
+  badge="Inactive"
+  icon={<Icon name="GitHub" />}
+>
+  The original Zenless Zone Zero sound mod manager and creator by Pucas01. Packs
+  sound mods as `.zzar` files and turns MP3 files into `.wem`. Runs on Windows
+  and as a Linux Flatpak.
+</ToolCard>
+
+Good to know:
+
+- **ZZAR** has had no update since March 2026. XXAR is the fork that is still updated, so start there.
+- **Wwise** is Audiokinetic's audio tool. It turns your sound files into `.wem`. It needs an Audiokinetic account.
+
+{/* NEEDS HANDS-ON TEST: whether XXAR 1.1.6 opens .zzar packages made with ZZAR, and whether either tool needs Wwise installed for Zenless Zone Zero. */}
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="More mod types"
+    href="/docs/zenless-zone-zero/more-mods"
+    icon={<Icon name="Puzzle" />}
+  >
+    Other kinds of Zenless Zone Zero mods, and what makes each one different.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This page is based on the work of these creators. Check out their original tools and guides.
+
+- **Tool:** [XXAR](https://github.com/Entity378/XXAR) by Entity378, based on [ZZAR](https://github.com/Pucas01/ZZAR) by Pucas01.
+- **Guide:** [(Unstable) Replacing music and sounds](https://gamebanana.com/tuts/17076) by Ananasique.

@@ -1,6 +1,7 @@
 import {
   canonicalSlugs,
   contentPath,
+  isFallbackPage,
   sharedSectionHref,
   source,
 } from "@/lib/source";
@@ -274,34 +275,38 @@ export async function generateMetadata(
       ]
     : [{ url: imageUrl, width: 1200, height: 630 }];
   const twitterImages = isLandingTarget ? [LANDING_OG_IMAGE] : [imageUrl];
-  const pageKeywords = [
-    ...new Set([...(page.data.keywords ?? []), ...(page.data.tags ?? [])]),
-  ];
   // Keywords follow the page's game segment, so one game's guides don't
-  // advertise another game's terms.
-  const globalKeywords = [
-    ...(gameSeo(slug[0])?.keywords ?? []),
-    "divine skins",
+  // advertise another game's terms. A guide's own keywords often repeat its
+  // game's, so the set drops the repeats.
+  const keywords = [
+    ...new Set([
+      ...(gameSeo(slug[0])?.keywords ?? []),
+      "divine skins",
+      ...(page.data.keywords ?? []),
+      ...(page.data.tags ?? []),
+    ]),
   ];
 
-  // hreflang: advertise only locales that actually have this page. Missing
-  // locales fall back to English at render time, so listing them would point
-  // Google at English content under a non-English URL. `canonical` is the
-  // resolved page's own URL, so en-fallback views consolidate to the en URL.
+  // hreflang: advertise only locales that actually have this page. A locale
+  // without a translation still resolves, to the English file under its own
+  // URL (isFallbackPage), so listing it would point Google at English content
+  // under a non-English URL. Those views canonicalize to the English URL.
   // A shared section's copy in another game points at the default game's
   // copy (canonicalSlugs), so search engines index it once.
   const indexed = canonicalSlugs(slug);
   const languages: Record<string, string> = {};
   for (const locale of i18n.languages) {
     const localized = source.getPage(indexed, locale);
-    if (localized) languages[locale] = localized.url;
+    if (localized && !isFallbackPage(localized))
+      languages[locale] = localized.url;
   }
   const englishPage = source.getPage(indexed, "en");
   if (englishPage) languages["x-default"] = englishPage.url;
+  const localizedPage = source.getPage(indexed, params.lang);
   const indexedPage =
-    indexed === slug
-      ? page
-      : (source.getPage(indexed, params.lang) ?? englishPage ?? page);
+    localizedPage && !isFallbackPage(localizedPage)
+      ? localizedPage
+      : (englishPage ?? page);
 
   const alternates = {
     canonical: indexedPage.url,
@@ -315,14 +320,14 @@ export async function generateMetadata(
     return {
       title,
       description: page.data.description,
-      keywords: [...globalKeywords, ...pageKeywords],
+      keywords,
       alternates,
     };
 
   return {
     title,
     description: page.data.description,
-    keywords: [...globalKeywords, ...pageKeywords],
+    keywords,
     alternates,
     openGraph: {
       ...baseOpenGraph,

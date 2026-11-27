@@ -1,0 +1,173 @@
+---
+title: "Helper tools"
+description: "Optional community tools for Wuthering Waves creators: Blender helpers, an .ini syntax add-on, an outfit remap tool, and the tools to avoid."
+category: "tools"
+patch: "3.8"
+keywords:
+  [
+    "wuthering waves modding tools",
+    "wwmi helper tools",
+    "ag remap",
+    "animegamearmatures",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+You can make every Wuthering Waves mod with WWMI Tools, a texture editor, and a text editor. The smaller tools on this page each save time on one job. Learn the main tools first, so you can tell when a helper gets something wrong.
+
+<Callout type="info" title="Community tools, untested">
+  Every tool here is free and comes from a named community author. Kuro Games
+  and the WWMI team do not make or support them. Nobody has tested them on
+  Wuthering Waves 3.8 for this wiki. AG Remap edits your mod files, so back up a
+  mod before you run it.
+</Callout>
+
+{/* NEEDS HANDS-ON TEST: every tool on this page with Wuthering Waves 3.8, WWMI 1.2.2 and WWMI Tools 1.9.4 on Blender 4.5 LTS. None was run for this page. */}
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="Blender"
+    href="/docs/wuthering-waves/tools/blender-add-on"
+    note="for the Blender helpers"
+  >
+    WWMI Tools for Blender
+  </Requirement>
+  <Requirement icon="Terminal" note="for AG Remap">
+    Python 3
+  </Requirement>
+</Requirements>
+
+Written for WWMI Tools 1.9.4 and WWMI 1.2.2.
+
+## At a glance
+
+| Tool                    | What it does                                           | Runs in          | License    |
+| ----------------------- | ------------------------------------------------------ | ---------------- | ---------- |
+| AnimeGameArmatures      | Ready armatures for posing and weight checks           | Blender          | Not stated |
+| Vertex Color Master     | Paints one vertex color channel at a time              | Blender          | Not stated |
+| Additional Batch Rename | Renames many vertex groups or bones at once            | Blender 4.4+     | GPL-3.0    |
+| 3dmigoto-ini-extensions | Colors `.ini` syntax in your code editor               | VS Code and more | GPL-3.0    |
+| AG Remap                | Moves a mod between a Resonator and their other outfit | Windows, Python  | Apache-2.0 |
+
+A Resonator is a playable character.
+
+## Blender helpers
+
+These add-ons work next to WWMI Tools. Two more, Weight Match and Robust Weight Transfer, and the built-in **Toolbox** buttons are on the [WWMI Tools for Blender](/docs/wuthering-waves/tools/blender-add-on) page.
+
+<ToolCard
+  name="AnimeGameArmatures"
+  href="https://github.com/Seris0/AnimeGameArmatures"
+  badge="Untested"
+  icon={<Icon name="GitHub" />}
+>
+  Armatures you can use to pose a model and test your weights. Its Wuthering
+  Waves folder covers a few Resonators only. By Gustav0.
+</ToolCard>
+<ToolCard
+  name="Vertex Color Master"
+  href="https://github.com/andyp123/blender_vertex_color_master"
+  badge="Untested"
+  icon={<Icon name="GitHub" />}
+>
+  Paints or fills one vertex color channel at a time, for example only the
+  outline data. By andyp123.
+</ToolCard>
+<ToolCard
+  name="Additional Batch Rename"
+  href="https://extensions.blender.org/add-ons/additional-batch-rename/"
+  badge="Untested"
+  icon={<Icon name="Blender" />}
+>
+  Renames vertex groups, bones, and modifiers in bulk, with find and replace. By
+  Endertainer007.
+</ToolCard>
+
+- **AnimeGameArmatures** has Wuthering Waves armatures for Changli, Encore, Jianxin, Jinhsi, Shorekeeper, Xiangli Yao, Yinlin and Zhezhi. Checked on 2026-11-24: that folder was last changed in October 2024, so models may have changed since. Delete the Armature modifier before you export. With **Apply All Modifiers** on, the posed shape would end up in your mod.
+- **Vertex Color Master** was made for vertex colors in general. WWMI Tools stores them as `Linear`, and users report that painting a single channel then needs extra steps.
+- Vertex colors control shading and outlines. Copy `COLOR1` from the original mesh, and paint it black if outlines go missing. [UV maps, vertex colors, and outlines](/docs/wuthering-waves/models/uvs-and-vertex-colors) explains each channel.
+- Vertex group names in Wuthering Waves must stay numbers, such as `0` or `7`. Check the names after any bulk rename.
+
+{/* NEEDS HANDS-ON TEST: whether Vertex Color Master paints single channels correctly on a WWMI Tools 1.9.4 import with Linear vertex colors on Blender 4.5 LTS. */}
+
+## .ini helpers
+
+<ToolCard
+  name="3dmigoto-ini-extensions"
+  href="https://github.com/lupomikti/3dmigoto-ini-extensions"
+  badge="Recommended"
+  icon={<Icon name="GitHub" />}
+>
+  Syntax colors for mod `.ini` files in VS Code and other editors. Covers WWMI.
+  By lupomikti.
+</ToolCard>
+
+The extension was last updated in October 2026, before WWMI Tools 1.9.4 began writing `[Filter...]` sections. Those lines may show without colors.
+
+{/* NEEDS HANDS-ON TEST: whether 3dmigoto-ini-extensions colors the [FilterTextureN] sections and ps-t[FilterTextureN] lines of a WWMI Tools 1.9.4 mod.ini */}
+
+WWMI Tools writes the whole `mod.ini` for you, and its **Ini Toggles** panel adds toggles at export. [Add a toggle](/docs/wuthering-waves/ini/add-a-toggle) shows how.
+
+GameBanana also lists small helpers made for WWMI mods, such as merge tools and toggle builders. Nobody has checked what they write or whether they work with WWMI 1.2.2, so they are not covered here. [Combine mods into one merged mod](/docs/wuthering-waves/ini/merged-mods) explains the ways to switch looks that work today.
+
+## Port a mod to another outfit
+
+<ToolCard
+  name="AG Remap (Anime Game Remap)"
+  href="https://github.com/nhok0169/Anime-Game-Remap"
+  badge="Untested"
+  icon={<Icon name="GitHub" />}
+>
+  Moves a mod made for one outfit onto the same Resonator's other outfit, with
+  no Blender. By Albert Gold and NK.
+</ToolCard>
+
+- Checked on 2026-11-24: version 5.0.0, from October 2026, added the first Wuthering Waves remaps, for Chisa and Sanhua. Most of its pairs are for other games.
+- Each outfit is its own model with its own hashes. Never place a paid outfit over its free version.
+- Ask a mod's author before you port, edit, or share their mod.
+
+{/* NEEDS HANDS-ON TEST: AG Remap 5.0.0 on a Chisa or Sanhua mod with WWMI 1.2.2 on Wuthering Waves 3.8: which outfits it maps between, whether the result loads, and whether it handles a mod exported with WWMI Tools 1.9.4, which has [FilterTextureN] sections instead of texture hashes. */}
+
+## Tools to skip
+
+| Skip this                                                         | Why                                                                                             |
+| ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Any `d3d11.dll` or "loader" that does not come from XXMI Launcher | Unofficial loaders are not supported, can break, and put your account at risk.                  |
+| Tools that load other creators' finished mods into Blender        | WWMI Tools leaves this out on purpose, to protect creators' work. Keep your own `.blend` files. |
+| Tools that pull files out of the game                             | Not covered here. Use your own frame dump.                                                      |
+| Tools that write lines into the game's config files               | Stale since version 3.2. Use the launcher's WWMI settings.                                      |
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="WWMI Tools for Blender"
+    href="/docs/wuthering-waves/tools/blender-add-on"
+    icon={<Icon name="Blender" />}
+    level="intermediate"
+  >
+    Every panel and setting of the main Blender add-on.
+  </PremiumCard>
+  <PremiumCard
+    title="Tools overview"
+    href="/docs/wuthering-waves/tools"
+    icon={<Icon name="Wrench" />}
+  >
+    The main tools, which ones to install first, and which to skip.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This page is based on the work of these creators. Check out their original tools.
+
+- **Tool:** [AnimeGameArmatures](https://github.com/Seris0/AnimeGameArmatures) by Gustav0 (Seris0).
+- **Tool:** [Vertex Color Master](https://github.com/andyp123/blender_vertex_color_master) by andyp123.
+- **Tool:** [Additional Batch Rename](https://extensions.blender.org/add-ons/additional-batch-rename/) by Endertainer007, shared by [dcNumber8](https://discord.com/users/215991740904112128).
+- **Tool:** [3dmigoto-ini-extensions](https://github.com/lupomikti/3dmigoto-ini-extensions) by lupomikti.
+- **Tool:** [Anime Game Remap](https://github.com/nhok0169/Anime-Game-Remap) by [Albert Gold](https://discord.com/users/367087171154214914) and NK.
+- **Tool:** [WWMI Tools](https://github.com/SpectrumQT/WWMI-Tools) by SpectrumQT, for the vertex color storage and the re-import rule.
+- **Guide:** [Downloads](https://leotorrez.github.io/modding/downloads) on the modding guide site by LeoTorreZ. Discord posts are from the [AGMG Discord](https://discord.gg/agmg).

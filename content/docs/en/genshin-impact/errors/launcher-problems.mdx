@@ -1,0 +1,293 @@
+---
+title: "XXMI Launcher problems"
+description: "Fix XXMI Launcher when it will not install, open, update, or find Genshin Impact, from antivirus warnings to the registry key error."
+category: "errors"
+patch: "7.2"
+keywords:
+  [
+    "xxmi launcher not opening",
+    "xxmi launcher virus",
+    "game installation not found",
+    "genshin registry key not found",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+XXMI Launcher will not install, open, update, or find Genshin Impact. Find the message you see below and follow its fix. This page was written for XXMI Launcher 2.5.0 and GIMI 8.9.4.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/genshin-impact/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="UserRound">A Windows admin account</Requirement>
+  <Requirement icon="GenshinImpact" note="HoYoPlay or Epic Games">
+    Genshin Impact on PC
+  </Requirement>
+</Requirements>
+
+XXMI Launcher needs admin rights to add the mod loader to the game. A Windows permission prompt each time you open it is normal.
+
+## Start with the real launcher
+
+Many problems come from a wrong download. Get XXMI Launcher only from [its GitHub releases page](https://github.com/SpectrumQT/XXMI-Launcher/releases/latest), made by SpectrumQT. The installer is named `XXMI-Launcher-Installer-Online-v2.5.0.msi`. Lookalike sites with similar names exist: avoid them.
+
+<img
+  src="/wiki-images/genshin-impact-errors-launcher-problems-2.webp"
+  alt="The Assets list on the XXMI Launcher v2.5.0 release page, with the .msi installer and the portable .zip"
+/>
+
+Install it with **Quick Installation**, to `%AppData%\XXMI Launcher`. Never install it inside the game folder or in Program Files.
+
+## Install problems
+
+<Accordions type="multiple">
+<Accordion title="XXMI Launcher requires installation by an Admin user account" id="needs-admin">
+
+<img
+  src="/wiki-images/genshin-impact-errors-launcher-problems-1.webp"
+  alt="XXMI Launcher installer message: XXMI Launcher requires installation by an Admin user account"
+/>
+
+**Fix:**
+
+1. Sign in to Windows with an admin account, or ask the PC's owner.
+2. Run the `.msi` installer again.
+
+If the installer still fails, use the portable version. See [Use the portable version](#portable-version).
+
+</Accordion>
+<Accordion title="XXMI Launcher is already installed" id="already-installed">
+
+The installer says the launcher is already installed, after you deleted its folder by hand.
+
+**Fix:** run the installer as administrator. If it still refuses, use the portable version.
+
+{/* NEEDS HANDS-ON TEST: the cleanest way to clear a broken XXMI Launcher install record on Windows 11 before reinstalling the .msi. */}
+
+</Accordion>
+<Accordion title="Windows warns about an unknown publisher" id="smartscreen">
+
+**Cause:** XXMI Launcher is not code-signed. Windows warns about every unsigned installer.
+
+**Fix:** check that the file came from the GitHub releases page above. Then allow it to run.
+
+{/* NEEDS HANDS-ON TEST: the exact SmartScreen text and button labels when running the XXMI Launcher 2.5.0 .msi. */}
+
+</Accordion>
+<Accordion title="Launcher must be installed outside of the game folder" id="inside-game-folder">
+
+The launcher shows one of these:
+
+```text
+Launcher must be installed outside of the game folder!
+GIMI Folder must be located outside of the Game Folder!
+```
+
+**Cause:** the launcher or its `GIMI` folder sits inside the Genshin Impact folder. Mod files must stay out of the game folder.
+
+**Fix:** uninstall the launcher and install it again with **Quick Installation**. For the second message, change **GIMI Folder** in the **GIMI** settings tab to a folder outside the game.
+
+</Accordion>
+<Accordion title="Use the portable version" id="portable-version">
+
+The portable version needs no installer.
+
+1. Install the [Visual C++ Redistributable for x64](https://aka.ms/vs/17/release/vc_redist.x64.exe) from Microsoft.
+2. Download `XXMI-Launcher-Portable-v2.5.0.zip` from the GitHub releases page.
+3. Extract it to a folder outside the game folder and outside Program Files. The path must not contain `{` or `}`.
+4. Run `Resources\Bin\XXMI Launcher.exe`.
+
+</Accordion>
+</Accordions>
+
+## Antivirus warnings
+
+Your antivirus may flag or delete `d3d11.dll`, `3dmloader.dll`, the installer, or the launcher itself. A common name is `Trojan:Win32/Bearfoos.A!ml`. The launcher may then say:
+
+```text
+Data Corruption Detected
+XXMI Libraries package is corrupted by antivirus
+Failed to start ...msi! Was it blocked by Antivirus software or security settings?
+```
+
+**Cause:** the launcher's files are not signed, so antivirus programs guess. The XXMI team marks these reports as false positives on its issue tracker.
+
+**Fix:**
+
+1. Check that you downloaded the launcher from the GitHub releases page.
+2. Open your antivirus and restore the file from quarantine.
+3. Add an exclusion for the two paths the launcher's message names, inside your launcher folder: `Resources\Packages\XXMI` and `GIMI\d3d11.dll`.
+4. In XXMI Launcher, click the 3-dots button next to **Start**, then **Repair GIMI**.
+
+<Callout type="warning" title="Never turn your antivirus off">
+  Exclude only the two paths above. A fake launcher or fake "fix" can carry real
+  malware, so keep your antivirus on for everything else.
+</Callout>
+
+## The launcher will not open
+
+<Accordions type="multiple">
+<Accordion title="VCRUNTIME140.dll not found, or Visual C++ is damaged" id="vc-runtime">
+
+You see `VCRUNTIME140.dll not found`, or the launcher says:
+
+```text
+Microsoft Visual C++ Redistributable is damaged or not installed!
+```
+
+**Fix:**
+
+1. Download the [Visual C++ Redistributable for x64](https://aka.ms/vs/17/release/vc_redist.x64.exe).
+2. Run it. If it is already installed, choose **Repair**.
+3. Restart your PC.
+
+If the launcher still shows nothing at all, Windows files may be damaged. Run `sfc /scannow` in a Command Prompt opened as administrator, or try the portable version.
+
+</Accordion>
+<Accordion title="The launcher takes minutes to open" id="slow-start">
+
+**Cause:** a slow game search in launcher versions 2.4.1 to 2.4.6.
+
+**Fix:** update to version 2.4.7 or newer. Version 2.5.0 is current.
+
+</Accordion>
+<Accordion title="Failed to load configuration" id="config-load">
+
+**Cause:** the launcher's settings file, `XXMI Launcher Config.json`, is damaged.
+
+**Fix:** click **Load Backup**. If that fails too, click **Load Default** and set your options again.
+
+</Accordion>
+<Accordion title="Failed to write Read Only file" id="read-only-file">
+
+**Cause:** a file the launcher needs has the read-only flag.
+
+**Fix:** click **Remove Flag** in the message.
+
+</Accordion>
+</Accordions>
+
+## Updates and downloads fail
+
+<Accordions type="multiple">
+<Accordion title="Failed to establish HTTPS connection to GitHub" id="github-connection">
+
+You see this, or "Max retries exceeded", or "SSL wrong version number":
+
+```text
+Failed to establish HTTPS connection to GitHub! Please check your Antivirus, Firewall, Proxy and VPN settings.
+```
+
+**Cause:** something blocks GitHub: a firewall, your internet provider, a VPN, or a proxy.
+
+**Fix:**
+
+1. Allow XXMI Launcher through your firewall.
+2. Turn off a VPN or proxy that does not work, then try again.
+3. If you need a proxy, open the launcher settings, then the **Launcher** tab, tick **Use Proxy**, and enter its address.
+
+Turn **Verify SSL** off only if a proxy you trust breaks the connection.
+
+</Accordion>
+<Accordion title="GitHub API requests limit reached" id="github-api-limit">
+
+```text
+Unauthorized GitHub API requests limit reached for your IP!
+```
+
+**Cause:** too many update checks from your internet address. This is common on shared proxies.
+
+**Fix:** wait an hour and try again. If it keeps happening, add a GitHub token: in the **Launcher** tab, click **Create...** next to **GitHub Token**, and make a "classic" token on GitHub.
+
+</Accordion>
+</Accordions>
+
+## The launcher cannot find the game
+
+<Accordions type="multiple">
+<Accordion title="Game Installation Not Found" id="game-not-found">
+
+You see "Game Installation Not Found", "Game executable ... not found!", or "Found 2 copies of game executable".
+
+**Cause:** **Game Folder** is empty, points at the wrong level, or two copies of the game exist.
+
+**Fix:**
+
+1. Open the launcher settings, then the **General** tab.
+2. Click **Detect Installations**, or click **Browse...**.
+3. Pick the folder that directly holds `GenshinImpact.exe`. It also holds the `GenshinImpact_Data` folder, and is usually named `Genshin Impact game`.
+4. If you have an old second copy of the game, delete it.
+
+</Accordion>
+<Accordion title="Genshin Impact registry key is not found" id="registry-key-not-found">
+
+```text
+Genshin Impact registry key is not found! Please start the game via original launcher to create the key and try again.
+```
+
+**Cause:** the launcher turns **Dynamic Character Resolution** off through a Windows registry value. The game creates that value the first time it runs.
+
+**Fix:**
+
+1. Start Genshin Impact once from HoYoPlay or Epic Games, without mods.
+2. Close the game.
+3. Click **Start** in XXMI Launcher again.
+
+If you see "Graphics Settings record is not found in GI registry!", do the same. If it keeps coming back, untick **Configure Game Settings For GIMI** in the **General** tab. Then set **Dynamic Character Resolution** to **Off** in the game's graphics settings yourself.
+
+</Accordion>
+</Accordions>
+
+## The launcher warns about your Mods folder
+
+The launcher checks your `Mods` folder each time you press **Start**.
+
+- **"Cannot start with d3dx.ini in Mods folder!"** A mod came with its own `d3dx.ini`. Click **Disable Ini Files** when the "Stability Warning" shows.
+- **"Your Mods folder contains some libraries that are already included into GIMI!"** Copies of libraries such as ORFix sit in `Mods`. Accept the offer to disable them.
+
+Both fixes rename the files to start with `DISABLED_`. Your mods keep working.
+
+## Report a launcher bug
+
+The XXMI Launcher issue tracker takes only launcher bugs that happen before the game's login screen.
+
+1. Find `XXMI Launcher Log.txt` in your launcher folder, `%AppData%\XXMI Launcher`.
+2. Upload its text to Pastebin.
+3. Open a report on the [XXMI Launcher issue tracker](https://github.com/SpectrumQT/XXMI-Launcher/issues) and add the Pastebin link.
+
+Problems in game, or with a mod, do not go there. Ask in the [Divine Skins Discord](https://discord.gg/divineskins) or the [AGMG Discord](https://discord.gg/agmg) instead.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Install mods with XXMI Launcher"
+    href="/docs/genshin-impact/getting-started/install-with-xxmi-launcher"
+    icon={<Icon name="Download" />}
+    level="beginner"
+  >
+    Set up the launcher and GIMI from the start.
+  </PremiumCard>
+  <PremiumCard
+    title="Mods not loading"
+    href="/docs/genshin-impact/errors/mods-not-loading"
+    icon={<Icon name="TriangleAlert" />}
+    level="beginner"
+  >
+    The launcher works and the game starts, but your mods do not show.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT, including its README and English message texts.
+- **Image:** screenshot 1 by [JulesMcGrules](https://github.com/JulesMcGrules) in [XXMI Launcher issue 88](https://github.com/SpectrumQT/XXMI-Launcher/issues/88).
+- **Discussion:** [My antivirus started saying that new XXMI version has Trojan](https://github.com/SpectrumQT/XXMI-Launcher/issues/357) on the XXMI Launcher issue tracker.

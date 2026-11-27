@@ -1,0 +1,248 @@
+---
+title: "Retexture objects and the world"
+description: "Replace the texture of a prop, a wall or a sign in Honkai: Star Rail with your own image, and make it show in every place and on every graphics setting."
+category: "textures"
+patch: "4.7"
+keywords:
+  [
+    "star rail world texture",
+    "star rail object mod",
+    "texture override",
+    "checktextureoverride",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+You will put your own image on an object in the world, like a sign, a painting, a wall or a prop. It is a texture-only mod: you find the object's texture in a frame dump, edit it, and write a short `.ini`. Written for XXMI Launcher 2.5.0 and SRMI 2.4.3 on Honkai: Star Rail 4.7.
+
+No Star Rail guide covers object mods. Every step on this page is carried over from the shared XXMI texture method, and nobody has tested it on a Star Rail object yet.
+
+{/* NEEDS HANDS-ON TEST: the whole page on Honkai: Star Rail 4.7 with SRMI 2.4.3. No Star Rail source covers world or object texture mods; the steps come from the shared XXMI method and a Zenless Zone Zero guide. */}
+
+<Callout type="warning" title="Looks only">
+  A world texture mod changes how things look, never what the game shows you.
+  This guide does not cover mods that point to chests, collectibles or puzzle
+  solutions, remove fog, or make walls or hidden things see-through. Those give
+  an unfair advantage.
+</Callout>
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/honkai-star-rail/tools/xxmi-launcher"
+    note="Enable Hunting on"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement
+    icon="PaintNET"
+    href="/docs/honkai-star-rail/tools/texture-editors"
+    note="or Photoshop"
+  >
+    Paint.NET
+  </Requirement>
+  <Requirement icon="Image">Your own art</Requirement>
+</Requirements>
+
+This works like an icon mod. If you have not made one, [Replace character icons and portraits](/docs/honkai-star-rail/ui/replace-icons) is a gentler start.
+
+<img
+  src="/wiki-images/honkai-star-rail-textures-world-textures-1.webp"
+  alt="Five steps: hunt the object's pixel shader, dump only that shader, find the texture in the deduped folder, edit it and override it with this =, then test near, far and on low settings, adding checktextureoverride where it is missing"
+/>
+
+## Make the mod
+
+<Steps>
+<Step>
+
+### Set up
+
+1. In XXMI Launcher, click the gear, open the **SRMI** tab and tick **Enable Hunting**.
+2. Turn off any mod that changes this object. Rename its folder so it starts with `DISABLED`. Otherwise you dump the mod's texture, not the original.
+3. In your `Mods` folder, make a folder such as `MyWorldMod`, with a text file renamed to `MyWorldMod.ini`.
+
+</Step>
+<Step>
+
+### Hunt the object's pixel shader
+
+A full dump of a busy scene can take more than 20 GB. Find the shader that draws your object first, so you can dump only that.
+
+1. Start the game and walk up to the object. Turn the camera so it fills the screen.
+2. Press `Numpad 0` for hunting mode.
+3. Press `Numpad 1` and `Numpad 2` until the object, or its surface, disappears.
+4. Press `Numpad 3` to copy the shader hash.
+
+[Find a hash with hunting mode](/docs/honkai-star-rail/basics/find-a-hash) explains the keys and the overlay.
+
+</Step>
+<Step>
+
+### Dump only that shader
+
+1. Add this section to your `.ini`, with your shader hash in place of `0123456789abcdef`:
+
+   ```ini
+   [ShaderOverrideDumpMyObject]
+   hash = 0123456789abcdef
+   analyse_options = dump_rt dump_tex dump_cb dump_vb dump_ib buf txt dds
+   ```
+
+2. Press `F10`, then `F8`. Wait until the game moves again.
+
+The word `dds` makes the dump save textures as `.dds` files you can edit. [Make a frame dump](/docs/honkai-star-rail/basics/frame-dump) explains dump folders and how to read the file names.
+
+</Step>
+<Step>
+
+### Find the texture
+
+1. Open the new `FrameAnalysis-...` folder in `%AppData%\XXMI Launcher\SRMI`, then `deduped`.
+2. Search for `BC7_UNORM_SRGB` to list the color textures.
+3. Look for your object's texture. The `o0` images in the main dump folder show what each draw put on screen, which helps you find the right draw.
+4. Read the file name, for example `1a2b3c4d-BC7_UNORM_SRGB.dds` (a placeholder). The start is the hash. The end is the format.
+5. Copy the file into your mod folder and give it a clear name, like `MyPainting.dds`.
+
+</Step>
+<Step>
+
+### Edit the image
+
+1. Open the copy in Paint.NET.
+2. Paint or paste your art. Keep the exact size of the original.
+3. Keep the alpha channel as it was.
+4. Save in the format from the file name: `BC7_UNORM_SRGB` is `BC7 (sRGB, DX 11+)`, `BC7_UNORM` is `BC7 (Linear, DX 11+)`. Tick **Generate Mip Maps**.
+
+[Save DDS textures the right way](/docs/honkai-star-rail/textures/save-dds-files) has every option.
+
+</Step>
+<Step>
+
+### Write the override
+
+Delete the dump section, and write one pair of sections per texture, with your own hash and file name:
+
+```ini
+[TextureOverrideMyPainting]
+hash = 1a2b3c4d
+this = ResourceMyPainting
+
+[ResourceMyPainting]
+filename = MyPainting.dds
+```
+
+Never write a note after the hash on the same line. Each section name must be unique in the file.
+
+</Step>
+<Step>
+
+### Test it
+
+1. Press `F10` in game.
+2. Look at the object from close up and from far away, in every place it appears.
+3. Check it on your usual graphics settings and on low.
+4. Untick **Enable Hunting** when you are done.
+
+A texture override changes every object that uses that texture. If your art shows up on other props too, they share the texture.
+
+</Step>
+</Steps>
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check on Honkai: Star Rail 4.7 with SRMI 2.4.3 that a hash and this = override replaces the texture of one world object, and whether it needs the checktextureoverride line below */}
+
+## If the texture does not change, or vanishes in some places
+
+Some shaders draw a texture without checking for overrides. The same object can also be drawn by a second shader in another place. Tell those shaders to check for your texture.
+
+1. Search the main dump folder, not `deduped`, for your texture hash.
+2. Each match names its draw, its slot and its shaders. In this example the slot is `ps-t3`, and the pixel shader hash follows `ps=`:
+
+   ```text
+   000123-ps-t3=1a2b3c4d-vs=0123456789abcdef-ps=fedcba9876543210.dds
+   ```
+
+3. Add one section per pixel shader that reads your texture, with your own shader hash and slot:
+
+   ```ini
+   [ShaderOverrideMyPaintingCheck]
+   hash = fedcba9876543210
+   allow_duplicate_hash = true
+   checktextureoverride = ps-t3
+   ```
+
+4. Press `F10` and look again.
+
+`allow_duplicate_hash = true` lets this section share its shader hash with another section, such as one in another mod. If the object vanishes only in one place, make a second dump there and add that shader the same way.
+
+Star Rail can move a texture to another slot on low graphics settings or in a new area. If your texture breaks only there, dump again with those settings and add a line for the slot it uses there.
+
+{/* NEEDS HANDS-ON TEST: whether Honkai: Star Rail 4.7 world objects need checktextureoverride at all with SRMI 2.4.3, whether one object is drawn by more than one shader, and whether their texture slots move on low graphics settings */}
+
+## If it changes back from far away
+
+From a distance, the game can draw a simpler version of the object with its own texture. Make another dump from that distance, find the second texture hash, and add an override for it too. Dumps from far away are much bigger, so use the shader dump above.
+
+{/* NEEDS HANDS-ON TEST: whether Honkai: Star Rail 4.7 world objects use separate distance textures with their own hashes */}
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Nothing changes at all" id="no-change">
+
+Check the hash and the `filename =` line. Make sure no other mod for that object is on. Then add the `checktextureoverride` section above.
+
+</Accordion>
+<Accordion title="The colors look washed out or too dark" id="wrong-colors">
+
+The format does not match the original. Save again with the sRGB or Linear choice the original file name shows.
+
+</Accordion>
+<Accordion title="My art is upside down or mirrored" id="flipped">
+
+Some game textures are stored flipped. Star Rail UI images are, for example. Flip your image in Paint.NET and save again.
+
+</Accordion>
+<Accordion title="Error text after F10" id="error-text">
+
+SRMI could not load the file. Check the file name, and keep the original width and height. SRMI hides warnings by default: untick **Mute Warnings** in the SRMI tab to see them.
+
+</Accordion>
+<Accordion title="It worked, then stopped after a game update" id="after-update">
+
+Updates can change texture and shader hashes. Hunt and dump again, and put the new hashes in your `.ini`.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Replace character icons and portraits"
+    href="/docs/honkai-star-rail/ui/replace-icons"
+    icon={<Icon name="Image" />}
+    level="beginner"
+  >
+    The same texture override, for icons, phone wallpapers and light cone art.
+  </PremiumCard>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/honkai-star-rail/publishing/publishing-checklist"
+    icon={<Icon name="Upload" />}
+    level="beginner"
+  >
+    Clean the folder, name it well, and pack it up.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Environment Hash Fix Guide](https://gamebanana.com/tuts/18140) by bunar21, written for Zenless Zone Zero, for the multi-shader and distance fixes.
+- **Guide:** [3DMigoto Hunting & Dumping Tutorial](https://leotorrez.github.io/modding/guides/hunting) by Satan1c, on LeoTorreZ's modding site, for the pixel shader hunt and the targeted dump.
+- **Guide:** [关于星铁贴图错误的问题如何手动修复](https://gamebanana.com/tuts/18999) (manual fixes for Star Rail texture errors, in Chinese) by sora\_, for how Star Rail moves textures between slots.

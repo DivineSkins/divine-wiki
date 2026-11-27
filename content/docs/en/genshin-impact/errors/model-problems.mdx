@@ -1,0 +1,327 @@
+---
+title: "Model problems in game"
+description: "Your Genshin Impact model mod exports fine but looks wrong in game? Match spikes, missing parts, glow and thick outlines to the fix in Blender."
+category: "errors"
+patch: "7.2"
+keywords:
+  [
+    "genshin mod exploded",
+    "vertex groups",
+    "mod stretched",
+    "thick outlines mod",
+    "xxmi tools model problem",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+Your model mod exports and loads, but it looks wrong in game. Find what you see below, fix it in Blender, export again and reload. Written for XXMI Tools 1.8.2, GIMI 8.9.4 and Genshin Impact 7.2.
+
+Export stopped with a message in Blender? Go to [Blender export and import errors](/docs/genshin-impact/errors/creator-errors) instead.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="Box"
+    href="/docs/genshin-impact/tools/blender-add-on"
+    note="1.8.2"
+  >
+    XXMI Tools
+  </Requirement>
+  <Requirement icon="Blender" note="your saved work">
+    Your .blend file
+  </Requirement>
+  <Requirement icon="FolderOpen" note="to compare with">
+    The original dump folder
+  </Requirement>
+</Requirements>
+
+## Check these first
+
+1. **Your mod does not show at all.** Check that its folder is inside `%AppData%\XXMI Launcher\GIMI\Mods` and that no other mod for that character is on. Switch to another character, press `F10`, then switch back.
+2. **Every modded character is a mess, not only yours.** That is a game setting or an old mod, not your model. Follow [Mods look broken](/docs/genshin-impact/errors/mods-look-broken).
+3. **Your dump is older than the game.** Version 7.2 gave Odette and Vesna new hashes, so a mod made from an older dump of them does not show. The asset repo has no 7.x characters yet: dump those yourself.
+4. **Your mod shows, but looks wrong.** Find the symptom in the table. Most broken shapes come from vertex groups. Most wrong colors come from textures, the `COLOR` attribute or UV map names.
+
+Change one thing at a time, then export and press `F10`. Save each try as a new `.blend` file, so you can go back.
+
+## What do you see?
+
+| What you see                                            | Most likely cause                            | Fix                                              |
+| ------------------------------------------------------- | -------------------------------------------- | ------------------------------------------------ |
+| The whole model explodes into spikes                    | Vertex groups out of order or with gaps      | [Exploded model](#exploded-model)                |
+| One area stretches, such as a hand or fingers           | Wrong weights in that area                   | [One area stretches](#one-area-stretches)        |
+| Parts are missing or only partly drawn                  | Load timing, or the vertex count in the .ini | [Missing parts](#missing-parts)                  |
+| The model lies down, turns, or has the wrong size       | Transforms not applied                       | [Wrong angle or size](#wrong-angle-or-size)      |
+| A part you deleted is still there, or a variant is gone | A hidden object at export                    | [Hidden objects](#hidden-objects)                |
+| Textures are scrambled, blank or white                  | UV map names                                 | [Wrong textures](#wrong-textures)                |
+| A part glows brightly                                   | The diffuse texture lost its alpha           | [Glowing parts](#glowing-parts)                  |
+| Metal shine, grey skin, or black patches                | Light map values or `COLOR`                  | [Wrong shading](#wrong-shading)                  |
+| Thick, colored or missing outlines                      | `COLOR` alpha                                | [Outline problems](#outline-problems)            |
+| Holes, see-through spots, or dark faces                 | Flipped normals                              | [Holes and inside-out faces](#holes-and-normals) |
+| Hair or a cape does not move                            | Weights on a stiff bone                      | [Parts that do not move](#parts-do-not-move)     |
+| Something else                                          |                                              | [Other problems](#other-problems)                |
+
+## Shape problems
+
+<Accordions type="multiple">
+<Accordion title="Exploded model" id="exploded-model">
+
+The whole model turns into a mess of spikes and stretched shapes. Old guides call this "completely FUBAR".
+
+<img
+  src="/wiki-images/genshin-impact-errors-model-problems-1.webp"
+  alt="A Genshin Impact character in game whose clothes and legs are torn into stretched, twisted shapes"
+/>
+
+**Cause:** the vertex groups are missing, out of order, or have a gap. Export reads each group's place in the list, not its name. One missing number shifts every bone after it.
+
+**Fix:**
+
+1. Select the object and open the **XXMI Toolbox** panel in the XXMI Tools sidebar.
+2. Click **Merge shared name Vertex Groups**.
+3. Click **Fill gaps in Vertex Groups**.
+4. Check that every group name is a plain number: `0`, `1`, `2` and so on.
+5. In Weight Paint mode, run <MenuPath path="Weights > Normalize All" />.
+6. Export again and press `F10`.
+
+Still exploded? Import the original dump into a new `.blend` and compare its vertex group list with yours.
+
+</Accordion>
+<Accordion title="One area stretches" id="one-area-stretches">
+
+Most of the model is fine, but a hand, fingers or the edge of a sleeve stretches when the character moves. Old guides call this "slightly FUBAR".
+
+**Cause:** that area got weights from the wrong bone. This happens often where arms or hands sit close to the body when you copy weights.
+
+**Fix:**
+
+1. Copy the weights for that area again from the original, with the **Replace** mix mode.
+2. Smooth the weights there.
+3. Run **Normalize All**, export, and test in motion.
+
+Copying weights works better when your mesh is posed like the original. The weight painting guide under Next steps covers this in full.
+
+</Accordion>
+<Accordion title="Missing parts" id="missing-parts">
+
+Parts of the model are not drawn, or the model collapses into itself.
+
+<img
+  src="/wiki-images/genshin-impact-errors-model-problems-2.webp"
+  alt="A Genshin Impact character in game with the upper legs and part of the body missing, so the hat, arms and lower legs float"
+/>
+
+**Cause 1, load timing:** the character was on screen when you pressed `F10`. Switch to another character, press `F10`, and switch back. Or teleport.
+
+**Cause 2, the vertex count:** the mod's `.ini` tells GIMI how many vertices to draw. XXMI Tools writes this for you. It breaks when:
+
+- you changed the mesh but exported with **Write ini** off. Tick **Write ini**, export again, and copy your own `.ini` edits back in.
+- you edited the `.ini` by hand and removed or changed the `VertexLimitRaise` section with `override_vertex_count`. Keep that section as the export wrote it.
+
+{/* NEEDS HANDS-ON TEST: the exact section name XXMI Tools 1.8.2 writes for override_vertex_count in a Genshin Impact mod */}
+
+</Accordion>
+<Accordion title="Wrong angle or size" id="wrong-angle-or-size">
+
+The model lies on its back, faces the wrong way, or is huge or tiny. A weapon looks bent or tiny.
+
+**Cause:** the object's rotation or scale was not applied, or your model was built in a different space from the import.
+
+**Fix:**
+
+1. Line your model up with the imported original.
+2. Select it and press `Ctrl+A`, then choose **All Transforms**.
+3. Export again.
+
+Old guides tell you to rotate Genshin Impact models by 90 degrees. With the `Genshin Impact` preset in XXMI Tools 1.8.2 the import stands upright, so line up with the import instead.
+
+{/* NEEDS HANDS-ON TEST: that a weapon lined up with a XXMI Tools 1.8.2 preset import, without the old 90-degree rotation, shows correctly in game */}
+
+</Accordion>
+<Accordion title="Hidden objects" id="hidden-objects">
+
+A part you removed is still in game, or a variant you made is missing.
+
+**Cause:** **Ignore hidden objects** is on by default, so export skips every hidden object. If you hid your new mesh and left a copy visible, export used the copy.
+
+**Fix:** before you export, check the eye icon of every object in the Outliner. Show the objects you want, and hide or delete spare copies.
+
+</Accordion>
+</Accordions>
+
+## Color and texture problems
+
+<Accordions type="multiple">
+<Accordion title="Wrong textures" id="wrong-textures">
+
+Textures look scrambled, sit in the wrong place, or show plain white or flat color.
+
+**Cause:** a UV map has the wrong name, or joining two pieces added a second UV map. When pieces with different UV map names are joined with `Ctrl+J`, Blender keeps both maps and the game reads only one.
+
+**Fix:**
+
+1. Before you join pieces, rename their UV maps to the same names, such as `TEXCOORD.xy`.
+2. Already joined? Press `Ctrl+Z` to undo the join, rename the maps, and join again.
+3. Check that the mod folder holds your new textures, not the old ones.
+
+[UV maps, vertex colors, and outlines](/docs/genshin-impact/models/uvs-and-vertex-colors) explains each map.
+
+</Accordion>
+<Accordion title="Glowing parts" id="glowing-parts">
+
+A part shines brightly, even in the dark.
+
+**Cause:** in Genshin Impact, the diffuse texture's alpha channel is the glow mask. A diffuse saved without alpha, or with the alpha inverted, makes the whole part glow.
+
+**Fix:** paste the original alpha back into your diffuse texture and save it again as `BC7 (sRGB, DX 11+)`. [Save DDS textures the right way](/docs/genshin-impact/textures/save-dds-files) shows how to keep the alpha.
+
+</Accordion>
+<Accordion title="Wrong shading" id="wrong-shading">
+
+- **Metal shine or gloss where it should not be:** the light map holds shine and material values. Pick the light map colors from the same material on the original, and paint with those.
+- **Skin looks grey, bluish or too dark:** the light map values on your skin areas differ from the original's skin. Or the `COLOR` attribute darkens it. Pick the original's light map colors, and copy `COLOR` from the original part.
+- **Black patches:** a new `COLOR` attribute starts black, which shows as black patches. A black area in the light map means "always in shadow". Copy `COLOR` from the original part with a Data Transfer modifier, and repaint the light map from the original's colors.
+
+</Accordion>
+<Accordion title="Outline problems" id="outline-problems">
+
+The outline is too thick, has the wrong color, looks blotchy, or is missing.
+
+<img
+  src="/wiki-images/genshin-impact-errors-model-problems-3.webp"
+  alt="A character's hand in game with a thick, dark outline around the fingers"
+/>
+
+**Cause:** in Genshin Impact the alpha of the `COLOR` attribute sets outline thickness. Wrong values give thick or blotchy outlines. An alpha of `00` removes the outline, which is normal on many weapons.
+
+**Fix:**
+
+1. Copy `COLOR` from a part with good outlines, usually the original, with a Data Transfer modifier.
+2. Still missing? Check for flipped normals, in the next section.
+3. Update XXMI Tools. Versions before 1.7.0 could export with no outlines when **Outline Optimization** was on.
+
+</Accordion>
+<Accordion title="Green or neon parts" id="green-parts">
+
+Your own parts turn green, yellow or neon, while other mods look fine.
+
+**Cause:** the part's ORFix lines are missing or wrong. XXMI Tools 1.8.2 writes `run = CommandList\GIMI\SetTextures` for each part, which runs ORFix for you.
+
+**Fix:** export again with **Write ini** on, and do not add ORFix lines by hand on top of that line. If you edited the `.ini` by hand, compare your sections with a fresh export.
+
+</Accordion>
+</Accordions>
+
+## Mesh surface problems
+
+<Accordions type="multiple">
+<Accordion title="Holes and inside-out faces" id="holes-and-normals">
+
+**See-through spots, dark faces, or faces you can see from the inside:** the normals are flipped.
+
+1. Turn on the **Face Orientation** overlay. Flipped faces show red.
+2. In Edit Mode, select those faces and press `Alt+N`.
+3. Choose **Recalculate Outside**, or **Flip** for single faces. Apply all transforms first.
+
+**Real holes or gaps:** a mirror or a deleted part left an opening. Select the edges around it and press `F` to fill it. Check both sides of the model.
+
+</Accordion>
+<Accordion title="Seams or a faceted look after editing" id="seams">
+
+You merged vertices or sculpted, and now the shading shows hard lines or flat faces.
+
+**Fix:** merge with **Merge by Distance** and its **Sharp Edges** option on, so the edges the game needs stay split. Then use **Smooth Normals** on the area.
+
+</Accordion>
+<Accordion title="Clipping through clothes" id="clipping">
+
+The body pokes through clothing when the character moves.
+
+**Fix:**
+
+- Delete the body faces hidden under the clothes.
+- Add a small Displace modifier, about `0.001`, to tight clothes.
+- Give the body and the clothes the same weights in that area.
+
+</Accordion>
+<Accordion title="Parts that do not move" id="parts-do-not-move">
+
+Hair, a cape or a belt stays stiff while the character runs.
+
+**Cause:** the part is weighted to a body bone instead of the bones that make it swing.
+
+**Fix:** copy the weights from the matching part of the original, such as its hair or cape, so your part uses the same swinging bones.
+
+</Accordion>
+</Accordions>
+
+## Other problems
+
+<Accordions type="multiple">
+<Accordion title="The face breaks or loses its expressions" id="face">
+
+A normal model mod does not change the face. If you exported face parts, the face can break and lose its expressions. Leave face parts out of your mod. Face edits need the separate Genshin Face Modding Tools.
+
+</Accordion>
+<Accordion title="A part should be see-through but is not" id="should-be-transparent">
+
+Blender's material settings do not reach the game. See-through parts in Genshin Impact need TexFx, the effects library inside GIMI. [Add glow and see-through parts](/docs/genshin-impact/effects/glow-and-transparency) shows how.
+
+</Accordion>
+<Accordion title="Your weapon mod shows on another weapon" id="twin-weapons">
+
+Some Genshin Impact weapons share one mesh, such as the Royal and Sacrificial weapons. A mod for one can show on its twin. [Swap weapons, gliders, and objects](/docs/genshin-impact/models/swap-weapons-and-objects) explains how to handle twins.
+
+{/* NEEDS HANDS-ON TEST: whether a Royal weapon mod also shows on its Sacrificial twin on 7.2 */}
+
+</Accordion>
+<Accordion title="Your edited textures were replaced after a new export" id="textures-overwritten">
+
+Older exporters copied the original textures over yours on every export. XXMI Tools 1.8.2 skips files that already exist. Still, turn **Mod textures** off after your first export.
+
+</Accordion>
+<Accordion title="Wild geometry after a hand edit of the .ini" id="hand-edited-ini">
+
+Mixed-up shapes after you edited the `.ini` by hand usually mean a wrong stride, a hash in the wrong section, or index and vertex buffers that do not match. Export again from Blender, then redo your `.ini` edits one at a time. [How a mod .ini works](/docs/genshin-impact/ini/how-a-mod-ini-works) explains each line.
+
+</Accordion>
+<Accordion title="Slow game with your mod on" id="heavy-mesh">
+
+Stay close to the original vertex count. Meshes with hundreds of thousands of vertices cost performance.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Weight paint a mesh"
+    href="/docs/genshin-impact/models/weight-painting"
+    icon={<Icon name="Brush" />}
+    level="intermediate"
+    featured
+  >
+    Copy weights from the original and fix the areas that stretch.
+  </PremiumCard>
+  <PremiumCard
+    title="Test and reload your mod"
+    href="/docs/genshin-impact/basics/test-your-mod"
+    icon={<Icon name="RefreshCw" />}
+    level="beginner"
+  >
+    Reload with F10, compare with the original, and read GIMI's warnings.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Troubleshooting](https://github.com/SilentNightSound/GI-Model-Importer/blob/main/Guides/Troubleshooting.md) by SilentNightSound.
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ and contributors.
+- **Guide:** [How to Export Genshin Mods - Blender](https://gamebanana.com/tuts/17838) by Dougline.
+- **Tool:** [XXMI Tools](https://github.com/leotorrez/XXMITools) by LeoTorreZ and contributors.
+- **Images:** screenshots 1 to 3 from [Troubleshooting](https://github.com/SilentNightSound/GI-Model-Importer/blob/main/Guides/Troubleshooting.md) by SilentNightSound.

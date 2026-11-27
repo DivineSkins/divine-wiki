@@ -1,0 +1,225 @@
+---
+title: "Change a mod's keys and saved settings"
+description: "Give a Wuthering Waves mod new keys, stop two mods from reacting to one key, stop keys firing while you type, and reset the outfits and toggles WWMI remembers."
+category: "ini"
+patch: "3.8"
+keywords:
+  [
+    "wuthering waves mod keys",
+    "change toggle key",
+    "keyswap",
+    "d3dx_user.ini",
+    "reset mod settings",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+Many mods switch outfits or parts with keys. This page shows how to give a mod new keys, stop two mods from reacting to one key, and reset the choices a mod remembers. You change one line in a text file. Written for XXMI Launcher 2.5.0, XXMI DLL 1.3.3 and WWMI 1.2.2.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/wuthering-waves/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="NotepadPlusPlus" note="or any editor that saves UTF-8">
+    A text editor
+  </Requirement>
+  <Requirement icon="FolderOpen">A mod with keys</Requirement>
+</Requirements>
+
+## Find a mod's keys
+
+1. In XXMI Launcher, click the 3-dots button next to **Start**, then **Open Mods Folder**.
+2. Open the mod's folder. Open its `mod.ini` in your text editor.
+3. Search the file for `[Key`. Every section whose name starts with `Key` is one key.
+
+WWMI Tools names key sections `[KeySwap...]`, after the toggle the creator set up. A key section looks like this:
+
+```ini
+[KeySwapOutfit]
+condition = $object_detected == 1
+key = H
+type = cycle
+$swapvar_outfit = 0, 1
+```
+
+| Line                                | What it means                                         |
+| ----------------------------------- | ----------------------------------------------------- |
+| `[KeySwapOutfit]`                   | The section. Any name that starts with `Key` works.   |
+| `condition = $object_detected == 1` | The key works only while this Resonator is on screen. |
+| `key = H`                           | The key you press. This is the line you change.       |
+| `back = ...`                        | Optional. A second key that steps backwards.          |
+| `type = cycle`                      | Each press moves to the next value in the list.       |
+| `$swapvar_outfit = 0, 1`            | The values the key steps through. Here: two outfits.  |
+
+A Resonator is a playable character. `$object_detected` is `1` only while the mod's Resonator is drawn.
+
+<img
+  src="/wiki-images/wuthering-waves-ini-change-mod-keys-1.webp"
+  alt="Four steps: you press H, the condition checks that $object_detected is 1 so the Resonator is on screen, $swapvar_outfit steps from 0 to 1 and back, and persist values are saved to d3dx_user.ini on F10 and every 60 seconds"
+/>
+
+## Change a key
+
+1. Copy the `mod.ini` to a place outside `Mods`, as a backup.
+2. Change the value after `key =`. Leave every other line as it is.
+3. Save the file as UTF-8.
+4. In game, press `F10` to reload mods.
+5. Put the Resonator on screen and press your new key.
+
+Write key names like this:
+
+| You want                           | Write                   |
+| ---------------------------------- | ----------------------- |
+| A letter or a digit                | `k`, `7`                |
+| A function key                     | `F5`                    |
+| An arrow key                       | `VK_LEFT`, `VK_RIGHT`   |
+| A number pad key                   | `VK_NUMPAD5`            |
+| A key combination                  | `shift q`, `ctrl alt k` |
+| The key with no Ctrl, Alt or Shift | `no_modifiers k`        |
+| A controller button                | `XB_A`, `XB_DPAD_UP`    |
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: each key name form in this table as a key = value in a WWMI 1.2.2 mod */}
+
+- Put a space between the parts of a combination.
+- Two `key =` lines in one section both work, and they do the same thing. WWMI Tools writes one line for each key the creator entered.
+- Some mods use symbol keys such as `/` or `]`. Not every symbol is tested. A letter or a function key always works.
+
+{/* NEEDS HANDS-ON TEST: which symbol characters work as single keys in a key = line, and which need VK_OEM names */}
+
+Do not give a mod these keys:
+
+- WWMI's own keys: `F6` (all mods off and on), `F8`, `F9`, `F10`, `F12`, `Ctrl+F12`, `Ctrl+Alt+F10`, `Alt+F12`, and `X`, which hides a WWMI message or the user guide.
+- The number pad, if you use hunting mode to make mods.
+- Keys the game uses for moving, skills and menus.
+
+## Two mods react to one key
+
+This happens when a mod's key section has no `condition = $object_detected == 1` line. Without it, the key works for that mod all the time, even when its Resonator is not on screen.
+
+Fix it one of two ways:
+
+- **Give one mod a new key.** Follow the steps above. This always works.
+- **Add the condition.** Search the file for `$object_detected = 1`. Every mod exported with WWMI Tools has it. If you find it, add `condition = $object_detected == 1` under the key section's name. If the file has no `$object_detected` at all, change the key instead.
+
+## Stop keys firing while you type
+
+Press `Ctrl+Alt+Shift+End` in game to turn all mod keys off. Press it again to turn them back on. This needs XXMI DLL 1.2.0 or newer. WWMI 1.2.2 asks for 1.3.3 or newer, so an up-to-date launcher has it.
+
+Two launcher settings control it. Open the settings, go to the **WWMI** tab, then the **Input** section:
+
+- **Enable By Default**: whether mod keys are on when the game starts.
+- **Input Disabling Mode**: `Mods` (the default) turns off only keys from mods. `All` also turns off WWMI's own keys, except `Ctrl+Alt+Shift+End`.
+
+{/* NEEDS HANDS-ON TEST: the Input section labels on the WWMI tab and Ctrl+Alt+Shift+End in XXMI Launcher 2.5.0 with XXMI DLL 1.3.3 and WWMI 1.2.2 */}
+
+## Saved choices
+
+WWMI remembers the outfit or toggle you picked. It saves your choices in this file:
+
+```text
+%AppData%\XXMI Launcher\WWMI\d3dx_user.ini
+```
+
+- WWMI writes this file when you press `F10` and every 60 seconds.
+- Only variables marked `persist` are saved, like `global persist $swapvar_outfit = 0`. WWMI Tools marks every toggle it writes this way.
+- Do not edit this file by hand. WWMI writes it for you.
+
+### Reset every saved choice
+
+Press `Ctrl+Alt+F10` in game. WWMI deletes `d3dx_user.ini` and reloads. Every mod goes back to its default.
+
+### Change what a mod starts with
+
+The default is the number at the end of the `global persist` line, in `[Constants]`:
+
+```ini
+[Constants]
+global persist $swapvar_outfit = 0
+```
+
+Change `0` to `1` to start with the second outfit. A saved choice wins over the default, so press `Ctrl+Alt+F10` once to see your new default.
+
+In your own mod, set the **Default State** of the toggle in WWMI Tools instead. Your next export would write the old number back.
+
+### Make a mod remember your choice
+
+If a mod forgets your choice on every start, its variable has no `persist`. Change `global $swapvar_outfit = 0` to `global persist $swapvar_outfit = 0`, save, and press `F10`.
+
+### Why a mod forgot its choice
+
+- **You renamed or moved its folder.** WWMI saves each choice under the mod's path, like `$\mods\<mod folder>\mod.ini\swapvar_outfit = 1`. A new path is a new name, so the old choice no longer matches.
+- **You turned the mod off.** With **Clear Unknown Mod Settings** on, which is the default, WWMI deletes the saved choices of mods that are not loaded after the second reload.
+- **The mod has no `persist`.** See above.
+
+{/* NEEDS HANDS-ON TEST: the exact line a WWMI Tools toggle gets in d3dx_user.ini, and the default of Clear Unknown Mod Settings on the WWMI tab of XXMI Launcher 2.5.0 */}
+
+## Use a mod manager instead
+
+Some mod managers list every mod's keys and let you change them without opening the `.ini`. No Reload Mod Manager has a key viewer and editor. Integrated Mod Manager has hotkey settings too. Managers that change keys edit your `.ini` files, so restore your mods in the manager before you share one. [Mod managers compared](/docs/wuthering-waves/tools/mod-managers) shows both side by side.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="My new key does nothing" id="new-key-does-nothing">
+
+- Put the Resonator on screen. Most keys only work then.
+- Press `F10` after you save the file.
+- Check the spelling of the key name against the table above.
+- Press `Ctrl+Alt+Shift+End` once, in case mod keys are off.
+- Pick another key, in case the game uses yours.
+
+</Accordion>
+<Accordion title="One key press changes two mods" id="one-key-two-mods">
+
+One of the mods has no `condition = $object_detected == 1`. Give it a new key, or add the condition as shown above.
+
+</Accordion>
+<Accordion title="The outfit goes back to the default every time I start the game" id="outfit-resets">
+
+The variable has no `persist`, or you renamed the mod's folder. See "Why a mod forgot its choice" above.
+
+</Accordion>
+<Accordion title="All my mods disappeared when I pressed a key" id="all-mods-gone">
+
+You pressed `F6`, WWMI's key for all mods off and on. The top of the screen shows `Mods Display: Disabled`. Press `F6` again. Do not give a mod `F6`.
+
+</Accordion>
+</Accordions>
+
+More on everyday keys is in [Add, turn off, and remove mods](/docs/wuthering-waves/getting-started/manage-mods).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Add a toggle"
+    href="/docs/wuthering-waves/ini/add-a-toggle"
+    icon={<Icon name="ToggleRight" />}
+    level="intermediate"
+  >
+    Add your own keys that hide parts of your mod.
+  </PremiumCard>
+  <PremiumCard
+    title="How a mod .ini works"
+    href="/docs/wuthering-waves/ini/how-a-mod-ini-works"
+    icon={<Icon name="FileCode" />}
+    level="intermediate"
+  >
+    Read the rest of the mod.ini, section by section.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Toggle Guide](https://gamebanana.com/tuts/18971) by gdsfdg.
+- **Tool:** [WWMI-Package](https://github.com/SpectrumQT/WWMI-Package) by SpectrumQT, and its [`d3dx.ini`](https://github.com/SpectrumQT/WWMI-Package/blob/main/WWMI/d3dx.ini), for WWMI's key bindings, key names and saved settings.
+- **Tool:** [WWMI Tools](https://github.com/SpectrumQT/WWMI-Tools) by SpectrumQT, for the key sections it writes.
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT, for the input settings.

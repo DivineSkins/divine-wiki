@@ -1,0 +1,262 @@
+---
+title: "How Honkai: Star Rail mods work"
+description: "How XXMI and SRMI swap models and textures while Honkai: Star Rail draws, why hashes matter, why one mod per character wins, and why updates break mods."
+category: "basics"
+patch: "4.7"
+keywords: ["star rail mods", "srmi", "xxmi", "3dmigoto", "hash"]
+---
+
+<LevelPill level="beginner" />
+
+A Honkai: Star Rail mod never changes the game's files. It swaps what the game draws, while the game runs. This page explains how that works, so most "my mod does nothing" problems make sense before you meet them.
+
+<Accordions>
+<Accordion title="Coming from another game?">
+
+**From Genshin Impact or Zenless Zone Zero.** Same XXMI DLL, same launcher, same hotkeys, same Blender add-on (XXMI Tools). What changes in Star Rail:
+
+- Since version 3.2 the game poses characters in compute shaders. A character mod's `.ini` has two branches, `DRAW_TYPE == 1` and `DRAW_TYPE == 8`, and hands its buffers to SRMI.
+- Part textures bind with one `hash =` and `this =` section per texture. There is no `Resource\GIMI\...` plus `SetTextures` line and no SlotFix.
+- There is no ORFix or NNFix, and no game setting you must change. Some mods need RabbitFX, a helper library you add yourself.
+
+**From Wuthering Waves.** Star Rail uses XXMI Tools, not WWMI Tools, and has no merged skeleton. Parts are matched by their index buffer hash plus `match_first_index`, not by a VB0 hash. The on-screen flag is `$active`, not `$object_detected`.
+
+**From Deadlock or League of Legends.** Nothing is packed or replaced on disk. XXMI swaps data while the game draws, and `F10` reloads your mod in game.
+
+Other game sections: [Genshin Impact](/docs/genshin-impact), [Zenless Zone Zero](/docs/zenless-zone-zero), [Wuthering Waves](/docs/wuthering-waves).
+
+</Accordion>
+</Accordions>
+
+## What you need
+
+Nothing to install. This page explains ideas, not steps. To look at real files while you read, have these ready:
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/honkai-star-rail/tools/xxmi-launcher"
+    note="optional"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="FolderOpen" note="optional">
+    A mod you downloaded
+  </Requirement>
+</Requirements>
+
+## Mods change what the game draws
+
+Honkai: Star Rail is a Unity game. On PC it draws everything through DirectX 11 only. Every frame, the game sends thousands of **draw calls** to the graphics card. Each one says: draw these triangles, with these vertices, these textures and these shaders.
+
+The XXMI DLL sits between the game and DirectX. It is a file named `d3d11.dll`, built from the 3DMigoto project. XXMI Launcher loads it into the game when you press **Start**. The game thinks it is talking to DirectX. The DLL passes every call on, but first it checks whether a mod wants to change that draw.
+
+<img
+  src="/wiki-images/honkai-star-rail-basics-how-mods-work-1.webp"
+  alt="Honkai: Star Rail asks DirectX 11 to draw a mesh, the XXMI DLL hashes it and checks the Mods folder, a matching mod swaps in its own buffers and textures, and the GPU draws the result"
+/>
+
+**SRMI** (Star Rail Model Importer) is the Star Rail part of XXMI. It is a folder with a main config file (`d3dx.ini`), a `Core\SRMI` folder of shared files, and a `ShaderFixes` folder. XXMI Launcher installs and updates SRMI for you. This page was written for XXMI Launcher 2.5.0, XXMI DLL 1.3.2 and SRMI 2.4.3.
+
+When SRMI loads, the game shows this text in the bottom-left corner for about 30 seconds:
+
+```text
+SRMI 2.4.3 (PRESS F12 TO SHOW GUIDE)
+```
+
+No text means the DLL did not load, so no mod can work.
+
+<Callout type="info" title="Who sees your mod">
+  Mods change only what your own PC draws. Other players see the normal models.
+  The modding community reports this, but it has not been tested for this guide.
+  [What's allowed and how to stay
+  safe](/docs/honkai-star-rail/getting-started/stay-safe) explains the rules and
+  the risk.
+</Callout>
+
+{/* NEEDS HANDS-ON TEST: two-PC co-op or shared-screen check in Honkai: Star Rail that other players see the original model, not the mod */}
+
+## Hashes: how a mod finds its target
+
+XXMI gives every buffer, texture and shader a **hash**: a short code computed from its data. A mod says "when you see this hash, use my files instead".
+
+| Hash of            | Length        | What it is                                                                  |
+| ------------------ | ------------- | --------------------------------------------------------------------------- |
+| Index buffer (IB)  | 8 hex digits  | The triangle list of a mesh. One IB holds several parts, like body A and B. |
+| Vertex buffer (VB) | 8 hex digits  | Vertex data: positions, bone weights, UVs, vertex colors.                   |
+| Texture            | 8 hex digits  | One image, like a Diffuse or LightMap.                                      |
+| Shader             | 16 hex digits | One small GPU program, like the compute shaders that pose Star Rail models. |
+
+In a mod's `.ini` file, a hash looks like this. `1a2b3c4d` stands for a real hash:
+
+```ini
+[TextureOverrideMyTexture]
+hash = 1a2b3c4d
+this = ResourceMyTexture
+
+[ResourceMyTexture]
+filename = MyTexture.dds
+```
+
+That is the idea in its smallest form. It is also how a Star Rail character mod binds its textures: one section like this per texture. A mod exported from Blender has more sections, one per buffer and per part. [How a mod .ini works](/docs/honkai-star-rail/ini/how-a-mod-ini-works) goes through every line.
+
+Three things follow from hashes:
+
+- **A part is found by its IB hash plus its first index.** Every character has three meshes: `Hair`, `Head` and `Body`. Each one is split into parts A, B, C. The `match_first_index` line tells the parts apart.
+- **Each mesh has four vertex buffers.** Position, Blend, Texcoord and Draw each have their own hash. A mod replaces all of them.
+- **Each outfit is its own model.** An outfit has its own hashes. A mod for the default look does not change the outfit, and the other way round.
+
+## How Star Rail poses characters
+
+Since version 3.2 (April 2025), Star Rail poses characters in **compute shaders**. A pose step moves every vertex to follow the bones. The game does this for several characters at once, in one batch.
+
+SRMI ships its own files for this, `Core\SRMI\BatchedPose.ini` and a set of skinning shaders. When a modded character is posed, the mod hands SRMI its own Position and Blend buffers. SRMI then poses your mesh with the game's bones.
+
+<img
+  src="/wiki-images/honkai-star-rail-basics-how-mods-work-2.webp"
+  alt="The game's compute shader poses characters in one batch, SRMI BatchedPose takes the mod's Position and Blend buffers, SRMI's shaders pose the modded mesh, and the GPU draws it"
+/>
+
+That is why a Star Rail character mod has two branches in its `.ini`:
+
+- `DRAW_TYPE == 8` is the compute shader path most PCs use.
+- `DRAW_TYPE == 1` is the older path. Since a hotfix one day after version 3.7, Intel GPUs reportedly draw through it again.
+
+XXMI Tools writes both branches when you export. Never delete either one.
+
+{/* NEEDS HANDS-ON TEST: on an Intel GPU with SRMI 2.4.3 and Honkai: Star Rail 4.7, confirm that a mod draws through the DRAW_TYPE == 1 branch */}
+
+## How SRMI finds your mods
+
+Mods go in this folder:
+
+```text
+%AppData%\XXMI Launcher\SRMI\Mods
+```
+
+SRMI's `d3dx.ini` tells the DLL what to read:
+
+```ini
+[Include]
+include = Core\SRMI\main.ini
+include_recursive = Mods
+exclude_recursive = DISABLED*
+exclude_recursive = desktop.ini
+```
+
+What that means for you:
+
+- Every `.ini` file anywhere under `Mods` loads, at any folder depth.
+- A file or folder whose name **starts** with `DISABLED` is skipped, with everything inside it. `DISABLED_Hat` is skipped. `Hat_DISABLED` still loads.
+- Inside each folder, `.ini` files load first in A to Z order, then the subfolders.
+- A mod finds its `.buf`, `.ib` and `.dds` files by the names written in its `.ini`, starting from the `.ini`'s own folder. Rename one file and that part breaks.
+- Each `.ini` gets its own namespace. Two mods can use the same section names without clashing.
+
+{/* NEEDS HANDS-ON TEST: whether a mod file named with an upper-case .INI extension loads in XXMI DLL 1.3.2 */}
+
+## One mod per character
+
+Two mods for the same character or outfit both match the same hashes. Both run, and the result is a mess. Keep one mod per character or outfit turned on, and rename the others so they start with `DISABLED`.
+
+When warnings are on, a clash shows text like this:
+
+```text
+Possible Mod Conflict: Duplicate TextureOverride hash=...
+```
+
+SRMI mutes warnings by default. Turn them on in XXMI Launcher's settings while you test your mod.
+
+Want several outfits for one character? [Combine mods into one merged mod](/docs/honkai-star-rail/ini/merged-mods) and switch between them with a key.
+
+## What is in a mod folder
+
+A character mod exported with XXMI Tools looks about like this. Each mesh (Hair, Head, Body) has its own set of buffers:
+
+<Files>
+  <Folder name="Mods" defaultOpen>
+    <Folder name="KafkaRecolor" defaultOpen>
+      <File name="Kafka.ini: tells XXMI what to swap" />
+      <File name="KafkaBodyPosition.buf" />
+      <File name="KafkaBodyBlend.buf" />
+      <File name="KafkaBodyTexcoord.buf" />
+      <File name="KafkaBodyA.ib" />
+      <File name="KafkaBodyB.ib" />
+      <File name="KafkaBodyADiffuse.dds" />
+      <File name="KafkaBodyALightMap.dds" />
+      <File name="KafkaHair... and KafkaHead... files" />
+    </Folder>
+  </Folder>
+</Files>
+
+{/* NEEDS HANDS-ON TEST: the exact file names XXMI Tools 1.8.2 writes for Kafka with the Honkai Star Rail preset, including the .ini name */}
+
+| File            | What it does                                                                                                                   |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `.ini`          | The mod's instructions: which hashes to watch and what to swap in. Plain text, save it as UTF-8.                               |
+| `.buf`          | Vertex data. `Position` holds shape, normals and tangents, `Blend` holds bone weights, `Texcoord` holds UVs and vertex colors. |
+| `.ib`           | Index buffer: the triangle list of one part.                                                                                   |
+| `.dds`          | Textures: `Diffuse` (color, its alpha is the glow mask), `LightMap`, and on some bodies `StockingMap` or `MaterialMap`.        |
+| `.hlsl`         | Shader code. Only effect mods have it.                                                                                         |
+| `hash.json`     | In a frame dump or asset folder. Lists each part and its hashes. XXMI Tools reads it when you export.                          |
+| `d3dx_user.ini` | In the `SRMI` folder, not in a mod. Saves toggle settings. Never edit it by hand.                                              |
+| `ShaderFixes`   | A folder in `SRMI`, not in a mod. SRMI ships its own files there.                                                              |
+
+## What a mod must never contain
+
+<Callout type="warning" title="Keep these out of every mod">
+  XXMI Launcher refuses to start the game if a mod ships `d3dx.ini`. It shows
+  `Cannot start with d3dx.ini in Mods folder!`
+</Callout>
+
+- **Loader files:** `d3dx.ini`, `d3d11.dll`, or a `ShaderFixes` folder. Package a shader edit as a normal mod instead.
+- **SRMI's own files:** `BatchedPose.ini` and the skinning shaders ship inside SRMI, in `SRMI\Core\SRMI`. You never copy them into a mod.
+- **A RabbitFX copy:** RabbitFX is a separate helper library some mods need. Players keep one copy in the whole `Mods` folder. Two copies break mods. [Add, turn off, and remove mods](/docs/honkai-star-rail/getting-started/manage-mods) shows how to keep one.
+- **Programs:** a mod holds `.ini`, `.buf`, `.ib`, `.dds` and sometimes `.hlsl` files. An `.exe` or `.dll` in a skin mod is a warning sign.
+
+## Why updates break mods
+
+Star Rail updates about every six weeks. Almost every version changes a few character hashes, and some versions break much more. An update can break mods in five ways:
+
+1. **New hashes.** The game re-exports a model or texture, so its hash changes. The mod no longer matches and the character looks normal. Version 2.3 changed about 430 hashes. Version 4.4 broke Sparxie mods, and 4.6 broke Robin Summeretto mods.
+2. **New buffer layout.** The game changes how vertex data is stored. Version 4.2 added new skinning shaders and a new position layout, and SRMI 2.4.0 followed.
+3. **Moved texture slots.** Versions 3.4 and 3.5 moved the slots textures are drawn with. For 3.4, SRMI 2.2.0 came out the same day and checks the new slots, so mods that bind textures by hash, as XXMI Tools does, work again after the update. Mods with hand-written `ps-t` slot lines broke.
+4. **A new way of drawing characters.** Version 3.2 moved posing to compute shaders. Every character mod made before it broke. Guides older than April 2025 are wrong for character mods.
+5. **Engine changes the importer catches.** Version 4.1 changed how index buffers are bound. SRMI 2.3.0 fixed it for every mod at once.
+
+XXMI Launcher updates SRMI by itself, which fixes engine and shader changes. New hashes and new layouts need a fix tool or an update from the mod's creator. No importer rewrites a mod's hashes for you. [Fix your mods after a game update](/docs/honkai-star-rail/getting-started/fix-mods-after-an-update) walks through it.
+
+As of 2026-11-19, nobody has reported a break from version 4.7.
+
+{/* NEEDS HANDS-ON TEST: whether Honkai: Star Rail 4.7 changed any character hashes */}
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Test and reload your mod"
+    href="/docs/honkai-star-rail/basics/test-your-mod"
+    icon={<Icon name="FlaskConical" />}
+    level="beginner"
+  >
+    Reload in seconds with F10, compare with the original, and read the
+    on-screen messages.
+  </PremiumCard>
+  <PremiumCard
+    title="Your first mod: recolor a character"
+    href="/docs/honkai-star-rail/textures/recolor-a-character"
+    icon={<Icon name="Palette" />}
+    level="beginner"
+  >
+    Change a character's colors without touching the model.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Tool:** [XXMI DLL (XXMI-Libs-Package)](https://github.com/SpectrumQT/XXMI-Libs-Package) by SpectrumQT, a fork of [3Dmigoto](https://github.com/bo3b/3Dmigoto) by bo3b, Chiri and DarkStarSword.
+- **Tool:** [SRMI-Package](https://github.com/SpectrumQT/SRMI-Package) by SpectrumQT, with leotorrez, petrascyll, sora935 and Gustav0.
+- **Tool:** [XXMI Tools Honkai Star Rail template](https://github.com/leotorrez/XXMITools/blob/main/templates/Honkai%20Star%20Rail.ini.j2) by LeoTorreZ.
+- **News:** [3.2 Star Rail Announcement (Modpocalypse)](https://gamebanana.com/news/21904) by SilentNightSound.
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ and contributors.

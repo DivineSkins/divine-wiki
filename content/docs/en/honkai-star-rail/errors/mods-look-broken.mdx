@@ -1,0 +1,275 @@
+---
+title: "Mods look broken"
+description: "A Honkai: Star Rail mod loads but looks wrong? Match what you see, from stretched spikes to floating heads and pink skills, to its cause and the fix."
+category: "errors"
+patch: "4.7"
+keywords:
+  [
+    "star rail mod broken",
+    "star rail floating heads",
+    "srmi mod spikes",
+    "rabbitfx pink",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+Your mod loads, but the character looks wrong. Find what you see in the table, then open the matching fix below. This page was written for Honkai: Star Rail 4.7 and SRMI 2.4.3.
+
+No mod shows at all? Go to [Mods not loading](/docs/honkai-star-rail/errors/mods-not-loading).
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/honkai-star-rail/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="Wrench" href="/docs/honkai-star-rail/tools/update-fixers">
+    Update fix tools
+  </Requirement>
+  <Requirement icon="FileText" note="such as Notepad">
+    A text editor
+  </Requirement>
+</Requirements>
+
+## Try this first
+
+These three steps fix many broken mods. Do them before anything else.
+
+1. Close the game and open XXMI Launcher. It updates SRMI. The banner in game should show `SRMI 2.4.3` or newer.
+2. Set **Character Quality** to **High** in the game's graphics settings.
+3. In game, switch to another character, press `F10`, and switch back.
+
+## What do you see?
+
+| What you see                                                                | Most likely cause                                   | Fix                                                       |
+| --------------------------------------------------------------------------- | --------------------------------------------------- | --------------------------------------------------------- |
+| A character turns into stretched spikes, often right after an update        | The game changed the character, or the mod is old   | [Spikes after an update](#spikes-after-an-update)         |
+| Characters show only a floating head                                        | SRMI is older than 2.0.0                            | [Floating heads](#floating-heads)                         |
+| One character is a tangle, or a mix of two looks                            | Two mods for one character, or two RabbitFX copies  | [Two mods on one character](#two-mods-on-one-character)   |
+| A glitch only when two copies of the model are on screen                    | The mod uses the first 3.2 format                   | [Two copies on screen](#two-copies-on-screen)             |
+| The mod blinks on and off                                                   | The mod's vertex count is too low                   | [Blinking mod](#blinking-mod)                             |
+| The model is fine, but explodes during one animation                        | That animation uses another position hash           | [Explodes in one animation](#explodes-in-one-animation)   |
+| Wrong textures, black patches or stars on the body, on low settings or maps | The mod ties textures to slot numbers               | [Wrong textures](#wrong-textures)                         |
+| A character turns pink during skills                                        | RabbitFX is out of date, or another effect mod      | [Pink during skills](#pink-during-skills)                 |
+| Black or exploding characters on an Intel graphics card only                | Intel cards draw characters the older way since 3.7 | [Intel graphics](#intel-graphics)                         |
+| Missing or stretched parts right after loading                              | The character was on screen during the reload       | [Missing or stretched parts](#missing-or-stretched-parts) |
+| Mortenax Blade breaks, the world turns black, odd outlines or glow          | Several causes                                      | [Other problems](#other-problems)                         |
+
+## Fixes
+
+<Accordions type="multiple">
+<Accordion title="Spikes after an update" id="spikes-after-an-update">
+
+The modded character turns into spikes or stretched triangles. Or it shows its original look. This often happens right after a new version.
+
+<img
+  src="/wiki-images/honkai-star-rail-errors-mods-look-broken-1.webp"
+  alt="A Honkai: Star Rail character drawn as a mass of stretched purple spikes by a mod that version 3.2 broke, next to a shocked cartoon character added for the picture"
+/>
+
+The picture is from the page of the v3.3 fix and shows a mod that version 3.2 broke.
+
+**Cause:** the update changed the character's hashes, the fingerprints a mod uses to find it. Or the mod was made before version 3.2 (April 2025), which changed how the game poses every character. As of November 19, 2026, no break has been reported for version 4.7.
+
+**Fix, in this order:**
+
+1. Close the game and open XXMI Launcher, so it updates SRMI. SRMI updates often come within a day or two of a game update.
+2. Check the page where you got the mod for an update.
+3. Zip a copy of the mod folder. Fix tools change files you cannot undo by hand.
+4. For a mod made before 3.2 or 3.3, run [Another v3.3 HSR Fix](https://gamebanana.com/tools/19559) inside the broken mod's folder.
+5. For a character that a 4.x update changed, run that character's script from [sora\_'s 4.x fixes](https://gamebanana.com/mods/671436). Use the `.py` files on that page.
+6. Press `F10` in game, or teleport, and check the character.
+
+Run each tool once, on a fresh copy that no tool or person has edited. Running a tool twice can break the mod for good. No single tool fixes every character for the 4.x versions. If nothing works, wait for the mod's creator.
+
+Download fixers only from the pages linked here. [Fix your mods after a game update](/docs/honkai-star-rail/getting-started/fix-mods-after-an-update) has the full steps and the signs of a fake fixer.
+
+<YouTube
+  id="uBF0DJKoDPM"
+  start={218}
+  title="How to Install and Fix Mods in Honkai: Star Rail (Updated v3.6), by TK Magnus"
+/>
+
+The video shows a broken mod and a fix tool on version 3.6. It has no narration. Which tool you need depends on the update that broke the mod, so follow the order above.
+
+</Accordion>
+<Accordion title="Floating heads" id="floating-heads">
+
+After you run a fix tool, characters show only a head. This can happen even with mods turned off.
+
+**Cause:** the fixed mods need SRMI 2.0.0 or newer. Only XXMI Launcher installs it. The old standalone SRMI cannot run them.
+
+**Fix:**
+
+1. Open XXMI Launcher and let it update SRMI.
+2. Start the game and check that the banner shows `SRMI 2.4.3` or newer.
+3. If it does not, click the 3-dots button next to **Start**, then **Repair SRMI**.
+
+</Accordion>
+<Accordion title="Two mods on one character" id="two-mods-on-one-character">
+
+**Cause:** two mod folders change the same character or outfit. Or a download holds several versions of one mod in subfolders, and all of them load. Two copies of a helper library such as RabbitFX do the same.
+
+**Fix:**
+
+1. Keep one mod for each character or outfit.
+2. Rename the other mod folders so they start with `DISABLED_`.
+3. For a download with several versions, keep one version folder and disable the rest.
+4. Keep one copy of RabbitFX in the whole `Mods` folder. Delete any copy inside another mod's folder.
+5. Press `F10`.
+
+To use several looks for one character, merge them into one mod with a toggle.
+
+</Accordion>
+<Accordion title="Two copies on screen" id="two-copies-on-screen">
+
+The mod looks fine until a second copy of the same model appears. Known cases: Acheron during her skill, The Herta during her ultimate, Tribbie when the other Tribbios appear, and a character next to their NPC version.
+
+**Cause:** the mod uses the first 3.2 format. That format cannot tell two copies of a model apart.
+
+**Fix:**
+
+1. Make a copy of the affected mod's folder outside `Mods`.
+2. Download the current [Pipeline Convert Fix](https://gamebanana.com/tools/19978).
+3. Put it inside that one mod's folder and run it. Never run it on the whole `Mods` folder: it breaks mods that do not need it.
+4. Delete the tool from the mod folder and press `F10`.
+
+</Accordion>
+<Accordion title="Blinking mod" id="blinking-mod">
+
+The mod appears and disappears at random.
+
+**Cause:** the mod tells SRMI a vertex count that is lower than the real one.
+
+**Fix:** check the mod's page for an update first. To fix it yourself:
+
+1. Find the mod's Position `.buf` file and check its size in bytes. In File Explorer, right-click it and choose **Properties**.
+2. Divide that size by 40. For example, `930520 / 40 = 23263`.
+3. Open the mod's `.ini` in a text editor.
+4. Set both `$\SRMI\vertex_count` and `override_vertex_count` to that number.
+5. Save and press `F10`.
+
+{/* NEEDS HANDS-ON TEST: on SRMI 2.4.3, confirm that setting $\SRMI\vertex_count and override_vertex_count to the Position .buf size / 40 stops a blinking mod. */}
+
+</Accordion>
+<Accordion title="Explodes in one animation" id="explodes-in-one-animation">
+
+The model is fine, except in one pose. There it stretches into spikes. Known cases: Natasha's sprint stop, Serval's sprint end, Topaz's skill, Hook's ultimate and Bailu's ultimate.
+
+**Cause:** that animation uses a different position hash. The mod does not cover it.
+
+**Fix:** check the mod's page for an update. The fix tools add the known extra hashes for you, so running the right tool on a fresh copy can help. If you make mods, [Model problems in game](/docs/honkai-star-rail/errors/model-problems) shows how to add the extra hash.
+
+{/* NEEDS HANDS-ON TEST: the vertex explosion sources are from 2023 and 2024. Check whether these animations still use a separate position hash on Honkai: Star Rail 4.7. */}
+
+</Accordion>
+<Accordion title="Wrong textures" id="wrong-textures">
+
+The textures are wrong in new maps or on low graphics settings. Or small black blocks, or a starry effect, show on the body.
+
+**Cause:** the mod ties its textures to fixed slot numbers, and Star Rail moves them. Missing overrides for the character's extra texture maps give the black blocks and stray effects.
+
+**Fix:**
+
+1. Raise your graphics settings and check again.
+2. Check the mod's page for an update. The creator must bind the textures by hash instead.
+3. If the problem showed up with a new mod, turn your other mods off by halves to find the one that causes it.
+
+If you make mods, [Stable textures](/docs/honkai-star-rail/textures/stable-textures) explains the method that survives these moves.
+
+</Accordion>
+<Accordion title="Pink during skills" id="pink-during-skills">
+
+A character turns pink during a skill or ultimate. Players saw it on Evanescia and on Cyrene's ultimate.
+
+**Cause:** an outdated RabbitFX, or another effect mod that clashes with it. RabbitFX is a helper library that many Star Rail mods use for glow.
+
+**Fix:**
+
+1. Get the current version of RabbitFX (SRMI) by caverabbit. Version 3.0 is current.
+2. Replace your old copy with it. Keep one copy in the whole `Mods` folder.
+3. Turn off other effect mods for that character with `DISABLED_`, then press `F10`.
+
+RabbitFX can clash with other shader mods. If mods break as soon as you add RabbitFX, remove the other shader mods one by one.
+
+</Accordion>
+<Accordion title="Intel graphics" id="intel-graphics">
+
+Characters turn black, models explode, or textures look half drawn or see-through. It happens only on Intel integrated or Arc graphics.
+
+**Cause:** a hotfix about a day after version 3.7 changed how Intel cards draw characters. They use the older draw path again. Mods need both draw branches that current XXMI Tools exports write.
+
+**Fix:** ask the mod's creator to export the mod again with current XXMI Tools.
+
+{/* NEEDS HANDS-ON TEST: on an Intel integrated or Arc GPU with SRMI 2.4.3, confirm that a mod exported with XXMI Tools 1.8.2 shows correctly and that an older mod without the DRAW_TYPE == 1 branch breaks. */}
+
+A very old graphics card may not run mods made after 3.2 at all, while older mods still work. One player saw this on a GeForce GT 740M.
+
+</Accordion>
+<Accordion title="Missing or stretched parts" id="missing-or-stretched-parts">
+
+Parts are missing, or spikes stretch out of the body, the first time a mod loads.
+
+**Cause:** the character was on screen when SRMI loaded the mod.
+
+**Fix:** any of these:
+
+- Switch to another character, press `F10`, and switch back.
+- Teleport to another place.
+- Restart the game.
+
+</Accordion>
+<Accordion title="Other problems" id="other-problems">
+
+**Mortenax Blade mods break at random:** the mesh turns into spikes, and `F10` does not help. This is a known bug with no fix as of June 2026. Restart the game.
+
+**The world turns black:** a bug reported once after version 4.4. The cause is not known. Remove any files you added to `SRMI\ShaderFixes`, then run **Repair SRMI** from the 3-dots button. Then turn your mods off by halves to find the one that causes it.
+
+{/* NEEDS HANDS-ON TEST: reproduce the 4.4 "world turns black" report and confirm which mod or shader file causes it. */}
+
+**Colored or thick outlines:** the mod's outline data or LightMap is wrong. The creator must fix it.
+
+**The whole model glows or looks very bright:** the mod's main texture has no alpha channel. In Star Rail, that channel controls glow. The creator must fix it.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Crashes and launch errors"
+    href="/docs/honkai-star-rail/errors/game-crashes"
+    icon={<Icon name="Bug" />}
+    level="beginner"
+  >
+    The game closes or crashes at start, with or without mods.
+  </PremiumCard>
+  <PremiumCard
+    title="Add, turn off, and remove mods"
+    href="/docs/honkai-star-rail/getting-started/manage-mods"
+    icon={<Icon name="FolderOpen" />}
+    level="beginner"
+  >
+    Turn mods on and off, and keep one mod per character and one RabbitFX.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Video:** [How to Install and Fix Mods in Honkai: Star Rail (Updated v3.6)](https://www.youtube.com/watch?v=uBF0DJKoDPM) by TK Magnus.
+- **Tool:** [Another v3.3 HSR Fix](https://gamebanana.com/tools/19559) by petrascyll and its key authors.
+- **Tool:** [Pipeline Convert Fix](https://gamebanana.com/tools/19978) by Gustav0\_ and petrascyll, also the source of the blinking fix.
+- **Tool:** [4.6 Fix Characters Mods](https://gamebanana.com/mods/671436) by sora\_.
+- **Tool:** RabbitFX (SRMI) by caverabbit.
+- **Images:** screenshot 1 from the [Another v3.3 HSR Fix](https://gamebanana.com/tools/19559) page by petrascyll.
+- **Guide:** [Vertex Explosion Bugs and Fixes](https://gamebanana.com/tuts/16401) by petrascyll.
+- **Guide:** [关于星铁贴图错误的问题如何手动修复 (manual fix for Star Rail texture errors)](https://gamebanana.com/tuts/18999) by sora\_.
+- **Guide:** [Troubleshooting](https://github.com/SilentNightSound/SR-Model-Importer/blob/main/Guides/Troubleshooting.md) by SilentNightSound.
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ and contributors.

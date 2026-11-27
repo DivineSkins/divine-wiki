@@ -1,0 +1,274 @@
+---
+title: "Fix your mods after a game update"
+description: "Get Wuthering Waves mods working again after an update: back up, update WWMI, check your settings, and run one fix tool only on the mods that broke."
+category: "getting-started"
+patch: "3.8"
+keywords:
+  [
+    "wuthering waves mods broken",
+    "wuwa mod fixer",
+    "wwmi fix",
+    "wuthering waves 3.8 mods",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+Almost every Wuthering Waves update breaks some mods for a few days. Updates come about every six weeks, and small patches in between can break mods too. This page shows what to do, in order, so you fix the broken mods without breaking the ones that still work. Written for Wuthering Waves 3.8 with WWMI 1.2.2.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/wuthering-waves/getting-started/install-with-xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="FileArchive" note="such as 7-Zip">
+    An archive tool
+  </Requirement>
+</Requirements>
+
+## The order to follow
+
+<img
+  src="/wiki-images/wuthering-waves-getting-started-fix-mods-after-an-update-1.webp"
+  alt="Six steps in a row: back up Mods, update XXMI Launcher, check Resource Quality and LOD Bias, test with F10, run one fix tool on a copy of the broken mod, then wait for the creator"
+/>
+
+Many mods work again after steps 2 and 3. Only use a fix tool when a mod is still broken after them.
+
+## What usually breaks in Wuthering Waves
+
+Wuthering Waves runs on a customised Unreal Engine 4, and its updates break mods in four ways:
+
+- **The game loads lower-detail models and textures.** At a distance, or in the open world, the game swaps in simpler versions that the mod does not know. Textures look white, patchy or wrong, or the mod turns back to the original look when the camera zooms out. XXMI Launcher updates and the right settings fix most of this.
+- **A Resonator's model or texture data changes.** A Resonator is a playable character. The mod no longer matches, so you see the original look or broken parts. Rover breaks most often. This needs a fix tool or a new version of the mod.
+- **The way the game starts changes.** In 3.7 the game got UHD, HD and SD resource packages, and in 3.8 Steam installs moved to Kuro's launcher. An XXMI Launcher update fixes this for everyone.
+- **The way the game draws characters changes.** This is rare. WWMI gets an update through the launcher, and sometimes creators must export their mods again.
+
+Mods exported with WWMI Tools 1.9.4 or newer find their textures by how they look, not by hash. Texture changes should break them less often than older mods, but nobody has tested that yet. Older mods still bind textures by hash: WWMI 1.2.2 does not change them.
+
+{/* NEEDS HANDS-ON TEST: after the next game update on WWMI 1.2.2, whether a mod exported by WWMI Tools 1.9.4 keeps its textures while a mod exported by WWMI Tools 1.8.0 for the same Resonator loses them */}
+
+Old guides go stale by topic, not on one date:
+
+| Topic                                                      | Stale if made or written before                           |
+| ---------------------------------------------------------- | --------------------------------------------------------- |
+| Guides that tell you to type lines into game config files  | 3.2, March 19, 2026. Use the launcher's settings instead. |
+| Guides about starting the game or launch settings          | 3.7, September 30, 2026                                   |
+| Mods with a merged skeleton, the usual kind for Resonators | January 26, 2026, when the export tool changed after 3.0  |
+
+| What you see                                                      | Likely cause                                        | What to do                                    |
+| ----------------------------------------------------------------- | --------------------------------------------------- | --------------------------------------------- |
+| No mods and no WWMI text in the corner                            | XXMI Launcher not updated yet, or a setting changed | Update (step 2), then check settings (step 3) |
+| White, patchy or wrong textures, mostly in the open world         | Lower-detail textures, or changed texture data      | LOD Bias (step 3), then a fix tool            |
+| The mod turns back to the original look when the camera zooms out | The game swapped to a lower-detail model            | Check **Mesh LOD Base FOV** (step 3)          |
+| The mod shows the original look even up close                     | The Resonator's data changed                        | One fix tool, on that mod only                |
+| Faces or shading look wrong on several unrelated Resonators       | One outdated mod still ships an old shared texture  | A fix tool, or find the mod with step 6       |
+| Eyes and lips glitch right after the update                       | The game rebuilt its shaders                        | Restart the game                              |
+| A `Mod Loading Error` box                                         | The mod and WWMI versions do not match              | Update WWMI (step 2), or wait for the creator |
+| A `WWMI Integrity Error` box about the XXMI DLL                   | The XXMI DLL is older than 1.3.3                    | Update XXMI Launcher (step 2)                 |
+
+## Fix your mods
+
+<Steps>
+<Step>
+
+### Back up your Mods folder before the update
+
+1. Open `%AppData%\XXMI Launcher\WWMI\Mods`.
+2. Zip the whole folder with your archive tool.
+3. Keep the zip outside the `Mods` folder.
+
+Fix tools change model files that you cannot undo by hand. The zip is your way back.
+
+</Step>
+<Step>
+
+### Update the game, then XXMI Launcher
+
+1. Update Wuthering Waves in Kuro's launcher, Steam or Epic Games. XXMI Launcher does not update the game.
+2. Open XXMI Launcher. It checks for updates when it starts and installs new versions of itself and of WWMI.
+3. To check by hand, click the 3-dots button next to **Start**, then **Check For Updates**.
+4. Check the versions in the bottom-left corner, for example `LAUNCHER 2.5.0` and `WWMI 1.2.2`. WWMI 1.2.2 also needs XXMI DLL 1.3.3 or newer, which the launcher installs. If the DLL is too old, a **WWMI Integrity Error** box shows in game and asks you to update it.
+
+Waiting one to three days for launcher, WWMI and fix tool updates is normal. SpectrumQT, who makes WWMI, posts what broke and what to do in the updates of the [WWMI page on GameBanana](https://gamebanana.com/tools/17252). Open the launcher every day or two so you get the fixes.
+
+{/* NEEDS HANDS-ON TEST: the exact update prompt XXMI Launcher 2.5.0 shows when a new WWMI version is out, whether it installs it without asking, whether it installs XXMI DLL 1.3.3 or newer with WWMI 1.2.2, and the version label the launcher shows for WWMI 1.2.2. */}
+
+</Step>
+<Step>
+
+### Check the settings mods need
+
+In XXMI Launcher, open the settings with the gear icon, then the **General** tab:
+
+1. **Client Resource Quality** matches the quality you installed: `UHD`, `HD` or `SD`.
+2. **Game Folder** and **Game Launch** still match your install. Updates that move the game to another launcher change them.
+3. **Configure Game Settings For WWMI** and **Disable Wounded Effect** are ticked.
+4. **Mesh LOD Base FOV** is `165`.
+
+In the game, open <MenuPath path="Settings > Graphics" /> and check that **LOD Bias** is **Ultra High**. On an NVIDIA card, keep Smooth Motion and frame generation off.
+
+Many "all my mods broke" reports are one of these settings, or a launcher that is not updated yet.
+
+{/* NEEDS HANDS-ON TEST: after the 3.8 move of Steam installs to Kuro's launcher, whether Game Folder and Game Launch must be changed by hand in XXMI Launcher 2.5.0. */}
+
+</Step>
+<Step>
+
+### Test your mods
+
+1. Start the game with **Start** in XXMI Launcher.
+2. Switch to a different Resonator so the modded one is off screen.
+3. Press `F10` to reload.
+4. Switch back and check each modded Resonator, up close and from a distance.
+
+Write down which mods are still broken. Only those need a fix tool.
+
+</Step>
+<Step>
+
+### Run one fix tool on the broken mods only
+
+<Callout type="warning" title="Get fix tools only from these two pages">
+  Fake fixers carrying malware have been uploaded after game updates. Download
+  only from the GitHub pages below. Never use a "fix" that replaces `d3d11.dll`,
+  asks for admin rights, or comes in a password-protected archive.
+</Callout>
+
+Two community fix tools are in use. The WWMI author names both. Neither is better in every case: use the one that has a release for your game version. On November 24, 2026, Woju's fixer had a 3.8 release (v3.8.1.1) and Moonholder's newest release was v3.7.0, made for 3.7.
+
+<Tabs items={["Wuwa_Mod_Fixer", "WuWa_MOD_WojuFixer"]}>
+<Tab value="Wuwa_Mod_Fixer">
+
+<ToolCard
+  name="Wuwa_Mod_Fixer"
+  href="https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest"
+  icon={<Icon name="GitHub" />}
+>
+  By Moonholder. Finds changed model and texture data in a mod and updates it.
+  Keeps backups. Open source (GPL-3.0) and code-signed.
+</ToolCard>
+
+1. Download the latest release. Check that its version number matches your game version, or is newer.
+2. Make a copy of the broken mod's folder outside `Mods`.
+3. Open the fixer.
+4. Select the broken mod's folder, or drag it into the window.
+5. Leave the optional fixes off for a first try, then click **Start Fix**.
+6. Press `F10` in game and check the Resonator.
+
+The fixer keeps backups, and its rollback option puts a mod back as it was. The real file is code-signed: a copy without a signature is not the real one.
+
+{/* NEEDS HANDS-ON TEST: on Wuwa_Mod_Fixer's current release, the exact English labels of the folder picker, the optional fixes, the Start Fix button and the rollback option, and whether the interface opens in English or Chinese. */}
+
+</Tab>
+<Tab value="WuWa_MOD_WojuFixer">
+
+<ToolCard
+  name="WuWa_MOD_WojuFixer"
+  href="https://github.com/Woju25/WuWa_MOD_WojuFixer/releases"
+  icon={<Icon name="GitHub" />}
+>
+  By Woju. Repairs broken textures in a mod by moving it to RabbitFX texture
+  slots. Open source (AGPL-3.0).
+</ToolCard>
+
+1. Download the latest release. Check that its version number matches your game version.
+2. Make a copy of the broken mod's folder outside `Mods`.
+3. Make sure you have exactly one copy of RabbitFX in `Mods`. Fixed mods need it. [Add, turn off, and remove mods](/docs/wuthering-waves/getting-started/manage-mods) shows how.
+4. Follow the steps in the release notes. The fixer needs extra data files that its author provides.
+5. Run it on the broken mod's folder only.
+6. Press `F10` in game and check the Resonator.
+
+{/* NEEDS HANDS-ON TEST: on WuWa_MOD_WojuFixer v3.8.1.1, where its extra data files come from, how to point it at one mod folder, and whether it keeps a backup. The notes only say it needs asset files linked by its author. */}
+
+</Tab>
+</Tabs>
+
+Both tools were made for mods that bind textures by hash. Whether they handle a mod exported with WWMI Tools 1.9.4, with `; WWMI BETA-11 INI` as the first line of its `mod.ini`, is not known yet. Run them on a copy only.
+
+{/* NEEDS HANDS-ON TEST: the current Wuwa_Mod_Fixer and WuWa_MOD_WojuFixer releases on a mod exported by WWMI Tools 1.9.4, on WWMI 1.2.2: whether they skip it, fix it, or break it */}
+
+Run each tool once per mod, and never run both tools on the same mod. Running a tool twice, or an older version after a newer one, can break the mod for good. If that happens, restore the mod from your copy and start again.
+
+Antivirus programs sometimes flag fix tools, because they rewrite many files at once. Add an exception for that one file if you trust it. Never turn your antivirus off.
+
+</Step>
+<Step>
+
+### Still broken? Wait for the creator
+
+Some breaks no tool can fix. Mods made for the first WWMI versions, from mid 2024, must be exported again by their creator. Check the page where you got the mod for an update, and give creators a few days after a big update.
+
+To find which mod breaks things:
+
+1. Turn off half of your mods with the `DISABLED` prefix.
+2. Press `F10` and check whether the problem is still there.
+3. Keep halving the group that has the problem until one mod is left.
+
+</Step>
+</Steps>
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="A guide or video says to add lines to the game's config files" id="config-lines">
+
+Skip that step. Those guides are stale since version 3.2, and the game ignores or removes such lines. Use the launcher's WWMI settings and **LOD Bias** in the game instead.
+
+</Accordion>
+<Accordion title="Someone shared a new d3d11.dll that fixes everything" id="random-dll">
+
+Never use it. WWMI and the XXMI DLL come only through XXMI Launcher. A loader file from anywhere else can carry malware.
+
+</Accordion>
+<Accordion title="The game runs at 10 to 20 FPS after the update" id="low-fps">
+
+Open the launcher settings, then the **WWMI** tab, and set **Log File Output Verbosity** to **Disabled**. Detailed logging slows the game and fills your disk with a huge log file.
+
+{/* NEEDS HANDS-ON TEST: confirm that the WWMI tab of XXMI Launcher 2.5.0 shows Log File Output Verbosity (Disabled, Warning, Info, Debug), with Disabled as the default, in place of the older Calls Logging and Debug Logging boxes. */}
+
+</Accordion>
+<Accordion title="I use a mod manager" id="mod-manager">
+
+Some managers edit mod `.ini` files. Use the manager's restore option on a mod before you run a fix tool on it.
+
+</Accordion>
+</Accordions>
+
+If you make mods yourself, [Update your mod after a game update](/docs/wuthering-waves/publishing/update-your-mod) covers the creator side, and [Make textures survive game updates](/docs/wuthering-waves/textures/stable-textures) shows how to break less often.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Mods look broken"
+    href="/docs/wuthering-waves/errors/mods-look-broken"
+    icon={<Icon name="TriangleAlert" />}
+    level="beginner"
+  >
+    Match what you see in game to its cause and fix.
+  </PremiumCard>
+  <PremiumCard
+    title="Update fix tools"
+    href="/docs/wuthering-waves/tools/update-fixers"
+    icon={<Icon name="Wrench" />}
+    level="beginner"
+  >
+    Every fix tool for Wuthering Waves, and how to tell real ones from fakes.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **News:** [WWMI update posts](https://gamebanana.com/tools/17252) on GameBanana by SpectrumQT.
+- **Tool:** [Wuwa_Mod_Fixer](https://github.com/Moonholder/Wuwa_Mod_Fixer) by Moonholder.
+- **Tool:** [WuWa_MOD_WojuFixer](https://github.com/Woju25/WuWa_MOD_WojuFixer) by Woju.
+- **Tool:** [XXMI Launcher releases](https://github.com/SpectrumQT/XXMI-Launcher/releases) by SpectrumQT.
+- **Guide:** [Fix Broken Character Textures (RabbitFX Stable Textures)](https://gamebanana.com/tuts/20005) by JessyJames84.
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ.

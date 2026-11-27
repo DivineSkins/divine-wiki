@@ -1,0 +1,161 @@
+---
+title: "Combine mods into one merged mod"
+description: "Keep several Wuthering Waves mods for one Resonator and switch between them with a toggle or a mod manager, since no merge script is documented for WWMI."
+category: "ini"
+patch: "3.8"
+keywords:
+  [
+    "wuthering waves merged mod",
+    "merge wwmi mods",
+    "switch mods in game",
+    "ini toggles",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+Only one mod per Resonator can show at a time. A merged mod works around that: it puts several mods for one Resonator in one folder, and one key switches between them. For Wuthering Waves, no guide shows how to merge finished WWMI mods, and no merge tool has been tested. This page explains why, and the ways to switch looks that work today. Written for WWMI 1.2.2 and WWMI Tools 1.9.4.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Blender" href="/docs/wuthering-waves/tools/blender-add-on">
+    WWMI Tools, for your own mods
+  </Requirement>
+  <Requirement icon="FolderOpen">
+    Two or more mods for one Resonator, each working on its own
+  </Requirement>
+</Requirements>
+
+A Resonator is a playable character.
+
+## Why WWMI mods are hard to merge
+
+A merged file must hold the lines of every mod inside it, each behind an `if` that one key controls. That is simple for a file that only swaps buffers and textures. A WWMI `mod.ini` does much more:
+
+- It registers itself with WWMI through `CommandListRegisterMod`, and stays off until WWMI accepts it.
+- It builds its own merged skeleton every frame.
+- It runs the shape keys that move the face and shoulders.
+- In a mod exported with WWMI Tools 1.9.4, each texture is bound inside the component sections, with `ps-t[FilterTextureN] = ref ResourceTextureN`. Older exports bind textures in their own `[TextureOverrideTexture...]` sections with `this =`. A merge has to handle both layouts.
+
+[How a mod .ini works](/docs/wuthering-waves/ini/how-a-mod-ini-works) shows these sections. A merge would have to keep all of them working for every mod at once. The well-known merge script from the other XXMI games was written before WWMI existed and knows none of them. Nobody has tested it on WWMI mods, so this page does not use it.
+
+Community merge tools made for WWMI mods exist. Nobody has checked what they write, or whether they work with WWMI 1.2.2 and with mods exported by WWMI Tools 1.9.4, so they are not covered here.
+
+## Pick a way to switch looks
+
+<img
+  src="/wiki-images/wuthering-waves-ini-merged-mods-1.webp"
+  alt="Two ways to keep several looks for one Resonator: your own mod with every variant in one Blender file, exported once with Use Ini Toggles on, gives one mod.ini and one key; mods you downloaded stay in separate folders with all but one starting with DISABLED, and you switch with F10 or a mod manager"
+/>
+
+| You have                         | Do this                                                        |
+| -------------------------------- | -------------------------------------------------------------- |
+| Several versions of your own mod | Build one mod with toggles in WWMI Tools                       |
+| Several mods you downloaded      | Keep one on with `DISABLED`, or switch them with a mod manager |
+
+### Your own mods: one mod with toggles
+
+If you made the versions yourself, do not merge the exports. Put every version into one Blender file instead:
+
+1. Import the base model once.
+2. Bring the objects of each version into the same collection. Name each object for its component, like `Component 2 Coat Red` and `Component 2 Coat Blue`.
+3. In the **Ini Toggles** panel, add one var with one state per version, and put each version's objects in its state.
+4. Export once.
+
+You get one `mod.ini` that WWMI registers once, and one key that cycles the versions. [Add a toggle](/docs/wuthering-waves/ini/add-a-toggle) shows the panel step by step, and both ways to swap a texture by hand.
+
+Ini Toggles switches objects, not textures. If two versions differ only in a texture, keep one set of objects and switch the texture by hand after each export, with a variable and key you add yourself. In a WWMI Tools 1.9.4 export, replace the texture's line in each component section with a block like this:
+
+```ini
+        if $coat == 1
+            ps-t[FilterTexture0] = ref ResourceCoatBlue
+        else
+            ps-t[FilterTexture0] = ref ResourceTexture0
+        endif
+```
+
+`[ResourceCoatBlue]` is a resource you add, with `filename =` pointing at the second texture. In an export from WWMI Tools 1.8.0 or older, wrap the `this =` line in the texture's `[TextureOverrideTextureN]` section instead. Hand edits are lost when you export again with **Write Mod INI** on.
+
+{/* NEEDS HANDS-ON TEST: on WWMI 1.2.2 with XXMI DLL 1.3.3, a texture switch with if and else around ps-t[FilterTextureN] in a WWMI Tools 1.9.4 export, and around this = in TextureOverrideTextureN of a WWMI Tools 1.8.0 export */}
+
+This only works when every version uses the same base model and skeleton type. Versions made from different outfits need separate mods.
+
+### Mods you downloaded: one on at a time
+
+The plain way needs no tool:
+
+1. Keep each mod in its own folder in `Mods`.
+2. Rename all of them but one so they start with `DISABLED`, for example `DISABLED_Blue Coat`.
+3. To switch, rename two folders and press `F10` in game.
+
+[Add, turn off, and remove mods](/docs/wuthering-waves/getting-started/manage-mods) explains the `DISABLED` prefix.
+
+### Mods you downloaded: switch with a mod manager
+
+Two managers can switch looks for you. Neither is the better choice, and neither has been tested with WWMI 1.2.2 for this guide.
+
+|                | No Reload Mod Manager                                                                                              | Integrated Mod Manager                                                                 |
+| -------------- | ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
+| How you switch | Pick a mod from an overlay in game with `Alt+W`. No `F10` needed.                                                  | Turn a mod on in the app, then press `F10` in game.                                    |
+| How it works   | Groups the mods for one Resonator and edits their `.ini` files so it can switch them.                              | Keeps your mods in a library folder and links the active one into `Mods`.              |
+| Watch out      | Before you share a mod or run a fix tool on it, drag the `Mods` folder onto the **Restorer** area in its settings. | `Mods` holds only links. Back up the library folder, and keep it on an internal drive. |
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: No Reload Mod Manager 3.3.2 groups and Integrated Mod Manager 4.0.0 switches on WWMI 1.2.2, with mods exported by WWMI Tools 1.8.0 and 1.9.4, including mod registration, merged skeletons, shape keys and textures */}
+
+[Mod managers compared](/docs/wuthering-waves/tools/mod-managers) has the setup steps for both.
+
+<Callout type="warning" title="Ask before you share a combined mod">
+  Combining mods for your own game is your choice. To share a mod that contains
+  other creators' work, you need permission from each creator.
+</Callout>
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Two mods mix on one Resonator" id="two-mods-mix">
+
+Two mods for the same Resonator are on. WWMI may show no warning for this. Keep one on, rename the others so they start with `DISABLED`, and press `F10`.
+
+</Accordion>
+<Accordion title="The outfit choice resets after I switch mods" id="choice-resets">
+
+A mod that is turned off loses its saved choices after two reloads. Set the default you want in the mod's `[Constants]`, as [Change a mod's keys and saved settings](/docs/wuthering-waves/ini/change-mod-keys) shows.
+
+</Accordion>
+<Accordion title="Two copies of the same modded Resonator glitch" id="two-copies">
+
+In co-op or photo mode, the same modded Resonator can be on screen twice. WWMI's merged skeleton cannot handle that, and it will not be fixed. Turn mods off with `F6` for that moment.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Fix an old mod by hand"
+    href="/docs/wuthering-waves/ini/fix-an-old-mod"
+    icon={<Icon name="Wrench" />}
+    level="intermediate"
+  >
+    Get a mod working again before you add it to your set.
+  </PremiumCard>
+  <PremiumCard
+    title="Mods look broken"
+    href="/docs/wuthering-waves/errors/mods-look-broken"
+    icon={<Icon name="TriangleAlert" />}
+    level="beginner"
+  >
+    Match what you see in game to its cause and fix.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Tool:** [WWMI Tools](https://github.com/SpectrumQT/WWMI-Tools) by SpectrumQT, for Ini Toggles and the sections a `mod.ini` holds.
+- **Tool:** [WWMI-Package](https://github.com/SpectrumQT/WWMI-Package) by SpectrumQT, for mod registration and the two-copies limit.
+- **Tool:** [No Reload Mod Manager](https://github.com/Aglglg/No-Reload-Mod-Manager) by Aglglg.
+- **Tool:** [Integrated Mod Manager](https://github.com/jpbhatt21/integrated-mod-manager) by jpbhatt21.

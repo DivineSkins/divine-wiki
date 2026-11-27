@@ -1,0 +1,212 @@
+---
+title: "Find a hash with hunting mode"
+description: "Turn on SRMI's hunting mode in Honkai: Star Rail, step through what is on screen, and copy the hash of a mesh, vertex buffer or shader."
+category: "basics"
+patch: "4.7"
+keywords: ["srmi hunting mode", "star rail hash", "numpad 0", "enable hunting"]
+---
+
+<LevelPill level="intermediate" />
+
+Hunting mode lets you step through everything Honkai: Star Rail draws and copy its hash. Use it to check whether a mod's hash still matches after an update, to get a component's index buffer hash for a frame dump, or to find the hash behind a mesh that breaks in one animation. Written for XXMI Launcher 2.5.0 and SRMI 2.4.3.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/honkai-star-rail/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="Keyboard" note="or the Windows On-Screen Keyboard">
+    A number pad
+  </Requirement>
+  <Requirement icon="NotebookPen">A text file to paste hashes into</Requirement>
+</Requirements>
+
+If hashes are new to you, read [How Honkai: Star Rail mods work](/docs/honkai-star-rail/basics/how-mods-work) first.
+
+## Turn on hunting
+
+Hunting is off by default. Turn it on before you start the game:
+
+1. Close Honkai: Star Rail if it is running.
+2. In XXMI Launcher, click the gear at the top right.
+3. Open the **SRMI** tab.
+4. Next to **Shader Hunting**, tick **Enable Hunting**.
+5. Tick **Dump Shaders** only if you need to save shader files.
+6. Close the settings.
+
+{/* SCREENSHOT: honkai-star-rail-basics-find-a-hash-2.webp, XXMI Launcher 2.5.0 settings, SRMI tab, with Enable Hunting ticked under Shader Hunting and Dump Shaders unticked. The February 2026 community screenshot shows an older tab layout and cannot be reused. */}
+
+{/* NEEDS HANDS-ON TEST: check that the SRMI tab in XXMI Launcher 2.5.0 shows Enable Hunting and Dump Shaders under Shader Hunting, and the button that closes the settings window */}
+
+## Turn off mods for your target
+
+Rename the folder of every mod for that character so it starts with `DISABLED`, then switch characters and press `F10` in game. A mod hides the original, and you want the game's own hashes.
+
+`F6` is not enough here: it does not turn off shader and effect mods.
+
+## Hunt a hash
+
+<img
+  src="/wiki-images/honkai-star-rail-basics-find-a-hash-1.webp"
+  alt="A number pad map: 0 turns hunting on, 7 and 8 step through index buffers and 9 copies the hash, the same pattern for vertex buffers on slash, star and minus, vertex shaders on 4 to 6 and pixel shaders on 1 to 3, plus resets the lists, and Enter changes the vertex buffer slot"
+/>
+
+1. Press **Start** in XXMI Launcher.
+2. Put your target on screen. The character screen works well, because it draws few other things.
+3. Press `Numpad 0`. Green text appears at the top and the bottom of the screen.
+4. Press `Ctrl+F12` if you want the key guide on screen.
+5. Press `Numpad 8` again and again until the part you want disappears. Press `Numpad 7` to go back one.
+6. Press `Numpad 9`. The index buffer (IB) hash is now on your clipboard.
+7. Paste it into your text file right away. Write down what it is, like `Kafka Body IB`.
+8. If the overlay shows a `FirstIndex` value, note it too. That is the number a mod's `match_first_index` line uses. If it shows only `IB` and the hash, read the first index from the dump's `hash.json` instead.
+
+{/* NEEDS HANDS-ON TEST: whether the SRMI 2.4.3 hunting overlay on Honkai: Star Rail 4.7 shows IndexCount and FirstIndex next to the IB hash, or only IB and the hash as in current screenshots from other games */}
+
+A Star Rail character has three index buffers: `Hair`, `Head` (the face) and `Body`. Repeat steps 5 to 7 for each one you need.
+
+The selected item disappears because hunting hides it by default. That is how you know you have the right one.
+
+Too many items to step through? Press `Numpad +` to reset the lists. This cuts down the number of items you step through.
+
+## Which keys for which hash
+
+| You want                                | Previous   | Next       | Copy       |
+| --------------------------------------- | ---------- | ---------- | ---------- |
+| A mesh: index buffer (IB)               | `Numpad 7` | `Numpad 8` | `Numpad 9` |
+| A vertex buffer (VB)                    | `Numpad /` | `Numpad *` | `Numpad -` |
+| A pixel shader (PS): icons, UI, effects | `Numpad 1` | `Numpad 2` | `Numpad 3` |
+| A vertex shader (VS)                    | `Numpad 4` | `Numpad 5` | `Numpad 6` |
+| A compute shader (CS)                   | `.` + `1`  | `.` + `2`  | `.` + `3`  |
+
+For compute shaders, hold `Numpad .` and press the number.
+
+A draw uses several vertex buffers at once, each in a numbered slot. SRMI adds keys to pick the slot: hold `Numpad Enter` and press `Numpad /` or `Numpad *`. The VB keys then step through that slot.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check on Honkai: Star Rail that Numpad Enter with / or * changes the VB slot in SRMI 2.4.3, and which slot holds the Position, Blend and Texcoord buffers */}
+
+## Read the overlay
+
+The top line counts what you have stepped through, as selected out of total:
+
+```text
+VS:3/120 PS:7/140 CS:... IB:... VB:...
+```
+
+After you move, the selected item's hash shows. For an index buffer it can read like this, with your own numbers:
+
+```text
+IB 1a2b3c4d (IndexCount: 12345, FirstIndex: 0)
+```
+
+Some versions show only `IB 1a2b3c4d`, without the numbers in brackets.
+
+The bottom line reads `Shader Hunting Mode (marking: skip)`. `skip` means the selected item is not drawn.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check on Honkai: Star Rail 4.7 with SRMI 2.4.3 the exact overlay layout and text */}
+
+{/* SCREENSHOT: honkai-star-rail-basics-find-a-hash-3.webp, Honkai: Star Rail character screen in hunting mode, overlay counters at the top and one part hidden */}
+
+## What Star Rail creators usually hunt
+
+<Accordions type="multiple">
+<Accordion title="The index buffers, for a frame dump" id="ib-for-dump">
+
+Hunt the IB of each component you want: `Hair`, `Head` and `Body`. Paste the hashes into gui_collect to extract the character from a frame dump. The frame dump guide under Next steps shows the rest.
+
+</Accordion>
+<Accordion title="Whether a mod still matches after an update" id="check-after-update">
+
+Turn the mod off, then step through the IBs with the character on screen. If the IB hash in the mod's `.ini` never shows up, the game changed it. A Star Rail mod also uses three vertex buffer hashes per component (Blend, Texcoord and Draw), and any of them can change. The mod needs new hashes from a fix tool or its creator.
+
+</Accordion>
+<Accordion title="The hash behind a mesh that explodes in one animation" id="vertex-explosion">
+
+Some animations draw the body with a second position buffer, which has its own hash. A mod without that hash looks fine until the animation starts, then the mesh breaks into spikes. This is called a vertex explosion. Known cases include Natasha's sprint stop, Serval's sprint end, Topaz's Skill, and Hook's and Bailu's Ultimates.
+
+Fix tools add the known extra hashes for you. To find an unknown one:
+
+1. Turn the mod off and put the character on screen.
+2. Start the animation that breaks.
+3. Step through vertex buffers with `Numpad /` and `Numpad *` until the body disappears in that pose.
+4. Copy the hash with `Numpad -`.
+
+The guide this comes from was written before version 3.2. Character mods have handed their buffers to SRMI in a new way since then, and where to add the extra hash in a current mod is not documented. Ask on the [Divine Skins Discord](https://discord.gg/divineskins) before you edit.
+
+{/* NEEDS HANDS-ON TEST: whether vertex explosions still happen with SRMI 2.4.3 on Honkai: Star Rail 4.7, whether hunting with Numpad / and * catches the alternate position hash during the animation, and which section of a current XXMI Tools export takes the extra hash */}
+
+</Accordion>
+<Accordion title="A texture hash" id="texture-hash">
+
+Hunting steps through buffers and shaders, not textures. Get a texture hash another way:
+
+- From `hash.json` in the character's folder in the asset repo.
+- From gui_collect, after a frame dump: its texture picker shows each part's textures. Right-click a texture to copy its hash.
+
+The repos do not always have the newest hashes. After an update, take the hash from your own dump.
+
+</Accordion>
+<Accordion title="The shader behind an icon or effect" id="pixel-shader">
+
+Step through pixel shaders with `Numpad 1` and `Numpad 2` until the icon or effect disappears. Copy the hash with `Numpad 3`. This 16-digit hash goes in a `[ShaderOverride]` section of your mod. Some Star Rail shaders, such as the outline and hair highlight shaders, are shared by every character. A change to one of them changes every character.
+
+</Accordion>
+</Accordions>
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Numpad 0 does nothing" id="numpad-0-nothing">
+
+Check that **Enable Hunting** is ticked in the **SRMI** tab, and that you started the game after you ticked it. Check that Num Lock is on.
+
+</Accordion>
+<Accordion title="There are hundreds of items to step through" id="too-many-items">
+
+Go to the character screen, where the game draws less. Press `Numpad +` to reset the lists, then step through again.
+
+</Accordion>
+<Accordion title="My keyboard has no number pad" id="no-numpad">
+
+Use the Windows On-Screen Keyboard with its number pad turned on. Or move the hunting keys: the `[Hunting]` section of `d3dx.ini` in the `SRMI` folder lists every key and explains how to change it.
+
+{/* NEEDS HANDS-ON TEST: whether XXMI Launcher 2.5.0 keeps hunting key changes in the SRMI d3dx.ini after a restart */}
+
+</Accordion>
+</Accordions>
+
+When you finish, untick **Enable Hunting**, so `Numpad 0` cannot turn the overlay on by accident.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Make a frame dump"
+    href="/docs/honkai-star-rail/basics/frame-dump"
+    icon={<Icon name="Camera" />}
+    level="intermediate"
+  >
+    Capture one frame with F8 and turn a character into a folder Blender can
+    import.
+  </PremiumCard>
+  <PremiumCard
+    title="How a mod .ini works"
+    href="/docs/honkai-star-rail/ini/how-a-mod-ini-works"
+    icon={<Icon name="FileCode" />}
+    level="intermediate"
+  >
+    Where each hash goes in a mod's .ini file.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [3DMigoto Hunting & Dumping Tutorial](https://leotorrez.github.io/modding/guides/hunting) by Satan1c, on LeoTorreZ's modding site.
+- **Tool:** [SRMI hunting mode guide](https://github.com/SpectrumQT/SRMI-Package/blob/main/SRMI/Core/SRMI/Notifications/HuntingModeGuide.md) from [SRMI-Package](https://github.com/SpectrumQT/SRMI-Package) by SpectrumQT.
+- **Guide:** [Vertex Explosion Bugs and Fixes](https://gamebanana.com/tuts/16401) by petrascyll.
+- **Guide:** [关于星铁贴图错误的问题如何手动修复](https://gamebanana.com/tuts/18999) (manual fixes for Star Rail texture errors, in Chinese) by sora\_: hunting the three index buffers and copying texture hashes in gui_collect.

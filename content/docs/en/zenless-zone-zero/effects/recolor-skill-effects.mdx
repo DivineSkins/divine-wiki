@@ -1,0 +1,248 @@
+---
+title: "Recolor skill effects"
+description: "Change the color of your own Zenless Zone Zero agent's skill effects by editing the effect's shader, and package the edit as a normal mod."
+category: "effects"
+patch: "3.3"
+keywords:
+  [
+    "zzz effect mod",
+    "skill effect recolor",
+    "ps_replace",
+    "shaderoverride",
+    "customshader",
+  ]
+---
+
+<LevelPill level="advanced" />
+
+You will give your own agent's skill effect a new color. You find the shader that draws the effect, add one line to it, and pack it into a mod folder. You should already know hunting mode. Written for XXMI Launcher 2.5.0 and ZZMI 1.5.2.
+
+This is the shader method that 3DMigoto uses in every game. No guide was found that walks through it on Zenless Zone Zero itself, so every step here still needs a test on this game.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/zenless-zone-zero/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement
+    icon="Crosshair"
+    href="/docs/zenless-zone-zero/basics/find-a-hash"
+  >
+    Hunting mode, and how to copy a pixel shader hash
+  </Requirement>
+  <Requirement icon="NotepadPlusPlus" note="or any code editor">
+    A text editor
+  </Requirement>
+</Requirements>
+
+<Callout type="danger" title="Your agent only, and keep it readable">
+  Change only your own agent's effects. Never hide, fade or recolor enemy
+  attacks, attack warnings or fog to see more than the normal game shows. That
+  is a mod that gives an unfair advantage. Keep your new colors as easy to see
+  as the original. This page covers recoloring only.
+</Callout>
+
+<Callout type="warning" title="Hashes change">
+  Shader hashes change between game versions, so find each one again on your
+  current version. The hashes on this page are placeholders.
+</Callout>
+
+## How an effect recolor works
+
+The game draws each effect with small programs called pixel shaders. Each one ends by writing its color to `o0`. You save a copy of the shader, change `o0` right before the end, and ZZMI uses your copy in place of the game's.
+
+- One skill uses many shaders. Expect to edit several.
+- One shader is often shared by many agents, so you limit the change to your agent.
+
+## Find and edit the shader
+
+<Steps>
+<Step>
+
+### Turn on hunting and shader dumping
+
+1. Close the game.
+2. In XXMI Launcher, click the gear and open the **ZZMI** tab.
+3. Under **Shader Hunting**, tick **Enable Hunting** and **Dump Shaders**.
+4. Turn off other effect mods for this agent: rename their folders so they start with `DISABLED`.
+
+{/* NEEDS HANDS-ON TEST: that Dump Shaders in the ZZMI tab of XXMI Launcher 2.5.0 makes Numpad 3 save an HLSL file for a Zenless Zone Zero 3.3 effect shader */}
+
+</Step>
+<Step>
+
+### Put the effect on screen
+
+Use the skill in an empty spot, where few other things are drawn.
+
+{/* NEEDS HANDS-ON TEST: how to keep a Zenless Zone Zero 3.3 skill effect on screen long enough to step through pixel shaders, for example in training or by pausing */}
+
+</Step>
+<Step>
+
+### Copy the shader
+
+1. Press `Numpad 0` to turn hunting on.
+2. Press `Numpad 2` again and again until the part of the effect you want disappears. `Numpad 1` goes back one.
+3. Press `Numpad 3`. This copies the hash and saves the shader as `<hash>-ps_replace.txt` in the `ShaderFixes` folder, next to your `Mods` folder.
+4. Note the 16-digit hash and what it draws, like `skill slash trail`.
+
+</Step>
+<Step>
+
+### Change the color
+
+Open the new file. Find the last `return;` in `main`, and add one line right above it:
+
+| Line                                    | Result                                                     |
+| --------------------------------------- | ---------------------------------------------------------- |
+| `o0.xz = o0.zx;`                        | Swaps red and blue. Orange turns blue and keeps its detail |
+| `o0.xyz = float3(1,0,1);`               | One flat color, here purple. Detail is lost                |
+| `if (o0.z > o0.y) { o0.xyz = o0.yzx; }` | Changes only one color in a shared shader                  |
+
+If the file holds assembly code instead of lines with `o0` and `return;`, this method does not work for that shader.
+
+</Step>
+<Step>
+
+### Reload and check
+
+1. Press `F10`.
+2. Press `Numpad +` to reset the hunting lists.
+3. Use the skill again. The part you edited has the new color.
+
+{/* NEEDS HANDS-ON TEST: whether F10 reloads an edited -ps_replace.txt with ZZMI 1.5.2 on Zenless Zone Zero 3.3 */}
+
+</Step>
+<Step>
+
+### Repeat for every part
+
+Hunt and edit each shader of the effect until the whole skill has the new color.
+
+</Step>
+</Steps>
+
+## Pack it as a mod
+
+`ShaderFixes` also holds files that ZZMI ships. A loose file of yours there changes every agent that uses that shader, and you cannot turn it off per mod. Never ship a `ShaderFixes` folder. Move your edits into a normal mod folder instead.
+
+1. Make a mod folder, like `Mods\EllenSkillRecolor`, with a `Shaders` folder inside.
+2. Move your edited `-ps_replace.txt` files from `ShaderFixes` into `Shaders`. Keep their names.
+3. Make `EllenSkillRecolor.ini` with one pair of sections per shader:
+
+```ini
+[ShaderOverrideSkillTrail]
+hash = aaaaaaaaaaaaaaaa
+allow_duplicate_hash = true
+run = CustomShaderSkillTrail
+
+[CustomShaderSkillTrail]
+ps = ./Shaders/aaaaaaaaaaaaaaaa-ps_replace.txt
+handling = skip
+draw = from_caller
+```
+
+- `handling = skip` stops the game's own draw.
+- `draw = from_caller` draws it again with your edited shader.
+- `allow_duplicate_hash = true` lets another mod use the same shader without a warning.
+
+{/* NEEDS HANDS-ON TEST: the ShaderOverride and CustomShader pattern with a relative ps = path under XXMI DLL 1.3.2 with ZZMI 1.5.2, and two mods with allow_duplicate_hash on one shader */}
+
+4. Press `F10` and check the effect.
+
+<Files>
+  <Folder name="Mods" defaultOpen>
+    <Folder name="EllenSkillRecolor" defaultOpen>
+      <File name="EllenSkillRecolor.ini" />
+      <Folder name="Shaders" defaultOpen>
+        <File name="aaaaaaaaaaaaaaaa-ps_replace.txt" />
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+
+## Limit it to your agent
+
+Run your shader only while your agent is on screen. Set a flag from the agent's Blend hash, the `blend_vb` value in the asset repo's `hash.json` or your own dump. Do not use the Position hash: some agents share one, so the flag would also turn on for another agent.
+
+```ini
+[Constants]
+global $ellen = 0
+
+[Present]
+post $ellen = 0
+
+[TextureOverrideEllenBlendFlag]
+hash = bbbbbbbb
+match_priority = 1
+$ellen = 1
+
+[ShaderOverrideSkillTrail]
+hash = aaaaaaaaaaaaaaaa
+allow_duplicate_hash = true
+if $ellen == 1
+	run = CustomShaderSkillTrail
+endif
+```
+
+- `match_priority = 1` keeps this section from clashing with a model mod for the same agent.
+- While the flag is `0`, the game draws its own effect.
+
+{/* NEEDS HANDS-ON TEST: a Blend-hash flag gating a CustomShader run in a ShaderOverride on Zenless Zone Zero 3.3, during skills, and whether the agent stays drawn during every part of a skill */}
+
+[How a mod .ini works](/docs/zenless-zone-zero/ini/how-a-mod-ini-works) explains the Blend hash and `match_priority`.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Effects or other mods broke after I edited shaders" id="shaderfixes-broke">
+
+Remove the files you added to `ShaderFixes`. Do not empty the folder: ZZMI ships its own files there. Then run **Repair ZZMI** from the three-dots menu next to **Start** in XXMI Launcher.
+
+</Accordion>
+<Accordion title="Every agent's effect changed color" id="every-agent">
+
+The shader is shared, and your mod runs it all the time. Add the agent flag from [Limit it to your agent](#limit-it-to-your-agent).
+
+</Accordion>
+<Accordion title="My edit stopped working after a game update" id="after-update">
+
+The game changed the shader, so its hash changed. Hunt the effect again and copy the new file. Then copy your color line into it.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Add glow and see-through parts"
+    href="/docs/zenless-zone-zero/effects/glow-and-transparency"
+    icon={<Icon name="Sparkles" />}
+    level="intermediate"
+  >
+    Change your agent's glow and draw lenses see-through.
+  </PremiumCard>
+  <PremiumCard
+    title="Sliders, animated textures, and help text"
+    href="/docs/zenless-zone-zero/ini/advanced-tricks"
+    icon={<Icon name="SlidersHorizontal" />}
+    level="advanced"
+  >
+    Drive your shader with a slider key.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** 3DMigoto GIMI Effect and Shader Tutorial (2023) by SilentNightSound, for the shader method.
+- **Guide:** Shader Effect Modding Techniques (2023) by complex31, for the color lines.
+- **Discord:** the ShaderFixes to mod folder pattern by [SinsOfSeven](https://discord.com/users/178340582991724545) in the [AGMG Discord](https://discord.gg/agmg).
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ and contributors, for why the Blend hash is unique to one agent.

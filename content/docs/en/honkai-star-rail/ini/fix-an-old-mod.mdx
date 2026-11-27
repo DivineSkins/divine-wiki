@@ -1,0 +1,297 @@
+---
+title: "Fix an old mod by hand"
+description: "Update an old Honkai: Star Rail mod's .ini by hand when no fix tool handles it: the first 3.2 format, changed hashes, and what needs a new export."
+category: "ini"
+patch: "4.7"
+keywords:
+  [
+    "fix old star rail mod",
+    "star rail mod broken",
+    "vertex_count",
+    "pipeline convert fix",
+    "star rail 3.2 fix",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+Fix tools repair most old mods. When they cannot, for example on merged mods, mods with many toggles, or mods someone already edited, you can fix the `.ini` yourself. This page covers the breaks that a text editor can fix, and the ones that need a tool or a new export. Written for SRMI 2.4.3 on version 4.7.
+
+<Accordions>
+<Accordion title="Coming from another game?">
+
+Each game broke its mods in its own way, so the fixes differ.
+
+- **Honkai: Star Rail:** the big break is 3.2 (April 2025). Posing moved to compute shaders, so the Blend section changed. Textures bind by hash with `this =`. There is no ORFix, no SlotFix, and no library to add to each part.
+- **Genshin Impact:** the big break is 6.1, fixed with ORFix or NNFix lines per part. None of that applies here.
+- **Zenless Zone Zero:** textures bind through SlotFix. That does not exist here either.
+- **Wuthering Waves:** old mods usually need a new export from WWMI Tools. In Star Rail, a new export from XXMI Tools is also the cleanest fix for very old mods.
+
+Other game sections: [Genshin Impact](/docs/genshin-impact), [Zenless Zone Zero](/docs/zenless-zone-zero), [Wuthering Waves](/docs/wuthering-waves).
+
+</Accordion>
+</Accordions>
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/honkai-star-rail/tools/xxmi-launcher"
+    note="SRMI up to date"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="NotepadPlusPlus" note="or any editor that saves UTF-8">
+    A text editor
+  </Requirement>
+  <Requirement icon="Archive">A backup copy of the mod</Requirement>
+</Requirements>
+
+If the layout of a mod `.ini` is new to you, read [How a mod .ini works](/docs/honkai-star-rail/ini/how-a-mod-ini-works) first.
+
+## Try the fix tools first
+
+Two things fix many "broken" mods with no edit at all: let XXMI Launcher update SRMI, and set **Character Quality** to **High** in the game's graphics settings. [Fix your mods after a game update](/docs/honkai-star-rail/getting-started/fix-mods-after-an-update) covers that. [Update fix tools](/docs/honkai-star-rail/tools/update-fixers) covers Another v3.3 HSR Fix, the Pipeline Convert Fix and the per-character scripts.
+
+Fix by hand when:
+
+- the tool cannot read the mod: merged mods, mods with many toggles, or mods with several `.ini` files;
+- the mod was already edited by hand or by another script, which the fix tools do not handle;
+- the tool fixed most of it, but one part still looks wrong;
+- you want to know what the tool changed.
+
+## Find what the mod needs
+
+| What you see                                                                                        | Why                                                                                                                 | Fix                                                                |
+| --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| The character is stretched spikes or looks unmodded, and the mod is from before April 2025          | Made before version 3.2, when posing moved to compute shaders                                                       | Another v3.3 HSR Fix on a fresh copy, or a new export. Not by hand |
+| Glitches when two copies of the model are on screen: Acheron's skill, The Herta's ultimate, Tribbie | The first 3.2 format, with `DrawCS` or `$\SRMI\vertcount` lines                                                     | Convert the Blend section                                          |
+| The mod blinks, or parts vanish at random                                                           | The vertex count is too low                                                                                         | Set the vertex count                                               |
+| Wrong textures on low settings or in new maps, small black blocks, a stray starry effect            | Textures bound to slots with `ps-t` lines                                                                           | Move textures to hash sections                                     |
+| The character looks unmodded after a 4.x update                                                     | The game changed the character's hashes: Caelus (4.0), Stelle (4.2), Sparxie (4.4), Robin's Summeretto outfit (4.6) | Run that character's script, or replace the hashes                 |
+| Broken only on Intel graphics                                                                       | The mod has no `DRAW_TYPE == 1` branch                                                                              | A new export with current XXMI Tools                               |
+
+A mod from before 3.2 needs more than text edits. The v3.3 fix also rewrites the mod's buffer files, which a text editor cannot do. Run the tool on a fresh, unfixed copy, then come back here for anything it missed.
+
+## Fix it by hand
+
+<Steps>
+<Step>
+
+### Back up and turn on warnings
+
+1. Copy the mod's folder to a place outside `Mods`.
+2. In XXMI Launcher, open the settings, go to the **SRMI** tab and untick **Mute Warnings**. Now `F10` shows errors in game.
+3. Open the mod's `.ini` in your text editor.
+
+</Step>
+<Step>
+
+### Convert the first 3.2 format
+
+Do this if the file contains `DrawCS`, `Resource\SRMI\DrawBuffer`, `$\SRMI\vertcount` or `$_blend_`. Mods made in April and May 2025 use that format. It glitches when the same model is on screen twice.
+
+The Pipeline Convert Fix does this for you. To do it by hand:
+
+1. Delete the lines with `DrawCS` or `Resource\SRMI\DrawBuffer`, and the `$_blend_` lines.
+2. Rename `$\SRMI\vertcount` to `$\SRMI\vertex_count`.
+3. Add `uav_byte_stride = 4` to each `[TextureOverride...Draw]` section.
+4. Compare each Blend section with the current form below. Keep your own hashes and resource names.
+
+```ini
+[TextureOverrideKafkaBodyBlend]
+hash = bbbbbbbb
+handling = skip
+vb2 = ResourceKafkaBodyBlend
+if DRAW_TYPE == 1
+    vb0 = ResourceKafkaBodyPosition
+    draw = 23263, 0
+elif DRAW_TYPE == 8
+    Resource\SRMI\PositionBuffer = ref ResourceKafkaBodyPositionCS
+    Resource\SRMI\BlendBuffer = ref ResourceKafkaBodyBlendCS
+    $\SRMI\vertex_count = 23263
+endif
+```
+
+The `...PositionCS` and `...BlendCS` resources load the same `.buf` files as `type = StructuredBuffer`. If they are missing, copy their form from How a mod .ini works. The full manual steps are in the [Converting HSR Mod Pipeline](https://github.com/Seris0/Gustav0/wiki/Converting-HSR-Mod-Pipeline) guide by Gustav0.
+
+Keep both `DRAW_TYPE` branches. Intel GPUs reportedly draw through `DRAW_TYPE == 1`.
+
+{/* NEEDS HANDS-ON TEST: convert one mod in the first 3.2 format by hand with these four edits and compare it with the Pipeline Convert Fix output on SRMI 2.4.3 */}
+
+</Step>
+<Step>
+
+### Set the vertex count
+
+Every mesh (Hair, Head, Body) has its own count. It goes in three lines: `draw = N, 0`, `$\SRMI\vertex_count = N` and `override_vertex_count = N`.
+
+<img
+  src="/wiki-images/honkai-star-rail-ini-fix-an-old-mod-1.webp"
+  alt="Four steps: right-click KafkaBodyPosition.buf and open Properties, read Size in bytes such as 930,520 and not Size on disk, divide by the stride of the Position resource, usually 40, to get 23263, and write that number in draw, $\SRMI\vertex_count and override_vertex_count"
+/>
+
+1. Right-click the mesh's Position `.buf` file and choose **Properties**.
+2. Read **Size** in bytes. Do not use **Size on disk**.
+3. Divide it by the `stride` in that mesh's `[Resource...Position]` section. That is usually `40`.
+4. Write the result in all three lines.
+
+Keep `override_byte_stride = 40` and `uav_byte_stride = 4` in the Draw section. A count that is too low makes the mod blink.
+
+</Step>
+<Step>
+
+### Move textures to hash sections
+
+Do this if a part section has texture slot lines like these:
+
+```ini
+[TextureOverrideKafkaBodyA]
+hash = eeeeeeee
+match_first_index = 0
+ib = ResourceKafkaBodyAIB
+ps-t2 = ResourceKafkaBodyADiffuse
+ps-t3 = ResourceKafkaBodyALightMap
+```
+
+Star Rail moves textures between slots on low settings, in new maps and after some updates. A slot line then puts your texture in the wrong place.
+
+1. Find each texture's hash. Each character folder in the asset repo has a `hash.json` (see the next step), or use the texture picker in gui_collect after a [frame dump](/docs/honkai-star-rail/basics/frame-dump).
+2. Delete the `ps-t` lines from the part section.
+3. Add one section per texture, with the game's texture hash and your resource:
+
+   ```ini
+   [TextureOverrideKafkaBodyADiffuse]
+   hash = ffffffff
+   this = ResourceKafkaBodyADiffuse
+
+   [TextureOverrideKafkaBodyALightMap]
+   hash = gggggggg
+   this = ResourceKafkaBodyALightMap
+   ```
+
+4. For a `StockingMap` or `MaterialMap`, also add these lines under the part's `ib =` line, so SRMI checks the higher slots:
+
+   ```ini
+   checktextureoverride = ps-t6
+   checktextureoverride = ps-t7
+   checktextureoverride = ps-t8
+   checktextureoverride = ps-t9
+   ```
+
+{/* NEEDS HANDS-ON TEST: moving ps-t2 and ps-t3 lines to texture hash sections, and the checktextureoverride = ps-t6 to ps-t9 lines for a StockingMap, on Honkai: Star Rail 4.7 with SRMI 2.4.3 at low and high graphics settings */}
+
+To keep textures working when the game changes their hashes, use [stable textures](/docs/honkai-star-rail/textures/stable-textures) with RabbitFX instead.
+
+</Step>
+<Step>
+
+### Replace changed hashes
+
+Do this only if the character still looks unmodded with **Character Quality** on **High**. First try the character's script from sora\_'s 4.x fixes. By hand:
+
+1. Get the new hashes. Each character folder in [SR-Model-Importer-Assets](https://github.com/SilentNightSound/SR-Model-Importer-Assets) has a `hash.json`. That repo stops at version 3.8. Characters and outfits from 4.0 on are in the fork [Astute4533/SR-Model-Importer-Assets](https://github.com/Astute4533/SR-Model-Importer-Assets). Download only the one folder you need. For anything else, [find the hashes in hunting mode](/docs/honkai-star-rail/basics/find-a-hash).
+2. Replace each old hash in the `.ini` with the new one. Use your editor's search and replace.
+3. Check that the `match_first_index` values still match the new dump.
+
+One community fix for Caelus mods after 4.0 swaps two hashes:
+
+| Old hash   | New hash   |
+| ---------- | ---------- |
+| `EB5F767F` | `94AFB81f` |
+| `BBE18882` | `AA797C8E` |
+
+{/* NEEDS HANDS-ON TEST: the two Caelus hash swaps on a pre-4.0 Caelus mod in Honkai: Star Rail 4.7 */}
+
+</Step>
+<Step>
+
+### In a merged mod, edit the command lists
+
+In a merged mod, each `[TextureOverride...]` section only runs a command list. Make your edits inside the matching `[CommandList...]` block, in the `if $swapvar == N` branch of the mod you are fixing. [Combine mods into one merged mod](/docs/honkai-star-rail/ini/merged-mods) explains the layout.
+
+</Step>
+<Step>
+
+### Test
+
+1. Save the file as UTF-8.
+2. In game, switch to another character, then press `F10`.
+3. Switch back. Read any warning text, fix the line it names, and reload.
+4. Check the character in the overworld, in battle and on the character screen. Hold `F9` to compare with the original.
+5. Check a scene with two copies of the model, such as Acheron's skill, if your character has one.
+6. Set the graphics to low once and check the textures again.
+
+</Step>
+</Steps>
+
+## Explosions in one animation
+
+Older mods sometimes explode in one pose only, like a sprint stop or one ultimate. That animation used a second position hash. The fix in old mods was a copy of the `[TextureOverride...Position]` section, with a new name and the second hash. The fix tools add the known extra hashes for you.
+
+Mods in the current format have no separate Position section for characters, so this applies mainly to mods from before 3.2.
+
+{/* NEEDS HANDS-ON TEST: whether alternate position hashes still cause vertex explosions with the compute shader posing used since 3.2, on SRMI 2.4.3 */}
+
+## When a new export beats hand edits
+
+If you made the mod, or you have its `.blend` file, export it again with XXMI Tools 1.8.2 and the **Honkai Star Rail** preset. Every part then comes out in the current form: both `DRAW_TYPE` branches, textures bound by hash, and the right vertex counts. Creators updating their own mod for others can follow [Update your mod after a game update](/docs/honkai-star-rail/publishing/update-your-mod).
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Every character is a floating head" id="floating-heads">
+
+The mod is in the 3.2 format, but SRMI is older than 2.0.0. Update XXMI Launcher. If the load banner still shows an old version, click the 3-dots button next to **Start** and run **Repair SRMI**.
+
+</Accordion>
+<Accordion title="Still blinking after I set the vertex count" id="still-blinking">
+
+- Check that you used **Size**, not **Size on disk**.
+- Check that each mesh uses its own Position file. Hair, Head and Body have different counts.
+- Check that all three lines in that mesh's sections have the same number.
+
+</Accordion>
+<Accordion title="Textures are still wrong on low settings" id="textures-still-wrong">
+
+A `ps-t` line is left in a part section, or a `StockingMap` or `MaterialMap` has no `checktextureoverride` lines. Search the file for `ps-t`.
+
+</Accordion>
+<Accordion title="A Mortenax Blade mod turns into spaghetti now and then" id="mortenax">
+
+This is a known problem with no fix as of June 2026. Pressing `F10` does not help. Restart the game.
+
+</Accordion>
+<Accordion title="Only this character looks scrambled" id="one-character-scrambled">
+
+Another mod for the same character is loaded. Keep one mod per character.
+
+</Accordion>
+</Accordions>
+
+More symptoms and their fixes are on [Mods look broken](/docs/honkai-star-rail/errors/mods-look-broken).
+
+## Next steps
+
+<PremiumCard
+  title="Add a toggle"
+  href="/docs/honkai-star-rail/ini/add-a-toggle"
+  icon={<Icon name="ToggleRight" />}
+  level="intermediate"
+>
+  Once the mod works again, add keys that hide parts or swap textures.
+</PremiumCard>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **News:** [3.2 Star Rail Announcement (Modpocalypse)](https://gamebanana.com/news/21904) by SilentNightSound.
+- **Tool:** [Pipeline Convert Fix](https://gamebanana.com/tools/19978) by Gustav0\_ and petrascyll, with its [manual conversion guide](https://github.com/Seris0/Gustav0/wiki/Converting-HSR-Mod-Pipeline), for the format change and the vertex count rule.
+- **Tool:** [Another v3.3 HSR Fix](https://gamebanana.com/tools/19559) by petrascyll and its key authors.
+- **Guide:** [关于星铁贴图错误的问题如何手动修复 (manual fix for Star Rail texture errors)](https://gamebanana.com/tuts/18999) by sora\_, for texture slots and the higher-slot lines.
+- **Tool:** [4.6 Fix Characters Mods](https://gamebanana.com/mods/671436) by sora\_.
+- **Guide:** [To Fix Caelus Mod 4.x](https://gamebanana.com/tuts/20090) by XiLai.
+- **Guide:** [Vertex Explosion Bugs and Fixes](https://gamebanana.com/tuts/16401) by petrascyll.
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ and contributors.

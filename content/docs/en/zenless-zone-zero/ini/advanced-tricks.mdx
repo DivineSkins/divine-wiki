@@ -1,0 +1,303 @@
+---
+title: "Sliders, animated textures, and help text"
+description: "Add on-screen help text, a slider key and a texture that animates over time to your own Zenless Zone Zero mod with a few hand-written .ini lines."
+category: "ini"
+patch: "3.3"
+keywords:
+  [
+    "zzz mod help text",
+    "zzmi printtext",
+    "animated texture",
+    "zzz slider",
+    "ttlib alpha",
+  ]
+---
+
+<LevelPill level="advanced" />
+
+These tricks build on toggles. You will show help text on screen, add a slider key, and make a texture animate. You need your own mod with a working toggle. Written for ZZMI 1.5.2 and XXMI Tools 1.8.2.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="FileCode" href="/docs/zenless-zone-zero/ini/add-a-toggle">
+    Your own mod with a working toggle
+  </Requirement>
+  <Requirement icon="NotepadPlusPlus" note="or any editor that saves UTF-8">
+    A text editor
+  </Requirement>
+</Requirements>
+
+Every example uses `$active`, the "agent on screen" flag. XXMI Tools writes it only when you fill in a credit name: [Add a toggle](/docs/zenless-zone-zero/ini/add-a-toggle) shows how to add it by hand. Keep a backup of your `.ini` before you start: a new export with **Write ini** on replaces your edits.
+
+## Show help text on screen
+
+### The credit pop-up
+
+Fill in the **Credit** field when you export with XXMI Tools. The mod then shows `Created by` and your name once, when the agent first appears. You write no lines yourself.
+
+### Your own help box
+
+ZZMI 1.5.2 has a text API in the `ZZMIv1` namespace. It draws any text you give it in a box. This example shows the box while a key is on.
+
+<Steps>
+<Step>
+
+### Add the text and the box settings
+
+Add two resources at the end of the `.ini`:
+
+```ini
+[ResourceHelpText]
+type = Buffer
+data = "Ctrl+Up: bow on or off   Ctrl+Right: next hair"
+
+[ResourceHelpParams]
+type = StructuredBuffer
+array = 1
+data = R32_FLOAT -0.25 +0.15 +0.25 -0.05 1.00 1.00 1.00 1.00 0.00 0.00 0.00 0.95 0.02 0.05 2 1 1 1.0
+```
+
+For longer text, load it from a file instead:
+
+```ini
+[ResourceHelpText]
+type = buffer
+format = R8_UINT
+filename = Help.txt
+```
+
+</Step>
+<Step>
+
+### Add a key that shows the box
+
+```ini
+[Constants]
+global $help = 0
+
+[KeyHelp]
+key = CTRL NO_SHIFT NO_ALT VK_DOWN
+condition = $active == 1
+type = cycle
+$help = 0,1
+```
+
+Put the `global` line in the `[Constants]` section you already have. Do not make a second one.
+
+</Step>
+<Step>
+
+### Draw the box every frame
+
+Add `run = CommandListHelp` to your existing `[Present]` section, then add the command list:
+
+```ini
+[Present]
+post $active = 0
+run = CommandListHelp
+
+[CommandListHelp]
+if $help == 1 && $active == 1
+	Resource\ZZMIv1\Text = ref ResourceHelpText
+	Resource\ZZMIv1\TextParams = ref ResourceHelpParams
+	run = CommandList\ZZMIv1\PrintText
+endif
+```
+
+Your `[Present]` section may already have other lines, like `run = CommandListCreditInfo`. Keep them.
+
+</Step>
+<Step>
+
+### Test it
+
+Save, switch to another agent, press `F10`, switch back and press `Ctrl+Down`.
+
+</Step>
+</Steps>
+
+{/* NEEDS HANDS-ON TEST: CommandList\ZZMIv1\PrintText run from a command list in [Present] with ZZMI 1.5.2, and whether a Help.txt with several lines prints each line. The lines follow the usage comment in ZZMI's main.ini. */}
+
+The 18 numbers in `ResourceHelpParams` set the box, in this order. The comments in ZZMI's `main.ini` explain them:
+
+| Numbers | What they set                                                                      |
+| ------- | ---------------------------------------------------------------------------------- |
+| 1 to 4  | The box corners x1, y1, x2, y2, each from `-1` to `+1`                             |
+| 5 to 8  | Text color as red, green, blue, alpha, from `0` to `1`                             |
+| 9 to 12 | Background color, the same way                                                     |
+| 13, 14  | Border, across and down                                                            |
+| 15, 16  | Anchor across and down: `0` none, `1` left or top, `2` center, `3` right or bottom |
+| 17      | Text alignment: `0` left, `1` center, `2` right                                    |
+| 18      | Font scale                                                                         |
+
+Many players dislike pop-ups. Keep help text behind a key, never on all the time.
+
+## Add a slider
+
+A slider changes a value a little every frame while you hold a key. This one stores a strength from `0` to `1`:
+
+```ini
+[Constants]
+global persist $strength = 1.0
+global $held_up = 0
+global $held_down = 0
+
+[KeyStrengthDown]
+key = ALT NO_CTRL NO_SHIFT VK_LEFT
+condition = $active == 1
+type = hold
+$held_down = 1
+
+[KeyStrengthUp]
+key = ALT NO_CTRL NO_SHIFT VK_RIGHT
+condition = $active == 1
+type = hold
+$held_up = 1
+
+[Present]
+post $active = 0
+if $held_up
+	run = CommandListStrengthUp
+else if $held_down
+	run = CommandListStrengthDown
+endif
+
+[CommandListStrengthUp]
+if $strength < 1.0
+	$strength = $strength + 0.01
+else
+	$strength = 1.0
+endif
+
+[CommandListStrengthDown]
+if $strength > 0.0
+	$strength = $strength - 0.01
+else
+	$strength = 0.0
+endif
+```
+
+- `type = hold` sets the value only while the key is down. On release it goes back to `0`.
+- Merge these lines into your existing `[Constants]` and `[Present]` sections.
+
+### Use the value
+
+A value does nothing until something reads it. In this game, TTLib can read it: it draws a piece see-through, and `$\TTL\alpha` sets how solid the piece is, from `0` (invisible) to `1` (solid). Set it from your slider in place of the fixed number:
+
+```ini
+$\TTL\_1 = 2310
+$\TTL\_2 = 41532
+$\TTL\alpha = $strength
+run = CommandList\TTL\Draw
+```
+
+The two index numbers come from the piece's own `drawindexed` line. [Add glow and see-through parts](/docs/zenless-zone-zero/effects/glow-and-transparency) sets up the TTLib lines step by step.
+
+{/* NEEDS HANDS-ON TEST: $\TTL\alpha set from a persist slider variable in a part section, with TTLib 2.3.0 in ZZMI 1.5.2 on Zenless Zone Zero 3.3 */}
+
+An edited shader can read the value too, through an IniParam: write `x88 = $strength` in the section that runs the shader, and read `IniParams[88].x` in the shader. IniParams are shared by every mod, so pick one no other mod uses. [Recolor skill effects](/docs/zenless-zone-zero/effects/recolor-skill-effects) shows where an edited shader lives in your mod.
+
+{/* NEEDS HANDS-ON TEST: x88 set from a persist slider variable and read as IniParams[88].x in an edited Zenless Zone Zero shader, with ZZMI 1.5.2 */}
+
+The value steps once per frame, so the slider moves faster at a higher frame rate. For fixed steps, use a cycle key instead, like `$strength = 0.25,0.5,0.75,1.0`.
+
+## Animate a texture
+
+### Swap frames over time
+
+`time` holds the seconds since the game started. `time % 1.0` counts from `0` to `1` once every second, so it can pick a frame:
+
+<img
+  src="/wiki-images/zenless-zone-zero-ini-advanced-tricks-1.webp"
+  alt="A timeline: time modulo 1.0 runs from 0 to 1 every second, and each quarter second picks the next of four frames, from if time % 1.0 below 0.25 for frame 0 to else for frame 3, then repeats"
+/>
+
+1. Save each frame as its own `.dds`, in the same format and size as the original diffuse.
+2. Add one resource per frame, like `[ResourceEllenBodyAFrame0]` with `filename = EllenBodyAFrame0.dds`.
+3. In the part section, replace the `Resource\ZZMI\Diffuse` line with this block. Keep `run = CommandList\ZZMI\SetTextures` after the `endif`:
+
+```ini
+if time % 1.0 < 0.25
+	Resource\ZZMI\Diffuse = ref ResourceEllenBodyAFrame0
+else if time % 1.0 < 0.5
+	Resource\ZZMI\Diffuse = ref ResourceEllenBodyAFrame1
+else if time % 1.0 < 0.75
+	Resource\ZZMI\Diffuse = ref ResourceEllenBodyAFrame2
+else
+	Resource\ZZMI\Diffuse = ref ResourceEllenBodyAFrame3
+endif
+run = CommandList\ZZMI\SetTextures
+```
+
+For a slower loop, use `time % 2.0` and twice the limits. A texture-only mod has the same `Resource\ZZMI\Diffuse` line in its part section: wrap it the same way.
+
+{/* NEEDS HANDS-ON TEST: a time-based frame swap through Resource\ZZMI\Diffuse and SetTextures with ZZMI 1.5.2. No tested mod with exactly this layout was found. */}
+
+Every frame is a full texture in video memory. Keep the frame count low and the textures no larger than the original.
+
+Some creators pack every frame into one Texture2DArray file, read by a custom shader. No guide shows that for Zenless Zone Zero yet, so this page does not cover it.
+
+## Switch an outfit by itself
+
+A mod can change an agent's look when the agent's HP is low, with no key. ZZMI ships an HP library for this. The "Toggles that switch by themselves" part of Add a toggle has the two lines it needs.
+
+Use it only to change how your agent looks. Never show HP or damage numbers on screen: that is a mod that gives an unfair advantage.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The help box never shows" id="help-not-showing">
+
+- Check that `[Present]` has `run = CommandListHelp`.
+- Check that the key's `condition` uses `$active` and that the agent is on screen.
+- Turn off **Mute Warnings** in the **ZZMI** tab of XXMI Launcher and read the text after `F10`. `Unrecognised entry` often means a misspelt resource name.
+
+</Accordion>
+<Accordion title="The slider or effect changes when another mod is on" id="iniparam-clash">
+
+IniParams are shared by every mod. Two mods that both write `x88` change each other's value. Move your mod to a slot no other mod uses, in the `.ini` and in the shader.
+
+</Accordion>
+<Accordion title="The see-through piece does not react to the slider" id="ttl-slider">
+
+Check that the `$\TTL\alpha = $strength` line sits before `run = CommandList\TTL\Draw`, and that `$strength` is declared in `[Constants]`.
+
+</Accordion>
+<Accordion title="The game stutters or runs out of video memory" id="vram">
+
+Each animation frame is a full texture. Use fewer frames, or smaller ones.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title=".ini reference"
+    href="/docs/zenless-zone-zero/ini/ini-reference"
+    icon={<Icon name="BookOpen" />}
+    level="advanced"
+  >
+    Every section, key type, library line and warning in one place.
+  </PremiumCard>
+  <PremiumCard
+    title="Combine mods into one merged mod"
+    href="/docs/zenless-zone-zero/ini/merged-mods"
+    icon={<Icon name="Layers" />}
+    level="intermediate"
+  >
+    Switch between whole mods for one agent with one key.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Toggle Guide](https://gamebanana.com/tuts/18971) by gdsfdg, for the hold-key slider.
+- **Tool:** [ZZMI `main.ini`](https://github.com/leotorrez/ZZMI-Package/blob/main/ZZMI/Core/ZZMI/main.ini) by leotorrez, for the text API and its settings.
+- **Tool:** [TTLib](https://github.com/leotorrez/ZZMI-Package/tree/main/ZZMI/Core/ZZMI/Libraries/TTLib) by Rayvich, in ZZMI-Package.
+- **Tool:** [XXMI Tools Zenless Zone Zero template](https://github.com/leotorrez/XXMITools/blob/main/templates/Zenless%20Zone%20Zero.ini.j2) by leotorrez, for the credit pop-up.
+- **Guide:** [3dmigoto INI File Documentation](https://leotorrez.github.io/modding/docs/) by leotorrez and the community, for `time` and key types.

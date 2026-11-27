@@ -1,0 +1,218 @@
+---
+title: "Your first model edit: remove a part"
+description: "Make your first Zenless Zone Zero model mod: remove Yanagi's glasses in Blender, export the mod with XXMI Tools, and see her without them in game."
+category: "models"
+patch: "3.3"
+keywords:
+  [
+    "zzz model mod",
+    "remove part mod",
+    "yanagi glasses",
+    "xxmi tools",
+    "first blender mod",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+In this guide you make your first model mod: Yanagi without her glasses. You empty the glasses in Blender, export the mod, and load it in game. The same steps remove any piece from any agent. Written for XXMI Tools 1.8.2 on Blender 4.5 LTS and ZZMI 1.5.2.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="Box"
+    href="/docs/zenless-zone-zero/tools/blender-add-on"
+    note="Blender 4.5 LTS"
+  >
+    XXMI Tools
+  </Requirement>
+  <Requirement
+    icon="GitHub"
+    href="https://github.com/leotorrez/ZZ-Model-Importer-Assets"
+    note="PlayerCharacterData/Yanagi"
+  >
+    The Yanagi folder
+  </Requirement>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/zenless-zone-zero/tools/xxmi-launcher"
+    note="with ZZMI"
+  >
+    XXMI Launcher
+  </Requirement>
+</Requirements>
+
+This guide uses the steps from [Get a model into Blender](/docs/zenless-zone-zero/models/import-into-blender) and [Export your mod from Blender](/docs/zenless-zone-zero/models/export-your-mod) in short form. You can start here and open those pages when you want the details.
+
+## The plan
+
+1. Import Yanagi into Blender.
+2. Delete every vertex of her glasses, but keep the glasses object.
+3. Export the mod into your `Mods` folder.
+4. Reload in game and look.
+
+Yanagi's glasses are their own component in the asset repo, so they sit in their own object: `YanagiGlassesA`. You empty that object. The object itself must stay: export finds each part by its object.
+
+<img
+  src="/wiki-images/zenless-zone-zero-models-remove-a-part-1.webp"
+  alt="Four steps: pick the object YanagiGlassesA in the Outliner, press Tab, A and X and choose Vertices, the empty object stays with its name and 3DMigoto properties, then export and press F10 to see Yanagi without glasses"
+/>
+
+## Make the mod
+
+<Steps>
+<Step>
+
+### Import Yanagi
+
+1. Download the `Yanagi` folder from `PlayerCharacterData` in the asset repo. Do not rename it.
+2. Open Blender, select everything in the empty scene with `A`, and delete it with `X`.
+3. Open <MenuPath path="File > Import > XXMI Dump(vb.txt + ib.txt)" />.
+4. Go into the `Yanagi` folder and select every file shown.
+5. Leave **Simple mode** ticked, set **Game preset** to `Zenless Zone Zero`, and import.
+6. Save the file as `YanagiNoGlasses.blend`.
+
+You now see Yanagi standing in the scene, as four objects: `YanagiHairA`, `YanagiBodyA`, `YanagiGlassesA` and `YanagiRingA`.
+
+{/* NEEDS HANDS-ON TEST: that the Yanagi folder imports as these four objects in XXMI Tools 1.8.2, and that YanagiGlassesA holds only the glasses */}
+
+</Step>
+<Step>
+
+### Find the glasses
+
+1. Click `YanagiGlassesA` in the Outliner. The glasses get an orange outline in the 3D Viewport.
+2. To be sure, click the eye icon of `YanagiGlassesA`. The glasses disappear, and nothing else does.
+3. Click the eye icon again to show the glasses. A hidden object is skipped on export, so it must be visible.
+
+{/* SCREENSHOT: zenless-zone-zero-models-remove-a-part-2.webp, Blender 4.5 with the Yanagi dump imported, YanagiGlassesA selected in the Outliner and its glasses outlined in orange in the 3D Viewport */}
+
+</Step>
+<Step>
+
+### Delete the glasses' vertices
+
+1. With `YanagiGlassesA` selected, move the mouse over the 3D Viewport and press `Tab` for Edit Mode.
+2. Press `A` to select every vertex of the object.
+3. Press `X` and choose **Vertices**. The glasses are gone.
+4. Press `Tab` to go back to Object Mode.
+5. Save with `Ctrl+S`.
+
+Deleted the wrong thing? Press `Ctrl+Z` to undo.
+
+<Callout type="warning" title="Delete vertices, never the object">
+  Keep the empty `YanagiGlassesA` in the scene, and keep it visible. Export
+  finds the glasses part through this object. If the object is gone or hidden,
+  export leaves the glasses out of the mod, and the game draws them as before.
+</Callout>
+
+{/* NEEDS HANDS-ON TEST: that XXMI Tools 1.8.2 skips the Glasses component without an error when YanagiGlassesA is deleted or hidden, so the glasses still show in game */}
+
+</Step>
+<Step>
+
+### Export into your Mods folder
+
+1. Hide `YanagiHairA`, `YanagiBodyA` and `YanagiRingA` with their eye icons in the Outliner. Keep `YanagiGlassesA` visible. Export then writes only the glasses, so the mod can work next to other Yanagi mods that leave her glasses alone.
+2. Press `N` in the 3D Viewport and open the **XXMI Tools** tab.
+3. Check that **Dump Folder** points to your `Yanagi` folder.
+4. Set **Output Folder** to a new folder: `%AppData%\XXMI Launcher\ZZMI\Mods\YanagiNoGlasses`.
+5. Check that **Game to mod** says `Zenless Zone Zero`.
+6. Unfold **Export Settings** and untick **Mod textures**. You changed no texture, so the mod keeps the game's own.
+7. Leave the other settings at their defaults.
+8. Click **Export Mod**.
+
+The status bar says `Exported Yanagi to ...` when it works. The new folder holds `Yanagi.ini`, three `.buf` files for the glasses component, and one `.ib` file for its part.
+
+{/* NEEDS HANDS-ON TEST: export the glasses-free Yanagi with XXMI Tools 1.8.2 into a folder inside ZZMI\Mods with Mod textures off and YanagiHairA, YanagiBodyA and YanagiRingA hidden. Confirm that the hidden components are left out without an error, the status bar text, the file list, and that the agent keeps her original textures in game */}
+
+</Step>
+<Step>
+
+### Check it in game
+
+1. Turn off any other Yanagi mod: rename its folder so it starts with `DISABLED`.
+2. Start the game from XXMI Launcher.
+3. Put Yanagi in your squad. Switch to another agent, press `F10` to reload mods, then switch back to Yanagi.
+4. Look at her in the agent screen, then run and attack, to check her in motion.
+
+{/* SCREENSHOT: zenless-zone-zero-models-remove-a-part-3.webp, Yanagi in the Zenless Zone Zero agent screen without her glasses, after export and F10 */}
+
+That is your first model mod. To compare, hold `F9` to see the original Yanagi.
+
+</Step>
+</Steps>
+
+## Remove other parts the same way
+
+| You want to remove                       | What to do                                                                                                            |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| A whole part with its own object         | Select the object, press `Tab`, `A`, then `X` > **Vertices**. Keep the empty object, as above.                        |
+| One piece inside a part (a strap, a bow) | In Edit Mode press `Alt+A`, hover over the piece and press `L`, then `X` > **Vertices**. `Alt+Z` shows hidden pieces. |
+| A piece, but you do not know which part  | Click the eye icon of each object in the Outliner to hide it. The piece disappears with the part it is in.            |
+| Something on the face                    | Not possible. Face meshes cannot be edited in this game: only face textures can change.                               |
+
+Agents with removable pieces in their own objects include Lycaon (`LycaonMaskA`), Piper (`PiperGlassesA`) and Evelyn (`EvelynJacketA`). [Character names and parts](/docs/zenless-zone-zero/basics/character-names-and-parts) explains how to read these names.
+
+Removing a piece can leave a hole where the mesh was hidden. Select the edges around it and press `F` to fill it. Hidden objects are skipped on export: before you export, show again every part object you changed.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Yanagi still has her glasses in game" id="glasses-still-there">
+
+- Check that the `YanagiNoGlasses` folder is inside `%AppData%\XXMI Launcher\ZZMI\Mods`.
+- Check that `YanagiGlassesA` was in the scene and visible when you exported. Without it, the mod leaves the glasses alone.
+- Check that no other Yanagi mod is on. Orange `Possible Mod Conflict` text means two mods for her are loaded.
+- Switch away from Yanagi, press `F10`, and switch back. A mod loaded while she is on screen can show only partly.
+- Check that the game runs in DirectX 11 and that the `ZZMI 1.5.2` text shows at the lower left when the game starts.
+
+</Accordion>
+<Accordion title="The export stops with an error" id="export-error">
+
+Most errors come from a renamed folder or object, or a visible copy of an object. Check that the folder is still called `Yanagi`, that each object name still starts with `Yanagi`, and that no `.001` copy is visible. [Blender export and import errors](/docs/zenless-zone-zero/errors/creator-errors) lists every message.
+
+</Accordion>
+<Accordion title="Something else vanished too" id="too-much-deleted">
+
+You emptied the wrong object, or the piece shared an object with other pieces. Press `Ctrl+Z` in Blender until it is back, or import the `Yanagi` folder again. Then select only the glasses and export.
+
+</Accordion>
+<Accordion title="The mod worked before a game update and now does nothing" id="after-update">
+
+The update may have changed the agent's hashes. The asset repo holds dumps from version 3.2. Make your own frame dump and compare its `hash.json` with the old one. [Fix your mods after a game update](/docs/zenless-zone-zero/getting-started/fix-mods-after-an-update) shows the fixes.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Add a toggle"
+    href="/docs/zenless-zone-zero/ini/add-a-toggle"
+    icon={<Icon name="ToggleRight" />}
+    level="intermediate"
+    featured
+  >
+    Keep the glasses, and turn them on and off in game with one key.
+  </PremiumCard>
+  <PremiumCard
+    title="Add or swap clothing parts"
+    href="/docs/zenless-zone-zero/models/add-clothing-parts"
+    icon={<Icon name="Shirt" />}
+    level="intermediate"
+  >
+    Add a new piece to an agent, weighted and textured.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Modding 101](https://leotorrez.github.io/modding/guides/modding-101) and [XXMI Tools guide](https://leotorrez.github.io/modding/guides/xxmi_tools) by LeoTorreZ.
+- **Guide:** [Correctly Importing and Exporting with Blender](https://gamebanana.com/tuts/18033) by hazelberry: keep every part's object and empty it.
+- **Tool:** [XXMI Tools](https://github.com/leotorrez/XXMITools) by LeoTorreZ and contributors.
+- **Tool:** [ZZ-Model-Importer-Assets](https://github.com/leotorrez/ZZ-Model-Importer-Assets) by LeoTorreZ, maintained mostly by Satan1c.

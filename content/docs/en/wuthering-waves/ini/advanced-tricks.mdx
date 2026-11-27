@@ -1,0 +1,341 @@
+---
+title: "Sliders, animated textures, and help text"
+description: "Add on-screen help text, a shape key slider, a texture that animates over time, and a new size to your own Wuthering Waves mod with WWMI Tools and a few .ini lines."
+category: "ini"
+patch: "3.8"
+keywords:
+  [
+    "wuthering waves mod help text",
+    "wwmi printtext",
+    "wwmi shape keys",
+    "animated texture",
+    "skeleton scale",
+  ]
+---
+
+<LevelPill level="advanced" />
+
+These tricks build on toggles. You will show help text on screen, move a custom shape key with a slider, make a texture animate, and resize a Resonator. A Resonator is a playable character. You need your own mod, exported with WWMI Tools. Written for WWMI 1.2.2 and WWMI Tools 1.9.4.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="FileCode">
+    Your own mod, exported with WWMI Tools and the Merged skeleton
+  </Requirement>
+  <Requirement icon="Blender" href="/docs/wuthering-waves/tools/blender-add-on">
+    WWMI Tools for Blender, for shape keys and size
+  </Requirement>
+  <Requirement icon="NotepadPlusPlus" note="or any editor that saves UTF-8">
+    A text editor
+  </Requirement>
+</Requirements>
+
+Every example uses `$object_detected`, the "Resonator on screen" flag that WWMI Tools writes. Keep a backup of your `mod.ini` before you start: an export with **Write Mod INI** on writes a new file over your edits.
+
+## Show help text on screen
+
+### Your mod's name in WWMI messages
+
+Fill in the **Mod Info** panel when you export: **Mod Name**, **Author Name**, **Mod Description**, **Mod Link**, and a **Mod Logo** (a 512x512 `.dds` in BC7 SRGB). WWMI Tools writes them into `[ResourceModName]` and the other `[ResourceMod...]` sections. When your mod cannot load, WWMI shows its name in the red `Mod Loading Error` box, so players know which mod to update. You write no lines yourself.
+
+### Your own help box
+
+WWMI has a text API in the `WWMIv1` namespace, in `Core\WWMI\API.ini`. It draws any text you give it in a box. This example shows the box while a key is on.
+
+<Steps>
+<Step>
+
+### Add the text and the box settings
+
+Add two resources at the end of `mod.ini`:
+
+```ini
+[ResourceHelpText]
+type = Buffer
+data = "H: hat on or off   J: next hair"
+
+[ResourceHelpParams]
+type = StructuredBuffer
+array = 1
+data = R32_FLOAT  -0.25 +0.15 +0.25 -0.05   1.00 1.00 1.00 1.00   0.00 0.00 0.00 0.95   0.02  0.05   2 1   1   1.0
+```
+
+For longer text, load it from a file in your mod folder instead:
+
+```ini
+[ResourceHelpText]
+type = buffer
+format = R8_UINT
+filename = Help.txt
+```
+
+</Step>
+<Step>
+
+### Add a key that shows the box
+
+```ini
+[Constants]
+global $help = 0
+
+[KeyHelp]
+key = ctrl h
+condition = $object_detected == 1
+type = cycle
+$help = 0,1
+```
+
+Put the `global` line in the `[Constants]` section you already have. Do not make a second one. Pick a key no other mod and no WWMI hotkey uses.
+
+</Step>
+<Step>
+
+### Draw the box every frame
+
+Add `run = CommandListHelp` as the first line of your existing `[Present]` section, above the first `if`. Then add the command list:
+
+```ini
+[CommandListHelp]
+if $help == 1 && $object_detected == 1
+    pre Resource\WWMIv1\Text = ref ResourceHelpText
+    pre Resource\WWMIv1\TextParams = ref ResourceHelpParams
+    pre run = CommandList\WWMIv1\PrintText
+endif
+```
+
+</Step>
+<Step>
+
+### Test it
+
+Save, switch to another Resonator, press `F10`, switch back and press `Ctrl+H`.
+
+</Step>
+</Steps>
+
+{/* NEEDS HANDS-ON TEST: CommandList\WWMIv1\PrintText run from a command list in the mod's [Present] with pre lines, on WWMI 1.2.2 with a mod exported by WWMI Tools 1.9.4, and whether a Help.txt with several lines prints each line */}
+
+The 18 numbers in `ResourceHelpParams` set the box, in this order. The comments in WWMI's `API.ini` explain them:
+
+| Numbers | What they set                                                                      |
+| ------- | ---------------------------------------------------------------------------------- |
+| 1 to 4  | The box corners x1, y1, x2, y2, each from `-1` to `+1`                             |
+| 5 to 8  | Text color as red, green, blue, alpha, from `0` to `1`                             |
+| 9 to 12 | Background color, the same way                                                     |
+| 13, 14  | Border, across and down                                                            |
+| 15, 16  | Anchor across and down: `0` none, `1` left or top, `2` center, `3` right or bottom |
+| 17      | Text alignment: `0` left, `1` center, `2` right                                    |
+| 18      | Font scale                                                                         |
+
+Many players dislike pop-ups. Keep help text behind a key, never on all the time.
+
+## Move a shape key with a slider
+
+Shape keys move the face and shoulders. You can add your own in Blender and set how far it moves from `mod.ini`, with a slider key.
+
+### Add a custom shape key
+
+1. In Blender, look at the shape keys of the component objects. Find the highest number used.
+2. Add a new shape key and shape it.
+3. Name it with `custom` and the next number, like `custom 86 bow`. Shape key numbers go from `0` to `127`.
+4. Head and shoulder components already have game shape keys. For a custom shape key on any other component, tick **Unrestricted Custom Shape Keys** under **Advanced** in the export panel.
+5. Leave the new shape key ticked. **Ignore Muted Shape Keys** is on by default, so an unticked shape key is left out of the export.
+6. Export your mod.
+
+{/* NEEDS HANDS-ON TEST: a custom shape key named custom 86 on a WWMI Tools 1.9.4 export on WWMI 1.2.2, with and without Unrestricted Custom Shape Keys, on Wuthering Waves 3.8 */}
+
+{/* SCREENSHOT: wuthering-waves-ini-advanced-tricks-2.webp, the Advanced sub-panel of Export Mod in WWMI Tools 1.9.4, showing Unrestricted Custom Shape Keys and Skeleton Scale */}
+
+### Add the slider
+
+A slider changes a value a little every frame while you hold a key. This one moves shape key `86` between `0` (not moved) and `1` (fully moved):
+
+```ini
+[Constants]
+global persist $bow = 0.0
+global $bow_up = 0
+global $bow_down = 0
+
+[KeyBowDown]
+key = ctrl VK_LEFT
+condition = $object_detected == 1
+type = hold
+$bow_down = 1
+
+[KeyBowUp]
+key = ctrl VK_RIGHT
+condition = $object_detected == 1
+type = hold
+$bow_up = 1
+
+[CommandListBowSlider]
+if $bow_up
+    $bow = $bow + 0.01
+else if $bow_down
+    $bow = $bow - 0.01
+endif
+if $bow > 1.0
+    $bow = 1.0
+else if $bow < 0.0
+    $bow = 0.0
+endif
+$\WWMIv1\shapekey_id = 86
+$\WWMIv1\shapekey_value = $bow
+cs-u5 = ResourceCustomShapeKeyValuesRW
+run = CommandList\WWMIv1\SetShapeKey
+```
+
+Then add `run = CommandListBowSlider` to `[Present]`, on the line under `run = CommandListUpdateMergedSkeleton`. It then runs only while the Resonator is on screen and WWMI has accepted the mod.
+
+- Merge the `global` lines into your existing `[Constants]` section.
+- `type = hold` sets the value only while the key is down. On release it goes back to `0`.
+- `persist` keeps the slider's position after a restart.
+- The value steps once per frame, so the slider moves faster at a higher frame rate. For fixed steps, use a cycle key instead, like `$bow = 0, 0.5, 1.0`.
+
+{/* NEEDS HANDS-ON TEST: SetShapeKey from the WWMI 1.2.2 API.ini run every frame from [Present] after CommandListUpdateMergedSkeleton. API.ini's own example also sets $shapekeys_update_required = 1, a variable no WWMI file reads: check whether it is needed. */}
+
+The same lines can hold one of the game's own shape keys at a fixed value. To give control back to the game, set `$\WWMIv1\shapekey_id` and `cs-u5` the same way and run `CommandList\WWMIv1\DisableShapeKeyOverride` instead.
+
+## Animate a texture
+
+### Swap frames over time
+
+`time` holds the seconds since the game started. `time % 1.0` counts from `0` to `1` once every second, so it can pick a frame:
+
+<img
+  src="/wiki-images/wuthering-waves-ini-advanced-tricks-1.webp"
+  alt="A timeline: time modulo 1.0 runs from 0 to 1 every second, and each quarter second picks the next of four frames, from if time % 1.0 below 0.25 for frame 0 to else for frame 3, then repeats"
+/>
+
+1. Save each frame as its own `.dds` in the mod's `Textures` folder, in the same format and size as the original texture.
+2. Add one resource per frame, like `[ResourceBodyFrame0]` with `filename = Textures/BodyFrame0.dds`.
+3. In the component section, find the texture's `ps-t[FilterTextureN] = ref ResourceTextureN` line. Replace it with this block, and keep the filter the same:
+
+```ini
+if time % 1.0 < 0.25
+    ps-t[FilterTexture0] = ref ResourceBodyFrame0
+else if time % 1.0 < 0.5
+    ps-t[FilterTexture0] = ref ResourceBodyFrame1
+else if time % 1.0 < 0.75
+    ps-t[FilterTexture0] = ref ResourceBodyFrame2
+else
+    ps-t[FilterTexture0] = ref ResourceBodyFrame3
+endif
+```
+
+4. If that line is in more than one component section, replace it in each one.
+
+For a slower loop, use `time % 2.0` and twice the limits. If your mod binds this texture with RabbitFX, wrap its `Resource\RabbitFX\...` line the same way.
+
+In a mod exported with WWMI Tools 1.8.0 or older, the texture has a `[TextureOverrideTextureN]` section instead. There, put the same `if` block around `this = ResourceBodyFrame0` to `this = ResourceBodyFrame3`, inside its existing `if $object_detected`.
+
+{/* NEEDS HANDS-ON TEST: on WWMI 1.2.2, a time-based frame swap of ps-t[FilterTextureN] inside the component section of a WWMI Tools 1.9.4 export, the same with this = inside TextureOverrideTextureN of a WWMI Tools 1.8.0 export, and the same with a Resource\RabbitFX\Diffuse line. No tested Wuthering Waves mod with these layouts was found. */}
+
+What to expect:
+
+- Every frame is a full texture in video memory. Keep the frame count low and the textures no larger than the original.
+- In a WWMI Tools 1.9.4 export, the filter finds the game's texture by its look, so the animation should keep running at a distance. In an older export, the frames replace the texture by its hash: at a distance the game can switch to a smaller copy with another hash, and the animation stops there. [Make textures survive game updates](/docs/wuthering-waves/textures/stable-textures) explains both.
+
+### Many frames in one file
+
+A Texture2DArray holds every frame in one `.dds`, but it needs a custom shader to pick the frame. No guide shows one working in Wuthering Waves yet, so this page does not cover it.
+
+## Make a Resonator bigger or smaller
+
+WWMI Tools can scale the whole model at export. It works with the **Merged** skeleton only.
+
+1. In the WWMI Tools panel, set **Mode** to **Export Mod**.
+2. Open **Advanced** and set **Skeleton Scale**: `1.0` keeps the size, `1.2` is bigger, `0.8` is smaller.
+3. Export, then press `F10` in game.
+
+The export writes the value twice, in `[CommandListMergeSkeleton]`:
+
+```ini
+$\WWMIv1\custom_mesh_scale = 1.20
+```
+
+For a quick test, change both lines by hand and press `F10`. Keep both values the same.
+
+To change the size with a key, add `global persist $size = 1.0` to `[Constants]`, change both lines to `$\WWMIv1\custom_mesh_scale = $size`, and add a cycle key with `$size = 1.0, 1.2, 0.8`. A new export with **Write Mod INI** on removes these edits.
+
+{/* NEEDS HANDS-ON TEST: Skeleton Scale 1.2 and 0.8 on a WWMI Tools 1.9.4 export on WWMI 1.2.2 and Wuthering Waves 3.8: whether the feet stay on the ground, and the cycle key driving $\WWMIv1\custom_mesh_scale through a variable */}
+
+What to expect:
+
+- Only the look changes. The camera, hitboxes and animations stay the same.
+- Hold `F9` to compare with the original.
+
+## Switch by itself
+
+[Add a toggle](/docs/wuthering-waves/ini/add-a-toggle) shows two WWMI variables that switch a part with no key: one for the Resonators screen and one for the outfit screen. WWMI 1.2.2 has no variable for your Resonator's HP, and no guide shows an outfit switch on low HP for Wuthering Waves.
+
+Use these tricks only to change how your Resonator looks. Never show HP, damage or cooldown numbers on screen: that is a mod that gives an unfair advantage.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The help box never shows" id="help-not-showing">
+
+- Check that `[Present]` has `run = CommandListHelp`.
+- Check that the key's `condition` uses `$object_detected` and that the Resonator is on screen.
+- Untick **Mute Warnings** in the launcher's **WWMI** tab and read the text after `F10`. `Unrecognised entry` often means a misspelt resource name.
+
+</Accordion>
+<Accordion title="The shape key does not move" id="shape-key-still">
+
+- Check that the number in `$\WWMIv1\shapekey_id` matches the number in the shape key's name.
+- `Unrecognised entry` on the `cs-u5` line means the mod has no `[ResourceCustomShapeKeyValuesRW]`. Export again with your custom shape key ticked.
+- On a component without game shape keys, tick **Unrestricted Custom Shape Keys** and export again.
+
+</Accordion>
+<Accordion title="The animation stops far away or after an update" id="animation-stops">
+
+In an export from WWMI Tools 1.8.0 or older, the texture hash changed: at a distance, or because the game updated the texture. Update the hash in the section, bind the frames by role with RabbitFX, or export the mod again with WWMI Tools 1.9.4.
+
+In a WWMI Tools 1.9.4 export, the game's texture may look too different after an update. Put the new `d=` value of that texture from a fresh dump after `match_dhash =`.
+
+</Accordion>
+<Accordion title="The game stutters or runs out of video memory" id="vram">
+
+Each animation frame is a full texture. Use fewer frames, or smaller ones.
+
+</Accordion>
+<Accordion title="There is no Skeleton Scale field" id="no-skeleton-scale">
+
+Your mod uses the **Per-Component** skeleton. **Skeleton Scale** is only there for **Merged**.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title=".ini reference"
+    href="/docs/wuthering-waves/ini/ini-reference"
+    icon={<Icon name="BookOpen" />}
+    level="advanced"
+  >
+    Every section, key type, operator and warning in one place.
+  </PremiumCard>
+  <PremiumCard
+    title="Combine mods into one merged mod"
+    href="/docs/wuthering-waves/ini/merged-mods"
+    icon={<Icon name="Layers" />}
+    level="intermediate"
+  >
+    Switch between whole mods for one Resonator with one key.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Tool:** [WWMI Tools](https://github.com/SpectrumQT/WWMI-Tools) by SpectrumQT, and its [mod.ini template](https://github.com/SpectrumQT/WWMI-Tools/blob/main/wwmi-tools/templates/merged.ini.j2), for Mod Info, Skeleton Scale and the shape key sections.
+- **Tool:** [WWMI `API.ini`](https://github.com/SpectrumQT/WWMI-Package/blob/main/WWMI/Core/WWMI/API.ini) by SpectrumQT, for the text and shape key API.
+- **Guide:** [WWMI Tools Modder Guide](https://github.com/SpectrumQT/WWMI-Tools/blob/main/guides/modder_guide.md) by SpectrumQT, for custom shape key names.
+- **Guide:** [Toggle Guide](https://gamebanana.com/tuts/18971) by gdsfdg, for the hold-key slider.
+- **Guide:** [Make Ciaccona's Performance BIG](https://gamebanana.com/tuts/19122) by Whap, for changing `$\WWMIv1\custom_mesh_scale` from the `.ini`.
+- **Guide:** [3dmigoto INI File Documentation](https://leotorrez.github.io/modding/docs/) on LeoTorreZ's modding site, for `time` and key types.

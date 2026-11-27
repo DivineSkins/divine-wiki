@@ -1,0 +1,288 @@
+---
+title: "Export your mod from Blender"
+description: "Export a Honkai: Star Rail model mod with XXMI Tools: the naming and data rules that make an export work, the export settings, and the usual errors."
+category: "models"
+patch: "4.7"
+keywords:
+  ["xxmi tools export", "star rail mod export", "export mod blender", "srmi"]
+---
+
+<LevelPill level="intermediate" />
+
+Export turns your Blender scene into a mod folder that SRMI loads. Most failed exports break one of a few rules about names and mesh data. This page lists those rules, then runs the export. Written for XXMI Tools 1.8.2 on Blender 4.5 LTS and SRMI 2.4.3.
+
+<Accordions>
+<Accordion title="Coming from another game?">
+
+- **Genshin Impact:** same add-on, with the `Honkai Star Rail` preset instead. The `.ini` it writes is different: each component gets two draw branches for compute shader posing, and each texture binds by its own hash with `this =`. There is no ORFix, no `SetTextures` line and no `Dress` or `Extra` part.
+- **Zenless Zone Zero:** same add-on, but that game has its own preset, axes and `.ini` layout. Star Rail has no SlotFix and no `match_index_count` line.
+- **Wuthering Waves:** a different add-on, WWMI Tools. Star Rail has no merged skeleton and no `component N` names: each object is named after the character, component and part.
+- **Deadlock or League of Legends:** nothing is packed or compiled. XXMI Tools writes buffers and an `.ini`, SRMI swaps them in while the game draws, and `F10` reloads them.
+
+Other game sections: [Genshin Impact](/docs/genshin-impact), [Zenless Zone Zero](/docs/zenless-zone-zero), [Wuthering Waves](/docs/wuthering-waves).
+
+</Accordion>
+</Accordions>
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="Box"
+    href="/docs/honkai-star-rail/tools/blender-add-on"
+    note="1.8.2"
+  >
+    XXMI Tools
+  </Requirement>
+  <Requirement
+    icon="Blender"
+    href="/docs/honkai-star-rail/models/import-into-blender"
+    note="imported with the Honkai Star Rail preset"
+  >
+    A .blend with your character
+  </Requirement>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/honkai-star-rail/tools/xxmi-launcher"
+    note="to test"
+  >
+    XXMI Launcher with SRMI
+  </Requirement>
+</Requirements>
+
+<Callout type="warning" title="Keep your .blend file">
+  XXMI Tools cannot import a finished mod. Your `.blend` file is the only way
+  back into your work. Keep it, and save a copy before every big change.
+</Callout>
+
+## Check these rules before you export
+
+### Names
+
+<img
+  src="/wiki-images/honkai-star-rail-models-export-your-mod-1.webp"
+  alt="The dump folder name Kafka plus the component Body and part A from hash.json gives the object name KafkaBodyA. One visible object named KafkaBodyA or KafkaBodyA-2 exports, and a hidden KafkaBodyA.001 is skipped. KafkaBody-A, BodyA, KafkaBodyA and KafkaBodyA.001 both visible, or a folder renamed to Kafka_v2 fail"
+/>
+
+- **Every object name starts with folder, component and part.** Kafka's parts are `KafkaHairA`, `KafkaHeadA`, `KafkaHeadB`, and `KafkaBodyA` to `KafkaBodyE`. The component and part names come from `hash.json`.
+- **One visible object per part.** Two visible objects that start with the same part name stop the export. Hide or rename spare meshes.
+- **Several meshes in one part.** Make a collection whose name starts with the part name, for example `KafkaBodyA`. Keep the emptied original object in it and put your meshes in too. Export merges the collection into that part and writes one `drawindexed` line per object, ready for a toggle.
+- **Keep every part of a component you export.** A part you do not want stays as an object, and XXMI Tools 1.8.2 accepts an empty one. Components you did not touch can be left out. Older guides tell you to edit `hash.json`: you no longer need to.
+
+The 2023 Star Rail troubleshooting guide says every part needs at least one face. That rule comes from the old exporter, and nobody has checked it with XXMI Tools 1.8.2.
+
+{/* NEEDS HANDS-ON TEST: that XXMI Tools 1.8.2 exports a Honkai: Star Rail character with one untouched component (for example Head) left out of the scene, that an emptied part loads in SRMI 2.4.3, and that export fails with "Cannot find object" when one part of an exported component is deleted */}
+
+### Build on the imported objects
+
+Never export an object you made from scratch. The imported objects carry hidden `3DMigoto:` properties that export needs. To put your own mesh into a part:
+
+1. Line up your mesh with the original. Select it and press `Ctrl+A`, then choose **All Transforms**.
+2. Select the imported part object, press `Tab`, press `A`, then `X` and choose **Vertices**. Press `Tab` again. The object is now empty.
+3. Click your mesh, then `Shift`+click the emptied part object, so it is selected last.
+4. Press `Ctrl+J`. Your mesh joins into the part object and keeps its name and properties.
+
+An object without these properties stops the export with `... is missing custom properties required for export!`. Import the dump again and join your mesh into the new import.
+
+### Vertex groups
+
+Vertex groups are the game's bone numbers. Export reads each group's place in the list, not its name, so the list must run `0`, `1`, `2` ... in order, with no gaps. Keep every group the original part had. A missing number shifts every bone after it.
+
+Before every export, open the **XXMI Toolbox** panel in the XXMI Tools sidebar and click:
+
+1. **Merge shared name Vertex Groups**. It folds `12.001` into `12`.
+2. **Fill gaps in Vertex Groups**. It adds empty groups for missing numbers and sorts the list.
+
+Hold `Alt` while you click to run a button on every selected object. If you used **Remove unused Vertex Groups**, always run **Fill gaps** after it.
+
+Every vertex of a moving part needs weight. A character's parts take at most 4 weights per vertex, and **Normalize weights to format** trims extras at export. [Weight paint a mesh](/docs/honkai-star-rail/models/weight-painting) covers weights in full.
+
+### UV maps and COLOR
+
+- **UV maps** keep the original names, `TEXCOORD.xy` and `TEXCOORD1.xy`, in capitals. When you join pieces, every piece needs the same UV map names. Otherwise Blender adds an extra map, and textures can go blank. **Clean UV Names** in the toolbox renames maps by their order.
+- **A `COLOR` attribute** must exist on every exported object, with domain `Face Corner` and type `Byte Color`. In Star Rail it shapes outlines and shading, so copy its values from the original. [UV maps, vertex colors, and outlines](/docs/honkai-star-rail/models/uvs-and-vertex-colors) shows how.
+
+### Size
+
+Stay close to the original vertex count. Very heavy meshes, with hundreds of thousands of vertices, cost performance. Old Star Rail guides name a limit of about 64,000 vertices. That limit came from the 2023 exporter, and XXMI Tools 1.8.2 writes larger index buffers, so it should no longer apply. Textures stay one set per part, in powers of two such as 1024x1024 or 2048x2048.
+
+{/* NEEDS HANDS-ON TEST: whether a Honkai: Star Rail part with more than 65,535 vertices exports and draws in SRMI 2.4.3 */}
+
+## Export the mod
+
+<Steps>
+<Step>
+
+### Fill in the XXMI Tools panel
+
+1. Press `N` in the 3D Viewport and open the **XXMI Tools** tab.
+2. Check **Dump Folder**. It is the folder you imported from, the one with `hash.json`. Import fills it in.
+3. Set **Output Folder** to a new, empty folder. It must not be the dump folder. A folder inside `%AppData%\XXMI Launcher\SRMI\Mods` makes testing faster.
+4. Check that **Game to mod** says `Honkai Star Rail`.
+
+If you leave **Output Folder** empty, the mod goes to `<DumpName>Mod` next to the dump, for example `KafkaMod`.
+
+{/* SCREENSHOT: honkai-star-rail-models-export-your-mod-2.webp, Blender 4.5 sidebar with the XXMI Tools v1.8.2 tab open, Dump Folder and Output Folder filled in, Game to mod set to Honkai Star Rail, and the Export Settings panel unfolded */}
+
+</Step>
+<Step>
+
+### Check the export settings
+
+Unfold **Export Settings**. The defaults suit a first export:
+
+| Setting                           | Default | What to know                                                                           |
+| --------------------------------- | ------- | -------------------------------------------------------------------------------------- |
+| **Ignore hidden objects**         | on      | Hidden objects are skipped. Keep reference copies hidden.                              |
+| **Apply modifiers and shapekeys** | on      | Modifiers apply on a copy. Your scene stays as it is.                                  |
+| **Normalize weights to format**   | on      | Keeps at most 4 weights per vertex.                                                    |
+| **Mod textures**                  | on      | Copies the original textures once. It never overwrites a file with the same name.      |
+| **Write buffers**, **Write ini**  | on      | Write the mesh files and the `.ini`.                                                   |
+| **Outline Optimization**          | on      | Rebuilds outline data. It is slow, so some creators turn it off until the last export. |
+| **Credit**                        | empty   | Your name. The game shows "Created by" with it when the mod loads.                     |
+
+The XXMI Tools page, linked under What you need, explains every other option.
+
+</Step>
+<Step>
+
+### Click Export Mod
+
+Click **Export Mod** at the bottom of the panel. When it works, the status bar says `Exported <Name> to <folder> in <n> seconds`.
+
+Errors and warnings show in the status bar. For the full text, open <MenuPath path="Window > Toggle System Console" />.
+
+{/* NEEDS HANDS-ON TEST: no written tutorial covers a Honkai: Star Rail export with XXMI Tools 1.8.2. Export one character with the defaults and confirm the status bar text, the file list below and that the mod loads in SRMI 2.4.3 */}
+
+</Step>
+<Step>
+
+### Test it in game
+
+1. Copy the mod folder into `%AppData%\XXMI Launcher\SRMI\Mods`, unless you exported straight into it.
+2. Turn off any other mod for the same character.
+3. Switch to another character, press `F10` to reload, then switch back.
+4. Check the mod in the character screen, in the overworld and in battle.
+5. Check it in a scene with two copies of the character on screen, such as Acheron's skill or The Herta's ultimate. Some mods glitch only there.
+
+[Test and reload your mod](/docs/honkai-star-rail/basics/test-your-mod) explains the keys and on-screen warnings.
+
+</Step>
+</Steps>
+
+## What the export writes
+
+Star Rail characters have three components, so you get one set of buffers per component:
+
+<Files>
+  <Folder name="KafkaMod" defaultOpen>
+    <File name="Kafka.ini: the mod's instructions for SRMI" />
+    <File name="KafkaBodyPosition.buf: vertex positions, normals, tangents" />
+    <File name="KafkaBodyBlend.buf: bone weights" />
+    <File name="KafkaBodyTexcoord.buf: UVs and COLOR" />
+    <File name="KafkaBodyA.ib to KafkaBodyE.ib: one index file per part" />
+    <File name="KafkaBodyADiffuse.dds, KafkaBodyALightMap.dds ..." />
+    <File name="KafkaHair... and KafkaHead... files, the same way" />
+  </Folder>
+</Files>
+
+{/* NEEDS HANDS-ON TEST: the exact file names XXMI Tools 1.8.2 writes for Kafka with the Honkai Star Rail preset, including the .ini name */}
+
+The `.ini` holds a few sections per component and one section per texture. [How a mod .ini works](/docs/honkai-star-rail/ini/how-a-mod-ini-works) shows each of them line by line. What matters here:
+
+- **Two branches.** `DRAW_TYPE == 8` hands your buffers to SRMI, which poses them in compute shaders. `DRAW_TYPE == 1` is the older path, which Intel graphics cards reportedly use again. Never delete either branch. [How Honkai: Star Rail mods work](/docs/honkai-star-rail/basics/how-mods-work) explains why.
+- **Textures bind by hash.** Each texture has its own section with `hash =` and `this =`. Never replace them with `ps-t` slot lines: Star Rail moves textures between slots.
+- **Nothing else goes in the folder.** A mod never holds `d3dx.ini`, `d3d11.dll`, a `ShaderFixes` folder, SRMI's own `BatchedPose.ini`, or a copy of RabbitFX.
+
+If you edit the `.ini` by hand, [Fix an old mod by hand](/docs/honkai-star-rail/ini/fix-an-old-mod) shows how to set the vertex count. Keep `override_byte_stride = 40` and `uav_byte_stride = 4`, and never add the `DrawCS`, `$\SRMI\vertcount` or `$_blend_` lines from older guides.
+
+## Export again, faster
+
+- **Export straight into `Mods`.** Then each export is one `F10` away from a test.
+- **Hand-edited the `.ini`?** Back it up and untick **Write ini**. Later exports then refresh only the mesh files. If the vertex count changes, tick it again, because the counts live in the `.ini`, and copy your edits back in.
+- **Before you share,** delete textures you did not change, with their lines in the `.ini`.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title='"Cannot find match for name"' id="no-match-for-name">
+
+The dump folder was renamed, or no object name starts with the folder name. Rename the folder back to the character name its files use, such as `Kafka`, and keep object names starting with it.
+
+</Accordion>
+<Accordion title='"Hash file ... does not exist or is not a file"' id="no-hash-json">
+
+**Dump Folder** points to the wrong place, such as a mod folder or a `FrameAnalysis` folder. Point it to the extracted dump folder with `hash.json`. If `hash.json` is gone, download or extract the folder again.
+
+</Accordion>
+<Accordion title='"Cannot find object ... in the scene"' id="missing-part">
+
+A part of a component you export has no object. It was deleted, renamed, or hidden while **Ignore hidden objects** is on. Bring the object back. It may be empty.
+
+</Accordion>
+<Accordion title='"Found multiple objects with the name ..."' id="multiple-objects">
+
+Two visible objects start with the same part name, such as `KafkaBodyA` and `KafkaBodyA.001`. Hide or rename one, or put both in a collection named after the part.
+
+</Accordion>
+<Accordion title='"... is missing the following UV layers" or "vertex colors: COLOR"' id="missing-uv-or-color">
+
+A UV map is missing or has the wrong name, or the `COLOR` attribute is missing. Rename the UV maps with **Clean UV Names**. Add `COLOR` with domain `Face Corner` and type `Byte Color`, then copy the values from the original.
+
+</Accordion>
+<Accordion title="The export works, but parts stretch or fly off in game" id="stretching">
+
+The vertex groups have a gap or are out of order. Run **Merge shared name Vertex Groups** and **Fill gaps in Vertex Groups**, export again, and press `F10`. [Model problems in game](/docs/honkai-star-rail/errors/model-problems) covers more symptoms.
+
+</Accordion>
+<Accordion title="The mesh explodes only during one animation" id="one-animation">
+
+Some characters switch to a second Position hash in certain animations, such as the end of a sprint or some ultimates. The only written fix is from 2024, before the 3.2 format, and does not match today's export. Ask for help in the [Divine Discord](https://discord.gg/divineskins), with the character and the animation.
+
+{/* NEEDS HANDS-ON TEST: how to add an extra Position hash for one animation to a mod exported with the current Honkai Star Rail template (the 2024 fix copies a Position section that the template no longer writes) */}
+
+</Accordion>
+</Accordions>
+
+Every export and import message is listed on [Blender export and import errors](/docs/honkai-star-rail/errors/creator-errors).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Your first model edit: remove a part"
+    href="/docs/honkai-star-rail/models/remove-a-part"
+    icon={<Icon name="Scissors" />}
+    level="intermediate"
+    featured
+  >
+    Delete one small piece and run this whole export once.
+  </PremiumCard>
+  <PremiumCard
+    title="Add a toggle"
+    href="/docs/honkai-star-rail/ini/add-a-toggle"
+    icon={<Icon name="ToggleRight" />}
+    level="intermediate"
+  >
+    Turn a part on and off in game with one key.
+  </PremiumCard>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/honkai-star-rail/publishing/publishing-checklist"
+    icon={<Icon name="ListChecks" />}
+    level="beginner"
+  >
+    Clean up the folder, credit others, and package it.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [XXMI Tools guide](https://leotorrez.github.io/modding/guides/xxmi_tools) by LeoTorreZ.
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ and contributors: the vertex count rule.
+- **Guide:** [Troubleshooting](https://github.com/SilentNightSound/SR-Model-Importer/blob/main/Guides/Troubleshooting.md) for the Star Rail Model Importer by SilentNightSound.
+- **Guide:** [Vertex Explosion Bugs and Fixes](https://gamebanana.com/tuts/16401) by petrascyll.
+- **Tool:** [XXMI Tools](https://github.com/leotorrez/XXMITools) by LeoTorreZ and contributors, and its [Honkai Star Rail template](https://github.com/leotorrez/XXMITools/blob/main/templates/Honkai%20Star%20Rail.ini.j2).
+- **Tool:** [Pipeline Convert Fix](https://gamebanana.com/tools/19978) by Gustav0\_, with a script by petrascyll: the stride and old-format rules.

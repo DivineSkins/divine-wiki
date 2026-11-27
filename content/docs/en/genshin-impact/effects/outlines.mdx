@@ -1,0 +1,179 @@
+---
+title: "Change outline color and thickness"
+description: "Set how thick the outlines on your Genshin Impact mod are, give them a new color, and fix outlines that come out thick, missing, blue or the wrong color."
+category: "effects"
+patch: "7.2"
+keywords:
+  [
+    "genshin outline mod",
+    "outline thickness",
+    "vertex color alpha",
+    "ps-t70",
+    "orfix outline",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+Every Genshin Impact character has a dark outline around its edges. You will change how thick it is on your own mod, change its color, and fix outlines that look wrong. You need a mod you made yourself in Blender. Written for XXMI Tools 1.8.2 and GIMI 8.9.4.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Blender" href="/docs/genshin-impact/tools/blender-add-on">
+    XXMI Tools for Blender
+  </Requirement>
+  <Requirement
+    icon="PaintNET"
+    href="/docs/genshin-impact/tools/texture-editors"
+    note="only for your own outline color"
+  >
+    Paint.NET
+  </Requirement>
+  <Requirement icon="Package">Your own mod and its .blend file</Requirement>
+</Requirements>
+
+## Where outlines come from
+
+<img
+  src="/wiki-images/genshin-impact-effects-outlines-1.webp"
+  alt="Three sources of a Genshin Impact outline: thickness from the alpha of the COLOR attribute in Blender, where 00 is none, 80 normal and FF thickest; the built-in color from the light map alpha, which is a material ID; and your own color from a TexFx outline map in slot ps-t70"
+/>
+
+- **Thickness** is stored in the mesh, in the alpha of the `COLOR` attribute. You change it in Blender and export again.
+- **The built-in color** comes from the light map alpha. That value is a material ID that also picks the shading. Keep it the same as the original.
+- **Your own color** comes from an extra texture that TexFx, the glow, transparency and outline library inside GIMI, reads from slot `ps-t70`.
+
+## Change the thickness
+
+### Copy it from the original first
+
+The safest outline is the original's. Copy the `COLOR` attribute from the original part with a **Data Transfer** modifier before you join your mesh in. [UV maps, vertex colors, and outlines](/docs/genshin-impact/models/uvs-and-vertex-colors) has the steps.
+
+Then change only the areas that need it.
+
+### Set the alpha by hand
+
+Use these alpha values. They are community findings. The game's own models use about `50` to `82`.
+
+| Area                               | Alpha           |
+| ---------------------------------- | --------------- |
+| No outline                         | `00`            |
+| Most character parts               | `80`            |
+| Bare hands and feet                | `66`            |
+| Small spiky details, inner corners | lower than `80` |
+| Eyes                               | `00`            |
+| Weapons                            | often `00`      |
+| Thickest                           | `FF`            |
+
+In Blender's color picker, type values as hex. A typed decimal like `0.5` is stored as a different byte. The alpha slider is the exception: `0.502` on it is `80`.
+
+Painting in Vertex Paint mode can overwrite the alpha with the color. Make a copy of the `COLOR` attribute first, or use LEOAlphaPaint, a Blender add-on that paints alpha only.
+
+{/* NEEDS HANDS-ON TEST: the effect of COLOR alpha values on outline thickness in Genshin Impact 7.2, and LEOAlphaPaint on Blender 4.5 */}
+
+### Check the export settings
+
+Three XXMI Tools export options change outlines:
+
+| Option                                 | Default | What it does                                                                                                                |
+| -------------------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------- |
+| **Outline Optimization**               | On      | Rebuilds outline data for a cleaner outline. Slow: you can turn it off while testing                                        |
+| **Outline decimal rounding precision** | `8`     | From 1 to 10. Higher merges vertices that are farther apart into one outline point. Lower is more exact but can split edges |
+| **Use custom normals for outlines**    | Off     | Not covered here. Keep the default                                                                                          |
+
+Turn **Outline Optimization** on for the export you share.
+
+{/* NEEDS HANDS-ON TEST: Outline decimal rounding precision set to 10 in XXMI Tools 1.8.2, compared with 8 */}
+
+## Change the color
+
+### Keep the game's color
+
+Leave the light map alpha as the original has it. [What each texture map does](/docs/genshin-impact/textures/texture-maps) explains the light map channels. ORFix, which every part of a 6.1 or newer mod runs, keeps the built-in color right after updates.
+
+### Use any color you like
+
+Paint an outline map and put it in `ps-t70`:
+
+1. Copy the part's diffuse and darken it, or paint the outline colors you want on the same layout.
+2. Keep the alpha above 50% where you want an outline, and below 50% where you want none.
+3. Save it as `BC7 (sRGB, DX 11+)`, then add `ps-t70 = Resource...` to the part's section, with a matching `[Resource...]`.
+
+[Add glow and see-through parts](/docs/genshin-impact/effects/glow-and-transparency) shows every line. An outline map alone needs no TexFx command.
+
+### Remove the outline on one area
+
+Do one of these:
+
+- Set the `COLOR` alpha to `00` on those faces in Blender.
+- Paint the outline map's alpha below 50% there.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Outlines are thick, colored or blotchy" id="thick-outlines">
+
+The `COLOR` alpha is too high or uneven. Copy the colors from a part whose outline looks right, then export again.
+
+</Accordion>
+<Accordion title="Outlines are missing" id="no-outlines">
+
+The `COLOR` alpha is `00`, or the normals point inward. Fix the alpha, then check the normals with the **Face Orientation** overlay.
+
+</Accordion>
+<Accordion title="Outlines show through from the inside" id="outlines-show-through">
+
+Faces on the inside of cloth draw their outline through the front. Give those faces the vertex color `FF80FF`, or set their alpha to `00`. The blue channel sets which outline draws in front.
+
+{/* NEEDS HANDS-ON TEST: that FF80FF on inside faces stops their outlines showing through on Genshin Impact 7.2 */}
+
+</Accordion>
+<Accordion title="Outlines and reflections have the wrong color after an update" id="wrong-color-after-update">
+
+ORFix is out of date, or the part is missing its ORFix or NNFix line.
+
+1. Close the game and open XXMI Launcher, so it updates GIMI.
+2. Check each part section for `run = CommandList\GIMI\SetTextures`, or in older mods `run = CommandList\global\ORFix\ORFix` or `NNFix`.
+
+[Fix an old mod by hand](/docs/genshin-impact/ini/fix-an-old-mod) shows which line each part needs.
+
+</Accordion>
+<Accordion title="Bright blue outlines on many characters" id="blue-outlines">
+
+This was a TexFx bug in 2026 that hit mods using `ps-t70`. TexFx 1.066, in GIMI 8.7.7 and newer, fixed it. Update GIMI through XXMI Launcher and keep `ps-t70`. Old tips to change it to `ps-t10` or `ps-t71` only switch your custom color off.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Recolor skill effects"
+    href="/docs/genshin-impact/effects/recolor-skill-effects"
+    icon={<Icon name="Palette" />}
+    level="advanced"
+  >
+    Change the color of your character's own skill effects.
+  </PremiumCard>
+  <PremiumCard
+    title="Model problems in game"
+    href="/docs/genshin-impact/errors/model-problems"
+    icon={<Icon name="Bug" />}
+    level="intermediate"
+  >
+    Fix shading, seams and other problems after an export.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Set Outline Thickness_Vertex Color Alpha](https://docs.google.com/document/d/e/2PACX-1vQiAkfd-a-HzDGDelQEXKv_Z7936FFTc35A63JDZV79wL2eBCiawP6fvBE_Bni7t-CTYMOqzbUvKfTw/pub) by [HumR](https://discord.com/users/210820300437192704), shared in the [AGMG Discord](https://discord.gg/agmg).
+- **Guide:** [GIMI Troubleshooting](https://github.com/SilentNightSound/GI-Model-Importer/blob/main/Guides/Troubleshooting.md) by SilentNightSound, for outline thickness values.
+- **Guide:** [How to use this Reflection/Outline FIX](https://github.com/leotorrez/LeoTools/blob/main/guides/ORFixGuide.md) by leotorrez.
+- **Tool:** [TexFx README](https://github.com/SilentNightSound/GIMI-Package/blob/main/GIMI/Core/GIMI/Libraries/TexFx/README.md) by SinsOfSeven.
+- **Discord:** the outline map rules from the [TexFx guide](https://docs.google.com/document/d/19hkdTexZMoXbYmlOAqWHcu-EEvaK_ybNOXAaETTvoXo) by [hime](https://discord.com/users/591348252830597139) in the [AGMG Discord](https://discord.gg/agmg).
+- **Tool:** [XXMI Tools](https://github.com/leotorrez/XXMITools) by leotorrez, for the outline export options.

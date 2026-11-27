@@ -1,0 +1,138 @@
+---
+title: "Linux and Steam Deck"
+description: "Can you use Honkai: Star Rail mods on Linux or a Steam Deck? What is known, what is not known yet, and where to ask."
+category: "errors"
+patch: "4.7"
+keywords:
+  [
+    "star rail mods linux",
+    "star rail mods steam deck",
+    "xxmi launcher linux",
+    "srmi wine",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+Honkai: Star Rail and XXMI Launcher are made for Windows. Wine and Proton let Linux PCs and the Steam Deck run many Windows games. This page says what is known for Star Rail, what is not known yet, and where to ask for help.
+
+<Callout type="warning" title="Unofficial, and not tested here">
+  XXMI Launcher's author offers Linux support "as is", in the hope that Wine and
+  Proton do the job. The launcher's issue tracker does not take Linux bug
+  reports. Nobody has tested anything on this page with Honkai: Star Rail 4.7
+  for this wiki.
+</Callout>
+
+{/* NEEDS HANDS-ON TEST: whether Honkai: Star Rail 4.7 with SRMI 2.4.3 can load mods on Linux or a Steam Deck through the portable XXMI Launcher 2.5.0 in the game's own prefix, with the game's files and its protection left unchanged. */}
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Linux" note="or a Steam Deck in Desktop Mode">
+    A Linux PC
+  </Requirement>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/honkai-star-rail/tools/xxmi-launcher"
+    note="the portable build"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="Layers" note="Wine 9.22 or newer for XXMI">
+    A Wine or Proton runner
+  </Requirement>
+</Requirements>
+
+Written for XXMI Launcher 2.5.0 and SRMI 2.4.3.
+
+## The risk is the same as on Windows
+
+Mods break HoYoverse's Terms of Service. HoYoverse can ban any account that uses third-party software. Linux does not change that, and it is no way around the game's rules. In a 2023 forum thread about short bans, some Star Rail players named Linux as a possible cause. Nothing proved it either way. Use mods only on an account you can afford to lose.
+
+[What's allowed and how to stay safe](/docs/honkai-star-rail/getting-started/stay-safe) explains the risk in full.
+
+## What is known
+
+<img
+  src="/wiki-images/honkai-star-rail-errors-linux-steam-deck-1.webp"
+  alt="Two boxes: for Honkai: Star Rail, a check inside the game stops it under plain Wine and this wiki has no Linux steps for it; and three rules for any Linux setup: one prefix, Wine 9.22 or newer for the portable XXMI build, and Linux problems go to the AGMG Linux channel"
+/>
+
+Honkai: Star Rail does not run under plain Wine. PCGamingWiki notes a check inside the game that stops it. This wiki gives no steps to change that, so it has no steps for Star Rail mods on Linux.
+
+For any game, one rule matters most: XXMI and SRMI must run in the same Wine or Proton prefix as the game. A prefix is the folder where Wine keeps one fake Windows install. XXMI Launcher's portable build runs under Wine 9.22 or newer.
+
+## Steam Deck
+
+Honkai: Star Rail is not on Steam, and no report shows Star Rail mods working on a Steam Deck. The same limits apply as on any Linux PC.
+
+XXMI's folder picker does not show hidden folders, such as `.local`. If you must pick a folder, type the path into the picker's address bar instead.
+
+{/* NEEDS HANDS-ON TEST: a Steam Deck from start to finish with Honkai: Star Rail 4.7 and SRMI 2.4.3, in Desktop Mode and from a Game Mode shortcut. */}
+
+## What is not known
+
+- Whether mods can load on Linux with Honkai: Star Rail 4.7 at all, with the game's files left unchanged.
+- Whether the portable XXMI Launcher build works with Star Rail. No report shows it.
+- Which Wine or Proton runner works best for XXMI.
+- A full Steam Deck setup, from install to a mod in game.
+
+Tested it? Tell us on Discord, and we will update this page.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title='"d3d11.dll is missing expected entry point"' id="entry-point">
+
+**Cause:** on Linux, this error comes from the graphics layers of Wine or Proton, VKD3D or NVAPI.
+
+**Fix:** turn off VKD3D and NVAPI in your runner's settings, then start again. If it stays, ask in the AGMG Discord's Linux channel.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check on Honkai: Star Rail that turning off VKD3D and NVAPI clears this error */}
+
+</Accordion>
+<Accordion title="XXMI Launcher cannot find the game" id="game-not-found">
+
+1. Check that the launcher and the game run in the same prefix.
+2. In the launcher settings, set **Game Folder** to the folder that holds `StarRail.exe` and `StarRail_Data`.
+3. If the folder sits under a hidden folder such as `.local`, type its path by hand.
+
+</Accordion>
+<Accordion title="The SRMI guide box does not close" id="guide-box">
+
+On the first start, SRMI opens its guide box. `F10` hides it and `F12` toggles it. On a laptop, hold `Fn` with the key. One Linux player could close it only with `Fn+F12`.
+
+</Accordion>
+</Accordions>
+
+## Where to ask
+
+- The XXMI Launcher tracker does not take Linux bug reports. Its author points Linux players to the Linux channel in the [AGMG Discord](https://discord.gg/agmg).
+- You can also ask in [Divine's Discord](https://discord.gg/divineskins).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Install mods with XXMI Launcher"
+    href="/docs/honkai-star-rail/getting-started/install-with-xxmi-launcher"
+    icon={<Icon name="XXMILauncher" />}
+    level="beginner"
+  >
+    Set Character Quality for mods, and add your first mod.
+  </PremiumCard>
+  <PremiumCard
+    title="Mods not loading"
+    href="/docs/honkai-star-rail/errors/mods-not-loading"
+    icon={<Icon name="PackageX" />}
+    level="beginner"
+  >
+    The checks to run when the game starts but your mods don't show.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This page is based on the work of these creators. Check out their original pages.
+
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT, for the portable build and its Wine notes.

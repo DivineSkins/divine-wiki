@@ -1,0 +1,243 @@
+---
+title: "Get your mod ready to share"
+description: "Turn a working Wuthering Waves mod into a clean archive: Mod Info, what the folder holds and never holds, a readme, credits, fair sharing, and a final test."
+category: "publishing"
+patch: "3.8"
+keywords:
+  [
+    "share wuthering waves mod",
+    "wwmi mod info",
+    "mod readme",
+    "mod credits",
+    "package mod",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+Your mod works in your game. This checklist turns it into an archive that works for every player who downloads it, credits everyone it builds on, and follows the community's rules. Written for XXMI Launcher 2.5.0, XXMI DLL 1.3.3, WWMI 1.2.2, WWMI Tools 1.9.4 and Wuthering Waves 3.8.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="FolderCheck" note="tested in your own game">
+    Your finished mod folder
+  </Requirement>
+  <Requirement icon="Blender" note="to fill in Mod Info">
+    Your .blend file
+  </Requirement>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/wuthering-waves/tools/xxmi-launcher"
+    note="for the final test"
+  >
+    XXMI Launcher with WWMI
+  </Requirement>
+  <Requirement icon="FileArchive" note="such as 7-Zip">
+    An archive tool
+  </Requirement>
+</Requirements>
+
+## The checklist
+
+Work through it top to bottom. Each part has its own section below.
+
+1. Mod Info names your mod and you.
+2. The folder holds only what the mod needs.
+3. The `.ini` works on any player's setup.
+4. A readme says how to install the mod, what it needs, and which resource quality you tested on.
+5. Two or more preview shots show the mod in game, with your UID hidden.
+6. Everyone whose work you used is credited, and asked first.
+7. The mod is fair to share.
+8. The archive opens without a password and holds one top folder.
+9. You tested the archive itself, as a player would.
+
+## Fill in Mod Info
+
+WWMI Tools writes your mod's name and author into `mod.ini`. WWMI shows the name in its messages, and mod managers read it. An empty panel ships as `Unnamed Mod` by `Unknown Author`.
+
+1. In Blender, open the **WWMI Tools** tab and set **Mode** to **Export Mod**.
+2. Open the **Mod Info** sub-panel.
+3. Fill in **Mod Name** and **Author Name**.
+4. Add a **Mod Description** and a **Mod Link** if you like.
+5. Optional: pick a **Mod Logo**, a 512x512 `.dds` saved as BC7 sRGB. Export copies it to `Textures\Logo.dds`.
+6. Export again.
+
+The export also writes `$required_wwmi_version` into `mod.ini`. Leave it as it is: WWMI uses it to tell players when their WWMI is too old for your mod. WWMI Tools 1.9.4 writes `1.22`, so your mod needs WWMI 1.2.2 or newer. Its textures also need XXMI DLL 1.3.3 or newer. WWMI Tools 1.8.0 wrote `1.10`. [Export your mod from Blender](/docs/wuthering-waves/models/export-your-mod) explains every export option.
+
+## Clean the mod folder
+
+<img
+  src="/wiki-images/wuthering-waves-publishing-publishing-checklist-1.webp"
+  alt="A mod archive with one top folder BrantNoHat holding mod.ini, the Meshes and Textures folders, a readme and an optional preview. d3dx.ini, d3d11.dll, a RabbitFX folder, a ShaderFixes folder, programs, the .blend file and the object folder are marked to leave out"
+/>
+
+The diagram shows a texture with the older file name. A mod exported with WWMI Tools 1.9.4 names its textures like `c=4 f=<format> t=<hash> d=<dhash>.dds`.
+
+1. **Use one top folder, named after the mod,** such as `BrantNoHat`. A player drops that folder into `Mods` and is done.
+2. **Keep only mod files:** `mod.ini`, the `Meshes` folder and the `Textures` folder from the export. A readme and preview images are fine too.
+3. **Ship only the textures you changed.** Some textures, such as face shadow and light maps, are shared by many Resonators. In a mod exported with WWMI Tools 1.8.0 or older, an old shared texture breaks every Resonator that uses it after an update. WWMI Tools 1.9.4 swaps textures only on your mod's own parts, but unchanged textures still make the mod larger. To leave a texture out, delete it from your **Object Sources** folder and from the mod's `Textures` folder, then export again.
+4. **Start no file or folder name with `DISABLED`.** WWMI skips anything named that way, so that part of your mod would never load.
+5. **Remove manager changes.** No Reload Mod Manager writes lines into mod `.ini` files. Drag your `Mods` folder onto the **Restorer** area in its **Settings** before you share. Other managers may change keys, so check the `.ini` by eye.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: that WWMI 1.2.2 skips a file or subfolder whose name starts with DISABLED inside a mod folder */}
+
+### What never goes in a mod
+
+| File                                               | Why                                                                                                                                                                         |
+| -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `d3dx.ini`                                         | XXMI Launcher refuses to start with it in `Mods`: `Cannot start with d3dx.ini in Mods folder!`                                                                              |
+| `d3d11.dll` or any other `.dll`                    | The launcher brings its own. A `.dll` in a mod is a sign of malware.                                                                                                        |
+| RabbitFX                                           | Players keep exactly one copy in `Mods`. A second copy, shipped inside your mod, can crash the game. Name it in your readme instead.                                        |
+| A `ShaderFixes` folder                             | WWMI keeps its own files there.                                                                                                                                             |
+| `.exe`, `.bat` or any other program                | A mod is data only. Players are taught to treat programs in a mod as malware.                                                                                               |
+| Your `.blend` file and the extracted object folder | They hold the game's own model data. Keep them for yourself, never share them publicly. WWMI Tools cannot import a finished mod, so your `.blend` is your only way back in. |
+
+## Check the .ini
+
+WWMI Tools writes a `mod.ini` that works next to other mods. Your own hand edits are what can break that. Open `mod.ini` in a text editor and check:
+
+- **Every key only reacts on screen.** Each key section needs `condition = $object_detected == 1`. Without it, the key also fires when your Resonator is not on screen, and flips other mods that use the same key. A Resonator is the game's name for a playable character.
+- **Toggles are remembered.** Toggle values need `global persist` in `[Constants]`, so WWMI keeps them between sessions.
+- **Your keys stay clear of WWMI's own.** WWMI uses `F6`, `F8`, `F9`, `F10` and `F12`. Pick other keys.
+- **Comments sit on their own line.** A `;` after a value, such as `hash = 1234abcd ; hat`, breaks that line.
+- **The file is saved as UTF-8.**
+
+```ini
+[KeySwapHat]
+condition = $object_detected == 1
+key = H
+type = cycle
+$swapvar_hat = 0, 1
+```
+
+The **Ini Toggles** sub-panel of WWMI Tools writes keys and toggles this way for you. [How a mod .ini works](/docs/wuthering-waves/ini/how-a-mod-ini-works) explains each of these lines.
+
+## Write a readme
+
+Add a `README.txt` to the top folder. Players read it before they ask you questions. Copy this and fill it in:
+
+```text
+<Mod name>
+<One line: what it changes, on which Resonator and outfit.>
+
+Install
+1. Extract this archive.
+2. Put the <ModFolder> folder in %AppData%\XXMI Launcher\WWMI\Mods
+3. In game, switch to another Resonator, press F10, and switch back.
+
+Keys
+<key>   <what it does>
+
+Requires
+XXMI Launcher with WWMI 1.2.2 or newer
+(https://github.com/SpectrumQT/XXMI-Launcher/releases)
+RabbitFX for WWMI by caverabbit, one copy in Mods
+(only if your mod uses it: delete these two lines if not)
+
+Tested on
+Wuthering Waves 3.8
+Client Resource Quality: <UHD, HD or SD>
+In game: LOD Bias at Ultra High
+
+Known issues
+<Anything that still looks wrong, and any workaround.>
+
+Credits
+<Name>: <role, such as model, textures, testing>
+Original character design: Kuro Games
+
+Changes
+v1.0 (Wuthering Waves 3.8): first release
+```
+
+- **Requirements:** name XXMI Launcher and the WWMI version your mod needs. Read it from the `$required_wwmi_version` line in your `mod.ini`: `1.22` means WWMI 1.2.2, `1.10` means WWMI 1.1.0. If the mod binds textures or glow through RabbitFX, name RabbitFX too, so players install it once. [Make textures survive game updates](/docs/wuthering-waves/textures/stable-textures) explains what it does.
+- **Resource quality:** players install the game at one of three tiers: UHD, HD or SD. Texture hashes differ between tiers, so a texture made on one tier may not show on another. Mods exported with WWMI Tools 1.9.4 find textures by how they look, which may cover this, but nobody has tested it yet. Name the tier you tested on. [Install mods with XXMI Launcher](/docs/wuthering-waves/getting-started/install-with-xxmi-launcher) explains **Client Resource Quality**.
+- **Outfits and forms:** say which outfit the mod is for. An alternate form, such as a Liberation form, is its own object, so say whether your mod covers it.
+- **Game version:** players use it to tell whether your mod may need a fix after an update.
+
+{/* NEEDS HANDS-ON TEST: on Wuthering Waves 3.8 with WWMI 1.2.2, whether a texture mod exported on the HD tier shows its textures on a UHD or SD install, with WWMI Tools 1.8.0 and with WWMI Tools 1.9.4 */}
+
+## Take preview shots
+
+- **Show the mod in game,** at least two shots: for example the front in the Resonators menu and the mod in motion.
+- **Hide or crop your UID** in every screenshot and video.
+- **Keep the shots clean.** This wiki covers mods anyone can look at: no suggestive poses or camera angles.
+
+{/* SCREENSHOT: wuthering-waves-publishing-publishing-checklist-2.webp, a good example preview: a modded Resonator in the Wuthering Waves 3.8 Resonators menu with the UID cropped out */}
+
+## Credit everyone
+
+- **List everyone who worked on the mod,** with their role: model, textures, `.ini`, testing.
+- **Name the original designer.** The character belongs to Kuro Games. Say so in the credits.
+- **Ask before you reuse parts of someone's mod,** such as a hairstyle, a texture or a toggle setup. Credit them, even when they say yes.
+- **Ask before you combine other people's mods** into a merged mod that you share.
+- **Use your own work, or parts you have permission for.** Do not port models from other games, films or anime.
+
+## Keep it fair
+
+<Callout type="warning" title="Not for sale">
+  Kuro Games' terms allow only personal, non-commercial use of the game. Its
+  guidelines for fan works leave out software, so mods get no cover from them.
+  Never sell a mod or lock it behind a paywall. Reselling other people's mods is
+  not accepted in this community, and leaking a mod its creator has not released
+  yet is treated as piracy.
+</Callout>
+
+- **Paid outfits stay paid.** Never put a paid outfit, or part of one, over a free look.
+- **No leaked content.** Never use models or textures from versions that are not out yet.
+- **Cosmetic only.** A mod changes how things look. Anything that gives an unfair advantage, such as chest markers or see-through walls, has no place in a mod you share.
+
+## Zip it
+
+1. Right-click the mod's top folder and make a `.zip` or `.7z` with your archive tool.
+2. Do not set a password. Players and download scanners must be able to open it.
+3. Check that the archive holds the top folder, not loose files.
+4. Ship variants, such as other colors or larger textures, as separate archives with clear names.
+5. If the archive gets very large, split it into parts and say in the readme what each part holds.
+
+## Test the archive
+
+Test the file you will share, not the folder on your disk.
+
+1. Move your working copy of the mod out of `Mods`, and turn off every other mod for that Resonator.
+2. Extract the archive into `%AppData%\XXMI Launcher\WWMI\Mods`, as a player would. The path should read `Mods\BrantNoHat\mod.ini`, with your own names.
+3. Start the game from XXMI Launcher, switch Resonators, and press `F10`.
+4. Check the mod in the Resonators menu and in motion. Press every key from your readme.
+5. Look for a `Mod Loading Error` box, a `WWMI Integrity Error` box, or any warning text. Untick **Mute Warnings** in the launcher's **WWMI** settings to see warnings. Do not count on a `Possible Mod Conflict` warning: it may not show for two mods made with WWMI Tools. That is why step 1 turns the other mods off.
+
+{/* NEEDS HANDS-ON TEST: with two WWMI Tools 1.9.4 exports for the same Resonator in Mods and Mute Warnings off, whether WWMI 1.2.2 shows a Possible Mod Conflict warning after F10 */}
+
+[Test and reload your mod](/docs/wuthering-waves/basics/test-your-mod) has the full list of states to check, such as zooming the camera out, and explains each message.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Update your mod after a game update"
+    href="/docs/wuthering-waves/publishing/update-your-mod"
+    icon={<Icon name="RefreshCw" />}
+    level="intermediate"
+    featured
+  >
+    Find what an update broke, rebuild, and share the fixed version.
+  </PremiumCard>
+  <PremiumCard
+    title="Add a toggle"
+    href="/docs/wuthering-waves/ini/add-a-toggle"
+    icon={<Icon name="ToggleRight" />}
+    level="intermediate"
+  >
+    Let players turn a part on and off with one key.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [LeoTorreZ's modding guides](https://leotorrez.github.io/modding/), for the file types a mod holds and the community's view on paywalls.
+- **Guide:** [Everything mod users should know](https://docs.google.com/document/d/1bEv1Z_KQQ3dbzdK8wmTGRnzD5hSISVYdmmIbgPE502Q) by Anilyan, for asking permission before you share an edit.
+- **Tool:** [WWMI Tools](https://github.com/SpectrumQT/WWMI-Tools) by SpectrumQT, for the Mod Info fields and the generated `mod.ini`.
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT, for the files the launcher refuses.
+- **Official:** [Guidelines for Derivatives Works of Wuthering Waves](https://wutheringwaves.kurogames.com/p/en/produce.html) and the [Wuthering Waves Terms of Use](https://wutheringwaves.kurogames.com/p/language_en/terms_of_service.html) by Kuro Games, for the non-commercial rule.

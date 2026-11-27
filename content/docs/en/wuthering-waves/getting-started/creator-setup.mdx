@@ -1,0 +1,274 @@
+---
+title: "Set up your creator tools"
+description: "Install the Wuthering Waves creator kit: hunting mode in XXMI Launcher, Paint.NET for DDS textures, Blender 4.5 LTS with WWMI Tools, and the original models."
+category: "getting-started"
+patch: "3.8"
+keywords:
+  ["wuthering waves modding tools", "wwmi tools", "wwmi blender", "wwmi-assets"]
+---
+
+<LevelPill level="beginner" />
+
+This page sets up everything you need to make your own Wuthering Waves mods. Install the texture kit first. Add Blender when you want to change a model's shape. You need a working XXMI Launcher with WWMI before you start.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/wuthering-waves/getting-started/install-with-xxmi-launcher"
+    note="with WWMI working"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="Monitor" note="64-bit">
+    Windows 10 or 11
+  </Requirement>
+  <Requirement icon="GitHub" note="optional, for downloading one folder">
+    A GitHub account
+  </Requirement>
+</Requirements>
+
+Written for XXMI Launcher 2.5.0, XXMI DLL 1.3.3, WWMI 1.2.2 and WWMI Tools 1.9.4.
+
+<img
+  src="/wiki-images/wuthering-waves-getting-started-creator-setup-1.webp"
+  alt="The Wuthering Waves creator kit: XXMI Launcher with Enable Hunting, Paint.NET and a code editor for textures; Blender 4.5 LTS, WWMI Tools 1.9.4 and your own frame dump, made with XXMI DLL 1.3.3 or newer, for model mods"
+/>
+
+## The texture kit
+
+<Steps>
+<Step>
+
+### Turn on hunting mode in XXMI Launcher
+
+Hunting mode lets you save a frame dump, a capture of everything the game draws in one frame. You make your mods from it. It is off by default.
+
+1. Open XXMI Launcher and click the WWMI icon.
+2. Click the gear icon to open the settings.
+3. Open the **WWMI** tab.
+4. Tick **Enable Hunting** in the **Shader Hunting** section. Leave **Dump Shaders** off.
+5. Start the game from XXMI Launcher.
+
+In game, these keys now work:
+
+| Key        | What it does                             |
+| ---------- | ---------------------------------------- |
+| `Numpad 0` | Turn hunting mode on or off (green text) |
+| `Ctrl+F12` | Show or hide the hunting guide           |
+| `F8`       | Save a frame dump                        |
+
+No numpad? Press `Numpad 0` on the Windows on-screen keyboard. The model kit below shows what a dump is for.
+
+{/* NEEDS HANDS-ON TEST: in XXMI Launcher 2.5.0, confirm the WWMI settings tab name and that Enable Hunting sits under Shader Hunting. */}
+
+{/* SCREENSHOT: wuthering-waves-getting-started-creator-setup-2.webp, XXMI Launcher 2.5.0 settings, WWMI tab, with Enable Hunting ticked. No current screenshot exists in any source. */}
+
+</Step>
+<Step>
+
+### Install a texture editor
+
+Wuthering Waves textures are `.dds` files. Paint.NET is free and opens and saves them without a plugin: DDS FileType Plus is built in since Paint.NET 4.2.2.
+
+<ToolCard
+  name="Paint.NET"
+  href="https://www.getpaint.net/download.html"
+  badge="Recommended"
+  icon={<Icon name="PaintNET" />}
+>
+  Free, Windows. Use the classic installer from getpaint.net.
+</ToolCard>
+
+1. Download the classic installer from getpaint.net.
+2. Run it and follow the steps.
+3. Open any `.dds` file to check that it works.
+
+Photoshop with Intel Texture Works, or GIMP, also work. [Texture editors and DDS plugins](/docs/wuthering-waves/tools/texture-editors) compares them, and [Save DDS textures the right way](/docs/wuthering-waves/textures/save-dds-files) has the save settings.
+
+</Step>
+<Step>
+
+### Install a code editor
+
+A mod's `.ini` file is plain text. WWMI Tools writes it for you, but you edit it to add toggles or fix an old mod. A code editor with colors for `.ini` files makes mistakes easier to spot.
+
+1. Install [Visual Studio Code](https://code.visualstudio.com/).
+2. Add syntax colors for 3DMigoto `.ini` files from [3dmigoto-ini-extensions](https://github.com/lupomikti/3dmigoto-ini-extensions) by lupomikti. It covers WWMI files and several editors.
+
+Save every `.ini` as UTF-8.
+
+{/* NEEDS HANDS-ON TEST: how to install 3dmigoto-ini-extensions in VS Code (marketplace entry or manual install) and its exact name in the editor. */}
+
+</Step>
+</Steps>
+
+That is all you need for your first texture mod.
+
+## The model kit
+
+<Steps>
+<Step>
+
+### Install Blender
+
+<ToolCard
+  name="Blender"
+  href="https://www.blender.org/download/lts/"
+  icon={<Icon name="Blender" />}
+>
+  Free, open source. Use Blender 4.5 LTS.
+</ToolCard>
+
+1. Download Blender 4.5 LTS from blender.org.
+2. Install it.
+
+WWMI Tools 1.9.4 needs Blender 3.6 or newer, and is tested up to Blender 5.0. Never use Blender 4.2: the add-on blocks it, because that version breaks custom normals. Old guides say "Blender 3.6 only". That is outdated: Blender 3.5 and older no longer work, and 4.5 LTS is the version to use.
+
+{/* NEEDS HANDS-ON TEST: import and export one Wuthering Waves Resonator with WWMI Tools 1.9.4 on Blender 4.5 LTS and on 5.2 LTS. Update the pinned version if 5.2 works. */}
+
+</Step>
+<Step>
+
+### Install WWMI Tools
+
+WWMI Tools is the Blender add-on for Wuthering Waves. It turns a frame dump into Blender objects, and your edited objects back into a finished mod, `mod.ini` included. XXMI Tools, the add-on for other games, does not support Wuthering Waves.
+
+<ToolCard
+  name="WWMI Tools"
+  href="https://github.com/SpectrumQT/WWMI-Tools/releases/latest"
+  badge="Required"
+  icon={<Icon name="GitHub" />}
+>
+  By SpectrumQT. Free and open source (GPL-3.0). Extracts, imports and exports
+  Wuthering Waves models.
+</ToolCard>
+
+1. Download the `.zip` file of the latest release, v1.9.4. Do not unzip it. Get it from GitHub.
+2. In Blender, open <MenuPath path="Edit > Preferences > Add-ons" />.
+3. Click the small down-arrow at the top right, then **Install from Disk...**.
+4. Pick the `.zip` file.
+5. Type `WWMI` in the search box and tick **Object: WWMI Tools**.
+6. Restart Blender.
+
+To check it worked, press `N` in the 3D view. The sidebar now has a **WWMI Tools** tab. Its **Mode** list has **Extract Objects From Dump**, **Import Object**, **Export Mod** and **Toolbox**. [WWMI Tools for Blender](/docs/wuthering-waves/tools/blender-add-on) explains every option.
+
+After every add-on update, restart Blender. If the panel says `Blender 4.2 is not supported!`, install Blender 4.5 LTS.
+
+Mods you export with WWMI Tools 1.9.4 need WWMI 1.2.2 or newer, which XXMI Launcher installs. Coming from WWMI Tools 1.8.0 or older? Object folders you extracted with it do not export with 1.9.4. Make a new frame dump and extract it again.
+
+{/* NEEDS HANDS-ON TEST: in Blender 4.5 LTS, the exact install flow for WWMI Tools 1.9.4 (Install from Disk..., the add-on's name in the list) and the name of the sidebar tab. */}
+
+{/* SCREENSHOT: wuthering-waves-getting-started-creator-setup-3.webp, Blender 4.5 Preferences > Add-ons with Object: WWMI Tools ticked, or the WWMI Tools sidebar tab with the Mode list open. The repository GIFs show an old 2024 layout. */}
+
+</Step>
+<Step>
+
+### Get the original models
+
+You start every model mod from the game's original model data. For Wuthering Waves, the main way is your own frame dump:
+
+1. Show the Resonator in game. A Resonator is a playable character.
+2. Press `Numpad 0`, then `F8`, to save a frame dump. WWMI Tools 1.9.4 needs a dump made with XXMI DLL 1.3.3 or newer.
+3. In WWMI Tools, use **Extract Objects From Dump**. You get one folder per object, named after its hash.
+
+[Make a frame dump](/docs/wuthering-waves/basics/frame-dump) shows the whole process, including how to keep other mods out of the dump.
+
+<ToolCard
+  name="WWMI-Assets"
+  href="https://github.com/SpectrumQT/WWMI-Assets"
+  icon={<Icon name="GitHub" />}
+>
+  By SpectrumQT. Ready extractions of many Resonators and weapons, but only up
+  to game version 2.7.
+</ToolCard>
+
+WWMI-Assets is a shortcut for practice. Its last update was for version 2.7, in October 2025. Resonators added after that are missing, and many models changed in later updates. Its folders also use the old texture names, like `Components-0 t=3dcf2a5e.dds`. WWMI Tools 1.9.4 imports them, but stops with an error when you export from them. For a new mod, make your own dump and extract it with WWMI Tools 1.9.4.
+
+{/* NEEDS HANDS-ON TEST: on WWMI Tools 1.9.4, that Import Object accepts a WWMI-Assets folder and that Export Mod with that folder as Object Sources stops with the unknown or outdated name format error */}
+
+To take one folder from it:
+
+1. Open WWMI-Assets on GitHub and find the folder you want.
+2. Sign in to GitHub. In the address bar, change `github.com` to `github.dev` and press Enter.
+3. Wait for the web editor to open. Right-click the folder and choose **Download**.
+4. Allow the site to save files, and pick a work folder on your PC.
+
+Never clone or download the whole repo. Keep the folder's files as they are: WWMI Tools needs its `Metadata.json` to import it.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: the github.dev right-click Download flow on the WWMI-Assets repo in a current browser, where the folder lands, and the folder layout of the repo. */}
+
+</Step>
+</Steps>
+
+Get original models only from your own frame dump or from WWMI-Assets, and export only from a folder you extracted with WWMI Tools 1.9.4. Tools that unpack the game's files are not covered here.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="WWMI Tools is ticked, but there is no tab" id="no-tab">
+
+The sidebar is hidden. Press `N` in the 3D view, or click the small `<` arrow at the top right of the view. Then click the **WWMI Tools** tab.
+
+</Accordion>
+<Accordion title='"Blender 4.2 is not supported!"' id="blender-42">
+
+WWMI Tools blocks Blender 4.2. Install Blender 4.5 LTS. You can keep another Blender next to it.
+
+</Accordion>
+<Accordion title="The panel looks old after an update" id="old-panel">
+
+Restart Blender after every add-on update. If you updated from WWMI Tools 1.4 or older and the panel still looks wrong, remove the add-on and install the new `.zip` again.
+
+</Accordion>
+<Accordion title="Hunting mode does nothing when I press Numpad 0" id="no-hunting">
+
+Tick **Enable Hunting** on the **WWMI** tab of the launcher settings, then start the game again from XXMI Launcher.
+
+</Accordion>
+</Accordions>
+
+More fixes are in [Blender export and import errors](/docs/wuthering-waves/errors/creator-errors).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Your first mod: recolor a character"
+    href="/docs/wuthering-waves/textures/recolor-a-character"
+    icon={<Icon name="Palette" />}
+    level="beginner"
+    featured
+  >
+    Change a Resonator's colors in your first texture mod.
+  </PremiumCard>
+  <PremiumCard
+    title="How Wuthering Waves mods work"
+    href="/docs/wuthering-waves/basics/how-mods-work"
+    icon={<Icon name="BookOpen" />}
+    level="beginner"
+  >
+    What WWMI swaps while the game draws, and why updates break mods.
+  </PremiumCard>
+  <PremiumCard
+    title="Get a model into Blender"
+    href="/docs/wuthering-waves/models/import-into-blender"
+    icon={<Icon name="Box" />}
+    level="intermediate"
+  >
+    Import a Resonator with WWMI Tools and pick the right skeleton mode.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Beginner's Guide to Wuthering Waves modding](https://gamebanana.com/tuts/19096) by Denwarenji.
+- **Tool:** [WWMI Tools](https://github.com/SpectrumQT/WWMI-Tools) by SpectrumQT, with its modder guide.
+- **Tool:** [WWMI Tools on GameBanana](https://gamebanana.com/tools/17289) by SpectrumQT, for the Blender version advice.
+- **Tool:** [WWMI-Assets](https://github.com/SpectrumQT/WWMI-Assets) by SpectrumQT.
+- **Tool:** [WWMI-Package](https://github.com/SpectrumQT/WWMI-Package) by SpectrumQT, for the hunting mode guide.
+- **Tool:** [DDS FileType Plus](https://github.com/0xC0000054/pdn-ddsfiletype-plus) by null54.
+- **Tool:** [3dmigoto-ini-extensions](https://github.com/lupomikti/3dmigoto-ini-extensions) by lupomikti.

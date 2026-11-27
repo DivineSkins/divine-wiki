@@ -1,0 +1,226 @@
+---
+title: "Add or swap clothing parts"
+description: "Move a hat, a skirt or another piece from one Genshin Impact character to another in Blender: fit it, make room on the texture, weight it, and export it."
+category: "models"
+patch: "7.2"
+keywords: ["genshin outfit mod", "kitbash", "add clothing", "xxmi tools"]
+---
+
+<LevelPill level="intermediate" />
+
+This guide puts a piece from one Genshin Impact character onto another. The example moves Hu Tao's hat onto Amber's head, in place of her ribbon. The same steps work for glasses, a skirt or a jacket. Written for XXMI Tools 1.8.2 on Blender 4.5 LTS.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Blender" href="/docs/genshin-impact/tools/blender-add-on">
+    Blender 4.5 LTS with XXMI Tools
+  </Requirement>
+  <Requirement
+    icon="Box"
+    href="/docs/genshin-impact/models/import-into-blender"
+  >
+    Dumps of both characters
+  </Requirement>
+  <Requirement
+    icon="PaintNET"
+    href="/docs/genshin-impact/tools/texture-editors"
+  >
+    A texture editor with DDS support
+  </Requirement>
+</Requirements>
+
+You should already know how to [remove a part](/docs/genshin-impact/models/remove-a-part) and export a mod.
+
+<Callout type="info" title="Parts from Genshin Impact only">
+  This guide uses parts from other Genshin Impact characters and NPCs. Models
+  from other games, films or anime are not covered. Each outfit, paid ones
+  included, is its own model with its own hashes: never put a paid outfit over
+  its free version.
+</Callout>
+
+## Plan where the piece goes
+
+You cannot add a new part to a character. Your piece joins one part the character already has, like `AmberHead` or `AmberBody`.
+
+- **Pick the part that suits the piece.** Each part draws with its own shader, made for what it held first. Keep skin in parts that had skin. Hair and hats go well in `Head`.
+- **Check which texture that part uses.** Open the dump's `hash.json`. The piece must share that part's textures, so you will make room on them.
+- **Cloth that shows its inside** goes in a `Dress` part if the character has one. [UV maps, vertex colors, and outlines](/docs/genshin-impact/models/uvs-and-vertex-colors) explains why, and what to do without one.
+
+## Add the piece
+
+<Steps>
+<Step>
+
+### Cut and fit the piece
+
+1. Import both dumps into one Blender scene: the target's first (Amber), then the source's (Hu Tao).
+2. On the source character, press `Tab` for Edit Mode. Hover over the piece and press `L` to select it.
+3. Press `P` > **Selection**. The piece is now its own object.
+4. In Edit Mode on the new object, run <MenuPath path="Mesh > Clean Up > Delete Loose" />.
+5. In Object Mode, choose <MenuPath path="Object > Set Origin > Origin to Geometry" />.
+6. Move, rotate and scale it with `G`, `R` and `S` until it sits right on the target.
+7. Press `Ctrl+A` > **All Transforms**.
+8. For a close fit, use the **Grab** brush in Sculpt Mode.
+9. Delete the target's old piece, like Amber's ribbon, the same way you remove a part.
+
+</Step>
+<Step>
+
+### Make room on the texture
+
+1. Open the target part's diffuse, for example `AmberHeadDiffuse.dds`, in your texture editor.
+2. Double the canvas width, for example from 1024 to 2048. Change the canvas size: do not resize the image. Keep the original texture in the left half.
+3. Paste the source piece's texture into the empty right half.
+4. Do the same for the LightMap, with the same layout. If you skip it, shadows on the piece look wrong.
+5. Keep the alpha channel of both textures. In Genshin Impact the diffuse alpha marks what glows.
+
+<img
+  src="/wiki-images/genshin-impact-models-add-clothing-parts-1.webp"
+  alt="A tutorial slide: the Amber and Hu Tao head textures, with Amber's canvas doubled in width and Hu Tao's texture pasted into the new half"
+/>
+
+Then move the UVs to match, in Blender's UV Editor:
+
+1. Set **Pivot Point** to **2D Cursor**, with the cursor at `0, 0`.
+2. Select the target part, select all its UVs, and type `S` `X` `0.5`.
+3. Select the piece, select all its UVs, and type `S` `X` `0.5`, then `G` `X` `0.5`.
+
+The target part now uses the left half of the wide texture, and the piece uses the right half. Sizes stay powers of two: 2048 by 1024 is fine.
+
+</Step>
+<Step>
+
+### Weight the piece
+
+The piece's vertex groups came from its first character. Those numbers mean nothing on the new one.
+
+**A rigid piece** (a hat, glasses, a pin) follows one bone:
+
+1. Delete all the piece's vertex groups.
+
+   <img
+     src="/wiki-images/genshin-impact-models-add-clothing-parts-2.webp"
+     alt="A tutorial slide about weights: Hu Tao's hat in Weight Paint mode, all blue, with a note that all of Hu Tao's vertex groups are deleted because Amber has no matching hat bones"
+   />
+
+2. Select the target part and enter Weight Paint mode. Click through its groups until one is fully red where the piece sits. For a hat on Amber, that was group `29`.
+3. On the piece, add one group, rename it to that number, and assign every vertex with weight `1.000`.
+
+**A piece that moves** (a skirt, a coat, long hair) needs weights from the body. Copy them with Data Transfer, as [Weight paint a mesh](/docs/genshin-impact/models/weight-painting) shows. Then borrow bones for the parts that hang:
+
+- The front of a skirt follows the thighs.
+- The back and the hem follow the lower legs.
+- For sway, use a moving part the character already has: a cape, belt, tassel or sash. You cannot add new bones.
+
+Group numbers differ for every character. Find them in Weight Paint mode on the target's own parts.
+
+<YouTube
+  id="nBuhsEKjWnA"
+  start={1022}
+  title="Custom Outfits, weighting a dress to the legs and cape bones, by Murren Mods"
+/>
+
+The video is from 2023 and uses the old GIMI exporter. Its bone numbers come from 2023 rigs, so check your own character's groups.
+
+</Step>
+<Step>
+
+### Fix colors and names
+
+1. Give the piece a `COLOR` attribute. Copy it from the target part, or set hex `FF8080` with alpha `0.502` (hex `80`).
+2. Check that its UV map is named `TEXCOORD.xy`, like the target's.
+3. Look for red faces with the **Face Orientation** overlay and flip them.
+
+</Step>
+<Step>
+
+### Join, clean up, export
+
+1. Select the piece, then `Shift+click` the target part so it is active.
+2. Press `Ctrl+J`. The piece is now part of `AmberHead`, with its name and properties.
+3. Run the vertex group clean-up from the weight painting guide: merge, fill gaps, normalize.
+4. Press `N` and open **XXMI Tools**. Check that **Dump Folder** is the target's dump (Amber's), not the source's. XXMI Tools fills it from the first dump you import, and the export reads that dump's `hash.json`.
+5. Export with XXMI Tools, copy your edited textures over the exported ones with the same file names, and press `F10` in game.
+
+<img
+  src="/wiki-images/genshin-impact-models-add-clothing-parts-3.webp"
+  alt="A tutorial slide: Amber in game wearing Hu Tao's hat, after export and reload"
+/>
+
+</Step>
+</Steps>
+
+## Keep pieces separate for toggles
+
+Joining makes the piece part of the mesh for good. To switch it on and off later, keep it as its own object instead:
+
+1. Make a collection whose name starts with the part's name, for example `AmberHead`.
+2. Put your pieces inside. Give them names that do not start with the part's name, like `HuTaoHat`.
+3. Export. XXMI Tools merges the collection into that part and writes one `drawindexed` line per object, with its name in a comment.
+
+Each `drawindexed` line can then go inside a toggle. Hidden objects are skipped when **Ignore hidden objects** is on.
+
+{/* NEEDS HANDS-ON TEST: with XXMI Tools 1.8.2, where the emptied original object must sit (inside the collection or at the top level), and that each object in the collection gets its own commented drawindexed line. */}
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The piece floats or stays behind when the character moves" id="piece-floats">
+
+It follows the wrong bone. Pick the group that is fully red right where the piece sits, and assign the piece to it again.
+
+</Accordion>
+<Accordion title="The body pokes through the new clothing" id="clipping">
+
+The body under the clothing is still drawn, or the two layers have different weights. Delete the body faces that the clothing covers. On tight clothing, a **Displace** modifier with a strength of `0.001` pushes it out a little. Weight both layers the same way.
+
+</Accordion>
+<Accordion title="Removing the old piece left a hole" id="hole">
+
+Genshin Impact meshes leave out faces that clothing hides, to save vertices. Rebuild the area: select the border edges and press `F`, or mirror the other side.
+
+</Accordion>
+<Accordion title="Shadows on the piece look wrong" id="wrong-shadows">
+
+The LightMap does not match the new diffuse. Give it the same canvas size and layout, and pick its colors from the source character's LightMap.
+
+</Accordion>
+<Accordion title="The piece glows" id="piece-glows">
+
+The pasted area lost its diffuse alpha. Copy the source texture's alpha into the same area.
+
+</Accordion>
+</Accordions>
+
+More symptoms are on [Model problems in game](/docs/genshin-impact/errors/model-problems).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Add a toggle"
+    href="/docs/genshin-impact/ini/add-a-toggle"
+    icon={<Icon name="ToggleRight" />}
+    level="intermediate"
+  >
+    Switch your new piece on and off with a key.
+  </PremiumCard>
+  <PremiumCard
+    title="Swap weapons, gliders, and objects"
+    href="/docs/genshin-impact/models/swap-weapons-and-objects"
+    icon={<Icon name="Swords" />}
+    level="intermediate"
+  >
+    Replace a weapon model, and keep it to one character.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide and images:** [Anchovie's Modding Tutorial](https://gamebanana.com/tuts/18857) by AnchoviesOnMars.
+- **Guide:** [Modding Tutorial - Add parts of one character into another \[Beginner Level\]](https://docs.google.com/document/d/1IwXhZNKWOJLz1FG9P8WsEMxgL_1O6c42-ZddkdYftQA) and [3D anime models - lessons](https://docs.google.com/document/d/1OhNw4xVTRl-eZyPLZv2mAchy2scjnXX3Hw3BCPQXU1A) by [Anilyan](https://discord.com/users/301273867618484235), from her [base bodies and tutorials hub](https://gamebanana.com/tuts/19046).
+- **Video:** [\[Genshin Modding\] Episode 4.1 - Custom Outfits!](https://www.youtube.com/watch?v=nBuhsEKjWnA) by Murren Mods.
+- **Tool:** [XXMI Tools](https://github.com/leotorrez/XXMITools) by LeoTorreZ.

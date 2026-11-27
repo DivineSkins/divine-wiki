@@ -1,0 +1,233 @@
+---
+title: "Fix your mods after a game update"
+description: "Get Zenless Zone Zero mods working again after an update: back up, update ZZMI, check your settings, and run the ZZZ Mod Fixer only on the mods that broke."
+category: "getting-started"
+patch: "3.3"
+keywords: ["zzz mods broken", "zzz mod fixer", "zzz 3.3 mods", "zzmi update"]
+---
+
+<LevelPill level="beginner" />
+
+Almost every Zenless Zone Zero update changes some agents' hashes, so some mods stop working for a few days. This page shows what to do, in order, so you fix the broken mods without breaking the ones that still work. Written for Zenless Zone Zero 3.3 with ZZMI 1.5.2.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/zenless-zone-zero/getting-started/install-with-xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="FileArchive" note="such as 7-Zip">
+    An archive tool
+  </Requirement>
+</Requirements>
+
+## The order to follow
+
+<img
+  src="/wiki-images/zenless-zone-zero-getting-started-fix-mods-after-an-update-1.webp"
+  alt="Six steps in a row: back up Mods, update XXMI Launcher, check DirectX 11 and the two graphics options, test with F10, run the ZZZ Mod Fixer on broken mods only, then wait for the creator"
+/>
+
+Most mods work again after steps 2 and 3. Only use the fix tool when a mod is still broken after them.
+
+## What usually breaks in Zenless Zone Zero
+
+Zenless Zone Zero updates break mods in three ways:
+
+- **The game changes an agent's hashes.** The mod stops finding the agent, so you see the original look. This happens to some agents in almost every update. The ZZZ Mod Fixer updates the hashes for you.
+- **The game changes an agent's model data.** A part gets split, the bones or the texture layout change, or the face data changes. The mod looks stretched, bent or scrambled. Scripts often cannot fix this, so the creator has to export the mod again.
+- **ZZMI itself changes.** Sometimes a new ZZMI version breaks mods for a few days. In September 2026, a ZZMI release broke most mods and hotfixes followed within about a week.
+
+The last big break was version 3.2, on September 9, 2026. It changed face data, bones and texture layouts for some agents. Version 3.3, on October 21, 2026, changed only a few hashes.
+
+| What you see                                                 | Likely cause                                              | What to do                                                              |
+| ------------------------------------------------------------ | --------------------------------------------------------- | ----------------------------------------------------------------------- |
+| No mod shows, and there is no ZZMI banner                    | ZZMI did not load                                         | See [Mods not loading](/docs/zenless-zone-zero/errors/mods-not-loading) |
+| Every mod looks broken                                       | A graphics option is wrong                                | Check the settings (step 3)                                             |
+| The mod does not show, and you see the original look         | The agent's hashes changed                                | The ZZZ Mod Fixer, on the broken mods only                              |
+| Broken face or black patches on the face                     | The face data changed (3.2)                               | Wait for the creator                                                    |
+| Bent legs, a stretched mesh or scrambled textures            | The model data changed                                    | Try the fixer, then wait for the creator                                |
+| Textures look broken on a graphics card with under 6 GB VRAM | The game uses lower-resolution textures with other hashes | The fixer covers both texture sizes. Otherwise ask the creator          |
+
+## Fix your mods
+
+<Steps>
+<Step>
+
+### Back up your Mods folder before the update
+
+1. Open `%AppData%\XXMI Launcher\ZZMI\Mods`.
+2. Zip the whole folder with your archive tool.
+3. Keep the zip outside the `Mods` folder.
+
+Fix tools change model files that you cannot undo by hand. The zip is your way back.
+
+</Step>
+<Step>
+
+### Update the game, then XXMI Launcher
+
+1. Update Zenless Zone Zero in HoYoPlay, the Epic Games Launcher or Steam. XXMI Launcher does not update the game.
+2. Open XXMI Launcher. It checks for updates when it starts and offers to install new versions of ZZMI.
+3. To check by hand, click the 3-dots button next to **Start**, then **Check For Updates**.
+4. Check the version in the bottom-left corner, for example `ZZMI 1.5.2`.
+
+ZZMI often gets small fixes in the weeks after an update, such as support for new agents. Open the launcher every few days so you get them.
+
+{/* NEEDS HANDS-ON TEST: the exact update prompt XXMI Launcher 2.5.0 shows when a new ZZMI version is out, and whether it installs it without asking. */}
+
+</Step>
+<Step>
+
+### Check the game settings
+
+1. Make sure the game runs in DirectX 11, with the **DX12** box under **Start Game** unticked.
+2. If you have an NVIDIA card, check that Smooth Motion and frame generation are still off.
+3. Start the game with **Start** in XXMI Launcher.
+4. Open <MenuPath path="Settings > Graphics" />.
+5. Check that **Character Quality** is **High** and **High-Precision Character Animation** is **Disable**.
+
+Many "all my mods broke" reports are one of these settings alone. The launcher sets the two graphics options on each start while **Configure Game Settings For ZZMI** is ticked.
+
+{/* NEEDS HANDS-ON TEST: the exact English labels of the two graphics options in the 3.3 client, and whether a game update can switch DX12 back on. */}
+
+</Step>
+<Step>
+
+### Test your mods
+
+1. Switch to a different agent so the modded one is off screen.
+2. Press `F10` to reload.
+3. Switch back and check each modded agent.
+
+Write down which mods are still broken. Only those need the fix tool.
+
+</Step>
+<Step>
+
+### Run the ZZZ Mod Fixer on the broken mods only
+
+<Callout type="warning" title="Get the fixer only from this GitHub page">
+  Fake fixers carrying malware have been uploaded after game updates. Download
+  only from the GitHub releases page below. Never use a "fix" that replaces
+  `d3d11.dll`, asks for admin rights, or comes in a password-protected archive.
+</Callout>
+
+<ToolCard
+  name="ZZZ Mod Fixer (Community Update)"
+  href="https://github.com/Vonksdesu/ZZZ-Mod-Fixer/releases/latest"
+  icon={<Icon name="GitHub" />}
+>
+  By Vonksdesu, also known as ZumwaltDDG1000 on GameBanana. It continues
+  petrascyll's fixer and updates agent hashes in old mods.
+</ToolCard>
+
+The current release is v2.3.0, from November 21, 2026. Its file is `zzz-mod-fixer-v3.3.exe`, for game version 3.3. Its readable [source code](https://github.com/Vonksdesu/ZZZ-Mod-Fixer/tree/gui-version) is in the `gui-version` branch.
+
+<img
+  src="/wiki-images/zenless-zone-zero-getting-started-fix-mods-after-an-update-2.webp"
+  alt="The Assets list of the ZZZ Mod Fixer v2.3.0 release on GitHub, with zzz-mod-fixer-v3.3.exe and the source code archives"
+/>
+
+The fixer works on a whole `Mods` folder, so first leave only the broken mods in it:
+
+1. Move every mod that still works out of `Mods`, into a folder outside it.
+2. Download `zzz-mod-fixer-v3.3.exe` from the latest release.
+3. Run it from any folder. It does not need to sit in `Mods`.
+4. In the app, select your `Mods` folder: `%AppData%\XXMI Launcher\ZZMI\Mods`.
+5. Choose to apply the changes with a folder backup.
+6. Start the fix and wait until it ends.
+7. Move your working mods back into `Mods`.
+8. Start the game with XXMI Launcher, press `F10`, and check each agent.
+
+If a fixed mod looks worse than before, use **Rolling Back** in the app, or restore the mod from your zip.
+
+The app also holds two remappers, for Jane and Dialyn mods made before version 2.5. Use them only on those mods, and only once.
+
+{/* NEEDS HANDS-ON TEST: on Zenless Zone Zero 3.3, run zzz-mod-fixer-v3.3.exe on a Mods folder that holds only one broken mod, confirm it fixes that mod, and record the exact labels for the folder choice, the backup option, the start button and Rolling Back. */}
+
+The fixer only updates hashes. It does not fix complex breaks, and its support is full only for mods from version 2.2 onward. Some very old mods cannot be fixed.
+
+Run the fixer once per mod. Running it twice, or an older fixer after a newer one, can break the mod for good. If that happens, restore the mod from your zip and start again.
+
+Windows SmartScreen and antivirus programs sometimes flag the fixer, because it rewrites many files at once. Check that it came from the GitHub page above. If Windows still blocks it, use the source version instead of an exclusion: the Python source in the `gui-version` branch comes with a `run-fixer-gui.bat` file that starts it. You need Python installed for it. Never turn your antivirus off.
+
+{/* NEEDS HANDS-ON TEST: start the ZZZ Mod Fixer from the gui-version source with run-fixer-gui.bat on Zenless Zone Zero 3.3: which files must be copied, which Python version works, and where the folder must sit. The README's own steps still name older file names. */}
+
+</Step>
+<Step>
+
+### Still broken? Wait for the creator
+
+Some breaks no script can fix. Jane mods from before version 2.5 and Belle mods from before version 3.0 often need a new export from their creator, for example. Check the page where you got the mod for an update, and give creators a few days after a big update.
+
+To find which mod breaks things:
+
+1. Turn off half of your mods with the `DISABLED` prefix.
+2. Press `F10` and check whether the problem is still there.
+3. Keep halving the group that has the problem until one mod is left.
+
+</Step>
+</Steps>
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Mods fixed with the old fixer stop loading" id="old-backups">
+
+The original fixer by petrascyll left backup files next to each `.ini`. They can clash with the updated files. Delete every `.ini` whose name starts with `DISABLED_BACKUP_`, or start again from untouched copies of your mods and run the current fixer.
+
+</Accordion>
+<Accordion title="A mod looks flat or loses its shading after a fix tool" id="flat-normals">
+
+Some older fix tools added `run = CommandListSkinTexture` lines that flatten the shading. Restore the mod from your zip and run the current ZZZ Mod Fixer instead, which fixed this.
+
+</Accordion>
+<Accordion title="Someone shared a new d3d11.dll that fixes everything" id="random-dll">
+
+Never use it. ZZMI and the XXMI DLL come only through XXMI Launcher. A loader file from anywhere else can carry malware.
+
+</Accordion>
+<Accordion title="I use a mod manager" id="mod-manager">
+
+Some managers edit mod `.ini` files. Use the manager's restore option on a mod before you run a fix tool on it.
+
+</Accordion>
+</Accordions>
+
+If you make mods yourself, [Update your mod after a game update](/docs/zenless-zone-zero/publishing/update-your-mod) covers the creator side.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Mods look broken"
+    href="/docs/zenless-zone-zero/errors/mods-look-broken"
+    icon={<Icon name="TriangleAlert" />}
+    level="beginner"
+  >
+    Match what you see in game to its cause and fix.
+  </PremiumCard>
+  <PremiumCard
+    title="Update fix tools"
+    href="/docs/zenless-zone-zero/tools/update-fixers"
+    icon={<Icon name="Wrench" />}
+    level="intermediate"
+  >
+    Every fix tool for Zenless Zone Zero, and how to tell real ones from fakes.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Tool:** [ZZZ-Mod-Fixer (Community Update)](https://github.com/Vonksdesu/ZZZ-Mod-Fixer) by Vonksdesu.
+- **Tool page:** [ZZZ Mod Fixer (v3.2 Community Update)](https://gamebanana.com/tools/23064) by ZumwaltDDG1000.
+- **Tool:** [zzz-scripts](https://github.com/Petrascyll/zzz-scripts) by petrascyll, the original fixer.
+- **Tool:** [ZZMI-Package releases](https://github.com/leotorrez/ZZMI-Package/releases) by leotorrez and the ZZMI maintainers.
+- **Tool page:** [ZZZ Index & Vertex Fix Tool](https://gamebanana.com/tools/24146) by GreenLzz, for its explanation of the 3.2 break.
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ.

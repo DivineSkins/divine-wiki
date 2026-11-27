@@ -1,0 +1,227 @@
+---
+title: "Get a model into Blender"
+description: "Import a Zenless Zone Zero agent into Blender with XXMI Tools and the Zenless Zone Zero preset, and learn what the imported objects hold before you edit them."
+category: "models"
+patch: "3.3"
+keywords:
+  ["zzz blender import", "xxmi dump import", "xxmi tools", "zzmi blender"]
+---
+
+<LevelPill level="intermediate" />
+
+Every model mod starts from the agent's original model. This page loads it into Blender with XXMI Tools, the right way, so it can export later. You need Blender and XXMI Tools installed, and the agent's dump folder. Written for XXMI Tools 1.8.2 on Blender 4.5 LTS.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="Blender"
+    href="https://www.blender.org/download/lts/"
+    note="4.5 LTS"
+  >
+    Blender
+  </Requirement>
+  <Requirement
+    icon="Box"
+    href="/docs/zenless-zone-zero/tools/blender-add-on"
+    note="1.8.2"
+  >
+    XXMI Tools
+  </Requirement>
+  <Requirement icon="FolderOpen" note="asset repo or frame dump">
+    An agent dump folder
+  </Requirement>
+</Requirements>
+
+Nothing installed yet? [Set up your creator tools](/docs/zenless-zone-zero/getting-started/creator-setup) installs Blender and XXMI Tools and shows how to download one agent folder.
+
+<img
+  src="/wiki-images/zenless-zone-zero-models-import-into-blender-1.webp"
+  alt="The Ellen dump folder with its ib and vb0 text files and hash.json, imported with XXMI Dump and the Zenless Zone Zero preset, gives the objects EllenHairA and EllenBodyA with vertex groups, four TEXCOORD UV maps, a COLOR attribute and 3DMigoto properties"
+/>
+
+## Get the original model
+
+You import a **dump**: a folder with the agent's buffers as `.txt` files, its textures and a `hash.json` file. It comes from one of two places:
+
+- **The asset repo.** [ZZ-Model-Importer-Assets](https://github.com/leotorrez/ZZ-Model-Importer-Assets) has a folder per agent in `PlayerCharacterData`, for example `Ellen` or `Belle`. Outfits have their own folder, such as `EllenCampus`. Download only that one folder, never the whole repo.
+- **Your own frame dump.** The repo holds dumps from version 3.2. It has no folder for Phoenix, Severian, Rokudo or Roxy, and 3.3 changed a few hashes. For those, [make a frame dump](/docs/zenless-zone-zero/basics/frame-dump) and extract the agent with gui_collect.
+
+Put the folder somewhere it can stay, for example `Modding\Dumps\Ellen`. Then follow two rules:
+
+- **Never rename the folder.** XXMI Tools uses its name to find your objects and to name the mod.
+- **Never delete or edit `hash.json`.** Export reads every hash from it.
+
+<Callout type="warning" title="A finished mod is not a dump">
+  XXMI Tools imports dumps only. You cannot import a mod you or someone else
+  exported, so keep your own `.blend` file for every mod you make.
+</Callout>
+
+## Import the agent
+
+<Steps>
+<Step>
+
+### Start an empty scene
+
+1. Open Blender 4.5 LTS.
+2. Click in the 3D Viewport, press `A` to select everything, then press `X` and choose **Delete**. This removes the default cube, camera and light.
+
+</Step>
+<Step>
+
+### Open the XXMI Dump importer
+
+1. Open <MenuPath path="File > Import > XXMI Dump(vb.txt + ib.txt)" />.
+2. Go into the agent's dump folder, the one that holds `hash.json`.
+3. Select every file the browser shows. It lists only the `.txt`, `.buf` and `.fmt` files.
+
+Older videos use `3DMigoto frame analysis dump (vb.txt + ib.txt)` instead. That importer has no game preset, and its default axes are for other games. If you use it, keep **Flip TEXCOORD V** on and set **Forward** to `Y` and **Up** to `Z`. The steps below use the newer importer.
+
+</Step>
+<Step>
+
+### Pick the Zenless Zone Zero preset
+
+On the right side of the file browser:
+
+1. Leave **Simple mode** ticked.
+2. Set **Game preset** to `Zenless Zone Zero`. The red box "You must select a game" goes away.
+3. Optional: tick **Create Materials** to see the textures later.
+4. Leave **Merge Vertices**, **Tris to Quads** and **Clean Loose** off.
+5. Click the import button at the bottom right.
+
+The preset sets the rest for you: it flips the UVs and the mesh, uses `Y` forward and `Z` up, and turns the agent upright. Do not change the flip or axis options by hand. If you do, the preset switches back to `None` without a warning.
+
+{/* SCREENSHOT: zenless-zone-zero-models-import-into-blender-2.webp, Blender 4.5 file browser in the Ellen dump folder with all files selected, and the XXMI Dump panel on the right showing Simple mode ticked and Game preset set to Zenless Zone Zero */}
+
+{/* NEEDS HANDS-ON TEST: the label of the import button in the XXMI Tools 1.8.2 file browser, and that Simple mode with the Zenless Zone Zero preset imports a ZZ-Model-Importer-Assets folder of .txt files without extra settings */}
+
+</Step>
+<Step>
+
+### Save your .blend file
+
+Open <MenuPath path="File > Save As" /> and save the file in your work folder, for example `Modding\Blend\Ellen.blend`. Save often from now on.
+
+</Step>
+</Steps>
+
+## What you see after import
+
+The agent shows up as one object per part, named agent, component and part. Ellen gives `EllenHairA` and `EllenBodyA`. Other agents have more components, like Belle's `BelleEarringsA` and `BelleHairpinA`, and some components have several parts, like `BelleBodyA` and `BelleBodyB`. [Character names and parts](/docs/zenless-zone-zero/basics/character-names-and-parts) explains these names.
+
+{/* NEEDS HANDS-ON TEST: the exact object names XXMI Tools 1.8.2 gives on import (EllenHairA, or the full file name with -vb0=hash) */}
+
+Each object carries data that export needs. Edit the mesh as you like, but keep these:
+
+| What                                                    | Where in Blender                                                                                                    | Why it matters                                                  |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| The object name                                         | Outliner                                                                                                            | Export finds each part by its name.                             |
+| Vertex groups `0`, `1`, `2` ...                         | <MenuPath path="Object Data Properties > Vertex Groups" />                                                          | They are the game's bone numbers. Some are empty but must stay. |
+| UV maps `TEXCOORD.xy`, `TEXCOORD1.xy` to `TEXCOORD3.xy` | <MenuPath path="Object Data Properties > UV Maps" />                                                                | Export looks for these exact names. Each one has a job.         |
+| Color attribute `COLOR`                                 | <MenuPath path="Object Data Properties > Color Attributes" />                                                       | Game data for outlines and hair shadows, not paint.             |
+| `3DMigoto:` custom properties                           | <MenuPath path="Object Properties > Custom Properties" />, or the sidebar panel **XXMI Object's Custom properties** | They hold the buffer format. Never edit them.                   |
+
+Three more things look odd but are normal:
+
+- **The mesh looks cut into pieces.** Vertices are split along UV and shading seams. Leave them split unless you plan to sculpt.
+- **There is no skeleton.** XXMI Tools imports no armature. The vertex groups still tell the game which bone moves which vertex.
+- **There is no face mesh.** Zenless Zone Zero faces are texture only: face meshes cannot be edited yet.
+
+## Line up new parts with the original
+
+The preset stands the agent upright. Place anything you add on top of the imported original, so it lines up in Blender, then press `Ctrl+A` and choose **All Transforms** before you join it in.
+
+{/* NEEDS HANDS-ON TEST: whether a model lined up with a Zenless Zone Zero preset import needs any extra rotation before export */}
+
+## Keep a clean reference copy
+
+Later you copy weights and vertex colors from the original. Keep an untouched copy for that:
+
+1. Right-click in the Outliner and choose **New Collection**. Name it `Reference`.
+2. Select the imported objects and press `Shift+D`, then right-click to drop the copies in place.
+3. Press `M` and move the copies into `Reference`.
+4. Click the eye icon of `Reference` to hide it.
+
+Keep it hidden when you export. Copies are named like `EllenHairA.001`, and two visible objects that start with the same part name stop the export.
+
+## See the textures (optional)
+
+If you ticked **Create Materials**, each part has a material with its diffuse texture.
+
+1. Press `Z` in the 3D Viewport and choose **Material Preview**.
+2. If the colors look washed out, set <MenuPath path="Render Properties > Color Management > View Transform" /> to `Standard`.
+
+{/* NEEDS HANDS-ON TEST: whether Blender 4.5 shows the BC7 diffuse textures from the Zenless Zone Zero asset repo with Create Materials, or needs a DDS add-on or PNG copies */}
+
+## Clean up before you sculpt (optional)
+
+Skip this for a first edit like removing a part. Do it when you will sculpt or select edge loops:
+
+1. Select an object and press `Tab` for Edit Mode, then `A` to select all.
+2. Open <MenuPath path="Mesh > Clean Up > Delete Loose" /> to remove stray vertices. Some agents, like Anby, carry a lot of loose pieces.
+3. Press `M` and choose **By Distance**. Set the distance to `0.00001 m` and tick **Sharp Edges**, so the shading survives.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title='A red box says "You must select a game"' id="select-a-game">
+
+Simple mode needs a preset. Set **Game preset** to `Zenless Zone Zero`. The same cause gives the error `Simple mode can only export the specified games. Select one from the list to proceed or disable simple mode.`
+
+</Accordion>
+<Accordion title="The agent lies down or faces away" id="wrong-axes">
+
+The import used the wrong axes. Import again with the `Zenless Zone Zero` preset, or set Forward `Y` and Up `Z` in the older importer.
+
+</Accordion>
+<Accordion title='"Unable to find corresponding buffers"' id="not-a-dump">
+
+You selected files that are not dump buffers, such as a finished mod's `.buf`, `.ini` or textures. Import a dump folder with `-ib=` and `-vb0=` files instead.
+
+</Accordion>
+<Accordion title='"Corresponding .buf files not found - using .txt files"' id="txt-instead-of-buf">
+
+This warning is harmless. Asset repo folders hold `.txt` buffers, and the importer reads those instead.
+
+</Accordion>
+<Accordion title="XXMI Dump is missing from File > Import" id="no-importer">
+
+XXMI Tools is not installed or not enabled. Tick `XXMI_Tools` in <MenuPath path="Edit > Preferences > Add-ons" /> and restart Blender. Remove any old 3DMigoto add-on first.
+
+</Accordion>
+</Accordions>
+
+More import and export messages are on [Blender export and import errors](/docs/zenless-zone-zero/errors/creator-errors).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Your first model edit: remove a part"
+    href="/docs/zenless-zone-zero/models/remove-a-part"
+    icon={<Icon name="Scissors" />}
+    level="intermediate"
+    featured
+  >
+    Remove Yanagi's glasses, export the mod and see it in game.
+  </PremiumCard>
+  <PremiumCard
+    title="Export your mod from Blender"
+    href="/docs/zenless-zone-zero/models/export-your-mod"
+    icon={<Icon name="PackageCheck" />}
+    level="intermediate"
+  >
+    The naming and data rules that make an export work.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [XXMI Tools guide](https://leotorrez.github.io/modding/guides/xxmi_tools) by LeoTorreZ.
+- **Guide:** [Correctly Importing and Exporting with Blender](https://gamebanana.com/tuts/18033) by hazelberry.
+- **Tool:** [XXMI Tools](https://github.com/leotorrez/XXMITools) by LeoTorreZ and contributors.
+- **Tool:** [ZZ-Model-Importer-Assets](https://github.com/leotorrez/ZZ-Model-Importer-Assets) by LeoTorreZ, maintained mostly by Satan1c.

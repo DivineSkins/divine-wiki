@@ -1,0 +1,229 @@
+---
+title: "Add or swap clothing parts"
+description: "Move a piece from one Honkai: Star Rail character to another in Blender: pick the right part, fit it, make room on the texture, weight it, and export it."
+category: "models"
+patch: "4.7"
+keywords: ["star rail outfit mod", "kitbash", "add clothing", "xxmi tools"]
+---
+
+<LevelPill level="intermediate" />
+
+This guide puts a piece from one Honkai: Star Rail character onto another, such as an ornament, a belt or a jacket. The example adds a piece to Kafka. No Star Rail tutorial covers this yet. The steps come from guides for other XXMI games and the shared Blender workflow, with the Star Rail rules added, and nobody has tested them on Star Rail. Written for XXMI Tools 1.8.2 on Blender 4.5 LTS.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="Blender"
+    href="/docs/honkai-star-rail/tools/blender-add-on"
+  >
+    Blender 4.5 LTS with XXMI Tools
+  </Requirement>
+  <Requirement
+    icon="Box"
+    href="/docs/honkai-star-rail/models/import-into-blender"
+  >
+    Dumps of both characters
+  </Requirement>
+  <Requirement
+    icon="PaintNET"
+    href="/docs/honkai-star-rail/tools/texture-editors"
+  >
+    A texture editor with DDS support
+  </Requirement>
+</Requirements>
+
+You should already know how to [remove a part](/docs/honkai-star-rail/models/remove-a-part) and export a mod.
+
+<Callout type="info" title="Parts from Honkai: Star Rail only">
+  This guide uses parts from other Honkai: Star Rail characters. Models from
+  other games, films or anime are not covered. Each outfit, paid ones included,
+  is its own model with its own hashes: never put a paid outfit over its free
+  version.
+</Callout>
+
+## Plan where the piece goes
+
+You cannot add a new part to a character. Your piece joins one part the character already has, like `KafkaHairA` or `KafkaBodyB`.
+
+- **Pick the component that suits the piece.** Each component draws with its own kind of shading: `Hair` for hair, `Body` for clothing and skin. Things that sit on the hair go well in `Hair`. Clothing and accessories go in a `Body` part.
+- **Leave `Head` alone.** It is the face, and its shading depends on its UV layout. A piece added there gets face shading.
+- **Check which texture that part uses.** Open the dump's `hash.json`. The piece must share that part's textures, so you will make room on them. Parts often share a texture: Kafka's body parts A and B use one set, C, D and E another.
+
+{/* NEEDS HANDS-ON TEST: how a piece looks in Honkai: Star Rail 4.7 when it joins a Hair part, a Body part, and the Head component, to confirm each component's shading */}
+
+## Add the piece
+
+<Steps>
+<Step>
+
+### Cut and fit the piece
+
+1. Import both dumps into one Blender scene: Kafka's first, then the source character's.
+2. On the source character, select the object that holds the piece and press `Tab` for Edit Mode. Hover over the piece and press `L` to select it.
+3. Press `P` > **Selection**. The piece is now its own object.
+4. In Edit Mode on the new object, run <MenuPath path="Mesh > Clean Up > Delete Loose" />.
+5. In Object Mode, choose <MenuPath path="Object > Set Origin > Origin to Geometry" />.
+6. Move, rotate and scale it with `G`, `R` and `S` until it sits right on Kafka.
+7. Press `Ctrl+A` > **All Transforms**.
+8. For a close fit, use the **Grab** brush in Sculpt Mode.
+9. If the piece replaces one of Kafka's, delete the old one the same way you remove a part.
+
+Rename the piece's object so its name does not start with a part name, for example `NewOrnament`. Two visible objects that start with `KafkaHairA` stop the export.
+
+</Step>
+<Step>
+
+### Make room on the texture
+
+<img
+  src="/wiki-images/honkai-star-rail-models-add-clothing-parts-1.webp"
+  alt="Three steps: the part's texture KafkaHairADiffuse.dds, the canvas doubled in width with the original texture in the left half and the piece's texture pasted into the right half, and the UVs scaled by 0.5 on X for the part and scaled then moved by 0.5 for the piece"
+/>
+
+1. Open the target part's diffuse, for example `KafkaHairADiffuse.dds`, in your texture editor.
+2. Double the canvas width, for example from 2048 to 4096. Change the canvas size: do not resize the image. Keep the original texture in the left half.
+3. Paste the source piece's diffuse into the empty right half.
+4. Do the same for the LightMap, with the same layout. If the part also has a StockingMap, do it too.
+5. Keep the alpha channel of every texture. In Star Rail the Diffuse alpha marks what glows, and the LightMap alpha picks the material and the outline color.
+
+Then move the UVs to match, in Blender's UV Editor:
+
+1. Set **Pivot Point** to **2D Cursor**, with the cursor at `0, 0`.
+2. Select the target part, select all its UVs, and type `S` `X` `0.5`.
+3. Select the piece, select all its UVs, and type `S` `X` `0.5`, then `G` `X` `0.5`.
+
+Kafka's part now uses the left half of the wide texture, and the piece uses the right half. Sizes stay powers of two: 4096 by 2048 is fine. If other parts share the texture, scale their UVs the same way as the target part.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check on Honkai: Star Rail that a Hair or Body part with a doubled-width Diffuse and LightMap shows both halves correctly in SRMI 2.4.3 */}
+
+</Step>
+<Step>
+
+### Weight the piece
+
+The piece's vertex groups came from its first character. Those numbers mean nothing on Kafka.
+
+**A rigid piece** (an ornament, glasses, a pin) follows one bone:
+
+1. Delete all the piece's vertex groups.
+2. Select the target part and enter Weight Paint mode. Click through its groups until one is fully red where the piece sits. Note that number.
+3. On the piece, add one group, rename it to that number, and assign every vertex with weight `1.000`.
+
+<YouTube
+  id="tUIIauuXveE"
+  start={159}
+  title="Assigning faces to a vertex group with weight 1 in Blender, by OzzO"
+/>
+
+Watch from 2:39 to about 3:46. The video picks groups by bone names on a skeleton. A Star Rail import has no skeleton: use the numbered group from step 2, and never add bones.
+
+**A piece that moves** (a skirt, a coat, long hair) needs weights from the body. Copy them with Data Transfer, as [Weight paint a mesh](/docs/honkai-star-rail/models/weight-painting) shows. Then borrow bones for the parts that hang:
+
+- The front of a skirt follows the thighs.
+- The back and the hem follow the lower legs.
+- For sway, use a moving part the character already has, such as a coat tail or long hair. You cannot add new bones.
+
+Group numbers differ for every character and every component. Find them in Weight Paint mode on the part your piece joins.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check on Honkai: Star Rail 4.7 that a piece weighted to one group of a Hair or Body part follows it in game */}
+
+</Step>
+<Step>
+
+### Fix colors and names
+
+1. Give the piece a `COLOR` attribute and copy its values from the target part with Data Transfer. Star Rail parts use very different values, so do not type one flat color. [UV maps, vertex colors, and outlines](/docs/honkai-star-rail/models/uvs-and-vertex-colors) shows how.
+2. Check that its UV maps are named `TEXCOORD.xy` and `TEXCOORD1.xy`, like the target's.
+3. Look for red faces with the **Face Orientation** overlay and flip them.
+
+</Step>
+<Step>
+
+### Join, clean up, export
+
+1. Select the piece, then `Shift+click` the target part so it is active.
+2. Press `Ctrl+J`. The piece is now part of `KafkaHairA`, with its name and properties.
+3. Run the vertex group clean-up from the weight painting guide: merge, fill gaps, normalize.
+4. In the XXMI Tools sidebar, check that **Dump Folder** points to the `Kafka` folder, not the source character's. XXMI Tools fills it from the first dump you import, and the export reads that dump's `hash.json`.
+5. Export with XXMI Tools, copy your edited textures over the exported ones with the same file names, and press `F10` in game.
+
+{/* SCREENSHOT: honkai-star-rail-models-add-clothing-parts-2.webp, Kafka in the Honkai: Star Rail 4.7 character screen wearing a piece taken from another character, after export and reload */}
+
+</Step>
+</Steps>
+
+## Keep pieces separate for toggles
+
+Joining makes the piece part of the mesh for good. To switch it on and off later, keep it as its own object instead:
+
+1. Make a collection whose name starts with the part's name, for example `KafkaHairA`.
+2. Put your pieces inside. Give them names that do not start with the part's name, like `NewOrnament`.
+3. Export. XXMI Tools merges the collection into that part and writes one `drawindexed` line per object, with its name in a comment.
+
+Each `drawindexed` line can then go inside a toggle. Hidden objects are skipped when **Ignore hidden objects** is on.
+
+{/* NEEDS HANDS-ON TEST: with XXMI Tools 1.8.2 and the Honkai Star Rail preset, where the emptied original object must sit (inside the collection or at the top level), and that each object in the collection gets its own commented drawindexed line. */}
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The piece floats or stays behind when the character moves" id="piece-floats">
+
+It follows the wrong bone. Pick the group that is fully red right where the piece sits, and assign the piece to it again.
+
+</Accordion>
+<Accordion title="The body pokes through the new clothing" id="clipping">
+
+The body under the clothing is still drawn, or the two layers have different weights. Delete the body faces that the clothing covers. On tight clothing, a **Displace** modifier with a strength of `0.001` pushes it out a little. Weight both layers the same way.
+
+</Accordion>
+<Accordion title="Removing the old piece left a hole" id="hole">
+
+There may be no faces under the old piece. Rebuild the area: select the border edges and press `F`, or mirror the other side.
+
+</Accordion>
+<Accordion title="Shadows on the piece look wrong" id="wrong-shadows">
+
+The LightMap does not match the new diffuse. Give it the same canvas size and layout, and copy the piece's area from the source character's LightMap.
+
+</Accordion>
+<Accordion title="The piece glows, or its outline has the wrong color" id="piece-glows">
+
+The pasted area lost its alpha. A missing Diffuse alpha makes the piece glow. A wrong LightMap alpha changes its outline color. Copy both alpha channels from the source textures into the same area.
+
+</Accordion>
+</Accordions>
+
+More symptoms are on [Model problems in game](/docs/honkai-star-rail/errors/model-problems).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Add a toggle"
+    href="/docs/honkai-star-rail/ini/add-a-toggle"
+    icon={<Icon name="ToggleRight" />}
+    level="intermediate"
+  >
+    Switch your new piece on and off with a key.
+  </PremiumCard>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/honkai-star-rail/publishing/publishing-checklist"
+    icon={<Icon name="ListChecks" />}
+    level="beginner"
+  >
+    Clean up the folder, credit others, and package it.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Modding Tutorial - Add parts of one character into another \[Beginner Level\]](https://docs.google.com/document/d/1IwXhZNKWOJLz1FG9P8WsEMxgL_1O6c42-ZddkdYftQA) and [3D anime models - lessons](https://docs.google.com/document/d/1OhNw4xVTRl-eZyPLZv2mAchy2scjnXX3Hw3BCPQXU1A) by [Anilyan](https://discord.com/users/301273867618484235), from her [base bodies and tutorials hub](https://gamebanana.com/tuts/19046).
+- **Guide:** [Anchovie's Modding Tutorial](https://gamebanana.com/tuts/18857) by AnchoviesOnMars: the texture and one-bone steps.
+- **Video:** [WEIGHT PAINTING in BLENDER | Beginner to Pro](https://www.youtube.com/watch?v=tUIIauuXveE) by OzzO.
+- **Data:** [SR-Model-Importer-Assets](https://github.com/SilentNightSound/SR-Model-Importer-Assets) by SilentNightSound and contributors: Kafka's parts and shared textures.
+- **Tool:** [XXMI Tools](https://github.com/leotorrez/XXMITools) by LeoTorreZ.

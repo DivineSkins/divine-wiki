@@ -1,0 +1,320 @@
+---
+title: ".ini reference"
+description: "Look up the section types, keys, variables, operators, commands, key options, SRMI names and warning messages a Honkai: Star Rail mod .ini uses."
+category: "ini"
+patch: "4.7"
+keywords:
+  [
+    "srmi ini reference",
+    "3dmigoto ini",
+    "textureoverride",
+    "key types",
+    "star rail mod ini",
+  ]
+---
+
+<LevelPill level="advanced" />
+
+A lookup page for the `.ini` language Honkai: Star Rail mods are written in. Use it next to your own `.ini`. For a guided tour of one file, read [How a mod .ini works](/docs/honkai-star-rail/ini/how-a-mod-ini-works) first. Written for SRMI 2.4.3 with the XXMI DLL 1.3.2, and XXMI Tools 1.8.2.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="FileCode">A mod .ini to read or edit</Requirement>
+  <Requirement icon="NotepadPlusPlus" note="or any editor that saves UTF-8">
+    A text editor
+  </Requirement>
+</Requirements>
+
+The language comes from the XXMI DLL, which every XXMI importer shares. The SRMI names come from SRMI's own package files on GitHub. When the community docs and the XXMI DLL's source code disagree, this page follows the source code.
+
+## File rules
+
+| Rule                     | Detail                                                                            |
+| ------------------------ | --------------------------------------------------------------------------------- |
+| Comments                 | Only a line that starts with `;`. A `;` later in a line becomes part of the value |
+| Case                     | Section names and keys ignore case                                                |
+| Spaces                   | Spaces and tabs at the start and end of a line, and around `=`, are ignored       |
+| Order                    | Section order does not matter. Lines inside one section run from top to bottom    |
+| Before the first section | Only `namespace = ...` or `condition = ...`                                       |
+| Same section twice       | Only the first is used                                                            |
+| Same key twice           | Only the first is used, except in command lists, where every line runs            |
+| Encoding                 | Save as UTF-8. Other encodings garble any text that is not plain English          |
+
+## Section types
+
+The start of the name decides the type. The rest is a free label.
+
+| Section                | Runs                                                      | Used for                                         |
+| ---------------------- | --------------------------------------------------------- | ------------------------------------------------ |
+| `[Constants]`          | Once at load, and after every `F10`                       | Declaring variables                              |
+| `[Present]`            | Every frame                                               | Resetting flags, drawing text                    |
+| `[TextureOverride...]` | When the game uses a buffer or texture with this hash     | Every mesh and texture mod                       |
+| `[ShaderOverride...]`  | For every draw that uses a shader with this 16-digit hash | Hiding UI, shader edits                          |
+| `[Resource...]`        | Never: it holds data                                      | Files, text, empty slots                         |
+| `[CommandList...]`     | When another section calls `run = CommandList...`         | Reusable blocks of lines                         |
+| `[CustomShader...]`    | When called with `run = CustomShader...`                  | Drawing with your own shader                     |
+| `[Key...]`             | When its key is pressed                                   | Toggles and sliders                              |
+| `[ShaderRegex...]`     | On game shaders that match a pattern                      | Libraries. SRMI uses one to run texture checks   |
+| `[Include...]`         | At load                                                   | Libraries that load more files, like SRMI itself |
+| `[Preset...]`          | While a shader override activates it                      | Rare in mods                                     |
+
+Any other name gives `Unknown section type`. `[Loader]`, `[System]`, `[Hunting]`, `[Rendering]` and the other settings sections belong in SRMI's `d3dx.ini`, not in a mod.
+
+## TextureOverride keys
+
+Every other line in the section is a command.
+
+| Key                     | What it does                                                                                                      |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `hash`                  | The 8-digit hash to match                                                                                         |
+| `match_first_index`     | Match only the draw that starts at this index. Splits one index buffer into parts `A`, `B`, `C`                   |
+| `match_index_count`     | Match only draws with this many indices. Star Rail exports do not use it                                          |
+| `match_priority`        | Order when several sections match: higher runs later and wins. Also silences duplicate-hash warnings. Default `0` |
+| `filter_index`          | A number other sections can read back from the slot                                                               |
+| `override_vertex_count` | Makes the game's buffer hold this many vertices. Needs `override_byte_stride`                                     |
+| `override_byte_stride`  | Bytes per vertex for that resize. `40` for the standard Star Rail position layout                                 |
+| `uav_byte_stride`       | Goes with the resize on Star Rail's compute shader path. Exports always write `4`: keep it                        |
+
+When two sections match the same draw, both run, lowest `match_priority` first. Every draw line of both is drawn, so two full mods on one character overlap.
+
+## Resource keys
+
+| Key        | Meaning                                                                               |
+| ---------- | ------------------------------------------------------------------------------------- |
+| `filename` | File path, relative to the `.ini`'s folder: `.dds`, `.buf`, `.ib` or `.txt`           |
+| `type`     | `Buffer`, `StructuredBuffer`, `Texture2D` and other names from HLSL                   |
+| `format`   | A DXGI format, like `DXGI_FORMAT_R32_UINT` or `R8_UINT`                               |
+| `stride`   | Bytes per element, the vertex size for vertex buffers                                 |
+| `data`     | Inline data: a quoted string, or a format and numbers. Cannot be used with `filename` |
+| `array`    | Number of elements in a created buffer                                                |
+
+An empty `[ResourceSomething]` is valid. It holds a reference you fill later.
+
+Star Rail exports load the same Position and Blend files twice: once as `type = Buffer`, and once as `type = StructuredBuffer` for the `...CS` resources that SRMI's compute shaders read.
+
+## ShaderOverride and CustomShader keys
+
+| Section               | Key                    | Meaning                                                                 |
+| --------------------- | ---------------------- | ----------------------------------------------------------------------- |
+| `[ShaderOverride...]` | `hash`                 | The 16-digit shader hash                                                |
+| `[ShaderOverride...]` | `allow_duplicate_hash` | `true` on every copy, or `overrule` on one, silences duplicate warnings |
+| `[CustomShader...]`   | `vs`, `ps`, `cs` ...   | A shader file path, relative to the `.ini`, or `null`                   |
+| `[CustomShader...]`   | `blend`                | Blend state, like `add src_alpha inv_src_alpha`, or `disable`           |
+| `[CustomShader...]`   | `cull`                 | `none`, `front` or `back`                                               |
+| `[CustomShader...]`   | `topology`             | `triangle_list`, `triangle_strip`, `point_list` and others              |
+
+## Variables
+
+| Declaration             | Where            | Meaning                                                                               |
+| ----------------------- | ---------------- | ------------------------------------------------------------------------------------- |
+| `global $x = 0`         | `[Constants]`    | Lives for the session. The value is optional and starts at `0`                        |
+| `global persist $x = 1` | `[Constants]`    | Also saved, on `F10`, on exit and every 60 seconds. `Ctrl+Alt+F10` wipes saved values |
+| `global locked $x = 1`  | `[Constants]`    | Read-only. Writes are ignored with a warning                                          |
+| `local $x`              | Inside a section | Exists for one run of that section only                                               |
+
+- Values are 32-bit floats. Whole numbers are exact up to 16,777,216.
+- Names are `$`, then a letter or `_`, then letters, digits or `_`. `$1x`, `$my-var` and `$x.y` are illegal.
+- Each `.ini` has its own namespace, so `$swapvar` in two mods is two different variables.
+- Read another file's variable with `$\<namespace>\<name>`, like `$\SRMI\vertex_count`.
+
+### Built-in values
+
+| Name                                                       | Value                                                        |
+| ---------------------------------------------------------- | ------------------------------------------------------------ |
+| `time`                                                     | Seconds since the game started                               |
+| `frame_time`, `fps`, `frame_number`                        | Timing and frame counters                                    |
+| `res_width`, `res_height`, `window_width`, `window_height` | Resolution and window size                                   |
+| `vertex_count`, `index_count`, `first_index`               | The current draw call                                        |
+| `draw_type`                                                | The kind of draw: `1` a plain draw, `8` a compute shader run |
+| `cursor_x`, `cursor_y`, `cursor_showing`                   | The mouse                                                    |
+| `hunting`, `frame_analysis`                                | Whether hunting or a frame dump is on                        |
+
+Star Rail exports write `draw_type` in capitals, as `DRAW_TYPE`. Names ignore case, so both work.
+
+### IniParams
+
+`x`, `y`, `z`, `w`, then `x1` to `w1`, and so on, are values passed to shaders. A shader reads `x88` as `IniParams[88].x`. They are **shared by every mod**: if two mods write the same one, they interfere. SRMI uses some itself, like `x50` and `x140`. Never write an IniParam name without `$` by mistake, or you change it for every mod.
+
+## Conditions and operators
+
+```ini
+[TextureOverrideKafkaBodyADiffuse]
+hash = ffffffff
+if $skin == 0
+	this = ResourceKafkaBodyADiffuse
+else if $skin == 1
+	this = ResourceKafkaBodyADiffuseDark
+endif
+```
+
+`ffffffff` is a placeholder for your texture hash.
+
+- `if`, `elif` or `else if`, `else`, `endif`. Blocks can nest. There are no loops.
+- Any value that is not `0` counts as true: `if $costume_mods`.
+- Every `if` needs exactly one `endif`, or SRMI warns `Scope unbalanced`.
+
+Operators, from first to last in the order they are worked out:
+
+- Unary: `!` (not), `-`, `+`, `~`
+- Power: `**`
+- Multiply: `*`, `/`, `//` (divide and round down), `%` (remainder)
+- Add: `+`, `-`
+- Shift: `<<`, `>>`
+- Compare: `<`, `<=`, `>`, `>=`
+- Equal: `==`, `!=`, and `===`, `!==` for an exact match, used to test a resource against `null`
+- Bitwise: `&`, `^`, `|`
+- Logic: `&&` (both), `||` (either)
+- Brackets: `( )`
+
+Functions, with brackets: `sin`, `cos`, `tan`, `abs`, `sign`, `floor`, `ceil`, `round`, `frac`, `sqrt`, `saturate`, `random` and a few more.
+
+## Commands
+
+These lines go inside any section that runs commands.
+
+| Command                                  | Meaning                                                   | Example                                                    |
+| ---------------------------------------- | --------------------------------------------------------- | ---------------------------------------------------------- |
+| `<slot> = <resource>`                    | Put a resource in a slot                                  | `vb2 = ResourceKafkaBodyBlend`                             |
+| `this = <resource>`                      | Replace the texture or buffer that matched, in its slot   | `this = ResourceKafkaBodyADiffuse`                         |
+| `ref`, `copy`, `unless_null`             | How to assign: a reference, a real copy, or skip if empty | `Resource\SRMI\BlendBuffer = ref ResourceKafkaBodyBlendCS` |
+| `<slot> = null`                          | Empty a slot or a resource reference                      | `ResourceNotification = null`                              |
+| `run = ...`                              | Call a command list or custom shader                      | `run = CommandListCreditInfo`                              |
+| `checktextureoverride = <slot>`          | Run the TextureOverride sections for what is in a slot    | `checktextureoverride = ps-t6`                             |
+| `handling = skip`                        | Do not draw the game's original                           |                                                            |
+| `handling = abort`                       | Stop running this section                                 |                                                            |
+| `drawindexed = <count>, <start>, <base>` | Draw part of the bound index buffer                       | `drawindexed = 31530, 0, 0`                                |
+| `drawindexed = auto`                     | Draw the whole bound index buffer                         |                                                            |
+| `draw = <count>, <start>`                | Draw without an index buffer                              | `draw = 21000, 0`                                          |
+| `draw = from_caller`                     | Repeat the draw that called this section                  |                                                            |
+| `$var = ...`, `x88 = ...`                | Set a variable or IniParam. Math is allowed               | `$frame = $frame + 1`                                      |
+
+Slots: `ib`, `vb0` to `vb31`, textures like `ps-t0` and `cs-t0`, constant buffers like `vs-cb3`, render targets `o0` to `o7`.
+
+### pre and post
+
+Every section has a **pre** part (before the draw, or at the end of the frame in `[Present]`) and a **post** part (after the draw, or the start of the next frame). Start a line with `pre` or `post` to choose. Without one, assignments and draws go to pre. `run` and `checktextureoverride` go to both, so the called section's own `pre` and `post` lines run at the right time.
+
+## Key sections
+
+```ini
+[KeySwap]
+key = k
+condition = $active == 1
+type = cycle
+$swapvar = 0,1
+```
+
+| Key                   | Meaning                                                                        |
+| --------------------- | ------------------------------------------------------------------------------ |
+| `key`                 | The key. You can write several `key =` lines                                   |
+| `back`                | A key that cycles backwards                                                    |
+| `type`                | `activate`, `hold`, `toggle` or `cycle` (see below)                            |
+| `condition`           | Works only while this is true. Use `$active == 1` in every character mod       |
+| `run`                 | A command list to run on press                                                 |
+| `wrap`                | `false` stops a cycle at the last value. Default `true`                        |
+| `delay`, `transition` | Wait before the change, or fade between values. `delay` works with `hold` only |
+
+| `type =`   | What a press does                                                 |
+| ---------- | ----------------------------------------------------------------- |
+| `activate` | Sets the values. The default                                      |
+| `hold`     | Sets the values while held, and puts the old ones back on release |
+| `toggle`   | First press sets the values, second press puts the old ones back  |
+| `cycle`    | Moves to the next value in each comma list                        |
+
+Key names:
+
+- Letters and digits as one character: `k`, `0`.
+- Other keys by their Windows name, with or without `VK_`: `VK_LEFT`, `RIGHT`, `F6`, `VK_NUMPAD5`.
+- Combinations with spaces: `Shift Q`, `ctrl alt F10`. `no_modifiers F6` means no Ctrl, Alt, Shift or Windows key may be held.
+- Controller buttons: `XB_A`, `XB_LEFT_TRIGGER`, `XB_DPAD_UP`.
+
+`$active` exists only in exports made with a credit name. [Add a toggle](/docs/honkai-star-rail/ini/add-a-toggle) shows how to add it to a file that lacks it.
+
+## Namespaces
+
+A file's namespace is its path from the SRMI folder, unless the first line sets `namespace = Some\Name`. Sections from another namespace are reached as `Resource\Some\Name`, `CommandList\Some\Name` and `$\Some\Name`. Pick a unique namespace, like your name plus the character. Two files with the same namespace clash with `Duplicate section found`.
+
+Namespaces that Star Rail mods call:
+
+| Namespace              | Where it lives               | Names mods use                                                                                                    |
+| ---------------------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `SRMI`                 | SRMI's `BatchedPose.ini`     | `Resource\SRMI\PositionBuffer`, `Resource\SRMI\BlendBuffer`, `$\SRMI\vertex_count` for compute shader posing      |
+| `SRMIv1`               | SRMI's `main.ini`            | The text API: `Resource\SRMIv1\Text`, `Resource\SRMIv1\TextParams`, `run = CommandList\SRMIv1\PrintText`          |
+| `shaderfixes\help.ini` | SRMI's `help.ini`            | The old text printer that credit pop-ups use: `Resource\ShaderFixes\help.ini\Notification`                        |
+| `RabbitFX`             | RabbitFX, a separate library | `Resource\RabbitFX\GlowMap`, `Outlinemap`, `Diffuse`, `Lightmap`, `run = CommandList\RabbitFX\Run`, `SetTextures` |
+
+The first three ship inside SRMI and update with XXMI Launcher. Never copy them into your `Mods` folder or your mod. RabbitFX is a separate download: keep one current copy in `Mods`, never inside a mod.
+
+## Honkai: Star Rail names
+
+| Name                                        | Meaning                                                                                                                         |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `$active`                                   | `1` while the character is on screen. Set after the `endif` of each Blend section, reset with `post $active = 0` in `[Present]` |
+| `$costume_mods`                             | SRMI's all-mods switch on `F6`, declared in SRMI's `d3dx.ini`                                                                   |
+| `if DRAW_TYPE == 1` / `elif DRAW_TYPE == 8` | The two branches of a Blend section: a plain draw, and compute shader posing. Keep both. Intel graphics cards use the first     |
+| `vb0`, `vb1`, `vb2`                         | Position, Texcoord, and Blend buffer with the bone weights                                                                      |
+| `$\SRMI\vertex_count`                       | The vertex count your mod hands to SRMI. Position `.buf` file size divided by `40`                                              |
+| `CheckTextureOverride = ps-t6` to `ps-t9`   | Makes SRMI check slots above `ps-t5`, for a StockingMap or MaterialMap replaced by hash                                         |
+
+{/* NEEDS HANDS-ON TEST: CheckTextureOverride = ps-t6 to ps-t9 in a part section, for a StockingMap or MaterialMap hash override, on SRMI 2.4.3 with Honkai: Star Rail 4.7 */}
+
+Never write `DrawCS`, `Resource\SRMI\DrawBuffer`, `$\SRMI\vertcount` or `$_blend_`. They belong to the first 3.2 format, which glitches when the same model is on screen twice. [Fix an old mod by hand](/docs/honkai-star-rail/ini/fix-an-old-mod) shows how to convert them.
+
+## Warning messages
+
+SRMI hides warnings by default. Untick **Mute Warnings** in the SRMI tab of XXMI Launcher, and they show after `F10`. Each ends with the section and file it came from.
+
+| Message                                                     | Usual cause                                                               | Fix                                                   |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------- |
+| `Possible Mod Conflict: Duplicate TextureOverride hash=...` | Two mods for one character, or a merged mod with its source mods still on | Turn one off, or add `match_priority` if you meant it |
+| `Possible Mod Conflict: Duplicate ShaderOverride hash=...`  | Two mods edit one shader                                                  | Add `allow_duplicate_hash`, as the message says       |
+| `Hash parse error`                                          | A typo, or a `; note` after the hash                                      | One hash per line, nothing after it                   |
+| `Section missing Hash=`                                     | A TextureOverride with no `hash`                                          | Add the hash                                          |
+| `Duplicate section found`                                   | The same section name twice                                               | Rename one                                            |
+| `Duplicate key found`                                       | Two `hash =` or two `filename =` lines                                    | Remove one                                            |
+| `Unknown section type`                                      | A typo in the name, like `[TextureOveride...]`                            | Fix the spelling                                      |
+| `Unrecognised entry`                                        | A misspelt word, an undeclared variable, or a missing resource            | Declare it, add it, or fix the name                   |
+| `Scope unbalanced`                                          | An `if` without `endif`, or one `endif` too many                          | Balance them                                          |
+| `Entry outside of section`                                  | Lines before the first section                                            | Move them into a section                              |
+| `Illegal Global Variable Name`                              | A name with `-`, `.`, a leading digit, or no `$`                          | Rename it                                             |
+| `Redeclaration of ...`                                      | `global $x` twice in one file                                             | Remove one                                            |
+| `Missing Key=`                                              | A key section with no `key =`                                             | Add one                                               |
+| `Failed to load custom texture resource`                    | The file in `filename =` is missing or misnamed                           | Fix the name, extension or folder                     |
+| `Failed to detect stride for override_vertex_count`         | No `override_byte_stride`                                                 | Add it                                                |
+| `Initial data and filename cannot be used together`         | `data =` and `filename =` in one resource                                 | Keep one                                              |
+| `NOTICE: Detected N unknown user settings in d3dx_user.ini` | Saved settings of mods you removed                                        | Harmless. It clears after two reloads                 |
+
+[Test and reload your mod](/docs/honkai-star-rail/basics/test-your-mod) shows how to read these on screen.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Sliders, animated textures, and help text"
+    href="/docs/honkai-star-rail/ini/advanced-tricks"
+    icon={<Icon name="SlidersHorizontal" />}
+    level="advanced"
+  >
+    Put these sections and commands to work in your own mod.
+  </PremiumCard>
+  <PremiumCard
+    title="Combine mods into one merged mod"
+    href="/docs/honkai-star-rail/ini/merged-mods"
+    icon={<Icon name="Layers" />}
+    level="intermediate"
+  >
+    Switch between whole mods for one character with one key.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This reference is based on the work of these creators. Check out their original documents.
+
+- **Tool:** [XXMI DLL source code](https://github.com/SpectrumQT/XXMI-Libs-Package) by SpectrumQT and the 3DMigoto developers: `IniHandler.cpp` and `CommandList.cpp` for every rule and warning text.
+- **Tool:** [XXMI DLL ini language extensions](https://github.com/SpectrumQT/XXMI-Libs-Package/tree/master/docs/ini-language-extensions) by SpectrumQT.
+- **Tool:** [SRMI package](https://github.com/SpectrumQT/SRMI-Package) by SpectrumQT: `d3dx.ini` for key types and options, `main.ini`, `BatchedPose.ini` and `help.ini` for SRMI's own names.
+- **Tool:** [XXMI Tools Honkai Star Rail template](https://github.com/leotorrez/XXMITools/blob/main/templates/Honkai%20Star%20Rail.ini.j2) by leotorrez.
+- **Guide:** [3dmigoto INI File Documentation](https://leotorrez.github.io/modding/docs/) by leotorrez and the community.
+- **Guide:** [Toggle Guide](https://gamebanana.com/tuts/18971) by gdsfdg.

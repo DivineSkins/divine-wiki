@@ -1,0 +1,232 @@
+---
+title: "Get a model into Blender"
+description: "Import a Wuthering Waves Resonator into Blender with WWMI Tools, pick the Merged or Per-Component skeleton, and see what each object holds before editing."
+category: "models"
+patch: "3.8"
+keywords:
+  [
+    "wuthering waves blender import",
+    "wwmi tools import",
+    "wwmi merged skeleton",
+    "wwmi tools",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+Every model mod starts from the Resonator's original model. A Resonator is the game's name for a playable character. This page loads that model into Blender with WWMI Tools, the right way, so it can export later. You need Blender, WWMI Tools and an extracted object folder. Written for WWMI Tools 1.9.4 on Blender 4.5 LTS.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="Blender"
+    href="https://www.blender.org/download/lts/"
+    note="4.5 LTS"
+  >
+    Blender
+  </Requirement>
+  <Requirement
+    icon="Box"
+    href="/docs/wuthering-waves/tools/blender-add-on"
+    note="1.9.4"
+  >
+    WWMI Tools
+  </Requirement>
+  <Requirement icon="FolderOpen" note="from your own frame dump">
+    An extracted object folder
+  </Requirement>
+</Requirements>
+
+Nothing installed yet? [Set up your creator tools](/docs/wuthering-waves/getting-started/creator-setup) installs Blender and WWMI Tools and shows how to download one folder from WWMI-Assets.
+
+<img
+  src="/wiki-images/wuthering-waves-models-import-into-blender-1.webp"
+  alt="Brant's object folder with its Component files, textures named by component, format, hash and dHash, TextureUsage.json and Metadata.json, imported with Import Object and the Merged skeleton, gives one collection with Component 0 to Component 5, each with numbered vertex groups, three UV maps, COLOR and COLOR1, and shape keys on some components"
+/>
+
+## Get the original model
+
+You import an **object folder**: one object from a frame dump, with each component's buffers, its textures, `TextureUsage.json` and `Metadata.json`. It comes from one of two places:
+
+- **Your own frame dump.** This is the main way. [Make a frame dump](/docs/wuthering-waves/basics/frame-dump) captures the Resonator with `F8` and turns the dump into object folders with **Extract Objects From Dump**.
+- **WWMI-Assets.** [WWMI-Assets](https://github.com/SpectrumQT/WWMI-Assets) has ready folders in `PlayerCharacterData`, for example `Brant`. It stops at version 2.7, so newer Resonators are missing and many models changed since. Its folders were extracted with an older WWMI Tools: version 1.9.4 imports them, but a full export from them stops with an error. Use them to practice importing and editing only. Download only the one folder you need.
+
+<Callout type="warning" title="Extracted with WWMI Tools 1.8.0 or older? Extract again">
+
+WWMI Tools 1.9.4 gives textures new file names, like `c=4 f=BC7_UNORM_SRGB t=cccccccc d=0123456789abcdef.dds`. Older folders have names like `Components-4 t=cccccccc.dds`. They still import, but export refuses them. Before you start a mod you want to export, make a new frame dump with the XXMI DLL that XXMI Launcher installs today, and extract it with WWMI Tools 1.9.4.
+
+</Callout>
+
+{/* NEEDS HANDS-ON TEST: on WWMI Tools 1.9.4, that an object folder extracted with WWMI Tools 1.8.0 or taken from WWMI-Assets imports without errors and that a full export from it stops with the outdated name format error */}
+
+Put the folder somewhere it can stay, for example `Modding\Dumps\Brant`. Export reads it again later. Then follow two rules:
+
+- **Rename the folder before you import, if you like.** Extracted folders are named after the object's VB0 hash, like `93bbbdc0`. A name like `Brant` is easier to find. The hash is stored in `Metadata.json`, so the new name does no harm.
+- **Never delete or edit `Metadata.json`.** Import reads it, and export reads it again.
+
+<Callout type="warning" title="A finished mod is not an object folder">
+  WWMI Tools imports extracted objects only. It cannot import a mod you or
+  someone else exported. This is on purpose, to protect creators' work. Keep
+  your own `.blend` file for every mod you make.
+</Callout>
+
+## Import the Resonator
+
+<Steps>
+<Step>
+
+### Start an empty scene
+
+1. Open Blender 4.5 LTS.
+2. Click in the 3D Viewport, press `A` to select everything, then press `X` and choose **Delete**. This removes the default cube, camera and light.
+
+</Step>
+<Step>
+
+### Open the WWMI Tools tab
+
+1. Press `N` in the 3D Viewport to open the sidebar.
+2. Click the **WWMI Tools** tab. Its header shows the version, `v1.9.4`.
+3. Set **Mode** to **Import Object**.
+
+</Step>
+<Step>
+
+### Fill in the import options
+
+1. **Object Sources**: click the folder icon and pick the object folder, the one that holds `Metadata.json`. Not the `FrameAnalysis-...` folder, and not the output folder around it.
+2. **Vertex Colors**: keep `Linear`. `sRGB (legacy)` is only for old files.
+3. **Skeleton**: keep `Merged` for a Resonator. The next section explains the choice.
+4. **Skip Empty Vertex Groups**: leave it on. It removes groups with no weight.
+5. **Mirror Mesh**: leave it off.
+6. Click **Import Object**.
+
+Import also sets the **Skeleton** of **Export Mod** to the same mode, and fills its **Object Sources** with this folder.
+
+{/* SCREENSHOT: wuthering-waves-models-import-into-blender-2.webp, Blender 4.5 sidebar with the WWMI Tools v1.9.4 tab, Mode set to Import Object, Object Sources set to a Brant folder, Vertex Colors Linear, Skeleton Merged, Skip Empty Vertex Groups ticked, Mirror Mesh off. The beginner guide screenshot shows the older 1.3.5 layout. */}
+
+{/* NEEDS HANDS-ON TEST: Import Object with the Merged skeleton on the WWMI-Assets Brant folder (game version 2.7) and on a fresh 3.8 dump in WWMI Tools 1.9.4 on Blender 4.5 LTS: no errors, six Component objects */}
+
+</Step>
+<Step>
+
+### Save your .blend file
+
+Open <MenuPath path="File > Save As" /> and save the file in your work folder, for example `Modding\Blend\Brant.blend`. Save often from now on.
+
+</Step>
+</Steps>
+
+## Merged or Per-Component
+
+The **Skeleton** option decides how vertex groups are numbered. Vertex groups are the game's bone numbers.
+
+|               | Merged (default)                                                                         | Per-Component                                                                        |
+| ------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Vertex groups | One list for the whole object. Any vertex of any component can follow any bone.          | Each component has its own list. A vertex can only follow its own component's bones. |
+| Good for      | Resonators and Echoes, first mods, hard weights such as long hair weighted to a cape     | Weapons, small edits and retextures                                                  |
+| Good side     | Easy to weight                                                                           | No one-frame delay, a little faster in game                                          |
+| Bad side      | The model updates one frame late. Two copies of the same modded object on screen glitch. | Hard to weight, few weighting options                                                |
+
+When you are not sure, pick **Merged**. In Per-Component mode the same bone can have a different number in each component, so weights are harder to copy.
+
+<Callout type="warning" title="Export with the same skeleton">
+  A mod must be exported with the skeleton mode it was imported with. A mismatch
+  breaks the mod in game. Import sets the export **Skeleton** for you, so only
+  change it if you know why.
+</Callout>
+
+## What you see after import
+
+The Outliner shows a new collection named after the folder, such as `Brant`. It holds one object per component: `Component 0`, `Component 1`, and so on. Brant has six, `Component 0` to `Component 5`. [Character names and parts](/docs/wuthering-waves/basics/character-names-and-parts) explains components.
+
+Each object carries data that export needs. Edit the mesh as you like, but keep these:
+
+| What                                                  | Where in Blender                                              | Why it matters                                                        |
+| ----------------------------------------------------- | ------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `component` and a number in the object name           | Outliner                                                      | Export puts each object into the component its name gives.            |
+| The collection, directly in the Scene Collection      | Outliner                                                      | Export takes this whole collection as **Components**.                 |
+| Vertex groups `0`, `1`, `2` ...                       | <MenuPath path="Object Data Properties > Vertex Groups" />    | They are bone numbers. Their names must stay numbers.                 |
+| UV maps `TEXCOORD.xy`, `TEXCOORD1.xy`, `TEXCOORD2.xy` | <MenuPath path="Object Data Properties > UV Maps" />          | Outside faces, inside faces, and a front projection used for shading. |
+| Color attributes `COLOR` and `COLOR1`                 | <MenuPath path="Object Data Properties > Color Attributes" /> | Game data for outlines and skin, not paint.                           |
+| Shape keys                                            | <MenuPath path="Object Data Properties > Shape Keys" />       | Face expressions and shoulder movement, on some components only.      |
+
+Three more things look odd but are normal:
+
+- **One component holds parts from all over the body.** Components are not split by body part. Brant's hat sits in `Component 4` together with his gloves and legs. Hide components one by one to see what each one holds.
+- **There is no skeleton.** WWMI Tools imports no armature. The vertex groups still tell the game which bone moves which vertex.
+- **Rotation is `0` and scale is `1`.** Old guides tell you to set rotation `(0, 0, 180)` and scale `0.01`. That is not needed since WWMI Tools 1.3.3.
+
+## Line up new parts with the original
+
+Work on the imported model as it appears. Do not rotate, scale or mirror it, whatever old guides say. Place anything you add on top of the imported original, so it lines up in Blender. Export applies each object's rotation and scale for you.
+
+{/* NEEDS HANDS-ON TEST: that a part lined up in Blender with a WWMI Tools 1.9.4 import sits in the same place in game, without mirroring or applying transforms first */}
+
+## Keep a clean reference copy
+
+Later you copy weights and vertex colors from the original. Keep an untouched copy for that:
+
+1. Click **Import Object** once more, with the same **Object Sources**. Blender names the second collection `Brant.001`.
+2. Click the eye icon of `Brant.001` to hide it.
+
+Keep the copy in its own collection. Export reads only the collection you pick as **Components**, so a copy outside it is never exported. A copy inside it would be, because its names still hold `component` and a number.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title='"Specified folder is missing Metadata.json!"' id="missing-metadata">
+
+**Object Sources** points to the dump folder or the output folder. Pick the hash-named object folder inside it. The messages `Specified sources folder does not exist!` and `Specified folder is missing .fmt files for components!` have the same cause.
+
+</Accordion>
+<Accordion title="I imported a prop, not the Resonator" id="wrong-object">
+
+A dump gives one folder per object on screen. A Resonator holding a prop, like Brant's compass, gives a second folder for the prop. Import the folders one by one until you find the Resonator, then rename that folder.
+
+</Accordion>
+<Accordion title='"Blender 4.2 is not supported!"' id="blender-42">
+
+WWMI Tools blocks Blender 4.2, because that version breaks custom normals. Install Blender 4.5 LTS. You can keep another Blender next to it.
+
+</Accordion>
+<Accordion title="There is no WWMI Tools tab" id="no-tab">
+
+Press `N` in the 3D Viewport to show the sidebar. If the tab is still missing, tick **Object: WWMI Tools** in <MenuPath path="Edit > Preferences > Add-ons" /> and restart Blender.
+
+</Accordion>
+</Accordions>
+
+More import and export messages are on [Blender export and import errors](/docs/wuthering-waves/errors/creator-errors).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Your first model edit: remove a part"
+    href="/docs/wuthering-waves/models/remove-a-part"
+    icon={<Icon name="Scissors" />}
+    level="intermediate"
+    featured
+  >
+    Remove Brant's hat, export the mod and see it in game.
+  </PremiumCard>
+  <PremiumCard
+    title="Export your mod from Blender"
+    href="/docs/wuthering-waves/models/export-your-mod"
+    icon={<Icon name="PackageCheck" />}
+    level="intermediate"
+  >
+    The naming and collection rules that make an export work.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Tool:** [WWMI Tools](https://github.com/SpectrumQT/WWMI-Tools) by SpectrumQT. Labels and defaults come from its source code.
+- **Guide:** [WWMI Tools Modder Guide](https://github.com/SpectrumQT/WWMI-Tools/blob/main/guides/modder_guide.md) by SpectrumQT: the import steps and the Merged and Per-Component choice.
+- **Guide:** [Beginner's Guide to Wuthering Waves modding](https://gamebanana.com/tuts/19096) by Denwarenji: importing Brant and finding his parts.
+- **Tool:** [WWMI-Assets](https://github.com/SpectrumQT/WWMI-Assets) by SpectrumQT.

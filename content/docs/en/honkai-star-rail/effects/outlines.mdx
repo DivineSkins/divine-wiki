@@ -1,0 +1,177 @@
+---
+title: "Change outline color and thickness"
+description: "Set how thick the outlines on your Honkai: Star Rail mod are, give them a new color with RabbitFX, and fix outlines that come out thick, missing or the wrong color."
+category: "effects"
+patch: "4.7"
+keywords:
+  [
+    "star rail outline mod",
+    "outline thickness",
+    "vertex color alpha",
+    "lightmap alpha",
+    "rabbitfx outlinemap",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+Every Honkai: Star Rail character has a dark outline around its edges. You will set how thick it is on your own mod, change its color, and fix outlines that look wrong. You need a mod you made yourself in Blender. Written for XXMI Tools 1.8.2, SRMI 2.4.3 and RabbitFX (SRMI) 3.0.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="Blender"
+    href="/docs/honkai-star-rail/tools/blender-add-on"
+  >
+    XXMI Tools for Blender
+  </Requirement>
+  <Requirement
+    icon="PaintNET"
+    href="/docs/honkai-star-rail/tools/texture-editors"
+    note="only to fix a LightMap"
+  >
+    Paint.NET
+  </Requirement>
+  <Requirement
+    icon="Puzzle"
+    href="/docs/honkai-star-rail/getting-started/manage-mods"
+    note="only for your own outline color"
+  >
+    RabbitFX (SRMI)
+  </Requirement>
+  <Requirement icon="Package">Your own mod and its .blend file</Requirement>
+</Requirements>
+
+## Where outlines come from
+
+<img
+  src="/wiki-images/honkai-star-rail-effects-outlines-1.webp"
+  alt="Three sources of a Honkai: Star Rail outline: width from the alpha of the COLOR attribute in Blender, where 00 means no outline; the built-in color from the LightMap alpha, which is a material ID, with one fixed color for faces; and your own color from a RabbitFX outline map that points at a texture such as the part's diffuse"
+/>
+
+- **Width** is stored in the mesh, in the alpha of the `COLOR` attribute. You change it in Blender and export again.
+- **The built-in color** comes from the LightMap alpha. That value is a material ID that also picks the shading. Keep it the same as the original.
+- **Your own color** comes from RabbitFX, a glow and texture library you add to your `Mods` folder once. It lets a part use its own outline texture.
+
+These meanings come from a fan-made copy of the Star Rail shader, not from the game's makers. No tool fixes Star Rail outline colors for you: you set them yourself.
+
+## Change the width
+
+### Copy it from the original first
+
+The safest outline is the original's. Copy the `COLOR` attribute from the original part with a **Data Transfer** modifier before you join your mesh in. [UV maps, vertex colors, and outlines](/docs/honkai-star-rail/models/uvs-and-vertex-colors) has the steps, and a script that lists the colors each part of a dump uses.
+
+Then change only the areas that need it.
+
+### Set the alpha by hand
+
+- `00` gives no outline.
+- Star Rail has no one standard value. Parts of one character use many. Read the value from the same area of the original part and paint that.
+- On faces, the green and blue channels also shape the outline. Keep them as the original has them.
+
+In Blender's color picker, type values as hex. A typed decimal like `0.5` is stored as a different byte. The alpha slider is the exception: `0.502` on it is `80`.
+
+{/* NEEDS HANDS-ON TEST: how COLOR alpha values change the outline width on Honkai: Star Rail 4.7, and the alpha value below which no outline draws */}
+
+### Check the export settings
+
+Three XXMI Tools export options change outlines:
+
+| Option                                 | Default | What it does                                                                                                                |
+| -------------------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------- |
+| **Outline Optimization**               | On      | Rebuilds a smoothed outline normal. For Star Rail it stores it in the tangent data. Slow: you can turn it off while testing |
+| **Outline decimal rounding precision** | `8`     | From 1 to 10. Higher merges vertices that are farther apart into one outline point. Lower is more exact but can split edges |
+| **Use custom normals for outlines**    | Off     | Not covered here. Keep the default                                                                                          |
+
+Turn **Outline Optimization** on for the export you share.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check on Honkai: Star Rail 4.7 how Outline Optimization and Outline decimal rounding precision in XXMI Tools 1.8.2 change the outline */}
+
+## Change the color
+
+### Keep the game's color
+
+Leave the LightMap alpha as the original has it. Each character has its own set of material IDs, and each ID has its own outline color. A recolor that changes only the diffuse keeps the old outline color. [What each texture map does](/docs/honkai-star-rail/textures/texture-maps) explains the LightMap.
+
+To give a new area the outline of an existing one, pick the LightMap color, alpha included, from an area whose outline looks right, and paint with it. Save the LightMap as `BC7 (Linear, DX 11+)`.
+
+### Use any color you like
+
+RabbitFX lets a part use its own outline texture. The simplest choice is the part's own diffuse, so the outline follows your new colors:
+
+```ini
+Resource\RabbitFX\Outlinemap = ref ResourceKafkaHairADiffuse
+run = CommandList\RabbitFX\Run
+```
+
+Add these lines to the part's section, such as `[TextureOverrideKafkaHairA]`, before `drawindexed`. Use the diffuse resource name your `.ini` already has. [Add glow and see-through parts](/docs/honkai-star-rail/effects/glow-and-transparency) shows how to set up RabbitFX, and the glow lines that share the same `run` line.
+
+You can also point `Outlinemap` at a texture you painted, on the same layout as the diffuse. How RabbitFX reads its channels is not documented, so test it in game.
+
+{/* NEEDS HANDS-ON TEST: Resource\RabbitFX\Outlinemap with RabbitFX (SRMI) 3.0 on SRMI 2.4.3, with the part's diffuse and with a painted outline texture, and which channels of that texture RabbitFX reads */}
+
+### Why not edit the outline shader
+
+Star Rail draws the outline of every character with one shared shader. Editing it changes the outline of every character on screen, not only yours. This page covers your own mod only.
+
+## Remove the outline on one area
+
+Set the `COLOR` alpha to `00` on those faces in Blender, then export again.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Outlines are thick or blotchy" id="thick-outlines">
+
+The `COLOR` alpha is too high or uneven. Copy the colors from a part whose outline looks right, then export again.
+
+</Accordion>
+<Accordion title="Outlines are missing" id="no-outlines">
+
+The `COLOR` alpha is `00`, or the normals point inward. Fix the alpha, then check the normals with the **Face Orientation** overlay.
+
+</Accordion>
+<Accordion title="Outlines have the wrong color" id="wrong-color">
+
+The LightMap alpha does not match the original, or the LightMap was saved as sRGB. Copy the alpha back from the original and save as `BC7 (Linear, DX 11+)`. If you recolored the part on purpose, give it its own outline color with RabbitFX.
+
+</Accordion>
+<Accordion title="The RabbitFX outline color does not show" id="rabbitfx-no-change">
+
+- Check that one current copy of RabbitFX is in `Mods`.
+- Check that both lines sit in the part's section, and that the resource name matches.
+- Untick **Mute Warnings** in the SRMI tab of XXMI Launcher, press `F10` and read the text.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Model problems in game"
+    href="/docs/honkai-star-rail/errors/model-problems"
+    icon={<Icon name="Bug" />}
+    level="intermediate"
+  >
+    Fix shading, seams and other problems after an export.
+  </PremiumCard>
+  <PremiumCard
+    title="Test and reload your mod"
+    href="/docs/honkai-star-rail/basics/test-your-mod"
+    icon={<Icon name="RefreshCw" />}
+    level="beginner"
+  >
+    Reload with F10, compare with the original and read warnings.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Troubleshooting](https://github.com/SilentNightSound/SR-Model-Importer/blob/main/Guides/Troubleshooting.md) for the Star Rail Model Importer by SilentNightSound: the `COLOR` rules and outline problems.
+- **Research:** HoyoToon Star Rail shader by the HoyoToon team: what sets outline width and color.
+- **Tool:** SRMI RabbitFX by caverabbit, for the outline map lines.
+- **Tool:** [XXMI Tools](https://github.com/leotorrez/XXMITools) by leotorrez, for the outline export options.

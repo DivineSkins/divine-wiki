@@ -1,0 +1,248 @@
+---
+title: "Make a frame dump"
+description: "Capture one Honkai: Star Rail frame with F8, extract a character with gui_collect into a folder Blender can import, and find textures and buffers in the dump."
+category: "basics"
+patch: "4.7"
+keywords: ["star rail frame dump", "gui_collect", "srmi f8", "frameanalysis"]
+---
+
+<LevelPill level="intermediate" />
+
+A frame dump saves every buffer, texture and shader the game used to draw one frame. With gui_collect you turn it into a character folder that XXMI Tools imports into Blender. You need a dump when neither asset repo has your character or outfit, or when you want the current hashes after an update. Written for XXMI Launcher 2.5.0, SRMI 2.4.3 and gui_collect 1.4.2.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/honkai-star-rail/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement
+    icon="GitHub"
+    href="https://github.com/Petrascyll/gui_collect"
+    note="1.4.2"
+  >
+    gui_collect
+  </Requirement>
+  <Requirement icon="Terminal" note="3.9 or newer">
+    Python
+  </Requirement>
+  <Requirement icon="HardDrive" note="several GB per full dump">
+    Free disk space
+  </Requirement>
+</Requirements>
+
+You also need hunting mode. [Find a hash with hunting mode](/docs/honkai-star-rail/basics/find-a-hash) shows how to turn it on and copy a hash.
+
+<img
+  src="/wiki-images/honkai-star-rail-basics-frame-dump-1.webp"
+  alt="Five steps: copy the Hair, Head and Body IB hashes in hunting mode, press F8, get a FrameAnalysis folder, extract it with gui_collect set to Honkai: Star Rail, and get a character folder with txt, dds and hash.json files"
+/>
+
+## Get ready
+
+1. Tick **Enable Hunting** in the **SRMI** tab of XXMI Launcher's settings, before you start the game.
+2. Turn off every mod for your target: rename its folder so it starts with `DISABLED`. Otherwise you dump the mod, not the original.
+3. Lower the game's resolution. A smaller frame makes a smaller dump.
+4. Download gui_collect from its GitHub page as a source code zip and unzip it anywhere. Start it with `launch.bat`.
+
+{/* NEEDS HANDS-ON TEST: how gui_collect 1.4.2 is downloaded (release zip or source zip) and that launch.bat starts it with Python 3.9+ installed */}
+
+## Dump a character
+
+The only full walkthrough of a Star Rail dump is a Chinese guide by sora\_. The steps below follow it and the shared XXMI workflow.
+
+<Steps>
+<Step>
+
+### Copy each component's IB hash
+
+<img
+  src="/wiki-images/honkai-star-rail-basics-frame-dump-3.webp"
+  alt="gui_collect with Honkai: Star Rail picked in the left bar, numbered marks on the IB Hash and Component Name fields, the frame analysis folder button, Extract Name, the extraction options and the Extract button"
+/>
+
+1. In gui_collect, pick Honkai: Star Rail in the left bar (mark 1 in the picture).
+2. Type the character's name in **Extract Name** (mark 4), for example `Kafka`.
+3. In game, open the character screen with your character. It draws little else.
+4. Press `Numpad 0`, then `Numpad 8` until a part disappears. Press `Numpad 9` to copy its hash.
+5. Paste the hash into an **IB Hash** field in gui_collect (mark 2).
+6. Type the component name next to it: `Hair`, `Head` or `Body`. Use only English letters and numbers, and give each one a different name.
+7. Repeat for all three components, or only the ones you want to change.
+
+The picture is from August 2025. Your gui_collect may look a little different.
+
+{/* NEEDS HANDS-ON TEST: the exact gui_collect 1.4.2 labels Extract Name, IB Hash and Component Name for Honkai: Star Rail, and whether naming the components Hair, Head and Body gives the same names as the asset repo */}
+
+</Step>
+<Step>
+
+### Press F8
+
+Press `F8` with hunting on. The game freezes while it writes the dump. Wait until it moves again.
+
+The dump is a new folder next to SRMI's `d3dx.ini`:
+
+```text
+%AppData%\XXMI Launcher\SRMI\FrameAnalysis-YYYY-MM-DD-HHMMSS
+```
+
+</Step>
+<Step>
+
+### Extract with gui_collect
+
+1. In gui_collect, click the folder button at the top (mark 3) and pick the new `FrameAnalysis-...` folder. gui_collect may already show the newest one.
+2. Choose where the result goes. Any folder works.
+3. Click **Extract** (mark 6).
+
+If gui_collect reports a missing shader hash, make a targeted dump (below) and dump again.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check on Honkai: Star Rail that gui_collect 1.4.2 picks up the newest SRMI FrameAnalysis folder, and when it reports a missing shader hash */}
+
+</Step>
+<Step>
+
+### Label the textures
+
+gui_collect shows the textures it found for each part (A, B, C), with the slot each one sat in and its hash. Click each one and pick its type:
+
+| Type          | How it looks                                                              |
+| ------------- | ------------------------------------------------------------------------- |
+| `Diffuse`     | The colors you see in game.                                               |
+| `LightMap`    | Mostly orange, with see-through areas.                                    |
+| `StockingMap` | Blue and black stripes, with pink and yellow gradients on stocking areas. |
+| `MaterialMap` | Black and white. A mask for see-through parts and special effects.        |
+
+Right-click a texture to copy its hash. Then click **Done**.
+
+Name each texture by how it looks, not by its slot. Star Rail moves textures between slots on low settings and in some areas, so the slot number is not a safe guide.
+
+{/* NEEDS HANDS-ON TEST: the texture type names gui_collect 1.4.2 offers for Honkai: Star Rail, and how it labels the face textures ExpressionMap and Shadow */}
+
+</Step>
+</Steps>
+
+## What you get
+
+A folder named after your Extract Name, with one set of files per part:
+
+<Files>
+  <Folder name="Kafka" defaultOpen>
+    <File name="KafkaBodyA-ib=<hash>.txt: the triangles of one part" />
+    <File name="KafkaBodyA-vb0=<hash>.txt: its vertices" />
+    <File name="KafkaBodyADiffuse.dds" />
+    <File name="KafkaBodyALightMap.dds" />
+    <File name="KafkaHairA-ib=<hash>.txt and the other parts" />
+    <File name="hash.json: every component, part and hash" />
+  </Folder>
+</Files>
+
+This is the same kind of folder as the ones in the asset repos. XXMI Tools imports it into Blender with the `Honkai Star Rail` game preset.
+
+<Callout type="warning" title="Keep the folder as it is">
+  Never rename the folder or delete `hash.json`. XXMI Tools needs both to export
+  your mod.
+</Callout>
+
+## Make smaller, targeted dumps
+
+A full dump holds everything on screen and can take several gigabytes, more in busy scenes. A targeted dump saves only your character. One creator's dump went from 3.4 GB to 840 MB.
+
+1. In gui_collect's settings, tick **Targeted Frame Analysis (Advanced)**.
+2. Let gui_collect generate the targeting `.ini` for your IB hashes.
+3. Put that `.ini` in a folder inside `Mods`.
+4. Press `F10` in game, then `F8`.
+5. Remove the `.ini` from `Mods` when you are done.
+
+Never add it to `d3dx.ini`. XXMI Launcher rewrites that file.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check on Honkai: Star Rail where gui_collect 1.4.2 saves the generated targeting .ini and the exact setting label */}
+
+## Read a dump by hand
+
+You do not need this for a character. It helps for icons, light cone art, effects and other objects that gui_collect does not cover.
+
+<img
+  src="/wiki-images/honkai-star-rail-basics-frame-dump-2.webp"
+  alt="The dump file name 000123-ib=1a2b3c4d-vs=0123456789abcdef-ps=fedcba9876543210.txt split into draw number, resource type, hash, shader hashes and file type"
+/>
+
+- **Find a mesh:** search the dump folder for `-ib=` plus your hash. Every match is a draw of that mesh.
+- **Find its parts:** open the `-ib=...txt` file. Each different `first index` value is one part.
+- **Find its textures:** files with the same draw number and `-ps-t0=`, `-ps-t1=` and so on are the textures of that draw.
+- **Find a texture file:** the `deduped` folder holds each texture once, named `<hash>-<FORMAT>.dds`. Search for `BC7_UNORM_SRGB` to find color textures like a `Diffuse`. A `LightMap` is `BC7_UNORM`.
+
+By default a dump does not save textures as plain `.dds`, because full DDS dumps can need hundreds of gigabytes. To save them for one object only, hunt its pixel shader, then add a section like this to an `.ini` inside `Mods`. Replace `0123456789abcdef` with your shader hash:
+
+```ini
+[ShaderOverrideMyTarget]
+hash = 0123456789abcdef
+analyse_options = dump_rt dump_tex dump_cb dump_vb dump_ib buf txt dds
+```
+
+Press `F10`, then `F8`. Remove the section when you are done.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check on Honkai: Star Rail 4.7 that this ShaderOverride saves plain .dds files for one object, and that Diffuse and LightMap show as BC7_UNORM_SRGB and BC7_UNORM in deduped */}
+
+## Delete old dumps
+
+Each dump can take many gigabytes. When you have extracted what you need, delete the `FrameAnalysis-...` folders in `%AppData%\XXMI Launcher\SRMI`.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The game crashes when I press F8" id="crash-on-f8">
+
+Busy places make huge dumps and can crash the game. Go to the character screen, lower the resolution, or make a targeted dump.
+
+</Accordion>
+<Accordion title="The textures in the dump are the mod's, not the original" id="dumped-the-mod">
+
+A mod for that character was still on. Rename its folder so it starts with `DISABLED`, press `F10`, and dump again. `F6` alone does not turn off shader mods.
+
+</Accordion>
+<Accordion title="A texture is missing, or a part comes out black" id="missing-texture">
+
+Some Star Rail parts use a `StockingMap` or `MaterialMap` in a high slot. Check every texture gui_collect shows for that part, and label each one. The asset repos also lack some MaterialMap hashes, so your own dump is the place to find them.
+
+</Accordion>
+<Accordion title="Export later fails with no hash.json" id="no-hash-json">
+
+The folder was renamed or `hash.json` was deleted. Extract the dump again with gui_collect and leave the result as it is.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Get a model into Blender"
+    href="/docs/honkai-star-rail/models/import-into-blender"
+    icon={<Icon name="Box" />}
+    level="intermediate"
+  >
+    Import your extracted folder with XXMI Tools.
+  </PremiumCard>
+  <PremiumCard
+    title="Character names and parts"
+    href="/docs/honkai-star-rail/basics/character-names-and-parts"
+    icon={<Icon name="IdCard" />}
+    level="beginner"
+  >
+    What Hair, Head, Body and the lettered parts mean.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [关于星铁贴图错误的问题如何手动修复](https://gamebanana.com/tuts/18999) (manual fixes for Star Rail texture errors, in Chinese) by sora\_: the Star Rail dump steps and texture types.
+- **Guide:** [3DMigoto Hunting & Dumping Tutorial](https://leotorrez.github.io/modding/guides/hunting) by Satan1c, on LeoTorreZ's modding site.
+- **Tool:** [gui_collect](https://github.com/Petrascyll/gui_collect) by Petrascyll.
+- **Tool:** [XXMI DLL frame analysis](https://github.com/SpectrumQT/XXMI-Libs-Package) by SpectrumQT.
+- **Images:** screenshot 3, the gui_collect window, from sora\_'s guide above.

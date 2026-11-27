@@ -1,0 +1,193 @@
+---
+title: "Texture editors and DDS plugins"
+description: "Pick an image editor that opens and saves Honkai: Star Rail DDS textures in the right format: Paint.NET, Photoshop, GIMP, and texconv compared."
+category: "tools"
+patch: "4.7"
+keywords:
+  [
+    "star rail texture mod",
+    "dds editor",
+    "paint.net dds",
+    "bc7 srgb",
+    "texconv",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+<ToolHeader
+  name="Paint.NET"
+  icon="PaintNET"
+  badge="Recommended"
+  facts={["Free", "Windows", "DDS support built in"]}
+  primary={{ label: "Download", href: "https://www.getpaint.net/" }}
+  links={[
+    {
+      label: "DDS plugin on GitHub",
+      href: "https://github.com/0xC0000054/pdn-ddsfiletype-plus",
+    },
+  ]}
+>
+  A free image editor for Windows that opens and saves DDS textures, including
+  BC7.
+</ToolHeader>
+
+Honkai: Star Rail textures are `.dds` files, most of them compressed as BC7. To edit one, you need an editor that opens DDS and saves it back in the exact same format. This page compares the editors that can, and shows which format each Star Rail texture uses.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Monitor">Windows PC</Requirement>
+  <Requirement icon="FileImage" note="from a dump or a mod">
+    A `.dds` texture
+  </Requirement>
+</Requirements>
+
+## The formats Honkai: Star Rail uses
+
+Save every texture in the format of the original. In your own frame dump, the file name in the `deduped` folder ends with its format, for example `<hash>-BC7_UNORM_SRGB.dds`. Files from the asset repo are named by part instead, such as `KafkaBodyADiffuse.dds`: use the table below for those. In the save dialogs, `UNORM_SRGB` means sRGB and `UNORM` means Linear.
+
+| Texture                                 | Format                                                       | Pick in Paint.NET      |
+| --------------------------------------- | ------------------------------------------------------------ | ---------------------- |
+| Body and hair `Diffuse`, face `Diffuse` | `BC7_UNORM_SRGB`                                             | `BC7 (sRGB, DX 11+)`   |
+| Body and hair `LightMap`                | `BC7_UNORM`                                                  | `BC7 (Linear, DX 11+)` |
+| Face `Shadow`                           | `BC7_UNORM`                                                  | `BC7 (Linear, DX 11+)` |
+| Face `ExpressionMap`                    | `BC1` (DXT1)                                                 | `BC1 (Linear, DXT1)`   |
+| `StockingMap`                           | `BC7_UNORM` in older dumps, `BC7_UNORM_SRGB` in a 4.x outfit | Match the original     |
+| `MaterialMap`                           | `BC7_UNORM_SRGB` in the dumps checked                        | Match the original     |
+| Phone wallpaper                         | `BC7` linear, one tutorial                                   | `BC7 (Linear, DX 11+)` |
+
+If a texture does not fit the table, trust its dumped file name over any rule.
+
+{/* NEEDS HANDS-ON TEST: open a Honkai: Star Rail ExpressionMap, StockingMap and MaterialMap from the asset repos in Paint.NET and confirm which save format keeps them looking the same in game. */}
+
+Three more rules apply to every editor:
+
+- **Keep the alpha channel.** In a Star Rail `Diffuse`, alpha is the glow mask, not see-through areas. If you lose it or fill it white, the whole character glows. In a `LightMap`, alpha picks the material: it sets shading and outline color.
+- **Keep the size.** Use the original width and height, in powers of two such as 1024 or 2048. A `LightMap` can be half the size of its `Diffuse`: keep each file at its own size.
+- **Tick Generate Mip Maps** when you save.
+
+{/* NEEDS HANDS-ON TEST: whether Generate Mip Maps should be on for this game's textures. Asset-repo originals hold one mip level, while tutorials tick Generate Mip Maps. Check in game whether a Honkai: Star Rail 4.7 texture saved with and without mipmaps looks different, for example shimmer at a distance. */}
+
+[Save DDS textures the right way](/docs/honkai-star-rail/textures/save-dds-files) has the full save steps with each dialog.
+
+## Paint.NET (free)
+
+Paint.NET reads and writes DDS files with no extra install. Its DDS support, DDS FileType Plus, has been built in since Paint.NET 4.2.2.
+
+When you save as `.dds`, a **Save Configuration** window opens:
+
+<img
+  src="/wiki-images/honkai-star-rail-tools-texture-editors-1.webp"
+  alt="The Paint.NET DDS Save Configuration window, with the format list at the top, compression speed, error metric, and the Generate Mip Maps checkbox"
+/>
+
+1. Open the format list at the top. It shows `BC1 (Linear, DXT1)` in this picture.
+2. Pick the entry from the table above.
+3. Tick **Generate Mip Maps**.
+4. Finish the save.
+
+To protect the glow mask while you recolor, creators split the alpha off and paste it back with free Paint.NET plugins such as `Modify Channels` or `Alpha Mask Import`. [Your first mod: recolor a character](/docs/honkai-star-rail/textures/recolor-a-character) shows how.
+
+## Photoshop (paid)
+
+Photoshop needs a DDS plugin. Two work:
+
+- **Intel Texture Works 1.0.4.** Free, but Intel archived it in 2023 and it is no longer updated. Creators still use it. Put `IntelTextureWorks.8bi` in Photoshop's `Required\Plug-Ins\File Formats` folder. When you open a DDS, tick **Load Transparency as Alpha Channel**, or you lose the glow mask.
+- **NVIDIA Texture Tools Exporter.** Free with an NVIDIA account. It works as a Photoshop plugin and as a separate app.
+
+{/* NEEDS HANDS-ON TEST: whether NVIDIA Texture Tools Exporter sets the sRGB flag on BC7 files today, and the exact Intel Texture Works label for the BC7 sRGB option. */}
+
+## GIMP and Krita (free)
+
+- **GIMP 3.2** can export BC7. It is not known if it marks the file as sRGB, which `Diffuse` textures need. Check your result in game, or export a PNG and convert it with texconv.
+- **Krita** has no built-in BC7 export. Export a PNG and convert it with texconv.
+
+{/* NEEDS HANDS-ON TEST: whether GIMP 3.2 DDS export writes BC7_UNORM_SRGB for a Honkai: Star Rail Diffuse texture. */}
+
+## texconv (command line)
+
+texconv is Microsoft's free command-line converter, part of DirectXTex. It turns a PNG into a DDS in the exact format you name. Use it with any editor that saves PNG. Download `texconv.exe` from the [DirectXTex releases page](https://github.com/microsoft/DirectXTex/releases).
+
+```text
+texconv.exe -f BC7_UNORM_SRGB -m 0 -sepalpha -y diffuse.png
+texconv.exe -f BC7_UNORM -m 0 -sepalpha -y lightmap.png
+```
+
+| Flag                                  | What it does                                                                                                           |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `-f BC7_UNORM_SRGB` or `-f BC7_UNORM` | The output format. Copy it from the original.                                                                          |
+| `-m 0`                                | Makes the full mipmap chain. `-m 1` makes none.                                                                        |
+| `-sepalpha`                           | Treats alpha as separate data, so the glow mask and material IDs stay clean.                                           |
+| `-vflip`                              | Flips the image. Dumped textures are upside down compared with normal pictures, so flip outside art before you use it. |
+| `-y`                                  | Overwrites an existing file.                                                                                           |
+
+{/* NEEDS HANDS-ON TEST: the texconv lines above on a Honkai: Star Rail 4.7 Diffuse and LightMap, checking that colors and outlines match the original in game. */}
+
+texconv's sister tool, texassemble, builds texture arrays for animated textures.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The colors look wrong in game" id="wrong-colors">
+
+The texture was saved in the wrong format. A `Diffuse` must be BC7 sRGB. Check the original's format and save again.
+
+</Accordion>
+<Accordion title="The whole character glows" id="glow">
+
+The alpha channel was lost or filled white. In Honkai: Star Rail the `Diffuse` alpha is the glow mask. Paste the original alpha back and save again.
+
+</Accordion>
+<Accordion title="Outlines or shading changed after a recolor" id="outlines">
+
+The `LightMap` alpha was changed. It picks the material, and the material picks the outline color. Copy the original `LightMap` back, or keep its alpha as it was.
+
+</Accordion>
+<Accordion title="Yellow error text and the texture does not show" id="yellow-error">
+
+The size is not a power of two, or the file name does not match the `.ini`. Keep the original size and name.
+
+</Accordion>
+<Accordion title="The texture looks darker in another program" id="darker">
+
+Some viewers handle the sRGB flag differently. Judge the colors in game, not in the viewer.
+
+</Accordion>
+</Accordions>
+
+More symptoms are on [Mods look broken](/docs/honkai-star-rail/errors/mods-look-broken).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="What each texture map does"
+    href="/docs/honkai-star-rail/textures/texture-maps"
+    icon={<Icon name="Palette" />}
+    level="beginner"
+  >
+    Learn what the Diffuse, LightMap, and other maps control.
+  </PremiumCard>
+  <PremiumCard
+    title="Set up your creator tools"
+    href="/docs/honkai-star-rail/getting-started/creator-setup"
+    icon={<Icon name="Compass" />}
+    level="beginner"
+  >
+    Install everything you need to make your first mod.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This page is based on the work of these creators. Check out their original guides and tools.
+
+- **Guide:** [Tutorial - Preserve alpha channels on Paint.net / how to handle .dds textures properly](https://docs.google.com/document/d/1DktYSbYMx-Bc4PKNF1XonvBAIRiC74pgNkMieQhd2jc/edit) by Anilyan.
+- **Guide:** [关于星铁贴图错误的问题如何手动修复 (fixing Star Rail texture errors by hand)](https://gamebanana.com/tuts/18999) by sora\_.
+- **Guide:** [Custom Cellphone Background Tutorial](https://gamebanana.com/tuts/17293) by kenzium.
+- **Tool:** [SR-Model-Importer-Assets](https://github.com/SilentNightSound/SR-Model-Importer-Assets) by SilentNightSound, for the texture formats.
+- **Tool:** [DDS FileType Plus](https://github.com/0xC0000054/pdn-ddsfiletype-plus) by null54.
+- **Tool:** [Intel Texture Works Plugin](https://github.com/GameTechDev/Intel-Texture-Works-Plugin) by Intel.
+- **Tool:** [texconv](https://github.com/microsoft/DirectXTex/wiki/Texconv) from Microsoft's DirectXTex.
+- **Images:** screenshot 1 from the [DDS FileType Plus Save UI wiki page](https://github.com/0xC0000054/pdn-ddsfiletype-plus/wiki/Save-UI) by null54.

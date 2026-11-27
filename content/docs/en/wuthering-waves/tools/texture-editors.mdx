@@ -1,0 +1,198 @@
+---
+title: "Texture editors and DDS plugins"
+description: "Pick an image editor that opens and saves Wuthering Waves DDS textures in the right format: Paint.NET, Photoshop, GIMP, and texconv compared."
+category: "tools"
+patch: "3.8"
+keywords:
+  [
+    "wuthering waves texture mod",
+    "dds editor",
+    "paint.net dds",
+    "bc7 srgb",
+    "texconv",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+<ToolHeader
+  name="Paint.NET"
+  icon="PaintNET"
+  badge="Recommended"
+  facts={["Free", "Windows", "DDS support built in"]}
+  primary={{ label: "Download", href: "https://www.getpaint.net/" }}
+  links={[
+    {
+      label: "DDS plugin on GitHub",
+      href: "https://github.com/0xC0000054/pdn-ddsfiletype-plus",
+    },
+  ]}
+>
+  A free image editor for Windows that opens and saves DDS textures, including
+  BC7.
+</ToolHeader>
+
+Wuthering Waves textures are `.dds` files, most of them compressed as BC7. To edit one, you need an editor that opens DDS and saves it back in the exact same format. This page compares the editors that can, and shows which format each Wuthering Waves texture uses.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Monitor">Windows PC</Requirement>
+  <Requirement icon="FileImage" note="from an extracted object or a mod">
+    A `.dds` texture
+  </Requirement>
+</Requirements>
+
+## The formats Wuthering Waves uses
+
+Save every texture in the format of the original. In the save dialogs below, `UNORM_SRGB` means sRGB and `UNORM` means Linear.
+
+| Texture                      | Format                         | Pick in Paint.NET             |
+| ---------------------------- | ------------------------------ | ----------------------------- |
+| Diffuse, the color texture   | `BC7_UNORM_SRGB`               | `BC7 (sRGB, DX 11+)`          |
+| Normal map                   | `BC7_UNORM`                    | `BC7 (Linear, DX 11+)`        |
+| Light map                    | `BC7_UNORM` in most files      | `BC7 (Linear, DX 11+)`        |
+| Some small parts             | `BC3_UNORM_SRGB` or BC1 (DXT1) | The matching BC3 or BC1 entry |
+| Your mod logo for WWMI Tools | `BC7_UNORM_SRGB`, 512x512      | `BC7 (sRGB, DX 11+)`          |
+
+An object extracted with WWMI Tools 1.9.4 names each texture after the components that use it, its format, its hash and its dHash, like `c=0-1-2-3 f=<format> t=<hash> d=<dhash>.dds`, so the `f=` part tells you the format. Folders extracted with WWMI Tools 1.8.0 or older use names like `Components-0-1-2-3 t=4eba0ca3.dds`, which do not show it. Find out what a texture is first: `TextureUsage.json` in the same folder lists which slot used each texture, and the picture shows the rest. What each texture map does, linked below, explains the types.
+
+{/* NEEDS HANDS-ON TEST: a reliable way for players to read the DDS format of a dumped Wuthering Waves texture, the exact Paint.NET labels for the BC3 sRGB and BC1 entries, and whether every light map in a 3.8 dump is BC7_UNORM. */}
+
+Four more rules apply to every editor:
+
+- **Keep the file name.** The `t=` hash in the name is what `mod.ini` matches. A renamed file does not load, and the next export from WWMI Tools copies the original back.
+- **Keep the alpha channel.** The diffuse alpha holds shading data, not see-through areas. Edit the colors and leave the alpha as it is.
+- **Keep the size.** Use the original width and height, in powers of two such as 1024 or 2048.
+- **Tick Generate Mip Maps** when you save.
+
+{/* NEEDS HANDS-ON TEST: dumped Wuthering Waves textures hold one mip level, while tutorials tick Generate Mip Maps. Check in game whether a 3.8 texture saved with and without mipmaps looks different, for example shimmer at a distance. */}
+
+[Save DDS textures the right way](/docs/wuthering-waves/textures/save-dds-files) has the full save steps with each dialog.
+
+## Paint.NET (free)
+
+Paint.NET reads and writes DDS files with no extra install. Its DDS support, DDS FileType Plus, has been built in since Paint.NET 4.2.2. Use the classic installer from getpaint.net.
+
+When you save as `.dds`, a **Save Configuration** window opens:
+
+<img
+  src="/wiki-images/wuthering-waves-tools-texture-editors-1.webp"
+  alt="The Paint.NET DDS Save Configuration window, with the format list at the top, compression speed, error metric, and the Generate Mip Maps checkbox"
+/>
+
+1. Open the format list at the top. It shows `BC1 (Linear, DXT1)` in this picture.
+2. Pick the entry from the table above.
+3. Tick **Generate Mip Maps**.
+4. Finish the save.
+
+To protect the alpha while you recolor, creators split it off and paste it back with free Paint.NET plugins such as `Modify Channels` or `Alpha Mask Import`. [Your first mod: recolor a character](/docs/wuthering-waves/textures/recolor-a-character) shows how.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: Modify Channels or Alpha Mask Import on a Wuthering Waves diffuse, and that the alpha survives a BC7 sRGB save. */}
+
+## Photoshop (paid)
+
+Photoshop needs a DDS plugin. Two work:
+
+- **Intel Texture Works 1.0.4.** Free, but Intel archived it in 2023 and it is no longer updated. The Wuthering Waves beginner guide still uses it. Put `IntelTextureWorks.8bi` in Photoshop's `Required\Plug-Ins\File Formats` folder. When you open a DDS, tick **Load Transparency as Alpha Channel**, or you lose the alpha.
+- **NVIDIA Texture Tools Exporter.** Free with an NVIDIA account. It works as a Photoshop plugin and as a separate app.
+
+{/* NEEDS HANDS-ON TEST: whether NVIDIA Texture Tools Exporter sets the sRGB flag on BC7 files today, and the exact Intel Texture Works label for the BC7 sRGB option. */}
+
+## GIMP and Krita (free)
+
+- **GIMP 3.2** can export BC7. It is not known if it marks the file as sRGB, which diffuse textures need. Check your result in game, or export a PNG and convert it with texconv.
+- **Krita** has no built-in BC7 export. Export a PNG and convert it with texconv.
+
+{/* NEEDS HANDS-ON TEST: whether GIMP 3.2 DDS export writes BC7_UNORM_SRGB for a diffuse texture. */}
+
+## texconv (command line)
+
+texconv is Microsoft's free command-line converter, part of DirectXTex. It turns a PNG into a DDS in the exact format you name. Use it with any editor that saves PNG. Download `texconv.exe` from the [DirectXTex releases page](https://github.com/microsoft/DirectXTex/releases).
+
+```text
+texconv.exe -f BC7_UNORM_SRGB -m 0 -sepalpha -y diffuse.png
+texconv.exe -f BC7_UNORM -m 0 -sepalpha -y normalmap.png
+```
+
+| Flag                                  | What it does                                                                                                           |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `-f BC7_UNORM_SRGB` or `-f BC7_UNORM` | The output format. Use the one from the table above.                                                                   |
+| `-m 0`                                | Makes the full mipmap chain. `-m 1` makes none.                                                                        |
+| `-sepalpha`                           | Treats alpha as separate data, so it stays clean.                                                                      |
+| `-vflip`                              | Flips the image. Dumped textures are upside down compared with normal pictures, so flip outside art before you use it. |
+| `-y`                                  | Overwrites an existing file.                                                                                           |
+
+After converting, rename the file back to the original name, `t=` hash included.
+
+{/* NEEDS HANDS-ON TEST: the texconv lines above on a Wuthering Waves 3.8 diffuse and normal map, checking that colors match the original in game, and whether Wuthering Waves dumped textures are stored upside down. */}
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The colors look wrong in game" id="wrong-colors">
+
+The texture was saved in the wrong format. A diffuse texture must be BC7 sRGB. Save again with the format from the table.
+
+</Accordion>
+<Accordion title="Shading or shadows look wrong after a recolor" id="alpha-lost">
+
+The alpha channel was lost or changed. Paste the original alpha back and save again.
+
+</Accordion>
+<Accordion title="The new texture does not show" id="not-showing">
+
+The size is not a power of two, or the file name does not match `mod.ini`. Keep the original size and name. To see the error text in game, turn off **Mute Warnings** on the launcher's **WWMI** tab, then press `F10`.
+
+</Accordion>
+<Accordion title="Another Resonator changed color too" id="shared-texture">
+
+Some textures are shared. Your mod replaces a texture by its hash while the modded Resonator is on screen, so others on screen that use the same texture change too. A Resonator is a playable character. Check in `mod.ini` which components use a texture before you edit it.
+
+</Accordion>
+<Accordion title="Textures break on lower graphics settings" id="lod-bias">
+
+Lower settings load smaller textures with other hashes. Set **LOD Bias** to **Ultra High** in the game's graphics settings.
+
+</Accordion>
+<Accordion title="The texture looks darker in another program" id="darker">
+
+Some viewers handle the sRGB flag differently. Judge the colors in game, not in the viewer.
+
+</Accordion>
+</Accordions>
+
+More symptoms are on [Mods look broken](/docs/wuthering-waves/errors/mods-look-broken).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="What each texture map does"
+    href="/docs/wuthering-waves/textures/texture-maps"
+    icon={<Icon name="Palette" />}
+    level="intermediate"
+  >
+    Learn what the diffuse, light map, and normal map control.
+  </PremiumCard>
+  <PremiumCard
+    title="Set up your creator tools"
+    href="/docs/wuthering-waves/getting-started/creator-setup"
+    icon={<Icon name="Compass" />}
+    level="beginner"
+  >
+    Install everything you need to make your first mod.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This page is based on the work of these creators. Check out their original guides and tools.
+
+- **Guide:** [Beginner's Guide to Wuthering Waves modding](https://gamebanana.com/tuts/19096) by Denwarenji.
+- **Guide:** [Fix Broken Character Textures (RabbitFX Stable Textures)](https://gamebanana.com/tuts/20005) by JessyJames84.
+- **Guide:** [Tutorial - Preserve alpha channels on Paint.net / how to handle .dds textures properly](https://docs.google.com/document/d/1DktYSbYMx-Bc4PKNF1XonvBAIRiC74pgNkMieQhd2jc/edit) by Anilyan.
+- **Tool:** [DDS FileType Plus](https://github.com/0xC0000054/pdn-ddsfiletype-plus) by null54.
+- **Tool:** [Intel Texture Works Plugin](https://github.com/GameTechDev/Intel-Texture-Works-Plugin) by Intel.
+- **Tool:** [texconv](https://github.com/microsoft/DirectXTex/wiki/Texconv) from Microsoft's DirectXTex.
+- **Images:** screenshot 1 from the [DDS FileType Plus Save UI wiki page](https://github.com/0xC0000054/pdn-ddsfiletype-plus/wiki/Save-UI) by null54.

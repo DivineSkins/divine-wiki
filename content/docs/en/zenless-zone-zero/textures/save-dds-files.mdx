@@ -1,0 +1,178 @@
+---
+title: "Save DDS textures the right way"
+description: "Save Zenless Zone Zero textures in the exact DDS format the game expects, keep the alpha channel, and avoid dark, washed-out or broken results."
+category: "textures"
+patch: "3.3"
+keywords: ["zzz dds", "bc7 srgb", "bc7 linear", "paint.net dds save", "texconv"]
+---
+
+<LevelPill level="beginner" />
+
+Every texture you edit goes back into the game as a `.dds` file, in the same format as the original. Get the format wrong and the colors shift, shading breaks, or the texture does not load. This page shows how to read the format and save it in Paint.NET, Photoshop or texconv. Written for ZZMI 1.5.2 on Zenless Zone Zero 3.3.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="PaintNET"
+    href="/docs/zenless-zone-zero/tools/texture-editors"
+    note="or Photoshop, or texconv"
+  >
+    Paint.NET
+  </Requirement>
+  <Requirement icon="FileImage">
+    The original texture, to copy its format
+  </Requirement>
+</Requirements>
+
+## Read the original's format
+
+A texture from a frame dump ends with its format: `<hash>-BC7_UNORM_SRGB.dds`. The first part is the hash, the last part is the format. Save your edit in that same format.
+
+<img
+  src="/wiki-images/zenless-zone-zero-textures-save-dds-files-1.webp"
+  alt="Two boxes: a file name ending in BC7_UNORM_SRGB means sRGB, saved as BC7 (sRGB, DX 11+) in Paint.NET, and a file name ending in BC7_UNORM means Linear, saved as BC7 (Linear, DX 11+). Agent normal maps are uncompressed R8G8B8A8_UNORM"
+/>
+
+Files from the asset repository or from a mod have names like `BelleBodyADiffuse.dds`, without the format. Use this table for them:
+
+| Texture                     | Format                   | Pick in Paint.NET           |
+| --------------------------- | ------------------------ | --------------------------- |
+| Agent diffuse, face diffuse | `BC7_UNORM_SRGB`         | `BC7 (sRGB, DX 11+)`        |
+| LightMap                    | `BC7_UNORM`              | `BC7 (Linear, DX 11+)`      |
+| MaterialMap                 | `BC7_UNORM`              | `BC7 (Linear, DX 11+)`      |
+| NormalMap (agents)          | `R8G8B8A8_UNORM`         | The uncompressed RGBA entry |
+| NormalMap (Bangboo)         | `BC7_UNORM`              | `BC7 (Linear, DX 11+)`      |
+| GlowMap, WengineFx          | Not documented           | Copy the original's format  |
+| World objects and UI images | Usually `BC7_UNORM_SRGB` | Check the dumped file name  |
+
+A few agents' LightMaps use `BC6H_UF16` in game. If the dumped file name says so, save in that format. Many guides say every icon is Linear. Do not follow a blanket rule: the dumped file name is always right.
+
+{/* NEEDS HANDS-ON TEST: the exact Paint.NET DDS FileType Plus label for uncompressed R8G8B8A8_UNORM, and the formats of GlowMap and WengineFx textures in a 3.3 dump */}
+
+## Rules for every texture
+
+- **Same format** as the original.
+- **Same width and height.** Sizes must be powers of two, like 1024x1024 or 2048x2048. In the asset repository, diffuse and LightMap files are 2048x2048, MaterialMaps 2048 or 1024, and agent normal maps 1024x1024. UI images can have other sizes: match the dump.
+- **Mipmaps on.** Tick **Generate Mip Maps**, or use `-m 0` in texconv. The asset repository files have no mipmaps and still load, but the game's own textures have them.
+- **Keep the alpha.** The alpha of a diffuse is data the game reads. Never pick BC1 (DXT1): it cannot hold a full alpha channel.
+- **Same file name** as the `filename =` line in the mod's `.ini`.
+- **UI images are stored upside down.** Open the dumped original and turn your own picture the same way before you save.
+
+{/* NEEDS HANDS-ON TEST: whether mod textures need mipmaps in Zenless Zone Zero 3.3. Tutorials tick Generate Mip Maps; asset repo files have one mip level and load. Compare both at a distance in game. */}
+
+{/* NEEDS HANDS-ON TEST: whether Zenless Zone Zero UI textures are flipped vertically or turned 180 degrees in a 3.3 dump. One Zenless Zone Zero video turns a loading screen 180 degrees. */}
+
+## Save the file
+
+<Tabs items={["Paint.NET", "Photoshop", "texconv"]}>
+
+<Tab value="Paint.NET">
+
+Paint.NET saves DDS files with its built-in DDS FileType Plus. No extra install.
+
+1. Flatten the image: <MenuPath path="Image > Flatten" />. If you split off the alpha, paste it back first.
+2. Choose <MenuPath path="File > Save As" />. Keep the file name and the `.dds` ending.
+3. In the **Save Configuration** window, open the format list at the top and pick the format from the table above.
+4. Tick **Generate Mip Maps**.
+5. Leave the other options at their defaults and click **OK**.
+
+<img
+  src="/wiki-images/zenless-zone-zero-textures-save-dds-files-2.webp"
+  alt="The Paint.NET DDS Save Configuration window, with the format list at the top set to BC1 (Linear, DXT1), compression speed, error metric, and the Generate Mip Maps checkbox"
+/>
+
+The picture shows `BC1 (Linear, DXT1)` in the list. Change it to the format your texture needs.
+
+To flip a UI image, use <MenuPath path="Image > Flip Vertical" /> before you save. Compare the result with the dumped original.
+
+</Tab>
+
+<Tab value="Photoshop">
+
+Photoshop needs the Intel Texture Works plugin. Intel archived it in 2023, but creators still use it.
+
+1. Open the `.dds` with **Load Transparency as Alpha Channel** ticked. The alpha then shows as its own channel.
+2. Edit the color and alpha in the **Channels** panel, one at a time.
+3. Save as an Intel Texture Works `.dds`.
+4. Set **Texture Type** to `Color + Alpha`.
+5. Set **Compression** to `BC7 8bpp Fast (sRGB, DX11+)` for a diffuse, or `BC7 8bpp Fast (Linear, DX11+)` for a LightMap or MaterialMap.
+6. Set **Mip Maps** to `Auto Generate`. The screenshot below shows `None`: change it.
+
+<img
+  src="/wiki-images/zenless-zone-zero-textures-save-dds-files-3.webp"
+  alt="The Intel Texture Works 1.0.4 save window with Texture Type set to Color + Alpha and the Compression list open, showing BC7 8bpp Fast and Fine options in Linear and sRGB"
+/>
+
+No source gives the Intel Texture Works settings for the uncompressed agent normal map. Save that one with Paint.NET or texconv.
+
+</Tab>
+
+<Tab value="texconv">
+
+texconv is Microsoft's free command-line converter. Export your edit as a PNG with its alpha, then convert it:
+
+```text
+texconv.exe -f BC7_UNORM_SRGB -m 0 -sepalpha -y BelleBodyADiffuse.png
+texconv.exe -f BC7_UNORM -m 0 -sepalpha -y BelleBodyALightMap.png
+```
+
+- `-f` sets the format. Copy it from the original's file name, for example `R8G8B8A8_UNORM` for an agent normal map.
+- `-m 0` makes a full set of mipmaps.
+- `-sepalpha` treats the alpha as data when it makes mipmaps, so it stays clean.
+- `-y` overwrites an older output file.
+- Add `-vflip` to flip a UI image.
+
+The new `.dds` gets the PNG's name, so here it already matches the original's file name.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check these texconv lines and -f R8G8B8A8_UNORM on a Zenless Zone Zero 3.3 diffuse, LightMap and agent normal map, comparing colors and shading with the original in game */}
+
+</Tab>
+
+</Tabs>
+
+## What went wrong
+
+| What you see                                      | Why                                                              | Fix                                                            |
+| ------------------------------------------------- | ---------------------------------------------------------------- | -------------------------------------------------------------- |
+| Colors washed out, too dark or too strong in game | A diffuse saved as Linear or another format                      | Save as `BC7 (sRGB, DX 11+)`                                   |
+| Shadows, shine or outlines look wrong             | A LightMap or MaterialMap saved as sRGB, or its channels changed | Save them as Linear. Copy unchanged channels from the original |
+| Hair draws wrong after a recolor                  | Layers were flattened over transparent areas                     | Paste the original alpha back, then save again                 |
+| Mostly black image with a few colored pixels      | The image was resized before the alpha was split off             | Split off the alpha first, then resize                         |
+| Yellow error text after `F10`, texture missing    | Wrong file name, missing file, or a bad size                     | Match `filename =`, keep the original size                     |
+| Alpha data gone                                   | Saved as BC1, which drops the alpha                              | Save as BC7                                                    |
+| Colors look wrong in another viewer, fine in game | That viewer reads the sRGB flag differently                      | Nothing. Trust the game                                        |
+
+{/* NEEDS HANDS-ON TEST: what a LightMap or MaterialMap saved as sRGB looks like in Zenless Zone Zero 3.3 (expected: shifted shadow steps and shine) */}
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Your first mod: recolor a character"
+    href="/docs/zenless-zone-zero/textures/recolor-a-character"
+    icon={<Icon name="Palette" />}
+    level="beginner"
+  >
+    Put these save settings to work on a full recolor.
+  </PremiumCard>
+  <PremiumCard
+    title="What each texture map does"
+    href="/docs/zenless-zone-zero/textures/texture-maps"
+    icon={<Icon name="Layers" />}
+    level="intermediate"
+  >
+    Learn what the LightMap, MaterialMap and NormalMap channels control.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [ZZZ Textures and properties](https://leotorrez.github.io/modding/guides/zzz-textures) by LeoTorreZ.
+- **Tool:** [SlotFix format rules](https://github.com/leotorrez/ZZMI-Package/tree/main/ZZMI/Core/ZZMI/Libraries/SlotFix) by Satan1c, in ZZMI-Package.
+- **Video:** [Tu PRIMER MOD de ZENLESS ZONE ZERO | Tutorial COMPLETO | TEXTURAS PARTE 1](https://www.youtube.com/watch?v=nhiiWEpuTB8) by Proxy Index.
+- **Guide:** [Tutorial - Preserve alpha channels on Paint.net / how to handle .dds textures properly](https://docs.google.com/document/d/1DktYSbYMx-Bc4PKNF1XonvBAIRiC74pgNkMieQhd2jc/edit) by Anilyan.
+- **Tool:** [DDS FileType Plus](https://github.com/0xC0000054/pdn-ddsfiletype-plus) by null54 and [Texconv](https://github.com/microsoft/DirectXTex/wiki/Texconv) by Microsoft.
+- **Images:** screenshot 2 from the [DDS FileType Plus Save UI wiki page](https://github.com/0xC0000054/pdn-ddsfiletype-plus/wiki/Save-UI) by null54, and the Intel Texture Works screenshot from [Beginner's Guide to Wuthering Waves modding](https://gamebanana.com/tuts/19096) by Denwarenji.

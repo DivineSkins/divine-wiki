@@ -40,13 +40,6 @@ const GAME_ART: Record<string, { box: string; img: string }> = {
   },
 };
 
-/** Games the site features that the wiki has no segment for yet. */
-const UPCOMING = [
-  { slug: "genshin-impact", name: "Genshin Impact" },
-  { slug: "wuthering-waves", name: "Wuthering Waves" },
-  { slug: "zenless-zone-zero", name: "Zenless Zone Zero" },
-];
-
 function GameArt({ slug, cover }: { slug: string; cover?: string }) {
   const art = GAME_ART[slug];
   // A game added later has no crop here yet: its cover, filling the card.
@@ -136,8 +129,8 @@ function LiveCard({ game, href }: { game: GameEntry; href: string }) {
 }
 
 /**
- * The homepage game row, from `listGames()`, then the games still to come. A
- * live game links to its docs segment; the rest show toned-down art.
+ * The homepage game row, from `listGames()`. A live game links to its docs
+ * segment; the rest show toned-down art.
  */
 export function GamePicker({
   games,
@@ -166,15 +159,6 @@ export function GamePicker({
                 status={game.status}
               />
             )}
-          </li>
-        ))}
-        {UPCOMING.map((game) => (
-          <li key={game.slug}>
-            <ComingSoonCard
-              slug={game.slug}
-              name={game.name}
-              label={comingSoon}
-            />
           </li>
         ))}
       </ul>

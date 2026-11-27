@@ -81,6 +81,10 @@ Guides live in `content/docs/en/<game>/<category>/*.mdx`, one folder per game:
 
 - `lol/`: League of Legends
 - `deadlock/`: Deadlock
+- `genshin-impact/`: Genshin Impact
+- `honkai-star-rail/`: Honkai: Star Rail
+- `zenless-zone-zero/`: Zenless Zone Zero
+- `wuthering-waves/`: Wuthering Waves
 
 A folder counts as a game only if it is listed in `GAMES` (`src/lib/games.ts`). Each game and each category has a `meta.json` that controls sidebar order.
 

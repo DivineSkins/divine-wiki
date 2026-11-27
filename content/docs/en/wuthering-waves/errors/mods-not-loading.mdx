@@ -1,0 +1,383 @@
+---
+title: "Mods not loading"
+description: "Wuthering Waves starts but your mods do not show? Check the WWMI text, DirectX 11, NVIDIA Smooth Motion, the Mods folder, and your settings, one step at a time."
+category: "errors"
+patch: "3.8"
+keywords:
+  [
+    "wuthering waves mods not working",
+    "wwmi not loading",
+    "xxmi launcher mods not showing",
+    "wuwa mods not showing",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+The game starts, but your mods do not show. Work through the checks below in order: the first ones are the most common. Written for XXMI Launcher 2.5.0, XXMI DLL 1.3.3 and WWMI 1.2.2 on Wuthering Waves 3.8.
+
+Mods show up but look wrong, white, or turn back to the original look at a distance? Go to [Mods look broken](/docs/wuthering-waves/errors/mods-look-broken). The game will not start at all? Go to [Crashes and launch errors](/docs/wuthering-waves/errors/game-crashes).
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/wuthering-waves/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement
+    icon="WutheringWaves"
+    note="Kuro's launcher, Steam or Epic Games"
+  >
+    Wuthering Waves on PC
+  </Requirement>
+  <Requirement icon="Package">A mod you downloaded</Requirement>
+</Requirements>
+
+## First check: did WWMI load?
+
+Start the game with the **Start** button in XXMI Launcher. For the first 30 seconds, look at the bottom-left corner of the screen for this line:
+
+```text
+WWMI 1.2.2 (PRESS F12 TO SHOW GUIDE)
+```
+
+You can also press `F12` at any time. It opens the WWMI user guide. On the very first start, the guide opens by itself.
+
+{/* SCREENSHOT: wuthering-waves-errors-mods-not-loading-2.webp, Wuthering Waves 3.8 loading screen with the white WWMI 1.2.2 (PRESS F12 TO SHOW GUIDE) text bottom-left. No current screenshot exists in any source. */}
+
+- **No text and `F12` does nothing:** WWMI did not load. Start with [WWMI does not load](#wwmi-does-not-load).
+- **The text shows, but a mod does not:** WWMI works. Go to [WWMI loads, but a mod does not show](#wwmi-loads-but-a-mod-does-not-show).
+
+## Quick checklist
+
+Check these in order. Each one is explained below.
+
+1. You started the game from XXMI Launcher's **Start** button.
+2. The game runs in DirectX 11, not DirectX 12.
+3. NVIDIA **Smooth Motion** and frame generation are off.
+4. You play the Windows version from Kuro's launcher, Steam or Epic Games, not Google Play Games.
+5. The mod folder is extracted and sits inside `%AppData%\XXMI Launcher\WWMI\Mods`.
+6. No folder in the mod's path starts with `DISABLED`.
+7. You pressed `F10` while the modded Resonator was off screen.
+8. You did not turn all mods off with `F6`.
+9. No `Mod Loading Error` or `WWMI Integrity Error` box shows on screen.
+10. The launcher and game settings mods need are set.
+11. The mod works on version 3.8.
+12. Only one mod is on for each Resonator.
+13. You turned **Mute Warnings** off and read the error text.
+
+## WWMI does not load
+
+<Accordions type="multiple">
+<Accordion title="No text, and you started the game from Kuro's launcher, Steam or Epic" id="started-from-the-wrong-launcher">
+
+**Cause:** WWMI loads only when XXMI Launcher starts the game. The **Start** or **Play** button of Kuro's launcher, Steam or Epic Games starts the game without it.
+
+**Fix:**
+
+1. Close the game.
+2. Update the game in Kuro's launcher, Steam or Epic Games first. XXMI Launcher does not update the game.
+3. Open XXMI Launcher and click the **WWMI** icon.
+4. Click **Start**.
+
+In the launcher's **General** settings, **Game Launch** must match where you got the game: `Direct` for Kuro's launcher, `Steam` for Steam, `Epic Games` for Epic. [Install mods with XXMI Launcher](/docs/wuthering-waves/getting-started/install-with-xxmi-launcher) shows each one.
+
+</Accordion>
+<Accordion title="No text, and the game runs in DirectX 12" id="directx-12">
+
+**Cause:** WWMI works only when the game draws with DirectX 11. In DirectX 12 no mod loads, and WWMI will not support it.
+
+**Fix:**
+
+1. Close the game.
+2. With Game Launch `Direct` or `Steam`, start the game from XXMI Launcher. It starts the game in DirectX 11 by itself.
+3. With Game Launch `Epic Games`, Kuro's launcher opens when you press **Start**. Tick its **DirectX 11** box in the bottom-right corner, then press **Start** there.
+4. Leave **Launch Options** unticked in the launcher's **General** settings.
+
+Ray tracing and frame generation need DirectX 12, so they stay off while you play with mods.
+
+{/* NEEDS HANDS-ON TEST: the exact label and position of the DirectX 11 checkbox in Kuro's launcher on Wuthering Waves 3.8, when started through Game Launch = Epic Games. */}
+
+Unofficial DirectX 12 loaders exist. They are not supported and not covered here.
+
+</Accordion>
+<Accordion title="No text, and you have an NVIDIA graphics card" id="nvidia-smooth-motion">
+
+**Cause:** NVIDIA **Smooth Motion** is on. It came with NVIDIA driver 581.15 and stops WWMI from loading. This is one of the most common reasons for "game starts, no mods" in 2025 and 2026.
+
+**Fix:**
+
+1. Close the game.
+2. Open the NVIDIA App and find the settings for Wuthering Waves.
+3. Set **Smooth Motion** to **Off**.
+4. Turn NVIDIA frame generation off too.
+5. Start the game again from XXMI Launcher.
+
+<img
+  src="/wiki-images/wuthering-waves-errors-mods-not-loading-1.webp"
+  alt="The NVIDIA Smooth Motion setting set to Off"
+/>
+
+{/* NEEDS HANDS-ON TEST: the exact place of the Smooth Motion setting in the current NVIDIA App (per-game profile or global settings), and whether XXMI DLL 1.3.3 still needs it off for Wuthering Waves. */}
+
+</Accordion>
+<Accordion title="Black screen with sound, or no mods while another tool runs" id="overlays-and-other-tools">
+
+**Cause:** an overlay or another program that hooks into the game clashes with WWMI. The game shows only a black screen or the desktop, or starts without mods.
+
+**Fix:**
+
+1. Turn off the Steam overlay and the Discord overlay.
+2. Close other programs that hook into the game at startup.
+3. In XXMI Launcher, put any launch settings you changed back to their defaults.
+4. Start the game only from XXMI Launcher.
+
+</Accordion>
+<Accordion title="You play the Google Play Games version" id="google-play-games">
+
+The Google Play Games PC version of Wuthering Waves is not supported. Mods work with the Windows game from Kuro's launcher, Steam or Epic Games.
+
+</Accordion>
+<Accordion title="You followed an old guide with WWMI Loader.exe" id="old-wwmi-loader">
+
+Old guides start mods with `WWMI Loader.exe` and set up the game by hand. That loader is gone. With such an old setup, mod textures can take minutes to load and other Resonators can break. Move to XXMI Launcher:
+
+1. Install XXMI Launcher and WWMI with the install guide linked above.
+2. In XXMI Launcher, click the 3-dots button next to **Start**, then **Open Mods Folder**.
+3. Copy only the mod folders from the old `Mods` folder into the new one.
+4. Do not copy `d3dx.ini`, `d3d11.dll`, `d3dcompiler_47.dll`, `ShaderFixes`, `ShaderCache` or `WWMI Loader.exe`.
+5. Delete the old setup.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: which files an old WWMI Loader.exe setup holds, and that copying only the mod folders into WWMI\Mods works. */}
+
+Mods made for the first WWMI versions, from mid 2024, may then show a `Mod Loading Error` box. See [the error messages](#mod-loading-error) below.
+
+</Accordion>
+</Accordions>
+
+## WWMI loads, but a mod does not show
+
+<Accordions type="multiple">
+<Accordion title="The mod is in the wrong folder, or still zipped" id="wrong-folder">
+
+**Cause:** WWMI reads only `.ini` files inside its own `Mods` folder. A `.zip`, `.7z` or `.rar` file there does nothing. Mods in the game folder do nothing either.
+
+**Fix:**
+
+1. In XXMI Launcher, click the 3-dots button next to **Start**, then **Open Mods Folder**. It opens `%AppData%\XXMI Launcher\WWMI\Mods`.
+2. Extract the archive.
+3. Put the extracted mod folder inside `Mods`. Each mod gets its own folder with its `mod.ini` file in it.
+
+<Files>
+  <Folder name="WWMI" defaultOpen>
+    <Folder name="Core: WWMI itself, do not edit" />
+    <Folder name="Mods" defaultOpen>
+      <Folder name="Your mod" defaultOpen>
+        <File name="mod.ini" />
+        <Folder name="Meshes" />
+        <Folder name="Textures" />
+      </Folder>
+      <File name="mod.zip: ignored, extract it" />
+    </Folder>
+    <File name="d3dx.ini" />
+  </Folder>
+</Files>
+
+WWMI reads folders at any depth, so `Mods\Your mod\Your mod\mod.ini` still loads. Never put a `d3dx.ini` or `d3d11.dll` inside `Mods`: XXMI Launcher refuses to start with a `d3dx.ini` there.
+
+</Accordion>
+<Accordion title="The mod folder or its .ini starts with DISABLED" id="disabled-prefix">
+
+**Cause:** WWMI skips every file and folder whose name starts with `DISABLED`, in any case. A parent folder with that prefix hides every mod inside it.
+
+**Fix:** rename the folder so its name no longer starts with `DISABLED`. Then press `F10` in game.
+
+The launcher also renames files to `DISABLED_...` on purpose, for example a stray `d3dx.ini`, or a heavy mod you chose to turn off in its **Performance Notification**. Leave a stray `d3dx.ini` renamed.
+
+</Accordion>
+<Accordion title="You added the mod while the game was running" id="not-reloaded">
+
+**Cause:** WWMI reads new mods only when it reloads.
+
+**Fix:**
+
+1. Switch to another Resonator, the game's name for a playable character, so the modded one is off screen.
+2. Press `F10`. WWMI reloads all mods.
+3. Switch back to the Resonator.
+
+If the Resonator now looks half loaded, it was on screen during the reload. Switch away, press `F10` again, or restart the game.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: what a Resonator looks like when F10 is pressed while it is on screen, and whether switching away and pressing F10 again fixes it. */}
+
+</Accordion>
+<Accordion title="Every mod vanished at once" id="mods-toggled-off">
+
+**Cause:** `F6` turns all mods on and off. You may have pressed it by mistake. The top of the screen then shows `Mods Display: Disabled`.
+
+**Fix:** press `F6` once. The text changes to `Mods Display: Enabled`. To compare a mod with the original look, hold `F9` instead.
+
+</Accordion>
+<Accordion title="A Mod Loading Error box shows" id="mod-loading-error">
+
+**Cause:** the mod and your WWMI version do not match. The box names the problem:
+
+| Message                                                                                                         | What it means                                                                                 | Fix                                                                                                             |
+| --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `Mod is incompatible with current WWMI version!` and `Please check out the mod's page for any updates!`         | The mod was made for the first WWMI versions                                                  | Look for a new version of the mod. Old ones cannot load. Press `X` to hide the box.                             |
+| `Mod is incompatible with current WWMI version!` and `Enable Compatibility Mode [Alt]+[F12]->[F10] to load it.` | The mod uses an old WWMI format                                                               | Press `Alt+F12`, then `F10`. A version re-exported by its creator is better: compatibility mode costs some FPS. |
+| `Installed WWMI version is below minimally required!`                                                           | The mod needs a newer WWMI than you have. Mods exported with WWMI Tools 1.9.4 need WWMI 1.2.2 | Open XXMI Launcher and let it update WWMI.                                                                      |
+
+If the launcher does not update by itself, click the 3-dots button next to **Start**, then **Check For Updates**.
+
+</Accordion>
+<Accordion title="A WWMI Integrity Error box shows" id="wwmi-integrity-error">
+
+**Cause:** your XXMI DLL is too old for WWMI 1.2.2. The box reads:
+
+```text
+WWMI Integrity Error:
+
+Installed XXMI DLL version is below minimally required!
+
+Textures replacement using dHash-based filters is unavailable.
+
+Please update XXMI DLL to v1.3.3+.
+
+Press X to hide this message
+```
+
+Mods exported with WWMI Tools 1.9.4 find their textures with this part of the XXMI DLL, so their textures cannot change. Older mods do not use it.
+
+**Fix:**
+
+1. Close the game.
+2. Open XXMI Launcher and let it update. If it does not update by itself, click the 3-dots button next to **Start**, then **Check For Updates**.
+3. Start the game again. Press `X` to hide the box if it still shows.
+
+{/* NEEDS HANDS-ON TEST: on WWMI 1.2.2 with an XXMI DLL older than 1.3.3, whether this box shows, whether mods exported with WWMI Tools 1.9.4 then draw their mesh without their textures, and whether an XXMI Launcher 2.5.0 update clears it */}
+
+</Accordion>
+<Accordion title="Check the settings mods need" id="settings-mods-need">
+
+A wrong setting can make a mod vanish, show the original look, or break its textures.
+
+<img
+  src="/wiki-images/wuthering-waves-getting-started-install-with-xxmi-launcher-2.webp"
+  alt="A checklist of the settings that decide whether Wuthering Waves mods show: five XXMI Launcher settings, three in-game settings and three PC settings"
+/>
+
+**Fix:**
+
+1. In XXMI Launcher, click the gear in the top-right corner and open the **General** tab.
+2. Make sure **Configure Game Settings For WWMI** and **Disable Wounded Effect** are ticked.
+3. Leave **Mesh LOD Base FOV** at `165`.
+4. Check that **Client Resource Quality** matches the quality you installed: `UHD`, `HD` or `SD`.
+5. In game, open <MenuPath path="Settings > Graphics" /> and set **LOD Bias** to **Ultra High**.
+6. Press `F10`.
+
+If the mod shows up close but turns back to the original look at a distance, or its textures look white or patchy, go to Mods look broken.
+
+{/* NEEDS HANDS-ON TEST: the exact menu path and label of LOD Bias in the Wuthering Waves 3.8 graphics settings. */}
+
+</Accordion>
+<Accordion title="A mod stopped working after a game update" id="outdated-mod">
+
+**Cause:** the update changed the Resonator the mod is made for, or the way the game loads models and textures. Rover breaks most often. Version 3.8 broke Rover mods and facial expressions again.
+
+**Fix:**
+
+1. Open XXMI Launcher and let it update itself and WWMI. Fixes often come on update day or a few days later.
+2. Check that the text in the bottom-left corner shows the newest WWMI version.
+3. Check the mod's page for an update.
+4. Follow [Fix your mods after a game update](/docs/wuthering-waves/getting-started/fix-mods-after-an-update). It shows when to use a fix tool.
+
+</Accordion>
+<Accordion title="Two mods change the same Resonator" id="two-mods-one-resonator">
+
+**Cause:** two mod folders change the same Resonator or outfit. Or a download holds several versions of one mod in subfolders, and all of them load at once. You then see a mix of both mods, or broken shapes.
+
+**Fix:** keep one mod for each Resonator or outfit. Rename the others so they start with `DISABLED_`. For a download with several versions, keep one version folder. Then press `F10`.
+
+</Accordion>
+<Accordion title="You see nothing, not even an error" id="show-warnings">
+
+**Cause:** XXMI Launcher hides mod errors by default. A mod with a wrong file name or a broken `.ini` line fails without a sign.
+
+**Fix:**
+
+1. In XXMI Launcher, click the gear in the top-right corner.
+2. Open the **WWMI** tab and untick **Mute Warnings**.
+3. Start the game and press `F10`.
+4. Read the text on screen.
+
+An error that names a missing file or a broken line means the mod itself is broken. Check the mod's page for an update, or ask its creator.
+
+{/* NEEDS HANDS-ON TEST: the exact on-screen look and wording of .ini warnings in WWMI 1.2.2 with Mute Warnings off. No source quotes them. */}
+
+</Accordion>
+</Accordions>
+
+## Still stuck: repair WWMI and test half your mods
+
+<Steps>
+<Step>
+
+### Repair WWMI
+
+1. Open `%AppData%\XXMI Launcher\WWMI\ShaderFixes`. If you added files there yourself, remove only those files.
+2. In XXMI Launcher, click the 3-dots button next to **Start**, then **Repair WWMI**. It reinstalls WWMI and keeps your mods.
+3. Start the game and check the text in the bottom-left corner.
+
+{/* NEEDS HANDS-ON TEST: whether WWMI\ShaderFixes exists after a clean install with XXMI Launcher 2.5.0, and what Repair WWMI puts back in it. */}
+
+</Step>
+<Step>
+
+### Test half your mods
+
+If WWMI loads but one mod still does not show, another mod may be in the way. Find it by halves.
+
+1. Rename half of your mod folders so they start with `DISABLED_`. Keep the mod you are testing.
+2. Switch to another Resonator and press `F10`.
+3. Switch back and check the mod.
+4. If it shows now, the blocker is in the half you turned off. If not, it is in the half you kept.
+5. Keep halving that group until one mod is left.
+
+</Step>
+</Steps>
+
+Still nothing? Ask in the [Divine Skins Discord](https://discord.gg/divineskins) or the [AGMG Discord](https://discord.gg/agmg). Say what you see, your WWMI version from the bottom-left text, and which checks you did.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Crashes and launch errors"
+    href="/docs/wuthering-waves/errors/game-crashes"
+    icon={<Icon name="Bug" />}
+    level="beginner"
+  >
+    The game closes, crashes, or will not start, with or without mods.
+  </PremiumCard>
+  <PremiumCard
+    title="XXMI Launcher problems"
+    href="/docs/wuthering-waves/errors/launcher-problems"
+    icon={<Icon name="XXMILauncher" />}
+    level="beginner"
+  >
+    The launcher will not install, open, update, or find the game.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [WWMI on GameBanana](https://gamebanana.com/tools/17252), with its FAQ and update posts, by SpectrumQT.
+- **Tool:** [WWMI-Package](https://github.com/SpectrumQT/WWMI-Package) by SpectrumQT: the load text, key bindings and Mod Loading Error messages.
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT.
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ and contributors.
+- **Image:** screenshot 1 by [jatterjut-spec](https://github.com/jatterjut-spec), from a report on the [XXMI Launcher issue tracker](https://github.com/SpectrumQT/XXMI-Launcher).

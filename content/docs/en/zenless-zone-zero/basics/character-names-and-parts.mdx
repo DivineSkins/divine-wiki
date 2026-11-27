@@ -1,0 +1,172 @@
+---
+title: "Character names and parts"
+description: "Look up the name Zenless Zone Zero mod files use for each agent and outfit, and the components and parts an agent is split into."
+category: "basics"
+patch: "3.3"
+keywords:
+  ["zzz agent names", "zzmi parts", "hash.json", "zz-model-importer-assets"]
+---
+
+<LevelPill level="beginner" />
+
+Mod files, dump folders and Blender objects all use the same names for agents and their parts. Learn them once here, so you pick the right folder and the right object every time.
+
+<Accordions>
+<Accordion title="Coming from another game?">
+
+**From Genshin Impact.** Every Zenless Zone Zero agent is split into several named components (`Hair`, `Body`, `Face`, `Legs` and extras) with lettered parts `A`, `B`, `C`. Genshin Impact's fixed `Head`, `Body`, `Dress` and `Extra` set does not apply here, and there are no separate China client models. Each part has four textures, including a `MaterialMap`.
+
+**From Honkai: Star Rail.** Same idea: named components with lettered parts. The component names differ, and the face is texture only.
+
+**From Wuthering Waves.** Zenless Zone Zero has no `Component N` objects and no merged skeleton. Each part is its own Blender object, named after the agent, component and part.
+
+Other game sections: [Genshin Impact](/docs/genshin-impact), [Honkai: Star Rail](/docs/honkai-star-rail), [Wuthering Waves](/docs/wuthering-waves).
+
+</Accordion>
+</Accordions>
+
+## What you need
+
+Nothing to install. To browse the names yourself, open the asset repo in your browser:
+
+<Requirements>
+  <Requirement
+    icon="GitHub"
+    href="https://github.com/leotorrez/ZZ-Model-Importer-Assets"
+    note="optional"
+  >
+    ZZ-Model-Importer-Assets
+  </Requirement>
+</Requirements>
+
+## How a name is built
+
+Every file in a Zenless Zone Zero mod or dump follows one pattern: agent, then component, then part, then texture type.
+
+<img
+  src="/wiki-images/zenless-zone-zero-basics-character-names-and-parts-1.webp"
+  alt="The file name EllenBodyADiffuse.dds split into agent Ellen, component Body, part A and texture type Diffuse"
+/>
+
+- **Agent:** the folder name in the asset repo, written without spaces.
+- **Component:** one index buffer, with a name such as `Hair`, `Body`, `Face` or `Legs`.
+- **Part:** a slice of that index buffer, named with a letter: `A`, `B`, `C`.
+- **Texture type:** `Diffuse` (color), `NormalMap` (surface detail), `LightMap` (shading) and `MaterialMap` (more material data).
+
+Blender objects and `.ib` files use the name without the texture type, for example `EllenBodyA` or `BelleBodyB`. Keep those names: the exporter uses them to match your mesh to the right part.
+
+Here is Ellen's folder in the asset repo. Each component and part has an `-ib=` and a `-vb0=` text file with its hash in the name, and one `.dds` per texture type:
+
+<img
+  src="/wiki-images/zenless-zone-zero-basics-character-names-and-parts-2.webp"
+  alt="Ellen's folder in the ZZ-Model-Importer-Assets repo on GitHub, listing EllenBodyA and EllenHairA index and vertex buffer text files, their Diffuse, LightMap, MaterialMap and NormalMap textures, and EllenFaceADiffuse.dds"
+/>
+
+## Names modders use
+
+Asset folders, and the files exported from them, use one-word names with capitals. Most are the agent's given name: `Ellen`, `Billy`, `Lycaon`. Some are not what you would guess:
+
+| You know them as                              | Folder name                                       |
+| --------------------------------------------- | ------------------------------------------------- |
+| Soldier 0 Anby                                | `Soldier0`                                        |
+| Soldier 11                                    | `Soldier11`                                       |
+| Hoshimi Miyabi, Tsukishiro Yanagi             | `Miyabi`, `Yanagi`                                |
+| Asaba Harumasa                                | `Harumasa`                                        |
+| Jane Doe, Astra Yao                           | `Jane`, `Astra`                                   |
+| Remielle Dan                                  | `Remielle` (some mods write `Ramielle`)           |
+| Zhu Yuan, Nangong Yu, Pan Yinhu, Ye Shunguang | `ZhuYuan`, `NangongYu`, `PanYinhu`, `YeShunguang` |
+| The two Proxies                               | `Wise`, `Belle`                                   |
+
+Checked against the asset repo on 2026-11-24. Its last update was on 2026-09-20, so it holds dumps from version 3.2. The full list is the folder list of `PlayerCharacterData` in the repo: 92 folders for agents and their outfits.
+
+<Callout type="warning" title="Newer agents are missing">
+  The asset repo has no folder for Phoenix, Severian, Rokudo or Roxy. Version
+  3.3 also changed a few hashes. For those agents, and for any part that no
+  longer matches, make your own dump. [Make a frame
+  dump](/docs/zenless-zone-zero/basics/frame-dump) shows how.
+</Callout>
+
+## Outfits are separate models
+
+Each outfit is its own model, with its own hashes and its own asset folder. A mod for an agent's default look does not change the outfit, and the other way round.
+
+Outfit folders add a word to the agent's name. Some of them: `AliceSummer`, `AstraChandelier`, `BelleSummer`, `BillyStarlight`, `EllenCampus`, `JaneSummer`, `MiyabiBlossom`, `NicoleCutie`, `SunnaKfc`, `VivianSummer`, `WiseSkies` and `YixuanTrailsOfInk`.
+
+An outfit can share some data with the default look. Vivian and Vivian Summer, for example, share a Position hash. A mod that hooks that hash shows on both. That is one reason the exporter hooks the mesh by its Blend hash instead.
+
+## Components and parts
+
+A **component** is one index buffer (IB) with its own hash. A **part** is a slice of that buffer. The `.ini` tells parts apart by where they start in the buffer and how long they are, with `match_first_index` and `match_index_count`.
+
+Every agent has several components. Belle, for example, from her version 3.0 dump:
+
+| Component             | Parts    | Textures per part                                 |
+| --------------------- | -------- | ------------------------------------------------- |
+| `Hair`                | `A`      | `Diffuse`, `NormalMap`, `LightMap`, `MaterialMap` |
+| `Body`                | `A`, `B` | `Diffuse`, `NormalMap`, `LightMap`, `MaterialMap` |
+| `Legs`                | `A`      | `Diffuse`, `NormalMap`, `LightMap`, `MaterialMap` |
+| `Earrings`, `Hairpin` | `A`      | `Diffuse`, `NormalMap`, `LightMap`, `MaterialMap` |
+| `Face`                | `A`, `B` | `Diffuse` on `A` only (texture only, no mesh)     |
+
+That is why you see objects like `BelleBodyA` and `BelleBodyB`. Other agents have other extras: `Arms`, `Tail`, `Mask`, `Jacket`, `Glasses`, `Coat`. The most common names in the repo are `BodyA` and `HairA`.
+
+Glow textures are extra. Some agents glow with their signature W-Engine (`WengineFx`) or in a special state (`GlowMap`). Most folders in the repo have no glow textures: only Pyrois has a `GlowMap`.
+
+Components can change in a game update. In version 2.5, Jane's `Hair` was split into `Hair` and `Arms`, so most Jane mods needed a new export.
+
+### The face is textures only
+
+The `Face` component has no mesh in the asset repo. You can change its texture (`EllenFaceADiffuse.dds`), but face mesh edits are not supported yet: face animation uses shape keys, and XXMI Tools 1.8.2 cannot export them.
+
+### hash.json holds the map
+
+Every agent folder in the asset repo, and every dump you extract, has a `hash.json`. For each component it lists the IB hash, the Position, Blend and Texcoord hashes, the first index of each part, its letter, and the texture hashes. XXMI Tools reads it when you export, and the export fails without it.
+
+- Never delete `hash.json`.
+- Never rename the dump folder.
+
+## Bangboo, NPCs and other folders
+
+The asset repo has more than agents:
+
+| Folder              | What is in it                                                                                                                                   |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `BangbooData`       | 25 Bangboo, such as `Amillion`, `Butler`, `Sharkboo`, `Penguinboo` and `BaseBangboo`. A Bangboo usually has one `BodyA` with the four textures. |
+| `NPCData`           | About 30 named NPCs, plus a `Generic` folder of shared NPC parts, sorted by part and then by body type (`TallFemale`, `ChildFemale`).           |
+| `MiscellaneousData` | `BangbooStatue`                                                                                                                                 |
+| `SkillData`         | `LucysPigs`, a skill summon                                                                                                                     |
+
+Generic NPC parts are shared by many NPCs, so a mod for one part can show on every NPC that uses it.
+
+## Weapons
+
+The asset repo has no weapons: there are too many models to maintain. For a weapon or prop, make your own frame dump. A signature W-Engine's glow on the agent is a texture on the agent (`WengineFx`), not a weapon model.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Get a model into Blender"
+    href="/docs/zenless-zone-zero/models/import-into-blender"
+    icon={<Icon name="Box" />}
+    level="intermediate"
+  >
+    Import an agent folder with XXMI Tools and find each part.
+  </PremiumCard>
+  <PremiumCard
+    title="Find a hash with hunting mode"
+    href="/docs/zenless-zone-zero/basics/find-a-hash"
+    icon={<Icon name="Crosshair" />}
+    level="intermediate"
+  >
+    Find the hash of any mesh, texture or shader on screen.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Data:** [ZZ-Model-Importer-Assets](https://github.com/leotorrez/ZZ-Model-Importer-Assets) by LeoTorreZ, maintained mostly by Satan1c: folder names, components, parts and `hash.json`.
+- **Wiki:** [Jane 2.5 fix](https://github.com/Satan1c/ZZMI_tools/wiki/Jane-2.5-fix) by Satan1c: the `Hair` and `Arms` split.
+- **Issues:** [Ellen face is missing](https://github.com/leotorrez/ZZ-Model-Importer-Assets/issues/8) and [Agent weapons](https://github.com/leotorrez/ZZ-Model-Importer-Assets/issues/15), answered by leotorrez: why faces and weapons are not in the repo.

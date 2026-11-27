@@ -1,0 +1,276 @@
+---
+title: "Set up your creator tools"
+description: "Install the Genshin Impact creator kit: hunting mode in XXMI Launcher, Paint.NET for DDS textures, Blender with XXMI Tools, and the original models."
+category: "getting-started"
+patch: "7.2"
+keywords:
+  [
+    "genshin modding tools",
+    "xxmi tools",
+    "gimi blender",
+    "gi-model-importer-assets",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+This page sets up everything you need to make your own Genshin Impact mods. Install the texture kit first. Add Blender when you want to change a model's shape. You need a working XXMI Launcher with GIMI before you start.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/genshin-impact/getting-started/install-with-xxmi-launcher"
+    note="with GIMI working"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="Monitor" note="64-bit">
+    Windows 10 or 11
+  </Requirement>
+  <Requirement icon="GitHub" note="free, for downloading one folder">
+    A GitHub account
+  </Requirement>
+</Requirements>
+
+Written for XXMI Launcher 2.5.0, GIMI 8.9.4, XXMI Tools 1.8.2 and gui_collect 1.4.2.
+
+<img
+  src="/wiki-images/genshin-impact-getting-started-creator-setup-1.webp"
+  alt="The Genshin Impact creator kit: XXMI Launcher with Enable Hunting, Paint.NET and a code editor for textures; Blender 4.5 LTS, XXMI Tools 1.8.2 and the original models for model mods"
+/>
+
+## The texture kit
+
+<Steps>
+<Step>
+
+### Turn on hunting mode in XXMI Launcher
+
+Hunting mode lets you find the hash of a part on screen and save a frame dump. It is off by default.
+
+1. Open XXMI Launcher and click the GIMI icon.
+2. Click the gear icon to open the settings.
+3. Open the **GIMI** tab.
+4. Tick **Enable Hunting** in the **Shader Hunting** section. Leave **Dump Shaders** off.
+5. Start the game from XXMI Launcher.
+
+In game, these keys now work:
+
+| Key        | What it does                             |
+| ---------- | ---------------------------------------- |
+| `Numpad 0` | Turn hunting mode on or off (green text) |
+| `Ctrl+F12` | Show or hide the hunting guide           |
+| `F8`       | Save a frame dump                        |
+
+No numpad? `d3dx.ini` in the GIMI folder explains how to move the hunting keys. [Find a hash with hunting mode](/docs/genshin-impact/basics/find-a-hash) shows how to use them.
+
+{/* NEEDS HANDS-ON TEST: in XXMI Launcher 2.5.0, confirm the GIMI settings tab name and that Enable Hunting sits under Shader Hunting. */}
+
+{/* SCREENSHOT: genshin-impact-getting-started-creator-setup-3.webp, XXMI Launcher 2.5.0 settings, GIMI tab, with Enable Hunting ticked. The only source screenshot shows launcher 1.1.4 and the ZZMI tab. */}
+
+</Step>
+<Step>
+
+### Install a texture editor
+
+Genshin Impact textures are `.dds` files. Paint.NET is free and opens and saves them without a plugin: DDS FileType Plus is built in since Paint.NET 4.2.2.
+
+<ToolCard
+  name="Paint.NET"
+  href="https://www.getpaint.net/download.html"
+  badge="Recommended"
+  icon={<Icon name="PaintNET" />}
+>
+  Free, Windows. Use the classic installer from getpaint.net.
+</ToolCard>
+
+1. Download the classic installer from getpaint.net.
+2. Run it and follow the steps.
+3. Open any `.dds` file to check that it works.
+
+Photoshop with Intel Texture Works also works, and GIMP may work too. [Texture editors and DDS plugins](/docs/genshin-impact/tools/texture-editors) compares them, and [Save DDS textures the right way](/docs/genshin-impact/textures/save-dds-files) has the save settings.
+
+</Step>
+<Step>
+
+### Install a code editor
+
+A mod's `.ini` file is plain text. A code editor with colors for `.ini` files makes mistakes easier to spot.
+
+1. Install [Visual Studio Code](https://code.visualstudio.com/).
+2. Add syntax colors for 3DMigoto `.ini` files from [3dmigoto-ini-extensions](https://github.com/lupomikti/3dmigoto-ini-extensions) by lupomikti. It covers GIMI files and several editors.
+
+Save every `.ini` as UTF-8.
+
+{/* NEEDS HANDS-ON TEST: how to install 3dmigoto-ini-extensions in VS Code (marketplace entry or manual install) and its exact name in the editor. */}
+
+</Step>
+</Steps>
+
+That is all you need for your first texture mod.
+
+## The model kit
+
+<Steps>
+<Step>
+
+### Install Blender
+
+<ToolCard
+  name="Blender"
+  href="https://www.blender.org/download/lts/"
+  icon={<Icon name="Blender" />}
+>
+  Free, open source. Use Blender 4.5 LTS.
+</ToolCard>
+
+1. Download Blender 4.5 LTS from blender.org.
+2. Install it.
+
+XXMI Tools needs Blender 3.6 or newer. Users report it working on Blender 4.4, 4.5 and 5.1. Nobody has reported testing it on Blender 5.2 yet, so stay on 4.5 LTS for now.
+
+{/* NEEDS HANDS-ON TEST: import and export one Genshin Impact character with XXMI Tools 1.8.2 on Blender 4.5 LTS and on 5.2 LTS (tests MD01). Update the pinned version if 5.2 works. */}
+
+</Step>
+<Step>
+
+### Remove old 3DMigoto add-ons
+
+XXMI Tools replaces the older Blender scripts. Two versions at once cause errors.
+
+1. In Blender, open <MenuPath path="Edit > Preferences > Add-ons" />.
+2. Search for `3dmigoto`, then `LeoTools`, then `XXMI`.
+3. Remove every old version you find, such as `blender_3dmigoto_gimi.py`.
+4. Restart Blender.
+
+</Step>
+<Step>
+
+### Install XXMI Tools
+
+<ToolCard
+  name="XXMI Tools"
+  href="https://github.com/leotorrez/XXMITools/releases"
+  badge="Required"
+  icon={<Icon name="GitHub" />}
+>
+  By LeoTorreZ. Free. Imports Genshin Impact models into Blender and exports
+  them as a mod.
+</ToolCard>
+
+1. Download `XXMITools_v1.8.2.zip` from the latest release. Do not unzip it.
+2. In Blender, open <MenuPath path="Edit > Preferences > Add-ons" />.
+3. Click the small down-arrow at the top right, then **Install from Disk...**.
+4. Pick the `.zip` file.
+5. Tick the box next to `XXMI_Tools` if it is not ticked.
+6. Restart Blender.
+
+To check it worked, open <MenuPath path="File > Import" />. You should see `XXMI Dump(vb.txt + ib.txt)`. Press `N` in the 3D view: the sidebar now has an **XXMI Tools** tab.
+
+On Blender 3.6 to 4.1, step 3 is the **Install...** button instead. When you import, pick the game preset `Genshin Impact`. [XXMI Tools for Blender](/docs/genshin-impact/tools/blender-add-on) explains every option.
+
+{/* SCREENSHOT: genshin-impact-getting-started-creator-setup-4.webp, Blender 4.5 Preferences > Add-ons with the down-arrow menu open on Install from Disk..., and XXMI_Tools ticked in the list. */}
+
+</Step>
+<Step>
+
+### Get the original models
+
+You start every model mod from the game's original model data. For most characters, it is already in a public GitHub repo.
+
+<img
+  src="/wiki-images/genshin-impact-getting-started-creator-setup-2.webp"
+  alt="The PlayerCharacterData folder of the GI-Model-Importer-Assets repo on GitHub, listing one folder per character such as Albedo, Amber and Arlecchino"
+/>
+
+1. Open [GI-Model-Importer-Assets](https://github.com/SilentNightSound/GI-Model-Importer-Assets) and go into `PlayerCharacterData`.
+2. Find your character's folder. Outfits have their own folder, such as `AyakaSpringbloom`.
+3. Sign in to GitHub. In the address bar, change `github.com` to `github.dev` and press Enter.
+4. Wait for the web editor to open. Right-click the character's folder and choose **Download**.
+5. Allow the site to save files, and pick a work folder on your PC.
+
+Never clone or download the whole repo: it is over 1 GB. Keep the folder's name and its `hash.json` file as they are. XXMI Tools needs both to export.
+
+{/* NEEDS HANDS-ON TEST: the github.dev right-click Download flow in a current browser, and where the folder lands. */}
+
+The repo was last updated in August 2026. Newer characters such as Odette, Alyosha, Vesna, Mitya and Valeriy, and also Lan Yan, are not in it yet. For those, make your own frame dump with gui_collect.
+
+<ToolCard
+  name="gui_collect"
+  href="https://github.com/Petrascyll/gui_collect"
+  icon={<Icon name="GitHub" />}
+>
+  By Petrascyll. Free, needs Python 3.9 or newer. Turns a frame dump into a
+  folder that XXMI Tools can import.
+</ToolCard>
+
+[Make a frame dump](/docs/genshin-impact/basics/frame-dump) shows the whole process.
+
+</Step>
+</Steps>
+
+Get original models only from this repo or from your own frame dump. Tools that unpack the game's files are not covered here.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="XXMI Tools does not show in File > Import" id="no-import-entry">
+
+Check that `XXMI_Tools` is ticked in the add-on list, then restart Blender. If it still does not show, remove every old 3DMigoto add-on and install XXMI Tools again.
+
+</Accordion>
+<Accordion title="The add-on will not install on my Blender" id="old-blender">
+
+XXMI Tools needs Blender 3.6 or newer. Install Blender 4.5 LTS. You can keep an older Blender next to it.
+
+</Accordion>
+<Accordion title="Export fails with an error about the dump folder" id="export-hash-json">
+
+The dump folder was renamed, or its `hash.json` is missing. Download the character folder again and do not rename it. [Blender export and import errors](/docs/genshin-impact/errors/creator-errors) has more fixes.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Your first mod: recolor a character"
+    href="/docs/genshin-impact/textures/recolor-a-character"
+    icon={<Icon name="Palette" />}
+    level="beginner"
+    featured
+  >
+    Change a character's colors with only Paint.NET and a short .ini file.
+  </PremiumCard>
+  <PremiumCard
+    title="How Genshin Impact mods work"
+    href="/docs/genshin-impact/basics/how-mods-work"
+    icon={<Icon name="BookOpen" />}
+    level="beginner"
+  >
+    What GIMI swaps while the game draws, and why hashes matter.
+  </PremiumCard>
+  <PremiumCard
+    title="Get a model into Blender"
+    href="/docs/genshin-impact/models/import-into-blender"
+    icon={<Icon name="Box" />}
+    level="intermediate"
+  >
+    Import a character with XXMI Tools and look around.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Modding 101](https://leotorrez.github.io/modding/guides/modding-101) and [XXMI Tools guide](https://leotorrez.github.io/modding/guides/xxmi_tools) by LeoTorreZ.
+- **Guide:** [3DMigoto Hunting & Dumping Tutorial](https://leotorrez.github.io/modding/guides/hunting) by Satan1c.
+- **Tool:** [XXMI Tools](https://github.com/leotorrez/XXMITools) by LeoTorreZ.
+- **Tool:** [GI-Model-Importer-Assets](https://github.com/SilentNightSound/GI-Model-Importer-Assets) by SilentNightSound, with additions by LeoTorreZ.
+- **Tool:** [gui_collect](https://github.com/Petrascyll/gui_collect) by Petrascyll.
+- **Tool:** [DDS FileType Plus](https://github.com/0xC0000054/pdn-ddsfiletype-plus) by null54.
+- **Tool:** [3dmigoto-ini-extensions](https://github.com/lupomikti/3dmigoto-ini-extensions) by lupomikti.

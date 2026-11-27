@@ -1,0 +1,323 @@
+---
+title: "Add a toggle"
+description: "Add keys to a Wuthering Waves mod that hide a part or switch outfit variants, with the WWMI Tools Ini Toggles panel or by hand. WWMI can remember the choice."
+category: "ini"
+patch: "3.8"
+keywords:
+  [
+    "wuthering waves mod toggle",
+    "wwmi toggle",
+    "ini toggles",
+    "keyswap",
+    "global persist",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+A toggle lets a player press a key to hide a part or switch between versions of an outfit. In Wuthering Waves, WWMI Tools writes toggles for you with its **Ini Toggles** panel, and WWMI remembers the choice between sessions. You can also add a toggle by hand. Written for WWMI Tools 1.9.4 and WWMI 1.2.2.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Blender" href="/docs/wuthering-waves/tools/blender-add-on">
+    WWMI Tools for Blender
+  </Requirement>
+  <Requirement icon="NotepadPlusPlus" note="or any editor that saves UTF-8">
+    A text editor
+  </Requirement>
+  <Requirement icon="Package">Your own mod, exported and working</Requirement>
+</Requirements>
+
+You should know what a `drawindexed` line is. [How a mod .ini works](/docs/wuthering-waves/ini/how-a-mod-ini-works) explains it.
+
+## How a toggle works
+
+A toggle has a variable, a key that changes it, and an `if` block around the part's `drawindexed` line. WWMI Tools adds one more piece: a command list that works out, every frame, which objects should show.
+
+<img
+  src="/wiki-images/wuthering-waves-ini-add-a-toggle-1.webp"
+  alt="Four pieces of a WWMI Tools toggle: global persist $swapvar_hat = 1 in Constants, a KeySwapHat section that steps the var while the Resonator is on screen, CommandListProcessToggles that sets $draw_component_1_hat to 1 only while $swapvar_hat == 1, and an if block around the hat's drawindexed line in the component section"
+/>
+
+The component sections run again every frame. So when the key changes the variable, the mod draws the new choice on the next frame.
+
+## Prepare your parts in Blender
+
+WWMI Tools writes one `drawindexed` line for each Blender object. So every piece you want to toggle must be its own object.
+
+1. Split the piece into its own object. In Edit Mode, select it, press `P`, then choose **Selection**.
+2. Give the object a name that keeps its component, like `Component 1 Hat`. WWMI Tools only exports objects whose name contains `Component` and the component's number.
+3. Export once without toggles and check that the mod works. [Export your mod from Blender](/docs/wuthering-waves/models/export-your-mod) shows the settings.
+
+## Add a toggle with Ini Toggles
+
+This is the way to go for your own mod. WWMI Tools keeps the toggles in your Blender file and writes them into every export.
+
+<Steps>
+<Step>
+
+### Turn on Ini Toggles
+
+1. In the **WWMI Tools** sidebar, set **Mode** to **Export Mod**.
+2. Open the **Ini Toggles** panel. It is closed by default.
+3. Tick **Use Ini Toggles**.
+
+{/* NEEDS HANDS-ON TEST: where the Ini Toggles panel sits in the WWMI Tools 1.9.4 sidebar, and the exact labels of its buttons */}
+{/* SCREENSHOT: wuthering-waves-ini-add-a-toggle-3.webp, the Ini Toggles panel of WWMI Tools 1.9.4 with one var named Hat, its hotkey, and states 0 and 1, with Component 1 Hat in state 1 */}
+
+</Step>
+<Step>
+
+### Add a var and its key
+
+1. Click **Add Var**. The new var is named `TOGGLE_0`. Rename it, for example to `Hat`.
+2. Open **Edit Var**.
+3. In **Hotkeys**, type the key, for example `H`. Put a space between the keys of a combination and a `;` between two different keys: `CTRL 1; XB_A` works with both `Ctrl+1` and a controller's A button.
+4. Pick the **Default State**: the value the var has before the player presses anything.
+
+The **Key Codes** link in the panel opens Microsoft's list of key names. [Change a mod's keys and saved settings](/docs/wuthering-waves/ini/change-mod-keys) has the keys to avoid.
+
+</Step>
+<Step>
+
+### Put objects in states
+
+1. Add a state `0` and a state `1` to the var.
+2. Add the object `Component 1 Hat` to state `1`.
+3. Leave state `0` empty.
+
+With the default condition, an object shows only while the var has the value of its state. Here the hat shows at `1` and hides at `0`.
+
+</Step>
+<Step>
+
+### Export and test
+
+1. Click **Export Mod**.
+2. In game, switch to another Resonator, then press `F10`.
+3. Switch back and press your key. The hat disappears. Press it again to bring it back.
+
+</Step>
+</Steps>
+
+{/* NEEDS HANDS-ON TEST: one Ini Toggles var with two states on a WWMI Tools 1.9.4 export, in Wuthering Waves 3.8 with WWMI 1.2.2 */}
+
+The export writes these lines into `mod.ini`, shortened:
+
+```ini
+[KeySwapHat]
+condition = $object_detected == 1
+key = H
+type = cycle
+$swapvar_hat = 0, 1
+
+[Constants]
+global persist $swapvar_hat = 1
+global $draw_component_1_hat = 1
+
+[CommandListProcessToggles]
+$draw_component_1_hat = ($swapvar_hat == 1)
+
+[TextureOverrideComponent1]
+; matching and skeleton lines, shortened
+        ; Draw Component 1 Hat
+        if $draw_component_1_hat
+            ; the hat's drawindexed line from your export
+        endif
+```
+
+- `[KeySwap...]` and `$swapvar_...` take their names from the var. `$draw_...` takes its name from the object, so renaming an object renames its variable.
+- `persist` saves the player's choice. `condition = $object_detected == 1` makes the key work only while this Resonator is on screen.
+
+### Combine toggles
+
+Open **Edit Conditions** on an object to show it only in some cases. Each condition compares a var with a value, using `==`, `!=`, `>`, `<`, `>=` or `<=`. Join conditions with `AND` (all must be true) or `OR` (one is enough). For example, show a bracelet only when the var `Jacket` is `0`.
+
+A condition of type `Custom` can test any variable in the `.ini`. Start its name with `$` so WWMI Tools uses it exactly as you typed it.
+
+**Open Ini Toggles Import Export** saves all your vars as JSON text. Paste that text into another project to reuse the same toggles.
+
+## Add a toggle by hand
+
+Use this for a quick test, or for a mod you did not export yourself. The three pieces are the same, without the `$draw_...` step.
+
+1. Add one line to the existing `[Constants]` section. Do not make a second one:
+
+   ```ini
+   global persist $hat = 1
+   ```
+
+2. Add a new key section anywhere in the file:
+
+   ```ini
+   [KeyHat]
+   condition = $object_detected == 1
+   key = h
+   type = cycle
+   $hat = 0,1
+   ```
+
+3. In the component section, find the `; Draw` comment with the object's name. Put `if` and `endif` around its `drawindexed` line only. Keep `run = CommandListCleanupSharedResources` outside the block:
+
+   ```ini
+           ; Draw Component 1 Hat
+           if $hat == 1
+               ; the hat's drawindexed line stays here
+           endif
+           run = CommandListCleanupSharedResources
+   ```
+
+4. Save the file as UTF-8. In game, switch to another Resonator, press `F10`, switch back and press `h`.
+
+- A variable name is `$`, then letters, digits or `_`. It cannot start with a digit or contain `-` or `.`.
+- The key name must start with `Key` and be unique in the file.
+- Every `if` needs exactly one `endif`. The spaces are only for reading.
+
+{/* NEEDS HANDS-ON TEST: a hand-written toggle around one drawindexed line in a WWMI Tools 1.9.4 mod.ini, with WWMI 1.2.2 */}
+
+Each `drawindexed` line draws one range of the mesh. Skip a line, and that range is not drawn. In this drawing, only dots 1 to 9 are drawn, so only the ribbon shows:
+
+<img
+  src="/wiki-images/wuthering-waves-ini-add-a-toggle-2.webp"
+  alt="An animation that joins only dots 1 to 9 of a connect-the-dots face, so only the ribbon is drawn and the hair dots stay unjoined"
+/>
+
+## Switch between variants
+
+One var can pick between several versions of a part. In Ini Toggles, add one state per variant (`0`, `1`, `2`) and put each variant's objects in its state. The key then cycles through them.
+
+By hand, give the key one value per variant and pick the draw with `if`, `else if` and `else`:
+
+```ini
+if $hair == 0
+    ; drawindexed line of the first hair object
+else if $hair == 1
+    ; drawindexed line of the second hair object
+else
+    ; drawindexed line of the third hair object
+endif
+```
+
+Use `else` for the last variant, not `else if`. Then a part always draws, even if the variable holds a value you did not expect.
+
+## Swap a texture
+
+Ini Toggles switches objects, not textures. No guide shows a texture toggle for Wuthering Waves yet, so treat both ways below as untested. Save the second texture in the same format as the first: [Save DDS textures the right way](/docs/wuthering-waves/textures/save-dds-files) has the formats.
+
+How you swap depends on the WWMI Tools version that exported the mod. A `mod.ini` from WWMI Tools 1.9.4 starts with `; WWMI BETA-11 INI`.
+
+**Exported with WWMI Tools 1.9.4.** Each texture is bound by one `ps-t[FilterTextureN] = ref ResourceTextureN` line inside the component section. Keep the filter and switch the resource:
+
+1. Save the second texture in the mod's `Textures` folder, for example as `BodyRed.dds`.
+2. Add a resource for it:
+
+   ```ini
+   [ResourceBodyRed]
+   filename = Textures/BodyRed.dds
+   ```
+
+3. Add a variable and a key, as in "Add a toggle by hand" above. Here the variable is `$body`.
+4. In the component section, find the texture's line, for example `ps-t[FilterTexture0] = ref ResourceTexture0`. Replace it with this block:
+
+   ```ini
+           if $body == 1
+               ps-t[FilterTexture0] = ref ResourceBodyRed
+           else
+               ps-t[FilterTexture0] = ref ResourceTexture0
+           endif
+   ```
+
+5. If the same line is in more than one component section, replace it in each one.
+
+{/* NEEDS HANDS-ON TEST: on WWMI 1.2.2 with XXMI DLL 1.3.3, a texture toggle that switches the resource of one ps-t[FilterTextureN] line with if and else inside the component sections of a WWMI Tools 1.9.4 export */}
+
+**Exported with WWMI Tools 1.8.0 or older.** The mod has no `ps-t[Filter...]` lines. Each texture has its own `[TextureOverrideTextureN]` section with a `this = ResourceTextureN` line. Wrap that line in an `if` block, inside the existing `if $object_detected`, and point the other branch at the second `[Resource...]`.
+
+{/* NEEDS HANDS-ON TEST: on WWMI 1.2.2, a texture toggle that wraps this = ResourceTextureN in an if block inside TextureOverrideTextureN of a WWMI Tools 1.8.0 export */}
+
+## Toggles that switch by themselves
+
+WWMI tells mods two things about the screen, with no key needed:
+
+- `$\WWMIv1\in_character_menu` is `1` on the Resonators screen and in the Gallery.
+- `$\WWMIv1\in_dressing_room` is `1` on the outfit screen.
+
+Use them in an `if`, or as a `Custom` condition in Ini Toggles, to show a part only in menus.
+
+{/* NEEDS HANDS-ON TEST: the values of $\WWMIv1\in_character_menu and $\WWMIv1\in_dressing_room in Wuthering Waves 3.8 with WWMI 1.2.2 */}
+
+## Keep your toggles when you change the model
+
+- **Ini Toggles live in your `.blend` file.** Save it. Every export writes them again.
+- **Hand toggles do not survive an export.** With **Write Mod INI** on, WWMI Tools writes a fresh `mod.ini` over them. Keep a copy, or move the toggle into Ini Toggles.
+- **Renaming an object renames its `$draw_...` variable.** Check your custom conditions after a rename.
+- **Fix tools may not understand hand-written toggles.** Keep a backup before you run one.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The key does nothing" id="key-does-nothing">
+
+- Put the Resonator on screen. The `condition` blocks the key otherwise.
+- Press `F10` after you save or export.
+- Check that the variable name is spelled the same in every place.
+- Press `Ctrl+Alt+Shift+End` once, in case mod keys are off.
+
+</Accordion>
+<Accordion title="WWMI Tools shows an Ini Toggles error at export" id="ini-toggles-error">
+
+The message names the state and the var, like `Ini Toggles error in State 1 of Var Hat`. Usually a state has an object slot with no object in it. Pick the object or remove the slot.
+
+</Accordion>
+<Accordion title="WWMI shows Scope unbalanced" id="scope-unbalanced">
+
+An `if` has no `endif`, or there is one `endif` too many. Count them in the section the message names.
+
+</Accordion>
+<Accordion title="WWMI shows Unrecognised entry" id="unrecognised-entry">
+
+The `if` or key uses a variable that `[Constants]` never declares, or a name is misspelt. Add the `global persist` line, or fix the name.
+
+</Accordion>
+<Accordion title="The part comes back after every restart" id="toggle-not-saved">
+
+The variable has no `persist`. Change `global $hat = 1` to `global persist $hat = 1`.
+
+</Accordion>
+<Accordion title="The wrong part disappears" id="wrong-part">
+
+You wrapped another object's line. Check the `; Draw` comment above each `drawindexed`: it names the Blender object.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Combine mods into one merged mod"
+    href="/docs/wuthering-waves/ini/merged-mods"
+    icon={<Icon name="Layers" />}
+    level="intermediate"
+  >
+    Keep several looks for one Resonator and switch between them.
+  </PremiumCard>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/wuthering-waves/publishing/publishing-checklist"
+    icon={<Icon name="Upload" />}
+    level="beginner"
+  >
+    Check and package your mod before you share it.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Tool:** [WWMI Tools](https://github.com/SpectrumQT/WWMI-Tools) by SpectrumQT, its [Ini Toggles code](https://github.com/SpectrumQT/WWMI-Tools/tree/main/wwmi-tools/addon/modules/ini_toggles) and its [mod.ini template](https://github.com/SpectrumQT/WWMI-Tools/blob/main/wwmi-tools/templates/merged.ini.j2).
+- **Guide:** [WWMI Tools Modder Guide](https://github.com/SpectrumQT/WWMI-Tools/blob/main/guides/modder_guide.md) by SpectrumQT, for one draw per object.
+- **Tool:** [WWMI-Package](https://github.com/SpectrumQT/WWMI-Package) by SpectrumQT, for the menu and outfit screen variables.
+- **Guide:** [Toggle Guide](https://gamebanana.com/tuts/18971) by gdsfdg. The connect-the-dots animation is from this guide.

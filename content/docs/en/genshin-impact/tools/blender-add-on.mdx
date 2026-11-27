@@ -1,0 +1,273 @@
+---
+title: "XXMI Tools for Blender"
+description: "What every menu, panel, and option of the XXMI Tools Blender add-on does for Genshin Impact mods, how to install it, and what it cannot do."
+category: "tools"
+patch: "7.2"
+keywords:
+  ["xxmi tools", "xxmi tools blender", "genshin blender mod", "gimi blender"]
+---
+
+<LevelPill level="intermediate" />
+
+<ToolHeader
+  name="XXMI Tools"
+  icon="Blender"
+  badge="Required for models"
+  facts={["Free", "Blender add-on", "Blender 3.6 or newer", "v1.8.2"]}
+  primary={{
+    label: "Download",
+    href: "https://github.com/leotorrez/XXMITools/releases/latest",
+  }}
+  links={[
+    { label: "GitHub", href: "https://github.com/leotorrez/XXMITools" },
+    {
+      label: "Docs",
+      href: "https://leotorrez.github.io/modding/guides/xxmi_tools",
+    },
+  ]}
+>
+  Imports Genshin Impact model dumps into Blender and exports them as a working
+  mod with its `.ini`. By LeoTorreZ and contributors.
+</ToolHeader>
+
+XXMI Tools is the Blender add-on for Genshin Impact model mods. It reads a dump of a character, lets you edit it in Blender, and writes the mod folder that GIMI loads. This page explains each menu, panel, and option. The step-by-step guides are in the models section.
+
+Written for the XXMI Tools 1.8.2 code. The game preset for this game is `Genshin Impact`.
+
+<Accordions>
+<Accordion title="Coming from another game?">
+
+- **Honkai: Star Rail:** same add-on, same axes. Pick the `Honkai Star Rail` preset. See the [Honkai: Star Rail section](/docs/honkai-star-rail).
+- **Zenless Zone Zero:** same add-on with its own `Zenless Zone Zero` preset and axes. It has one extra export option, `Outline gate divergence`. See the [Zenless Zone Zero section](/docs/zenless-zone-zero).
+- **Wuthering Waves:** uses a different add-on, WWMI Tools. Nothing on this page applies there. See the [Wuthering Waves section](/docs/wuthering-waves).
+- **Deadlock or League of Legends:** nothing is packed or compiled. The add-on writes buffers and an `.ini`, GIMI swaps them in while the game draws, and `F10` reloads them in game.
+
+</Accordion>
+</Accordions>
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="Blender"
+    href="https://www.blender.org/download/"
+    note="4.5 LTS"
+  >
+    Blender
+  </Requirement>
+  <Requirement icon="FolderOpen" note="asset repo or frame dump">
+    A character dump
+  </Requirement>
+</Requirements>
+
+Use Blender 4.5 LTS. XXMI Tools needs Blender 3.6 or newer. Nobody has reported testing it on Blender 5.2 LTS yet.
+
+{/* NEEDS HANDS-ON TEST: XXMI Tools 1.8.2 import and export on Blender 5.2 LTS. */}
+
+## Install it
+
+1. Remove old plugins first. In <MenuPath path="Edit > Preferences > Add-ons" />, search for `3dmigoto`, `LeoTools`, and `XXMI`, and remove what you find. Restart Blender.
+2. Download `XXMITools_v1.8.2.zip` from the GitHub releases page. Do not unzip it.
+3. Open <MenuPath path="Edit > Preferences > Add-ons" /> again.
+4. In Blender 4.2 or newer, click the small down arrow in the top-right corner and choose **Install from Disk...**. In Blender 3.6 to 4.1, click **Install...**.
+5. Pick the `.zip` file.
+6. Tick the checkbox next to `XXMI_Tools`.
+7. Restart Blender.
+
+<img
+  src="/wiki-images/genshin-impact-tools-blender-add-on-1.webp"
+  alt="The XXMI Tools v1.8.2 release on GitHub, with the XXMITools_v1.8.2.zip file under Assets"
+/>
+
+To check it worked, open <MenuPath path="File > Import" />. You should see `XXMI Dump(vb.txt + ib.txt)`. Press `N` in the 3D Viewport: the sidebar has an **XXMI Tools** tab with `v1.8.2` in its header.
+
+{/* NEEDS HANDS-ON TEST: the exact Blender 4.5 label of the Install from Disk... entry under the Add-ons down arrow. */}
+
+## Menu entries
+
+XXMI Tools adds these entries to the File menu.
+
+| Menu                              | Entry                                                        | Use it for                                                                    |
+| --------------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------- |
+| <MenuPath path="File > Import" /> | `XXMI Dump(vb.txt + ib.txt)`                                 | Importing a dump. The current importer, with game presets.                    |
+| <MenuPath path="File > Import" /> | `3DMigoto frame analysis dump (vb.txt + ib.txt)`             | The older importer that most tutorials show. It still works.                  |
+| <MenuPath path="File > Import" /> | `3DMigoto raw buffers (.vb + .ib)`                           | Raw binary buffers with a `.fmt` file. Rarely needed.                         |
+| <MenuPath path="File > Import" /> | `Apply 3DMigoto vertex group map to current object (.vgmap)` | Renumbering vertex groups from a `.vgmap` file.                               |
+| <MenuPath path="File > Import" /> | `3DMigoto pose (.txt)`                                       | Building an armature from dumped bone data.                                   |
+| <MenuPath path="File > Export" /> | `Exports Mod Folder`                                         | The older way to export. The sidebar **Export Mod** button does the same job. |
+| <MenuPath path="File > Export" /> | `3DMigoto raw buffers (.vb + .ib)`                           | Writing one object's buffers with no `.ini`.                                  |
+
+Old GIMI-era videos show `Exports Genshin Mod folder`. That label came from the old plugin. In XXMI Tools it is `Exports Mod Folder`.
+
+## The import dialog
+
+`XXMI Dump(vb.txt + ib.txt)` opens a file browser with options on the right. Select the files in the dump folder, the one that holds `hash.json`.
+
+`Simple mode` is on by default. It hides the technical options and asks you to pick a game. Set **Game preset** to `Genshin Impact`. The preset sets the rest for you: it flips the UVs and the mesh, uses `-Z` forward and `Y` up, and loads `.buf` files.
+
+| Option                 | Default            | What it does                                                                                      |
+| ---------------------- | ------------------ | ------------------------------------------------------------------------------------------------- |
+| **Game preset**        | `None`             | Picks the game. A red "You must select a game" box shows until you do.                            |
+| **Flip Mesh**          | on with the preset | Mirrors the mesh so it faces the right way.                                                       |
+| **Create Materials**   | off                | Adds a material per part with its diffuse texture, so you see colors in Material Preview.         |
+| **Create Collections** | off                | Adds one collection per in-game part. Objects inside a collection merge into that part on export. |
+| **Merge Vertices**     | off                | Merges duplicate vertices.                                                                        |
+| **Tris to Quads**      | off                | Turns triangles into quads, keeping UVs and colors.                                               |
+| **Clean Loose**        | off                | Deletes loose geometry.                                                                           |
+
+If you change an axis or flip option by hand, the preset quietly switches back to `None`. Untick `Simple mode` to see the advanced panels: related files, bone buffers, semantic remap, and orientation. You rarely need them for Genshin Impact.
+
+The older `3DMigoto frame analysis dump` importer works with all its defaults for Genshin Impact.
+
+## The XXMI Tools sidebar
+
+Press `N` in the 3D Viewport and open the **XXMI Tools** tab. The `?` button in the header opens the official guide.
+
+| Field             | What to set                                                                                                    |
+| ----------------- | -------------------------------------------------------------------------------------------------------------- |
+| **Dump Folder**   | The folder you imported from, with `hash.json`. Filled in on import.                                           |
+| **Output Folder** | Where the finished mod goes. Can be a folder inside `Mods`. Empty, it writes `<DumpName>Mod` next to the dump. |
+| **Game to mod**   | `Genshin Impact`. Filled in from the import preset.                                                            |
+
+The **Export Settings** panel is folded by default:
+
+| Option                                           | Default | What it does                                                                                                                                        |
+| ------------------------------------------------ | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Ignore hidden objects**                        | on      | Hidden objects are not exported. Keep spare meshes hidden.                                                                                          |
+| **Only export selected**                         | off     | Exports only the selected objects.                                                                                                                  |
+| **Apply modifiers and shapekeys**                | on      | Applies modifiers on a copy before export. Your scene stays as it is.                                                                               |
+| **Normalize weights to format**                  | on      | Keeps at most 4 weights per vertex and normalizes them.                                                                                             |
+| **Mod textures**                                 | on      | Writes texture lines into the `.ini` and copies missing textures from the dump. It does not overwrite a texture you edited with the same file name. |
+| **Ignore shadow ramps/metal maps/diffuse guide** | on      | Skips those helper textures.                                                                                                                        |
+| **Ignore duplicated textures**                   | off     | Skips textures whose hash is already copied.                                                                                                        |
+| **Write buffers**                                | on      | Writes the `.buf` and `.ib` files.                                                                                                                  |
+| **Write ini**                                    | on      | Writes the `.ini`. Untick it to keep an `.ini` you edited by hand.                                                                                  |
+| **Use custom template**                          | off     | Uses your own `.ini` template.                                                                                                                      |
+| **Credit**                                       | empty   | Your name. The game shows "Created by" with it when the mod loads.                                                                                  |
+| **Outline Optimization**                         | on      | Rebuilds outline data. Slow, so some creators turn it off until the final export.                                                                   |
+| **Outline decimal rounding precision**           | `8`     | How close vertices must be to share one outline vertex.                                                                                             |
+| **Use custom normals for outlines**              | off     | Builds outlines from your own normals.                                                                                                              |
+
+Below the settings sit **Export Mod** and **Start Batch export**. Batch export writes one mod per timeline frame into numbered folders, using a pattern such as `name_###`. [Export your mod from Blender](/docs/genshin-impact/models/export-your-mod) walks through a full export.
+
+The Genshin Impact template writes the current texture form: `Resource\GIMI\... = ref ...` lines plus `run = CommandList\GIMI\SetTextures`.
+
+## The XXMI Toolbox
+
+The **XXMI Toolbox** panel, folded by default, cleans up meshes before export. Vertex groups in Genshin Impact are bone numbers. They must count up from `0` with no gaps.
+
+| Button                                                 | What it does                                                                                |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------- |
+| **Remove unused Vertex Groups**                        | Deletes groups that no vertex uses.                                                         |
+| **Merge shared name Vertex Groups**                    | Merges `12`, `12.001`, and `12.002` into `12`, then sorts the groups.                       |
+| **Merge shared name VGs with the active Vertex Group** | The same, for the active group only.                                                        |
+| **Fill gaps in Vertex Groups**                         | Adds empty groups for missing numbers, for example `1` and `2` when only `0` and `3` exist. |
+| **Clean UV Names**                                     | Renames the UV maps by their order: `TEXCOORD.xy`, `TEXCOORD1.xy`, and so on.               |
+| **Reset Vertex Colors**                                | Replaces the `COLOR` attribute on the selected meshes with one flat color.                  |
+
+Hold `Alt` while you click a vertex group button to run it on every selected object.
+
+Before you use **Reset Vertex Colors**, try copying the colors from the original mesh with Blender's Data Transfer modifier instead. Vertex colors control shading and outlines, so keep the original's values where you can.
+
+{/* NEEDS HANDS-ON TEST: whether Reset Vertex Colors writes byte 128 or 188 */}
+
+Two more panels sit below. **XXMI Object's Custom properties** lists the `3DMigoto:` properties of the selected object: do not edit them. **Updater** checks for new versions of the add-on.
+
+## What it cannot do
+
+- **Import a finished mod.** It imports dumps only. Keep your `.blend` file for every mod.
+- **Add bones.** You can only use the bones the character already has.
+- **Export shape keys.** That feature is not in version 1.8.2.
+- **Make face mods.** Genshin Impact faces need the separate Face Modding Tools, below.
+
+## Helper tools
+
+These work next to XXMI Tools. Nobody has tested them for this wiki on Genshin Impact 7.2.
+
+<ToolCard
+  name="Robust Weight Transfer"
+  href="https://github.com/sentfromspacevr/robust-weight-transfer/releases"
+  badge="Untested"
+  icon={<Icon name="GitHub" />}
+>
+  Blender add-on that copies body weights onto clothing with fewer bad weights
+  at the legs and armpits. Free, GPL-3.0.
+</ToolCard>
+<ToolCard
+  name="XXMI Buffer Export"
+  href="https://github.com/failsafe42/modding-tools/tree/main/XXMI-Buffer-Export"
+  badge="Untested"
+  icon={<Icon name="GitHub" />}
+>
+  Adds buttons to the XXMI Tools panel that export one buffer only: Position,
+  Blend, Texcoord, or IB.
+</ToolCard>
+<ToolCard
+  name="Genshin Face Modding Tools"
+  href="https://github.com/gdsfdg/facemodtools"
+  badge="Untested"
+  icon={<Icon name="GitHub" />}
+>
+  A separate app for Genshin Impact face mods. Needs the older frame analysis
+  importer and no old 3DMigoto plugin installed.
+</ToolCard>
+
+{/* NEEDS HANDS-ON TEST: XXMI Buffer Export 1.0.1 with XXMI Tools 1.8.2 on a Genshin Impact 7.2 dump. It fails when vertices are shared between parts. */}
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Menus show up twice or exports throw odd errors" id="two-plugins">
+
+An old plugin is still on next to XXMI Tools. Remove every old 3DMigoto, GIMI, or LeoTools add-on, then restart Blender.
+
+</Accordion>
+<Accordion title='"Please select a valid game before continuing."' id="select-game">
+
+Set **Game to mod** to `Genshin Impact` in the sidebar, then export again.
+
+</Accordion>
+<Accordion title='"Destination path not set, defaulting to ..."' id="destination">
+
+**Output Folder** is empty. The mod went to `<DumpName>Mod` next to the dump. Set an output folder to choose the place.
+
+</Accordion>
+<Accordion title="The add-on does not import at all" id="old-blender">
+
+Your Blender is older than 3.6. Install Blender 4.5 LTS.
+
+</Accordion>
+</Accordions>
+
+More export and import errors are on [Blender export and import errors](/docs/genshin-impact/errors/creator-errors).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Character names and parts"
+    href="/docs/genshin-impact/basics/character-names-and-parts"
+    icon={<Icon name="BookOpen" />}
+    level="beginner"
+  >
+    Learn the folder and part names a dump uses.
+  </PremiumCard>
+  <PremiumCard
+    title="Get a model into Blender"
+    href="/docs/genshin-impact/models/import-into-blender"
+    icon={<Icon name="Box" />}
+    level="intermediate"
+  >
+    Import your first Genshin Impact character with XXMI Tools.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This page is based on the work of these creators. Check out their original pages.
+
+- **Tool:** [XXMI Tools](https://github.com/leotorrez/XXMITools) by LeoTorreZ, building on work by DarkStarSword, SilentNightSound, HummyR, SinsOfSeven, SpectrumQT and others. Labels and defaults come from its source code.
+- **Guide:** [XXMI Tools guide](https://leotorrez.github.io/modding/guides/xxmi_tools) by LeoTorreZ.
+- **Tool:** [Robust Weight Transfer](https://github.com/sentfromspacevr/robust-weight-transfer) by SentFromSpaceVR.
+- **Tool:** [XXMI Buffer Export](https://github.com/failsafe42/modding-tools/tree/main/XXMI-Buffer-Export) by [failsafe65](https://discord.com/users/317448503226007554), shared in the [AGMG Discord](https://discord.gg/agmg).
+- **Tool:** [Genshin Face Modding Tools](https://github.com/gdsfdg/facemodtools) by gdsfdg.

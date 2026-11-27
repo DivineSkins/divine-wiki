@@ -1,0 +1,211 @@
+---
+title: "Update fix tools"
+description: "Which tool fixes Zenless Zone Zero mods after a game update, in what order to run it, how to spot a fake fixer, and what no tool can fix."
+category: "tools"
+patch: "3.3"
+keywords:
+  [
+    "zzz mod fixer",
+    "zzz mods broken after update",
+    "zzz 3.3 fix",
+    "zzmi hash fix",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+<ToolHeader
+  name="ZZZ Mod Fixer (Community Update)"
+  icon="GitHub"
+  badge="Community"
+  facts={["Free", "Windows exe", "v2.3.0", "For version 3.3"]}
+  primary={{
+    label: "Download",
+    href: "https://github.com/Vonksdesu/ZZZ-Mod-Fixer/releases/latest",
+  }}
+  links={[
+    { label: "GitHub", href: "https://github.com/Vonksdesu/ZZZ-Mod-Fixer" },
+    {
+      label: "Source code",
+      href: "https://github.com/Vonksdesu/ZZZ-Mod-Fixer/tree/gui-version",
+    },
+  ]}
+>
+  Updates agent hashes in old Zenless Zone Zero mods so they load again. By
+  Vonksdesu, continuing petrascyll's fixer.
+</ToolHeader>
+
+After a Zenless Zone Zero update, some mods stop working. One community tool repairs most of them: the ZZZ Mod Fixer. Satan1c's ZZMI tools cover some structural changes for creators. This page explains what each tool does, how to make sure you have the real one, and what no tool can fix.
+
+Written for Zenless Zone Zero 3.3 with ZZMI 1.5.2. Release versions checked on GitHub on November 24, 2026.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/zenless-zone-zero/tools/xxmi-launcher"
+    note="updated"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="Archive">A zip backup of your Mods folder</Requirement>
+</Requirements>
+
+## Most breaks need no tool
+
+Many "all my mods broke" moments fix themselves. Check these things first:
+
+1. **The two graphics options are right.** **Character Quality** must be **High** and **High-Precision Character Animation** must be **Disable**. XXMI Launcher sets both on each start while **Configure Game Settings For ZZMI** is ticked.
+2. **The game runs in DirectX 11**, and NVIDIA Smooth Motion and frame generation are off.
+3. **ZZMI is up to date.** Open XXMI Launcher and let it update. The game's load banner should read `ZZMI 1.5.2 (PRESS F12 TO SHOW GUIDE)`.
+
+{/* NEEDS HANDS-ON TEST: the exact English labels of the two graphics options in the 3.3 client (Disable or Disabled). */}
+
+ZZMI itself sometimes breaks mods for a few days. In September 2026, ZZMI 1.4.6 and 1.4.7 broke most mods, and hotfixes followed within about a week. Keep opening the launcher so you get those fixes.
+
+ZZMI ships SlotFix, which sets textures by slot instead of by hash. Mods that use it survive texture hash changes, so they need fixers less often. Version 3.3 changed only a few hashes.
+
+## The Zenless Zone Zero fixers
+
+<img
+  src="/wiki-images/zenless-zone-zero-tools-update-fixers-1.webp"
+  alt="The Assets list of the ZZZ Mod Fixer v2.3.0 release on GitHub, with zzz-mod-fixer-v3.3.exe and the source code archives"
+/>
+
+<ToolCard
+  name="ZZMI tools by Satan1c"
+  href="https://github.com/Satan1c/ZZMI_tools/releases"
+  badge="Untested"
+  icon={<Icon name="GitHub" />}
+>
+  Hash updaters and vertex group remappers for each game version, for creators.
+  Builds for Windows, Linux and macOS. GPL-3.0.
+</ToolCard>
+
+| Tool                                  | Run it when                                                                                           | What it changes                                                                                                                                                                                    |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **ZZZ Mod Fixer** (v2.3.0, for 3.3)   | The mod looks unmodded, or broke after an update that changed the agent's hashes.                     | Replaces old agent hashes in the `.ini`, for both 1K and 2K textures. Fixes wrong `CommandList` lines from older tools. Moves its backups to a separate folder. Full support for mods from 2.2 on. |
+| Its **Jane** and **Dialyn** remappers | The mod is for Jane or Dialyn and was made before version 2.5.                                        | Remaps the mod to the new mesh layout. Use each one once per mod.                                                                                                                                  |
+| **ZZMI tools** (newest: 3.2)          | You make mods and an update changed an agent's hashes or vertex group order, such as Remielle in 3.2. | Updates hashes from the asset data, or renumbers vertex groups to the new order.                                                                                                                   |
+
+The fixer's v2.3.0 adds Phoenix and Severian, and updates hashes for agents such as Belle, Wise and Claret.
+
+{/* NEEDS HANDS-ON TEST: run zzz-mod-fixer-v3.3.exe on a Mods folder that holds one broken mod on Zenless Zone Zero 3.3, and record the exact labels for the folder choice, the backup option, the start button and Rolling Back. Also check how Satan1c's 3.2 HashUpdater is run. */}
+
+Several narrow fixers exist for single agents or for the 3.2 face change. Their source has not been checked for this wiki, so this page does not link them.
+
+## Run them in this order
+
+1. Back up: zip your whole `Mods` folder.
+2. Update ZZMI in XXMI Launcher, and check the game settings above.
+3. Press `F10` in game and see which mods are still broken.
+4. Move every mod that still works out of `Mods`, into a folder outside it.
+5. Download `zzz-mod-fixer-v3.3.exe` and run it from any folder.
+6. In the app, select `%AppData%\XXMI Launcher\ZZMI\Mods`, choose the folder backup option, and start the fix.
+7. Move your working mods back, press `F10`, and test again.
+
+Three rules keep this from going wrong:
+
+- **Use only the newest fixer.** Running an old fixer after a newer one breaks mods.
+- **Fix only broken mods.** Running a fixer on working mods can cause conflicts.
+- **Never run a fixer twice** on the same mod. Start again from your backup instead. The app's **Rolling Back** option also undoes a fix.
+
+If you use a mod manager that edits `.ini` files, restore your mods in it first. Fix them, then add them back. [Fix your mods after a game update](/docs/zenless-zone-zero/getting-started/fix-mods-after-an-update) has every step with more detail.
+
+## What no tool can fix
+
+- **Remade agents.** Jane's hair became two parts in 2.5, and Belle was remade in 3.0. Old mods for them often need a new export from their creator.
+- **The 3.2 model changes.** Version 3.2 changed face data, bone numbers and texture layouts for some agents. Broken faces, bent legs or scrambled textures from that update often need the creator.
+- **Very old mods.** Full support starts with mods made for 2.2. Some older mods cannot be fixed.
+- **Normal maps set by hash.** Since 1.3, normal maps cannot be replaced by hash. The mod must move to SlotFix, by hand or by its creator.
+- **ZZMI not loading.** Fixers only repair mod files. If there is no ZZMI banner, see [Mods not loading](/docs/zenless-zone-zero/errors/mods-not-loading).
+
+If a tool cannot fix a mod, check the mod's page for an update from its creator. Creators who fix their own mods use [Update your mod after a game update](/docs/zenless-zone-zero/publishing/update-your-mod).
+
+## Spot a fake fixer
+
+<Callout type="danger" title="Fake fixers have carried malware">
+
+Fake fixers carrying malware have been uploaded after game updates. In September 2025, after Genshin Impact 6.0, a new account uploaded a fake copy of a well-known Genshin fix tool under the real title. Its script asked for admin rights and downloaded a malicious program. GameBanana's upload bot has blocked some fixer `.exe` files, so Zenless Zone Zero fixers live on GitHub, and fake copies can appear anywhere.
+
+</Callout>
+
+Before you run any fixer, check:
+
+1. **The link.** Use the links on this page. The fixer's GameBanana page, by ZumwaltDDG1000, holds only the source and points to the same GitHub page. Never use a link from a video comment or a search result.
+2. **The author.** The real fixer is by Vonksdesu on GitHub, also known as ZumwaltDDG1000 on GameBanana. It has a release for each game version since 3.0.
+3. **The checksum.** GitHub shows a sha256 checksum next to each file in the release. Compare it with your download.
+4. **The source.** The readable source is in the `gui-version` branch of the same GitHub repo.
+
+Red flags: a "fix" that replaces `d3d11.dll` or other XXMI files, asks for admin rights, comes in a password-protected archive, or comes from a new account with one upload. Also a "fix" that appears before the community has announced one.
+
+Windows SmartScreen and antivirus apps sometimes flag real fixers, because they rewrite many files at once. Check that the file came from the GitHub page above. If Windows still blocks it, use the source version instead of an exclusion: the Python source in the `gui-version` branch comes with a `run-fixer-gui.bat` file that starts it. You need Python installed for it. Never turn your antivirus off.
+
+{/* NEEDS HANDS-ON TEST: start the ZZZ Mod Fixer from the gui-version source with run-fixer-gui.bat on Zenless Zone Zero 3.3: which files must be copied, which Python version works, and where the folder must sit. The README's own steps still name older file names. */}
+
+## Tools to skip
+
+| Skip this                                            | Why                                                         |
+| ---------------------------------------------------- | ----------------------------------------------------------- |
+| petrascyll's 1.x fixes, the 1.7 and 2.0 fixes, v2.5e | Outdated. The current ZZZ Mod Fixer continues them.         |
+| Any old fixer version                                | It breaks mods that a newer fixer already fixed.            |
+| Fix tools that add `run = CommandListSkinTexture`    | They flatten a mod's shading. The current fixer fixed this. |
+| A `d3d11.dll` "fix" from anyone but XXMI Launcher    | Real fixes never replace XXMI files.                        |
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Mods fixed with the old fixer stop loading" id="old-backups">
+
+petrascyll's original fixer left backup files next to each `.ini`. They can clash with the updated files. Delete every `.ini` whose name starts with `DISABLED_BACKUP_`, or start again from untouched copies and run the current fixer.
+
+</Accordion>
+<Accordion title="A mod looks flat or loses its shading after a fix tool" id="flat-normals">
+
+An older tool added `run = CommandListSkinTexture` lines. Restore the mod from your zip and run the current ZZZ Mod Fixer instead.
+
+</Accordion>
+<Accordion title="Every mod broke after I ran a fixer" id="all-broke">
+
+An outdated fixer, or a fixer run twice, can do this. Restore your `Mods` backup and follow the order above with the newest fixer.
+
+</Accordion>
+<Accordion title="The launcher warns about duplicate libraries" id="duplicate-slotfix">
+
+An old mod or fix left a copy of SlotFix in `Mods`. ZZMI already has it. Let the launcher turn the copy off, or delete it.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Mods look broken"
+    href="/docs/zenless-zone-zero/errors/mods-look-broken"
+    icon={<Icon name="TriangleAlert" />}
+    level="beginner"
+  >
+    Match what you see in game to its cause and fix.
+  </PremiumCard>
+  <PremiumCard
+    title="Fix an old mod by hand"
+    href="/docs/zenless-zone-zero/ini/fix-an-old-mod"
+    icon={<Icon name="Wrench" />}
+    level="intermediate"
+  >
+    Move an old mod to SlotFix and update its hashes yourself.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This page is based on the work of these creators. Check out their original pages and tools.
+
+- **Tool:** [ZZZ-Mod-Fixer (Community Update)](https://github.com/Vonksdesu/ZZZ-Mod-Fixer) by Vonksdesu.
+- **Tool page:** [ZZZ Mod Fixer (v3.2 Community Update)](https://gamebanana.com/tools/23064) by ZumwaltDDG1000.
+- **Tool:** [zzz-scripts](https://github.com/Petrascyll/zzz-scripts) by petrascyll, the original fixer.
+- **Tool:** [ZZMI_tools](https://github.com/Satan1c/ZZMI_tools) by Satan1c.
+- **Tool page:** [ZZZ Index & Vertex Fix Tool](https://gamebanana.com/tools/24146) by GreenLzz, for its explanation of the 3.2 break.
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ.

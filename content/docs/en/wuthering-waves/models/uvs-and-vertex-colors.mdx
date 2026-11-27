@@ -1,0 +1,220 @@
+---
+title: "UV maps, vertex colors, and outlines"
+description: "Keep a Wuthering Waves mesh's three UV maps, COLOR and COLOR1 attributes and normals right in Blender, so textures line up and outlines look like the game's."
+category: "models"
+patch: "3.8"
+keywords:
+  [
+    "wuthering waves uv map",
+    "texcoord",
+    "vertex color",
+    "wwmi tools",
+    "wuthering waves outlines",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+Every mesh you export needs UV maps with the right names and vertex colors with sensible values. UV maps place the texture. The `COLOR` and `COLOR1` attributes control outlines and which areas shade as skin. Get them wrong and the part turns blank, loses its outline, or shades like the wrong material. Written for WWMI Tools 1.9.4 on Blender 4.5 LTS.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Blender" href="/docs/wuthering-waves/tools/blender-add-on">
+    Blender 4.5 LTS with WWMI Tools
+  </Requirement>
+  <Requirement icon="Box" note="with a hidden reference copy">
+    The original Resonator, imported
+  </Requirement>
+  <Requirement icon="Shirt">Your new or edited mesh</Requirement>
+</Requirements>
+
+A Resonator is the game's name for a playable character. Keep a hidden, untouched copy of the original import in your scene, outside your mod's collection. You copy colors and names from it below. [Get a model into Blender](/docs/wuthering-waves/models/import-into-blender#keep-a-clean-reference-copy) shows how to make that copy.
+
+## What Wuthering Waves reads
+
+| Data          | Name in Blender | What the game uses it for                                     |
+| ------------- | --------------- | ------------------------------------------------------------- |
+| First UV map  | `TEXCOORD.xy`   | The outside of the mesh: where the texture goes.              |
+| Second UV map | `TEXCOORD1.xy`  | The inside: back faces, like the inner side of a coat.        |
+| Third UV map  | `TEXCOORD2.xy`  | A front projection, probably for shading. Not documented yet. |
+| Vertex color  | `COLOR`         | Outlines and the skin mask. Channels below.                   |
+| Vertex color  | `COLOR1`        | Outline data. Not researched yet.                             |
+| Normals       | the mesh's own  | Lighting and the outline around the mesh.                     |
+
+<img
+  src="/wiki-images/wuthering-waves-models-uvs-and-vertex-colors-1.webp"
+  alt="Five boxes: the UV maps TEXCOORD.xy for the outside, TEXCOORD1.xy for the inside and TEXCOORD2.xy for a front projection, then the vertex colors COLOR and COLOR1, both marked copy from the original"
+/>
+
+The names are case-sensitive. Compare your mesh with the original in the **Object Data** tab (the green triangle), under **UV Maps** and **Color Attributes**.
+
+{/* SCREENSHOT: wuthering-waves-models-uvs-and-vertex-colors-2.webp, the Object Data tab of a WWMI Tools 1.9.4 import in Blender 4.5, showing UV Maps TEXCOORD.xy, TEXCOORD1.xy and TEXCOORD2.xy, and Color Attributes COLOR and COLOR1. */}
+
+Keep **Vertex Colors** on `Linear` when you import. If you have an older `.blend` made with `sRGB (legacy)`, select its objects and run <MenuPath path="Toolbox > Convert Vertex Colors To Linear" /> in the **WWMI Tools** tab.
+
+At export, **Fill Missing Mesh Data** (in **Advanced**, on by default) adds any of these layers a mesh lacks. `TEXCOORD1.xy` becomes a copy of `TEXCOORD.xy`, `TEXCOORD2.xy` a front projection, `COLOR1` black, and `COLOR` a default color. That keeps the export from failing. The default colors are not the original's, though, so copy them as shown below.
+
+## UV maps
+
+### Name them right
+
+1. Rename the UV maps of a new model right after you import it. Double-click a name to edit it. The first map is `TEXCOORD.xy`.
+2. Make sure every piece you will join has the same UV map names. If the names differ, `Ctrl+J` adds extra maps, and the texture can go blank.
+3. Delete UV maps that are not one of the three above.
+
+WWMI Tools has no button that renames UV maps, so do it by hand. A mesh can hold at most 8 UV maps in Blender. If export stops with `already has the maximum of 8 UV maps`, delete the extra maps.
+
+### Keep the inside lined up
+
+`TEXCOORD1.xy` maps the inside of the mesh. When you move or scale `TEXCOORD.xy`, for example for an atlas, select `TEXCOORD1.xy` in **UV Maps** and move it the same way. Otherwise the inside shows the wrong part of the texture.
+
+A new mesh with no `TEXCOORD1.xy` gets a copy of `TEXCOORD.xy` at export. The inside then shows the same texture as the outside.
+
+{/* NEEDS HANDS-ON TEST: on Wuthering Waves 3.8 with WWMI Tools 1.9.4, that the inner side of cloth follows TEXCOORD1.xy, and what happens when TEXCOORD1.xy does not match TEXCOORD.xy. */}
+
+### Fit several materials into one texture
+
+Each component draws with its own textures. The `c=` part of each file name in the object folder tells you which: `c=4 f=... t=... d=....dds` belongs to component 4, and `c=0-1-2-3-4 ...` is shared. Folders extracted with WWMI Tools 1.8.0 or older name them `Components-4 t=...` instead. [Character names and parts](/docs/wuthering-waves/basics/character-names-and-parts) explains the names. A new model with several materials must share one texture per component, called an atlas.
+
+1. Build the atlas image in your texture editor. Keep each side a power of two. For the 2 by 2 grid below, four 2048 images make one 4096 by 4096 image. Do not go up to 8K.
+2. In Blender's UV Editor, set **Pivot Point** to **2D Cursor** and put the cursor at `0, 0`. Turn **UV Sync Selection** off.
+3. In the 3D Viewport, select the faces of one material. Hover over the UV Editor and press `A`.
+4. Type `S` `0.5` and press `Enter`. The UVs shrink to one corner block.
+5. Move them by exact steps: `G` `Y` `0.5` for the top-left block, `G` `X` `0.5` for the bottom-right. For the top-right, do both. Never move blocks by eye.
+6. For a 4 by 4 grid, scale by `0.25` and move in steps of `0.25`.
+
+Make the normal map and light map atlases with the same layout. Keep the diffuse alpha channel: this game uses it for shadows. [Save DDS textures the right way](/docs/wuthering-waves/textures/save-dds-files) covers the formats.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: a two-material model atlased into one component's textures exports and shows right with WWMI Tools 1.9.4. */}
+
+## Vertex colors
+
+<Callout type="warning" title="Skip old color recipes">
+  Old guides for this game, and guides for other games, give hex codes for
+  vertex colors. The old ones were made for the `sRGB (legacy)` storage and do
+  not match `Linear`. Other games use the channels for other things. Copy the
+  colors from the original instead.
+</Callout>
+
+### Copy the colors from the original
+
+This is the best way. Do it before you join your mesh into the original component.
+
+1. Select your mesh and add a **Data Transfer** modifier. Set **Source** to the hidden copy of the original component.
+2. Tick **Face Corner Data** and pick **Color Attributes**.
+3. Leave **Layer Selection** on `All Layers` and **Layer Mapping** on `By Name`.
+4. Click **Generate Data Layers**. It adds `COLOR` and `COLOR1` to your mesh if they are missing.
+5. Apply the modifier.
+6. Check in **Color Attributes** that your mesh now has `COLOR` and `COLOR1`, with the same **Domain** and **Data Type** as the original's: `Face Corner` and `Color`.
+
+Outlines wrong on an edited part? Copy the colors the same way from a part whose outline still looks right.
+
+{/* NEEDS HANDS-ON TEST: the Face Corner Data option label (Color Attributes or Colors) in the Blender 4.5 Data Transfer modifier, and that Generate Data Layers creates COLOR and COLOR1 as Face Corner, Color. */}
+
+### When outlines go missing
+
+A new mesh sometimes draws with no outline even after the copy. The add-on's author advises this first step:
+
+1. Select the mesh and open **Color Attributes**.
+2. Click `COLOR1` to make it active.
+3. In Vertex Paint mode, set the brush color to pure black.
+4. Press `Shift+K` to fill the whole mesh with that color.
+5. Export and check in game.
+
+{/* NEEDS HANDS-ON TEST: the Blender 4.5 label of the Shift+K fill in Vertex Paint mode, and on Wuthering Waves 3.8, that a black COLOR1 brings back missing outlines on a new mesh exported with WWMI Tools 1.9.4. */}
+
+### What the channels do
+
+These meanings come from the WWMI Tools guide. Its author marks some as needing more testing, and newer research disagrees about `COLOR1`. Leave every channel you do not need to change as the original has it.
+
+| Attribute | Channel | What it does                                                                              |
+| --------- | ------- | ----------------------------------------------------------------------------------------- |
+| `COLOR`   | R       | Outline mask. Black stops the outline from drawing at some angles, white draws it.        |
+| `COLOR`   | G       | Outline thickness. Black is no outline, white is a thick one.                             |
+| `COLOR`   | B       | Skin mask. White shades the area as skin, black does not.                                 |
+| `COLOR`   | A       | Outline thickness on hair only. It depends on the material.                               |
+| `COLOR1`  | R, G    | Outline data. Not researched. Copy it from the original, or black if outlines go missing. |
+| `COLOR1`  | B, A    | Not used.                                                                                 |
+
+{/* NEEDS HANDS-ON TEST: the effect of each COLOR channel on Wuthering Waves 3.8 shaders. */}
+
+To tell texture types apart, use the object folder's `TextureUsage.json`, not the colors of the images.
+
+## Normals and outlines
+
+Normals light the mesh and shape the outline around it. Check them before every export.
+
+1. Turn on the **Face Orientation** overlay. Blue faces point out, red faces point in.
+2. Press `Ctrl+A` > **All Transforms** first, then check again.
+3. Select red faces and press `Alt+N` > **Flip**, or use **Recalculate Outside**.
+
+On a faceted look after an edit, merge with `M` > **By Distance** and tick **Sharp Edges**, so hard edges stay hard. On a dented area, use <MenuPath path="Mesh > Normals > Smooth Vectors" />. Old guides tell you to use **Auto Smooth**. Blender 4.1 removed it, so skip those steps.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: whether normals edited in Blender come through a WWMI Tools 1.9.4 export unchanged. */}
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The texture is blank, white, or flat on a joined piece" id="blank-texture">
+
+The pieces had different UV map names when you joined them. Rename every piece's maps to `TEXCOORD.xy`, `TEXCOORD1.xy` and `TEXCOORD2.xy` before `Ctrl+J`.
+
+</Accordion>
+<Accordion title="The texture is scrambled" id="scrambled-texture">
+
+The first UV map is not named `TEXCOORD.xy`, or some faces are flipped. Fix the name and the normals, then export again.
+
+</Accordion>
+<Accordion title="The inside of a part shows the wrong texture" id="wrong-inside">
+
+`TEXCOORD1.xy` still has the old layout. Move it the same way as `TEXCOORD.xy`, or delete it so the export copies `TEXCOORD.xy`.
+
+</Accordion>
+<Accordion title="Outlines are missing" id="no-outlines">
+
+Copy `COLOR` and `COLOR1` from the original. If that does not help, paint `COLOR1` black. Then check **Face Orientation** for flipped faces.
+
+</Accordion>
+<Accordion title="Outlines are too thick, or show where they should not" id="thick-outlines">
+
+`COLOR` differs from the original's. Copy the colors from a part whose outline looks right.
+
+</Accordion>
+<Accordion title="Skin looks like cloth, or cloth like skin" id="skin-mask">
+
+The blue channel of `COLOR`, the skin mask, does not match the area. Copy `COLOR` from a part of the same kind: skin from skin, cloth from cloth.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Add or swap clothing parts"
+    href="/docs/wuthering-waves/models/add-clothing-parts"
+    icon={<Icon name="Shirt" />}
+    level="intermediate"
+  >
+    Put a piece from another Resonator on yours, weighted and textured.
+  </PremiumCard>
+  <PremiumCard
+    title="Export your mod from Blender"
+    href="/docs/wuthering-waves/models/export-your-mod"
+    icon={<Icon name="PackageOpen" />}
+    level="intermediate"
+  >
+    Write the mod folder with WWMI Tools and test it in game.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [WWMI Tools Modder Guide](https://github.com/SpectrumQT/WWMI-Tools/blob/main/guides/modder_guide.md) by SpectrumQT: UV maps and vertex color channels.
+- **Discussion:** [Two problems encountered in making MODs](https://github.com/SpectrumQT/WWMI-Tools/issues/1) on the WWMI Tools issue tracker, with the outline advice by SpectrumQT.
+- **Guide:** [Beginner's Guide to Wuthering Waves modding](https://gamebanana.com/tuts/19096) by Denwarenji: atlases and the diffuse alpha.
+- **Guide:** [3D anime models - lessons](https://docs.google.com/document/d/1OhNw4xVTRl-eZyPLZv2mAchy2scjnXX3Hw3BCPQXU1A) by [Anilyan](https://discord.com/users/301273867618484235): atlas layout in the UV Editor.
+- **Tool:** [WWMI Tools](https://github.com/SpectrumQT/WWMI-Tools) by SpectrumQT.

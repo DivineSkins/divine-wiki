@@ -1,0 +1,211 @@
+---
+title: "Add glow and see-through parts"
+description: "Make parts of your Honkai: Star Rail mod glow or give them their own outline color with RabbitFX, and learn what is known about see-through parts."
+category: "effects"
+patch: "4.7"
+keywords:
+  [
+    "star rail glow mod",
+    "rabbitfx glow",
+    "glowmap",
+    "srmi rabbitfx",
+    "outlinemap",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+You will make parts of your own mod glow in a color you choose, or give a part its own outline color. Both run through RabbitFX, a glow and texture library you add to your `Mods` folder once. You need a mod you made yourself, with an `.ini` from the XXMI Tools export. Written for RabbitFX (SRMI) 3.0 and SRMI 2.4.3 on Honkai: Star Rail 4.7.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/honkai-star-rail/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement
+    icon="Puzzle"
+    href="/docs/honkai-star-rail/getting-started/manage-mods"
+    note="one current copy in Mods"
+  >
+    RabbitFX (SRMI)
+  </Requirement>
+  <Requirement
+    icon="PaintNET"
+    href="/docs/honkai-star-rail/tools/texture-editors"
+  >
+    Paint.NET
+  </Requirement>
+  <Requirement icon="FileCode">Your own mod's folder and .ini</Requirement>
+</Requirements>
+
+<Callout type="info" title="One copy of RabbitFX, outside your mod">
+  RabbitFX is not part of SRMI. Keep one current copy in its own folder in
+  `Mods`, and never ship it inside your mod. Two copies cause errors and
+  crashes. RabbitFX can also clash with other shader mods. Your mod page must
+  say that the mod needs RabbitFX.
+</Callout>
+
+This page covers glow and outline color. Stable textures, which also use RabbitFX, have their own page.
+
+<Callout type="danger" title="Keep it fair">
+  Use glow on your own character's parts only. Never make enemies, walls, fog or
+  effects brighter, see-through or easier to spot. That is a mod that gives an
+  unfair advantage.
+</Callout>
+
+## Two kinds of glow
+
+- **Glow from the diffuse alpha.** The game already makes some areas glow. That glow comes from the alpha of the diffuse texture: black means no glow. To make a new area glow the same way, give it the same alpha value as an area that already glows. [Your first mod: recolor a character](/docs/honkai-star-rail/textures/recolor-a-character) shows how to reach the alpha.
+- **Glow in any color.** That is RabbitFX. You paint an extra texture, the glow map, and point your part at it. The rest of this page covers RabbitFX.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check on Honkai: Star Rail that copying the diffuse alpha value of an area that already glows makes a new area glow, and when that glow shows in game */}
+
+## Make a glow map
+
+<Steps>
+<Step>
+
+### Paint the glow map
+
+The glow map is a full color texture with its own alpha, painted on the same layout as the part's diffuse:
+
+- **RGB** is the glow color.
+- **Alpha** is the brightness. White is bright, black is no glow.
+
+1. Open the part's diffuse in Paint.NET. You use it only as a guide for where things are.
+2. Add a new layer and fill it with black. Paint the glow areas in the color you want.
+3. Paint the brightness as a black and white layer of its own. Copy it, then paste it into the color layer as its alpha with <MenuPath path="Effects > Object > Paste Alpha" />, as in the recolor guide.
+4. Delete the diffuse layer, then flatten the image.
+5. Save it in your mod folder, for example as `KafkaBodyAGlow.dds`. Keep the diffuse's width and height. Use a BC7 format so the alpha survives, and tick **Generate Mip Maps**.
+
+<img
+  src="/wiki-images/honkai-star-rail-effects-glow-and-transparency-1.webp"
+  alt="A RabbitFX glow map: a black texture with only a tail area painted in shades of teal, the color the tail will glow"
+/>
+
+{/* NEEDS HANDS-ON TEST: whether the RabbitFX (SRMI) glow map should be saved as BC7 sRGB or BC7 Linear. The RabbitFX page does not say. */}
+
+</Step>
+<Step>
+
+### Add the glow map to your .ini
+
+1. Add a resource for your glow map at the end of the `.ini`:
+
+```ini
+[ResourceKafkaBodyAGlow]
+filename = KafkaBodyAGlow.dds
+```
+
+2. Find the part's section, the one with `match_first_index` and `ib =`, such as `[TextureOverrideKafkaBodyA]`.
+3. Add these two lines to it, before the `drawindexed` line:
+
+```ini
+Resource\RabbitFX\GlowMap = ResourceKafkaBodyAGlow
+run = CommandList\RabbitFX\Run
+```
+
+RabbitFX also reads optional settings for the glow, such as `$\RabbitFX\brightness`, and a color shift with `$\RabbitFX\h`, `$\RabbitFX\s` and `$\RabbitFX\v`. Check the SRMI RabbitFX page for the values they take.
+
+Some older videos assign glow maps to a numbered slot. That is an old form: use the lines above.
+
+{/* NEEDS HANDS-ON TEST: Resource\RabbitFX\GlowMap with run = CommandList\RabbitFX\Run in a part section of an XXMI Tools export, on Honkai: Star Rail 4.7 with RabbitFX (SRMI) 3.0. Check the line order and whether GlowMap needs "ref". */}
+
+</Step>
+<Step>
+
+### Test it
+
+1. Swap to another character and press `F10`.
+2. Swap back and check the glow in bright and dark areas, and in battle.
+3. Hold `F9` to compare with the original.
+
+<img
+  src="/wiki-images/honkai-star-rail-effects-glow-and-transparency-2.webp"
+  alt="In game, a character's tail glowing bright teal after a RabbitFX glow map was added"
+/>
+
+</Step>
+</Steps>
+
+## Set your own outline color
+
+Without RabbitFX, a part's outline color comes from the alpha of its light map. [What each texture map does](/docs/honkai-star-rail/textures/texture-maps) explains it. That is why recolored hair can keep its old outline.
+
+RabbitFX lets your part use its own outline texture instead. The simplest choice is the part's own diffuse, so the outline follows your new colors:
+
+```ini
+Resource\RabbitFX\Outlinemap = ref ResourceKafkaHairADiffuse
+run = CommandList\RabbitFX\Run
+```
+
+Add these lines to the part's section, such as `[TextureOverrideKafkaHairA]`, before `drawindexed`. Use the diffuse resource name your `.ini` already has.
+
+<img
+  src="/wiki-images/honkai-star-rail-effects-glow-and-transparency-3.webp"
+  alt="In game, the Trailblazer with hair recolored pink and pink outlines that match it, made with the RabbitFX outline texture"
+/>
+
+{/* NEEDS HANDS-ON TEST: Resource\RabbitFX\Outlinemap on a hair part with RabbitFX (SRMI) 3.0, and whether a part that has both a glow map and an outline map needs one or two run = CommandList\RabbitFX\Run lines */}
+
+## See-through parts
+
+No Star Rail guide for see-through parts was found. The SRMI RabbitFX page covers glow, color shift, stable textures and outlines, not transparency. Some characters have a `MaterialMap` that the game uses for its own see-through areas, but nobody has documented how to use it in a mod. Until a method is tested, this wiki does not teach one.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The whole part glows" id="whole-part">
+
+The glow map's alpha is bright where it should be black, or its background is not pure black. If you also edited the diffuse, check that its alpha is still there.
+
+</Accordion>
+<Accordion title="Nothing changes" id="nothing-changes">
+
+Check that RabbitFX is in `Mods`, that `filename =` matches your glow map's name, and that the lines sit in the part's section. SRMI hides warnings by default. [Test and reload your mod](/docs/honkai-star-rail/basics/test-your-mod) shows how to read them.
+
+</Accordion>
+<Accordion title="A character turns pink during skills" id="pink">
+
+RabbitFX is out of date, or another effect mod clashes with it. Replace RabbitFX with the current version, then turn other effect mods off one at a time.
+
+</Accordion>
+<Accordion title="The game crashes after you add RabbitFX" id="crash">
+
+Search `Mods` for a second RabbitFX folder and delete it. A mod you downloaded may carry its own copy. [Crashes and launch errors](/docs/honkai-star-rail/errors/game-crashes) has more fixes.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Make textures survive game updates"
+    href="/docs/honkai-star-rail/textures/stable-textures"
+    icon={<Icon name="ShieldCheck" />}
+    level="intermediate"
+  >
+    Use RabbitFX to attach your textures by role, not by hash.
+  </PremiumCard>
+  <PremiumCard
+    title="How a mod .ini works"
+    href="/docs/honkai-star-rail/ini/how-a-mod-ini-works"
+    icon={<Icon name="FileCode" />}
+    level="intermediate"
+  >
+    What each section and line in your mod's .ini does.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Tool:** SRMI RabbitFX by caverabbit, for the glow map and outline map lines.
+- **Guide:** [Tutorial - Preserve alpha channels on Paint.net / how to handle .dds textures properly](https://docs.google.com/document/d/1DktYSbYMx-Bc4PKNF1XonvBAIRiC74pgNkMieQhd2jc/edit) by Anilyan.
+- **Images:** screenshots 1 to 3 from the SRMI RabbitFX page by caverabbit.

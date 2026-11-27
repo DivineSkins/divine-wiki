@@ -1,0 +1,172 @@
+---
+title: "Save DDS textures the right way"
+description: "Save Honkai: Star Rail textures in the exact DDS format the game expects, keep the alpha channel, and avoid glowing, dark or washed-out results."
+category: "textures"
+patch: "4.7"
+keywords:
+  ["star rail dds", "bc7 srgb", "bc7 linear", "paint.net dds save", "texconv"]
+---
+
+<LevelPill level="beginner" />
+
+Every texture you edit goes back into the game as a `.dds` file, in the same format as the original. Get the format wrong and the colors shift, parts glow, or the texture does not load. This page shows how to read the format and save it in Paint.NET, Photoshop or texconv. Written for SRMI 2.4.3 on Honkai: Star Rail 4.7.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="PaintNET"
+    href="/docs/honkai-star-rail/tools/texture-editors"
+    note="or Photoshop, or texconv"
+  >
+    Paint.NET
+  </Requirement>
+  <Requirement icon="FileImage">
+    The original texture, to copy its format
+  </Requirement>
+</Requirements>
+
+## Read the original's format
+
+A texture from a frame dump ends with its format: `207c0559-BC7_UNORM_SRGB.dds`. The first part is the hash, the last part is the format. Save your edit in that same format.
+
+<img
+  src="/wiki-images/honkai-star-rail-textures-save-dds-files-1.webp"
+  alt="Two boxes: a file name ending in BC7_UNORM_SRGB means sRGB, for body, hair and face Diffuse, saved as BC7 (sRGB, DX 11+) in Paint.NET, and a file name ending in BC7_UNORM means Linear, for LightMap, face Shadow and many UI images, saved as BC7 (Linear, DX 11+)"
+/>
+
+Files from the asset repository or from a mod have names like `KafkaBodyADiffuse.dds`, without the format. Use this table for them:
+
+| Texture                             | Format                                   | Pick in Paint.NET          |
+| ----------------------------------- | ---------------------------------------- | -------------------------- |
+| Body, hair and face `Diffuse`       | `BC7_UNORM_SRGB`                         | `BC7 (sRGB, DX 11+)`       |
+| `LightMap`                          | `BC7_UNORM`                              | `BC7 (Linear, DX 11+)`     |
+| Face `Shadow`                       | `BC7_UNORM`                              | `BC7 (Linear, DX 11+)`     |
+| Face `ExpressionMap`                | BC1 (DXT1)                               | The matching BC1 entry     |
+| `StockingMap`                       | Linear in Kafka's, sRGB in a 4.x outfit  | Check the dumped file name |
+| `MaterialMap`                       | `BC7_UNORM_SRGB` in the one dump checked | Check the dumped file name |
+| Phone wallpaper                     | Linear in the one guide that covers it   | `BC7 (Linear, DX 11+)`     |
+| Character icons and other UI images | In the file name                         | The matching entry         |
+
+Many guides say every icon is Linear. Do not follow a blanket rule: the dumped file name is always right.
+
+{/* NEEDS HANDS-ON TEST: whether the face ExpressionMap in Honkai: Star Rail 4.7 dumps is BC1_UNORM or BC1_UNORM_SRGB, and which Paint.NET BC1 entry matches it */}
+
+## Rules for every texture
+
+- **Same format** as the original.
+- **Same width and height.** Sizes must be powers of two, like 1024x1024 or 2048x1024. Body and hair textures in the asset repository are usually 2048x2048, face textures 1024x1024. Some bodies are 4096x2048. A `LightMap` can be half the size of its `Diffuse`: keep each file at its own size.
+- **Mipmaps on.** Tick **Generate Mip Maps**, or use `-m 0` in texconv.
+- **Keep the alpha.** In a Star Rail `Diffuse`, the alpha is the glow mask. In a `LightMap`, the alpha is the material ID. Never save either as BC1 (DXT1): it cannot hold a full alpha channel.
+- **Same file name** as the `filename =` line in the mod's `.ini`.
+- **UI images are upside down.** Star Rail stores UI textures flipped. If you start from a normal picture, flip it vertically before you save.
+
+{/* NEEDS HANDS-ON TEST: two rules above on Honkai: Star Rail 4.7. Mipmaps: dumped originals hold one mip level; check that files with and without Generate Mip Maps both load and look the same. Flipped UI textures: one 2024 source (the phone wallpaper guide); check an icon and a wallpaper in a current dump. */}
+
+## Save the file
+
+<Tabs items={["Paint.NET", "Photoshop", "texconv"]}>
+
+<Tab value="Paint.NET">
+
+Paint.NET saves DDS files with its built-in DDS FileType Plus. No extra install.
+
+1. Flatten the image: <MenuPath path="Image > Flatten" />. If you split off the alpha, paste it back first.
+2. Choose <MenuPath path="File > Save As" />. Keep the file name and the `.dds` ending.
+3. In the DDS save window, pick the format from the table above.
+4. Tick **Generate Mip Maps**.
+5. Leave the other options at their defaults and click **OK**.
+
+To flip a UI image, use <MenuPath path="Image > Flip Vertical" /> before you save.
+
+</Tab>
+
+<Tab value="Photoshop">
+
+Photoshop needs the Intel Texture Works plugin. Intel archived it in 2023, but creators still use it.
+
+1. Open the `.dds` with **Load Transparency as Alpha Channel** ticked. The alpha then shows as its own channel.
+2. Edit the color and alpha in the **Channels** panel, one at a time.
+3. Save as an Intel Texture Works `.dds`.
+4. Set **Texture Type** to `Color + Alpha`.
+5. Set **Compression** to `BC7 8bpp Fast (sRGB, DX11+)` for a `Diffuse`, or `BC7 8bpp Fast (Linear, DX11+)` for a `LightMap`.
+6. Set **Mip Maps** to `Auto Generate`. The screenshot below shows `None`: change it.
+
+<img
+  src="/wiki-images/honkai-star-rail-textures-save-dds-files-2.webp"
+  alt="The Intel Texture Works 1.0.4 save window with Texture Type set to Color + Alpha and the Compression list open, showing BC7 8bpp Fast and Fine options in Linear and sRGB"
+/>
+
+{/* NEEDS HANDS-ON TEST: the exact Intel Texture Works compression label for BC7 sRGB, checked on a Honkai: Star Rail Diffuse in game */}
+
+</Tab>
+
+<Tab value="texconv">
+
+texconv is Microsoft's free command-line converter. Export your edit as a PNG with its alpha, then convert it:
+
+```text
+texconv.exe -f BC7_UNORM_SRGB -m 0 -sepalpha -y diffuse.png
+texconv.exe -f BC7_UNORM -m 0 -sepalpha -y lightmap.png
+```
+
+- `-f` sets the format. Copy it from the original's file name.
+- `-m 0` makes a full set of mipmaps.
+- `-sepalpha` treats the alpha as data when it makes mipmaps, so the glow mask and material ID stay clean.
+- `-y` overwrites an older output file.
+- Add `-vflip` to flip a UI image.
+
+Rename the new `.dds` to the original's file name.
+
+{/* NEEDS HANDS-ON TEST: these texconv lines on a Honkai: Star Rail 4.7 Diffuse and LightMap, checking colors, glow and outline colors against the original in game */}
+
+</Tab>
+
+</Tabs>
+
+## What went wrong
+
+| What you see                                      | Why                                                  | Fix                                                   |
+| ------------------------------------------------- | ---------------------------------------------------- | ----------------------------------------------------- |
+| Colors washed out, too dark or too strong in game | A `Diffuse` saved as Linear or another format        | Save as `BC7 (sRGB, DX 11+)`                          |
+| The whole part glows, very bright                 | The `Diffuse` alpha was lost or filled white         | Paste the original alpha back, then save again        |
+| Shadows, shine or outline colors look wrong       | A `LightMap` saved as sRGB, or its channels changed  | Save light maps as Linear. Keep their green and alpha |
+| Mostly black image with a few colored pixels      | The image was resized before the alpha was split off | Split off the alpha first, then resize                |
+| Error text after `F10`, texture missing           | Wrong file name, missing file, or a bad size         | Match `filename =`, keep the original size            |
+| Glow or outline colors gone                       | Saved as BC1, which drops the alpha                  | Save as BC7                                           |
+| Colors look wrong in another viewer, fine in game | That viewer reads the sRGB flag differently          | Nothing. Trust the game                               |
+
+{/* NEEDS HANDS-ON TEST: what a LightMap saved as sRGB looks like in Honkai: Star Rail 4.7 (expected: shifted shadows and wrong outline colors) */}
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Your first mod: recolor a character"
+    href="/docs/honkai-star-rail/textures/recolor-a-character"
+    icon={<Icon name="Palette" />}
+    level="beginner"
+  >
+    Put these save settings to work on a full recolor.
+  </PremiumCard>
+  <PremiumCard
+    title="What each texture map does"
+    href="/docs/honkai-star-rail/textures/texture-maps"
+    icon={<Icon name="Layers" />}
+    level="intermediate"
+  >
+    Learn what the LightMap and the other maps control.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Tutorial - Preserve alpha channels on Paint.net / how to handle .dds textures properly](https://docs.google.com/document/d/1DktYSbYMx-Bc4PKNF1XonvBAIRiC74pgNkMieQhd2jc/edit) by Anilyan.
+- **Guide:** [Paint.net .dds Breakdown](https://rentry.co/AnimeGame_PDN_Guide) by SinsOfSeven.
+- **Guide:** [Custom Cellphone Background Tutorial](https://gamebanana.com/tuts/17293) by kenzium, for flipped UI textures in Star Rail.
+- **Video:** [Tu PRIMER MOD de ZENLESS ZONE ZERO | Tutorial COMPLETO | TEXTURAS PARTE 1](https://www.youtube.com/watch?v=nhiiWEpuTB8) by Proxy Index.
+- **Assets:** [SR-Model-Importer-Assets](https://github.com/SilentNightSound/SR-Model-Importer-Assets) by SilentNightSound and contributors, for the formats and sizes of the original textures.
+- **Tool:** [DDS FileType Plus](https://github.com/0xC0000054/pdn-ddsfiletype-plus) by null54 and [Texconv](https://github.com/microsoft/DirectXTex/wiki/Texconv) by Microsoft.
+- **Images:** the Intel Texture Works screenshot from [Beginner's Guide to Wuthering Waves modding](https://gamebanana.com/tuts/19096) by Denwarenji.

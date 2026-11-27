@@ -1,0 +1,219 @@
+---
+title: "Helper tools"
+description: "Optional community tools for Genshin Impact creators: Blender helpers, .ini and toggle scripts, a mod porting tool, and the tools to avoid."
+category: "tools"
+patch: "7.2"
+keywords: ["genshin modding tools", "quickimportxxmi", "ag remap", "swaplock"]
+---
+
+<LevelPill level="intermediate" />
+
+You can make every Genshin Impact mod with XXMI Tools, gui_collect, and a texture editor. The smaller tools on this page each save time on one job. Learn the main tools first, so you can tell when a helper gets something wrong.
+
+<Callout type="info" title="Community tools, untested">
+  Every tool here is free and comes from a named community author. HoYoverse and
+  the GIMI team do not make or support them. Nobody has tested them on Genshin
+  Impact 7.2 for this wiki. Several of them edit your `.ini` files, so back up a
+  mod before you run a tool on it.
+</Callout>
+
+{/* NEEDS HANDS-ON TEST: every tool on this page with Genshin Impact 7.2, GIMI 8.9.4 and XXMI Tools 1.8.2. None was run for this page. */}
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="Blender"
+    href="/docs/genshin-impact/tools/blender-add-on"
+    note="for the Blender helpers"
+  >
+    XXMI Tools for Blender
+  </Requirement>
+  <Requirement icon="Terminal" note="for the script tools">
+    Python 3
+  </Requirement>
+</Requirements>
+
+Written for XXMI Tools 1.8.2 and GIMI 8.9.4.
+
+## At a glance
+
+| Tool                      | What it does                                                | Runs in          | License    |
+| ------------------------- | ----------------------------------------------------------- | ---------------- | ---------- |
+| QuickImportXXMI           | Faster imports, clean-up and materials on top of XXMI Tools | Blender          | MIT        |
+| AnimeGameArmatures        | Ready armatures for posing and weight work                  | Blender          | Not stated |
+| Vertex Color Master       | Paints one vertex color channel at a time                   | Blender          | Not stated |
+| Additional Batch Rename   | Renames many vertex groups or bones at once                 | Blender 4.4+     | GPL-3.0    |
+| 3dmigoto-ini-extensions   | Colors `.ini` syntax in your code editor                    | VS Code and more | GPL-3.0    |
+| SwapLock                  | Puts every mod's toggle keys behind one lock key            | Python           | GPL-3.0    |
+| Global Persist Swapkey    | Writes your current toggle choices back into each mod       | Windows, Python  | GPL-3.0    |
+| 3Dmigoto Mods Merger      | Merges whole mods into one switchable pack                  | Python           | Not stated |
+| Element Detector          | Tells other mods which element is on screen                 | GIMI             | Not stated |
+| RZMenu                    | Builds in-game menus for your mod (beta)                    | Blender          | GPL-3.0    |
+| AG Remap                  | Moves a mod between a character and their other outfit      | Windows, Python  | Apache-2.0 |
+| Loading Screen Randomizer | Turns your pictures into random loading screens             | Not checked      | Not stated |
+
+## Blender helpers
+
+These add-ons work next to XXMI Tools. Three more, Robust Weight Transfer, XXMI Buffer Export, and Genshin Face Modding Tools, are on the [XXMI Tools for Blender](/docs/genshin-impact/tools/blender-add-on) page.
+
+<ToolCard
+  name="QuickImportXXMI"
+  href="https://github.com/Seris0/QuickImportXXMI"
+  badge="Untested"
+  icon={<Icon name="GitHub" />}
+>
+  Imports a dump in fewer clicks, cleans it up, and sets up its materials. By
+  Gustav0 and LeoTorreZ. Version 3.0.7.
+</ToolCard>
+<ToolCard
+  name="AnimeGameArmatures"
+  href="https://github.com/Seris0/AnimeGameArmatures"
+  badge="Untested"
+  icon={<Icon name="GitHub" />}
+>
+  Armatures for Genshin Impact characters, so you can pose a model and test your
+  weights. By Gustav0.
+</ToolCard>
+<ToolCard
+  name="Vertex Color Master"
+  href="https://github.com/andyp123/blender_vertex_color_master"
+  badge="Untested"
+  icon={<Icon name="GitHub" />}
+>
+  Paints or fills one vertex color channel at a time, for example only the
+  outline thickness. By andyp123.
+</ToolCard>
+<ToolCard
+  name="Additional Batch Rename"
+  href="https://extensions.blender.org/add-ons/additional-batch-rename/"
+  badge="Blender 4.4+"
+  icon={<Icon name="Blender" />}
+>
+  Renames vertex groups, bones, and modifiers in bulk, with find and replace.
+  Handy after a weight transfer. By Endertainer007.
+</ToolCard>
+
+- Vertex colors control shading and outlines. Keep the original's values where you are unsure, and write colors as hex, such as `FF8080`. [UV maps, vertex colors, and outlines](/docs/genshin-impact/models/uvs-and-vertex-colors) explains each channel.
+- LEOAlphaPaint by HummyR also paints vertex colors. It dates from 2023 and has had no release since.
+
+## .ini and toggle helpers
+
+<ToolCard
+  name="3dmigoto-ini-extensions"
+  href="https://github.com/lupomikti/3dmigoto-ini-extensions"
+  badge="Recommended"
+  icon={<Icon name="GitHub" />}
+>
+  Syntax colors for mod `.ini` files in VS Code and other editors. Covers GIMI.
+  By lupomikti.
+</ToolCard>
+<ToolCard
+  name="SwapLock and Global Persist Swapkey"
+  href="https://github.com/NightLancer/ScriptTools"
+  badge="Untested"
+  icon={<Icon name="GitHub" />}
+>
+  SwapLock stops typing from flipping your toggles. Global Persist Swapkey keeps
+  toggle choices when you rename a mod folder. By Nocturne.
+</ToolCard>
+<ToolCard
+  name="3Dmigoto Mods Merger"
+  href="https://github.com/ShadowLemoon/3Dmigoto-mods-merger"
+  badge="Untested"
+  icon={<Icon name="GitHub" />}
+>
+  A Python script that merges single, merged, and animated mods into one pack
+  you switch with a key. By Qian2333.
+</ToolCard>
+<ToolCard
+  name="Element Detector"
+  href="https://github.com/complex31/ElementDetector"
+  badge="Untested"
+  icon={<Icon name="GitHub" />}
+>
+  A shared `.ini` that tells other mods the element of the character on screen,
+  so a merged mod can switch by element. By ComplexSignal31.
+</ToolCard>
+<ToolCard
+  name="RZMenu"
+  href="https://github.com/rayvy/RZMenu"
+  badge="Beta"
+  icon={<Icon name="GitHub" />}
+>
+  A Blender add-on that builds in-game menus and toggles into your exported mod.
+  Needs XXMI Tools 1.6.9 or newer. By rayvy.
+</ToolCard>
+
+Good to know:
+
+- **SwapLock** and **Global Persist Swapkey** are explained on [Change a mod's keys and saved settings](/docs/genshin-impact/ini/change-mod-keys).
+- **3Dmigoto Mods Merger** renames each original `.ini` to start with `DISABLED`. It switches between whole mods: it does not mix parts of different mods. [Combine mods into one merged mod](/docs/genshin-impact/ini/merged-mods) covers merging.
+- **Element Detector** must know every character. Its generator was last updated for 6.2 characters, so check the repo date before you rely on it.
+- **RZMenu** is a beta. Its author warns about crashes. Players need nothing extra: the export puts the menu into your mod.
+
+## Port mods to another outfit
+
+<ToolCard
+  name="AG Remap (Anime Game Remap)"
+  href="https://github.com/nhok0169/Anime-Game-Remap"
+  badge="Untested"
+  icon={<Icon name="GitHub" />}
+>
+  Moves a mod made for one outfit onto the same character's other outfit, with
+  no Blender. About 29 Genshin Impact pairs. By Albert Gold.
+</ToolCard>
+
+- AG Remap pairs include Hu Tao and her Cherry outfit, Raiden and the Raiden boss, and Arlecchino and the Arlecchino boss. Version 5.0.0 is from October 2026.
+- Each outfit is its own model with its own hashes. Never place a paid outfit over its free version.
+- Ask a mod's author before you port, edit, or share their mod.
+
+## Icons and loading screens
+
+- **Icon Mod Creator** and **AvatarIconModPack** turn your pictures into icon mods. [Replace character icons and portraits](/docs/genshin-impact/ui/replace-icons) shows both.
+- **Loading Screen Randomizer** by Arsinia turns a set of images into random loading screens, and replaces the white flash when the game starts. Get it from [GitHub](https://github.com/Arsinia/GI_LoadscreenRandomizer). Its last update was in September 2024, so it may not work on 7.2.
+
+{/* NEEDS HANDS-ON TEST: Loading Screen Randomizer on Genshin Impact 7.2 with GIMI 8.9.4 */}
+
+## Tools to skip
+
+| Skip this                                                         | Why                                                                                 |
+| ----------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Any `d3d11.dll` or "loader" that does not come from XXMI Launcher | Unofficial loaders are not supported, can break, and put your account at risk.      |
+| HOYO-SHA, the hash auto-updater                                   | Closed source, its own license terms, and out of date.                              |
+| Genshin Stella Mod                                                | A paid tier, and it bundles tools this wiki does not cover.                         |
+| Tools that import other creators' finished mods back into Blender | Editing someone's mod needs their permission. Keep your own `.blend` files instead. |
+| Tools that pull files out of the game                             | Not covered here. Use the asset repo or your own frame dump.                        |
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="XXMI Tools for Blender"
+    href="/docs/genshin-impact/tools/blender-add-on"
+    icon={<Icon name="Blender" />}
+    level="intermediate"
+  >
+    Every panel and setting of the main Blender add-on.
+  </PremiumCard>
+  <PremiumCard
+    title="Tools overview"
+    href="/docs/genshin-impact/tools"
+    icon={<Icon name="Wrench" />}
+  >
+    The main tools, which ones to install first, and which to skip.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This page is based on the work of these creators. Check out their original tools.
+
+- **Tool:** [QuickImportXXMI](https://github.com/Seris0/QuickImportXXMI) and [AnimeGameArmatures](https://github.com/Seris0/AnimeGameArmatures) by Gustav0 (Seris0).
+- **Tool:** [Vertex Color Master](https://github.com/andyp123/blender_vertex_color_master) by andyp123, and [LEOAlphaPaint](https://github.com/HummyR/LEOAlphaPaint) by HummyR.
+- **Tool:** [Additional Batch Rename](https://extensions.blender.org/add-ons/additional-batch-rename/) by Endertainer007, shared by [dcNumber8](https://discord.com/users/215991740904112128).
+- **Tool:** [ScriptTools](https://github.com/NightLancer/ScriptTools) by [Nocturne](https://discord.com/users/219849253990825987), and [3Dmigoto Mods Merger](https://github.com/ShadowLemoon/3Dmigoto-mods-merger) by [Qian2333](https://discord.com/users/921800597131370557).
+- **Tool:** [Element Detector](https://github.com/complex31/ElementDetector) by [ComplexSignal31](https://discord.com/users/495669995678990376), and [RZMenu](https://github.com/rayvy/RZMenu) by [rayvy](https://discord.com/users/274515651622731776).
+- **Tool:** [Anime Game Remap](https://github.com/nhok0169/Anime-Game-Remap) by [Albert Gold](https://discord.com/users/367087171154214914).
+- **Tool:** [Loading Screen Randomizer](https://github.com/Arsinia/GI_LoadscreenRandomizer) by [Arsinia](https://discord.com/users/685833257870295075).
+- **Guide:** [Downloads](https://leotorrez.github.io/modding/downloads) on the modding guide site by LeoTorreZ. Discord posts are from the [AGMG Discord](https://discord.gg/agmg).

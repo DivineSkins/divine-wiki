@@ -1,0 +1,233 @@
+---
+title: "Add glow and see-through parts"
+description: "Make parts of your Genshin Impact mod glow in a color you choose, turn glass and lace see-through, or set your own outline color with GIMI's built-in TexFx."
+category: "effects"
+patch: "7.2"
+keywords:
+  ["texfx", "genshin glow mod", "genshin transparency", "ps-t69", "ps-t70"]
+---
+
+<LevelPill level="intermediate" />
+
+You will make parts of your own mod glow, turn parts like glass or lace see-through, or give a part its own outline color. All of it runs through TexFx, the glow, transparency and outline library that ships inside GIMI. You need a mod you made yourself, with an `.ini` from the XXMI Tools export. Written for GIMI 8.9.4, which includes TexFx 1.066.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/genshin-impact/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement
+    icon="PaintNET"
+    href="/docs/genshin-impact/tools/texture-editors"
+  >
+    Paint.NET
+  </Requirement>
+  <Requirement icon="FileCode">Your own mod's folder and .ini</Requirement>
+</Requirements>
+
+<Callout type="info" title="TexFx is already installed">
+  GIMI ships TexFx in `GIMI\Core\GIMI\Libraries\TexFx`, and XXMI Launcher keeps
+  it up to date. Never download TexFx, never put it in your `Mods` folder, and
+  never ship it inside your mod. If an old guide made you copy TexFx into
+  `Mods`, delete that copy: two copies cause errors and crashes.
+</Callout>
+
+<Callout type="danger" title="Keep it fair">
+  Use glow and transparency only on your own character's parts. Never make
+  enemies, walls, fog or effects see-through or easier to spot. That is a mod
+  that gives an unfair advantage.
+</Callout>
+
+## Two kinds of glow
+
+- **Burst glow.** The game already makes some areas glow when the burst is ready. That glow comes from the alpha of the diffuse texture. To make a new area glow with the burst, give it the same alpha value as an area that already does. [Your first mod: recolor a character](/docs/genshin-impact/textures/recolor-a-character) shows how to reach the alpha.
+- **Glow all the time, in any color.** That is TexFx. You paint an extra texture, the effects mask, and point your part at it. The rest of this page covers TexFx.
+
+{/* NEEDS HANDS-ON TEST: that copying the diffuse alpha value of an area that already glows makes a new area glow with the burst on Genshin Impact 7.2 */}
+
+## How TexFx reads your textures
+
+TexFx reads two textures you make yourself, painted on the same UV layout as the part's diffuse:
+
+- the **effects mask** in slot `ps-t69`, for glow, bloom and see-through areas
+- the **outline map** in slot `ps-t70`, for your own outline color
+
+<img
+  src="/wiki-images/genshin-impact-effects-glow-and-transparency-1.webp"
+  alt="The effects mask for slot ps-t69, saved as BC7 Linear: black does nothing, green is glow brightness, blue is bloom, red 1 to 254 is see-through and red 255 is not drawn. The outline map for slot ps-t70, saved as BC7 sRGB: RGB is the outline color, alpha above 50 percent keeps the outline"
+/>
+
+The effects mask alpha, values 1 to 63, can also swap colors. This page does not cover that.
+
+## Make a glow or see-through part
+
+<Steps>
+<Step>
+
+### Paint the effects mask
+
+1. Open the part's diffuse in Paint.NET. You use it only as a guide for where things are.
+2. Add a new layer and fill it with black, `000000`. Black means no effect.
+3. Paint the areas you want with one of these colors:
+
+| Paint          | Hex      | Result                                     |
+| -------------- | -------- | ------------------------------------------ |
+| Bright green   | `00FF00` | Strong glow, all the time                  |
+| Green and blue | `00FF80` | Glow with a bloom halo                     |
+| Dark red       | `800000` | About half see-through, for glass or veils |
+| Pure red       | `FF0000` | Not drawn at all, a clean cut-out          |
+
+4. Use darker values for a softer effect: brightness sets the strength.
+5. Delete the diffuse layer, then flatten the image.
+6. Save it in your mod folder as `FurinaBodyTexFx.dds`, as `BC7 (Linear, DX 11+)` with **Generate Mip Maps** ticked. Keep the diffuse's width and height.
+
+For gradients, creators build each channel on its own layer. They turn a black and white template into red, green and blue with **Curves**, then set the layers to **Additive** blend:
+
+<img
+  src="/wiki-images/genshin-impact-effects-glow-and-transparency-2.webp"
+  alt="Paint.NET 5.0.9 with a glow mask split into R, G and B layers over a MASK template, the Curves window with Red and Green ticked, and Layer Properties with Blend Mode set to Additive"
+/>
+
+</Step>
+<Step>
+
+### Add the mask to your .ini
+
+Add a resource for your mask at the end of the `.ini`:
+
+```ini
+[ResourceFurinaBodyTexFx]
+filename = FurinaBodyTexFx.dds
+```
+
+Then pick how much of the part it covers.
+
+<Tabs items={["The whole part", "One object only"]}>
+
+<Tab value="The whole part">
+
+In the part's `[TextureOverride...]` section, add two lines right after `run = CommandList\GIMI\SetTextures`:
+
+```ini
+ps-t69 = ResourceFurinaBodyTexFx
+run = CommandList\TexFx\Transparency
+```
+
+The TexFx line always goes after the ORFix, NNFix or `SetTextures` line.
+
+</Tab>
+
+<Tab value="One object only">
+
+Use this when only one object of a part should change, like a pair of glasses inside `Body`. The export writes one `drawindexed` line per Blender object, with the object's name above it:
+
+```ini
+; FurinaBodyGlasses (934)
+drawindexed = 1674, 32985, 0
+```
+
+Replace that `drawindexed` line with these four lines:
+
+```ini
+ps-t69 = ResourceFurinaBodyTexFx
+$\TexFx\_1 = 1674
+$\TexFx\_2 = 32985
+run = CommandList\TexFx\Component
+```
+
+`$\TexFx\_1` takes the first number of the old `drawindexed` line, and `$\TexFx\_2` the second. Delete the old `drawindexed` line. Before the `drawindexed` lines of objects without TexFx, add `ps-t69 = null`. To put the effect on a key, wrap these lines in a toggle, as in [Add a toggle](/docs/genshin-impact/ini/add-a-toggle).
+
+</Tab>
+
+</Tabs>
+
+Older guides write `Transparency.1` or `Transparency.0`. You do not need the number any more. `CommandList\TexFx\T` and `CommandList\TexFx\C` are short names for the same commands.
+
+{/* NEEDS HANDS-ON TEST: CommandList\TexFx\Component with $\TexFx\_1 and $\TexFx\_2 on an XXMI Tools export in Genshin Impact 7.2, and that the commands work without the .1 and .0 endings */}
+
+</Step>
+<Step>
+
+### Test it
+
+1. Switch to another character and press `F10`.
+2. Switch back and check the glow in daylight, at night and indoors.
+3. Hold `F9` to compare with the original.
+
+</Step>
+</Steps>
+
+### Cut-outs only
+
+For lace, leaves or a ragged hem, a mask with only black and pure red `FF0000` is enough. Add the `ps-t69 = ...` line and **no** TexFx command. With the command the edges still work, but they look pixelated.
+
+## Set your own outline color
+
+1. Copy the part's diffuse and darken it, or paint the outline colors you want on the same layout.
+2. Keep the alpha opaque where you want outlines. Alpha below 50% removes the outline there.
+3. Save it as `FurinaBodyOutline.dds`, as `BC7 (sRGB, DX 11+)` with mipmaps.
+4. Add `ps-t70 = ResourceFurinaBodyOutline` to the part's section, and a `[ResourceFurinaBodyOutline]` with its `filename =`.
+
+An outline map alone needs no TexFx command.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Outlines turned blue after an update" id="blue-outlines">
+
+This was a TexFx bug in 2026, fixed in TexFx 1.066. Update GIMI through XXMI Launcher. Keep `ps-t70`. Old guides tell you to change it to `ps-t10` or `ps-t71`, which only turns your custom outline off.
+
+</Accordion>
+<Accordion title="The whole part glows or goes see-through" id="whole-part">
+
+The mask has color where it should be black. Check that the background is pure black, `000000`, and that you saved it as Linear, not sRGB.
+
+</Accordion>
+<Accordion title="Wrong textures or effects on other parts" id="wrong-parts">
+
+Add `ps-t69 = null` to the parts and objects that do not use TexFx, before their `drawindexed` lines.
+
+Still wrong? The TexFx README suggests the old endings as a fallback: try `CommandList\TexFx\Transparency.1` on a part with a normal map, or `.0` on a part without one.
+
+</Accordion>
+<Accordion title="Nothing changes" id="nothing-changes">
+
+Check that `filename =` matches your mask's name and that the `ps-t69` line sits after `SetTextures`. Read the yellow text after `F10`: [Test and reload your mod](/docs/genshin-impact/basics/test-your-mod) explains GIMI's warnings.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="What each texture map does"
+    href="/docs/genshin-impact/textures/texture-maps"
+    icon={<Icon name="Layers" />}
+    level="intermediate"
+  >
+    The diffuse, light map and normal map channel by channel.
+  </PremiumCard>
+  <PremiumCard
+    title="How a mod .ini works"
+    href="/docs/genshin-impact/ini/how-a-mod-ini-works"
+    icon={<Icon name="FileCode" />}
+    level="intermediate"
+  >
+    What each section and line in your mod's .ini does.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Tool:** [TexFx README](https://github.com/SilentNightSound/GIMI-Package/blob/main/GIMI/Core/GIMI/Libraries/TexFx/README.md) by SinsOfSeven, in [GIMI-Package](https://github.com/SilentNightSound/GIMI-Package).
+- **Guide:** [How to TexFX Mask](https://gamebanana.com/tuts/19476) by Dougline.
+- **Guide:** [Tutorial - Preserve alpha channels on Paint.net / how to handle .dds textures properly](https://docs.google.com/document/d/1DktYSbYMx-Bc4PKNF1XonvBAIRiC74pgNkMieQhd2jc/edit) by Anilyan.
+- **Images:** the channel layers screenshot from [How to TexFX Mask](https://gamebanana.com/tuts/19476) by Dougline.
+- **Discord:** the per-object TexFx command and the cut-out rule from the [TexFx guide](https://docs.google.com/document/d/19hkdTexZMoXbYmlOAqWHcu-EEvaK_ybNOXAaETTvoXo) by [hime](https://discord.com/users/591348252830597139) in the [AGMG Discord](https://discord.gg/agmg).

@@ -1,0 +1,228 @@
+---
+title: "Replace character icons and portraits"
+description: "Put your own art on a Genshin Impact character's party icon, avatar, profile picture or splash art with a small texture mod you write by hand."
+category: "ui"
+patch: "7.2"
+keywords:
+  [
+    "genshin icon mod",
+    "genshin ui mod",
+    "character icon",
+    "texture override",
+    "avatar icon",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+You will swap a character's icon or portrait for your own art, with a small texture-only mod. No 3D work: you dump the screen, find the image, edit it and write a short `.ini`. Written for XXMI Launcher 2.5.0 and GIMI 8.9.4 on Genshin Impact 7.2.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/genshin-impact/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement
+    icon="PaintNET"
+    href="/docs/genshin-impact/tools/texture-editors"
+    note="or Photoshop"
+  >
+    Paint.NET
+  </Requirement>
+  <Requirement icon="Image">Your own art, square for icons</Requirement>
+</Requirements>
+
+Use art you made or have the right to use. A UI mod changes how the game looks, never what it tells you.
+
+## Where each image shows
+
+Each screen draws its own image. Dump the screen that shows the one you want:
+
+| Image        | Where to see it in game       |
+| ------------ | ----------------------------- |
+| Party icon   | The character menu            |
+| Avatar       | Party setup                   |
+| Profile icon | The change-avatar screen      |
+| Splash art   | The character's archive entry |
+
+Some of these may share one texture, so one file can change more than one screen.
+
+{/* NEEDS HANDS-ON TEST: which of the four Genshin Impact 7.2 icon types share one texture, and the format of each */}
+
+<img
+  src="/wiki-images/genshin-impact-ui-replace-icons-1.webp"
+  alt="Four steps: press F8 on the screen with the icon, read the hash and format from the dumped file name (the example hash is a placeholder), edit the image upside down because the game stores it flipped, and write one override section per image"
+/>
+
+## Make the icon mod
+
+<Steps>
+<Step>
+
+### Set up
+
+1. In XXMI Launcher, click the gear, open the **GIMI** tab and tick **Enable Hunting**. [Find a hash with hunting mode](/docs/genshin-impact/basics/find-a-hash) shows the setting.
+2. Turn off any mod that already changes this character's icons: rename its folder so it starts with `DISABLED`.
+3. In your `Mods` folder, make a folder such as `FurinaIcons`.
+4. Inside it, make a text file and rename it `FurinaIcons.ini`. Delete the `.txt` ending.
+
+</Step>
+<Step>
+
+### Dump the screen
+
+1. Start the game and open the screen that shows the image.
+2. Check for the green hunting text. If it is missing, press `Numpad 0`.
+3. Press `F8`. GIMI saves a `FrameAnalysis-...` folder in `%AppData%\XXMI Launcher\GIMI`.
+4. Rename that folder after the screen, like `FrameAnalysis-PartyIcon`, so you can find it later.
+5. Repeat for each screen you want.
+
+Full dumps take several gigabytes. Keep the screen simple, and delete the folders when you are done. [Make a frame dump](/docs/genshin-impact/basics/frame-dump) shows how to dump less.
+
+</Step>
+<Step>
+
+### Find the image
+
+1. Open the dump folder, then `deduped`.
+2. Search for `BC7`.
+3. Look through the results for your image. It is upside down.
+4. Read the file name, for example `3a5f9c21-BC7_UNORM.dds` (a placeholder, not a real icon). The start is the hash. The end is the format.
+5. Copy the file into your mod folder and give it a clear name, like `FurinaPartyIcon.dds`.
+
+Icons are usually 256x256. Keep the exact size of the file you found.
+
+</Step>
+<Step>
+
+### Edit the image
+
+1. Open the copied `.dds` in Paint.NET.
+2. Flip your own art vertically with <MenuPath path="Image > Flip Vertical" />, then paste it in. The file must stay upside down.
+3. Keep the alpha: transparent corners and edges must stay transparent.
+4. Save in the format from the file name: `BC7_UNORM` is `BC7 (Linear, DX 11+)`, `BC7_UNORM_SRGB` is `BC7 (sRGB, DX 11+)`. Tick **Generate Mip Maps**.
+
+Many guides say every icon is Linear. Follow the file name instead: it is always right. [Save DDS textures the right way](/docs/genshin-impact/textures/save-dds-files) has every option.
+
+</Step>
+<Step>
+
+### Write the .ini
+
+Add one pair of sections per image, with your own hash and file name:
+
+```ini
+[TextureOverrideFurinaPartyIcon]
+hash = 3a5f9c21
+this = ResourceFurinaPartyIcon
+
+[ResourceFurinaPartyIcon]
+filename = FurinaPartyIcon.dds
+```
+
+`3a5f9c21` is a placeholder hash: put the one from your own dump in its place. Never write a note after the hash on the same line. Each section name must be unique in the file.
+
+<Files>
+  <Folder name="Mods" defaultOpen>
+    <Folder name="FurinaIcons" defaultOpen>
+      <File name="FurinaIcons.ini" />
+      <File name="FurinaPartyIcon.dds" />
+      <File name="FurinaAvatar.dds" />
+    </Folder>
+  </Folder>
+</Files>
+
+</Step>
+<Step>
+
+### Test it
+
+1. Press `F10` in game.
+2. Open each screen and check your art. It should be the right way up.
+3. Untick **Enable Hunting** when you are done.
+
+</Step>
+</Steps>
+
+## Icon generators
+
+Tools exist that write the `.ini` and convert the image for you. They were not tested for this guide.
+
+<ToolCard
+  name="AvatarIconModPack"
+  href="https://github.com/complex31/AvatarIconModPack"
+  badge="GitHub"
+  icon={<Icon name="GitHub" />}
+>
+  Builds a Genshin Impact avatar icon mod from your images, at 256x256 and
+  flipped.
+</ToolCard>
+
+<ToolCard
+  name="Icon Mod Creator"
+  href="https://gamebanana.com/tools/19754"
+  icon={<Icon name="GameBanana" />}
+>
+  Makes an icon mod with its .ini from your image.
+</ToolCard>
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="My art is upside down in game" id="upside-down">
+
+The file was saved the normal way up. Flip it vertically and save again.
+
+</Accordion>
+<Accordion title="Nothing changed" id="nothing-changed">
+
+Check the hash and the `filename =` line. Make sure no other icon mod for that character is on. If the hash is right and nothing shows, the game may not check that texture on this screen. Hunt the pixel shader that draws the icon, then add `checktextureoverride = ps-t0` in a `[ShaderOverride...]` section with that shader's hash.
+
+{/* NEEDS HANDS-ON TEST: whether any Genshin Impact 7.2 icon needs the checktextureoverride line */}
+
+</Accordion>
+<Accordion title="Colors look too dark or washed out" id="wrong-colors">
+
+The file was saved as sRGB when the original was Linear, or the other way round. Check the end of the dumped file name and save again.
+
+</Accordion>
+<Accordion title="Yellow error text after F10" id="yellow-text">
+
+GIMI could not load the file. Check the file name, and keep the original width and height.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Your first mod: recolor a character"
+    href="/docs/genshin-impact/textures/recolor-a-character"
+    icon={<Icon name="Palette" />}
+    level="beginner"
+  >
+    Change the colors of a character's outfit or hair.
+  </PremiumCard>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/genshin-impact/publishing/publishing-checklist"
+    icon={<Icon name="Package" />}
+    level="beginner"
+  >
+    Pack your icon mod with the right files and credits.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [INI Editing and Basic UI Modding](https://docs.google.com/document/d/1HTTxV9HfxsxSLkbubAmdrUOIG_zluFDM1-5fg4k6bSg) by veritas921, shared by [cora](https://discord.com/users/1132443509329244222) in the [AGMG Discord](https://discord.gg/agmg).
+- **Guide:** [3DMigoto GIMI Texture Modding Tutorial](https://github.com/SilentNightSound/GI-Model-Importer/blob/main/Guides/TextureModdingTutorial.md) by SilentNightSound.
+- **Tool:** [AvatarIconModPack](https://github.com/complex31/AvatarIconModPack) by complex31.
+- **Tool:** [Icon Mod Creator](https://gamebanana.com/tools/19754) by testerboybi.

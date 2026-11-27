@@ -1,0 +1,185 @@
+---
+title: "Find a hash with hunting mode"
+description: "Turn on GIMI's hunting mode in Genshin Impact, step through what is on screen, and copy the hash of a mesh, vertex buffer or shader."
+category: "basics"
+patch: "7.2"
+keywords: ["gimi hunting mode", "genshin hash", "numpad 0", "enable hunting"]
+---
+
+<LevelPill level="intermediate" />
+
+Hunting mode lets you step through everything Genshin Impact draws and copy its hash. Use it to check whether a mod's hash still matches after an update, to get a part's index buffer hash for a frame dump, or to find the shader that draws an icon or an effect. Written for XXMI Launcher 2.5.0 and GIMI 8.9.4.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/genshin-impact/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="Keyboard" note="or the Windows On-Screen Keyboard">
+    A number pad
+  </Requirement>
+  <Requirement icon="NotebookPen">A text file to paste hashes into</Requirement>
+</Requirements>
+
+If hashes are new to you, read [How Genshin Impact mods work](/docs/genshin-impact/basics/how-mods-work) first.
+
+## Turn on hunting
+
+Hunting is off by default. Turn it on before you start the game:
+
+1. Close Genshin Impact if it is running.
+2. In XXMI Launcher, click the gear at the top right.
+3. Open the **GIMI** tab.
+4. Under **Shader Hunting**, tick **Enable Hunting**.
+5. Leave **Dump Shaders** off. You need it only to save shader files.
+6. Close the settings.
+
+{/* SCREENSHOT: genshin-impact-basics-find-a-hash-2.webp, XXMI Launcher 2.5.0 settings, GIMI tab, with Enable Hunting ticked */}
+
+{/* NEEDS HANDS-ON TEST: the button that saves and closes the settings window in XXMI Launcher 2.5.0 */}
+
+## Turn off mods for your target
+
+Rename the folder of every mod for that character so it starts with `DISABLED`, then press `F10` in game. A mod hides the original, and you want the game's own hashes.
+
+`F6` is not enough here: it does not turn off shader and effect mods.
+
+## Hunt a hash
+
+<img
+  src="/wiki-images/genshin-impact-basics-find-a-hash-1.webp"
+  alt="A number pad map: 0 turns hunting on, 7 and 8 step through index buffers and 9 copies the hash, the same pattern for vertex buffers on slash, star and minus, vertex shaders on 4 to 6 and pixel shaders on 1 to 3, and plus resets the lists"
+/>
+
+1. Press **Start** in XXMI Launcher.
+2. Put your target on screen. The character screen works well, because it draws few other things.
+3. Press `Numpad 0`. Green text appears at the top and the bottom of the screen.
+4. Press `Ctrl+F12` if you want the key guide on screen.
+5. Press `Numpad 8` again and again until the part you want disappears. Press `Numpad 7` to go back one.
+6. Press `Numpad 9`. The index buffer (IB) hash is now on your clipboard.
+7. Paste it into your text file right away. Write down what it is, like `Furina Body IB`.
+8. If the overlay shows a `FirstIndex` value, note it too. That is the number a mod's `match_first_index` line uses. If it shows only `IB` and the hash, read the first index from the dump's `hash.json` instead.
+
+{/* NEEDS HANDS-ON TEST: whether the GIMI 8.9.4 hunting overlay shows IndexCount and FirstIndex after the IB hash. Recent screenshots from other XXMI games show only "IB <hash>". */}
+
+The selected item disappears because hunting hides it by default. That is how you know you have the right one.
+
+Too many items to step through? Press `Numpad +` to reset the lists. This cuts down the number of items you step through.
+
+## Which keys for which hash
+
+| You want                                | Previous   | Next       | Copy       |
+| --------------------------------------- | ---------- | ---------- | ---------- |
+| A mesh part: index buffer (IB)          | `Numpad 7` | `Numpad 8` | `Numpad 9` |
+| A vertex buffer (VB)                    | `Numpad /` | `Numpad *` | `Numpad -` |
+| A pixel shader (PS): icons, UI, effects | `Numpad 1` | `Numpad 2` | `Numpad 3` |
+| A vertex shader (VS)                    | `Numpad 4` | `Numpad 5` | `Numpad 6` |
+| A compute shader (CS)                   | `.` + `1`  | `.` + `2`  | `.` + `3`  |
+
+For compute shaders, hold `Numpad .` and press the number.
+
+## Read the overlay
+
+The top line counts what you have stepped through, as selected out of total:
+
+```text
+VS:3/120 PS:7/140 CS:... IB:... VB:...
+```
+
+After you move, the selected item's hash shows. For an index buffer it can read like this, with your own numbers:
+
+```text
+IB 1a2b3c4d (IndexCount: 12345, FirstIndex: 0)
+```
+
+Some versions show only `IB 1a2b3c4d`, without the numbers in brackets.
+
+The bottom line reads `Shader Hunting Mode (marking: skip)`. `skip` means the selected item is not drawn.
+
+{/* NEEDS HANDS-ON TEST: the exact overlay layout and text in Genshin Impact 7.2 with GIMI 8.9.4 */}
+
+{/* SCREENSHOT: genshin-impact-basics-find-a-hash-3.webp, Genshin Impact character screen in hunting mode, overlay counters at the top and one part hidden */}
+
+## What Genshin creators usually hunt
+
+<Accordions type="multiple">
+<Accordion title="A part's index buffer, for a frame dump" id="ib-for-dump">
+
+Hunt the IB of each part you want, for example the body and the hair. Paste the hashes into gui_collect to extract the character from a frame dump. The frame dump guide under Next steps shows the rest.
+
+</Accordion>
+<Accordion title="Whether a mod still matches after an update" id="check-after-update">
+
+Turn the mod off, then step through the IBs with the character on screen. If the hash in the mod's `.ini` never shows up, the game changed it. The mod needs new hashes from a fix tool or its creator.
+
+</Accordion>
+<Accordion title="The face texture" id="face-texture">
+
+Hunting steps through buffers and shaders, not textures. Get a texture hash from a frame dump instead:
+
+1. Press `F8` on the character screen, with hunting on.
+2. Open the new `FrameAnalysis-...` folder, then `deduped`.
+3. Search for `BC7_UNORM_SRGB` and sort by size. The face diffuse is about 1 MB.
+4. Open the candidates in your texture editor to confirm.
+5. The start of the file name is the hash, for example `ded724d2-BC7_UNORM_SRGB.dds`.
+
+{/* NEEDS HANDS-ON TEST: on 7.2, that the face diffuse is BC7_UNORM_SRGB and about 1 MB in the deduped folder */}
+
+</Accordion>
+<Accordion title="The shader behind an icon, glider or effect" id="pixel-shader">
+
+Step through pixel shaders with `Numpad 1` and `Numpad 2` until the icon or effect disappears. Copy the hash with `Numpad 3`. This 16-digit hash goes in a `[ShaderOverride]` section of your mod.
+
+</Accordion>
+</Accordions>
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Numpad 0 does nothing" id="numpad-0-nothing">
+
+Check that **Enable Hunting** is ticked in the **GIMI** tab, and that you started the game after you ticked it. Check that Num Lock is on.
+
+</Accordion>
+<Accordion title="There are hundreds of items to step through" id="too-many-items">
+
+Go to the character screen, where the game draws less. Press `Numpad +` to reset the lists, then step through again.
+
+</Accordion>
+</Accordions>
+
+When you finish, untick **Enable Hunting**, so `Numpad 0` cannot turn the overlay on by accident.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Make a frame dump"
+    href="/docs/genshin-impact/basics/frame-dump"
+    icon={<Icon name="Camera" />}
+    level="intermediate"
+  >
+    Capture one frame with F8 and turn a character into a folder Blender can
+    import.
+  </PremiumCard>
+  <PremiumCard
+    title="How a mod .ini works"
+    href="/docs/genshin-impact/ini/how-a-mod-ini-works"
+    icon={<Icon name="FileCode" />}
+    level="intermediate"
+  >
+    Where each hash goes in a mod's .ini file.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [3DMigoto Hunting & Dumping Tutorial](https://leotorrez.github.io/modding/guides/hunting) by Satan1c, on LeoTorrez's modding site.
+- **Tool:** [GIMI hunting mode guide](https://github.com/SilentNightSound/GIMI-Package/blob/main/GIMI/Core/GIMI/Notifications/HuntingModeGuide.md) and `d3dx.ini` from [GIMI-Package](https://github.com/SilentNightSound/GIMI-Package) by SilentNightSound and the GIMI team.
+- **Guide:** [Find face hash and dump face TEXTURE files](https://gamebanana.com/tuts/18163) by i_eat_dirt.

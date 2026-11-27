@@ -1,0 +1,222 @@
+---
+title: "Add, turn off, and remove mods"
+description: "Add more Genshin Impact mods, turn one off with the DISABLED prefix, reload in game with F10, keep your Mods folder clean, and remove every mod."
+category: "getting-started"
+patch: "7.2"
+keywords: ["genshin mods folder", "gimi mods", "disable mod", "f10 reload"]
+---
+
+<LevelPill level="beginner" />
+
+Every Genshin Impact mod is a folder inside GIMI's `Mods` folder. This page shows how to add more, turn them off, reload them in game, and clean up. Written for XXMI Launcher 2.5.0 and GIMI 8.9.4.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/genshin-impact/getting-started/install-with-xxmi-launcher"
+    note="with GIMI installed"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="FileArchive" note="such as 7-Zip">
+    An archive tool
+  </Requirement>
+</Requirements>
+
+Your `Mods` folder is here:
+
+```text
+%AppData%\XXMI Launcher\GIMI\Mods
+```
+
+To open it, click the 3-dots button next to **Start** in XXMI Launcher, then **Open Mods Folder**.
+
+## How GIMI reads your Mods folder
+
+<img
+  src="/wiki-images/genshin-impact-getting-started-manage-mods-1.webp"
+  alt="A Mods folder tree: two mod folders load, a DISABLED folder and a DISABLED .ini are skipped, a .zip is ignored, and a stray ORFix.ini and d3dx.ini are marked for deletion"
+/>
+
+- GIMI loads every `.ini` file in `Mods` and in every folder inside it, at any depth.
+- A file or folder whose name starts with `DISABLED` is skipped, with everything inside it.
+- A `.zip`, `.7z` or `.rar` file does nothing. Always extract it.
+
+So you can sort mods into folders however you like, for example `Mods\Furina\Furina Dress`.
+
+## Add a mod
+
+1. Open the mod you downloaded with your archive tool. Check that it holds only `.ini`, `.buf`, `.ib` and `.dds` files, and sometimes `.hlsl`.
+2. Extract the mod's folder into `Mods`. You should get `Mods\<mod name>\<something>.ini`.
+3. If the archive holds several versions in separate folders, keep only the one you want. The others load too unless you turn them off.
+4. Turn off any other mod for the same character.
+5. In game, switch to a different character so the modded one is off screen.
+6. Press `F10`. Switch back to see the mod.
+
+If the character looks collapsed or stretched after `F10`, it was on screen during the reload. Hide it, press `F10` again, or restart the game.
+
+### One mod per character
+
+Only one mod per character, or per outfit, can be on at a time. Two mods for the same character fight each other and you get a mix of both. A merged mod counts as one: it switches between several mods with a key.
+
+Mods for a paid outfit show only when the character wears that outfit. A mod for the default outfit does not change other outfits.
+
+## Turn a mod off or on
+
+<Tabs items={["Turn one mod off", "Turn all mods off"]}>
+<Tab value="Turn one mod off">
+
+1. Rename the mod's folder so its name starts with `DISABLED`, for example `DISABLED_Ayaka Dress`.
+2. Press `F10` in game.
+
+To turn it back on, remove `DISABLED` from the name and press `F10`.
+
+You can do the same to one `.ini` file inside a mod, for example `DISABLED_Hat.ini`, to drop only that part.
+
+</Tab>
+<Tab value="Turn all mods off">
+
+- Press `F6` to turn all mods off. Press it again to turn them back on.
+- Hold `F9` to see the original game while the key is down.
+
+Neither key changes any files. Your mods come back as they were.
+
+</Tab>
+</Tabs>
+
+Turning a mod off with `DISABLED` also forgets the options you picked in it, such as which outfit part was showing.
+
+## Keys you will use
+
+| Key                  | What it does                                                 |
+| -------------------- | ------------------------------------------------------------ |
+| `F10`                | Reload all mods and save their settings                      |
+| `F6`                 | Turn all mods off or on                                      |
+| `F9` (hold)          | Show the original game while held                            |
+| `F12`                | Show or hide the GIMI user guide                             |
+| `Ctrl+Alt+F10`       | Reset the saved settings of every mod, then reload           |
+| `Ctrl+Alt+Shift+End` | Turn all mod keys off or on, so typing does not trigger them |
+
+Many mods add their own keys to switch parts, colors or outfits. The mod's page lists them. GIMI saves your choices when you press `F10` and every 60 seconds.
+
+To give a mod different keys, see [Change a mod's keys and saved settings](/docs/genshin-impact/ini/change-mod-keys).
+
+## Keep your Mods folder clean
+
+GIMI already includes ORFix, ORFixAPI, NNFix, TexFx, Offset, Region, Tracking and HealthBar, in `GIMI\Core\GIMI\Libraries`. Never add these to `Mods`, even if a mod page or a video tells you to.
+
+1. Delete any `ORFix.ini`, `ORFixAPI.ini`, `Region.ini` or `Offset.ini` you find in `Mods`.
+2. Delete any `BufferValues` folder in `Mods`. It belongs to the old standalone GIMI.
+3. Delete any `d3dx.ini` or `d3d11.dll` that came with a mod. XXMI Launcher refuses to start with a `d3dx.ini` in `Mods`.
+4. Never put mod files into `GIMI\ShaderFixes`. GIMI keeps its own files there.
+
+<Callout type="warning" title="Two copies of a library break mods">
+  Many videos and some documents say to put `ORFix.ini` in `Mods` or in
+  `Mods\BufferValues`. That advice is for the old standalone GIMI. With XXMI
+  Launcher, a second copy gives you wrong colors and outlines.
+</Callout>
+
+### Optimize Mods
+
+Each time you click **Start**, XXMI Launcher checks `Mods` for common problems. It offers to turn off copies of the bundled libraries, stray `d3dx.ini` files, and `.ini` lines that cost a lot of FPS. It turns off a file by adding `DISABLED_` to its name, and a heavy line by making it a comment.
+
+To run the same check by hand, click the 3-dots button next to **Start**, then **Optimize Mods**. The details go to `XXMI Launcher Log.txt` in the launcher folder.
+
+{/* NEEDS HANDS-ON TEST: on a test Mods folder with a stray ORFix.ini, a d3dx.ini and a heavy ShaderRegex mod, record exactly what Optimize Mods changes and the wording of each prompt in XXMI Launcher 2.5.0. */}
+
+### Many mods
+
+Each mod that is on makes `F10` and the first load slower. Keep on only the mods you use, and turn the rest off with `DISABLED`. A few badly made mods also lower your FPS: **Optimize Mods** finds the worst of them.
+
+Zip your whole `Mods` folder before every game update. Then you can always go back.
+
+## Use a mod manager or not
+
+You do not need a mod manager. Folders and the `DISABLED` prefix do everything above, and fix tools expect this plain setup.
+
+If you want buttons instead of renaming folders, two maintained managers support Genshin Impact. Both are source available.
+
+<ToolCard
+  name="Integrated Mod Manager"
+  href="https://github.com/jpbhatt21/integrated-mod-manager/releases"
+  icon={<Icon name="GitHub" />}
+>
+  By jpbhatt21. A desktop app that lists your mods and tracks updates.
+</ToolCard>
+<ToolCard
+  name="No Reload Mod Manager"
+  href="https://github.com/Aglglg/No-Reload-Mod-Manager/releases"
+  icon={<Icon name="GitHub" />}
+>
+  By Aglglg. Switches mods from inside the game without pressing F10.
+</ToolCard>
+
+Use one manager at most on a `Mods` folder. Managers can edit mod `.ini` files, so restore your mods with the manager before you share one or run a fix tool. [Mod managers compared](/docs/genshin-impact/tools/mod-managers) has the details.
+
+## Remove all mods
+
+To play without mods for a while, start Genshin Impact from HoYoPlay or Epic Games instead of XXMI Launcher. Nothing in the game folder changes.
+
+To remove everything:
+
+1. Uninstall XXMI Launcher from <MenuPath path="Settings > Apps" /> in Windows. If you used the portable version, delete its folder.
+2. Delete the desktop shortcuts `XXMI Launcher` and `GIMI Quick Start` if they are still there.
+3. Delete `%AppData%\XXMI Launcher\GIMI` if you no longer want your mods.
+
+Dynamic Character Resolution stays off until you turn it back on in the game's graphics settings.
+
+{/* NEEDS HANDS-ON TEST: whether the .msi uninstall of XXMI Launcher 2.5.0 leaves the GIMI folder and Mods in %AppData%\XXMI Launcher. */}
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Orange text about a possible mod conflict" id="mod-conflict">
+
+Two mods change the same character. The text names the `.ini` files. Turn one of them off and press `F10`. You only see this text when **Mute Warnings** is off in the launcher's GIMI settings.
+
+</Accordion>
+<Accordion title="A mod's options reset after a restart" id="options-reset">
+
+The mod does not save that option. This is a choice of the mod's creator. Pick the option again after each start.
+
+</Accordion>
+<Accordion title='"Your Mods folder contains some libraries that are already included into GIMI!"' id="duplicate-libraries">
+
+Choose to disable the duplicates. They are old copies of ORFix or other bundled libraries.
+
+</Accordion>
+</Accordions>
+
+More fixes are in [Mods not loading](/docs/genshin-impact/errors/mods-not-loading) and [Mods look broken](/docs/genshin-impact/errors/mods-look-broken).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Fix your mods after a game update"
+    href="/docs/genshin-impact/getting-started/fix-mods-after-an-update"
+    icon={<Icon name="RefreshCw" />}
+    level="beginner"
+  >
+    What to do, in order, when an update breaks your mods.
+  </PremiumCard>
+  <PremiumCard
+    title="Set up your creator tools"
+    href="/docs/genshin-impact/getting-started/creator-setup"
+    icon={<Icon name="Wrench" />}
+    level="beginner"
+  >
+    Ready to make your own? Install the creator kit.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT, including its Mod Optimizer.
+- **Tool:** [GIMI-Package](https://github.com/SilentNightSound/GIMI-Package) by the GIMI maintainers: the `d3dx.ini` load rules, key bindings and bundled libraries.
+- **Guide:** [Getting Started](https://leotorrez.github.io/modding/guides/getting-started) and [Troubleshooting](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ.
+- **Discussion:** [about orfix](https://github.com/SilentNightSound/GIMI-Package/issues/38) on the GIMI-Package issue tracker, answered by LeoTorreZ.

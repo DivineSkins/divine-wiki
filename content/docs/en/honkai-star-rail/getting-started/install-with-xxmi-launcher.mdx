@@ -1,0 +1,311 @@
+---
+title: "Install mods with XXMI Launcher"
+description: "Install XXMI Launcher and SRMI, set Character Quality for mods, add your first Honkai: Star Rail mod, and check that mods load in game."
+category: "getting-started"
+patch: "4.7"
+keywords:
+  ["star rail mods", "srmi", "xxmi launcher", "install honkai star rail mods"]
+---
+
+<LevelPill level="beginner" />
+
+XXMI Launcher installs SRMI, the Star Rail Model Importer, and starts the game with your mods. This guide was written for XXMI Launcher 2.5.0 and SRMI 2.4.3 on Honkai: Star Rail 4.7. Read [What's allowed and how to stay safe](/docs/honkai-star-rail/getting-started/stay-safe) first: mods break the game's terms and can cost you your account.
+
+<Callout type="info" title="Looking for Celestial?">
+  Celestial, Divine's own launcher, does not install Honkai: Star Rail mods, so
+  this guide uses XXMI Launcher.
+</Callout>
+
+<Accordions>
+<Accordion title="Coming from another game?">
+
+**From Genshin Impact, Zenless Zone Zero or Wuthering Waves:** it is the same launcher. Click the Honkai: Star Rail tile and install SRMI next to your other importer. What changes:
+
+- Mods go in `SRMI\Mods`, not `GIMI`, `ZZMI` or `WWMI`.
+- The launcher changes no game setting for you. There is no "Configure Game Settings" box. Set **Character Quality** to **High** yourself.
+- Honkai: Star Rail is on HoYoPlay and Epic Games only. There is no Steam version. It runs in DirectX 11 only.
+- Updates break Star Rail mods more often, and Star Rail has its own fix tools.
+- Some mods need RabbitFX, a helper library you add once yourself.
+
+See the [Genshin Impact](/docs/genshin-impact), [Zenless Zone Zero](/docs/zenless-zone-zero) and [Wuthering Waves](/docs/wuthering-waves) sections for those games.
+
+**From Deadlock or League of Legends:** nothing is packed or replaced on disk. XXMI swaps models and textures while the game draws them, and `F10` reloads your mods in game.
+
+</Accordion>
+</Accordions>
+
+## What you need
+
+<Requirements>
+  <Requirement icon="HonkaiStarRail" note="HoYoPlay or Epic Games">
+    Honkai: Star Rail
+  </Requirement>
+  <Requirement icon="Monitor" note="64-bit">
+    Windows 10 or 11
+  </Requirement>
+  <Requirement icon="ShieldCheck">An admin account on your PC</Requirement>
+  <Requirement icon="FileArchive" note="such as 7-Zip">
+    An archive tool
+  </Requirement>
+</Requirements>
+
+Mods work on the Windows PC version only. The PS5, mobile, cloud and Mac versions cannot use mods. Old guides install the 2023 standalone SRMI loader by hand: it is deprecated and cannot run current mods, so use XXMI Launcher.
+
+## Install XXMI Launcher and SRMI
+
+<Steps>
+<Step>
+
+### Download XXMI Launcher
+
+<ToolCard
+  name="XXMI Launcher"
+  href="https://github.com/SpectrumQT/XXMI-Launcher/releases/latest"
+  badge="Required"
+  icon={<Icon name="XXMILauncher" />}
+>
+  Official releases on GitHub, by SpectrumQT. Free and open source (GPL-3.0).
+</ToolCard>
+
+1. Open the latest release page on GitHub.
+2. Scroll down to **Assets**.
+3. Click `XXMI-Launcher-Installer-Online-v2.5.0.msi` to download it. The version number changes with each release.
+
+<img
+  src="/wiki-images/honkai-star-rail-getting-started-install-with-xxmi-launcher-1.webp"
+  alt="The Assets list on the XXMI Launcher v2.5.0 release page, with the .msi installer and the portable .zip"
+/>
+
+Get the launcher only from this GitHub page. Other sites with "XXMI" in the name are not official.
+
+</Step>
+<Step>
+
+### Install it
+
+<Tabs items={["Installer (.msi)", "Portable (.zip)"]}>
+<Tab value="Installer (.msi)">
+
+1. Double-click the `.msi` file.
+2. Windows may warn you because the launcher is not code-signed. Check that the file came from the GitHub page above before you go on.
+3. Click **Quick Installation**. It installs to `%AppData%\XXMI Launcher`.
+4. If Windows asks for an admin account, right-click the `.msi` and choose **Run as administrator**.
+
+Use **Custom Installation** only to pick another folder. Never pick a folder inside the game folder or inside Program Files.
+
+{/* NEEDS HANDS-ON TEST: the exact Windows SmartScreen wording and buttons for the unsigned XXMI-Launcher-Installer-Online-v2.5.0.msi, and whether the installer asks for admin rights by itself. */}
+
+</Tab>
+<Tab value="Portable (.zip)">
+
+Use this when the `.msi` will not install.
+
+1. Install the [Microsoft Visual C++ Redistributable (x64)](https://aka.ms/vs/17/release/vc_redist.x64.exe).
+2. Download `XXMI-Launcher-Portable-v2.5.0.zip` from the same release page.
+3. Extract it to a folder you own. Not inside Program Files, not inside the game folder, and with no `{` or `}` in the path.
+4. Run `Resources\Bin\XXMI Launcher.exe`. Make a desktop shortcut to it.
+
+</Tab>
+</Tabs>
+
+XXMI Launcher needs admin rights each time it starts the game, because it loads the mod loader into the game.
+
+</Step>
+<Step>
+
+### Update Honkai: Star Rail first
+
+1. Open HoYoPlay or the Epic Games Launcher.
+2. Update Honkai: Star Rail to the latest version. XXMI Launcher does not update the game.
+3. Start the game once, log in, and close it.
+
+XXMI Launcher finds your game partly through the log files the game writes when it runs.
+
+</Step>
+<Step>
+
+### Add Honkai: Star Rail and install SRMI
+
+1. Open XXMI Launcher. You see **Select Games To Mod:** and a row of game tiles.
+2. Click the **Honkai: Star Rail** tile. The SRMI icon appears in the top-left bar.
+3. Click the SRMI icon, then click **Install**.
+4. When **Game Installation Found** appears, check the path and click **Confirm**.
+5. Wait while the launcher downloads SRMI and the XXMI DLL. The button changes to **Start**.
+
+<img
+  src="/wiki-images/honkai-star-rail-getting-started-install-with-xxmi-launcher-2.webp"
+  alt="The Honkai: Star Rail game tile from XXMI Launcher"
+/>
+
+The bottom-left corner now shows the versions, such as `LAUNCHER 2.5.0`, `XXMI 1.3.2` and `SRMI 2.4.3`.
+
+If you see **Game Installation Not Found**, click **Open Settings**. Under <MenuPath path="General > Game Folder" />, click **Browse...** and pick the folder that holds `StarRail.exe` and the `StarRail_Data` folder. With HoYoPlay, it sits in a folder named `Star Rail Games`.
+
+{/* SCREENSHOT: honkai-star-rail-getting-started-install-with-xxmi-launcher-3.webp, XXMI Launcher 2.5.0 on the SRMI page after install, showing the Start button, the 3-dots button and the version text bottom-left. No current screenshot exists in any source. */}
+
+</Step>
+<Step>
+
+### Check the launcher settings
+
+1. Click the gear icon at the top right to open the settings.
+2. Open the **General** tab.
+3. Check **Game Folder**. It must point to the folder that holds `StarRail.exe`.
+4. Leave **Game Launch** on `Direct`. This works for the HoYoPlay version, and for the Epic Games version with XXMI Launcher 2.4.6 or newer.
+
+Leave every other setting at its default. Settings that change how the launcher loads into the game are not covered here.
+
+{/* NEEDS HANDS-ON TEST: on XXMI Launcher 2.5.0, confirm the tab and label names (General, Game Folder, Game Launch) for SRMI, and that Direct starts the Epic Games version of Honkai: Star Rail past the login screen. No source has a screenshot of the 2.4.1+ settings window. */}
+
+{/* SCREENSHOT: honkai-star-rail-getting-started-install-with-xxmi-launcher-4.webp, the General tab of XXMI Launcher 2.5.0 settings for SRMI, showing Game Folder and Game Launch. */}
+
+</Step>
+<Step>
+
+### Start the game and check that SRMI loads
+
+1. Close HoYoPlay and the Epic Games Launcher.
+2. Click **Start** in XXMI Launcher. It closes itself when the game window opens.
+3. Watch the bottom-left corner while the game loads. For the first 30 seconds you should see `SRMI 2.4.3 (PRESS F12 TO SHOW GUIDE)`.
+4. Read the user guide that opens on the first start. Press `F10` to hide it for good. Press `F12` to open it again later. On a laptop, you may need to hold `Fn` with these keys.
+
+{/* SCREENSHOT: honkai-star-rail-getting-started-install-with-xxmi-launcher-5.webp, the SRMI user guide box over the Honkai: Star Rail loading screen, with the SRMI 2.4.3 banner visible bottom-left. UID hidden. */}
+
+No banner means SRMI did not load, and no mod will show. Always start the game from XXMI Launcher, not from HoYoPlay or Epic.
+
+</Step>
+<Step>
+
+### Set your graphics for mods
+
+1. In game, open the graphics settings.
+2. Set **Character Quality** to **High**.
+
+Some mods stay unmodded until Character Quality is on High. Feixiao is a known case. Some older mods also show wrong textures on the lowest graphics settings.
+
+{/* NEEDS HANDS-ON TEST: the exact menu path to Character Quality in Honkai: Star Rail 4.7, and whether any mod still needs it on High with SRMI 2.4.3. */}
+
+If you have an NVIDIA card, also turn off NVIDIA Smooth Motion. It stops mods from loading. If mods still do not load, one player fixed it by also turning off in-game anti-aliasing and NVIDIA low-latency mode.
+
+{/* NEEDS HANDS-ON TEST: whether in-game anti-aliasing or NVIDIA low-latency mode stop SRMI 2.4.3 from loading on Honkai: Star Rail 4.7 (one user report from 2025). */}
+
+</Step>
+<Step>
+
+### Add your first mod
+
+1. In XXMI Launcher, click the 3-dots button next to **Start**, then **Open Mods Folder**. It opens `%AppData%\XXMI Launcher\SRMI\Mods`.
+2. Open the mod you downloaded with your archive tool. Check that it holds only `.ini`, `.buf`, `.ib` and `.dds` files.
+3. Extract the mod's folder into `Mods`.
+4. Turn off any other mod for the same character outfit.
+5. In game, switch to a different character so the modded one is off screen.
+6. Press `F10` to reload. Then switch back.
+
+<Files>
+  <Folder name="SRMI" defaultOpen>
+    <Folder name="Core: SRMI itself, do not edit" />
+    <Folder name="Mods" defaultOpen>
+      <Folder name="KafkaRecolor: your mod" defaultOpen>
+        <File name="KafkaRecolor.ini" />
+        <File name="KafkaBodyADiffuse.dds" />
+      </Folder>
+    </Folder>
+    <Folder name="ShaderFixes: SRMI's own files" />
+    <File name="d3dx.ini" />
+  </Folder>
+</Files>
+
+A `.zip` left inside `Mods` does nothing: always extract it. If the mod page says it needs RabbitFX, add one copy of RabbitFX to `Mods` too. One copy serves all your mods. The next guide covers it.
+
+{/* NEEDS HANDS-ON TEST: with a clean XXMI Launcher 2.5.0 install, add one character mod, press F10 with the character off screen, and confirm it appears in Honkai: Star Rail 4.7. */}
+
+</Step>
+</Steps>
+
+## Watch the install
+
+<YouTube
+  id="sx4vUG4yQiM"
+  start={57}
+  title="How to Mod Honkai Star Rail, updated guide using XXMI, by SKEEL ISHU"
+/>
+
+The video says XXMI Launcher makes it impossible for HoYoverse to see what you do. No source supports that, so read the safety guide linked at the top of this page. The video also shows an older launcher version, and it downloads mods from another site. It runs a fix tool over the whole `Mods` folder: run a fixer only inside the folder of a broken mod. Follow the steps on this page where they differ.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The game starts, but there is no SRMI banner" id="no-banner">
+
+1. Close the game and start it again with **Start** in XXMI Launcher.
+2. Check that **Game Folder** points to the folder that holds `StarRail.exe`.
+3. Turn off NVIDIA Smooth Motion.
+4. Close any other program that injects into the game at startup.
+
+[Mods not loading](/docs/honkai-star-rail/errors/mods-not-loading) has the full checklist.
+
+</Accordion>
+<Accordion title="The mod loads, but the character looks unmodded" id="looks-unmodded">
+
+Set **Character Quality** to **High**. Then swap characters or teleport so the model reloads.
+
+</Accordion>
+<Accordion title="The Epic Games version gets stuck at the login screen" id="epic-login">
+
+Update XXMI Launcher to 2.4.6 or newer. Newer versions start the Epic Games version in the way it needs.
+
+</Accordion>
+<Accordion title='"Game initialisation error" only when you start with mods' id="initialisation-error">
+
+Players saw this after the 4.6 update. They fixed it by setting **Game Launch** to `Manual` in the launcher's **General** tab. Then click **Start** in XXMI Launcher and start the game yourself from HoYoPlay.
+
+{/* NEEDS HANDS-ON TEST: whether the 4.6 initialisation error still happens with XXMI Launcher 2.5.0 on Honkai: Star Rail 4.7, and whether Manual mode is still needed. */}
+
+</Accordion>
+<Accordion title="A black text box stays on screen" id="text-box">
+
+That is the SRMI user guide. Press `F10` to hide it for good, or `F12` to toggle it. On a laptop, hold `Fn` with the key.
+
+</Accordion>
+<Accordion title='"Cannot start with d3dx.ini in Mods folder!"' id="d3dx-in-mods">
+
+A mod or an old setup put a `d3dx.ini` file inside `Mods`. Find it, delete it, and click **Start** again.
+
+</Accordion>
+</Accordions>
+
+Launcher errors and antivirus alerts are in [XXMI Launcher problems](/docs/honkai-star-rail/errors/launcher-problems).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Add, turn off, and remove mods"
+    href="/docs/honkai-star-rail/getting-started/manage-mods"
+    icon={<Icon name="FolderOpen" />}
+    level="beginner"
+  >
+    Turn mods on and off, reload them in game, and keep your Mods folder clean.
+  </PremiumCard>
+  <PremiumCard
+    title="Fix your mods after a game update"
+    href="/docs/honkai-star-rail/getting-started/fix-mods-after-an-update"
+    icon={<Icon name="RefreshCw" />}
+    level="beginner"
+  >
+    What to do when an update breaks your mods.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Video:** [How to Mod Honkai Star Rail, Updated and Detailed Guide using XXMI](https://www.youtube.com/watch?v=sx4vUG4yQiM) by SKEEL ISHU.
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT.
+- **Tool:** [Star Rail Model Importer (SRMI)](https://gamebanana.com/tools/13050) by SilentNightSound and the SRMI maintainers.
+- **Tool:** [SRMI user guide](https://github.com/SpectrumQT/SRMI-Package/blob/main/SRMI/Core/SRMI/Notifications/UserGuide.md) by SpectrumQT.
+- **Guide:** [Getting Started](https://leotorrez.github.io/modding/guides/getting-started) by LeoTorreZ.
+- **Guide:** [Another v3.0 HSR Fix](https://gamebanana.com/tools/18925) by petrascyll, for the Character Quality advice.
+- **Discussion:** [How to fix game initialisation error after patch?](https://gamebanana.com/questions/110554) on GameBanana.
+- **Images:** screenshot 2, the game tile, from [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT (GPL-3.0).

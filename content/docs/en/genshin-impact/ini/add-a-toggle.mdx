@@ -1,0 +1,298 @@
+---
+title: "Add a toggle"
+description: "Add keys to your Genshin Impact mod that hide a part, cycle outfit variants or swap a texture, and make GIMI remember the choice between sessions."
+category: "ini"
+patch: "7.2"
+keywords:
+  [
+    "genshin mod toggle",
+    "gimi toggle",
+    "keyswap",
+    "global persist",
+    "xxmi tools toggle",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+A toggle lets a player press a key to hide a part, swap a texture, or switch between variants of an outfit. You add it by hand to the `.ini` that XXMI Tools exported, and GIMI remembers the choice between sessions. Written for XXMI Tools 1.8.2 and GIMI 8.9.4.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Blender" href="/docs/genshin-impact/tools/blender-add-on">
+    XXMI Tools for Blender
+  </Requirement>
+  <Requirement icon="NotepadPlusPlus" note="or any editor that saves UTF-8">
+    A text editor
+  </Requirement>
+  <Requirement icon="Package">Your own mod, exported and working</Requirement>
+</Requirements>
+
+You should know what a `drawindexed` line is. [How a mod .ini works](/docs/genshin-impact/ini/how-a-mod-ini-works) explains it.
+
+## How a toggle works
+
+A toggle has three pieces: a variable, a key that changes it, and an `if` block that checks it.
+
+<img
+  src="/wiki-images/genshin-impact-ini-add-a-toggle-1.webp"
+  alt="Three pieces of a toggle: global persist $bow = 1 in Constants, a KeyBow section that steps $bow between 1 and 0 when you press 0 while the character is on screen, and an if $bow == 1 block around the bow's drawindexed lines, so with $bow at 0 the bow disappears on the next frame"
+/>
+
+The part sections run again every frame. So when the key changes the variable, the mod draws the new choice on the next frame.
+
+## Prepare your parts in Blender
+
+XXMI Tools writes one `drawindexed` line for each Blender object. So every piece you want to toggle must be its own object.
+
+1. Put the pieces in the collection for their part. The collection's name starts with the part's name, like `MonaBody`.
+2. Give each piece a clear name, like `bow 1`. The name shows up as a comment in the `.ini`.
+3. Export with XXMI Tools. [Export your mod from Blender](/docs/genshin-impact/models/export-your-mod) shows the settings.
+
+## Add an on/off toggle
+
+This example hides a bow made of two objects, `bow 1` and `bow 2`.
+
+<Steps>
+<Step>
+
+### Check that the mod knows when it is on screen
+
+Search the `.ini` for `$active = 1`. XXMI Tools writes it only when you fill in a credit name. If it is missing, add these lines. Add `global $active = 0` to the existing `[Constants]` section, and do not make a second one:
+
+```ini
+[Constants]
+global $active = 0
+
+[Present]
+post $active = 0
+```
+
+Then add `$active = 1` as the last line of the `[TextureOverride...Position]` section.
+
+</Step>
+<Step>
+
+### Add the variable
+
+Add one line to `[Constants]`:
+
+```ini
+global persist $bow = 1
+```
+
+- `1` means "shown" when the mod first loads.
+- `persist` saves the player's choice. Without it, the bow comes back on every start and every `F10`.
+- A variable name is `$`, then letters, digits or `_`. It cannot start with a digit or contain `-` or `.`.
+
+</Step>
+<Step>
+
+### Add the key
+
+Add a new section anywhere in the file:
+
+```ini
+[KeyBow]
+key = 0
+condition = $active == 1
+type = cycle
+$bow = 0,1
+```
+
+- The name must start with `Key` and be unique in the file.
+- `condition = $active == 1` makes the key work only while this character is on screen. Without it, every mod that uses the same key reacts.
+- `type = cycle` steps through the list `0,1` on each press.
+
+</Step>
+<Step>
+
+### Wrap the part's lines
+
+Search for the object's name, here `bow`. Put `if` and `endif` around its comment and `drawindexed` lines:
+
+```ini
+if $bow == 1
+	; bow 1 (94)
+	drawindexed = 252, 31530, 0
+	; bow 2 (92)
+	drawindexed = 252, 31782, 0
+endif
+```
+
+Every `if` needs exactly one `endif`. The tabs are only for reading.
+
+</Step>
+<Step>
+
+### Test it
+
+1. Save the file as UTF-8.
+2. In game, switch to another character, then press `F10`.
+3. Switch back and press `0`. The bow disappears. Press `0` again to bring it back.
+
+</Step>
+</Steps>
+
+Each `drawindexed` line draws one range of the mesh. Skip a line, and that range is not drawn. In this drawing, only dots 1 to 9 are drawn, so only the ribbon shows:
+
+<img
+  src="/wiki-images/genshin-impact-ini-add-a-toggle-2.webp"
+  alt="An animation that joins only dots 1 to 9 of a connect-the-dots face, so only the ribbon is drawn and the hair dots stay unjoined"
+/>
+
+## Switch between variants
+
+One variable can pick between several versions of a part. Give the key one value per variant:
+
+```ini
+[Constants]
+global persist $hair = 0
+
+[KeyHair]
+key = h
+condition = $active == 1
+type = cycle
+$hair = 0,1,2
+```
+
+Then pick the draw in the part section:
+
+```ini
+if $hair == 0
+	drawindexed = 21054, 13605, 0
+else if $hair == 1
+	drawindexed = 21054, 34659, 0
+else
+	drawindexed = 12216, 55713, 0
+endif
+```
+
+Use `else` for the last variant, not `else if`. Then a part always draws, even if the variable holds a value you did not expect.
+
+To combine choices, use `&&` (both must be true) or `||` (one is enough). This draws a bracelet only when the jacket is off:
+
+```ini
+if $bracelet == 1 && $jacket == 0
+	; the bracelet's drawindexed lines go here
+endif
+```
+
+## Swap a texture
+
+1. Save the second texture in the same format and size as the first, in the mod folder.
+2. Add a resource for it:
+
+   ```ini
+   [ResourceCharBodyDiffuseDark]
+   filename = CharBodyDiffuseDark.dds
+   ```
+
+3. In the part section, wrap the `Resource\GIMI\Diffuse` line. Keep `run = CommandList\GIMI\SetTextures` after the `endif`:
+
+   ```ini
+   if $skin == 0
+   	Resource\GIMI\Diffuse = ref ResourceCharBodyDiffuse
+   else
+   	Resource\GIMI\Diffuse = ref ResourceCharBodyDiffuseDark
+   endif
+   run = CommandList\GIMI\SetTextures
+   ```
+
+4. Add `global persist $skin = 0` and a key section for `$skin`, the same way as above.
+
+{/* NEEDS HANDS-ON TEST: a texture swap that wraps Resource\GIMI\Diffuse lines before SetTextures, on GIMI 8.9.4 */}
+
+Older mods bind textures with lines like `ps-t1 = ResourceCharBodyDiffuse`. In those, wrap that line instead.
+
+## Toggles that switch by themselves
+
+GIMI ships libraries that track the player's state and region. A mod can read their variables in an `if`, with no key. For example, `$\global\tracking\swimming` tracks swimming, and `$\global\region\regioncheck` holds the current region as a number. Other states are `underwater`, `wet`, `raining`, `gliding` and `climbing`.
+
+{/* NEEDS HANDS-ON TEST: the values $\global\tracking\swimming and $\global\region\regioncheck hold in Genshin Impact 7.2 */}
+
+These libraries are already inside GIMI. Never add a copy of them to your mod.
+
+Your mod can also track a part that shows only in one state. In this clip, Aotani makes Furina's outfit follow her form. A section on the hash of a part only one form has sets a variable to `1`, `[Present]` resets it with `post`, and two `if` blocks pick the outfit:
+
+<YouTube
+  id="h7RMkdKWXEE"
+  start={6196}
+  title="An outfit that follows Furina's form, set up in the .ini, by Aotani"
+/>
+
+The clip starts at 1:43:16 and ends at 1:48:25. The chapter after it binds textures with `ps-t` slots, which Aotani herself calls out of date: use `Resource\GIMI\...` lines as shown above.
+
+## Keep your toggles when you change the model
+
+- **Keep a copy of your edited `.ini`.** An export with **Write ini** on writes a fresh `.ini` over your toggles.
+- **Add new objects at the bottom** of the collection. They get new ranges at the end, and the existing `drawindexed` lines keep their numbers.
+- **Check the numbers after a change** to an object's mesh. If it gets more or fewer triangles, its `drawindexed` line changes, and so do the lines after it.
+- **Fix tools may not understand hand-written toggles.** Keep a backup before you run one.
+
+{/* NEEDS HANDS-ON TEST: re-export from XXMI Tools 1.8.2 after adding an object at the bottom of a collection, and check that the earlier drawindexed lines keep their numbers */}
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The key does nothing" id="key-does-nothing">
+
+- Put the character on screen. The `condition` blocks the key otherwise.
+- Check that the file sets `$active = 1` in the Position section.
+- Press `F10` after you save.
+- Check that the variable name is spelled the same in all three places.
+
+</Accordion>
+<Accordion title="GIMI shows Scope unbalanced" id="scope-unbalanced">
+
+An `if` has no `endif`, or there is one `endif` too many. Count them in the section the message names.
+
+</Accordion>
+<Accordion title="GIMI shows Unrecognised entry" id="unrecognised-entry">
+
+The `if` or key uses a variable that `[Constants]` never declares, or a name is misspelt. Add the `global persist` line, or fix the name.
+
+</Accordion>
+<Accordion title="The part comes back after every restart" id="toggle-not-saved">
+
+The variable has no `persist`. Change `global $bow = 1` to `global persist $bow = 1`.
+
+</Accordion>
+<Accordion title="The wrong part disappears" id="wrong-part">
+
+You wrapped another object's lines. Check the comment above each `drawindexed`: it names the Blender object.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Combine mods into one merged mod"
+    href="/docs/genshin-impact/ini/merged-mods"
+    icon={<Icon name="Layers" />}
+    level="intermediate"
+  >
+    Switch between whole mods for one character with one key.
+  </PremiumCard>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/genshin-impact/publishing/publishing-checklist"
+    icon={<Icon name="Upload" />}
+    level="beginner"
+  >
+    Check and package your mod before you share it.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Toggle Guide](https://gamebanana.com/tuts/18971) by gdsfdg. The connect-the-dots animation is from this guide.
+- **Video:** [How to make Genshin mods the Aotani way (Intermediate)](https://www.youtube.com/watch?v=h7RMkdKWXEE) by Aotani.
+- **Tool:** [XXMI Tools Genshin Impact template](https://github.com/leotorrez/XXMITools/blob/main/templates/Genshin%20Impact.ini.j2) by leotorrez.
+- **Tool:** [GIMI `d3dx.ini`](https://github.com/SilentNightSound/GIMI-Package/blob/main/GIMI/d3dx.ini) by SilentNightSound and the GIMI team, for key types and saved variables.
+- **Tool:** [Tracking and Region libraries](https://github.com/SilentNightSound/GIMI-Package) in GIMI-Package, by the GIMI team.

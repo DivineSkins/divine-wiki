@@ -1,0 +1,336 @@
+---
+title: "Add a toggle"
+description: "Add keys to your Zenless Zone Zero mod that hide a part, cycle outfit variants or swap a texture, and make ZZMI remember the choice between sessions."
+category: "ini"
+patch: "3.3"
+keywords:
+  [
+    "zzz mod toggle",
+    "zzmi toggle",
+    "keyswap",
+    "global persist",
+    "xxmi tools toggle",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+A toggle lets a player press a key to hide a part, swap a texture, or switch between variants of an outfit. You add it by hand to the `.ini` that XXMI Tools exported, and ZZMI remembers the choice between sessions. Written for XXMI Tools 1.8.2 and ZZMI 1.5.2.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="Blender"
+    href="/docs/zenless-zone-zero/tools/blender-add-on"
+  >
+    XXMI Tools for Blender
+  </Requirement>
+  <Requirement icon="NotepadPlusPlus" note="or any editor that saves UTF-8">
+    A text editor
+  </Requirement>
+  <Requirement icon="Package">Your own mod, exported and working</Requirement>
+</Requirements>
+
+You should know what a `drawindexed` line and the Blend section are. [How a mod .ini works](/docs/zenless-zone-zero/ini/how-a-mod-ini-works) explains both.
+
+## How a toggle works
+
+A toggle has three pieces: a variable, a key that changes it, and an `if` block that checks it.
+
+<img
+  src="/wiki-images/zenless-zone-zero-ini-add-a-toggle-1.webp"
+  alt="Three pieces of a toggle: global persist $bow = 1 in Constants, a KeyBow section that steps $bow between 1 and 0 when you press Ctrl and the up arrow while the agent is on screen, and an if $bow == 1 block around the bow's drawindexed lines, so with $bow at 0 the bow disappears on the next frame"
+/>
+
+The part sections run again every frame. So when the key changes the variable, the mod draws the new choice on the next frame.
+
+This video, in Spanish, shows the variables, the key sections and the `if` blocks in a Zenless Zone Zero mod:
+
+<YouTube
+  id="y3oqvdszFfE"
+  start={277}
+  title="Everything about toggles for mods (Spanish), by Proxy Index"
+/>
+
+The video swaps textures inside a texture hash section, an older method. New mods set textures through SlotFix, as shown in "Swap a texture" below.
+
+## Prepare your parts in Blender
+
+XXMI Tools writes one `drawindexed` line for each Blender object. So every piece you want to toggle must be its own object.
+
+1. Make a collection whose name starts with the part's name, like `EllenBodyA`.
+2. Put the pieces in it. Give each piece a clear name, like `bow 1`. The name shows up as a comment in the `.ini`.
+3. Keep the original `EllenBodyA` object. Do not delete or rename it: empty it instead (`Tab`, `A`, then `X` and **Vertices**). The export fails if an imported part is missing.
+4. Make every piece visible. With **Ignore hidden objects** on, hidden pieces are not exported.
+5. Export with XXMI Tools. [Export your mod from Blender](/docs/zenless-zone-zero/models/export-your-mod) shows the settings.
+
+{/* NEEDS HANDS-ON TEST: check with XXMI Tools 1.8.2 and Game to mod set to Zenless Zone Zero that a collection named EllenBodyA with several objects exports one drawindexed line per object */}
+
+## Add an on/off toggle
+
+This example hides a bow made of two objects, `bow 1` and `bow 2`, in Ellen's `BodyA` part.
+
+<Steps>
+<Step>
+
+### Check that the mod knows when it is on screen
+
+Search the `.ini` for `$active = 1`. XXMI Tools writes it only when you fill in a credit name. If it is missing, add these lines. Add `global $active = 0` to the existing `[Constants]` section, and do not make a second one:
+
+```ini
+[Constants]
+global $active = 0
+
+[Present]
+post $active = 0
+```
+
+Then add `$active = 1` to the `[TextureOverride...Blend]` section, right under `handling = skip` and above the `if DRAW_TYPE` line:
+
+```ini
+[TextureOverrideEllenBodyBlend]
+hash = bbbbbbbb
+handling = skip
+$active = 1
+if DRAW_TYPE == 2 || DRAW_TYPE == 4
+```
+
+</Step>
+<Step>
+
+### Add the variable
+
+Add one line to `[Constants]`:
+
+```ini
+global persist $bow = 1
+```
+
+- `1` means "shown" when the mod first loads.
+- `persist` saves the player's choice. Without it, the bow comes back on every start and every `F10`.
+- A variable name is `$`, then letters, digits or `_`. It cannot start with a digit or contain `-` or `.`.
+
+</Step>
+<Step>
+
+### Add the key
+
+Add a new section anywhere in the file:
+
+```ini
+[KeyBow]
+key = CTRL NO_SHIFT NO_ALT VK_UP
+condition = $active == 1
+type = cycle
+$bow = 0,1
+```
+
+- The name must start with `Key` and be unique in the file.
+- Arrow keys with modifiers work on every keyboard layout. Write the modifiers you do not want as `NO_` words, so this key never overlaps with `CTRL SHIFT VK_UP`.
+- `condition = $active == 1` makes the key work only while this agent is on screen. Without it, every mod that uses the same key reacts.
+- `type = cycle` steps through the list `0,1` on each press.
+
+</Step>
+<Step>
+
+### Wrap the part's lines
+
+Search for the object's name, here `bow`. It sits in the part section, `[TextureOverrideEllenBodyA]`. Put `if` and `endif` around its comment and `drawindexed` lines:
+
+```ini
+if $bow == 1
+	; bow 1 (94)
+	drawindexed = 252, 31530, 0
+	; bow 2 (92)
+	drawindexed = 252, 31782, 0
+endif
+```
+
+Every `if` needs exactly one `endif`. The tabs are only for reading. Your own numbers come from your export.
+
+</Step>
+<Step>
+
+### Test it
+
+1. Save the file as UTF-8.
+2. In game, switch to another agent, then press `F10`.
+3. Switch back and press `Ctrl` and the up arrow. The bow disappears. Press it again to bring it back.
+
+</Step>
+</Steps>
+
+Each `drawindexed` line draws one range of the mesh. Skip a line, and that range is not drawn. In this drawing, only dots 1 to 9 are drawn, so only the ribbon shows:
+
+<img
+  src="/wiki-images/zenless-zone-zero-ini-add-a-toggle-2.webp"
+  alt="An animation that joins only dots 1 to 9 of a connect-the-dots face, so only the ribbon is drawn and the hair dots stay unjoined"
+/>
+
+## Switch between variants
+
+One variable can pick between several versions of a part. Give the key one value per variant:
+
+```ini
+[Constants]
+global persist $hair = 0
+
+[KeyHair]
+key = CTRL NO_SHIFT NO_ALT VK_RIGHT
+condition = $active == 1
+type = cycle
+$hair = 0,1,2
+```
+
+Then pick the draw in the part section:
+
+```ini
+if $hair == 0
+	drawindexed = 21054, 13605, 0
+else if $hair == 1
+	drawindexed = 21054, 34659, 0
+else
+	drawindexed = 12216, 55713, 0
+endif
+```
+
+Use `else` for the last variant, not `else if`. Then a part always draws, even if the variable holds a value you did not expect.
+
+To combine choices, use `&&` (both must be true) or `||` (one is enough). This draws a bracelet only when the jacket is off:
+
+```ini
+if $bracelet == 1 && $jacket == 0
+	; the bracelet's drawindexed lines go here
+endif
+```
+
+## Swap a texture
+
+1. Save the second texture in the same format and size as the first, in the mod folder.
+2. Add a resource for it:
+
+   ```ini
+   [ResourceEllenBodyADiffuseDark]
+   filename = EllenBodyADiffuseDark.dds
+   ```
+
+3. In the part section, wrap the `Resource\ZZMI\Diffuse` line. Keep `run = CommandList\ZZMI\SetTextures` after the `endif`:
+
+   ```ini
+   if $skin == 0
+   	Resource\ZZMI\Diffuse = ref ResourceEllenBodyADiffuse
+   else
+   	Resource\ZZMI\Diffuse = ref ResourceEllenBodyADiffuseDark
+   endif
+   run = CommandList\ZZMI\SetTextures
+   ```
+
+4. Add `global persist $skin = 0` and a key section for `$skin`, the same way as above.
+
+{/* NEEDS HANDS-ON TEST: a texture swap that wraps Resource\ZZMI\Diffuse lines before SetTextures, on ZZMI 1.5.2 */}
+
+The same works for the other slots, like `Resource\ZZMI\LightMap` or `Resource\ZZMI\MaterialMap`. Older mods set textures with texture hash sections or slot lines like `ps-t3 = ...`. Move those to SlotFix first: [Make textures survive game updates](/docs/zenless-zone-zero/textures/stable-textures) shows how.
+
+## Toggles that switch by themselves
+
+ZZMI ships an HP library. A mod can use it to change an agent's look when your own agent's HP is low, with no key. The library gives each agent's HP as a number from 0 to 1.
+
+1. In the Blend section, add this line inside the `elif DRAW_TYPE == 1` branch:
+
+   ```ini
+   run = CommandList\Healthbar\RequestUpdate
+   ```
+
+2. In the part section, check the agent's HP variable in an `if`, the same way as a toggle variable:
+
+   ```ini
+   if $\Healthbar\<AgentName> < 0.3
+   	; the drawindexed lines of the low-HP look
+   else
+   	; the drawindexed lines of the normal look
+   endif
+   ```
+
+Here the low-HP look shows below 0.3, which is 30 percent. Pick your own number. The variable names for each agent are on the library's [Healthbar wiki page](https://github.com/Satan1c/ZZMI_tools/wiki/Healthbar). The library is already inside ZZMI. Never add a copy of it to your mod.
+
+{/* NEEDS HANDS-ON TEST: the RequestUpdate line and the $\Healthbar\ variable name for one agent with ZZMI 1.5.2 on Zenless Zone Zero 3.3 */}
+
+## Keep your toggles when you change the model
+
+- **Keep a copy of your edited `.ini`.** An export with **Write ini** on writes a fresh `.ini` over your toggles.
+- **Add new objects at the bottom** of the collection. They get new ranges at the end, and the existing `drawindexed` lines keep their numbers.
+- **Check the numbers after a change** to an object's mesh. If it gets more or fewer triangles, its `drawindexed` line changes, and so do the lines after it.
+- **Fix tools may not understand hand-written toggles.** Keep a backup before you run one.
+- **Add a namespace** if you share the mod. A `namespace = AuthorName_AgentName_ModName` line at the top of the `.ini` keeps players' saved toggles when they rename the folder. [Change a mod's keys and saved settings](/docs/zenless-zone-zero/ini/change-mod-keys) explains it.
+
+{/* NEEDS HANDS-ON TEST: re-export from XXMI Tools 1.8.2 with Game to mod set to Zenless Zone Zero after adding an object at the bottom of a collection, and check that the earlier drawindexed lines keep their numbers */}
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The key does nothing" id="key-does-nothing">
+
+- Put the agent on screen. The `condition` blocks the key otherwise.
+- Check that the file sets `$active = 1` in the Blend section.
+- Press `F10` after you save.
+- Check that the variable name is spelled the same in all three places.
+
+</Accordion>
+<Accordion title="ZZMI shows Scope unbalanced" id="scope-unbalanced">
+
+An `if` has no `endif`, or there is one `endif` too many. Count them in the section the message names. The Blend section has its own `if DRAW_TYPE` block: leave it as it is.
+
+</Accordion>
+<Accordion title="ZZMI shows Unrecognised entry" id="unrecognised-entry">
+
+The `if` or key uses a variable that `[Constants]` never declares, or a name is misspelt. Add the `global persist` line, or fix the name.
+
+</Accordion>
+<Accordion title="The part comes back after every restart" id="toggle-not-saved">
+
+The variable has no `persist`. Change `global $bow = 1` to `global persist $bow = 1`.
+
+</Accordion>
+<Accordion title="The wrong part disappears" id="wrong-part">
+
+You wrapped another object's lines. Check the comment above each `drawindexed`: it names the Blender object.
+
+</Accordion>
+<Accordion title="The export fails after I made the collection" id="export-fails">
+
+You deleted or renamed the original object. Bring it back with its original name, and empty it instead.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Combine mods into one merged mod"
+    href="/docs/zenless-zone-zero/ini/merged-mods"
+    icon={<Icon name="Layers" />}
+    level="intermediate"
+  >
+    Switch between whole mods for one agent with one key.
+  </PremiumCard>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/zenless-zone-zero/publishing/publishing-checklist"
+    icon={<Icon name="Upload" />}
+    level="beginner"
+  >
+    Check and package your mod before you share it.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Toggle Guide](https://gamebanana.com/tuts/18971) by gdsfdg. The connect-the-dots animation is from this guide.
+- **Video:** [¡Posibilidades INFINITAS! TODO sobre los TOGGLES para Mods | Zenless Zone Zero](https://www.youtube.com/watch?v=y3oqvdszFfE) by Proxy Index.
+- **Tool:** [XXMI Tools Zenless Zone Zero template](https://github.com/leotorrez/XXMITools/blob/main/templates/Zenless%20Zone%20Zero.ini.j2) by leotorrez.
+- **Guide:** [On Mod Hygiene](https://gamebanana.com/tuts/20467) by Holley, for keys and namespaces.
+- **Wiki:** [Healthbar](https://github.com/Satan1c/ZZMI_tools/wiki/Healthbar) by Satan1c.

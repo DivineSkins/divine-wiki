@@ -1,0 +1,361 @@
+---
+title: ".ini reference"
+description: "Look up the section types, keys, variables, operators, commands, key options, WWMI names and warning messages a Wuthering Waves mod.ini uses with WWMI 1.2.2."
+category: "ini"
+patch: "3.8"
+keywords:
+  [
+    "wwmi ini reference",
+    "3dmigoto ini",
+    "textureoverride",
+    "key types",
+    "wuthering waves mod ini",
+  ]
+---
+
+<LevelPill level="advanced" />
+
+A lookup page for the `.ini` language Wuthering Waves mods are written in. Use it next to your own `mod.ini`. For a guided tour of one file, read [How a mod .ini works](/docs/wuthering-waves/ini/how-a-mod-ini-works) first. Written for WWMI 1.2.2 with the XXMI DLL 1.3.3, and WWMI Tools 1.9.4.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="FileCode">A mod.ini to read or edit</Requirement>
+  <Requirement icon="NotepadPlusPlus" note="or any editor that saves UTF-8">
+    A text editor
+  </Requirement>
+</Requirements>
+
+WWMI Tools writes the whole `mod.ini` for you. Hand edits are for toggles, tricks and fixes. When the community docs and the XXMI DLL's source code disagree, this page follows the source code.
+
+## File rules
+
+| Rule                     | Detail                                                                            |
+| ------------------------ | --------------------------------------------------------------------------------- |
+| Comments                 | Only a line that starts with `;`. A `;` later in a line becomes part of the value |
+| Case                     | Section names and keys ignore case                                                |
+| Spaces                   | Spaces and tabs at the start and end of a line, and around `=`, are ignored       |
+| Order                    | Section order does not matter. Lines inside one section run from top to bottom    |
+| Before the first section | Only `namespace = ...` or `condition = ...`                                       |
+| Same section twice       | Only the first is used                                                            |
+| Same key twice           | Only the first is used, except in command lists, where every line runs            |
+| Encoding                 | Save as UTF-8. Other encodings garble any text that is not plain English          |
+
+## Section types
+
+The start of the name decides the type. The rest is a free label.
+
+| Section                | Runs                                                      | Used for                                                                   |
+| ---------------------- | --------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `[Constants]`          | Once at load, and after every `F10`                       | Declaring variables                                                        |
+| `[Present]`            | Every frame                                               | Resetting flags, registering the mod, drawing text                         |
+| `[TextureOverride...]` | When a section checks a buffer or texture with this hash  | Every component and texture of a mod                                       |
+| `[ShaderOverride...]`  | For every draw that uses a shader with this 16-digit hash | Effect and UI work                                                         |
+| `[Resource...]`        | Never: it holds data                                      | Buffers, textures, text, empty slots                                       |
+| `[Filter...]`          | Never: a `ps-t[Filter...]` line reads it                  | Matching a texture by its look. WWMI Tools 1.9.4 writes `[FilterTextureN]` |
+| `[CommandList...]`     | When another section calls `run = CommandList...`         | Reusable blocks of lines                                                   |
+| `[CustomShader...]`    | When called with `run = CustomShader...`                  | Drawing or computing with your own shader                                  |
+| `[Key...]`             | When its key is pressed                                   | Toggles and sliders. WWMI Tools writes `[KeySwap...]`                      |
+| `[ShaderRegex...]`     | On game shaders that match a pattern                      | WWMI's own hook. Not for mods                                              |
+| `[Include...]`         | At load                                                   | WWMI loads its own files this way                                          |
+| `[Preset...]`          | While a shader override activates it                      | Rare                                                                       |
+
+`[Filter...]` sections need XXMI DLL 1.3.3 or newer. The DLL also knows newer `[Pool...]` sections. WWMI Tools 1.9.4 does not write them, and this page does not cover them. Any other name gives `Unknown section type`. `[Loader]`, `[System]`, `[Hunting]` and the other settings sections belong in WWMI's `d3dx.ini`, not in a mod. XXMI Launcher manages `d3dx.ini`: never edit it.
+
+## How WWMI decides what runs
+
+This is where Wuthering Waves differs most from other games:
+
+- WWMI hooks every vertex shader and checks only `vb0`, the vertex buffer in slot 0, on each draw. So a mod's component sections match on the VB0 hash.
+- In a WWMI Tools 1.9.4 export, textures need no check of their own. Each component section runs `CommandListTriggerResourceOverrides`, which saves the game's textures with `SnapshotInitialTextures`. Then one `ps-t[FilterTextureN] = ref ResourceTextureN` line per texture swaps in your files, and `CommandListCleanupSharedResources` puts the game's textures back with `RestoreInitialTextures`. Copy that pattern if you add a texture by hand.
+- In an export from WWMI Tools 1.8.0 or older, a `[TextureOverride...]` for a texture runs only if something checks the slot that texture is in. There, `CommandListTriggerResourceOverrides` checks `ps-t0` to `ps-t8`. WWMI 1.2.2 still runs these mods this way: it does not switch them to matching by look.
+
+{/* NEEDS HANDS-ON TEST: on WWMI 1.2.2, a hand-added texture in a WWMI Tools 1.9.4 export with its own [FilterTextureN] and ps-t[FilterTextureN] line, and an export from WWMI Tools 1.8.0 still binding its textures by hash */}
+
+- `$\WWMIv1\enable_ib_callbacks = 1` makes WWMI also check `ib` on every draw. It costs about 2.5% of your frame rate, and only some UI mods need it.
+
+## TextureOverride keys
+
+Every other line in the section is a command.
+
+| Key                     | What it does                                                                                                                              |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `hash`                  | The 8-digit hash to match                                                                                                                 |
+| `match_first_index`     | Match only the draw that starts at this index. WWMI Tools uses it to tell components apart                                                |
+| `match_index_count`     | Match only draws with this many indices. Every component section has it                                                                   |
+| `match_priority`        | Order when several sections match: higher runs later and wins. Also silences duplicate-hash warnings. Default `0`                         |
+| `filter_index`          | A number other sections can read back from the slot. WWMI Tools marks the bone data buffer with `3381.7777`                               |
+| `override_vertex_count` | Makes the game's buffer hold this many vertices. Needs `override_byte_stride`. WWMI Tools writes `$mesh_vertex_count` here for shape keys |
+| `override_byte_stride`  | Bytes per vertex for that resize                                                                                                          |
+
+When two sections match the same draw, both run, lowest `match_priority` first. Every `drawindexed` line of both is drawn, so two full mods on one Resonator overlap.
+
+## Filter keys
+
+A `[Filter...]` section describes a game texture by its look. It does nothing by itself: a `ps-t[FilterName] = ref ResourceName` line uses it.
+
+| Key                | Default        | What it does                                                                                                      |
+| ------------------ | -------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `match_dhash`      | none, required | The dHash of the game's texture: 16 hex digits, a fingerprint of how it looks. WWMI Tools copies it from the dump |
+| `match_format`     | none           | Only textures in this format can match, like `BC7_UNORM_SRGB`                                                     |
+| `match_confidence` | `0.75`         | How alike the texture must be, from `0.0` to `1.0`. `0.75` lets 16 of the 64 bits differ. Higher is stricter      |
+
+- The line searches the texture slots the current pixel shader reads, and puts your resource where the best match is. It works on `ps-t` slots only.
+- WWMI Tools 1.9.4 writes `match_format` and `match_dhash`, not `match_confidence`.
+- Raise `match_confidence` if two similar textures get mixed up. Lower it only if the right texture never matches, after you checked `match_dhash` and `match_format`.
+
+{/* NEEDS HANDS-ON TEST: on WWMI 1.2.2 with a mod exported by WWMI Tools 1.9.4, the effect of match_confidence 0.9 and 0.6 on one Resonator texture, and whether match_format values in the export look like BC7_UNORM_SRGB */}
+
+## Resource keys
+
+| Key        | Meaning                                                                                          |
+| ---------- | ------------------------------------------------------------------------------------------------ |
+| `filename` | File path, relative to the `.ini`'s folder: `Meshes/Position.buf`, `Textures/Logo.dds`, a `.txt` |
+| `type`     | `Buffer`, `StructuredBuffer`, `RWBuffer`, `Texture2D` and other names from HLSL                  |
+| `format`   | A DXGI format, like `DXGI_FORMAT_R32_UINT` or `R8_UINT`                                          |
+| `stride`   | Bytes per element, the vertex size for vertex buffers                                            |
+| `data`     | Inline data: a quoted string, or a format and numbers. Cannot be used with `filename`            |
+| `array`    | Number of elements in a created buffer                                                           |
+
+An empty `[ResourceSomething]` is valid. It holds a reference you fill later. WWMI Tools writes `[ResourceModName]` with `data = "..."` text.
+
+## ShaderOverride and CustomShader keys
+
+| Section               | Key                    | Meaning                                                                 |
+| --------------------- | ---------------------- | ----------------------------------------------------------------------- |
+| `[ShaderOverride...]` | `hash`                 | The 16-digit shader hash                                                |
+| `[ShaderOverride...]` | `allow_duplicate_hash` | `true` on every copy, or `overrule` on one, silences duplicate warnings |
+| `[CustomShader...]`   | `vs`, `ps`, `cs` ...   | A shader file path, relative to the `.ini`, or `null`                   |
+| `[CustomShader...]`   | `blend`                | Blend state, like `add src_alpha inv_src_alpha`, or `disable`           |
+| `[CustomShader...]`   | `cull`                 | `none`, `front` or `back`                                               |
+| `[CustomShader...]`   | `topology`             | `triangle_list`, `triangle_strip`, `point_list` and others              |
+
+## Variables
+
+| Declaration             | Where            | Meaning                                                                               |
+| ----------------------- | ---------------- | ------------------------------------------------------------------------------------- |
+| `global $x = 0`         | `[Constants]`    | Lives for the session. The value is optional and starts at `0`                        |
+| `global persist $x = 1` | `[Constants]`    | Also saved, on `F10`, on exit and every 60 seconds. `Ctrl+Alt+F10` wipes saved values |
+| `global locked $x = 1`  | `[Constants]`    | Read-only. Writes are ignored with a warning                                          |
+| `local $x`              | Inside a section | Exists for one run of that section only                                               |
+
+- Values are 32-bit floats. Whole numbers are exact up to 16,777,216.
+- Names are `$`, then a letter or `_`, then letters, digits or `_`. `$1x`, `$my-var` and `$x.y` are illegal.
+- Each `.ini` has its own namespace, so `$swapvar_hat` in two mods is two different variables.
+- Read another file's variable with `$\<namespace>\<name>`, like `$\WWMIv1\mod_id`.
+
+### Built-in values
+
+| Name                                                       | Value                                 |
+| ---------------------------------------------------------- | ------------------------------------- |
+| `time`                                                     | Seconds since the game started        |
+| `frame_time`, `fps`, `frame_number`                        | Timing and frame counters             |
+| `res_width`, `res_height`, `window_width`, `window_height` | Resolution and window size            |
+| `vertex_count`, `index_count`, `first_index`               | The current draw call                 |
+| `cursor_x`, `cursor_y`, `cursor_showing`                   | The mouse                             |
+| `hunting`, `frame_analysis`                                | Whether hunting or a frame dump is on |
+
+### IniParams
+
+`x`, `y`, `z`, `w`, then `x1` to `w1`, and so on, are values passed to shaders. A shader reads `x88` as `IniParams[88].x`. They are **shared by every mod**: if two mods write the same one, they interfere. WWMI's own command lists borrow some, like `x0` and `x1`, and put the old values back afterwards. Never write an IniParam name without `$` by mistake, or you change it for every mod.
+
+## Conditions and operators
+
+```ini
+if $swapvar_hair == 0
+    ; drawindexed line of the first hair object
+else if $swapvar_hair == 1
+    ; drawindexed line of the second hair object
+else
+    ; drawindexed line of the third hair object
+endif
+```
+
+- `if`, `elif` or `else if`, `else`, `endif`. Blocks can nest. There are no loops.
+- Any value that is not `0` counts as true: `if $object_detected`.
+- Every `if` needs exactly one `endif`, or WWMI shows `Scope unbalanced`.
+
+Operators, from first to last in the order they are worked out:
+
+- Unary: `!` (not), `-`, `+`, `~`
+- Power: `**`
+- Multiply: `*`, `/`, `//` (divide and round down), `%` (remainder)
+- Add: `+`, `-`
+- Shift: `<<`, `>>`
+- Compare: `<`, `<=`, `>`, `>=`
+- Equal: `==`, `!=`, and `===`, `!==` for an exact match, used to test a resource against `null`, like `if ResourceMergedSkeleton !== null`
+- Bitwise: `&`, `^`, `|`
+- Logic: `&&` (both), `||` (either)
+- Brackets: `( )`
+
+Functions, with brackets: `sin`, `cos`, `tan`, `abs`, `sign`, `floor`, `ceil`, `round`, `frac`, `sqrt`, `saturate`, `random` and a few more.
+
+## Commands
+
+These lines go inside any section that runs commands.
+
+| Command                                  | Meaning                                                                                                              | Example                                         |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| `<slot> = <resource>`                    | Put a resource in a slot                                                                                             | `vb0 = ResourcePositionBuffer`                  |
+| `this = <resource>`                      | Replace the texture or buffer that matched, in its slot. Exports from WWMI Tools 1.8.0 and older use it for textures | `this = ResourceTexture0`                       |
+| `ps-t[<filter>] = ref <resource>`        | Put a resource in the pixel shader slot whose texture best matches a filter                                          | `ps-t[FilterTexture0] = ref ResourceTexture0`   |
+| `run = SnapshotInitialTextures`          | Save the textures in the pixel shader's slots. Only the first call in a draw counts                                  |                                                 |
+| `run = RestoreInitialTextures`           | Put the saved textures back                                                                                          |                                                 |
+| `ref`, `copy`, `unless_null`             | How to assign: a reference, a real copy, or skip if empty                                                            | `Resource\WWMIv1\ModName = ref ResourceModName` |
+| `<slot> = null`                          | Empty a slot                                                                                                         | `cs-u5 = null`                                  |
+| `run = ...`                              | Call a command list or custom shader                                                                                 | `run = CommandList\WWMIv1\RegisterMod`          |
+| `checktextureoverride = <slot>`          | Run the TextureOverride sections for what is in a slot                                                               | `checktextureoverride = ps-t0`                  |
+| `handling = skip`                        | Do not draw the game's original                                                                                      |                                                 |
+| `handling = abort`                       | Stop running this section                                                                                            |                                                 |
+| `drawindexed = <count>, <start>, <base>` | Draw part of the bound index buffer                                                                                  | `drawindexed = 42495, 0, 0`                     |
+| `drawindexed = auto`                     | Draw the whole bound index buffer                                                                                    |                                                 |
+| `draw = <count>, <start>`                | Draw without an index buffer                                                                                         | `draw = 4096, 0`                                |
+| `draw = from_caller`                     | Repeat the draw that called this section                                                                             |                                                 |
+| `dispatch = <x>, <y>, <z>`               | Run a compute shader                                                                                                 | `dispatch = 1, 1, 1`                            |
+| `$var = ...`, `x88 = ...`                | Set a variable or IniParam. Math is allowed                                                                          | `$mod_id = $\WWMIv1\mod_id`                     |
+
+Slots: `ib`, `vb0` to `vb31`, textures like `ps-t0` and `cs-t33`, constant buffers like `vs-cb4`, compute outputs like `cs-u5`, render targets `o0` to `o7`.
+
+### pre and post
+
+Every section has a **pre** part (before the draw, or at the end of the frame in `[Present]`) and a **post** part (after the draw, or the start of the next frame). Start a line with `pre` or `post` to choose. Without one, assignments and draws go to pre. `run` and `checktextureoverride` go to both, so the called section's own `pre` and `post` lines run at the right time. That is why WWMI Tools resets the on-screen flag with `post $object_detected = 0`.
+
+## Key sections
+
+```ini
+[KeySwapHat]
+condition = $object_detected == 1
+key = H
+type = cycle
+$swapvar_hat = 0, 1
+```
+
+| Key                   | Meaning                                                                           |
+| --------------------- | --------------------------------------------------------------------------------- |
+| `key`                 | The key. You can write several `key =` lines                                      |
+| `back`                | A key that cycles backwards                                                       |
+| `type`                | `activate`, `hold`, `toggle` or `cycle` (see below)                               |
+| `condition`           | Works only while this is true. Use `$object_detected == 1` in every Resonator mod |
+| `run`                 | A command list to run on press                                                    |
+| `wrap`                | `false` stops a cycle at the last value. Default `true`                           |
+| `delay`, `transition` | Wait before the change, or fade between values. `delay` works with `hold` only    |
+
+| `type =`   | What a press does                                                 |
+| ---------- | ----------------------------------------------------------------- |
+| `activate` | Sets the values. The default                                      |
+| `hold`     | Sets the values while held, and puts the old ones back on release |
+| `toggle`   | First press sets the values, second press puts the old ones back  |
+| `cycle`    | Moves to the next value in each comma list                        |
+
+Key names:
+
+- Letters and digits as one character: `k`, `0`.
+- Other keys by their Windows name, with or without `VK_`: `VK_LEFT`, `RIGHT`, `F5`, `VK_NUMPAD5`.
+- Combinations with spaces: `Shift Q`, `ctrl alt k`. `no_modifiers F6` means no Ctrl, Alt, Shift or Windows key may be held. WWMI binds its own `F6` this way.
+- Controller buttons: `XB_A`, `XB_LEFT_TRIGGER`, `XB_DPAD_UP`.
+
+[Change a mod's keys and saved settings](/docs/wuthering-waves/ini/change-mod-keys) lists the keys WWMI already uses.
+
+## Namespaces
+
+A file's namespace is its path from the `WWMI` folder, unless the first line sets `namespace = Some\Name`. Sections from another namespace are reached as `Resource\Some\Name`, `CommandList\Some\Name` and `$\Some\Name`. Two files with the same namespace clash with `Duplicate section found`.
+
+| Namespace  | What it is                                                                                                                                                                                                                                                |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `WWMIv1`   | WWMI itself. Mod registration `CommandList\WWMIv1\RegisterMod`, the text API `CommandList\WWMIv1\PrintText`, the shape key API `CommandList\WWMIv1\SetShapeKey`, and the variables in the next table. Ships inside WWMI: never copy its files into `Mods` |
+| `RabbitFX` | A separate texture and glow library: `Resource\RabbitFX\Diffuse`, `Resource\RabbitFX\GlowMap`, `run = CommandList\RabbitFX\SetTextures`, `run = CommandList\RabbitFX\Run`. One copy per `Mods` folder, never inside a mod                                 |
+
+[Make textures survive game updates](/docs/wuthering-waves/textures/stable-textures) shows how to install RabbitFX and use its texture lines.
+
+## Wuthering Waves names
+
+| Name                                                      | Meaning                                                                                                   |
+| --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `$object_detected`                                        | `1` while the Resonator is on screen. Every component section sets it                                     |
+| `$mod_enabled`                                            | `1` once WWMI accepts the mod. While `0`, the mod changes nothing                                         |
+| `$mod_id`                                                 | The ID WWMI gives the mod. `-1000` before it registers, `-1` if it does not fit the installed WWMI        |
+| `$required_wwmi_version`                                  | The oldest WWMI the mod works with. WWMI Tools 1.9.4 writes `1.22`. WWMI Tools 1.8.0 wrote `1.10`         |
+| `$object_guid`                                            | The index count of the original model                                                                     |
+| `$mesh_vertex_count`                                      | The vertex count of your model                                                                            |
+| `$swapvar_<name>`, `$draw_<object>`                       | Toggle variables written by Ini Toggles                                                                   |
+| `$\WWMIv1\enable_mods`                                    | WWMI's all-mods switch on `F6`. Mods do not touch it                                                      |
+| `$\WWMIv1\in_character_menu`, `$\WWMIv1\in_dressing_room` | `1` on the Resonators screen or Gallery, and on the outfit screen                                         |
+| `$\WWMIv1\custom_mesh_scale`                              | The model's size. WWMI Tools writes the **Skeleton Scale** value here                                     |
+| `$\WWMIv1\shapekey_id`, `$\WWMIv1\shapekey_value`         | Input for the shape key API: a number from `0` to `127`, and a value from `0.0` to `1.0`                  |
+| `$\WWMIv1\enable_ib_callbacks`                            | `1` also checks `ib` on every draw. Default `0`                                                           |
+| `ib`, `vb0` to `vb4`                                      | Your mesh: indices, positions, normals and tangents, UVs, vertex colors, bone weights                     |
+| `[FilterTextureN]`, `ps-t[FilterTextureN]`                | WWMI Tools 1.9.4: one filter per texture, used in each component section that needs the texture           |
+| `ps-t0` to `ps-t8`                                        | The texture slots a component section checks in exports from WWMI Tools 1.8.0 and older                   |
+| `vs-cb3`, `vs-cb4`                                        | The bone data the merged skeleton is built from                                                           |
+| `filter_index` `3381.7777`                                | The mark a WWMI Tools mod puts on the bone data buffer                                                    |
+| `cs == 3381.3333`, `cs == 3381.4444`                      | WWMI's marks on the two game compute shaders that load and scale shape keys. Shape key sections test them |
+
+## Warning messages
+
+With **Mute Warnings** off in the launcher's **WWMI** tab, these show after `F10`. Each ends with the section and file it came from.
+
+| Message                                                     | Usual cause                                                               | Fix                                                                                               |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `Possible Mod Conflict: Duplicate TextureOverride hash=...` | Two sections for one hash without `match_first_index` or `match_priority` | Turn one mod off, or add `match_priority` if you meant it. WWMI Tools mods may not show it at all |
+| `Possible Mod Conflict: Duplicate ShaderOverride hash=...`  | Two mods edit one shader                                                  | Add `allow_duplicate_hash`, as the message says                                                   |
+| `Hash parse error`                                          | A typo, or a `; note` after the hash                                      | One hash per line, nothing after it                                                               |
+| `Section missing Hash=`                                     | A TextureOverride with no `hash`                                          | Add the hash                                                                                      |
+| `Duplicate section found`                                   | The same section name twice                                               | Rename one                                                                                        |
+| `Duplicate key found`                                       | Two `hash =` or two `filename =` lines                                    | Remove one                                                                                        |
+| `Unknown section type`                                      | A typo in the name, like `[TextureOveride...]`                            | Fix the spelling                                                                                  |
+| `Unrecognised entry`                                        | A misspelt word, an undeclared variable, or a missing resource            | Declare it, add it, or fix the name                                                               |
+| `Scope unbalanced`                                          | An `if` without `endif`, or one `endif` too many                          | Balance them                                                                                      |
+| `Entry outside of section`                                  | Lines before the first section                                            | Move them into a section                                                                          |
+| `Illegal Global Variable Name`                              | A name with `-`, `.`, a leading digit, or no `$`                          | Rename it                                                                                         |
+| `Redeclaration of ...`                                      | `global $x` twice in one file                                             | Remove one                                                                                        |
+| `Missing Key=`                                              | A key section with no `key =`                                             | Add one                                                                                           |
+| `Failed to load custom texture resource`                    | The file in `filename =` is missing or misnamed                           | Fix the name, extension or folder                                                                 |
+| `Failed to load custom buffer resource`                     | A `.buf` file in `Meshes` is missing or misnamed                          | Fix the name, or export again                                                                     |
+| `Failed to detect stride for override_vertex_count`         | No `override_byte_stride`                                                 | Add it                                                                                            |
+| `Initial data and filename cannot be used together`         | `data =` and `filename =` in one resource                                 | Keep one                                                                                          |
+| `NOTICE: Detected N unknown user settings in d3dx_user.ini` | Saved settings of mods you removed                                        | Harmless. It clears after two reloads                                                             |
+
+WWMI shows its own red **Mod Loading Error** box, whatever the **Mute Warnings** setting. WWMI 1.2.2 adds a **WWMI Integrity Error** box for an XXMI DLL that is too old. Press `X` to hide a box.
+
+| Message in the box                                        | Usual cause                                                                            | Fix                                                      |
+| --------------------------------------------------------- | -------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| `Installed WWMI version is below minimally required!`     | The mod needs a newer WWMI than you have, like a WWMI Tools 1.9.4 export on WWMI 1.1.0 | Update WWMI in XXMI Launcher                             |
+| `Mod is incompatible with current WWMI version!`          | The mod was exported for an old WWMI format                                            | Get an update from the mod's creator, or export it again |
+| The same, with `Enable Compatibility Mode`                | A mod from WWMI 0.6.x                                                                  | Press `Alt+F12`, then `F10`                              |
+| `Installed XXMI DLL version is below minimally required!` | The XXMI DLL is older than 1.3.3, so `[Filter...]` sections cannot work                | Update XXMI Launcher                                     |
+
+{/* NEEDS HANDS-ON TEST: whether the Mod Loading Error and WWMI Integrity Error boxes show with Mute Warnings on, in WWMI 1.2.2 */}
+
+[Test and reload your mod](/docs/wuthering-waves/basics/test-your-mod) shows how to read these on screen.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Sliders, animated textures, and help text"
+    href="/docs/wuthering-waves/ini/advanced-tricks"
+    icon={<Icon name="SlidersHorizontal" />}
+    level="advanced"
+  >
+    Put these sections and commands to work in your own mod.
+  </PremiumCard>
+  <PremiumCard
+    title="Add a toggle"
+    href="/docs/wuthering-waves/ini/add-a-toggle"
+    icon={<Icon name="ToggleRight" />}
+    level="intermediate"
+  >
+    The first trick most creators add to a mod.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This reference is based on the work of these creators. Check out their original documents.
+
+- **Tool:** [XXMI DLL source code](https://github.com/SpectrumQT/XXMI-Libs-Package) by SpectrumQT and the 3DMigoto developers: `IniHandler.cpp` and `CommandList.cpp` for every rule and warning text.
+- **Tool:** [XXMI DLL ini language extensions](https://github.com/SpectrumQT/XXMI-Libs-Package/tree/master/docs/ini-language-extensions) by SpectrumQT.
+- **Tool:** [WWMI Tools](https://github.com/SpectrumQT/WWMI-Tools) by SpectrumQT, and its [mod.ini template](https://github.com/SpectrumQT/WWMI-Tools/blob/main/wwmi-tools/templates/merged.ini.j2), for every WWMI Tools section and variable.
+- **Tool:** [WWMI-Package](https://github.com/SpectrumQT/WWMI-Package) by SpectrumQT: `WuWa-Model-Importer.ini`, `API.ini`, `WWMI-Utilities.ini` and `KeyBindings.ini` for the `WWMIv1` names, the hooks and the error boxes.
+- **Guide:** [3dmigoto INI File Documentation](https://leotorrez.github.io/modding/docs/) by leotorrez and the community.
+- **Guide:** [Toggle Guide](https://gamebanana.com/tuts/18971) by gdsfdg.

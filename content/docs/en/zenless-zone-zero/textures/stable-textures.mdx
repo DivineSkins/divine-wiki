@@ -1,0 +1,245 @@
+---
+title: "Make textures survive game updates"
+description: "Attach Zenless Zone Zero textures by their role with SlotFix instead of by hash, so game updates and low-VRAM graphics cards do not break your mod."
+category: "textures"
+patch: "3.3"
+keywords: ["zzz slotfix", "settextures", "zzz texture fix", "zzmi", "rabbitfx"]
+---
+
+<LevelPill level="intermediate" />
+
+In Zenless Zone Zero, textures that survive updates come from SlotFix, the texture library that ships inside ZZMI. This page shows why texture hashes break, how SlotFix attaches textures by their role instead, and how to move an old mod to it. You need a mod with an `.ini` you can edit. Written for XXMI Launcher 2.5.0 and ZZMI 1.5.2 on Zenless Zone Zero 3.3.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/zenless-zone-zero/tools/xxmi-launcher"
+    note="SlotFix comes with ZZMI"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="FileCode" note="a code editor">
+    Your mod's folder and .ini
+  </Requirement>
+</Requirements>
+
+You never install SlotFix. It lives in `ZZMI\Core\ZZMI\Libraries\SlotFix`, and XXMI Launcher updates it with ZZMI. Never put a copy in `Mods` or in a mod.
+
+## Why texture hashes break
+
+A texture hash is a code computed from the texture's data. It changes more often than you would think:
+
+- **Game updates.** The game re-exports textures, and their hashes change. Version 2.0 changed many texture hashes at once.
+- **Video memory.** On graphics cards with less than 6 GB of video memory, the game loads 1K textures, which have other hashes.
+- **Distance.** The lower-detail models an agent switches to far away use their own textures, with their own hashes.
+- **Normal maps.** Since version 1.3, normal maps cannot be replaced by hash at all.
+- **Region.** Some world textures have a different hash on each server region.
+
+Pointing a texture at a slot number, like `ps-t3`, avoids the hash but has its own problem. Each way the game draws a part uses its own slot order. The main color draw takes the diffuse in `ps-t3`, but the outline draw takes it in `ps-t2`, and glow draws use other slots again. A slot line fixes one draw and breaks the rest.
+
+<img
+  src="/wiki-images/zenless-zone-zero-textures-stable-textures-1.webp"
+  alt="Three ways a mod can attach a texture: by texture hash, which breaks when the hash changes; by slot number, which reaches only the main color draw; and by role with SlotFix, which places the texture in every draw of the part"
+/>
+
+## How SlotFix works
+
+You tell SlotFix what each texture is, not where it goes. SlotFix checks the formats of the textures the game has bound, works out which kind of draw is running, and puts your textures in the right slots for it: color, outline, face, glow, NPC, Bangboo and world objects.
+
+| What          | SlotFix support                                               |
+| ------------- | ------------------------------------------------------------- |
+| Agents        | Full                                                          |
+| Bangboo       | Yes                                                           |
+| Agent weapons | Diffuse, NormalMap, LightMap and MaterialMap. Glow not tested |
+| World objects | Partly                                                        |
+| NPCs          | Limited                                                       |
+
+Your mod's hashes still matter, but only the mesh ones: the index buffer hash finds the part. No texture hash appears anywhere, so texture hash changes and 1K textures do not affect it.
+
+## The SlotFix form
+
+The texture lines go in the part's section, the one with the index buffer hash and `match_first_index`. XXMI Tools writes them for you when you export a mod from Blender:
+
+```ini
+[TextureOverrideBelleBodyA]
+hash = c2b4ce3a
+match_first_index = 0
+match_index_count = <index count>
+handling = skip
+ib = ResourceBelleBodyAIB
+Resource\ZZMI\Diffuse = ref ResourceBelleBodyADiffuse
+Resource\ZZMI\NormalMap = ref ResourceBelleBodyANormalMap
+Resource\ZZMI\LightMap = ref ResourceBelleBodyALightMap
+Resource\ZZMI\MaterialMap = ref ResourceBelleBodyAMaterialMap
+run = CommandList\ZZMI\SetTextures
+drawindexed = <index count>, <index offset>, 0
+```
+
+The `<index count>` and `<index offset>` values come from your export. A texture-only mod sets only the slots you changed, as in [Your first mod: recolor a character](/docs/zenless-zone-zero/textures/recolor-a-character).
+
+Rules for these lines:
+
+- Always write `ref` before the resource name.
+- Put `run = CommandList\ZZMI\SetTextures` after the `Resource\ZZMI\...` lines and before `drawindexed`.
+- For a different texture on each drawn piece of one part, set the slot and run `SetTextures` again before each `drawindexed` line.
+- SlotFix accepts these slot names, and the short names in brackets:
+
+| Slot                                    | Short name      |
+| --------------------------------------- | --------------- |
+| `Diffuse`                               | `D`             |
+| `NormalMap`                             | `N`             |
+| `LightMap`                              | `L`             |
+| `MaterialMap`                           | `M`             |
+| `GlowMap`, `GlowMap2`, `GlowMap3`       | `G`, `G2`, `G3` |
+| `WengineFx`, `WengineFx2`, `WengineFx3` | `W`, `W2`, `W3` |
+| `GlowGradient`                          | none            |
+
+`run = CommandList\ZZMI\SetTex` is a short form of the same command. [What each texture map does](/docs/zenless-zone-zero/textures/texture-maps) explains each slot.
+
+## Move an old mod to SlotFix
+
+Mods made before mid-2025 often attach textures by hash or by slot number. You can move them to SlotFix by hand. Fix tools that do it for you are on [Update fix tools](/docs/zenless-zone-zero/tools/update-fixers).
+
+<Steps>
+<Step>
+
+### Back up the mod
+
+Copy the mod's whole folder somewhere outside `Mods`. Then open its `.ini` in a code editor.
+
+</Step>
+<Step>
+
+### Find the old texture lines
+
+Look for two kinds of lines:
+
+- **Texture hash sections:** a `[TextureOverride...]` section with only a texture `hash =` and a `this = Resource...` line. Note the resource name, then delete the whole section. SlotFix reads the bound textures to work out the draw, and these sections get in its way.
+- **Slot lines** in a part section, like `ps-t3 = ResourceBelleBodyADiffuse`. In old mods, `ps-t3` is the diffuse, `ps-t4` the normal map, `ps-t5` the light map and `ps-t6` the material map.
+
+</Step>
+<Step>
+
+### Write the SlotFix lines
+
+In the section of the part that uses those textures, the one with the index buffer hash and `match_first_index`:
+
+1. Replace each slot line with its role, for example `ps-t3 = ResourceBelleBodyADiffuse` becomes `Resource\ZZMI\Diffuse = ref ResourceBelleBodyADiffuse`.
+2. Add a `Resource\ZZMI\...` line for each texture whose hash section you deleted.
+3. Add `run = CommandList\ZZMI\SetTextures` after these lines and before `drawindexed`.
+
+If the section has no `drawindexed` line, it is a texture-only override. Set only the slots the mod changes, and keep the `if 0 == 1` block from the next step.
+
+</Step>
+<Step>
+
+### Remove the old normal map bandaid
+
+A live `run = CommandListSkinTexture` line swaps in a blank normal map and makes shading look flat. Delete it, or keep it inside the block that never runs:
+
+```ini
+if 0 == 1
+    run = CommandListSkinTexture
+endif
+```
+
+</Step>
+<Step>
+
+### Test it
+
+1. Press `F10` in game.
+2. Check the agent screen, combat, the outline, and any glow.
+3. Hold `F9` to compare with the original.
+
+{/* NEEDS HANDS-ON TEST: moving a pre-2.0 texture-hash mod to SlotFix by hand with ZZMI 1.5.2 on Zenless Zone Zero 3.3, following these steps */}
+
+</Step>
+</Steps>
+
+## What SlotFix does not fix
+
+SlotFix keeps the texture side working. Some breaks are about the mesh, and SlotFix cannot help with them:
+
+- **New mesh hashes.** An update can change an index buffer or Blend hash. Version 3.3 changed a few, for example the Blend hashes of the `SunnaKfc` outfit.
+- **New buffer layouts or split parts.** Version 3.2 changed bone numbers and UV data on some meshes. Version 2.5 split Jane's `Hair` into `Hair` and `Arms`.
+- **ZZMI updates.** Once in a while, a ZZMI update breaks SlotFix mods for a few days. ZZMI 1.4.6 and 1.4.7 did, and 1.4.8 and 1.4.9 fixed it. Keep XXMI Launcher up to date.
+
+[Fix your mods after a game update](/docs/zenless-zone-zero/getting-started/fix-mods-after-an-update) covers those.
+
+## RabbitFX
+
+RabbitFX is a separate glow and texture library by caverabbit. Some mods need it for glow. It also has its own texture commands, but a Zenless Zone Zero mod does not need them to survive updates: SlotFix already attaches textures by role.
+
+If a mod needs RabbitFX:
+
+- Keep exactly one copy in the whole `Mods` folder. Two copies cause crashes.
+- Never ship RabbitFX inside your own mod. Tell players to install it instead.
+- Expect a short stutter the first time it meets each new shader.
+
+[Add glow and see-through parts](/docs/zenless-zone-zero/effects/glow-and-transparency) covers glow.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Textures are a mess of colors, or look too glossy" id="mess-of-colors">
+
+The mod uses slot lines or texture hashes, or a fix tool added `CommandListSkinTexture`. Move it to SlotFix as shown above. If many SlotFix mods broke at once, ZZMI is out of date: in XXMI Launcher, click the 3-dots button next to **Start**, then **Check For Updates**.
+
+</Accordion>
+<Accordion title="Shading looks flat, with no surface detail" id="flat-normals">
+
+A live `run = CommandListSkinTexture` line swaps in a blank normal map. Remove it or wrap it in `if 0 == 1`, and set the normal map with `Resource\ZZMI\NormalMap = ref ...`.
+
+</Accordion>
+<Accordion title="The mod looks broken on some PCs only" id="some-pcs">
+
+Those PCs have less than 6 GB of video memory and load 1K textures with other hashes. A mod that uses SlotFix works on both.
+
+</Accordion>
+<Accordion title="The signature W-Engine glow shows in the wrong place" id="wrong-glow">
+
+The mod changed the part's UVs but kept the game's glow textures. Point the slot at the empty glow map: `Resource\ZZMI\WengineFx = ref Resource\ZZMI\EmptyGlowMap`. If the mod did not change UVs, update ZZMI.
+
+</Accordion>
+<Accordion title="A stutter the first time a skill is used" id="first-use-stutter">
+
+ZZMI builds each changed shader the first time it is drawn. ZZMI's `d3dx.ini` has a `cache_shaders` option under `[Rendering]`. Setting it to `1` keeps the result for the next start. A ZZMI update can undo changes to `d3dx.ini`, so note what you changed.
+
+{/* NEEDS HANDS-ON TEST: whether cache_shaders = 1 in ZZMI 1.5.2's d3dx.ini removes the first-use stutter, and whether XXMI Launcher 2.5.0 keeps the change */}
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Fix an old mod by hand"
+    href="/docs/zenless-zone-zero/ini/fix-an-old-mod"
+    icon={<Icon name="Wrench" />}
+    level="intermediate"
+  >
+    Update a mod's hashes and sections after a game update.
+  </PremiumCard>
+  <PremiumCard
+    title="Update your mod after a game update"
+    href="/docs/zenless-zone-zero/publishing/update-your-mod"
+    icon={<Icon name="RefreshCw" />}
+    level="intermediate"
+  >
+    Check, fix and re-release your own mod when the game changes.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Best Way to Replace Textures - SlotFix Guide](https://gamebanana.com/tuts/18114) by hazelberry.
+- **Wiki:** [SlotFix](https://github.com/Satan1c/ZZMI_tools/wiki/SlotFix) by Satan1c.
+- **Tool:** [SlotFix](https://github.com/leotorrez/ZZMI-Package/tree/main/ZZMI/Core/ZZMI/Libraries/SlotFix) by Satan1c, in ZZMI-Package.
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ and contributors.
+- **Guide:** [Environment Hash Fix Guide](https://gamebanana.com/tuts/18140) by bunar21.

@@ -1,0 +1,307 @@
+---
+title: "Export your mod from Blender"
+description: "Export a Wuthering Waves model mod with WWMI Tools: the naming, collection and skeleton rules for a working export, the export options, and the usual errors."
+category: "models"
+patch: "3.8"
+keywords:
+  [
+    "wwmi tools export",
+    "wuthering waves mod export",
+    "export mod blender",
+    "wwmi mod.ini",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+Export turns your Blender collection into a mod folder that WWMI loads, with its `mod.ini`. Most failed exports break one of a few rules about names, the collection or the skeleton. This page lists those rules, then runs the export. Written for WWMI Tools 1.9.4 on Blender 4.5 LTS and WWMI 1.2.2.
+
+<Accordions>
+<Accordion title="Coming from another game?">
+
+**From Genshin Impact, Honkai: Star Rail or Zenless Zone Zero:** those games export with XXMI Tools. WWMI Tools works differently:
+
+- An object goes to a component when its name holds `component` and a number. There is no `hash.json` and no name prefix to match.
+- A component with no objects is skipped and does not show in game. You do not keep empty objects.
+- You export with the skeleton mode you imported with, Merged or Per-Component.
+- Export writes the whole `mod.ini`, with a mod name and author that WWMI shows in game.
+
+See the [Genshin Impact](/docs/genshin-impact), [Honkai: Star Rail](/docs/honkai-star-rail) and [Zenless Zone Zero](/docs/zenless-zone-zero) sections for those games.
+
+**From Deadlock or League of Legends:** nothing is packed or compiled. WWMI Tools writes buffers and a `mod.ini`, WWMI swaps them in while the game draws, and `F10` reloads them.
+
+</Accordion>
+</Accordions>
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="Box"
+    href="/docs/wuthering-waves/tools/blender-add-on"
+    note="1.9.4"
+  >
+    WWMI Tools
+  </Requirement>
+  <Requirement icon="FolderOpen" note="extracted with WWMI Tools 1.9.4">
+    Your object folder
+  </Requirement>
+  <Requirement
+    icon="Blender"
+    href="/docs/wuthering-waves/models/import-into-blender"
+    note="imported with Import Object"
+  >
+    A .blend with your Resonator
+  </Requirement>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/wuthering-waves/tools/xxmi-launcher"
+    note="to test"
+  >
+    XXMI Launcher with WWMI
+  </Requirement>
+</Requirements>
+
+<Callout type="warning" title="Keep your .blend file">
+  WWMI Tools cannot import a finished mod. Your `.blend` file is the only way
+  back into your work. Keep it, and save a copy before every big change.
+</Callout>
+
+## Check these rules before you export
+
+### Names and the collection
+
+<img
+  src="/wiki-images/wuthering-waves-models-export-your-mod-1.webp"
+  alt="Export reads the collection Brant. The object Component 4 Hat has the word component and a number, so it goes to component 4. Component 4, Component 4 Hat and hat component_4 export. Hat, hidden objects, objects in sub-collections and Component 9 on a six-component object do not"
+/>
+
+- **Each object you export has `component` and a number in its name.** `Component 4`, `Component 4 Hat` and `hat component_4` all go to component 4. Case does not matter. An object without it is skipped.
+- **Use only the numbers the object has.** Brant has components `0` to `5`. A `Component 9` stops the export.
+- **One collection holds the whole mod.** You pick it as **Components**. It must sit directly in the Scene Collection, not inside another collection. Import puts it there.
+- **Several objects in one component are fine.** Export merges them, and each one keeps its own draw. That is what a toggle switches on and off later.
+- **A component with no objects is skipped.** It does not show in game. That is how you remove a whole component.
+
+### Object Sources and the skeleton
+
+- **Object Sources** is the extracted folder you imported, the one with `Metadata.json`. Export reads its hashes and copies its textures.
+- **Object Sources must be extracted with WWMI Tools 1.9.4.** Export reads each texture's format and dHash from its file name, such as `c=4 f=BC7_UNORM_SRGB t=cccccccc d=0123456789abcdef.dds`. A folder extracted with 1.8.0 or older, or taken from WWMI-Assets, has names like `Components-4 t=cccccccc.dds` and stops the export. So does any other `.dds` or `.jpg` you saved in the folder under your own name. Make a new frame dump, extract it again, and point **Object Sources** at the new folder.
+- **Importing another model changes Object Sources** to that model's folder, and changes **Skeleton** to that import's mode. Set both back before you export.
+- **Skeleton** must match the mode you imported your base model with. A mismatch exports, but the mod looks broken in game.
+
+### Vertex groups
+
+Vertex groups are the game's bone numbers. Keep their names all numbers: `0`, `1`, `2` and so on.
+
+- **No names with words.** A list that mixes numbers and words stops the export with `Vertex Group names of object ... are ambigous!`. A group whose name contains `ignore` is skipped on purpose.
+- **Gaps are fine.** **Add Missing Vertex Groups**, on by default under **Advanced**, fills them at export.
+- **Copies like `7.001`.** Set **Mode** to **Toolbox** and click **Merge Vertex Groups** to fold them back into `7`.
+- **At most 256 weighted groups per component.** This counts all objects of one component together. More stops the export with `Component<N> 256 VG limit exceeded!`.
+
+Export normalizes the weights for you and drops very small ones. [Weight paint a mesh](/docs/wuthering-waves/models/weight-painting) covers weights in full.
+
+### UV maps, colors and shape keys
+
+- **UV maps** keep their names: `TEXCOORD.xy`, `TEXCOORD1.xy` and `TEXCOORD2.xy`. When you join pieces, every piece needs the same names. Blender allows 8 UV maps per mesh, so delete extra ones.
+- **Missing data is filled in.** **Fill Missing Mesh Data**, on by default under **Advanced**, adds a missing `COLOR` (green), `COLOR1` (black) and UV maps. A missing `TEXCOORD.xy` becomes an empty map, so textures will not line up. Copy the real values from the original instead: [UV maps, vertex colors, and outlines](/docs/wuthering-waves/models/uvs-and-vertex-colors) shows how.
+- **Shape keys** on head and shoulder components drive face expressions. Keep them. Unticked shape keys are skipped while **Ignore Muted Shape Keys** is on.
+
+## Export the mod
+
+<Steps>
+<Step>
+
+### Fill in the Export Mod panel
+
+1. Press `N` in the 3D Viewport, open the **WWMI Tools** tab, and set **Mode** to **Export Mod**.
+2. **Components**: pick your collection, for example `Brant`.
+3. **Object Sources**: check that it is the folder you imported from. Import fills it in.
+4. **Mod Folder**: pick a new, empty folder inside `%AppData%\XXMI Launcher\WWMI\Mods`, for example `Mods\BrantTest`. Never pick the object folder.
+5. **Skeleton**: check that it matches your import.
+
+Errors show in red in the panel, next to the field that caused them.
+
+{/* SCREENSHOT: wuthering-waves-models-export-your-mod-2.webp, Blender 4.5 sidebar with the WWMI Tools v1.9.4 tab in Export Mod mode: Components set to Brant, Object Sources and Mod Folder filled in, Skeleton Merged, the options below, and the Advanced and Mod Info sub-panels open. The beginner guide screenshot shows the older 1.3.5 layout. */}
+
+</Step>
+<Step>
+
+### Check the export options
+
+The options under the four fields:
+
+| Option                        | Default | What to know                                                                                                                                                                               |
+| ----------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Mirror Mesh**               | off     | Leave it off, as on import.                                                                                                                                                                |
+| **Apply All Modifiers**       | off     | Tick it if you use modifiers. It applies them on temporary copies, also on meshes with shape keys. Your scene stays as it is.                                                              |
+| **Copy Textures**             | on      | Copies the textures from **Object Sources** into `Textures`. It skips a file that already exists under the same name, so your edited textures stay. `mod.ini` points at these exact names. |
+| **Write Mod INI**             | on      | Writes `mod.ini`. Untick it to keep a `mod.ini` you edited by hand.                                                                                                                        |
+| **Comment INI code**          | off     | Adds a comment that explains each line of `mod.ini`. Good for learning.                                                                                                                    |
+| **Ignore Nested Collections** | on      | Skips objects in collections inside your collection. Untick it if you sort parts into sub-collections.                                                                                     |
+| **Ignore Hidden Objects**     | off     | Tick it, so hidden objects such as a removed hat are skipped.                                                                                                                              |
+| **Ignore Muted Shape Keys**   | on      | Skips shape keys whose checkbox is off.                                                                                                                                                    |
+
+Leave the **Advanced** sub-panel at its defaults for now. The WWMI Tools page, linked under What you need, explains every option.
+
+</Step>
+<Step>
+
+### Fill in Mod Info
+
+In the **Mod Info** sub-panel, type a **Mod Name** and your **Author Name**. WWMI shows the name in its messages, and mod managers read it. **Mod Description**, **Mod Link** and **Mod Logo** are optional. A logo is a 512x512 `.dds` file saved as BC7 sRGB.
+
+</Step>
+<Step>
+
+### Click Export Mod
+
+Click **Export Mod** at the bottom of the panel. To watch the export, open <MenuPath path="Window > Toggle System Console" /> first. It lists each step and ends with `Total mod export time`.
+
+{/* NEEDS HANDS-ON TEST: export an unchanged Brant from a fresh 3.8 dump with WWMI Tools 1.9.4 defaults plus Ignore Hidden Objects into a folder inside WWMI\Mods, and confirm the folder contents and that WWMI 1.2.2 loads it with its textures */}
+
+</Step>
+<Step>
+
+### Test it in game
+
+1. Turn off any other mod for the same Resonator: rename its folder so it starts with `DISABLED`.
+2. Start the game from XXMI Launcher, or press `F10` if it is already running.
+3. Look at the Resonator in the Resonators menu, then run and attack, to check the model in motion.
+
+On your first export, export the unchanged model and press `F6` a few times. A short distortion shows that your mod is active. [Test and reload your mod](/docs/wuthering-waves/basics/test-your-mod) explains this check, the keys and the on-screen messages.
+
+</Step>
+</Steps>
+
+## What the export writes
+
+<Files>
+  <Folder name="BrantTest" defaultOpen>
+    <File name="mod.ini: the mod's instructions for WWMI" />
+    <Folder name="Meshes" defaultOpen>
+      <File name="Index.buf, Position.buf, Blend.buf" />
+      <File name="Vector.buf, Color.buf, TexCoord.buf" />
+      <File name="ShapeKeyOffset.buf, ShapeKeyVertexId.buf, ShapeKeyVertexOffset.buf: only with shape keys" />
+    </Folder>
+    <Folder name="Textures" defaultOpen>
+      <File name="c=4 f=BC7_UNORM_SRGB t=cccccccc d=0123456789abcdef.dds: copied from Object Sources" />
+      <File name="Logo.dds: only with a Mod Logo" />
+    </Folder>
+  </Folder>
+</Files>
+
+Each component gets a section like this in `mod.ini`. It is shortened here: the real one wraps these lines in `if` blocks that build the merged skeleton.
+
+```ini
+[TextureOverrideComponent4]
+hash = <vb0 hash>
+match_first_index = <first index>
+match_index_count = <index count>
+$object_detected = 1
+handling = skip
+ps-t[FilterTexture0] = ref ResourceTexture0
+; Draw Component 4
+drawindexed = <index count>, <offset>, 0
+; Draw Component 4 Hat
+drawindexed = <index count>, <offset>, 0
+```
+
+Each texture gets a pair of sections. `[ResourceTexture0]` loads your file. `[FilterTexture0]` describes the game texture it replaces, by its format and its dHash, a fingerprint of how it looks:
+
+```ini
+[ResourceTexture0]
+filename = Textures/c=4 f=BC7_UNORM_SRGB t=cccccccc d=0123456789abcdef.dds
+[FilterTexture0]
+match_format = BC7_UNORM_SRGB
+match_dhash = 0123456789abcdef
+```
+
+The `ps-t[FilterTexture0] = ref ResourceTexture0` line in each component that uses the texture swaps it in during that component's draw only. Exports from WWMI Tools 1.8.0 and older have no such lines. They swap each texture by its hash, with `this = ResourceTexture0` in a `[TextureOverrideTexture0]` section, while your object is on screen.
+
+The `mod.ini` starts with `; WWMI BETA-11 INI` and sets `$required_wwmi_version = 1.22`. WWMI keeps the mod off when your WWMI is older than 1.2.2, and shows `Installed WWMI version is below minimally required!`. Textures matched by look also need XXMI DLL 1.3.3 or newer, which XXMI Launcher installs. A mod folder never holds `d3dx.ini`, `d3d11.dll`, a `ShaderFixes` folder or RabbitFX. [How a mod .ini works](/docs/wuthering-waves/ini/how-a-mod-ini-works) explains each part.
+
+## Export again, faster
+
+- **Export straight into `Mods`.** Then each export is one `F10` away from a test.
+- **Use Partial Export while you weight paint.** Tick **Partial Export** under **Advanced**, then tick only the buffers you changed, for example **Blend Buffer**. It writes no `mod.ini` and no textures. Any change to the vertex count needs a full export.
+- **Hand-edited the `mod.ini`?** Back it up and untick **Write Mod INI**. If the vertex count changes, tick it again, because the counts live in `mod.ini`, and copy your edits back in. For toggles, the **Ini Toggles** sub-panel saves you the hand edits: see [Add a toggle](/docs/wuthering-waves/ini/add-a-toggle).
+- **Leave out textures you did not change.** Delete them from the **Object Sources** folder and from the mod's `Textures` folder, then export again. A texture deleted only from `Textures` comes back with the next export.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title='"Components collection is not specified!"' id="no-collection">
+
+Pick your collection in **Components**. If the message says `Collection "..." is not a member of "Scene Collection"!`, the collection sits inside another one. Drag it onto **Scene Collection** in the Outliner.
+
+</Accordion>
+<Accordion title='"No eligible `Component` objects found!"' id="no-component-objects">
+
+No object in the collection has `component` and a number in its name, or every such object is hidden while **Ignore Hidden Objects** is on. Rename your objects, for example `Component 4 Hat`.
+
+</Accordion>
+<Accordion title='"Metadata.json in specified folder is missing Component N!"' id="wrong-sources">
+
+**Object Sources** points to another object, often after you imported a second model. Set it back to the folder of your base model. The same message appears when an object name uses a component number your model does not have.
+
+</Accordion>
+<Accordion title='"Component<N> 256 VG limit exceeded!"' id="vg-limit">
+
+One component uses more than 256 weighted vertex groups across its objects. Remove weights you do not need, or move some objects into another component.
+
+</Accordion>
+<Accordion title='"Specified sources folder contains textures with unknown or outdated name format!"' id="outdated-names">
+
+**Object Sources** holds a texture whose name WWMI Tools 1.9.4 cannot read. The message ends with `Error: Failed to parse texture filename` and the file's name.
+
+- **The folder was extracted with WWMI Tools 1.8.0 or older, or comes from WWMI-Assets.** Make a new frame dump, extract it with WWMI Tools 1.9.4, and point **Object Sources** at the new folder. Export again.
+- **You saved your own image in the folder.** Move it out, or give it the full name of the original it replaces.
+
+Textures you edited for an older export keep their old names, so the new `mod.ini` does not use them. For each one, find the new file with the same `t=` part in your mod's `Textures` folder, and save your edit over it, under the new name. If no new file has that `t=` part, the texture changed since your old dump. Find the new file that shows the same image, and make your edit again.
+
+{/* NEEDS HANDS-ON TEST: on WWMI Tools 1.9.4, the export error with an object folder extracted by WWMI Tools 1.8.0, and whether the old and new file names of one texture share the same t= part on a fresh Wuthering Waves 3.8 dump */}
+
+</Accordion>
+<Accordion title='"Failed to write files to mod folder:"' id="write-failed">
+
+WWMI Tools cannot write into **Mod Folder**. Close any program that has a file from that folder open, or pick another folder inside `WWMI\Mods`.
+
+</Accordion>
+<Accordion title="The export works, but the mod looks broken in game" id="broken-in-game">
+
+Most often the export **Skeleton** does not match the import. Set it to the mode you imported with, export again, and press `F10`. Parts that move wrong after you moved a mesh into another component need weights for that component. [Model problems in game](/docs/wuthering-waves/errors/model-problems) covers more symptoms.
+
+</Accordion>
+</Accordions>
+
+Every export and import message is listed on [Blender export and import errors](/docs/wuthering-waves/errors/creator-errors).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Your first model edit: remove a part"
+    href="/docs/wuthering-waves/models/remove-a-part"
+    icon={<Icon name="Scissors" />}
+    level="intermediate"
+    featured
+  >
+    Remove Brant's hat and run this whole export once.
+  </PremiumCard>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/wuthering-waves/publishing/publishing-checklist"
+    icon={<Icon name="ListChecks" />}
+    level="beginner"
+  >
+    Clean up the folder, credit others, and package it.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Tool:** [WWMI Tools](https://github.com/SpectrumQT/WWMI-Tools) by SpectrumQT. Labels, defaults, error messages and the `mod.ini` layout come from its source code.
+- **Guide:** [WWMI Tools Modder Guide](https://github.com/SpectrumQT/WWMI-Tools/blob/main/guides/modder_guide.md) by SpectrumQT: the export steps, component naming and Partial Export.
+- **Guide:** [Beginner's Guide to Wuthering Waves modding](https://gamebanana.com/tuts/19096) by Denwarenji: the recommended export options and the `F6` check.

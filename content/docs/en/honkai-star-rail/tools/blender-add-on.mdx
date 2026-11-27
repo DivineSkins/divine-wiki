@@ -1,0 +1,272 @@
+---
+title: "XXMI Tools for Blender"
+description: "What every menu, panel, and option of the XXMI Tools Blender add-on does for Honkai: Star Rail mods, how to install it, and what it cannot do."
+category: "tools"
+patch: "4.7"
+keywords:
+  ["xxmi tools", "xxmi tools blender", "star rail blender mod", "srmi blender"]
+---
+
+<LevelPill level="intermediate" />
+
+<ToolHeader
+  name="XXMI Tools"
+  icon="Blender"
+  badge="Required for models"
+  facts={["Free", "Blender add-on", "Blender 3.6 or newer", "v1.8.2"]}
+  primary={{
+    label: "Download",
+    href: "https://github.com/leotorrez/XXMITools/releases/latest",
+  }}
+  links={[
+    { label: "GitHub", href: "https://github.com/leotorrez/XXMITools" },
+    {
+      label: "Docs",
+      href: "https://leotorrez.github.io/modding/guides/xxmi_tools",
+    },
+  ]}
+>
+  Imports Honkai: Star Rail model dumps into Blender and exports them as a
+  working mod with its `.ini`. By LeoTorreZ and contributors.
+</ToolHeader>
+
+XXMI Tools is the Blender add-on for Honkai: Star Rail model mods. It reads a dump of a character, lets you edit it in Blender, and writes the mod folder that SRMI loads. This page explains each menu, panel, and option. The step-by-step guides are in the models section.
+
+Written for XXMI Tools 1.8.2, still the latest release on GitHub in late November 2026. Labels and defaults come from its code. The game preset for this game is `Honkai Star Rail`.
+
+<Accordions>
+<Accordion title="Coming from another game?">
+
+- **Genshin Impact:** same add-on, same axes. Pick the `Honkai Star Rail` preset instead. The `.ini` it writes is different: Star Rail poses characters in compute shaders, so each part gets two draw branches. There is no ORFix and no `Dress` or `Extra` part. See the [Genshin Impact section](/docs/genshin-impact).
+- **Zenless Zone Zero:** same add-on, but that game has its own preset and axes, and one extra export option, `Outline gate divergence`. Star Rail does not have it. See the [Zenless Zone Zero section](/docs/zenless-zone-zero).
+- **Wuthering Waves:** uses a different add-on, WWMI Tools. Nothing on that game's add-on page applies here. See the [Wuthering Waves section](/docs/wuthering-waves).
+- **Deadlock or League of Legends:** nothing is packed or compiled. The add-on writes buffers and an `.ini`, SRMI swaps them in while the game draws, and `F10` reloads them in game.
+
+</Accordion>
+</Accordions>
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="Blender"
+    href="https://www.blender.org/download/lts/"
+    note="4.5 LTS"
+  >
+    Blender
+  </Requirement>
+  <Requirement icon="FolderOpen" note="asset repo or frame dump">
+    A character dump
+  </Requirement>
+</Requirements>
+
+Use Blender 4.5 LTS. XXMI Tools needs Blender 3.6 or newer. Users report it working on Blender 4.4, 4.5 and 5.1. Nobody has reported testing it on Blender 5.2 LTS yet. [Set up your creator tools](/docs/honkai-star-rail/getting-started/creator-setup) shows where to get a character dump.
+
+{/* NEEDS HANDS-ON TEST: XXMI Tools 1.8.2 import and export of one Honkai: Star Rail character on Blender 4.5 LTS and on Blender 5.2 LTS. */}
+
+## Install it
+
+1. Remove old plugins first. In <MenuPath path="Edit > Preferences > Add-ons" />, search for `3dmigoto`, `LeoTools`, and `XXMI`, and remove what you find. That includes `blender_3dmigoto_srmi.py` from the 2023 standalone SRMI. Restart Blender.
+2. Download `XXMITools_v1.8.2.zip` from the GitHub releases page. Do not unzip it.
+3. Open <MenuPath path="Edit > Preferences > Add-ons" /> again.
+4. In Blender 4.2 or newer, click the small down arrow in the top-right corner and choose **Install from Disk...**. In Blender 3.6 to 4.1, click **Install...**.
+5. Pick the `.zip` file.
+6. Tick the checkbox next to `XXMI_Tools`.
+7. Restart Blender.
+
+<img
+  src="/wiki-images/honkai-star-rail-tools-blender-add-on-1.webp"
+  alt="The XXMI Tools v1.8.2 release on GitHub, with the XXMITools_v1.8.2.zip file under Assets"
+/>
+
+To check it worked, open <MenuPath path="File > Import" />. You should see `XXMI Dump(vb.txt + ib.txt)`. Press `N` in the 3D Viewport: the sidebar has an **XXMI Tools** tab with `v1.8.2` in its header.
+
+{/* NEEDS HANDS-ON TEST: the exact Blender 4.5 label of the Install from Disk... entry under the Add-ons down arrow. */}
+
+## Menu entries
+
+XXMI Tools adds these entries to the File menu.
+
+| Menu                              | Entry                                                        | Use it for                                                                    |
+| --------------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------- |
+| <MenuPath path="File > Import" /> | `XXMI Dump(vb.txt + ib.txt)`                                 | Importing a dump. The current importer, with game presets.                    |
+| <MenuPath path="File > Import" /> | `3DMigoto frame analysis dump (vb.txt + ib.txt)`             | The older importer that most tutorials show. It still works.                  |
+| <MenuPath path="File > Import" /> | `3DMigoto raw buffers (.vb + .ib)`                           | Raw binary buffers with a `.fmt` file. Rarely needed.                         |
+| <MenuPath path="File > Import" /> | `Apply 3DMigoto vertex group map to current object (.vgmap)` | Renumbering vertex groups from a `.vgmap` file.                               |
+| <MenuPath path="File > Import" /> | `3DMigoto pose (.txt)`                                       | Building an armature from dumped bone data.                                   |
+| <MenuPath path="File > Export" /> | `Exports Mod Folder`                                         | The older way to export. The sidebar **Export Mod** button does the same job. |
+| <MenuPath path="File > Export" /> | `3DMigoto raw buffers (.vb + .ib)`                           | Writing one object's buffers with no `.ini`.                                  |
+
+## The import dialog
+
+`XXMI Dump(vb.txt + ib.txt)` opens a file browser with options on the right. Select the files in the dump folder, the one that holds `hash.json`.
+
+`Simple mode` is on by default. It hides the technical options and asks you to pick a game. Set **Game preset** to `Honkai Star Rail`. The preset sets the rest for you: it flips the UVs and the mesh, uses `-Z` forward and `Y` up, and loads `.buf` files.
+
+| Option                 | Default            | What it does                                                                                      |
+| ---------------------- | ------------------ | ------------------------------------------------------------------------------------------------- |
+| **Game preset**        | `None`             | Picks the game. A red "You must select a game" box shows until you do.                            |
+| **Flip Mesh**          | on with the preset | Mirrors the mesh so it faces the right way.                                                       |
+| **Create Materials**   | off                | Adds a material per part with its diffuse texture, so you see colors in Material Preview.         |
+| **Create Collections** | off                | Adds one collection per in-game part. Objects inside a collection merge into that part on export. |
+| **Merge Vertices**     | off                | Merges duplicate vertices.                                                                        |
+| **Tris to Quads**      | off                | Turns triangles into quads, keeping UVs and colors.                                               |
+| **Clean Loose**        | off                | Deletes loose geometry.                                                                           |
+
+If you change an axis or flip option by hand, the preset quietly switches back to `None`. Untick `Simple mode` to see the advanced panels: related files, bone buffers, semantic remap, and orientation.
+
+The objects come in named by character, component, and part, such as `KafkaBodyA`. A Star Rail character has three components, `Hair`, `Head`, and `Body`, each split into parts `A`, `B`, `C` and so on. Each object carries `3DMigoto:` properties that the export needs.
+
+The older `3DMigoto frame analysis dump` importer has no game preset, and its **Flip Mesh** is off by default. Use `XXMI Dump` with the preset so the flips and axes are right.
+
+## The XXMI Tools sidebar
+
+Press `N` in the 3D Viewport and open the **XXMI Tools** tab. The `?` button in the header opens the official guide.
+
+| Field             | What to set                                                                                                    |
+| ----------------- | -------------------------------------------------------------------------------------------------------------- |
+| **Dump Folder**   | The folder you imported from, with `hash.json`. Filled in on import.                                           |
+| **Output Folder** | Where the finished mod goes. Can be a folder inside `Mods`. Empty, it writes `<DumpName>Mod` next to the dump. |
+| **Game to mod**   | `Honkai Star Rail`. Filled in from the import preset.                                                          |
+
+The **Export Settings** panel is folded by default:
+
+| Option                                           | Default | What it does                                                                                                                                        |
+| ------------------------------------------------ | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Ignore hidden objects**                        | on      | Hidden objects are not exported. Keep spare meshes hidden.                                                                                          |
+| **Only export selected**                         | off     | Exports only the selected objects.                                                                                                                  |
+| **Apply modifiers and shapekeys**                | on      | Applies modifiers on a copy before export. Your scene stays as it is.                                                                               |
+| **Normalize weights to format**                  | on      | Keeps at most 4 weights per vertex and normalizes them.                                                                                             |
+| **Mod textures**                                 | on      | Writes texture lines into the `.ini` and copies missing textures from the dump. It does not overwrite a texture you edited with the same file name. |
+| **Ignore shadow ramps/metal maps/diffuse guide** | on      | Skips those helper textures.                                                                                                                        |
+| **Ignore duplicated textures**                   | off     | Skips textures whose hash is already copied.                                                                                                        |
+| **Write buffers**                                | on      | Writes the `.buf` and `.ib` files.                                                                                                                  |
+| **Write ini**                                    | on      | Writes the `.ini`. Untick it to keep an `.ini` you edited by hand.                                                                                  |
+| **Use custom template**                          | off     | Uses your own `.ini` template.                                                                                                                      |
+| **Credit**                                       | empty   | Your name. The game shows "Created by" with it when the mod loads.                                                                                  |
+| **Outline Optimization**                         | on      | Rebuilds outline data. Slow, so some creators turn it off until the final export.                                                                   |
+| **Outline decimal rounding precision**           | `8`     | How close vertices must be to share one outline vertex.                                                                                             |
+| **Use custom normals for outlines**              | off     | Builds outlines from your own normals.                                                                                                              |
+
+Below the settings sit **Export Mod** and **Start Batch export**. Batch export writes one mod per timeline frame into numbered folders, using a pattern such as `name_###`. [Export your mod from Blender](/docs/honkai-star-rail/models/export-your-mod) walks through a full export.
+
+The Honkai: Star Rail template writes the current format. Since version 3.2, the game poses characters in compute shaders. So each component gets a Blend section with two branches, `if DRAW_TYPE == 1` and `elif DRAW_TYPE == 8`. Never delete either one: Intel graphics cards use the first. Textures bind by their hash, with `this = Resource...` lines. [How a mod's .ini file works](/docs/honkai-star-rail/ini/how-a-mod-ini-works) explains each section.
+
+## The XXMI Toolbox
+
+The **XXMI Toolbox** panel, folded by default, cleans up meshes before export. Vertex groups in Honkai: Star Rail are bone numbers. Keep every original group, in order, counting up from `0` with no gaps.
+
+| Button                                                 | What it does                                                                                |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------- |
+| **Remove unused Vertex Groups**                        | Deletes groups that no vertex uses.                                                         |
+| **Merge shared name Vertex Groups**                    | Merges `12`, `12.001`, and `12.002` into `12`, then sorts the groups.                       |
+| **Merge shared name VGs with the active Vertex Group** | The same, for the active group only.                                                        |
+| **Fill gaps in Vertex Groups**                         | Adds empty groups for missing numbers, for example `1` and `2` when only `0` and `3` exist. |
+| **Clean UV Names**                                     | Renames the UV maps by their order: `TEXCOORD.xy`, `TEXCOORD1.xy`, and so on.               |
+| **Reset Vertex Colors**                                | Replaces the `COLOR` attribute on the selected meshes with one flat color.                  |
+
+Hold `Alt` while you click a vertex group button to run it on every selected object.
+
+Before you use **Reset Vertex Colors**, try copying the colors from a matching area of the original mesh with Blender's Data Transfer modifier instead. In Star Rail, vertex colors control shading and outline width. A wrong `COLOR` gives thick or missing outlines.
+
+{/* NEEDS HANDS-ON TEST: whether Reset Vertex Colors writes byte 128 or 188, and which vertex color values give a normal outline on a Honkai: Star Rail character. */}
+
+Two more panels sit below. **XXMI Object's Custom properties** lists the `3DMigoto:` properties of the selected object: do not edit them. **Updater** checks for new versions of the add-on.
+
+## What it cannot do
+
+- **Import a finished mod.** It imports dumps only. Keep your `.blend` file for every mod.
+- **Add bones.** You can only use the bones the character already has. Long hair and cloth must follow bones that already exist.
+- **Export shape keys.** That feature is not in version 1.8.2.
+- **Change animations or gameplay.** SRMI only changes what the game draws.
+
+## Helper tools
+
+These work next to XXMI Tools. Nobody has tested them for this wiki on Honkai: Star Rail 4.7.
+
+<ToolCard
+  name="gui_collect"
+  href="https://github.com/Petrascyll/gui_collect"
+  icon={<Icon name="GitHub" />}
+>
+  Turns your own frame dump into a folder that XXMI Tools imports. Pick Honkai:
+  Star Rail as the game. Free, needs Python 3.9 or newer.
+</ToolCard>
+<ToolCard
+  name="Robust Weight Transfer"
+  href="https://github.com/sentfromspacevr/robust-weight-transfer/releases"
+  badge="Untested"
+  icon={<Icon name="GitHub" />}
+>
+  Blender add-on that copies body weights onto clothing with fewer bad weights
+  at the legs and armpits. Free, GPL-3.0.
+</ToolCard>
+<ToolCard
+  name="ArmatureXXMI"
+  href="https://github.com/Seris0/Gustav0/tree/main/Addons/ArmatureXXMI"
+  badge="Untested"
+  icon={<Icon name="GitHub" />}
+>
+  Matches a model's armature bones to the game's numbered vertex groups. Its
+  author suggests the MERGED mode for Star Rail. For advanced creators.
+</ToolCard>
+
+{/* NEEDS HANDS-ON TEST: ArmatureXXMI (RenameArmatureXXMI_V26.py) in MERGED mode with XXMI Tools 1.8.2 on a Honkai: Star Rail 4.7 dump. */}
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Menus show up twice or exports throw odd errors" id="two-plugins">
+
+An old plugin is still on next to XXMI Tools. Remove every old 3DMigoto, SRMI, or LeoTools add-on, then restart Blender.
+
+</Accordion>
+<Accordion title='"Please select a valid game before continuing."' id="select-game">
+
+Set **Game to mod** to `Honkai Star Rail` in the sidebar, then export again.
+
+</Accordion>
+<Accordion title='"Destination path not set, defaulting to ..."' id="destination">
+
+**Output Folder** is empty. The mod went to `<DumpName>Mod` next to the dump. Set an output folder to choose the place.
+
+</Accordion>
+<Accordion title="The add-on does not import at all" id="old-blender">
+
+Your Blender is older than 3.6. Install Blender 4.5 LTS.
+
+</Accordion>
+</Accordions>
+
+More export and import errors are on [Blender export and import errors](/docs/honkai-star-rail/errors/creator-errors).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Character names and parts"
+    href="/docs/honkai-star-rail/basics/character-names-and-parts"
+    icon={<Icon name="BookOpen" />}
+    level="beginner"
+  >
+    Learn the folder and part names a dump uses.
+  </PremiumCard>
+  <PremiumCard
+    title="Get a model into Blender"
+    href="/docs/honkai-star-rail/models/import-into-blender"
+    icon={<Icon name="Box" />}
+    level="intermediate"
+  >
+    Import your first Honkai: Star Rail character with XXMI Tools.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This page is based on the work of these creators. Check out their original pages.
+
+- **Tool:** [XXMI Tools](https://github.com/leotorrez/XXMITools) by LeoTorreZ, building on work by DarkStarSword, SilentNightSound, HummyR, SinsOfSeven, SpectrumQT and others. Labels and defaults come from its source code.
+- **Guide:** [XXMI Tools guide](https://leotorrez.github.io/modding/guides/xxmi_tools) by LeoTorreZ.
+- **Tool:** [gui_collect](https://github.com/Petrascyll/gui_collect) by Petrascyll.
+- **Tool:** [Robust Weight Transfer](https://github.com/sentfromspacevr/robust-weight-transfer) by SentFromSpaceVR.
+- **Tool:** [ArmatureXXMI](https://github.com/Seris0/Gustav0/tree/main/Addons/ArmatureXXMI) by Gustav0.

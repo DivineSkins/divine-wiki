@@ -1,0 +1,127 @@
+---
+title: "Use ReShade with mods"
+description: "Run ReShade next to XXMI Launcher without breaking your Wuthering Waves mods: the two tools people use, the settings to keep, and what to skip."
+category: "more-mods"
+patch: "3.8"
+keywords:
+  [
+    "wuthering waves reshade",
+    "reshade xxmi",
+    "reshade wwmi",
+    "reshade mods crash",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+ReShade is a separate tool that filters the whole picture: colors, sharpness, and depth effects, including the UI. It is not a mod, because it changes no single model or texture. This page covers only how to run it next to XXMI Launcher without breaking your mods. It does not teach presets or effects.
+
+<Callout type="warning" title="Third-party software, not tested here">
+  ReShade is one more program that hooks into the game, next to the mod loader.
+  The account risk on [What's allowed and how to stay
+  safe](/docs/wuthering-waves/getting-started/stay-safe) applies to it too.
+  Nobody has tested ReShade with WWMI 1.2.2 for this wiki.
+</Callout>
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/wuthering-waves/tools/xxmi-launcher"
+    note="with WWMI installed"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="CircleCheck" note="test them first">
+    Mods that load without ReShade
+  </Requirement>
+</Requirements>
+
+Written for XXMI Launcher 2.5.0, XXMI DLL 1.3.3 and WWMI 1.2.2.
+
+## Two ways to run ReShade with XXMI
+
+<ToolCard
+  name="XXMI Launcher ReShade Addon (WWMI)"
+  href="https://gamebanana.com/tools/18081"
+  badge="Untested"
+  icon={<Icon name="GameBanana" />}
+>
+  A launch script by caverabbit that reads XXMI Launcher's settings, so ReShade
+  and WWMI start together. Version 4.0, September 2026.
+</ToolCard>
+<ToolCard
+  name="StarLuxe"
+  href="https://github.com/Dimitri-Matheus/StarLuxe"
+  badge="Beta"
+  icon={<Icon name="GitHub" />}
+>
+  A ReShade launcher by Dimit that downloads presets and can start XXMI Launcher
+  next to it. Version 1.0.98 beta, GPL-3.0.
+</ToolCard>
+
+- LeoTorreZ's guide site lists the ReShade Addon as the ReShade option for XXMI games.
+- StarLuxe's author has a Wuthering Waves version of the StarLuxe guide. In StarLuxe, `Insert` opens the ReShade menu in game.
+- Set up each tool with the steps on its own page.
+
+{/* NEEDS HANDS-ON TEST: whether ReShade Addon (WWMI) 4.0 or StarLuxe 1.0.98 changes any XXMI Launcher injection setting, and whether mods still load with each on WWMI 1.2.2 and Wuthering Waves 3.8, including the textures of mods exported with WWMI Tools 1.9.4. */}
+
+## Rules that keep your mods working
+
+1. **Keep ReShade files out of `Mods`.** That includes presets. A ReShade preset in the `Mods` folder can crash the game, or leave only ReShade running.
+2. **Leave XXMI DLL Initialization Delay at its default.** The WWMI default is `500`. The setting's tooltip in XXMI Launcher names `150` as the lowest value for use with ReShade, so the default already covers it. If you lowered it below `150`, raise it again.
+3. **Keep the game in DirectX 11.** WWMI mods load only in DirectX 11, with or without ReShade.
+4. **Keep the launcher's injection settings at their defaults.** This wiki does not cover changing them.
+5. **Keep presets cosmetic.** Change colors and light only. Skip any preset or ReShade add-on that removes fog, filters or outlines, or shows anything the normal game hides.
+
+<Files>
+  <Folder name="XXMI Launcher" defaultOpen>
+    <Folder name="WWMI" defaultOpen>
+      <Folder name="Mods: mod folders only, no ReShade files" defaultOpen>
+        <Folder name="AaltoRecolor" />
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+
+{/* NEEDS HANDS-ON TEST: on XXMI Launcher 2.5.0, the tooltip text of XXMI DLL Initialization Delay, and that a WWMI setup with ReShade and the default delay of 500 starts without crashing on Wuthering Waves 3.8. */}
+
+## If something breaks
+
+1. Move every ReShade file out of `%AppData%\XXMI Launcher\WWMI\Mods`.
+2. Turn ReShade off, and start the game from XXMI Launcher's **Start** button.
+3. If your mods load now, the ReShade setup is the problem. Check the delay in rule 2, then the tool's own page.
+4. If they still do not load, ReShade is not the cause. Go to [Mods not loading](/docs/wuthering-waves/errors/mods-not-loading).
+
+Crashes with ReShade or overlays are also covered on [Crashes and launch errors](/docs/wuthering-waves/errors/game-crashes#overlays-and-reshade).
+
+## What to skip
+
+| Skip this                                                | Why                                                            |
+| -------------------------------------------------------- | -------------------------------------------------------------- |
+| Unofficial DirectX 12 loaders, including ReShade add-ons | Not supported and not covered here. WWMI mods need DirectX 11. |
+| Presets or add-ons that remove fog, filters or outlines  | They change what the game shows on purpose. Not covered here.  |
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="More mod types"
+    href="/docs/wuthering-waves/more-mods"
+    icon={<Icon name="Puzzle" />}
+  >
+    Other kinds of Wuthering Waves mods, and what makes each one different.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This page is based on the work of these creators. Check out their original pages and tools.
+
+- **Tool:** [XXMI Launcher ReShade Addon (WWMI)](https://gamebanana.com/tools/18081) by caverabbit.
+- **Tool:** [StarLuxe](https://github.com/Dimitri-Matheus/StarLuxe) by Dimit (Dimitri-Matheus).
+- **Guide:** [How to Use ReShade Shaders (StarLuxe & XXMI)](https://gamebanana.com/tuts/18991) by Dimit, the Wuthering Waves version.
+- **Guide:** [Downloads](https://leotorrez.github.io/modding/downloads) on the modding guide site by LeoTorreZ.
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT, for the delay needed with ReShade.
+- **Tool:** [ReShade](https://github.com/crosire/reshade) by crosire.

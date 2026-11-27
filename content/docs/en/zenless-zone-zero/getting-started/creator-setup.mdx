@@ -1,0 +1,279 @@
+---
+title: "Set up your creator tools"
+description: "Install the Zenless Zone Zero creator kit: hunting mode in XXMI Launcher, Paint.NET for DDS textures, Blender with XXMI Tools, and the original models."
+category: "getting-started"
+patch: "3.3"
+keywords:
+  [
+    "zzz modding tools",
+    "xxmi tools",
+    "zzmi blender",
+    "zz-model-importer-assets",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+This page sets up everything you need to make your own Zenless Zone Zero mods. Install the texture kit first. Add Blender when you want to change a model's shape. You need a working XXMI Launcher with ZZMI before you start.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/zenless-zone-zero/getting-started/install-with-xxmi-launcher"
+    note="with ZZMI working"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="Monitor" note="64-bit">
+    Windows 10 or 11
+  </Requirement>
+  <Requirement icon="GitHub" note="free, for downloading one folder">
+    A GitHub account
+  </Requirement>
+</Requirements>
+
+Written for XXMI Launcher 2.5.0, ZZMI 1.5.2, XXMI Tools 1.8.2 and gui_collect 1.4.2.
+
+<img
+  src="/wiki-images/zenless-zone-zero-getting-started-creator-setup-1.webp"
+  alt="The Zenless Zone Zero creator kit: XXMI Launcher with Enable Hunting, Paint.NET and a code editor for textures; Blender 4.5 LTS, XXMI Tools 1.8.2 and the original models for model mods"
+/>
+
+## The texture kit
+
+<Steps>
+<Step>
+
+### Turn on hunting mode in XXMI Launcher
+
+Hunting mode lets you find the hash of a part on screen and save a frame dump. It is off by default.
+
+1. Open XXMI Launcher and click the ZZMI icon.
+2. Click the gear icon to open the settings.
+3. Open the **ZZMI** tab.
+4. Tick **Enable Hunting** in the **Shader Hunting** section. Leave **Dump Shaders** off.
+5. Start the game from XXMI Launcher.
+
+In game, these keys now work:
+
+| Key                     | What it does                                 |
+| ----------------------- | -------------------------------------------- |
+| `Numpad 0`              | Turn hunting mode on or off (green text)     |
+| `Numpad 7`, `8` and `9` | Previous, next and copy an index buffer hash |
+| `Ctrl+F12`              | Show or hide the hunting guide               |
+| `F8`                    | Save a frame dump                            |
+
+No numpad? `d3dx.ini` in the ZZMI folder explains how to move the hunting keys. A ZZMI update can undo changes to that file, so note what you changed. [Find a hash with hunting mode](/docs/zenless-zone-zero/basics/find-a-hash) shows how to use the keys.
+
+{/* NEEDS HANDS-ON TEST: in XXMI Launcher 2.5.0, confirm the ZZMI settings tab name and that Enable Hunting sits under Shader Hunting. */}
+
+{/* SCREENSHOT: zenless-zone-zero-getting-started-creator-setup-3.webp, XXMI Launcher 2.5.0 settings, ZZMI tab, with Enable Hunting ticked. The only source screenshot shows launcher 1.1.4. */}
+
+</Step>
+<Step>
+
+### Install a texture editor
+
+Zenless Zone Zero textures are `.dds` files, most of them in the BC7 format. Paint.NET is free and opens and saves them without a plugin: DDS FileType Plus is built in since Paint.NET 4.2.2.
+
+<ToolCard
+  name="Paint.NET"
+  href="https://www.getpaint.net/download.html"
+  badge="Recommended"
+  icon={<Icon name="PaintNET" />}
+>
+  Free, Windows. Use the classic installer from getpaint.net.
+</ToolCard>
+
+1. Download the classic installer from getpaint.net.
+2. Run it and follow the steps.
+3. Open any `.dds` file to check that it works.
+
+Photoshop with Intel Texture Works also works, and GIMP may work too. [Texture editors and DDS plugins](/docs/zenless-zone-zero/tools/texture-editors) compares them, and [Save DDS textures the right way](/docs/zenless-zone-zero/textures/save-dds-files) has the save settings for each texture.
+
+</Step>
+<Step>
+
+### Install a code editor
+
+A mod's `.ini` file is plain text. A code editor with colors for `.ini` files makes mistakes easier to spot.
+
+1. Install [Visual Studio Code](https://code.visualstudio.com/).
+2. Add syntax colors for 3DMigoto `.ini` files from [3dmigoto-ini-extensions](https://github.com/lupomikti/3dmigoto-ini-extensions) by lupomikti. It works for several editors.
+
+Save every `.ini` as UTF-8.
+
+{/* NEEDS HANDS-ON TEST: how to install 3dmigoto-ini-extensions in VS Code (marketplace entry or manual install), its exact name in the editor, and that it colors a ZZMI mod .ini correctly. Taken from the Genshin Impact workflow. */}
+
+</Step>
+</Steps>
+
+That is all you need for your first texture mod.
+
+## The model kit
+
+<Steps>
+<Step>
+
+### Install Blender
+
+<ToolCard
+  name="Blender"
+  href="https://www.blender.org/download/lts/"
+  icon={<Icon name="Blender" />}
+>
+  Free, open source. Use Blender 4.5 LTS.
+</ToolCard>
+
+1. Download Blender 4.5 LTS from blender.org.
+2. Install it.
+
+XXMI Tools needs Blender 3.6 or newer. Users report it working on Blender 4.4, 4.5 and 5.1. Nobody has reported testing it on Blender 5.2 yet, so stay on 4.5 LTS for now.
+
+{/* NEEDS HANDS-ON TEST: import and export one Zenless Zone Zero agent with XXMI Tools 1.8.2 on Blender 4.5 LTS and on 5.2 LTS. Update the pinned version if 5.2 works. */}
+
+</Step>
+<Step>
+
+### Remove old 3DMigoto add-ons
+
+XXMI Tools replaces the older Blender scripts. Two versions at once cause errors.
+
+1. In Blender, open <MenuPath path="Edit > Preferences > Add-ons" />.
+2. Search for `3dmigoto`, then `LeoTools`, then `XXMI`.
+3. Remove every old version you find, such as an old `blender_3dmigoto` script.
+4. Restart Blender.
+
+</Step>
+<Step>
+
+### Install XXMI Tools
+
+<ToolCard
+  name="XXMI Tools"
+  href="https://github.com/leotorrez/XXMITools/releases"
+  badge="Required"
+  icon={<Icon name="GitHub" />}
+>
+  By LeoTorreZ. Free. Imports Zenless Zone Zero models into Blender and exports
+  them as a mod.
+</ToolCard>
+
+1. Download `XXMITools_v1.8.2.zip` from the latest release. Do not unzip it.
+2. In Blender, open <MenuPath path="Edit > Preferences > Add-ons" />.
+3. Click the small down-arrow at the top right, then **Install from Disk...**.
+4. Pick the `.zip` file.
+5. Tick the box next to `XXMI_Tools` if it is not ticked.
+6. Restart Blender.
+
+To check it worked, open <MenuPath path="File > Import" />. You should see `XXMI Dump(vb.txt + ib.txt)`. Press `N` in the 3D view: the sidebar now has an **XXMI Tools** tab.
+
+On Blender 3.6 to 4.1, step 3 is the **Install...** button instead. When you import, pick the game preset `Zenless Zone Zero`. It sets the axes this game needs. When you export, set **Game to mod** to `Zenless Zone Zero`. [XXMI Tools for Blender](/docs/zenless-zone-zero/tools/blender-add-on) explains every option.
+
+{/* SCREENSHOT: zenless-zone-zero-getting-started-creator-setup-4.webp, Blender 4.5 Preferences > Add-ons with the down-arrow menu open on Install from Disk..., and XXMI_Tools ticked in the list. */}
+
+</Step>
+<Step>
+
+### Get the original models
+
+You start every model mod from the game's original model data. For most agents, it is already in a public GitHub repo.
+
+<img
+  src="/wiki-images/zenless-zone-zero-getting-started-creator-setup-2.webp"
+  alt="The PlayerCharacterData folder of the ZZ-Model-Importer-Assets repo on GitHub, listing one folder per agent and outfit such as Alice, AliceSummer, Anby and Aria"
+/>
+
+1. Open [ZZ-Model-Importer-Assets](https://github.com/leotorrez/ZZ-Model-Importer-Assets) and go into `PlayerCharacterData`.
+2. Find your agent's folder. Outfits have their own folder, such as `EllenCampus`. Bangboo are in `BangbooData`.
+3. Sign in to GitHub. In the address bar, change `github.com` to `github.dev` and press Enter.
+4. Wait for the web editor to open. Right-click the agent's folder and choose **Download**.
+5. Allow the site to save files, and pick a work folder on your PC.
+
+Never clone or download the whole repo: it is over 2 GB. Keep the folder's name and its `hash.json` file as they are. XXMI Tools needs both to export.
+
+{/* NEEDS HANDS-ON TEST: the github.dev right-click Download flow in a current browser, and where the folder lands. */}
+
+The repo holds dumps from version 3.2 and was last updated in September 2026. Agents added in 3.3, such as Phoenix and Severian, are not in it yet, and 3.3 changed a few hashes. For those, make your own frame dump with gui_collect.
+
+The repo has no face meshes and no weapons. Face mods change textures only, and face mesh edits are not supported yet.
+
+<ToolCard
+  name="gui_collect"
+  href="https://github.com/Petrascyll/gui_collect"
+  icon={<Icon name="GitHub" />}
+>
+  By Petrascyll. Free, needs Python 3.9 or newer. Turns a frame dump into a
+  folder that XXMI Tools can import.
+</ToolCard>
+
+[Make a frame dump](/docs/zenless-zone-zero/basics/frame-dump) shows the whole process.
+
+</Step>
+</Steps>
+
+Get original models only from this repo or from your own frame dump. Tools that unpack the game's files are not covered here.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="XXMI Tools does not show in File > Import" id="no-import-entry">
+
+Check that `XXMI_Tools` is ticked in the add-on list, then restart Blender. If it still does not show, remove every old 3DMigoto add-on and install XXMI Tools again.
+
+</Accordion>
+<Accordion title="The add-on will not install on my Blender" id="old-blender">
+
+XXMI Tools needs Blender 3.6 or newer. Install Blender 4.5 LTS. You can keep an older Blender next to it.
+
+</Accordion>
+<Accordion title="Export fails with an error about the dump folder" id="export-hash-json">
+
+The dump folder was renamed, or its `hash.json` is missing. Download the agent's folder again and do not rename it. [Blender export and import errors](/docs/zenless-zone-zero/errors/creator-errors) has more fixes.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Your first mod: recolor a character"
+    href="/docs/zenless-zone-zero/textures/recolor-a-character"
+    icon={<Icon name="Palette" />}
+    level="beginner"
+    featured
+  >
+    Change an agent's colors with only Paint.NET and a short .ini file.
+  </PremiumCard>
+  <PremiumCard
+    title="How Zenless Zone Zero mods work"
+    href="/docs/zenless-zone-zero/basics/how-mods-work"
+    icon={<Icon name="BookOpen" />}
+    level="beginner"
+  >
+    What ZZMI swaps while the game draws, and why hashes matter.
+  </PremiumCard>
+  <PremiumCard
+    title="Get a model into Blender"
+    href="/docs/zenless-zone-zero/models/import-into-blender"
+    icon={<Icon name="Box" />}
+    level="intermediate"
+  >
+    Import an agent with XXMI Tools and look around.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Modding 101](https://leotorrez.github.io/modding/guides/modding-101) and [XXMI Tools guide](https://leotorrez.github.io/modding/guides/xxmi_tools) by LeoTorreZ.
+- **Guide:** [3DMigoto Hunting & Dumping Tutorial](https://leotorrez.github.io/modding/guides/hunting) by Satan1c.
+- **Tool:** [XXMI Tools](https://github.com/leotorrez/XXMITools) by LeoTorreZ.
+- **Tool:** [ZZ-Model-Importer-Assets](https://github.com/leotorrez/ZZ-Model-Importer-Assets) by LeoTorreZ, maintained mostly by Satan1c.
+- **Tool:** [gui_collect](https://github.com/Petrascyll/gui_collect) by Petrascyll.
+- **Tool:** [DDS FileType Plus](https://github.com/0xC0000054/pdn-ddsfiletype-plus) by null54.
+- **Tool:** [3dmigoto-ini-extensions](https://github.com/lupomikti/3dmigoto-ini-extensions) by lupomikti.

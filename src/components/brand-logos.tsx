@@ -122,6 +122,55 @@ export function DeadlockLogo({ className }: LogoProps) {
 }
 
 /**
+ * The app icons of Genshin Impact, Honkai: Star Rail, Zenless Zone Zero and
+ * Wuthering Waves, from each game's App Store listing, 256x256. In colour for
+ * the same reason as the League mark. The artwork is a full square, so it
+ * fills the box unscaled, with the rounded corners phones give app icons.
+ */
+function GameAppIcon({ src, className }: LogoProps & { src: string }) {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt=""
+      className={`brand-mark size-full rounded-[22%] object-cover ${className ?? ""}`}
+      aria-hidden
+      draggable={false}
+    />
+  );
+}
+
+export function GenshinImpactLogo({ className }: LogoProps) {
+  return (
+    <GameAppIcon src="/brand/genshin-impact-logo.webp" className={className} />
+  );
+}
+
+export function HonkaiStarRailLogo({ className }: LogoProps) {
+  return (
+    <GameAppIcon
+      src="/brand/honkai-star-rail-logo.webp"
+      className={className}
+    />
+  );
+}
+
+export function ZenlessZoneZeroLogo({ className }: LogoProps) {
+  return (
+    <GameAppIcon
+      src="/brand/zenless-zone-zero-logo.webp"
+      className={className}
+    />
+  );
+}
+
+export function WutheringWavesLogo({ className }: LogoProps) {
+  return (
+    <GameAppIcon src="/brand/wuthering-waves-logo.webp" className={className} />
+  );
+}
+
+/**
  * Divine's own app marks — Flint, Jade, Quartz, Ruby — taken from the
  * official set at RitoShark/.github/public and re-encoded to WebP, trimmed
  * to the artwork's own bounds so all four share one optical size.
@@ -330,6 +379,19 @@ export function DeadlockModManagerLogo({ className }: LogoProps) {
 
 export function GrimoireLogo({ className }: LogoProps) {
   return <AppMark src="/brand/grimoire-logo.webp" className={className} />;
+}
+
+/**
+ * Creator tools for the XXMI games, same treatment as above: XXMI Launcher's
+ * window icon from its repo (SpectrumQT/XXMI-Launcher, GPL-3.0) and
+ * Paint.NET's app icon from paint.net, both re-encoded to 128px WebP.
+ */
+export function XXMILauncherLogo({ className }: LogoProps) {
+  return <AppMark src="/brand/xxmi-launcher-logo.webp" className={className} />;
+}
+
+export function PaintNETLogo({ className }: LogoProps) {
+  return <AppMark src="/brand/paintnet-logo.webp" className={className} />;
 }
 
 // AI assistants for the "Ask AI about this guide" links (ask-ai.tsx).

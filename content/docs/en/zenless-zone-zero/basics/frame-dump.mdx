@@ -1,0 +1,258 @@
+---
+title: "Make a frame dump"
+description: "Capture one Zenless Zone Zero frame with F8, extract an agent with gui_collect into a folder Blender can import, and find textures and buffers in the dump."
+category: "basics"
+patch: "3.3"
+keywords: ["zzz frame dump", "gui_collect", "zzmi f8", "frameanalysis"]
+---
+
+<LevelPill level="intermediate" />
+
+A frame dump saves every buffer, texture and shader the game used to draw one frame. With gui_collect you turn it into an agent folder that XXMI Tools imports into Blender. You need a dump when the asset repo lacks your agent or outfit, or when you want the current hashes after an update. The asset repo holds dumps from version 3.2, so agents added in 3.3, such as Phoenix and Severian, need a dump. Written for XXMI Launcher 2.5.0, ZZMI 1.5.2 and gui_collect 1.4.2.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/zenless-zone-zero/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement
+    icon="GitHub"
+    href="https://github.com/Petrascyll/gui_collect"
+    note="1.4.2"
+  >
+    gui_collect
+  </Requirement>
+  <Requirement icon="Terminal" note="3.9 or newer">
+    Python
+  </Requirement>
+  <Requirement icon="HardDrive" note="up to 24 GB per full dump">
+    Free disk space
+  </Requirement>
+</Requirements>
+
+You also need hunting mode. [Find a hash with hunting mode](/docs/zenless-zone-zero/basics/find-a-hash) shows how to turn it on and copy a hash.
+
+<img
+  src="/wiki-images/zenless-zone-zero-basics-frame-dump-1.webp"
+  alt="Five steps: copy the IB hashes in hunting mode, press F8, get a FrameAnalysis folder, extract it with gui_collect, and get an agent folder with txt, dds and hash.json files"
+/>
+
+## Get ready
+
+1. Tick **Enable Hunting** in the **ZZMI** tab of XXMI Launcher's settings, before you start the game.
+2. Turn off every mod for your target: rename its folder so it starts with `DISABLED`. Otherwise you dump the mod, not the original.
+3. Lower the game's resolution. A smaller frame makes a smaller dump.
+4. Download gui_collect from its GitHub page and unzip it anywhere. Start it with `launch.bat`.
+
+{/* NEEDS HANDS-ON TEST: how gui_collect 1.4.2 is downloaded (release zip or source zip) and that launch.bat starts it with Python 3.9+ installed */}
+
+## Dump an agent
+
+<Steps>
+<Step>
+
+### Copy each part's IB hash
+
+1. In gui_collect, click the Zenless Zone Zero icon in the left bar. It is the default game.
+2. Type the agent's name in **Extract Name**, for example `Burnice`.
+3. In game, open the agent screen with your agent. It draws little else.
+4. Press `Numpad 0`, then `Numpad 8` until a part disappears. Press `Numpad 9` to copy its hash.
+5. Paste the hash into an **IB Hash** field in gui_collect.
+6. Type a component name next to it, like `Body` or `Hair`. Use only English letters and numbers, and give each one a different name.
+7. Repeat for every part you want.
+
+The hair often acts up. When the whole agent, or everything on screen, vanishes at once, you have selected the hair IB. Check the shadow: it goes bald. One hair IB can also hold other pieces. Burnice's hair IB holds her skirt too, so a name like `Extra` fits better.
+
+<img
+  src="/wiki-images/zenless-zone-zero-basics-frame-dump-3.webp"
+  alt="The Zenless Zone Zero agent select screen in hunting mode with Burnice's hair index buffer selected: the whole agent has vanished, and the overlay shows IB f779fb81 and Shader Hunting Mode (marking: skip)"
+/>
+
+Do not dump the face mesh. Face meshes cannot be modded yet, and a changed face loses its expressions. For the face texture only, copy the face's hash as usual and turn off the 3D part of that entry in gui_collect.
+
+{/* NEEDS HANDS-ON TEST: the exact gui_collect 1.4.2 labels Extract Name and IB Hash, and the toggle that turns off the 3D part for a texture-only entry */}
+
+{/* SCREENSHOT: zenless-zone-zero-basics-frame-dump-4.webp, gui_collect 1.4.2 with the Zenless Zone Zero page open, an Extract Name and two IB hashes with component names filled in. The only source screenshots show gui_collect 1.2.6. */}
+
+</Step>
+<Step>
+
+### Press F8
+
+Press `F8` with hunting on. The game freezes while it writes the dump. Wait until it moves again.
+
+The dump is a new folder next to ZZMI's `d3dx.ini`:
+
+```text
+%AppData%\XXMI Launcher\ZZMI\FrameAnalysis-YYYY-MM-DD-HHMMSS
+```
+
+</Step>
+<Step>
+
+### Extract with gui_collect
+
+1. In gui_collect, click the folder button at the top and pick the new `FrameAnalysis-...` folder.
+2. Choose where the result goes. Any folder works.
+3. Click **Extract**.
+
+If gui_collect reports a missing shader hash, make a targeted dump (below) and dump again.
+
+</Step>
+<Step>
+
+### Label the textures
+
+gui_collect shows the textures it found for each part. Click each one and pick its type:
+
+| Type          | How it looks                                           |
+| ------------- | ------------------------------------------------------ |
+| `Diffuse`     | The colors you see in game. Format `BC7_UNORM_SRGB`.   |
+| `NormalMap`   | Grey, blue or muted, with a bumpy, shaded look.        |
+| `LightMap`    | Simple, flat areas, one per material. Mostly red.      |
+| `MaterialMap` | More detail than the light map. Mostly pink or orange. |
+
+Then click **Done**.
+
+</Step>
+</Steps>
+
+## What you get
+
+A folder named after your Extract Name, with one set of files per part:
+
+<Files>
+  <Folder name="Burnice" defaultOpen>
+    <File name="BurniceBodyA-ib=<hash>.txt: the triangles of one part" />
+    <File name="BurniceBodyA-vb0=<hash>.txt: its vertices" />
+    <File name="BurniceBodyADiffuse.dds" />
+    <File name="BurniceBodyANormalMap.dds" />
+    <File name="BurniceBodyALightMap.dds" />
+    <File name="BurniceBodyAMaterialMap.dds" />
+    <File name="hash.json: every component, part and hash" />
+  </Folder>
+</Files>
+
+{/* NEEDS HANDS-ON TEST: the exact file names gui_collect 1.4.2 writes for a Zenless Zone Zero agent, and whether parts get the letters A, B, C like the asset repo */}
+
+This is the same kind of folder as the ones in the asset repo. XXMI Tools imports it into Blender.
+
+<Callout type="warning" title="Keep the folder as it is">
+  Never rename the folder or delete `hash.json`. XXMI Tools needs both to export
+  your mod.
+</Callout>
+
+## Make smaller, targeted dumps
+
+A full dump holds everything on screen and can reach 24 GB. A targeted dump saves only your agent. One creator's dump went from 3.4 GB to 840 MB.
+
+1. In gui_collect's settings, tick **Targeted Frame Analysis (Advanced)**.
+2. Let gui_collect generate the targeting `.ini` for your IB hashes.
+3. Put that `.ini` in a folder inside `Mods`.
+4. Press `F10` in game, then `F8`.
+5. Remove the `.ini` from `Mods` when you are done.
+
+Never add it to `d3dx.ini`. XXMI Launcher rewrites that file, and a ZZMI update can replace it.
+
+{/* NEEDS HANDS-ON TEST: where gui_collect 1.4.2 saves the generated targeting .ini and the exact setting label */}
+
+This video shows `F8` and the texture search on Zenless Zone Zero. It is in Spanish and recorded on an older version. Earlier in the video, the creator edits `d3dx.ini`: put targeting files in `Mods` instead, as shown above.
+
+<YouTube
+  id="J1viMYwsqdY"
+  start={554}
+  title="A frame dump with F8 and the srgb texture search, by Proxy Index"
+/>
+
+## Read a dump by hand
+
+You do not need this for an agent. It helps for icons, effects and world objects that gui_collect does not cover.
+
+<img
+  src="/wiki-images/zenless-zone-zero-basics-frame-dump-2.webp"
+  alt="The dump file name 000123-ib=1a2b3c4d-vs=0123456789abcdef-ps=fedcba9876543210.txt split into draw number, resource type, hash, shader hashes and file type"
+/>
+
+- **Find a mesh:** search the dump folder for `-ib=` plus your hash. Every match is a draw of that mesh.
+- **Find its parts:** open the `-ib=...txt` file. Each different `first index` value is one part.
+- **Find its textures:** files with the same draw number and `-ps-t0=`, `-ps-t1=` and so on are the textures of that draw. In an agent's main color draw, the diffuse is usually in `ps-t3`, the normal map in `ps-t4`, the light map in `ps-t5` and the material map in `ps-t6`. Outline and glow draws use other slots. Never write these slots into a mod: SlotFix places textures for you.
+- **Find a texture file:** the `deduped` folder holds each texture once, named `<hash>-<FORMAT>.dds`. To find color textures, search the dump in Windows Explorer for `name:~=unorm_srgb AND .dds`, or for `srgb`.
+
+{/* NEEDS HANDS-ON TEST: on Zenless Zone Zero 3.3, that an agent's main draw uses ps-t3 to ps-t6 in this order, and that the Explorer search finds the diffuse files */}
+
+By default a dump does not save textures as plain `.dds`, because full DDS dumps can need hundreds of gigabytes. To save them for one object only, hunt its pixel shader, then add a section like this to an `.ini` inside `Mods`. Replace `0123456789abcdef` with your shader hash:
+
+```ini
+[ShaderOverrideMyTarget]
+hash = 0123456789abcdef
+analyse_options = dump_rt dump_tex dump_cb dump_vb dump_ib buf txt dds
+```
+
+Press `F10`, then `F8`. Remove the section when you are done.
+
+## Delete old dumps
+
+Each dump can take many gigabytes. When you have extracted what you need, delete the `FrameAnalysis-...` folders in `%AppData%\XXMI Launcher\ZZMI`.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The game crashes when I press F8" id="crash-on-f8">
+
+Busy places make huge dumps and can crash the game. Go to the agent screen, lower the resolution, or make a targeted dump.
+
+</Accordion>
+<Accordion title="The textures in the dump are the mod's, not the original" id="dumped-the-mod">
+
+A mod for that agent was still on. Rename its folder so it starts with `DISABLED`, press `F10`, and dump again. `F6` alone does not turn off shader mods.
+
+</Accordion>
+<Accordion title="Everything vanished when I stepped through the IBs" id="hair-ib">
+
+That is the agent's hair IB, which hides more than the hair when it is selected. Copy it as usual. If it also holds other pieces, name the component `Extra`.
+
+</Accordion>
+<Accordion title="Export later fails with no hash.json" id="no-hash-json">
+
+The folder was renamed or `hash.json` was deleted. Extract the dump again with gui_collect and leave the result as it is.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Get a model into Blender"
+    href="/docs/zenless-zone-zero/models/import-into-blender"
+    icon={<Icon name="Box" />}
+    level="intermediate"
+  >
+    Import your extracted folder with XXMI Tools.
+  </PremiumCard>
+  <PremiumCard
+    title="Character names and parts"
+    href="/docs/zenless-zone-zero/basics/character-names-and-parts"
+    icon={<Icon name="IdCard" />}
+    level="beginner"
+  >
+    What the components and the lettered parts mean.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [3DMigoto Hunting & Dumping Tutorial](https://leotorrez.github.io/modding/guides/hunting) by Satan1c, on LeoTorreZ's modding site.
+- **Tool:** [gui_collect](https://github.com/Petrascyll/gui_collect) by Petrascyll.
+- **Guide:** [Mini Tutorials: dumping with GUI Collect](https://docs.google.com/document/d/1-lzqEUu4QoKrQ0OTCM-9lKOlryg5wy7JJxbZMh3u_fE) by [cora (veritas921)](https://discord.com/users/1132443509329244222) in the [AGMG Discord](https://discord.gg/agmg): the hair IB tip and the texture labels.
+- **Guide:** [ZZZ Textures and properties](https://leotorrez.github.io/modding/guides/zzz-textures) by LeoTorreZ.
+- **Guide:** [Environment Hash Fix Guide](https://gamebanana.com/tuts/18140) by bunar21: dump size and the texture search.
+- **Video:** [MAQUILLAJE y TEXTURE HUNTING desde CERO](https://www.youtube.com/watch?v=J1viMYwsqdY) by Proxy Index.
+- **Tool:** [XXMI DLL frame analysis](https://github.com/SpectrumQT/XXMI-Libs-Package) by SpectrumQT.
+- **Images:** screenshot 3 from Mini Tutorials by cora (veritas921).

@@ -1,0 +1,297 @@
+---
+title: "Make textures survive game updates"
+description: "Keep your Wuthering Waves mod's textures working after updates: how WWMI Tools 1.9.4 finds them by look, and how to bind older exports by role with RabbitFX."
+category: "textures"
+patch: "3.8"
+keywords:
+  [
+    "wuthering waves stable textures",
+    "rabbitfx wwmi",
+    "texture slot replacement",
+    "wwmi dhash",
+    "broken textures after update",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+Texture hashes are what game updates break first. WWMI Tools 1.9.4 no longer depends on them: it finds each texture by how it looks. This page explains what that changes, and shows how to attach the textures of an older export by their role, diffuse, light map or normal map, with the RabbitFX library. You need a mod you exported with WWMI Tools. Written for RabbitFX for WWMI 8.5, WWMI 1.2.2 and WWMI Tools 1.9.4 on Wuthering Waves 3.8.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="FileCode">Your own mod's folder and mod.ini</Requirement>
+  <Requirement icon="Layers" note="free, installed once, older exports only">
+    RabbitFX for WWMI 8.5
+  </Requirement>
+  <Requirement icon="FileText" note="Visual Studio Code or Notepad++">
+    A text editor
+  </Requirement>
+</Requirements>
+
+## Why texture hashes break
+
+WWMI Tools 1.8.0 and older bind every texture by its hash: a `this =` line swaps the game's texture for your file while your Resonator is on screen. A Resonator is the game's name for a playable character. That hash changes more often than you might think:
+
+- **Updates.** Kuro edits a texture and it gets a new hash. Version 2.6 changed the texture hashes of every character, weapon and glider.
+- **Distance.** The game streams lower-detail copies of a texture, for example far away or in the open world. Each copy has its own hash.
+- **Graphics settings.** Since version 3.0, **LOD Bias** below Ultra High loads many textures at 1024 instead of 2048, with other hashes.
+- **Resource quality.** Since version 3.7, the game comes in UHD, HD and SD packages, which may change texture hashes too.
+
+When the hash no longer matches, the mesh still shows, but the outfit has its original colors. Players can set **LOD Bias** to **Ultra High**. Creators can stop depending on the texture hash.
+
+{/* NEEDS HANDS-ON TEST: whether a texture of a mod exported with WWMI Tools 1.8.0 on an HD client shows on UHD and SD clients on WWMI 1.2.2 without extra texture hashes */}
+
+<img
+  src="/wiki-images/wuthering-waves-textures-stable-textures-1.webp"
+  alt="Three columns: by hash, for WWMI Tools 1.8.0 and older, the original shows when the texture's hash is new; by look, for WWMI Tools 1.9.4, the XXMI DLL swaps your file into the slot whose texture looks at least 75% alike; by role, RabbitFX puts each file in the slot the current shader reads"
+/>
+
+## How WWMI Tools 1.9.4 matches textures
+
+A mod exported with WWMI Tools 1.9.4 has no texture hash lines. For each texture, it writes a **filter** with the original texture's format and its **dHash**, a 64-bit fingerprint of how the texture looks:
+
+```ini
+[ResourceTexture16]
+filename = Textures/c=3 f=BC7_UNORM_SRGB t=cccccccc d=0123456789abcdef.dds
+[FilterTexture16]
+match_format = BC7_UNORM_SRGB
+match_dhash = 0123456789abcdef
+```
+
+Inside the component section, `ps-t[FilterTexture16] = ref ResourceTexture16` puts your file in place. `cccccccc` and `0123456789abcdef` stand for the values your export writes.
+
+- **No hash has to match.** The XXMI DLL compares the fingerprint with the textures the current shader reads, and swaps your file in where one is at least 75% alike.
+- **The slot does not matter.** It searches every texture slot of that shader.
+- **Built for the cases above.** The XXMI DLL's own docs name a texture whose hash changes between its smaller copies, or between resource quality tiers.
+- **Only your Resonator changes.** The swap happens inside your mod's own component draws, so a texture shared with another Resonator stays normal on that one.
+- **It needs WWMI 1.2.2 and XXMI DLL 1.3.3 or newer.** XXMI Launcher installs both.
+
+Matching by look is a similarity check, not a promise. A texture that Kuro redraws in an update can look too different to match. Two textures that look alike could also be mixed up. Nobody has tested it on this game yet.
+
+{/* NEEDS HANDS-ON TEST: on WWMI 1.2.2 with a mod exported by WWMI Tools 1.9.4, whether its textures still show far away, with LOD Bias below Ultra High, on UHD, HD and SD clients, and after the next game update, whether any texture is swapped onto the wrong slot, and whether a texture shared with another Resonator stays unchanged on that Resonator */}
+
+## Which method your mod needs
+
+| Your mod                                                                         | How its textures bind       | What to do                                                   |
+| -------------------------------------------------------------------------------- | --------------------------- | ------------------------------------------------------------ |
+| Exported with WWMI Tools 1.9.4, first line `; WWMI BETA-11 INI`                  | By look, `[FilterTextureN]` | Nothing more. Check it after the next update                 |
+| Exported with WWMI Tools 1.8.0 or older, first line `; WWMI BETA-9 INI` or older | By hash, `this =`           | Export it again with WWMI Tools 1.9.4, or use RabbitFX below |
+
+**Is RabbitFX still needed?** For a mod exported with WWMI Tools 1.9.4, as far as the tools' files show, no. The export already finds textures without their hash, which is what the RabbitFX method on this page was for. Whether the RabbitFX lines still work on top of a 1.9.4 export is not known yet, so do not add them to one. For a mod exported with WWMI Tools 1.8.0 or older, nothing changed: WWMI 1.2.2 does not match its textures by look, and the RabbitFX steps below still apply.
+
+To export an older mod again, make a new frame dump and extract it with WWMI Tools 1.9.4. The add-on refuses to export from an object folder extracted with an older version. [Export your mod from Blender](/docs/wuthering-waves/models/export-your-mod) explains the export.
+
+{/* NEEDS HANDS-ON TEST: on WWMI 1.2.2, whether a RabbitFX texture slot replacement block added to a mod exported by WWMI Tools 1.9.4 works, conflicts with its ps-t[FilterTextureN] lines, or is not needed */}
+
+## What RabbitFX does
+
+RabbitFX is a texture and glow library by caverabbit. It is a separate download, not part of WWMI. Since version 8.0 it can do **texture slot replacement**: you tell it which file is the diffuse, the light map and the normal map, and it puts each one in the slot the current shader reads. No texture hash has to match.
+
+| Role         | Line in your component section            | Use it for                    |
+| ------------ | ----------------------------------------- | ----------------------------- |
+| Diffuse      | `Resource\RabbitFX\Diffuse = ref ...`     | The color texture             |
+| Light map    | `Resource\RabbitFX\Lightmap = ref ...`    | The light map                 |
+| Normal map   | `Resource\RabbitFX\Normalmap = ref ...`   | The normal map                |
+| Material map | `Resource\RabbitFX\Materialmap = ref ...` | Resonators released after 3.0 |
+| Cut-out map  | `Resource\RabbitFX\Cutoutmap = ref ...`   | Resonators that have one      |
+| Special map  | `Resource\RabbitFX\Specialmap = ref ...`  | Resonators that have one      |
+
+Older RabbitFX versions had a "Stable Textures" feature that did the same, but it could also hit textures it should not. Use the texture slot replacement of the current version.
+
+A creator who used this method in version 3.5 reports that the textures survived minor updates, such as 3.4 to 3.5. A reworked Resonator model still breaks the mod, as it breaks every mod.
+
+## Install RabbitFX once
+
+Every mod made this way needs RabbitFX in the player's `Mods` folder, and so does your own test setup. The version for this game is called **RabbitFX for WWMI**, by caverabbit. It is a texture and glow library that many mods share. Keep exactly one copy in your `Mods` folder.
+
+1. Download the latest version, 8.5, from caverabbit's own RabbitFX for WWMI page.
+2. Extract the archive. Put the RabbitFX folder in `Mods`, as its own folder.
+3. Search `Mods` for other RabbitFX folders, including inside other mods' folders. Delete every extra copy. Two copies cause crashes and strange behavior.
+4. Press `F10` in game, or start the game from XXMI Launcher.
+
+The first time RabbitFX meets a new shader, the game can stutter for a moment. It rewrites each shader once, so this goes away.
+
+Before you make a frame dump, move RabbitFX out of `Mods`, together with the mods for your target. [Make a frame dump](/docs/wuthering-waves/basics/frame-dump) explains why.
+
+{/* NEEDS HANDS-ON TEST: the folder layout inside the RabbitFX for WWMI 8.5 archive, and that it loads from its own folder anywhere under Mods */}
+
+## Switch your mod to RabbitFX textures
+
+These steps are for a mod exported with WWMI Tools 1.8.0 or older. A 1.9.4 export has no `CheckTextureOverride = ps-t0` lines and no `this =` lines to replace.
+
+<Steps>
+<Step>
+
+### Keep a copy of mod.ini
+
+Copy `mod.ini` to a folder outside `Mods`. A new export from WWMI Tools writes a fresh `mod.ini`, so keep a note of these edits and make them again after each export.
+
+</Step>
+<Step>
+
+### Find which resource is which
+
+1. Open `mod.ini` in your text editor.
+2. Find the `[ResourceTextureN]` sections. Each has a `filename =` line, such as `filename = Textures/Components-3 t=<hash>.dds`.
+3. For each component you changed, note the number of its diffuse, light map and normal map. [What each texture map does](/docs/wuthering-waves/textures/texture-maps) shows how to tell them apart.
+
+</Step>
+<Step>
+
+### Add the RabbitFX lines
+
+Find the `[TextureOverrideComponentN]` section of the component. Add one `run = CommandList\RabbitFX\Run` line before `$object_detected = 1`. Then add the role lines and `SetTextures` right after `handling = skip`:
+
+```ini
+[TextureOverrideComponent3]
+hash = aaaaaaaa
+match_first_index = 69171
+match_index_count = 113721
+run = CommandList\RabbitFX\Run
+$object_detected = 1
+if $mod_enabled
+    ; skeleton lines, shortened
+    if ResourceMergedSkeleton !== null
+        handling = skip
+        Resource\RabbitFX\Diffuse = ref ResourceTexture16
+        Resource\RabbitFX\Lightmap = ref ResourceTexture18
+        Resource\RabbitFX\Normalmap = ref ResourceTexture20
+        run = CommandList\RabbitFX\SetTextures
+        run = CommandListTriggerResourceOverrides
+        run = CommandListOverrideSharedResources
+        ; Draw Component 3
+        drawindexed = 10872, 69732, 0
+```
+
+Use your own resource numbers. `aaaaaaaa` stands for your mod's VB0 hash: keep the line your export wrote.
+
+<img
+  src="/wiki-images/wuthering-waves-textures-stable-textures-2.webp"
+  alt="A mod.ini component section after the edit: run = CommandList\RabbitFX\Run before $object_detected = 1, and Resource\RabbitFX\Diffuse, Resource\RabbitFX\Normalmap and run = CommandList\RabbitFX\SetTextures right after handling = skip"
+/>
+
+The picture is a real mod from the guide in Credits. Its creator set only a diffuse and a normal map. The `swapvar` condition, the brightness line and the two map lines above the `run` line belong to that mod's own toggle and effects, so your section will not have them.
+
+{/* NEEDS HANDS-ON TEST: this placement on a WWMI Tools 1.8.0 export (WWMI BETA-9 INI) with RabbitFX for WWMI 8.5 on WWMI 1.2.2, compared with the example on the current RabbitFX page, and whether run = CommandList\RabbitFX\Run goes once per mod or once in each component section */}
+
+</Step>
+<Step>
+
+### Stop the hash checks
+
+Find the `[CommandListTriggerResourceOverrides]` section. Put `;` at the start of each `CheckTextureOverride = ps-t0` to `ps-t8` line, so they no longer run. Keep the `vs-cb3` and `vs-cb4` lines: they find the bone data.
+
+{/* NEEDS HANDS-ON TEST: the exact CheckTextureOverride lines in a WWMI Tools 1.8.0 mod.ini, and whether turning off the ps-t lines is still needed with RabbitFX for WWMI 8.5 on WWMI 1.2.2 */}
+
+</Step>
+<Step>
+
+### Repeat and test
+
+1. Do the same for every component whose textures you changed. A Resonator with a second form has a second object, and maybe a second `.ini`: edit that one too.
+2. Save `mod.ini` as UTF-8.
+3. Press `F10` in game. Hold `F9` to compare with the original.
+4. Check the Resonator far away and in the open world, where hash-bound textures break first.
+
+</Step>
+</Steps>
+
+<YouTube
+  id="B9Zfy4NhpJ0"
+  start={164}
+  title="Adding RabbitFX texture lines to a Wuthering Waves mod.ini by hand, by Doctor Chao gaming"
+/>
+
+This English video was made around version 3.5, before RabbitFX 8.5, by a creator who was new to the game. It shows how to find each resource number by searching the texture's file name in `mod.ini`. Copy the exact lines from this page, not from the video.
+
+## Share a mod that uses RabbitFX
+
+- **Never put RabbitFX inside your mod**, not in the folder and not in the archive. Players who already have it would end up with two copies.
+- **Say it in your description:** your mod needs RabbitFX for WWMI, installed once in `Mods`.
+- **Keep your source files.** A rework of the Resonator still needs a new dump and a new export.
+
+[Get your mod ready to share](/docs/wuthering-waves/publishing/publishing-checklist) has the full checklist.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The game crashes or acts strangely after adding RabbitFX" id="two-copies">
+
+There is more than one copy of RabbitFX in `Mods`. Some mods ship their own. Keep exactly one RabbitFX folder.
+
+</Accordion>
+<Accordion title="The original textures still show" id="still-original">
+
+- Check that RabbitFX is in `Mods`.
+- Check each `ref` line: the number must match a `[ResourceTextureN]` section that exists.
+- Check that `run = CommandList\RabbitFX\SetTextures` comes after the role lines, inside the `handling = skip` block.
+
+</Accordion>
+<Accordion title="Colors are back, but skin looks off in some light" id="skin-off">
+
+The light map line is missing or points to the wrong texture. Add `Resource\RabbitFX\Lightmap` with the right resource number.
+
+</Accordion>
+<Accordion title="A fix tool already changed the mod" id="fixer">
+
+Woju's fixer moves mods to RabbitFX texture slots by itself. A mod it fixed needs RabbitFX in `Mods` too. [Update fix tools](/docs/wuthering-waves/tools/update-fixers) compares the fix tools.
+
+</Accordion>
+<Accordion title="Extraction fails after a frame dump" id="dump-errors">
+
+RabbitFX was still in `Mods` while you dumped. Move it out, press `F10`, and dump again.
+
+</Accordion>
+<Accordion title="A WWMI Tools 1.9.4 export shows the original textures" id="filter-no-match">
+
+- Check that the corner text says `WWMI 1.2.2` or newer when the game starts. If a **WWMI Integrity Error** box asks for a newer XXMI DLL, update XXMI Launcher.
+- Check that every texture file still has the exact name your export wrote.
+- After a game update, make a new frame dump, extract it, and export again. [Fix an old mod by hand](/docs/wuthering-waves/ini/fix-an-old-mod#fix-a-wwmi-tools-194-export) shows a quicker fix for one texture.
+
+{/* NEEDS HANDS-ON TEST: on WWMI 1.2.2 with a mod exported by WWMI Tools 1.9.4, what a texture that no longer matches looks like in game, and whether the WWMI Integrity Error box shows on an install with an older XXMI DLL */}
+
+</Accordion>
+<Accordion title="The export stops with an outdated name format error" id="outdated-names">
+
+The message starts with `Specified sources folder contains textures with unknown or outdated name format!`. Your object folder was extracted with an older WWMI Tools. Make a new frame dump, extract it with WWMI Tools 1.9.4, and pick the new folder as **Object Sources**.
+
+New exports name textures like `c=3 f=BC7_UNORM_SRGB t=cccccccc d=0123456789abcdef.dds`. To keep a texture you edited, find the new file with the same `t=` part and save your edit under that new name.
+
+{/* NEEDS HANDS-ON TEST: on WWMI Tools 1.9.4, the full export error text with an object folder extracted by WWMI Tools 1.8.0, and whether old and new texture names of one texture share the same t= part on a fresh Wuthering Waves 3.8 dump */}
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Add glow and see-through parts"
+    href="/docs/wuthering-waves/effects/glow-and-transparency"
+    icon={<Icon name="Sparkles" />}
+    level="intermediate"
+  >
+    Use RabbitFX to make parts of your mod glow.
+  </PremiumCard>
+  <PremiumCard
+    title="Update your mod after a game update"
+    href="/docs/wuthering-waves/publishing/update-your-mod"
+    icon={<Icon name="RefreshCw" />}
+    level="intermediate"
+  >
+    What to do when an update breaks your own mod anyway.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Fix Broken Character Textures (RabbitFX Stable Textures)](https://gamebanana.com/tuts/20005) by JessyJames84: the component edit and the update results.
+- **Tool:** "RabbitFX for WWMI" by caverabbit: texture slot replacement, the role names and the one-copy rule.
+- **Video:** [Wuthering Waves how to fix mods yourself](https://www.youtube.com/watch?v=B9Zfy4NhpJ0) by Doctor Chao gaming.
+- **Tool:** [WWMI Tools](https://github.com/SpectrumQT/WWMI-Tools) by SpectrumQT: the `mod.ini` templates of 1.8.0 and 1.9.4, and the new texture names.
+- **Tool:** [XXMI DLL texture filtering docs](https://github.com/SpectrumQT/XXMI-Libs-Package/blob/master/docs/ini-language-extensions/filters/texture-filtering.md) by SpectrumQT: how matching by look works.
+- **Tool:** [WWMI-Package](https://github.com/SpectrumQT/WWMI-Package) by SpectrumQT, with its [GameBanana update posts](https://gamebanana.com/tools/17252): texture hash changes and similarity matching.
+- **Images:** the component section screenshot from [Fix Broken Character Textures (RabbitFX Stable Textures)](https://gamebanana.com/tuts/20005) by JessyJames84.

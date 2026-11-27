@@ -1,0 +1,356 @@
+---
+title: "Mods not loading"
+description: "Zenless Zone Zero starts but your mods do not show? Check the ZZMI banner, NVIDIA Smooth Motion, DirectX 11, the Mods folder and two graphics options."
+category: "errors"
+patch: "3.3"
+keywords:
+  [
+    "zzz mods not working",
+    "zzmi not loading",
+    "zzz mods dx12",
+    "xxmi launcher mods not showing",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+The game starts, but your mods do not show. Work through the checks below in order: the first ones are the most common. This page is written for XXMI Launcher 2.5.0 and ZZMI 1.5.2 on Zenless Zone Zero 3.3.
+
+Mods show up but look wrong, stretched, or have broken textures? Go to [Mods look broken](/docs/zenless-zone-zero/errors/mods-look-broken).
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/zenless-zone-zero/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="ZenlessZoneZero" note="HoYoPlay, Steam or Epic Games">
+    Zenless Zone Zero on PC
+  </Requirement>
+  <Requirement icon="Package">A mod you downloaded</Requirement>
+</Requirements>
+
+## First check: did ZZMI load?
+
+Start the game with the **Start** button in XXMI Launcher. For the first 30 seconds, look for this line in the lower-left corner:
+
+```text
+ZZMI 1.5.2 (PRESS F12 TO SHOW GUIDE)
+```
+
+You can also press `F12` at any time. It opens the ZZMI user guide. On the very first start, the guide opens by itself.
+
+{/* SCREENSHOT: zenless-zone-zero-errors-mods-not-loading-3.webp, the ZZMI 1.5.2 banner in the lower-left corner of the Zenless Zone Zero loading screen, UID hidden. No current image of the banner exists in the sources. */}
+
+- **No banner and `F12` does nothing:** ZZMI did not load. Start with [ZZMI does not load](#zzmi-does-not-load).
+- **The banner shows, but a mod does not:** ZZMI works. Go to [ZZMI loads, but a mod does not show](#zzmi-loads-but-a-mod-does-not-show).
+
+Old download pages say `F1` opens the guide. The key is `F12`.
+
+## Quick checklist
+
+Check these in order. Each one is explained below.
+
+1. You started the game from XXMI Launcher's **Start** button.
+2. NVIDIA **Smooth Motion** and frame generation are off.
+3. The game runs in DirectX 11. The **DX12** box is unticked.
+4. Only XXMI injects into the game. No other start-up tool runs with it.
+5. The mod folder is extracted and sits inside `%AppData%\XXMI Launcher\ZZMI\Mods`.
+6. No folder in the mod's path starts with `DISABLED`.
+7. You pressed `F10` while the modded agent was off screen.
+8. You did not turn all mods off with `F6`.
+9. **Character Quality** is **High** and **High-Precision Character Animation** is **Disable**.
+10. The mod works on version 3.3.
+11. Only one mod is active for each agent.
+12. You turned **Mute Warnings** off and read the error text.
+
+## ZZMI does not load
+
+<Accordions type="multiple">
+<Accordion title="No banner, and you started the game from HoYoPlay, Steam or Epic" id="started-from-the-wrong-launcher">
+
+**Cause:** ZZMI loads only when XXMI Launcher starts the game. The **Start Game** button in HoYoPlay, or the **Play** button in Steam or the Epic Games Launcher, starts the game without it.
+
+**Fix:**
+
+1. Close the game.
+2. Update the game in HoYoPlay, Steam or the Epic Games Launcher first. XXMI Launcher does not update the game.
+3. Open XXMI Launcher and click the **ZZMI** icon.
+4. Click **Start**.
+
+**Game Launch** in the launcher's **General** settings must match your store: `Direct` for HoYoPlay, `Steam` for Steam, `Epic Games` for Epic. [Install mods with XXMI Launcher](/docs/zenless-zone-zero/getting-started/install-with-xxmi-launcher) shows each one.
+
+On Steam, this message means the game was started from its `.exe` without Steam:
+
+```text
+Please launch the game with the Steam Client
+```
+
+Set **Game Launch** to `Steam` and start the game from XXMI Launcher again.
+
+</Accordion>
+<Accordion title="No banner, and you have an NVIDIA graphics card" id="nvidia-smooth-motion">
+
+**Cause:** NVIDIA **Smooth Motion** is on. It loads into the game first and pushes the mod loader out. This is the most common reason for "game starts, no mods" in 2025 and 2026. It can also crash the game now and then, even with no mods.
+
+**Fix:**
+
+1. Close the game.
+2. Open the NVIDIA App and find the settings for Zenless Zone Zero.
+3. Set **Smooth Motion** to **Off**.
+4. Start the game again from XXMI Launcher.
+
+<img
+  src="/wiki-images/zenless-zone-zero-errors-mods-not-loading-2.webp"
+  alt="The NVIDIA Smooth Motion setting set to Off"
+/>
+
+{/* NEEDS HANDS-ON TEST: the exact place of the Smooth Motion setting in the current NVIDIA App (per-game profile or global settings), and whether XXMI DLL 1.3.2 still needs it off for Zenless Zone Zero. */}
+
+The Chinese NVIDIA App calls the same feature `AI插帧`. Turn frame generation off too. Mods need the game to draw with DirectX 11, and frame generation does not work with XXMI.
+
+</Accordion>
+<Accordion title="No banner, and the game runs in DirectX 12" id="directx-12">
+
+**Cause:** since version 3.0, Zenless Zone Zero has a DirectX 12 mode. ZZMI works only in DirectX 11. In DirectX 12, no mod loads.
+
+**Fix:**
+
+1. Close the game.
+2. In HoYoPlay, find the **DX12** box under **Start Game** and untick it.
+3. If you or a guide added `-use-d3d12` to the game's launch options, remove it.
+4. Start the game again from XXMI Launcher.
+
+**Epic Games version:** it has started in DirectX 12 by default since a September 2026 update. If no banner shows, try this community fix: in the Epic Games Launcher, add `-force-d3d11` to the game's **Additional Command Line Arguments**.
+
+{/* NEEDS HANDS-ON TEST: on Zenless Zone Zero 3.3, confirm the DX12 box under Start Game in HoYoPlay, whether Steam and Epic Games show the same box, and whether -force-d3d11 is still needed on the Epic Games version. */}
+
+With DirectX 12 off, you lose ray tracing, DLSS and frame generation. The XXMI team says DirectX 12 support would take years of work.
+
+Unofficial loaders that claim DirectX 12 support exist. They do not come from the XXMI team, they are untested, and this wiki does not cover them.
+
+</Accordion>
+<Accordion title="No mods or a crash while another tool runs" id="another-tool-injects">
+
+**Cause:** another program that hooks into the game at startup runs next to XXMI. Overwolf, Virtual Desktop and Oculus software have caused crashes with mods. Two tools that both hook in at start can clash, so the game opens without mods, or crashes.
+
+**Fix:** close the other program. Start the game only from XXMI Launcher.
+
+</Accordion>
+<Accordion title="You started another modded game at the same time" id="two-games-at-once">
+
+**Cause:** XXMI may not load into two games at once. While another game runs with its mods through XXMI, ZZMI may fail to load.
+
+**Fix:** close the other game. Then start Zenless Zone Zero from XXMI Launcher.
+
+{/* NEEDS HANDS-ON TEST: with XXMI Launcher 2.5.0, start another modded game, then Zenless Zone Zero, and check whether ZZMI loads. One report on the launcher's issue tracker says only one d3d11.dll hook can be armed at a time. */}
+
+</Accordion>
+<Accordion title="You followed an old guide with 3DMigoto Loader.exe or F1" id="old-standalone-zzmi">
+
+Standalone ZZMI from 2024 (`3DMigoto Loader.exe`, `F1` for help) is deprecated and gets no updates. Messages such as "Another instance of 3DMigotoLoader is running!" or "Error installing hook" come from it. Move to XXMI Launcher. To bring your mods over:
+
+1. In XXMI Launcher, click the 3-dots button next to **Start**, then **Open Mods Folder**.
+2. Copy only the mod folders from the old `Mods` folder into the new one.
+3. Do not copy `d3dx.ini`, `d3d11.dll`, `d3dcompiler_47.dll`, `ShaderFixes`, `ShaderCache`, or `3DMigoto Loader.exe`.
+4. If the old setup sits inside the game folder, delete it there.
+
+ZZMI already includes SlotFix. On the first start, the launcher may offer to disable duplicate libraries in `Mods`. Accept it.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Zenless Zone Zero: moving a standalone ZZMI Mods folder into XXMI Launcher 2.5.0 and the duplicate library prompt. */}
+
+</Accordion>
+</Accordions>
+
+## ZZMI loads, but a mod does not show
+
+<Accordions type="multiple">
+<Accordion title="The mod is in the wrong folder, or still zipped" id="wrong-folder">
+
+**Cause:** ZZMI reads only `.ini` files inside its own `Mods` folder. A `.zip`, `.7z` or `.rar` file there does nothing. Mods in the game folder do nothing either.
+
+**Fix:**
+
+1. In XXMI Launcher, click the 3-dots button next to **Start**, then **Open Mods Folder**. It opens `%AppData%\XXMI Launcher\ZZMI\Mods`.
+2. Extract the archive.
+3. Put the extracted mod folder inside `Mods`. Each mod gets its own folder with its `.ini` file in it.
+
+<Files>
+  <Folder name="ZZMI" defaultOpen>
+    <Folder name="Core" />
+    <Folder name="Mods" defaultOpen>
+      <Folder name="Your mod" defaultOpen>
+        <File name="mod.ini: any name ending in .ini" />
+        <File name="Body.buf" />
+        <File name="Diffuse.dds" />
+      </Folder>
+      <File name="mod.zip: ignored, extract it" />
+    </Folder>
+    <Folder name="ShaderFixes" />
+    <File name="d3dx.ini" />
+  </Folder>
+</Files>
+
+An extra folder level, such as `Mods\Your mod\Your mod\mod.ini`, still loads. Never put a `d3dx.ini`, `d3d11.dll` or a whole old `Mods` folder inside `Mods`.
+
+</Accordion>
+<Accordion title="The mod folder or its .ini starts with DISABLED" id="disabled-prefix">
+
+**Cause:** ZZMI skips every file and folder whose name starts with `DISABLED`, in any case. A parent folder with that prefix hides every mod inside it.
+
+**Fix:** rename the folder so its name no longer starts with `DISABLED`. Then press `F10` in game.
+
+The launcher also renames files to `DISABLED_...` on purpose. It does this to a stray `d3dx.ini` and to copies of libraries that ZZMI already includes, such as SlotFix. Leave those renamed.
+
+</Accordion>
+<Accordion title="You added the mod while the game was running" id="not-reloaded">
+
+**Cause:** ZZMI reads new mods only when it reloads.
+
+**Fix:**
+
+1. Switch to another agent, so the modded one is off screen.
+2. Press `F10`. ZZMI reloads all mods.
+3. Switch back to the agent.
+
+If the agent now looks half loaded, it was on screen during the reload. Switch away, press `F10` again, or restart the game.
+
+</Accordion>
+<Accordion title="Every mod vanished at once" id="mods-toggled-off">
+
+**Cause:** `F6` turns all mods on and off. You may have pressed it by mistake.
+
+**Fix:** press `F6` once. To compare a mod with the original look, hold `F9` instead.
+
+</Accordion>
+<Accordion title="Check the two graphics options" id="graphics-settings">
+
+Mods need **Character Quality** set to **High** and **High-Precision Character Animation** set to **Disable**. With either one wrong, mods break or turn into a mess of triangles.
+
+XXMI Launcher sets both before every start while **Configure Game Settings For ZZMI** is ticked in its **General** settings.
+
+**Fix:**
+
+1. In game, open <MenuPath path="Settings > Graphics" />.
+2. Set **Character Quality** to **High**.
+3. Set **High-Precision Character Animation** to **Disable**.
+4. Press `F10`.
+
+<img
+  src="/wiki-images/zenless-zone-zero-errors-mods-not-loading-1.webp"
+  alt="The Zenless Zone Zero graphics settings with High-Precision Character Animation set to Disable, marked with red arrows"
+/>
+
+**Image Quality** then shows **Custom**. That is expected.
+
+If the launcher shows "Failed to configure in-game settings for ZZMI!", untick **Configure Game Settings For ZZMI** and set the two options by hand as above.
+
+{/* NEEDS HANDS-ON TEST: the exact English labels and values in the 3.3 client (Character Quality, High, High-Precision Character Animation, Disable or Disabled, Image Quality, Custom). The screenshot is from the 1.3 menu. */}
+
+</Accordion>
+<Accordion title="A mod stopped working after a game update" id="outdated-mod">
+
+**Cause:** the update changed the hashes of the agent the mod is made for. The mod no longer finds the agent, so you see the original look. Almost every update changes some agents. Version 3.3 changed only a few hashes. Version 3.2 was the last big break.
+
+**Fix:**
+
+1. Open XXMI Launcher and let it update ZZMI. ZZMI fixes often come in the days and weeks after an update.
+2. Check that the banner shows the newest ZZMI version.
+3. Check the mod's page for an update.
+4. Follow [Fix your mods after a game update](/docs/zenless-zone-zero/getting-started/fix-mods-after-an-update). It shows the ZZZ Mod Fixer and how to run it only on the broken mods.
+
+</Accordion>
+<Accordion title="Two mods change the same agent" id="two-mods-one-agent">
+
+**Cause:** two mod folders change the same agent or outfit. Or a download holds several versions of one mod in subfolders, and all of them load at once. You then see a mix of both mods, or a mess of shapes.
+
+With **Mute Warnings** off, ZZMI prints a message like this:
+
+```text
+Possible Mod Conflict: Duplicate TextureOverride hash=...
+```
+
+**Fix:** keep one mod for each agent or outfit. Rename the others so they start with `DISABLED_`. For a download with several versions, keep one version folder. Then press `F10`.
+
+</Accordion>
+<Accordion title="You see nothing, not even an error" id="show-warnings">
+
+**Cause:** XXMI Launcher hides mod errors by default. A mod with a wrong file name or a bad texture fails without a sign.
+
+**Fix:**
+
+1. In XXMI Launcher, click the gear in the top-right corner.
+2. Open the **ZZMI** tab and untick **Mute Warnings**.
+3. Start the game and press `F10`.
+4. Read the red or orange text on screen. A beep also plays when a mod fails.
+
+An error that names a missing file or a texture format means the mod itself is broken. Check the mod's page for an update, or ask its creator.
+
+</Accordion>
+</Accordions>
+
+## Still stuck: repair ZZMI and test half your mods
+
+<Steps>
+<Step>
+
+### Repair ZZMI
+
+1. Remove only the files you added to `ZZMI\ShaderFixes` yourself. Never empty the folder: ZZMI ships its own file there, `Sucrose.png`.
+2. Delete the `ZZMI\ShaderCache` folder if you have one. ZZMI builds it again.
+3. In XXMI Launcher, click the 3-dots button next to **Start**, then **Repair ZZMI**. It reinstalls ZZMI and keeps your mods.
+4. Start the game and check the banner.
+
+</Step>
+<Step>
+
+### Test half your mods
+
+If ZZMI loads but one mod still does not show, another mod may be in the way. Find it by halves.
+
+1. Rename half of your mod folders so they start with `DISABLED_`. Keep the mod you are testing.
+2. Switch to another agent and press `F10`.
+3. Switch back and check the mod.
+4. If it shows now, the blocker is in the half you turned off. If not, it is in the half you kept.
+5. Keep halving that group until one mod is left.
+
+</Step>
+</Steps>
+
+Still nothing? Ask in the [Divine Skins Discord](https://discord.gg/divineskins) or the [AGMG Discord](https://discord.gg/agmg). Say what you see, your ZZMI version from the banner, your store, and which checks you did.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Crashes and launch errors"
+    href="/docs/zenless-zone-zero/errors/game-crashes"
+    icon={<Icon name="Bug" />}
+    level="beginner"
+  >
+    The game closes or crashes at start, with or without mods.
+  </PremiumCard>
+  <PremiumCard
+    title="XXMI Launcher problems"
+    href="/docs/zenless-zone-zero/errors/launcher-problems"
+    icon={<Icon name="XXMILauncher" />}
+    level="beginner"
+  >
+    The launcher will not install, open, update, or find the game.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ and contributors.
+- **Issue:** [3DMigoto fails to inject in ZZZ](https://github.com/leotorrez/ZZMI-Package/issues/52) and [Sudden failure of ZZMI on CN server](https://github.com/leotorrez/ZZ-Model-Importer-Assets/issues/42), on NVIDIA Smooth Motion.
+- **Image:** screenshot 1 from [ZZZ 1.3 Character Fix](https://gamebanana.com/tools/18386) by petrascyll (CC BY-NC-ND 4.0).
+- **Image:** screenshot 2 by [jatterjut-spec](https://github.com/jatterjut-spec) in [XXMI Launcher issue 235](https://github.com/SpectrumQT/XXMI-Launcher/issues/235).
+- **Tool page:** [ZZMI - Zenless Zone Model Importer](https://gamebanana.com/tools/17467) by LeoMods\_, for the Epic Games notes.
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT.
+- **Tool:** [ZZMI-Package](https://github.com/leotorrez/ZZMI-Package) by leotorrez and the ZZMI maintainers.

@@ -1,0 +1,174 @@
+---
+title: "Linux and Steam Deck"
+description: "Can you use Wuthering Waves mods on Linux or a Steam Deck? What is known about XXMI Launcher and WWMI under Proton, what is not known, and where to ask."
+category: "errors"
+patch: "3.8"
+keywords:
+  [
+    "wuthering waves mods linux",
+    "wuthering waves mods steam deck",
+    "xxmi launcher linux",
+    "wwmi proton",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+Wuthering Waves and XXMI Launcher are made for Windows. Some players run both on Linux through Proton, which translates the Windows game. This page says what is known, what is not known yet, and where to ask for help. It is not a full setup guide.
+
+<Callout type="warning" title="Unofficial, and not tested here">
+  XXMI Launcher does not target Linux, and its issue tracker does not take Linux
+  bug reports. Its author sends Linux players to the AGMG Discord. Nobody has
+  tested anything on this page with Wuthering Waves 3.8 for this wiki.
+</Callout>
+
+{/* NEEDS HANDS-ON TEST: everything on this page with Wuthering Waves 3.8, XXMI Launcher 2.5.0, XXMI DLL 1.3.3 and WWMI 1.2.2, on a Linux PC and on a Steam Deck, including whether mods exported with WWMI Tools 1.9.4 show their textures under Proton. */}
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Linux" note="or a Steam Deck in Desktop Mode">
+    A Linux PC
+  </Requirement>
+  <Requirement icon="Steam" note="the version players report working">
+    Wuthering Waves on Steam
+  </Requirement>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/wuthering-waves/tools/xxmi-launcher"
+    note="the portable build"
+  >
+    XXMI Launcher
+  </Requirement>
+</Requirements>
+
+Written for XXMI Launcher 2.5.0, XXMI DLL 1.3.3 and WWMI 1.2.2.
+
+## The risk is the same as on Windows
+
+Mods break the Terms of Use of Wuthering Waves on every system. Kuro Games bans "unauthorized third-party programs" and getting around "the technical measures we take in any form". A terminated account "cannot be restored". Linux and Proton are not a way around any of this.
+
+Never use a Proton build, launcher or setting that claims to get around the game's protection. Use mods only on an account you can afford to lose. [What's allowed and how to stay safe](/docs/wuthering-waves/getting-started/stay-safe) explains the risk.
+
+## What is known
+
+<img
+  src="/wiki-images/wuthering-waves-errors-linux-steam-deck-1.webp"
+  alt="One Proton prefix that runs both the Steam version of Wuthering Waves and the portable XXMI Launcher with its WWMI Mods folder and a native d3dcompiler_47, next to four rules for Linux"
+/>
+
+- **The game runs under Proton.** ProtonDB rates the Steam version gold, from more than 500 player reports.
+- **Mods have loaded for some players.** A setup guide from the AGMG Discord's Linux channel was reported working in May 2026, with the Steam version and Proton-GE 10-28.
+- **The launcher and the game share one prefix.** A prefix is the folder where Wine or Proton keeps one fake Windows install. XXMI Launcher must run inside the game's prefix.
+- **Use the portable build.** Download `XXMI-Launcher-Portable-vX.X.X.zip` from the [XXMI Launcher releases](https://github.com/SpectrumQT/XXMI-Launcher/releases/latest) on GitHub. It needs Wine 9.22 or newer.
+- **Use a current Proton-GE or Proton-CachyOS build.** [ProtonPlus](https://flathub.org/apps/com.vysp3r.ProtonPlus) installs them. Restart Steam, then pick the build in the game's **Compatibility** settings.
+- **Add a native `d3dcompiler_47`.** Wine's own copy turns modded bodies flat. [Modded bodies are flat](#flat-bodies) has the fix.
+
+The AGMG guide starts XXMI Launcher through a hand-typed Steam launch command. This wiki does not print that command, because nobody has checked what each part of it does. Ask in the AGMG Linux channel for the current steps.
+
+Once mods load, the launcher settings are the same as on Windows: DirectX 11, the right **Client Resource Quality**, and **Configure Game Settings For WWMI** on. [Install mods with XXMI Launcher](/docs/wuthering-waves/getting-started/install-with-xxmi-launcher) explains them.
+
+## Steam Deck
+
+Wuthering Waves is on Steam, so a Steam Deck can use the same route in Desktop Mode. Our sources hold no report of a full mod setup on a Steam Deck, and support for the game itself on the Deck was still listed as in progress.
+
+XXMI's folder picker does not show hidden folders, such as `.local`. Type the path into the picker's address bar instead.
+
+{/* NEEDS HANDS-ON TEST: a Steam Deck from start to finish with Wuthering Waves 3.8 and WWMI 1.2.2, in Desktop Mode. */}
+
+## What is not known
+
+- Whether the May 2026 setup still works. Version 3.7 (September 30, 2026) broke the Steam version on Linux for a while, and version 3.8 changed how the Steam version installs and starts again.
+- Which Proton build works best now.
+- Whether the versions from Kuro's own launcher or the Epic Games Store load mods under Wine.
+- A full Steam Deck setup, from install to a mod in game.
+
+Tested it? Tell us on Discord, and we will update this page.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Modded bodies are flat, the head looks fine" id="flat-bodies">
+
+**Cause:** Wine's own `d3dcompiler_47` compiles WWMI's shaders wrongly. The body of a modded Resonator, a playable character, collapses into a flat sliver. Mods that use files in `ShaderFixes` can crash the game too.
+
+**Fix:**
+
+1. Close the game and XXMI Launcher.
+2. Install Microsoft's native `d3dcompiler_47` into the game's Proton prefix, for example with winetricks pointed at that prefix:
+
+   ```text
+   winetricks d3dcompiler_47
+   ```
+
+3. Start the game from XXMI Launcher again.
+
+If you do not know how to reach your Proton prefix, ask in the AGMG Linux channel.
+
+{/* NEEDS HANDS-ON TEST: that a native d3dcompiler_47 installed into the Proton prefix of the Steam version clears the flat body meshes with WWMI 1.2.2 on Wuthering Waves 3.8. */}
+
+</Accordion>
+<Accordion title='"d3d11.dll is missing expected entry point"' id="entry-point">
+
+**Cause:** on Linux, this error comes from the graphics layers of Wine or Proton, VKD3D or NVAPI.
+
+**Fix:** turn off VKD3D and NVAPI in your Wine runner's settings, then start again. If it stays, ask in the AGMG Discord's Linux channel.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: that turning off VKD3D and NVAPI clears this error for WWMI on Linux. */}
+
+</Accordion>
+<Accordion title="XXMI Launcher cannot find the game" id="game-not-found">
+
+1. Check that the launcher and the game run in the same prefix.
+2. In the launcher settings, set **Game Folder** to the folder that directly holds `Wuthering Waves.exe` and the `Client` and `Engine` folders.
+3. Look for your Linux folders under Wine's `Z:` drive. A Steam library is often at `Z:/home/<username>/.local/share/Steam/steamapps/common/`.
+4. If the folder sits under a hidden folder such as `.local`, type its path by hand.
+
+</Accordion>
+<Accordion title="The Steam version is stuck on loading" id="stuck-loading">
+
+Some Linux players got stuck on loading after version 3.7. The fixes passed around for it are hand-typed launch settings, which this wiki does not cover. Update XXMI Launcher, and ask in the AGMG Linux channel.
+
+</Accordion>
+<Accordion title="Error 13-131104-257 when the game starts" id="security-error">
+
+This error comes from the game's own security system. One player got it with XXMI on Arch Linux in version 3.3, while another player's Steam setup worked, so it seems to depend on the setup. There is no supported fix. Do not try tools or settings that claim to get around it.
+
+</Accordion>
+</Accordions>
+
+## Where to ask
+
+- The XXMI Launcher tracker does not take Linux bug reports. Ask in the Linux support channel of the [AGMG Discord](https://discord.gg/agmg), the support server for WWMI.
+- You can also ask in [Divine's Discord](https://discord.gg/divineskins).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Install mods with XXMI Launcher"
+    href="/docs/wuthering-waves/getting-started/install-with-xxmi-launcher"
+    icon={<Icon name="XXMILauncher" />}
+    level="beginner"
+  >
+    The launcher settings mods need, and your first mod.
+  </PremiumCard>
+  <PremiumCard
+    title="Mods not loading"
+    href="/docs/wuthering-waves/errors/mods-not-loading"
+    icon={<Icon name="PackageX" />}
+    level="beginner"
+  >
+    The checks to run when the game starts but your mods don't show.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This page is based on the work of these creators. Check out their original pages.
+
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT, for the portable build and its Wine notes. Linux support statements by SpectrumQT, maintainer of XXMI Launcher.
+- **Tool:** [WWMI](https://github.com/SpectrumQT/WWMI-Package) by SpectrumQT and the WWMI team.
+- **Community:** the Linux setup report and the `d3dcompiler_47` fix were shared by players on the XXMI Launcher issue tracker, from the Linux channel of the [AGMG Discord](https://discord.gg/agmg).
+- **Tool:** [ProtonPlus](https://flathub.org/apps/com.vysp3r.ProtonPlus) by Vysp3r.
+- **Reports:** [Wuthering Waves on ProtonDB](https://www.protondb.com/app/3513350).

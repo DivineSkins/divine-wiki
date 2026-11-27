@@ -1,0 +1,215 @@
+---
+title: "Replace character icons and portraits"
+description: "Put your own art on a Zenless Zone Zero agent's icon, portrait or chain-attack avatar with a small texture mod you write by hand."
+category: "ui"
+patch: "3.3"
+keywords:
+  ["zzz icon mod", "zzz ui mod", "agent icon", "texture override", "zzmi"]
+---
+
+<LevelPill level="beginner" />
+
+You will swap an agent's icon or portrait for your own art, with a small texture-only mod. No 3D work: you find the image in a small dump, edit it and write a short `.ini`. Written for XXMI Launcher 2.5.0 and ZZMI 1.5.2 on Zenless Zone Zero 3.3.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/zenless-zone-zero/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement
+    icon="PaintNET"
+    href="/docs/zenless-zone-zero/tools/texture-editors"
+    note="or Photoshop"
+  >
+    Paint.NET
+  </Requirement>
+  <Requirement icon="Image">
+    Your own art, the same shape as the icon
+  </Requirement>
+</Requirements>
+
+Use art you made or have the right to use. A UI mod changes how the game looks, never what it tells you. Never add information the game does not show, like enemy weaknesses: that is a mod that gives an unfair advantage.
+
+## Which images you can replace
+
+Creators make UI mods for agent icons and portraits, sticker icons, and the small chibi avatars of a Chain Attack. Each screen draws its own image, so dump the screen that shows the one you want. Some screens may share one texture, so one file can change more than one screen.
+
+{/* NEEDS HANDS-ON TEST: which Zenless Zone Zero 3.3 screens draw agent icons, portraits and chain-attack avatars, which of them share one texture, and the format and size of each */}
+
+<img
+  src="/wiki-images/zenless-zone-zero-ui-replace-icons-1.webp"
+  alt="Four steps: copy the icon's pixel shader and press F8, read the hash and format from the dumped file name (the example hash is a placeholder), edit the image upside down because the game stores it that way, and write one override section per image"
+/>
+
+## Make the icon mod
+
+<Steps>
+<Step>
+
+### Set up
+
+1. In XXMI Launcher, click the gear, open the **ZZMI** tab and tick **Enable Hunting**.
+2. Turn off any mod that already changes this agent's icons: rename its folder so it starts with `DISABLED`.
+3. In your `Mods` folder, make a folder such as `BelleIcons`.
+4. Inside it, make a text file and rename it `BelleIcons.ini`. Delete the `.txt` ending.
+
+</Step>
+<Step>
+
+### Find the icon's pixel shader
+
+By default, a dump does not save textures as plain `.dds` files, and a full dump can take many gigabytes. A small dump of the icon's shader is faster and saves exactly what you need.
+
+1. Start the game and open the screen that shows the image.
+2. Press `Numpad 0`. Green hunting text appears.
+3. Press `Numpad 1` or `Numpad 2` until the icon disappears.
+4. Press `Numpad 3` to copy the shader's 16-digit hash.
+
+[Find a hash with hunting mode](/docs/zenless-zone-zero/basics/find-a-hash) shows the keys in detail.
+
+</Step>
+<Step>
+
+### Dump the screen
+
+1. Paste this into `BelleIcons.ini`, with your shader hash instead of `0123456789abcdef`:
+
+```ini
+[ShaderOverrideIconDump]
+hash = 0123456789abcdef
+analyse_options = dump_rt dump_tex dump_cb dump_vb dump_ib buf txt dds
+```
+
+2. Press `F10`, then `F8`. The game freezes while it writes the dump.
+3. ZZMI saves a `FrameAnalysis-...` folder in `%AppData%\XXMI Launcher\ZZMI`. Rename it after the screen, like `FrameAnalysis-AgentIcon`, so you can find it later.
+4. Delete the `[ShaderOverrideIconDump]` section from your `.ini` when you are done.
+
+[Make a frame dump](/docs/zenless-zone-zero/basics/frame-dump) explains dumps in full.
+
+</Step>
+<Step>
+
+### Find the image
+
+1. Open the dump folder, then `deduped`.
+2. Look through the `.dds` files for your image. It is upside down. Color images end in `UNORM_SRGB`.
+3. Read the file name, for example `3a5f9c21-BC7_UNORM_SRGB.dds` (a placeholder, not a real icon). The start is the hash. The end is the format.
+4. Copy the file into your mod folder and give it a clear name, like `BelleIcon.dds`.
+
+Keep the exact width and height of the file you found.
+
+</Step>
+<Step>
+
+### Edit the image
+
+1. Open the copied `.dds` in Paint.NET.
+2. Turn your own art the same way as the original, then paste it in. The file must stay upside down. <MenuPath path="Image > Flip Vertical" /> turns a picture upside down.
+3. Keep the alpha: transparent corners and edges must stay transparent.
+4. Save in the format from the file name: `BC7_UNORM_SRGB` is `BC7 (sRGB, DX 11+)`, `BC7_UNORM` is `BC7 (Linear, DX 11+)`. Tick **Generate Mip Maps**.
+
+Many guides say every icon is Linear. Follow the file name instead: it is always right. [Save DDS textures the right way](/docs/zenless-zone-zero/textures/save-dds-files) has every option.
+
+{/* NEEDS HANDS-ON TEST: whether Zenless Zone Zero 3.3 icons need a vertical flip or a 180 degree turn, compared with the dumped original, and whether icons need mipmaps */}
+
+</Step>
+<Step>
+
+### Write the .ini
+
+Add one pair of sections per image, with your own hash and file name:
+
+```ini
+[TextureOverrideBelleIcon]
+hash = 3a5f9c21
+this = ResourceBelleIcon
+
+[ResourceBelleIcon]
+filename = BelleIcon.dds
+```
+
+`3a5f9c21` is a placeholder hash: put the one from your own file name in its place. Never write a note after the hash on the same line. Each section name must be unique in the file.
+
+<Files>
+  <Folder name="Mods" defaultOpen>
+    <Folder name="BelleIcons" defaultOpen>
+      <File name="BelleIcons.ini" />
+      <File name="BelleIcon.dds" />
+      <File name="BellePortrait.dds" />
+    </Folder>
+  </Folder>
+</Files>
+
+</Step>
+<Step>
+
+### Test it
+
+1. Press `F10` in game.
+2. Open each screen and check your art. It should be the right way up.
+3. Untick **Enable Hunting** when you are done.
+
+</Step>
+</Steps>
+
+UI hashes can change in a game update. If your icon stops showing after an update, dump the screen again and update the `hash =` line.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="My art is upside down or mirrored in game" id="upside-down">
+
+The file was not turned the same way as the original. Open the dumped original next to your file, turn your art to match, and save again.
+
+</Accordion>
+<Accordion title="Nothing changed" id="nothing-changed">
+
+Check the hash and the `filename =` line. Make sure no other icon mod for that agent is on. If the hash is right and nothing shows, the game may not check that texture on this screen. Add `checktextureoverride = ps-t0` to a `[ShaderOverride...]` section with the hash of the shader that draws the icon.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check whether any Zenless Zone Zero 3.3 icon needs the checktextureoverride line, and which ps-t slot it needs */}
+
+</Accordion>
+<Accordion title="Colors look too dark or washed out" id="wrong-colors">
+
+The file was saved as sRGB when the original was Linear, or the other way round. Check the end of the dumped file name and save again.
+
+</Accordion>
+<Accordion title="Yellow error text after F10" id="yellow-text">
+
+ZZMI could not load the file. Check the file name, and keep the original width and height.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Your first mod: recolor a character"
+    href="/docs/zenless-zone-zero/textures/recolor-a-character"
+    icon={<Icon name="Palette" />}
+    level="beginner"
+  >
+    Change the colors of an agent's outfit or hair.
+  </PremiumCard>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/zenless-zone-zero/publishing/publishing-checklist"
+    icon={<Icon name="Package" />}
+    level="beginner"
+  >
+    Pack your icon mod with the right files and credits.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Video:** "¡APRENDE estos AJUSTES (un poco) AVANZADOS de MODS! | Zenless Zone Zero" by Proxy Index: the upside-down UI image.
+- **Guide:** [Environment Hash Fix Guide](https://gamebanana.com/tuts/18140) by bunar21.
+- **Guide:** [3DMigoto Hunting & Dumping Tutorial](https://leotorrez.github.io/modding/guides/hunting) by Satan1c, on LeoTorreZ's modding site.

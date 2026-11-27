@@ -1,0 +1,296 @@
+---
+title: "Weight paint a mesh"
+description: "Make a new or changed Wuthering Waves mesh bend with the Resonator in Blender: copy weights from the original, fix the rest by hand, and test with WWMI Tools."
+category: "models"
+patch: "3.8"
+keywords:
+  [
+    "wuthering waves weight painting",
+    "wwmi tools",
+    "vertex groups",
+    "merged skeleton",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+Weights tell the game which bones move each vertex of a mesh. A new part with no weights, or bad ones, stays frozen or stretches into spikes when the Resonator moves. This page shows how to copy weights from the original model, fix what is left, and test the result in game. Written for WWMI Tools 1.9.4 on Blender 4.5 LTS.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="Blender" href="/docs/wuthering-waves/tools/blender-add-on">
+    Blender 4.5 LTS with WWMI Tools
+  </Requirement>
+  <Requirement icon="Box" note="with a hidden reference copy">
+    The original Resonator, imported
+  </Requirement>
+  <Requirement icon="Shirt">Your new or edited mesh</Requirement>
+</Requirements>
+
+A Resonator is the game's name for a playable character. Before you start, make a hidden, untouched copy of the original import. It is your weight source. [Get a model into Blender](/docs/wuthering-waves/models/import-into-blender#keep-a-clean-reference-copy) shows how, and why the copy must stay outside your mod's collection.
+
+## How weights work in Wuthering Waves
+
+Each vertex group on an imported component is one bone of the Resonator. The group's name is the bone's number, such as `0` for the head. A weight from 0 to 1 says how strongly that bone moves the vertex: blue is 0, red is 1.
+
+<img
+  src="/wiki-images/wuthering-waves-models-weight-painting-1.webp"
+  alt="Two Resonator heads in Weight Paint mode with vertex group 0 selected, the hair red where the head bone moves it, and the Vertex Groups list showing 0, 1, 2 and on"
+/>
+
+The skeleton mode you picked at import decides how the numbers work. Weight in that mode, and export with the same one.
+
+| Skeleton                    | Group numbers                                                                                                                                                |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Merged** (the default)    | One list for the whole Resonator. A bone has the same number in every component, so a vertex in one component can follow any bone, like long hair to a cape. |
+| **Per-Component** (weapons) | Each component has its own list. The same bone can have another number in each component, and a vertex can only follow bones of its own component.           |
+
+Five rules come with them:
+
+| Rule                                          | What happens if you break it                                                              |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Use the numbers of the original import        | The mesh follows the wrong bones and stretches in game.                                   |
+| Every group name is a number                  | Export stops with `Vertex Group names of object ... are ambigous!`.                       |
+| No new bones                                  | The skeleton comes from the game. New hair or cloth cannot get bones of its own.          |
+| At most 256 weighted groups per component     | Export stops with `Component4 256 VG limit exceeded!`, with the number of your component. |
+| At most 4 weights per vertex, like the import | The game stores 4 bones per vertex for most components. Limit them in the clean-up below. |
+
+WWMI Tools also helps. At export it fills gaps in the number list, sorts it, and normalizes the weights. A group with `ignore` in its name is skipped, which is handy for a helper group you want to keep in Blender. A Merged import leaves out groups with no weight, so gaps in a component's list are normal.
+
+Weapons usually follow one group, `0`.
+
+<YouTube
+  id="dKZrzG5r13g"
+  title="Vertex Groups, Blender 2.80 Fundamentals, by the Blender Foundation"
+/>
+
+The video uses Blender 2.80. In Blender 4.5 the "2D falloff" option is **Falloff Shape** set to `Projected`. Its automatic weights make groups named after your own bones: the game cannot use those, so copy weights from the original instead.
+
+## Pick a method
+
+| Your part                                               | Method                                                              |
+| ------------------------------------------------------- | ------------------------------------------------------------------- |
+| A rigid piece that follows one bone: a hat, an ornament | [Give it one bone](#give-a-rigid-piece-one-bone)                    |
+| Clothing or a reshaped part that sits on the body       | [Copy weights with Data Transfer](#copy-weights-with-data-transfer) |
+| One area bends wrong after the copy                     | [Fix one area](#fix-one-area)                                       |
+| Clothing over the legs or armpits that keeps tearing    | Try the Robust Weight Transfer add-on, then fix by hand             |
+
+<ToolCard
+  name="Robust Weight Transfer"
+  href="https://github.com/sentfromspacevr/robust-weight-transfer/releases"
+  badge="Untested"
+  icon={<Icon name="GitHub" />}
+>
+  Blender add-on that copies body weights onto clothing with fewer bad weights
+  between the legs and at the armpits. Free, GPL-3.0, v1.1.9.
+</ToolCard>
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: Robust Weight Transfer 1.1.9 on Blender 4.5 with a WWMI Tools 1.9.4 Merged import keeps the group names numeric and the export loads in game. */}
+
+## Copy weights with Data Transfer
+
+This is the fastest way to weight clothing or any mesh that sits on the body.
+
+<Steps>
+<Step>
+
+### Line the mesh up
+
+1. Place your mesh where it should sit on the original component. The closer it fits, the better the copy.
+2. Press `Ctrl+A` and choose **All Transforms**.
+
+Work on the model as it appears after import.
+
+</Step>
+<Step>
+
+### Add the modifier
+
+1. Select your mesh and open the **Modifiers** tab (the wrench) in the Properties editor.
+2. Add a **Data Transfer** modifier.
+3. Set **Source** to the hidden copy of the original component. With a Per-Component import, use the component your mesh will join.
+4. Keep the **Object Transform** button to the right of **Source** turned on (blue). It makes the copy use world positions.
+5. Tick **Vertex Data** and pick **Vertex Groups**.
+6. Change **Mapping** from `Nearest Vertex` to `Nearest Face Interpolated`. This avoids spiky weights.
+7. Leave **Layer Selection** on `All Layers` and **Layer Mapping** on `By Name`.
+8. Click **Generate Data Layers**. It adds the source's numbered groups to your mesh. Without them the modifier copies nothing.
+
+<img
+  src="/wiki-images/wuthering-waves-models-weight-painting-2.webp"
+  alt="The Data Transfer modifier panel with Source set to an object called OriginalBow, Vertex Data ticked, Vertex Groups picked, Mapping still on Nearest Vertex, Layer Selection All Layers, Layer Mapping By Name, and the Generate Data Layers button"
+/>
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: Data Transfer from a WWMI Tools 1.9.4 Merged component onto a new mesh in Blender 4.5, and that the generated groups keep the original numbers. */}
+
+</Step>
+<Step>
+
+### Apply it and check
+
+1. Click the down arrow in the modifier's header and choose **Apply**. Or hover over the modifier and press `Ctrl+A`.
+2. Press `Ctrl+Tab` to enter Weight Paint mode.
+3. Click through a few groups in the **Vertex Groups** list. The colors should look like the original's in the same place.
+
+</Step>
+</Steps>
+
+Data Transfer is fast but rough. Expect to fix spots where parts touch: arms against the body, between the legs, and fingers.
+
+## Give a rigid piece one bone
+
+A hat or an ornament should not bend. Give all of it one group at full weight.
+
+1. Find the bone. In Weight Paint mode on the original, click through its groups until the area under your piece turns red. For a hat, that is usually `0`, the head. The beginner guide binds **Sample Group** to `Shift+right-click`: then a click on the mesh lists the groups with weight there.
+2. Select your piece, press `Tab` for Edit Mode, and press `A` to select everything.
+3. In the **Object Data** tab (the green triangle), under **Vertex Groups**, click `+`. Double-click the new group and rename it to the bone's number, for example `0`.
+4. Set **Weight** to `1.000` and click **Assign**.
+5. Back in Weight Paint mode, open **Weights** and choose **Normalize All**.
+
+One group is enough. WWMI Tools adds the other numbers at export.
+
+## Fix one area
+
+### Copy one group again
+
+Use this when one group came out wrong, for example the upper arm grabbed the body.
+
+1. In Object Mode, click the original copy, then `Shift+click` your mesh so it is the active object.
+2. In each object's **Vertex Groups** list, select the same group.
+3. Press `Ctrl+Tab` for Weight Paint mode.
+4. Open the **Weights** menu and choose **Transfer Weights**.
+5. In the panel at the bottom left, set **Vertex Mapping** to `Nearest Face Interpolated`, the source and destination layers to `Active Layer`, and **Mix Mode** to `Replace`.
+6. Open **Weights** again and choose **Normalize All**, with **Lock Active** off. Each vertex's weights now add up to 1.
+
+<img
+  src="/wiki-images/wuthering-waves-models-weight-painting-3.webp"
+  alt="The Weights menu in Weight Paint mode with Normalize All highlighted and its tooltip, plus Smooth, Transfer Weights and Limit Total in the list"
+/>
+
+{/* NEEDS HANDS-ON TEST: the source and destination layer labels of the Transfer Weights panel in Blender 4.5, and which object must be active. */}
+
+### Paint it by hand
+
+1. In Weight Paint mode, pick the group to change.
+2. Set the brush **Weight** (the value you paint) and **Strength** (1.0 replaces what is there).
+3. Paint. To take weight away, set **Weight** to `0`.
+4. Use the **Blur** or **Average** brush on hard edges between red and blue.
+5. To paint the back side too, set **Falloff Shape** to `Projected` and untick **Front Faces Only**.
+6. Finish with **Weights** > **Smooth**, then **Weights** > **Normalize All**.
+
+Keep **Auto Normalize** on in the tool options while you paint with brushes. Turn it off when you use the **Gradient** tool.
+
+{/* NEEDS HANDS-ON TEST: where Falloff Shape, Front Faces Only and Auto Normalize sit in the Blender 4.5 Weight Paint tool settings. */}
+
+## Test weights fast in game
+
+A full export rewrites `mod.ini` and copies textures. While you paint, export only the weights:
+
+1. Export the mod once in full, as [Export your mod from Blender](/docs/wuthering-waves/models/export-your-mod) shows.
+2. In the **Export Mod** mode, open **Advanced** and tick **Partial Export**.
+3. In the **Partial Export** panel, untick every buffer except **Blend Buffer**.
+4. Click **Export Mod**.
+5. In game, switch to another Resonator, press `F10`, and switch back.
+
+Any change to the vertex count needs a full export again. Untick **Partial Export** when you finish painting.
+
+{/* NEEDS HANDS-ON TEST: on WWMI Tools 1.9.4, a Partial Export with only Blend Buffer updates the weights in game after F10. */}
+
+## Test with an armature
+
+Posing the mesh with an armature in Blender finds bad weights before you start the game. This is optional. [AnimeGameArmatures](https://github.com/Seris0/AnimeGameArmatures) by Seris0 has Wuthering Waves armatures for a few Resonators only, such as Changli, Jinhsi and Yinlin. Checked on 2026-11-24: that folder was last changed in October 2024, before several updates that changed models.
+
+If you pose with an Armature modifier, delete it before you export. With **Apply All Modifiers** on, the export applies every visible modifier, so the posed shape would end up in your mod.
+
+{/* NEEDS HANDS-ON TEST: whether an AnimeGameArmatures Wuthering Waves armature still matches a WWMI Tools 1.9.4 Merged import on version 3.8. */}
+
+## Clean up before every export
+
+Run this on the final objects of your mod.
+
+1. Press `N` in the 3D Viewport, open the **WWMI Tools** tab, and set **Mode** to **Toolbox**.
+2. Select your objects and click **Merge Vertex Groups**. It folds groups like `7.1` into `7`.
+3. On a new part only, click **Remove Unused Vertex Groups**.
+4. In Weight Paint mode, run **Weights** > **Limit Total** with a limit of `4`, then **Weights** > **Normalize All**.
+5. Check that every group name is a number. Delete groups named after bones of another model, or put `ignore` in their name.
+6. Compare the numbers with a fresh import of the same Resonator. A piece on the head should use the head's number, not the number it had on another model.
+
+**Fill Gaps In Vertex Groups** is optional: the export option **Add Missing Vertex Groups** does the same, and it is on by default.
+
+{/* NEEDS HANDS-ON TEST: what WWMI Tools 1.9.4 does with a vertex that has more than 4 weights. */}
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The mesh explodes into spikes in game" id="mesh-explodes">
+
+The groups have the wrong numbers, often numbers kept from another model. Or the export **Skeleton** does not match the import. Compare the group list with a fresh import, set **Skeleton** to the mode you imported with, and export again.
+
+</Accordion>
+<Accordion title="One area stretches when the Resonator moves" id="one-area-stretches">
+
+That area picked up weights from the wrong bone, often where an arm touches the body. Copy that group again with **Transfer Weights**, smooth it, and run **Normalize All**. Lining your mesh up closer to the original helps.
+
+</Accordion>
+<Accordion title="Data Transfer changed nothing" id="transfer-did-nothing">
+
+Check these in order:
+
+- **Source** is empty or points to the wrong object.
+- Your mesh has no groups with the same names. Click **Generate Data Layers**.
+- **Object Transform** is off, so the copy looks in the wrong place.
+- You are previewing with an Armature modifier above the Data Transfer modifier. Move Data Transfer to the top.
+
+</Accordion>
+<Accordion title="Hair or cloth does not sway" id="no-sway">
+
+The part follows a rigid group such as the head or the spine. Weight it to the Resonator's own moving groups instead: hair, cape or coat tail bones. With a Merged import, any component can use them.
+
+</Accordion>
+<Accordion title='"Vertex Group names of object ... are ambigous!"' id="ambiguous-names">
+
+One group has a name that is not a number, among numbered groups. It often comes from a model you imported from elsewhere. Rename it to the right number, delete it, or put `ignore` in its name.
+
+</Accordion>
+<Accordion title='"256 VG limit exceeded!"' id="vg-limit">
+
+One component uses more than 256 groups with weight in them. Remove weights you do not need, or move some objects into another component.
+
+</Accordion>
+</Accordions>
+
+More symptoms and fixes are on [Model problems in game](/docs/wuthering-waves/errors/model-problems).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="UV maps, vertex colors, and outlines"
+    href="/docs/wuthering-waves/models/uvs-and-vertex-colors"
+    icon={<Icon name="Palette" />}
+    level="intermediate"
+  >
+    Keep textures lined up and outlines looking like the game's.
+  </PremiumCard>
+  <PremiumCard
+    title="Add or swap clothing parts"
+    href="/docs/wuthering-waves/models/add-clothing-parts"
+    icon={<Icon name="Shirt" />}
+    level="intermediate"
+  >
+    Put a piece from another Resonator on yours, weighted and textured.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Video:** [Vertex Groups - Blender 2.80 Fundamentals](https://www.youtube.com/watch?v=dKZrzG5r13g) by the Blender Foundation.
+- **Video:** [How Does The Data Transfer Modifier Really Work?](https://www.youtube.com/watch?v=6_B1xZK-o-8) by Game Abuse Studios.
+- **Video:** [WEIGHT PAINTING in BLENDER | Beginner to Pro](https://www.youtube.com/watch?v=tUIIauuXveE) by OzzO.
+- **Guide:** [WWMI Tools Modder Guide](https://github.com/SpectrumQT/WWMI-Tools/blob/main/guides/modder_guide.md) by SpectrumQT: skeleton modes, partial export.
+- **Guide:** [Beginner's Guide to Wuthering Waves modding](https://gamebanana.com/tuts/19096) by Denwarenji: the one-bone method.
+- **Guide:** [Weight painting lesson](https://docs.google.com/presentation/d/1qfuKQj3WGSHpkZhhUwvLy7XVnZBIqutq2XLWqLN-xck) by [Cybertron: The Sequel](https://discord.com/users/622502585823395841) in the [AGMG Discord](https://discord.gg/agmg).
+- **Images:** images 1 and 3 from [Beginner's Guide to Wuthering Waves modding](https://gamebanana.com/tuts/19096) by Denwarenji. Image 2 from [Custom Weapon Modding Walkthrough](https://leotorrez.github.io/modding/guides/weapon-banana) by SilentNightSound.
+- **Tools:** [WWMI Tools](https://github.com/SpectrumQT/WWMI-Tools) by SpectrumQT, [Robust Weight Transfer](https://github.com/sentfromspacevr/robust-weight-transfer) by SentFromSpaceVR, [AnimeGameArmatures](https://github.com/Seris0/AnimeGameArmatures) by Seris0.

@@ -1,0 +1,343 @@
+---
+title: "XXMI Launcher problems"
+description: "Fix XXMI Launcher when it will not install, open, update, or find Wuthering Waves, from antivirus warnings to the Game Folder error."
+category: "errors"
+patch: "3.8"
+keywords:
+  [
+    "xxmi launcher not opening",
+    "xxmi launcher virus",
+    "game installation not found",
+    "wuthering waves game folder xxmi",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+XXMI Launcher will not install, open, update, or find Wuthering Waves. Find the message you see below and follow its fix. Written for XXMI Launcher 2.5.0, XXMI DLL 1.3.3 and WWMI 1.2.2.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/wuthering-waves/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="UserRound">A Windows admin account</Requirement>
+  <Requirement
+    icon="WutheringWaves"
+    note="Kuro's launcher, Steam or Epic Games"
+  >
+    Wuthering Waves on PC
+  </Requirement>
+</Requirements>
+
+XXMI Launcher needs admin rights to add the mod loader to the game. A Windows permission prompt each time it starts the game is normal.
+
+## Start with the real launcher
+
+Many problems come from a wrong download. Get XXMI Launcher only from [its GitHub releases page](https://github.com/SpectrumQT/XXMI-Launcher/releases/latest), made by SpectrumQT. The installer is named `XXMI-Launcher-Installer-Online-v2.5.0.msi`. Lookalike sites with similar names exist: avoid them.
+
+<img
+  src="/wiki-images/wuthering-waves-errors-launcher-problems-2.webp"
+  alt="The Assets list on the XXMI Launcher v2.5.0 release page, with the .msi installer and the portable .zip"
+/>
+
+Install it with **Quick Installation**, to `%AppData%\XXMI Launcher`. Never install it inside the game folder or in Program Files.
+
+## Install problems
+
+<Accordions type="multiple">
+<Accordion title="XXMI Launcher requires installation by an Admin user account" id="needs-admin">
+
+<img
+  src="/wiki-images/wuthering-waves-errors-launcher-problems-1.webp"
+  alt="XXMI Launcher installer message: XXMI Launcher requires installation by an Admin user account"
+/>
+
+**Fix:**
+
+1. Sign in to Windows with an admin account, or ask the PC's owner.
+2. Run the `.msi` installer again.
+
+If the installer still fails, use the portable version. See [Use the portable version](#portable-version).
+
+</Accordion>
+<Accordion title="XXMI Launcher is already installed" id="already-installed">
+
+The installer says the launcher is already installed, after you deleted its folder by hand.
+
+**Fix:** run the installer as administrator. If it still refuses, use the portable version.
+
+{/* NEEDS HANDS-ON TEST: the cleanest way to clear a broken XXMI Launcher install record on Windows 11 before reinstalling the .msi. */}
+
+</Accordion>
+<Accordion title="Windows warns about an unknown publisher" id="smartscreen">
+
+**Cause:** XXMI Launcher is not code-signed. Windows warns about every unsigned installer.
+
+**Fix:** check that the file came from the GitHub releases page above. Then allow it to run.
+
+{/* NEEDS HANDS-ON TEST: the exact SmartScreen text and button labels when running the XXMI Launcher 2.5.0 .msi. */}
+
+</Accordion>
+<Accordion title="Launcher must be installed outside of the game folder" id="inside-game-folder">
+
+The launcher shows one of these:
+
+```text
+Launcher must be installed outside of the game folder!
+WWMI Folder must be located outside of the Game Folder!
+```
+
+**Cause:** the launcher or its `WWMI` folder sits inside the Wuthering Waves folder. Mod files must stay out of the game folder.
+
+**Fix:** uninstall the launcher and install it again with **Quick Installation**. For the second message, change **WWMI Folder** in the **WWMI** settings tab to a folder outside the game.
+
+{/* NEEDS HANDS-ON TEST: the exact wording of the second message and the WWMI Folder label for WWMI in XXMI Launcher 2.5.0. The notes give the text only as a template for every importer. */}
+
+</Accordion>
+<Accordion title="Use the portable version" id="portable-version">
+
+The portable version needs no installer.
+
+1. Install the [Visual C++ Redistributable for x64](https://aka.ms/vs/17/release/vc_redist.x64.exe) from Microsoft.
+2. Download `XXMI-Launcher-Portable-v2.5.0.zip` from the GitHub releases page.
+3. Extract it to a folder outside the game folder and outside Program Files. The path must not contain `{` or `}`.
+4. Run `Resources\Bin\XXMI Launcher.exe`.
+
+</Accordion>
+</Accordions>
+
+## Antivirus warnings
+
+Your antivirus may flag or delete `d3d11.dll`, `3dmloader.dll`, the installer, or the launcher itself. A common name is `Trojan:Win32/Bearfoos.A!ml`. The launcher may then say:
+
+```text
+Data Corruption Detected
+XXMI Libraries package is corrupted by antivirus
+Failed to start ...msi! Was it blocked by Antivirus software or security settings?
+```
+
+**Cause:** the launcher's files are not signed, so antivirus programs guess. The XXMI team marks these reports as false positives on its issue tracker, and the WWMI page on GameBanana warns about them too.
+
+**Fix:**
+
+1. Check that you downloaded the launcher from the GitHub releases page.
+2. Open your antivirus and restore the file from quarantine.
+3. Add an exclusion for the two paths the launcher's message names, inside your launcher folder: `Resources\Packages\XXMI` and `WWMI\d3d11.dll`.
+4. In XXMI Launcher, click the 3-dots button next to **Start**, then **Repair WWMI**.
+
+<Callout type="warning" title="Never turn your antivirus off">
+  Exclude only the two paths above. A fake launcher or fake "fix" can carry real
+  malware, so keep your antivirus on for everything else.
+</Callout>
+
+## The launcher will not open
+
+<Accordions type="multiple">
+<Accordion title="VCRUNTIME140.dll not found, or Visual C++ is damaged" id="vc-runtime">
+
+You see `VCRUNTIME140.dll not found`, or the launcher says:
+
+```text
+Microsoft Visual C++ Redistributable is damaged or not installed!
+```
+
+**Fix:**
+
+1. Download the [Visual C++ Redistributable for x64](https://aka.ms/vs/17/release/vc_redist.x64.exe).
+2. Run it. If it is already installed, choose **Repair**.
+3. Restart your PC.
+
+If the launcher still shows nothing at all, Windows files may be damaged. Run `sfc /scannow` in a Command Prompt opened as administrator, or try the portable version.
+
+</Accordion>
+<Accordion title="The launcher takes minutes to open" id="slow-start">
+
+**Cause:** a slow game search in launcher versions 2.4.1 to 2.4.6.
+
+**Fix:** update to version 2.4.7 or newer. Version 2.5.0 is current.
+
+</Accordion>
+<Accordion title="Failed to load configuration" id="config-load">
+
+**Cause:** the launcher's settings file, `XXMI Launcher Config.json`, is damaged.
+
+**Fix:** click **Load Backup**. If that fails too, click **Load Default** and set your options again.
+
+</Accordion>
+<Accordion title="Failed to write Read Only file" id="read-only-file">
+
+**Cause:** a file the launcher needs has the read-only flag.
+
+**Fix:** click **Remove Flag** in the message.
+
+</Accordion>
+</Accordions>
+
+## Updates and downloads fail
+
+<Accordions type="multiple">
+<Accordion title="Failed to establish HTTPS connection to GitHub" id="github-connection">
+
+You see this, or "Max retries exceeded", or "SSL wrong version number":
+
+```text
+Failed to establish HTTPS connection to GitHub! Please check your Antivirus, Firewall, Proxy and VPN settings.
+```
+
+**Cause:** something blocks GitHub: a firewall, your internet provider, a VPN, or a proxy.
+
+**Fix:**
+
+1. Allow XXMI Launcher through your firewall.
+2. Turn off a VPN or proxy that does not work, then try again.
+3. If you need a proxy, open the launcher settings, then the **Launcher** tab, tick **Use Proxy**, and enter its address.
+
+Turn **Verify SSL** off only if a proxy you trust breaks the connection.
+
+</Accordion>
+<Accordion title="GitHub API requests limit reached" id="github-api-limit">
+
+```text
+Unauthorized GitHub API requests limit reached for your IP!
+```
+
+**Cause:** too many update checks from your internet address. This is common on shared proxies.
+
+**Fix:** wait an hour and try again. If it keeps happening, add a GitHub token: in the **Launcher** tab, click **Create...** next to **GitHub Token**, and make a "classic" token on GitHub.
+
+</Accordion>
+<Accordion title="WWMI Integrity Error in game" id="wwmi-integrity-error">
+
+The game starts, and a box in the middle of the screen reads:
+
+```text
+WWMI Integrity Error:
+
+Installed XXMI DLL version is below minimally required!
+```
+
+**Cause:** the launcher installed WWMI 1.2.2, but your XXMI DLL is older than 1.3.3. WWMI 1.2.2 needs 1.3.3 or newer for mods that find their textures by how they look.
+
+**Fix:**
+
+1. Close the game.
+2. In XXMI Launcher, click the 3-dots button next to **Start**, then **Check For Updates**. If the update fails, use the fixes above.
+3. Still there? Click the 3-dots button, then **Repair WWMI**. It downloads WWMI and the mod loader again, and keeps your mods.
+4. Start the game. Press `X` to hide the box if it still shows.
+
+{/* NEEDS HANDS-ON TEST: on XXMI Launcher 2.5.0, whether Check For Updates or Repair WWMI installs XXMI DLL 1.3.3 or newer, and whether the WWMI Integrity Error box then stays away */}
+
+</Accordion>
+</Accordions>
+
+## The launcher cannot find the game
+
+<Accordions type="multiple">
+<Accordion title="Game Installation Not Found, or the Game Folder error" id="game-not-found">
+
+You see "Game Installation Not Found", "Found 2 copies of game executable", or one of these:
+
+```text
+Game folder must contain Wuthering Waves.exe and Client & Engine folders!
+Failed to normalize path ...: Wuthering Waves.exe not found!
+```
+
+**Cause:** **Game Folder** is empty, points at the wrong level, or two copies of the game exist. Most often it points at the outer `Wuthering Waves` folder.
+
+**Fix:**
+
+1. Open the launcher settings, then the **General** tab.
+2. Click **Detect Installations**, or click **Browse...**.
+3. Pick the `Wuthering Waves Game` folder. It directly holds `Wuthering Waves.exe` and the `Client` and `Engine` folders.
+4. If you have an old second copy of the game, delete it. A leftover copy can also sit in the `launcherDownload` folder of Kuro's launcher.
+
+The Google Play Games version of Wuthering Waves is not supported, so the launcher cannot use it.
+
+{/* NEEDS HANDS-ON TEST: after the 3.8 move of Steam installs to Kuro's launcher, which folder Game Folder must point to for a Steam install, and whether Detect Installations finds it in XXMI Launcher 2.5.0. */}
+
+</Accordion>
+<Accordion title='The game keeps saying "A new update is now available"' id="update-loop">
+
+**Cause:** **Game Folder** points to an old second copy of the game, not the one you update.
+
+**Fix:** point **Game Folder** to the copy you play and update, and delete the old copy.
+
+</Accordion>
+<Accordion title="Failed to configure in-game settings for WWMI" id="configure-settings-failed">
+
+The launcher shows this, followed by a list of game settings:
+
+```text
+Failed to configure in-game settings for WWMI!
+```
+
+**Cause:** the launcher could not write the game's settings file. Often the game or another program still has it open.
+
+**Fix:**
+
+1. Close the game and check Task Manager, with `Ctrl+Shift+Esc`, that no Wuthering Waves process still runs.
+2. Restart your PC.
+3. Click **Start** in XXMI Launcher again.
+
+If it keeps coming back, untick **Configure Game Settings For WWMI** in the **General** tab. Then set each setting in the list by hand in the game's settings. With the option off, the launcher no longer prepares the game for mods, and mods can break, for example at a distance. Tick it again once the error is gone.
+
+{/* NEEDS HANDS-ON TEST: what causes "Failed to configure in-game settings for WWMI!" on XXMI Launcher 2.5.0 (a locked or read-only settings file is the guess), the full list of settings the message names, and whether restarting clears it. */}
+
+</Accordion>
+</Accordions>
+
+## The launcher warns about your Mods folder
+
+The launcher checks your `Mods` folder each time you press **Start**.
+
+- **"Cannot start with d3dx.ini in Mods folder!"** A mod came with its own `d3dx.ini`. Click **Disable Ini Files** when the "Stability Warning" shows.
+- **"Performance Notification"** Some mods have lines that cost a lot of FPS. Pick the mods to turn off and click **Disable Selected**.
+
+Both fixes rename the files to start with `DISABLED_`. [Add, turn off, and remove mods](/docs/wuthering-waves/getting-started/manage-mods) explains the launcher's **Optimize Mods** check.
+
+{/* NEEDS HANDS-ON TEST: the exact wording and buttons of the Performance Notification for a WWMI mod in XXMI Launcher 2.5.0. */}
+
+## Report a launcher bug
+
+The XXMI Launcher issue tracker takes only launcher bugs that happen before the game's login screen.
+
+1. Find `XXMI Launcher Log.txt` in your launcher folder, `%AppData%\XXMI Launcher`.
+2. Upload its text to Pastebin.
+3. Open a report on the [XXMI Launcher issue tracker](https://github.com/SpectrumQT/XXMI-Launcher/issues) and add the Pastebin link.
+
+Problems in game, or with a mod, do not go there. Ask in the [Divine Skins Discord](https://discord.gg/divineskins) or the [AGMG Discord](https://discord.gg/agmg) instead.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Install mods with XXMI Launcher"
+    href="/docs/wuthering-waves/getting-started/install-with-xxmi-launcher"
+    icon={<Icon name="Download" />}
+    level="beginner"
+  >
+    Set up the launcher and WWMI from the start.
+  </PremiumCard>
+  <PremiumCard
+    title="Crashes and launch errors"
+    href="/docs/wuthering-waves/errors/game-crashes"
+    icon={<Icon name="Bug" />}
+    level="beginner"
+  >
+    The launcher works, but the game crashes or shows an error when it starts.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT, including its README and English message texts.
+- **Guide:** [WWMI on GameBanana](https://gamebanana.com/tools/17252), with its FAQ, by SpectrumQT.
+- **Image:** screenshot 1 by [JulesMcGrules](https://github.com/JulesMcGrules), from a report on the [XXMI Launcher issue tracker](https://github.com/SpectrumQT/XXMI-Launcher).
+- **Discussion:** "My antivirus started saying that new XXMI version has Trojan", a report on the [XXMI Launcher issue tracker](https://github.com/SpectrumQT/XXMI-Launcher).

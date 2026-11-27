@@ -1,0 +1,246 @@
+---
+title: "Crashes and launch errors"
+description: "Genshin Impact crashes, beeps and closes, or shows a black screen with mods? Find the mod or setting behind it with the official crash checklist."
+category: "errors"
+patch: "7.2"
+keywords:
+  [
+    "genshin crash mods",
+    "gimi crash",
+    "xxmi launcher crash",
+    "genshin black screen mods",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+The game closes, crashes, or stays black when you start it with mods. First match your problem below. If none fits, work through the crash checklist. This page was written for XXMI Launcher 2.5.0 and GIMI 8.9.4.
+
+Kicked back to the login screen a few minutes after you log in? That is not a crash. See ["Illegal tool detected" and 4001 errors](/docs/genshin-impact/errors/illegal-tool-detected).
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/genshin-impact/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="GenshinImpact" note="HoYoPlay or Epic Games">
+    Genshin Impact on PC
+  </Requirement>
+  <Requirement icon="FolderOpen">A folder on your desktop</Requirement>
+</Requirements>
+
+The desktop folder is a place to park mods while you test.
+
+## Known crashes
+
+<Accordions type="multiple">
+<Accordion title="Beeps, then the game closes" id="two-beeps">
+
+**Cause:** the mod loader, a mod, or a shader file crashed the game while it started.
+
+**Fix:** follow [the crash checklist](#the-crash-checklist) below. It finds the file behind it.
+
+</Accordion>
+<Accordion title="Crashes at start with a very large Mods folder" id="too-many-mods">
+
+The game beeps and closes before its window shows. This happens most with several gigabytes of mods.
+
+**Cause:** huge mods use a lot of memory while they load. Old animation mods are often the heaviest.
+
+**Fix:**
+
+1. Move your biggest mods out of `Mods` into the folder on your desktop.
+2. Start the game again.
+3. Bring the mods back a few at a time, with the halves method from the checklist.
+
+</Accordion>
+<Accordion title="Crashes at start, even with no mods" id="initialization-delay">
+
+**Fix:**
+
+1. In XXMI Launcher, click the gear in the top-right corner.
+2. Open the **GIMI** tab.
+3. Raise **XXMI DLL Initialization Delay** in steps of 50.
+4. Start the game after each change.
+
+{/* NEEDS HANDS-ON TEST: whether raising XXMI DLL Initialization Delay stops start-up crashes for Genshin Impact. The launcher's own tooltip suggests steps of 50 for any game that crashes with no mods, but every user report is from Wuthering Waves. */}
+
+If it still crashes, follow the crash checklist.
+
+</Accordion>
+<Accordion title="Black screen with HDR" id="hdr-black-screen">
+
+The game opens but stays black while Genshin Impact's own HDR option is on.
+
+**Cause:** the game's HDR and the mod loader have clashed in the past.
+
+**Fix:**
+
+1. In XXMI Launcher, open the settings and the **General** tab.
+2. Untick **Enable HDR**.
+3. Start the game again.
+
+{/* NEEDS HANDS-ON TEST: whether Genshin Impact's HDR still gives a black screen with the XXMI DLL 1.3.2, or works with Enable HDR on. */}
+
+</Accordion>
+<Accordion title="The launcher says the game did not start within 30 seconds" id="process-timeout">
+
+The launcher shows a message like this:
+
+```text
+Game process GenshinImpact.exe did not start within 30s.
+```
+
+**Cause:** your PC or drive is slow, so the game window took too long. Or the game crashed while it started.
+
+**Fix:**
+
+1. In the launcher settings, open the **General** tab.
+2. Raise **Game Process Launch Wait Timeout**, for example to `60`.
+3. Start the game again.
+
+If the game still closes, it crashed. Follow the crash checklist.
+
+{/* NEEDS HANDS-ON TEST: the exact process name the timeout message shows for Genshin Impact on launcher 2.5.0. */}
+
+</Accordion>
+<Accordion title="The launcher will not start because of d3dx.ini" id="d3dx-ini-in-mods">
+
+The launcher shows:
+
+```text
+Cannot start with d3dx.ini in Mods folder!
+```
+
+**Cause:** a mod came with its own `d3dx.ini`, or an old GIMI folder was copied into `Mods`. These files break the loader's settings and can crash the game.
+
+**Fix:** when the launcher shows the "Stability Warning", click **Disable Ini Files**. It renames the stray files to start with `DISABLED_`. Or delete the stray `d3dx.ini` yourself.
+
+</Accordion>
+<Accordion title="Crashes with overlays or ReShade" id="overlays-and-reshade">
+
+**Cause:** programs that draw over the game can clash with the mod loader.
+
+**Fix:**
+
+1. Turn NVIDIA **Smooth Motion** off. It must stay off for mods.
+2. Turn off the NVIDIA overlay and other overlays while you test.
+3. Keep ReShade files and presets out of `Mods`. A ReShade preset in `Mods` can crash the game.
+
+</Accordion>
+<Accordion title="An error about VCRUNTIME140.dll or Visual C++" id="vc-runtime">
+
+**Cause:** the Microsoft Visual C++ runtime is missing or damaged. XXMI Launcher and its loader need it.
+
+**Fix:** download and run the [Visual C++ Redistributable for x64](https://aka.ms/vs/17/release/vc_redist.x64.exe) from Microsoft. If it is already installed, choose **Repair**. Then restart your PC.
+
+</Accordion>
+</Accordions>
+
+## The crash checklist
+
+This follows the official order from XXMI Launcher's crash report form, with two changes. You remove only your own shader files, and you skip the step that deletes files in `GIMI\Core`: **Repair GIMI** puts those files back anyway. Start the game after each step. Stop when the crash stops: the last thing you changed was the cause.
+
+<img
+  src="/wiki-images/genshin-impact-errors-game-crashes-1.webp"
+  alt="Six steps in a row: reboot the PC, repair the game, repair GIMI, remove your own shader files, empty Mods, then put mods back half at a time"
+/>
+
+<Steps>
+<Step>
+
+### Reboot and repair the game
+
+1. Restart your PC.
+2. Repair the game in HoYoPlay or Epic Games.
+
+</Step>
+<Step>
+
+### Repair GIMI
+
+1. Open XXMI Launcher and click the **GIMI** icon.
+2. Click the 3-dots button next to **Start**, then **Repair GIMI**.
+
+It downloads GIMI and the mod loader again. Your mods stay.
+
+</Step>
+<Step>
+
+### Remove your own shader files
+
+1. Open `%AppData%\XXMI Launcher\GIMI\ShaderFixes`.
+2. Remove only the files you added yourself.
+
+<Callout type="warning" title="Do not empty ShaderFixes">
+  GIMI ships its own files in this folder, such as the Yelan dash fix
+  `3c0e13676d04987e-vs_replace.txt`, `mouse.hlsl` and `Sucrose.png`. If you
+  deleted them, run **Repair GIMI** again to get them back.
+</Callout>
+
+</Step>
+<Step>
+
+### Empty the Mods folder
+
+1. In XXMI Launcher, click the 3-dots button, then **Open Mods Folder**.
+2. Move every mod folder into the folder on your desktop.
+3. Start the game.
+
+If the game still crashes with an empty `Mods` folder, a mod is not the cause. Go to [If nothing helps](#if-nothing-helps).
+
+</Step>
+<Step>
+
+### Find the mod by halves
+
+1. Move half of your mods back into `Mods`.
+2. Start the game.
+3. If it crashes, the bad mod is in that half. If not, it is in the other half.
+4. Keep halving the group that crashes until one mod is left.
+
+Keep that mod out, and check its page for an update.
+
+</Step>
+</Steps>
+
+## If nothing helps
+
+If the game crashes after every step, ask for help or report it:
+
+- Ask in the [Divine Skins Discord](https://discord.gg/divineskins) or the [AGMG Discord](https://discord.gg/agmg). Say which steps you did and what you see.
+- Report the crash with the [Game Crash Report form](https://github.com/SpectrumQT/XXMI-Launcher/blob/main/.github/ISSUE_TEMPLATE/game-crash-report.md) on the XXMI Launcher issue tracker. Do every step above first: the form asks for them.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Mods not loading"
+    href="/docs/genshin-impact/errors/mods-not-loading"
+    icon={<Icon name="TriangleAlert" />}
+    level="beginner"
+  >
+    The game runs, but your mods do not show.
+  </PremiumCard>
+  <PremiumCard
+    title="XXMI Launcher problems"
+    href="/docs/genshin-impact/errors/launcher-problems"
+    icon={<Icon name="XXMILauncher" />}
+    level="beginner"
+  >
+    The launcher will not install, open, update, or find the game.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Game Crash Report template and Crash Isolation Checklist](https://github.com/SpectrumQT/XXMI-Launcher/blob/main/.github/ISSUE_TEMPLATE/game-crash-report.md) by SpectrumQT.
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT.
+- **Tool:** [GIMI-Package](https://github.com/SilentNightSound/GIMI-Package) by SilentNightSound and the GIMI maintainers.
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ and contributors, for the halves method.

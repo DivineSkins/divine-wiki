@@ -1,0 +1,232 @@
+---
+title: "UV maps, vertex colors, and outlines"
+description: "Keep a Honkai: Star Rail mesh's UV maps, COLOR attribute and normals right in Blender, so textures line up and outlines and shading look like the game's own."
+category: "models"
+patch: "4.7"
+keywords:
+  [
+    "star rail uv map",
+    "texcoord",
+    "vertex color",
+    "star rail outlines",
+    "xxmi tools",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+Every mesh you export needs UV maps with the right names and a `COLOR` attribute with the values the game expects. UV maps place the texture. In Honkai: Star Rail, `COLOR` shapes the outlines and the shading. Get them wrong and the part turns blank or black, or gets thick or missing outlines. Written for XXMI Tools 1.8.2 on Blender 4.5 LTS.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="Blender"
+    href="/docs/honkai-star-rail/tools/blender-add-on"
+  >
+    Blender 4.5 LTS with XXMI Tools
+  </Requirement>
+  <Requirement
+    icon="Box"
+    href="/docs/honkai-star-rail/models/import-into-blender"
+  >
+    The original part, imported
+  </Requirement>
+  <Requirement icon="Shirt">Your new or edited mesh</Requirement>
+</Requirements>
+
+Keep a hidden copy of the original part in your scene. You copy colors and names from it below.
+
+## What Honkai: Star Rail reads
+
+| Data          | Name in Blender                      | What the game uses it for                                                  |
+| ------------- | ------------------------------------ | -------------------------------------------------------------------------- |
+| First UV map  | `TEXCOORD.xy`                        | Where the texture goes.                                                    |
+| Second UV map | `TEXCOORD1.xy`                       | Not documented for Star Rail. Keep the original's.                         |
+| Vertex color  | `COLOR`, `Face Corner`, `Byte Color` | Shading and outlines. Community findings say alpha sets the outline width. |
+| Normals       | the mesh's own normals               | Lighting and the outline shell around the mesh.                            |
+
+<img
+  src="/wiki-images/honkai-star-rail-models-uvs-and-vertex-colors-1.webp"
+  alt="The Object Data tab in Blender with the UV Maps list showing TEXCOORD.xy and TEXCOORD1.xy, and Color Attributes showing COLOR as Face Corner, Byte Color"
+/>
+
+Star Rail character dumps have both UV maps. The names are case-sensitive. Compare your mesh with the original part in the **Object Data** tab (the green triangle).
+
+## UV maps
+
+### Name them right
+
+1. Rename the UV maps of a new model right after you import it. Double-click a name to edit it.
+2. Make sure every piece you will join has the same UV map names. If the names differ, `Ctrl+J` adds an extra map that the game ignores, and the texture goes blank.
+3. Delete UV maps the part does not need.
+4. Or let XXMI Tools do it: press `N`, open **XXMI Tools** > **XXMI Toolbox**, and click **Clean UV Names**. It renames the maps by their order: `TEXCOORD.xy`, `TEXCOORD1.xy`, and so on.
+
+### Keep the second UV map
+
+Export stops with `... is missing the following UV layers: TEXCOORD1.xy` if your mesh has no second map. A new model often has only one. Select it in **UV Maps**, click `+` to add a copy, and name the copy `TEXCOORD1.xy`.
+
+Nobody has documented what Star Rail draws with `TEXCOORD1.xy`. After you add a copy, check the new piece in game from several angles.
+
+{/* NEEDS HANDS-ON TEST: what Honkai: Star Rail 4.7 uses TEXCOORD1.xy for, and whether a copy of TEXCOORD.xy on a new piece gives normal shading and outlines */}
+
+### Fit several materials into one texture
+
+Each part draws with one set of textures. Check the dump's `hash.json` to see which part uses which texture. Parts often share one: Kafka's body parts A and B use one set, and C, D and E use another. If you change the layout of a shared texture, move the UVs of every part that uses it. A new model with several materials must share one texture per part, called an atlas.
+
+1. Build the atlas image in your texture editor. Keep the original texture's size, in powers of two: four 1024 blocks make one 2048 image.
+2. In Blender's UV Editor, set **Pivot Point** to **2D Cursor** and put the cursor at `0, 0`. Turn **UV Sync Selection** off.
+3. In the 3D Viewport, select the faces of one material. Hover over the UV Editor and press `A`.
+4. Type `S` `0.5` and press `Enter`. The UVs shrink to one corner block.
+5. Move them by exact steps: `G` `Y` `0.5` for the top-left block, `G` `X` `0.5` for the bottom-right. For the top-right, do both. Never move blocks by eye.
+6. For a 4 by 4 grid, scale by `0.25` and move in steps of `0.25`.
+
+Make the LightMap atlas with the same layout, and the StockingMap too if the part has one. Keep the alpha channel of every texture: in Star Rail the Diffuse alpha marks what glows, and the LightMap alpha picks the material. [Save DDS textures the right way](/docs/honkai-star-rail/textures/save-dds-files) covers the formats.
+
+## Vertex colors
+
+<Callout type="warning" title="Type hex values, not numbers">
+  In Blender's color picker, `0.5` and hex `80` are not the same. A typed `0.5`
+  is stored as about `BC`. Always type the hex value, as six digits like
+  `FF8080`. The alpha slider has no hex field, but it is not converted: `0.502`
+  on that slider is `80`.
+</Callout>
+
+### Star Rail parts use many values
+
+There is no one standard color for Star Rail. In a 2024 reading of Guinaifen's dump, her hair is almost all `FF8080`, her body is mostly `FF0100`, and her face uses more than a dozen values. One flat color over a whole character breaks its shading and outlines. Copy the colors from the original instead.
+
+<img
+  src="/wiki-images/honkai-star-rail-models-uvs-and-vertex-colors-2.webp"
+  alt="A terminal running vcolor_usage.py in Guinaifen's folder of the asset repo, listing the vertex colors of her body, hair and head parts and how much of each part uses them"
+/>
+
+To see the values of your own character, use `vcolor_usage.py` by petrascyll. It reads a dump folder and lists each color a part uses, with its share:
+
+1. Download [vcolor_usage.py](https://github.com/Petrascyll/hsr-scripts/blob/main/vcolor_usage.py) from GitHub. It needs Python, which you already have for gui_collect.
+2. Put it in the character's dump folder.
+3. Open a terminal in that folder and run `python vcolor_usage.py`.
+
+{/* NEEDS HANDS-ON TEST: that vcolor_usage.py runs on a current Honkai: Star Rail dump with Python 3.9+, and whether its six hex digits are RGB with alpha left out */}
+
+### Copy the colors from the original
+
+This is the best way. Do it before you join your mesh into the original part.
+
+1. Select your mesh. In **Object Data** > **Color Attributes**, check for a `COLOR` attribute. If there is none, click `+` and set **Name** `COLOR`, **Domain** `Face Corner`, **Data Type** `Byte Color`.
+2. Add a **Data Transfer** modifier. Set **Source** to the hidden copy of the original part.
+3. Tick **Face Corner Data** and pick **Colors**.
+4. Leave **Layer Selection** on `All Layers` and **Layer Mapping** on `By Name`.
+5. Apply the modifier.
+6. Press `Ctrl+Tab` and switch to Vertex Paint mode to check. The colors should match the original part in the same place.
+
+No original surface under your new piece? Use the nearest part of the same kind as **Source**: hair for hair, clothing for clothing. Outlines too thick on an edited part? Copy the colors the same way from a part whose outline still looks right.
+
+{/* NEEDS HANDS-ON TEST: the Face Corner Data option label (Colors or Color Attributes) in the Blender 4.5 Data Transfer modifier. */}
+
+XXMI Tools has a **Reset Vertex Colors** button that paints one flat color. Nobody has checked that its default suits Star Rail, so copy the colors instead.
+
+### What the channels mean
+
+These meanings come from a fan-made copy of the Star Rail shader, not from the game's makers. They may be incomplete. Keep every channel you do not need to change exactly as the original has it.
+
+| Channel | What it does, as far as the community knows   |
+| ------- | --------------------------------------------- |
+| R       | Feeds the shadow calculation.                 |
+| G       | On faces, shapes the outline width and range. |
+| B       | On faces, shapes the outline width and range. |
+| A       | Outline width. `00` gives no outline.         |
+
+{/* NEEDS HANDS-ON TEST: the effect of each COLOR channel on Honkai: Star Rail 4.7 shading and outlines */}
+
+## Normals and outlines
+
+Normals light the mesh and shape the outline shell around it. Check them before every export.
+
+1. Turn on the **Face Orientation** overlay. Blue faces point out, red faces point in.
+2. Press `Ctrl+A` > **All Transforms** first, then check again.
+3. Select red faces and press `Alt+N` > **Flip**, or use **Recalculate Outside**.
+
+Fixes for shading problems:
+
+- **Faceted look after an edit:** merge with `M` > **By Distance** and tick **Sharp Edges**, so hard edges stay hard. On a dented area, use <MenuPath path="Mesh > Normals > Smooth Vectors" />.
+- **A light seam between two parts:** duplicate both parts, join the copies, run **By Distance**, and hide the result. On each original part, add **Data Transfer** with that copy as **Source**, tick **Face Corner Data** > **Custom Normals**, and apply.
+
+Old guides tell you to use **Auto Smooth**. Blender 4.1 removed it, so skip those steps.
+
+The export option **Outline Optimization** is on by default. For Star Rail it rebuilds a smoothed outline normal and stores it in the tangent data. It is slow, so some creators turn it off while testing and on for the final export.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check on Honkai: Star Rail whether custom normals from Data Transfer survive an XXMI Tools 1.8.2 export, with Use custom normals for outlines off and on, and whether Outline Optimization undoes them. */}
+
+### Outline color comes from the LightMap
+
+`COLOR` sets how wide an outline is, not its color. Star Rail picks each outline's color from the material ID in the LightMap's alpha channel. Faces use one fixed outline color. So a colored outline on a body or hair part usually means a LightMap alpha that does not match the original. [What each texture map does](/docs/honkai-star-rail/textures/texture-maps) explains the LightMap.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The texture is blank, white, or flat on a joined piece" id="blank-texture">
+
+The pieces had different UV map names when you joined them. Rename every piece's maps to `TEXCOORD.xy` and `TEXCOORD1.xy` before `Ctrl+J`, or run **Clean UV Names**.
+
+</Accordion>
+<Accordion title="The texture is scrambled" id="scrambled-texture">
+
+The first UV map is not named `TEXCOORD.xy`, or some faces are flipped. Fix the name and the normals, then export again.
+
+</Accordion>
+<Accordion title="Parts render black" id="black-parts">
+
+`COLOR` is black. A new attribute starts black. Copy the colors from the original part.
+
+</Accordion>
+<Accordion title="Outlines are thick or blotchy" id="thick-outlines">
+
+The `COLOR` alpha is too high or uneven. Copy the colors from a part whose outline looks right.
+
+</Accordion>
+<Accordion title="Outlines have the wrong color" id="colored-outlines">
+
+The LightMap alpha picks the wrong material, or a recolor left the original outline color. Copy the alpha channel from the original LightMap.
+
+</Accordion>
+<Accordion title="Outlines are missing" id="no-outlines">
+
+The `COLOR` alpha is `00`, or the normals are flipped. Copy the colors from the original, then check **Face Orientation**.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Add or swap clothing parts"
+    href="/docs/honkai-star-rail/models/add-clothing-parts"
+    icon={<Icon name="Shirt" />}
+    level="intermediate"
+  >
+    Put a new piece on a character, weighted and textured.
+  </PremiumCard>
+  <PremiumCard
+    title="Glow and transparency"
+    href="/docs/honkai-star-rail/effects/glow-and-transparency"
+    icon={<Icon name="Sparkles" />}
+    level="intermediate"
+  >
+    Control which parts of a texture glow in game.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Troubleshooting](https://github.com/SilentNightSound/SR-Model-Importer/blob/main/Guides/Troubleshooting.md) for the Star Rail Model Importer by SilentNightSound: UV map and `COLOR` rules.
+- **Research:** HoyoToon Star Rail shader by the HoyoToon team: the channel meanings and outline colors.
+- **Tool:** [vcolor_usage.py](https://github.com/Petrascyll/hsr-scripts/blob/main/vcolor_usage.py) by petrascyll.
+- **Discord:** vcolor_usage.py and image 2 by [scyll](https://discord.com/users/1100130090895036457), hex versus float note by [SinsOfSeven](https://discord.com/users/178340582991724545), in the [AGMG Discord](https://discord.gg/agmg).
+- **Guide:** [3D anime models - lessons](https://docs.google.com/document/d/1OhNw4xVTRl-eZyPLZv2mAchy2scjnXX3Hw3BCPQXU1A) by [Anilyan](https://discord.com/users/301273867618484235): the UV atlas steps.
+- **Video:** [3DMigoto Costume Mod Tutorial for Fairy Tail (PC)](https://www.youtube.com/watch?v=z2nvJzkwHHQ) by Ikaros, for the seam fix.
+- **Guide:** [Custom Weapon Modding Walkthrough](https://leotorrez.github.io/modding/guides/weapon-banana) by SilentNightSound (image 1).
+- **Tool:** [XXMI Tools](https://github.com/leotorrez/XXMITools) by LeoTorreZ.

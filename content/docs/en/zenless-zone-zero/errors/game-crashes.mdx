@@ -1,0 +1,285 @@
+---
+title: "Crashes and launch errors"
+description: "Zenless Zone Zero crashes, beeps and closes, or stays black with mods? Find the mod or setting behind it with the crash checklist."
+category: "errors"
+patch: "3.3"
+keywords:
+  ["zzz crash mods", "zzmi crash", "zzz two beeps", "xxmi launcher crash"]
+---
+
+<LevelPill level="beginner" />
+
+The game closes, crashes, or stays black when you start it with mods. First match your problem below. If none fits, work through the crash checklist. This page is written for XXMI Launcher 2.5.0 and ZZMI 1.5.2 on Zenless Zone Zero 3.3.
+
+The game runs, but no mod shows? Go to [Mods not loading](/docs/zenless-zone-zero/errors/mods-not-loading).
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/zenless-zone-zero/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="ZenlessZoneZero" note="HoYoPlay, Steam or Epic Games">
+    Zenless Zone Zero on PC
+  </Requirement>
+  <Requirement icon="FolderOpen">A folder on your desktop</Requirement>
+</Requirements>
+
+The desktop folder is a place to park mods while you test.
+
+## Known crashes
+
+<Accordions type="multiple">
+<Accordion title="Two beeps, then the game closes" id="two-beeps">
+
+**Cause:** the mod loader, a mod, or a shader file crashed the game while it started. Overlays, or a new Windows or graphics driver update, can also cause it.
+
+**Fix:** follow [the crash checklist](#the-crash-checklist) below. It finds the file behind it.
+
+</Accordion>
+<Accordion title="Crashes at start right after a game update" id="after-an-update">
+
+The game crashed after an update, even after you repaired everything.
+
+**Cause:** a mod does not work with the new version. After version 3.2, mods that hide the UID and some Remielle mods crashed the game. After a hotfix in September 2026, old RabbitFX copies did too.
+
+**Fix:**
+
+1. Move all mods out of `Mods` into the folder on your desktop.
+2. Start the game. If it works now, a mod was the cause.
+3. Bring the mods back with the halves method from the checklist.
+4. Check the bad mod's page for an update, or leave it out.
+
+Search your `Mods` folder for `RabbitFX` too. Keep exactly one copy, and update it.
+
+</Accordion>
+<Accordion title="Crashes now and then with an NVIDIA graphics card" id="nvidia-smooth-motion">
+
+**Cause:** NVIDIA **Smooth Motion** clashes with the mod loader. It can crash the game at random, even with no mods.
+
+**Fix:**
+
+1. Open the NVIDIA App and find the settings for Zenless Zone Zero.
+2. Set **Smooth Motion** to **Off**.
+3. Turn frame generation off too.
+4. Start the game again from XXMI Launcher.
+
+</Accordion>
+<Accordion title="Epic Games version: two beeps at the logo or login screen" id="epic-crash">
+
+**Cause:** since version 3.2, the Epic Games version crashes at login when it starts from the wrong folder. Its launcher also starts the game in DirectX 12 by default.
+
+**Fix:**
+
+1. Open XXMI Launcher so it updates itself. Current versions start the Epic Games version from the right folder.
+2. Make sure the game runs in DirectX 11. Community fix: add `-force-d3d11` to the game's **Additional Command Line Arguments** in the Epic Games Launcher.
+3. Turn off the Epic Games overlay while you test.
+4. Start the game from XXMI Launcher.
+
+{/* NEEDS HANDS-ON TEST: on the Epic Games version of Zenless Zone Zero 3.3 with XXMI Launcher 2.5.0, whether the login crash is gone with Game Launch = Epic Games or Direct, and whether the Epic Games overlay plays a part. */}
+
+If it still crashes, some players moved to the HoYoPlay version, which is the most tested.
+
+</Accordion>
+<Accordion title="Steam version: crash at the login video" id="steam-criware">
+
+The game closes while the login video plays. The game's `Player.log` file ends with lines like these:
+
+```text
+[CRIWARE] Error:E2019112860:Invalid parameter.
+Application will quit.
+```
+
+**Cause:** not known yet. It was reported on the Steam version in September 2026, and the report is still open.
+
+**Fix:** update XXMI Launcher, check that **Game Launch** is set to `Steam`, and follow the crash checklist. If it keeps happening, add your details to the report on the [ZZMI issue tracker](https://github.com/leotorrez/ZZMI-Package/issues/66).
+
+{/* NEEDS HANDS-ON TEST: whether the CRIWARE crash at the login video still happens on the Steam version of Zenless Zone Zero 3.3 with XXMI Launcher 2.5.0, and what fixes it. */}
+
+</Accordion>
+<Accordion title="The Bilibili version asks for a HoYoverse login" id="bilibili-login">
+
+**Cause:** a bug in XXMI Launcher 2.3.9.
+
+**Fix:** update XXMI Launcher. Version 2.4.1 fixed it, and version 2.5.0 is current.
+
+</Accordion>
+<Accordion title="The launcher says the game did not start within 30 seconds" id="process-timeout">
+
+The launcher shows a message like this:
+
+```text
+Game process ZenlessZoneZero.exe did not start within 30s.
+```
+
+**Cause:** your PC or drive is slow, so the game window took too long. Or the game crashed while it started.
+
+**Fix:**
+
+1. In the launcher settings, open the **General** tab.
+2. Raise **Game Process Launch Wait Timeout**, for example to `60`.
+3. Start the game again.
+
+If the game still closes, it crashed. Follow the crash checklist.
+
+{/* NEEDS HANDS-ON TEST: the exact process name the timeout message shows for Zenless Zone Zero on launcher 2.5.0. */}
+
+</Accordion>
+<Accordion title="The launcher will not start because of d3dx.ini" id="d3dx-ini-in-mods">
+
+The launcher shows:
+
+```text
+Cannot start with d3dx.ini in Mods folder!
+```
+
+**Cause:** a mod came with its own `d3dx.ini`, or an old ZZMI folder was copied into `Mods`. These files break the loader's settings and can crash the game.
+
+**Fix:** when the launcher shows the "Stability Warning", click **Disable Ini Files**. It renames the stray files to start with `DISABLED_`. Or delete the stray `d3dx.ini` yourself.
+
+</Accordion>
+<Accordion title="Crashes with overlays or ReShade" id="overlays-and-reshade">
+
+**Cause:** programs that draw over the game or hook into it can clash with the mod loader. Overwolf, Virtual Desktop and Oculus software have caused crashes with mods.
+
+**Fix:**
+
+1. Turn NVIDIA **Smooth Motion** off. It must stay off for mods.
+2. Close Overwolf, Virtual Desktop and Oculus software, and turn off other overlays while you test.
+3. Keep ReShade files and presets out of `Mods`. A ReShade preset in `Mods` can crash the game.
+
+</Accordion>
+<Accordion title="Failed to load d3d11.dll" id="failed-to-load-dll">
+
+You see an error like "failed to load ... ZZMI\d3d11.dll".
+
+**Cause:** your antivirus moved the file to quarantine, or the download is damaged.
+
+**Fix:**
+
+1. Restore the file in your antivirus and add an exclusion, as shown in [XXMI Launcher problems](/docs/zenless-zone-zero/errors/launcher-problems).
+2. In XXMI Launcher, click the 3-dots button next to **Start**, then **Repair ZZMI**.
+
+{/* NEEDS HANDS-ON TEST: the exact text of the d3d11.dll load error on XXMI Launcher 2.5.0. */}
+
+</Accordion>
+<Accordion title="An error about VCRUNTIME140.dll or Visual C++" id="vc-runtime">
+
+**Cause:** the Microsoft Visual C++ runtime is missing or damaged. XXMI Launcher and its loader need it.
+
+**Fix:** download and run the [Visual C++ Redistributable for x64](https://aka.ms/vs/17/release/vc_redist.x64.exe) from Microsoft. If it is already installed, choose **Repair**. Then restart your PC.
+
+</Accordion>
+</Accordions>
+
+## The crash checklist
+
+This follows the official order from XXMI Launcher's crash report form, with two changes. You remove only your own shader files, and you skip the step that deletes files in `ZZMI\Core`: **Repair ZZMI** puts those files back anyway. Start the game after each step. Stop when the crash stops: the last thing you changed was the cause.
+
+<img
+  src="/wiki-images/zenless-zone-zero-errors-game-crashes-1.webp"
+  alt="Six steps in a row: reboot the PC, repair the game, repair ZZMI, remove your own shader files, empty Mods, then put mods back half at a time"
+/>
+
+<Steps>
+<Step>
+
+### Reboot and repair the game
+
+1. Restart your PC.
+2. Repair the game in HoYoPlay, Steam or the Epic Games Launcher.
+
+{/* NEEDS HANDS-ON TEST: the exact name and place of the repair option for Zenless Zone Zero in HoYoPlay, Steam (Verify integrity of game files) and the Epic Games Launcher. */}
+
+</Step>
+<Step>
+
+### Repair ZZMI
+
+1. Open XXMI Launcher and click the **ZZMI** icon.
+2. Click the 3-dots button next to **Start**, then **Repair ZZMI**.
+
+It downloads ZZMI and the mod loader again. Your mods stay.
+
+</Step>
+<Step>
+
+### Remove your own shader files
+
+1. Open `%AppData%\XXMI Launcher\ZZMI\ShaderFixes`.
+2. Remove only the files you added yourself.
+3. Delete the `ZZMI\ShaderCache` folder if you have one. ZZMI builds it again.
+
+<Callout type="warning" title="Do not empty ShaderFixes">
+  ZZMI ships its own file in this folder, `Sucrose.png`. If you deleted it, run
+  **Repair ZZMI** again to get it back.
+</Callout>
+
+</Step>
+<Step>
+
+### Empty the Mods folder
+
+1. In XXMI Launcher, click the 3-dots button, then **Open Mods Folder**.
+2. Move every mod folder into the folder on your desktop.
+3. Start the game.
+
+If the game still crashes with an empty `Mods` folder, a mod is not the cause. Go to [If nothing helps](#if-nothing-helps).
+
+</Step>
+<Step>
+
+### Find the mod by halves
+
+1. Move half of your mods back into `Mods`.
+2. Start the game.
+3. If it crashes, the bad mod is in that half. If not, it is in the other half.
+4. Keep halving the group that crashes until one mod is left.
+
+Keep that mod out, and check its page for an update.
+
+</Step>
+</Steps>
+
+## If nothing helps
+
+If the game crashes after every step, ask for help or report it:
+
+- Ask in the [Divine Skins Discord](https://discord.gg/divineskins) or the [AGMG Discord](https://discord.gg/agmg). Say which steps you did, your store, and what you see.
+- Report the crash with the [Game Crash Report form](https://github.com/SpectrumQT/XXMI-Launcher/blob/main/.github/ISSUE_TEMPLATE/game-crash-report.md) on the XXMI Launcher issue tracker. Do every step above first: the form asks for them.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Mods look broken"
+    href="/docs/zenless-zone-zero/errors/mods-look-broken"
+    icon={<Icon name="TriangleAlert" />}
+    level="beginner"
+  >
+    The game runs, but a mod looks wrong, stretched, or glossy.
+  </PremiumCard>
+  <PremiumCard
+    title="Fix your mods after a game update"
+    href="/docs/zenless-zone-zero/getting-started/fix-mods-after-an-update"
+    icon={<Icon name="RefreshCw" />}
+    level="beginner"
+  >
+    What to do when an update breaks your mods.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Game Crash Report template and Crash Isolation Checklist](https://github.com/SpectrumQT/XXMI-Launcher/blob/main/.github/ISSUE_TEMPLATE/game-crash-report.md) by SpectrumQT.
+- **Issue:** [2 beeps then crash](https://github.com/leotorrez/ZZMI-Package/issues/44) on the ZZMI issue tracker, for the Epic Games crash.
+- **Issue:** [ZZZ crashes when launched via XXMI (Steam)](https://github.com/leotorrez/ZZMI-Package/issues/66) on the ZZMI issue tracker.
+- **Tool page:** [ZZMI - Zenless Zone Model Importer](https://gamebanana.com/tools/17467) by LeoMods\_, for the Epic Games notes.
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT.
+- **Tool:** [ZZMI-Package](https://github.com/leotorrez/ZZMI-Package) by leotorrez and the ZZMI maintainers.
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ and contributors, for the halves method.

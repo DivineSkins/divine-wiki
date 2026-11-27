@@ -1,0 +1,243 @@
+---
+title: "Add, turn off, and remove mods"
+description: "Add more Zenless Zone Zero mods, turn one off with the DISABLED prefix, reload in game with F10, keep one RabbitFX copy, and remove every mod."
+category: "getting-started"
+patch: "3.3"
+keywords:
+  ["zzz mods folder", "zzmi mods", "disable mod", "rabbitfx", "f10 reload"]
+---
+
+<LevelPill level="beginner" />
+
+Every Zenless Zone Zero mod is a folder inside ZZMI's `Mods` folder. This page shows how to add more, turn them off, reload them in game, and clean up. Written for XXMI Launcher 2.5.0 and ZZMI 1.5.2.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/zenless-zone-zero/getting-started/install-with-xxmi-launcher"
+    note="with ZZMI installed"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="FileArchive" note="such as 7-Zip">
+    An archive tool
+  </Requirement>
+</Requirements>
+
+Your `Mods` folder is here:
+
+```text
+%AppData%\XXMI Launcher\ZZMI\Mods
+```
+
+To open it, click the 3-dots button next to **Start** in XXMI Launcher, then **Open Mods Folder**.
+
+## How ZZMI reads your Mods folder
+
+<img
+  src="/wiki-images/zenless-zone-zero-getting-started-manage-mods-1.webp"
+  alt="A Mods folder tree: mod folders and one RabbitFX folder load, a DISABLED folder and a DISABLED .ini are skipped, a .zip is ignored, and a second RabbitFX copy, a stray SlotFix.ini and a d3dx.ini are marked for deletion"
+/>
+
+- ZZMI loads every `.ini` file in `Mods` and in every folder inside it, at any depth.
+- A file or folder whose name starts with `DISABLED` is skipped, with everything inside it.
+- A `.zip`, `.7z` or `.rar` file does nothing. Always extract it.
+
+So you can sort mods into folders however you like, for example `Mods\Agents\Miyabi\Miyabi Recolor`.
+
+## Add a mod
+
+1. Open the mod you downloaded with your archive tool. Check that it holds only `.ini`, `.buf`, `.ib` and `.dds` files, and sometimes `.hlsl`.
+2. Extract the mod's folder into `Mods`. You should get `Mods\<mod name>\<something>.ini`.
+3. If the archive holds several versions in separate folders, keep only the one you want. The others load too unless you turn them off.
+4. Turn off any other mod for the same agent.
+5. In game, switch to a different agent so the modded one is off screen.
+6. Press `F10`. Switch back to see the mod.
+
+If the agent looks collapsed or stretched after `F10`, it was on screen during the reload. Hide it, press `F10` again, or restart the game.
+
+### One mod per agent
+
+Only one mod per agent, or per outfit, can be on at a time. Two mods for the same agent fight each other and you get a mix of both. Two exceptions:
+
+- A merged mod counts as one: it switches between several mods with a key.
+- A mod that changes only the face can run next to a mod that changes only the outfit.
+
+Agent outfits have their own models. A mod for an outfit shows only when the agent wears that outfit, and a mod for the default look does not change other outfits.
+
+### Mods that need RabbitFX
+
+RabbitFX is a separate texture and glow library that many mods use. It is not part of ZZMI.
+
+1. Read the mod's page. Add RabbitFX only if the page says the mod needs it.
+2. Keep exactly one copy of RabbitFX in the whole `Mods` folder, in its own folder.
+3. Search `Mods` for `RabbitFX` after you add a mod. Delete any second copy that came inside a mod's folder.
+
+Two copies of RabbitFX cause odd behavior and crashes. The first time RabbitFX meets a new effect, the game can stutter for a moment.
+
+{/* NEEDS HANDS-ON TEST: with RabbitFX 7.10 for ZZMI in Mods, confirm that a mod that needs it loads, that a second copy causes the reported problems, and how long the first-use stutter lasts. */}
+
+## Turn a mod off or on
+
+<Tabs items={["Turn one mod off", "Turn all mods off"]}>
+<Tab value="Turn one mod off">
+
+1. Rename the mod's folder so its name starts with `DISABLED`, for example `DISABLED_Yanagi Recolor`.
+2. Press `F10` in game.
+
+To turn it back on, remove `DISABLED` from the name and press `F10`.
+
+You can do the same to one `.ini` file inside a mod, for example `DISABLED_Hat.ini`, to drop only that part.
+
+</Tab>
+<Tab value="Turn all mods off">
+
+- Press `F6` to turn all mods off. Press it again to turn them back on.
+- Hold `F9` to see the original game while the key is down.
+
+Neither key changes any files. Your mods come back as they were.
+
+</Tab>
+</Tabs>
+
+Turning a mod off with `DISABLED` also forgets the options you picked in it, such as which outfit part was showing.
+
+## Keys you will use
+
+| Key            | What it does                            |
+| -------------- | --------------------------------------- |
+| `F10`          | Reload all mods and save their settings |
+| `F6`           | Turn all mods off or on                 |
+| `F9` (hold)    | Show the original game while held       |
+| `F12`          | Show or hide the ZZMI user guide        |
+| `Ctrl+Alt+F10` | Reset the saved settings of every mod   |
+
+Many mods add their own keys to switch parts, colors or outfits. The mod's page lists them. Many use the arrow keys with `Ctrl`, `Alt` or `Shift`. ZZMI saves your choices when you press `F10`.
+
+To give a mod different keys, see [Change a mod's keys and saved settings](/docs/zenless-zone-zero/ini/change-mod-keys).
+
+## Keep your Mods folder clean
+
+ZZMI already includes SlotFix, TTLib and the HP bar library, in `ZZMI\Core\ZZMI\Libraries`. Never add these to `Mods`, even if a mod page or a video tells you to.
+
+1. Delete any copy of SlotFix, TTLib or the HP bar library you find in `Mods`.
+2. Delete any `d3dx.ini` or `d3d11.dll` that came with a mod. XXMI Launcher refuses to start with a `d3dx.ini` in `Mods`.
+3. Never put mod files into `ZZMI\ShaderFixes`. ZZMI keeps its own files there.
+
+<Callout type="warning" title="Two copies of a library break mods">
+  SlotFix is built into ZZMI. A second copy in `Mods`, or a second RabbitFX,
+  gives you crashes and odd behavior. A mod never needs to ship either one.
+</Callout>
+
+### Optimize Mods
+
+Each time you click **Start**, XXMI Launcher checks `Mods` for common problems. It offers to turn off copies of the libraries ZZMI already has, stray `d3dx.ini` files, and `.ini` lines that cost a lot of FPS. It turns off a file by adding `DISABLED_` to its name, and a heavy line by making it a comment.
+
+To run the same check by hand, click the 3-dots button next to **Start**, then **Optimize Mods**. The details go to `XXMI Launcher Log.txt` in the launcher folder.
+
+{/* NEEDS HANDS-ON TEST: on a test ZZMI Mods folder with a stray SlotFix copy, a d3dx.ini and a heavy ShaderRegex mod, record exactly what Optimize Mods changes and the wording of each prompt in XXMI Launcher 2.5.0. */}
+
+### Many mods
+
+Each mod that is on makes `F10` and the first load slower. Keep on only the mods you use, and turn the rest off with `DISABLED`. A few badly made mods also lower your FPS: **Optimize Mods** finds the worst of them.
+
+Zip your whole `Mods` folder before every game update. Then you can always go back.
+
+## Use a mod manager or not
+
+You do not need a mod manager. Folders and the `DISABLED` prefix do everything above, and fix tools expect this plain setup.
+
+If you want buttons instead of renaming folders, two maintained managers support Zenless Zone Zero. Both are source available.
+
+<ToolCard
+  name="Integrated Mod Manager"
+  href="https://github.com/jpbhatt21/integrated-mod-manager/releases"
+  icon={<Icon name="GitHub" />}
+>
+  By jpbhatt21. A desktop app that lists your mods and tracks updates.
+</ToolCard>
+<ToolCard
+  name="No Reload Mod Manager"
+  href="https://github.com/Aglglg/No-Reload-Mod-Manager/releases"
+  icon={<Icon name="GitHub" />}
+>
+  By Aglglg. Switches mods from inside the game without pressing F10.
+</ToolCard>
+
+Use one manager at most on a `Mods` folder. Managers can edit mod `.ini` files, so restore your mods with the manager before you share one or run a fix tool. [Mod managers compared](/docs/zenless-zone-zero/tools/mod-managers) has the details.
+
+## Remove all mods
+
+To play without mods for a while, start Zenless Zone Zero from HoYoPlay, the Epic Games Launcher or Steam instead of XXMI Launcher. Nothing in the game folder changes.
+
+To remove everything:
+
+1. Uninstall XXMI Launcher from <MenuPath path="Settings > Apps" /> in Windows. If you used the portable version, delete its folder.
+2. Delete the desktop shortcuts `XXMI Launcher` and `ZZMI Quick Start` if they are still there.
+3. Delete `%AppData%\XXMI Launcher\ZZMI` if you no longer want your mods.
+4. If you used the `Steam` launch option, clear the game's **Launch Options** in Steam.
+
+**Character Quality** and **High-Precision Character Animation** stay as the launcher set them until you change them in the game's graphics settings.
+
+{/* NEEDS HANDS-ON TEST: whether the .msi uninstall of XXMI Launcher 2.5.0 leaves the ZZMI folder and Mods in %AppData%\XXMI Launcher, and the exact name of the ZZMI desktop shortcut. */}
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Orange text about a possible mod conflict" id="mod-conflict">
+
+Two mods change the same agent. The text names the `.ini` files. Turn one of them off and press `F10`. You only see this text when **Mute Warnings** is off in the launcher's ZZMI settings.
+
+</Accordion>
+<Accordion title="A mod for one agent breaks another agent's face" id="shared-face">
+
+Some agents share model data, such as Jane and Lucy, or Anby and Qingyi. Old mods made before ZZMI switched to its current matching can change both. Turn the old mod off, or look for an updated version on its page.
+
+</Accordion>
+<Accordion title="A mod's options reset after a restart" id="options-reset">
+
+The mod does not save that option. This is a choice of the mod's creator. Pick the option again after each start.
+
+</Accordion>
+<Accordion title="The launcher finds libraries that ZZMI already includes" id="duplicate-libraries">
+
+Choose to disable the duplicates. They are old copies of SlotFix or another library that ships inside ZZMI.
+
+{/* NEEDS HANDS-ON TEST: the exact wording of the duplicate-library prompt for ZZMI in XXMI Launcher 2.5.0. */}
+
+</Accordion>
+</Accordions>
+
+More fixes are in [Mods not loading](/docs/zenless-zone-zero/errors/mods-not-loading) and [Mods look broken](/docs/zenless-zone-zero/errors/mods-look-broken).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Fix your mods after a game update"
+    href="/docs/zenless-zone-zero/getting-started/fix-mods-after-an-update"
+    icon={<Icon name="RefreshCw" />}
+    level="beginner"
+  >
+    What to do, in order, when an update breaks your mods.
+  </PremiumCard>
+  <PremiumCard
+    title="Set up your creator tools"
+    href="/docs/zenless-zone-zero/getting-started/creator-setup"
+    icon={<Icon name="Wrench" />}
+    level="beginner"
+  >
+    Ready to make your own? Install the creator kit.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT, including its Mod Optimizer.
+- **Tool:** [ZZMI-Package](https://github.com/leotorrez/ZZMI-Package) by leotorrez and the ZZMI maintainers: the `d3dx.ini` load rules, key bindings and bundled libraries.
+- **Tool page:** [ZZMI - Zenless Zone Model Importer](https://gamebanana.com/tools/17467) by LeoMods\_.
+- **Guide:** [Getting Started](https://leotorrez.github.io/modding/guides/getting-started) and [Troubleshooting](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ.

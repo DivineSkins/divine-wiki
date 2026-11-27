@@ -1,0 +1,296 @@
+---
+title: "Install mods with XXMI Launcher"
+description: "Install XXMI Launcher and GIMI, turn off Dynamic Character Resolution, add your first Genshin Impact mod, and check that mods load in game."
+category: "getting-started"
+patch: "7.2"
+keywords: ["genshin mods", "gimi", "xxmi launcher", "install genshin mods"]
+---
+
+<LevelPill level="beginner" />
+
+XXMI Launcher installs GIMI, the Genshin Impact Model Importer, and starts the game with your mods. This guide was written for XXMI Launcher 2.5.0 and GIMI 8.9.4 on Genshin Impact 7.2. Read [What's allowed and how to stay safe](/docs/genshin-impact/getting-started/stay-safe) first: Genshin Impact's anti-cheat can kick modded players.
+
+<Callout type="info" title="Looking for Celestial?">
+  Celestial, Divine's own launcher, does not install Genshin Impact mods, so
+  this guide uses XXMI Launcher.
+</Callout>
+
+<Accordions>
+<Accordion title="Coming from another game?">
+
+**From Honkai: Star Rail, Zenless Zone Zero or Wuthering Waves:** it is the same launcher. Click the Genshin Impact tile and install GIMI next to your other importer. What changes:
+
+- Mods go in `GIMI\Mods`, not `SRMI`, `ZZMI` or `WWMI`.
+- Genshin Impact needs **Dynamic Character Resolution** off. It is the only graphics setting the launcher changes for you.
+- Genshin Impact is on HoYoPlay and Epic Games only. There is no Steam version.
+- GIMI ships its own helper libraries. There is no RabbitFX or SlotFix to add.
+- Genshin Impact is the one game that kicks modded players today, with "Illegal tool detected".
+
+See the [Honkai: Star Rail](/docs/honkai-star-rail), [Zenless Zone Zero](/docs/zenless-zone-zero) and [Wuthering Waves](/docs/wuthering-waves) sections for those games.
+
+**From Deadlock or League of Legends:** nothing is packed or replaced on disk. XXMI swaps models and textures while the game draws them, and `F10` reloads your mods in game.
+
+</Accordion>
+</Accordions>
+
+## What you need
+
+<Requirements>
+  <Requirement icon="GenshinImpact" note="HoYoPlay or Epic Games">
+    Genshin Impact
+  </Requirement>
+  <Requirement icon="Monitor" note="64-bit">
+    Windows 10 or 11
+  </Requirement>
+  <Requirement icon="ShieldCheck">An admin account on your PC</Requirement>
+  <Requirement icon="FileArchive" note="such as 7-Zip">
+    An archive tool
+  </Requirement>
+</Requirements>
+
+Mods work on the Windows PC version only. Mobile, console, cloud and Mac versions cannot use mods. Old guides install "standalone GIMI" by hand: that version is deprecated and gets no updates, so use XXMI Launcher.
+
+## Install XXMI Launcher and GIMI
+
+<Steps>
+<Step>
+
+### Download XXMI Launcher
+
+<ToolCard
+  name="XXMI Launcher"
+  href="https://github.com/SpectrumQT/XXMI-Launcher/releases/latest"
+  badge="Required"
+  icon={<Icon name="XXMILauncher" />}
+>
+  Official releases on GitHub, by SpectrumQT. Free and open source (GPL-3.0).
+</ToolCard>
+
+1. Open the latest release page on GitHub.
+2. Scroll down to **Assets**.
+3. Click `XXMI-Launcher-Installer-Online-v2.5.0.msi` to download it. The version number changes with each release.
+
+<img
+  src="/wiki-images/genshin-impact-getting-started-install-with-xxmi-launcher-1.webp"
+  alt="The Assets list on the XXMI Launcher v2.5.0 release page, with the .msi installer and the portable .zip"
+/>
+
+Get the launcher only from this GitHub page. Other sites with "XXMI" in the name are not official.
+
+</Step>
+<Step>
+
+### Install it
+
+<Tabs items={["Installer (.msi)", "Portable (.zip)"]}>
+<Tab value="Installer (.msi)">
+
+1. Double-click the `.msi` file.
+2. Windows may warn you because the launcher is not code-signed. Check that the file came from the GitHub page above before you go on.
+3. Click **Quick Installation**. It installs to `%AppData%\XXMI Launcher`.
+4. If Windows asks for an admin account, right-click the `.msi` and choose **Run as administrator**.
+
+Use **Custom Installation** only to pick another folder. Never pick a folder inside the game folder or inside Program Files.
+
+{/* NEEDS HANDS-ON TEST: the exact Windows SmartScreen wording and buttons for the unsigned XXMI-Launcher-Installer-Online-v2.5.0.msi, and whether the installer asks for admin rights by itself. */}
+
+</Tab>
+<Tab value="Portable (.zip)">
+
+Use this when the `.msi` will not install.
+
+1. Install the [Microsoft Visual C++ Redistributable (x64)](https://aka.ms/vs/17/release/vc_redist.x64.exe).
+2. Download `XXMI-Launcher-Portable-v2.5.0.zip` from the same release page.
+3. Extract it to a folder you own. Not inside Program Files, not inside the game folder, and with no `{` or `}` in the path.
+4. Run `Resources\Bin\XXMI Launcher.exe`. Make a desktop shortcut to it.
+
+</Tab>
+</Tabs>
+
+XXMI Launcher needs admin rights each time it starts the game, because it loads the mod loader into the game.
+
+</Step>
+<Step>
+
+### Start Genshin Impact once without mods
+
+1. Open HoYoPlay or the Epic Games Launcher.
+2. Update Genshin Impact to the latest version. XXMI Launcher does not update the game.
+3. Start the game once, log in, and close it.
+
+This creates the game settings XXMI Launcher needs. Without them, the launcher shows `Genshin Impact registry key is not found!`.
+
+</Step>
+<Step>
+
+### Add Genshin Impact and install GIMI
+
+1. Open XXMI Launcher. You see **Select Games To Mod:** and a row of game tiles.
+2. Click the **Genshin Impact** tile. The GIMI icon appears in the top-left bar.
+3. Click the GIMI icon, then click **Install**.
+4. When **Game Installation Found** appears, check the path and click **Confirm**.
+5. Wait while the launcher downloads GIMI and the XXMI DLL. The button changes to **Start**.
+
+The bottom-left corner now shows the versions, such as `LAUNCHER 2.5.0`, `XXMI 1.3.2` and `GIMI 8.9.4`.
+
+If you see **Game Installation Not Found**, click **Open Settings**. Under <MenuPath path="General > Game Folder" />, click **Browse...** and pick the `Genshin Impact game` folder, the one that holds `GenshinImpact.exe`.
+
+{/* SCREENSHOT: genshin-impact-getting-started-install-with-xxmi-launcher-4.webp, XXMI Launcher 2.5.0 on the GIMI page after install, showing the Start button, the 3-dots button and the version text bottom-left. No current screenshot exists in any source. */}
+
+</Step>
+<Step>
+
+### Check the settings mods need
+
+1. Click the gear icon at the top right to open the settings.
+2. Open the **General** tab.
+3. Check **Game Folder**. It must point to the folder that holds `GenshinImpact.exe`.
+4. Leave **Game Launch** on `Direct`. This works for the HoYoPlay and the Epic Games versions.
+5. Keep **Configure Game Settings For GIMI** ticked. Before each start, it turns Dynamic Character Resolution off for you.
+
+Leave every other setting at its default. Settings that change how the launcher loads into the game are not covered here.
+
+{/* NEEDS HANDS-ON TEST: on XXMI Launcher 2.5.0, confirm the tab and label names (General, Game Folder, Game Launch, Configure Game Settings For GIMI), and that Direct starts the Epic Games version of Genshin Impact. No source has a screenshot of the 2.4.1+ settings window. */}
+
+{/* SCREENSHOT: genshin-impact-getting-started-install-with-xxmi-launcher-5.webp, the General tab of XXMI Launcher 2.5.0 settings for GIMI, showing Game Folder, Game Launch and Configure Game Settings For GIMI. */}
+
+</Step>
+<Step>
+
+### Start the game and check that GIMI loads
+
+1. Close HoYoPlay and the Epic Games Launcher.
+2. Click **Start** in XXMI Launcher. It closes itself when the game window opens.
+3. Watch the screen while the game loads. For the first 30 seconds you should see `GIMI 8.9.4 F12 TO SHOW GUIDE`.
+4. Read the user guide that opens on the first start. Press `F10` to hide it for good. Press `F12` to open it again later.
+
+<img
+  src="/wiki-images/genshin-impact-getting-started-install-with-xxmi-launcher-3.webp"
+  alt="The GIMI user guide over the Genshin Impact loading screen, with mod install steps and the F12, F6, F10 and F9 hotkeys"
+/>
+
+No banner means GIMI did not load, and no mod will show. Always start the game from XXMI Launcher, not from HoYoPlay or Epic.
+
+</Step>
+<Step>
+
+### Turn off Dynamic Character Resolution
+
+1. In game, open <MenuPath path="Settings > Graphics" />.
+2. Find **Dynamic Character Resolution** and set it to **Off**.
+
+<img
+  src="/wiki-images/genshin-impact-getting-started-install-with-xxmi-launcher-2.webp"
+  alt="The Genshin Impact graphics settings with Dynamic Character Resolution set to Off"
+/>
+
+With it on, every mod breaks. The launcher normally turns it off, but a graphics driver update can turn it back on.
+
+If you have an NVIDIA card, also turn off NVIDIA Smooth Motion and frame generation. They stop mods from loading.
+
+</Step>
+<Step>
+
+### Add your first mod
+
+1. In XXMI Launcher, click the 3-dots button next to **Start**, then **Open Mods Folder**. It opens `%AppData%\XXMI Launcher\GIMI\Mods`.
+2. Open the mod you downloaded with your archive tool. Check that it holds only `.ini`, `.buf`, `.ib` and `.dds` files.
+3. Extract the mod's folder into `Mods`.
+4. Turn off any other mod for the same character.
+5. In game, switch to a different character so the modded one is off screen.
+6. Press `F10` to reload. Then switch back.
+
+<Files>
+  <Folder name="GIMI" defaultOpen>
+    <Folder name="Core: GIMI itself, do not edit" />
+    <Folder name="Mods" defaultOpen>
+      <Folder name="AmberRecolor: your mod" defaultOpen>
+        <File name="AmberRecolor.ini" />
+        <File name="AmberBodyDiffuse.dds" />
+      </Folder>
+    </Folder>
+    <Folder name="ShaderFixes: GIMI's own files" />
+    <File name="d3dx.ini" />
+  </Folder>
+</Files>
+
+A `.zip` left inside `Mods` does nothing: always extract it. If the mod page says it needs ORFix or "requires XXMI", you already have it. GIMI includes ORFix, so never add a copy to `Mods`.
+
+{/* NEEDS HANDS-ON TEST: with a clean XXMI Launcher 2.5.0 install, add one character mod, press F10 with the character off screen, and confirm it appears. */}
+
+</Step>
+</Steps>
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title='"Genshin Impact registry key is not found!"' id="registry-key-not-found">
+
+Start Genshin Impact once from HoYoPlay or Epic Games, log in, and close it. Then click **Start** in XXMI Launcher again.
+
+</Accordion>
+<Accordion title="The game starts, but there is no GIMI banner" id="no-banner">
+
+1. Close the game and start it again with **Start** in XXMI Launcher.
+2. Check that **Game Folder** points to the folder that holds `GenshinImpact.exe`.
+3. Close any other program that injects into the game at startup. Two of them at once can give a black screen.
+
+[Mods not loading](/docs/genshin-impact/errors/mods-not-loading) has the full checklist.
+
+</Accordion>
+<Accordion title="Mods look stretched or broken on every character" id="all-mods-broken">
+
+Dynamic Character Resolution is on. Turn it off in <MenuPath path="Settings > Graphics" />, and keep **Configure Game Settings For GIMI** ticked in the launcher.
+
+</Accordion>
+<Accordion title="Black screen after the game starts" id="black-screen">
+
+Turn off HDR in Genshin Impact, and leave **Enable HDR** unticked in the launcher's **General** tab. Then start the game again. Black screens with HDR on have been reported with the mod loader.
+
+{/* NEEDS HANDS-ON TEST: whether native HDR still gives a black screen with GIMI 8.9.4 (reports are from 2023 and 2024). */}
+
+</Accordion>
+<Accordion title='"Cannot start with d3dx.ini in Mods folder!"' id="d3dx-in-mods">
+
+A mod or an old setup put a `d3dx.ini` file inside `Mods`. Find it, delete it, and click **Start** again.
+
+</Accordion>
+<Accordion title='The game kicks you with "Illegal tool detected"' id="illegal-tool-detected">
+
+This is the game's anti-cheat, not a broken install. No supported fix exists. Read [Illegal tool detected and 4001 errors](/docs/genshin-impact/errors/illegal-tool-detected) before you decide what to do.
+
+</Accordion>
+</Accordions>
+
+Launcher errors and antivirus alerts are in [XXMI Launcher problems](/docs/genshin-impact/errors/launcher-problems).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Add, turn off, and remove mods"
+    href="/docs/genshin-impact/getting-started/manage-mods"
+    icon={<Icon name="FolderOpen" />}
+    level="beginner"
+  >
+    Turn mods on and off, reload them in game, and keep your Mods folder clean.
+  </PremiumCard>
+  <PremiumCard
+    title="Fix your mods after a game update"
+    href="/docs/genshin-impact/getting-started/fix-mods-after-an-update"
+    icon={<Icon name="RefreshCw" />}
+    level="beginner"
+  >
+    What to do when an update breaks your mods.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT.
+- **Tool:** [GIMI user guide](https://github.com/SilentNightSound/GIMI-Package/tree/main/GIMI/Core/GIMI/Notifications) by the GIMI maintainers.
+- **Guide:** [Getting Started](https://leotorrez.github.io/modding/guides/getting-started) by LeoTorreZ.
+- **News:** [4.4 Update New Feature Breaking Mods Notice (+How to fix!)](https://gamebanana.com/news/21847) by SilentNightSound.
+- **Images:** screenshot 2 from [Troubleshooting](https://leotorrez.github.io/modding/guides/troubleshooting) and screenshot 3 from [Getting Started](https://leotorrez.github.io/modding/guides/getting-started), by LeoTorreZ (GPL-3.0).

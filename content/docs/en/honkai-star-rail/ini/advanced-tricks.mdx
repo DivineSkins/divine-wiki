@@ -1,0 +1,303 @@
+---
+title: "Sliders, animated textures, and help text"
+description: "Add on-screen help text, a slider key and a texture that animates over time to your own Honkai: Star Rail mod with a few hand-written .ini lines."
+category: "ini"
+patch: "4.7"
+keywords:
+  [
+    "star rail mod help text",
+    "srmi printtext",
+    "animated texture",
+    "slider key",
+    "star rail mod ini",
+  ]
+---
+
+<LevelPill level="advanced" />
+
+These tricks build on toggles. You will show help text on screen, add a slider key, and make a texture animate. You need your own mod with a working toggle. Written for SRMI 2.4.3 and XXMI Tools 1.8.2.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="FileCode" href="/docs/honkai-star-rail/ini/add-a-toggle">
+    Your own mod with a working toggle
+  </Requirement>
+  <Requirement icon="NotepadPlusPlus" note="or any editor that saves UTF-8">
+    A text editor
+  </Requirement>
+  <Requirement
+    icon="Sparkles"
+    href="/docs/honkai-star-rail/effects/glow-and-transparency"
+    note="for the slider example only"
+  >
+    A RabbitFX glow map on your mod
+  </Requirement>
+</Requirements>
+
+Every example uses `$active`, the "character on screen" flag. XXMI Tools writes it only when you fill in the **Credit** field at export. The toggle guide shows how to add it by hand. Keep a backup of your `.ini` before you start: a new export with **Write ini** on replaces your edits.
+
+## Show help text on screen
+
+### The credit pop-up
+
+Fill in the **Credit** field when you export with XXMI Tools. The mod then shows `Created by` and your name for 5 seconds, once, when the character first appears. You write no lines yourself. It runs through `help.ini`, an older text printer that SRMI keeps for this.
+
+### Your own help box
+
+SRMI 2.4.3 has a text API in the `SRMIv1` namespace. It draws any text you give it in a box. This example shows the box while a key is on.
+
+<Steps>
+<Step>
+
+### Add the text and the box settings
+
+Add two resources at the end of the `.ini`:
+
+```ini
+[ResourceHelpText]
+type = Buffer
+data = "1: coat on or off   2: next hair"
+
+[ResourceHelpParams]
+type = StructuredBuffer
+array = 1
+data = R32_FLOAT  -0.25 +0.15 +0.25 -0.05   1.00 1.00 1.00 1.00   0.00 0.00 0.00 0.95   0.02  0.05   2 1   1   1.0
+```
+
+For longer text, load it from a file instead:
+
+```ini
+[ResourceHelpText]
+type = buffer
+format = R8_UINT
+filename = Help.txt
+```
+
+</Step>
+<Step>
+
+### Add a key that shows the box
+
+```ini
+[Constants]
+global $help = 0
+
+[KeyHelp]
+key = 9
+condition = $active == 1
+type = cycle
+$help = 0,1
+```
+
+Put the `global` line in the `[Constants]` section you already have. Do not make a second one.
+
+</Step>
+<Step>
+
+### Draw the box every frame
+
+Add `run = CommandListHelp` to your existing `[Present]` section and keep the lines already there. Then add the command list:
+
+```ini
+[Present]
+post $active = 0
+run = CommandListHelp
+
+[CommandListHelp]
+if $help == 1 && $active == 1
+	pre Resource\SRMIv1\Text = ref ResourceHelpText
+	pre Resource\SRMIv1\TextParams = ref ResourceHelpParams
+	pre run = CommandList\SRMIv1\PrintText
+endif
+```
+
+</Step>
+<Step>
+
+### Test it
+
+Save, switch to another character, press `F10`, switch back and press `9`.
+
+</Step>
+</Steps>
+
+{/* NEEDS HANDS-ON TEST: CommandList\SRMIv1\PrintText run from a command list in [Present] with pre lines, on SRMI 2.4.3 with Honkai: Star Rail 4.7, and whether a Help.txt with several lines prints each line */}
+
+The 18 numbers in `ResourceHelpParams` set the box, in this order. The comments in SRMI's `main.ini` explain them:
+
+| Numbers | What they set                                                                      |
+| ------- | ---------------------------------------------------------------------------------- |
+| 1 to 4  | The box corners x1, y1, x2, y2, each from `-1` to `+1`                             |
+| 5 to 8  | Text color as red, green, blue, alpha, from `0` to `1`                             |
+| 9 to 12 | Background color, the same way                                                     |
+| 13, 14  | Border, across and down                                                            |
+| 15, 16  | Anchor across and down: `0` none, `1` left or top, `2` center, `3` right or bottom |
+| 17      | Text alignment: `0` left, `1` center, `2` right                                    |
+| 18      | Font scale                                                                         |
+
+Many players dislike pop-ups, enough that a Star Rail tool exists only to delete them from mods. Keep help text behind a key, never on all the time.
+
+## Add a slider
+
+A slider changes a value a little every frame while you hold a key. This one stores a strength from `0` to `1`:
+
+```ini
+[Constants]
+global persist $strength = 1.0
+global $held_up = 0
+global $held_down = 0
+
+[KeyStrengthDown]
+key = VK_LEFT
+condition = $active == 1
+type = hold
+$held_down = 1
+
+[KeyStrengthUp]
+key = VK_RIGHT
+condition = $active == 1
+type = hold
+$held_up = 1
+
+[Present]
+post $active = 0
+if $held_up
+	run = CommandListStrengthUp
+else if $held_down
+	run = CommandListStrengthDown
+endif
+
+[CommandListStrengthUp]
+if $strength < 1.0
+	$strength = $strength + 0.01
+else
+	$strength = 1.0
+endif
+
+[CommandListStrengthDown]
+if $strength > 0.0
+	$strength = $strength - 0.01
+else
+	$strength = 0.0
+endif
+```
+
+- `type = hold` sets the value only while the key is down. On release it goes back to `0`.
+- Merge these lines into your existing `[Constants]` and `[Present]` sections.
+
+A value does nothing until something reads it. In a Star Rail mod with a RabbitFX glow map, the slider can drive the glow brightness. Put this line in the part section, above the `run = CommandList\RabbitFX\Run` line:
+
+```ini
+$\RabbitFX\brightness = $strength
+```
+
+The RabbitFX page does not say which brightness values look right. Test a few, then change the `0.0` and `1.0` limits of the slider to match.
+
+{/* NEEDS HANDS-ON TEST: a hold-key slider writing $\RabbitFX\brightness in a part section before run = CommandList\RabbitFX\Run, on RabbitFX (SRMI) 3.0 with SRMI 2.4.3, the useful brightness range, and whether the value also changes the glow of other mods that use RabbitFX */}
+
+A custom shader can read the value through an IniParam instead. The .ini reference below explains IniParams and why they clash between mods.
+
+The value steps once per frame, so the slider moves faster at a higher frame rate. For fixed steps, use a cycle key instead, like `$strength = 0.25,0.5,0.75,1.0`.
+
+## Animate a texture
+
+### Swap frames over time
+
+`time` holds the seconds since the game started. `time % 1.0` counts from `0` to `1` once every second, so it can pick a frame:
+
+<img
+  src="/wiki-images/honkai-star-rail-ini-advanced-tricks-1.webp"
+  alt="A timeline: time modulo 1.0 runs from 0 to 1 every second, and each quarter second picks the next of four frames, from if time % 1.0 below 0.25 for frame 0 to else for frame 3, then repeats"
+/>
+
+Star Rail mods bind each texture in its own hash section, so the frame swap goes there.
+
+1. Save each frame as its own `.dds`, in the same format and size as the original diffuse.
+2. Add one resource per frame, like `[ResourceKafkaBodyAFrame0]` with `filename = KafkaBodyAFrame0.dds`.
+3. In the diffuse's hash section, replace the `this =` line with this block:
+
+```ini
+[TextureOverrideKafkaBodyADiffuse]
+hash = ffffffff
+if time % 1.0 < 0.25
+	this = ResourceKafkaBodyAFrame0
+else if time % 1.0 < 0.5
+	this = ResourceKafkaBodyAFrame1
+else if time % 1.0 < 0.75
+	this = ResourceKafkaBodyAFrame2
+else
+	this = ResourceKafkaBodyAFrame3
+endif
+```
+
+`ffffffff` is a placeholder: keep the hash your section already has. For a slower loop, use `time % 2.0` and twice the limits.
+
+{/* NEEDS HANDS-ON TEST: a time-based frame swap of this = lines inside a texture hash section, on SRMI 2.4.3 with Honkai: Star Rail 4.7. No tested mod with exactly this layout was found. */}
+
+### Watch the memory
+
+Every frame is a full texture in video memory. Animated light cone mods show the cost: even optimized ones use 100 to 300 MB of video memory each. Keep the frame count low and the textures no larger than the original.
+
+Some animated mods pack every frame into one Texture2DArray file and pick the frame in a custom shader. No Star Rail guide for that method was found, so this page does not teach it.
+
+## What this page leaves out
+
+SRMI ships no library for resizing a character or for reading your character's HP, and no Star Rail guide for either was found. This page covers neither.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="The help box never shows" id="help-not-showing">
+
+- Check that `[Present]` has `run = CommandListHelp`.
+- Check that the file has `$active` and that the key's `condition` uses it.
+- Untick **Mute Warnings** in the SRMI tab of XXMI Launcher and read the text after `F10`. `Unrecognised entry` often means a misspelt resource name.
+
+</Accordion>
+<Accordion title="The slider does nothing" id="slider-does-nothing">
+
+Check that the `$\RabbitFX\brightness` line sits above the `run = CommandList\RabbitFX\Run` line, in the same part section as the glow map. Check that the arrow keys are free: another mod with no `condition` may use them too.
+
+</Accordion>
+<Accordion title="The texture never changes" id="no-animation">
+
+Check every `filename =` line and every resource name inside the `if` block. A wrong name keeps the original texture or shows nothing.
+
+</Accordion>
+<Accordion title="The game stutters or runs out of video memory" id="vram">
+
+Each animation frame is a full texture. Use fewer frames, or smaller ones.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title=".ini reference"
+    href="/docs/honkai-star-rail/ini/ini-reference"
+    icon={<Icon name="BookOpen" />}
+    level="advanced"
+  >
+    Every section, key type, operator and warning in one place.
+  </PremiumCard>
+  <PremiumCard
+    title="Combine mods into one merged mod"
+    href="/docs/honkai-star-rail/ini/merged-mods"
+    icon={<Icon name="Layers" />}
+    level="intermediate"
+  >
+    Switch between whole mods for one character with one key.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Toggle Guide](https://gamebanana.com/tuts/18971) by gdsfdg, for the hold-key slider.
+- **Tool:** [SRMI `main.ini`](https://github.com/SpectrumQT/SRMI-Package/blob/main/SRMI/Core/SRMI/main.ini) by SpectrumQT, for the text API and its settings.
+- **Tool:** [XXMI Tools Honkai Star Rail template](https://github.com/leotorrez/XXMITools/blob/main/templates/Honkai%20Star%20Rail.ini.j2) by leotorrez, for the credit pop-up.
+- **Tool:** SRMI RabbitFX by caverabbit, for the glow brightness setting.

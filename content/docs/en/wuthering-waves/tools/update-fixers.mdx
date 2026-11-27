@@ -1,0 +1,189 @@
+---
+title: "Update fix tools"
+description: "Which tools fix Wuthering Waves mods after a game update, how to pick one, how to spot a fake fixer, and what no tool can fix."
+category: "tools"
+patch: "3.8"
+keywords:
+  [
+    "wuwa mod fixer",
+    "wuthering waves mods broken after update",
+    "wwmi fix",
+    "woju fixer",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+After a Wuthering Waves update, some mods stop working. Two community tools repair many of them: Moonholder's Wuwa_Mod_Fixer and Woju's WuWa_MOD_WojuFixer. The WWMI author names both. This page explains what each one does, how to make sure you have the real tool, and what no tool can fix.
+
+Written for Wuthering Waves 3.8 with WWMI 1.2.2.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/wuthering-waves/tools/xxmi-launcher"
+    note="updated"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="Archive">A zip backup of your Mods folder</Requirement>
+</Requirements>
+
+## Most breaks need no tool
+
+Many "all my mods broke" moments are fixed by the launcher, not by a fix tool. Check these two things first:
+
+1. **XXMI Launcher and WWMI are up to date.** Open the launcher and let it update. The game's load banner should read `WWMI 1.2.2 (PRESS F12 TO SHOW GUIDE)`. If a **WWMI Integrity Error** box asks for XXMI DLL 1.3.3 or newer, your XXMI DLL is older than WWMI needs: let the launcher update again. Waiting one to three days for an update after a game update is normal.
+2. **The settings mods need are still right.** **Client Resource Quality** matches what you installed, **Configure Game Settings For WWMI** and **Disable Wounded Effect** are ticked, **Mesh LOD Base FOV** is `165`, and **LOD Bias** is **Ultra High** in the game.
+
+In Wuthering Waves, many breaks come from the game loading lower-detail models and textures, or from a change in how the game starts. Launcher updates and these settings fix those for every mod at once. A fix tool is for the other kind: a Resonator's model or texture data changed, so one mod no longer matches. A Resonator is a playable character, and Rover breaks most often.
+
+If eyes and lips glitch right after an update, restart the game first. The game rebuilds its shaders after an update.
+
+## The Wuthering Waves fixers
+
+Neither tool is better in every case. Prefer the one that has a release for your game version. On November 24, 2026, Woju's fixer had a 3.8 release (v3.8.1.1, November 17) and Moonholder's newest was v3.7.0 (October 11). Woju's v3.8.1.1 also fixed the facial expressions of female Rover's regular outfit.
+
+<ToolCard
+  name="Wuwa_Mod_Fixer"
+  href="https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest"
+  icon={<Icon name="GitHub" />}
+>
+  By Moonholder. Finds changed model and texture data in a mod and updates it.
+  Keeps backups. Open source (GPL-3.0) and code-signed.
+</ToolCard>
+<ToolCard
+  name="WuWa_MOD_WojuFixer"
+  href="https://github.com/Woju25/WuWa_MOD_WojuFixer/releases"
+  icon={<Icon name="GitHub" />}
+>
+  By Woju. Repairs broken textures in a mod by moving it to RabbitFX texture
+  slots. Open source (AGPL-3.0).
+</ToolCard>
+
+| Tool                            | What it changes                                                                                                                                               | Good to know                                                                                                                                                                    |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Wuwa_Mod_Fixer** (Moonholder) | Finds hashes that changed in a game update and replaces them in the mod's files. Optional fixes include stable textures and a fix for the 3.3 drawing change. | Keeps backups, with a rollback option that puts a mod back as it was. Windows and Linux. The real file is code-signed.                                                          |
+| **WuWa_MOD_WojuFixer** (Woju)   | Switches the mod's textures to RabbitFX texture slots, so they survive more updates, and removes the old texture check lines.                                 | Fixed mods need exactly one copy of RabbitFX in `Mods`. Needs extra data files that its author links with each release. The supported Resonators are listed on its GitHub page. |
+
+{/* NEEDS HANDS-ON TEST: on Wuwa_Mod_Fixer v3.7.0 and WuWa_MOD_WojuFixer v3.8.1.1, the exact English labels of the main buttons and options, where each tool writes its backups, and whether the Woju release and its data files come as plain archives. */}
+
+Both fixers were built for mods that find their textures by hash. Mods exported with WWMI Tools 1.9.4, from November 25, 2026, find them by look instead and have no texture hash lines. Their `mod.ini` starts with `; WWMI BETA-11 INI`. Whether either fixer handles these mods is not known yet: neither had a release after WWMI Tools 1.9.4 on November 26, 2026. Run a fixer on such a mod only on a copy, and keep the original.
+
+{/* NEEDS HANDS-ON TEST: whether the newest Wuwa_Mod_Fixer and WuWa_MOD_WojuFixer releases repair, skip or break a mod exported with WWMI Tools 1.9.4 (first line ; WWMI BETA-11 INI, [FilterTexture...] sections) on WWMI 1.2.2 */}
+
+Fix your mods after a game update, linked below, walks through running each tool, step by step.
+
+## Run them in this order
+
+1. Back up: zip your whole `Mods` folder.
+2. Update XXMI Launcher and check your settings, as above.
+3. Press `F10` in game and see which mods are still broken.
+4. Copy one broken mod's folder outside `Mods`.
+5. Run one fixer on that copy.
+6. Put the fixed mod back in `Mods`, press `F10`, and test again.
+
+Three rules keep this from going wrong:
+
+- **Use only the newest release for your game version.** Running an old fixer after a newer one can break mods for good.
+- **Fix only broken mods.** Running a fixer on working mods can break them.
+- **Never run a fixer twice** on the same mod, and never run both fixers on one mod. Start again from your backup instead.
+
+If you use a mod manager that edits `.ini` files, restore your mods in it first. Fix them, then add them back.
+
+## What no tool can fix
+
+- **Mods made for the first WWMI versions, from mid 2024.** Their format is too old for any script. Only the creator can export them again. `Alt+F12` turns on WWMI's compatibility mode for 0.6.X mods, then press `F10`. It may not help.
+- **Launcher and settings problems.** A wrong **Client Resource Quality**, a game running in DirectX 12, or an outdated launcher stop every mod, and no fixer changes that.
+- **Big changes to a Resonator's model.** When a Resonator's mesh or bones change, the creator must update the mod from a fresh dump.
+
+If a tool cannot fix a mod, check the mod's page for an update from its creator. Creators who fix their own mods use [Update your mod after a game update](/docs/wuthering-waves/publishing/update-your-mod). To break less often in the first place, see [Make textures survive game updates](/docs/wuthering-waves/textures/stable-textures).
+
+## Spot a fake fixer
+
+<Callout type="danger" title="Fake fixers have carried malware">
+
+In September 2025, after Genshin Impact 6.0, a new account uploaded a fake copy of a well-known Genshin Impact fix tool under the real title. Its script asked for admin rights and downloaded a malicious program. Fake fixers show up after game updates, when players are in a hurry, and the same can happen for Wuthering Waves.
+
+</Callout>
+
+Before you run any fixer, check:
+
+1. **The link.** Use the GitHub links on this page. Not a link from a video comment, a re-upload, or a search result.
+2. **The author.** The real pages are `github.com/Moonholder/Wuwa_Mod_Fixer` and `github.com/Woju25/WuWa_MOD_WojuFixer`, each with a long list of releases.
+3. **The signature.** Moonholder's fixer is code-signed. A copy without a signature is not the real one.
+4. **The source.** Both fixers are open source on GitHub, so anyone can read what they do.
+
+<img
+  src="/wiki-images/wuthering-waves-tools-update-fixers-1.webp"
+  alt="The Assets list of the WuWa_MOD_WojuFixer v3.8.1.1 release on GitHub, with the single file WuWa_MOD_WojuFixer_v3.8.1.1_win-x64.zip"
+/>
+
+Red flags: a "fix" that replaces `d3d11.dll` or other XXMI files, asks for admin rights, comes in a password-protected archive, or comes from a new account with one upload. Also a "fix" that appears before the community has announced one.
+
+Some tools download fix data from the internet while they run, such as Moonholder's online mode. Their behavior can change without a new download, so trust depends on who runs the repository.
+
+Antivirus apps sometimes flag real fixers, because they rewrite many files at once. Add an exclusion for that one file. Never turn your antivirus off.
+
+## Tools to skip
+
+| Skip this                                                          | Why                                                                                                         |
+| ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| Fix tools for old versions (1.x and 2.x full fixes, 2.7 fix files) | Outdated. They break mods that a newer fixer already fixed.                                                 |
+| Any old fixer version                                              | The same: always use the newest release.                                                                    |
+| Guides or tools that write lines into the game's config files      | Stale since version 3.2. The game ignores or removes such lines. Use the launcher's settings.               |
+| A `d3d11.dll` "fix" from anyone but XXMI Launcher                  | Real fixes never replace XXMI files.                                                                        |
+| KiriFix WWMI                                                       | New and experimental since November 2026, and it downloads fix data online. Not reviewed for this wiki yet. |
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Textures are still broken after Woju's fixer" id="woju-textures">
+
+Fixed mods need RabbitFX. Check that exactly one copy of it sits in `Mods`, not zero and not two. [Add, turn off, and remove mods](/docs/wuthering-waves/getting-started/manage-mods) shows how.
+
+</Accordion>
+<Accordion title="Every mod broke after I ran a fixer" id="all-broke">
+
+An outdated fixer, a fixer run twice, or both fixers on one mod can do this. Restore your `Mods` backup and follow the order above with the newest release.
+
+</Accordion>
+<Accordion title="Rover's face looks wrong after the update" id="rover-face">
+
+Rover's facial expressions broke in 3.7 and again in 3.8. Use the newest release of a fixer that lists the fix, on a fresh copy of the mod.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Fix your mods after a game update"
+    href="/docs/wuthering-waves/getting-started/fix-mods-after-an-update"
+    icon={<Icon name="RefreshCw" />}
+    level="beginner"
+  >
+    The full player checklist for update day.
+  </PremiumCard>
+  <PremiumCard
+    title="Fix an old mod by hand"
+    href="/docs/wuthering-waves/ini/fix-an-old-mod"
+    icon={<Icon name="Wrench" />}
+    level="intermediate"
+  >
+    Update hashes and texture lines yourself when a tool cannot.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This page is based on the work of these creators. Check out their original pages and tools.
+
+- **Tool:** [Wuwa_Mod_Fixer](https://github.com/Moonholder/Wuwa_Mod_Fixer) by Moonholder.
+- **Tool:** [WuWa_MOD_WojuFixer](https://github.com/Woju25/WuWa_MOD_WojuFixer) by Woju.
+- **News:** [WWMI update posts](https://gamebanana.com/tools/17252) on GameBanana by SpectrumQT.
+- **Guide:** [Fix Broken Character Textures (RabbitFX Stable Textures)](https://gamebanana.com/tuts/20005) by JessyJames84.
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ.

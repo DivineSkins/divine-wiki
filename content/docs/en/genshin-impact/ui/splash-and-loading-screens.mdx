@@ -1,0 +1,238 @@
+---
+title: "Replace splash art and loading screens"
+description: "Put your own art on Genshin Impact splash art, wish banners, name cards and loading screens, by hand with a texture mod or with a generator tool."
+category: "ui"
+patch: "7.2"
+keywords:
+  [
+    "genshin loading screen mod",
+    "genshin splash art mod",
+    "namecard mod",
+    "wish banner mod",
+    "texture override",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+You will swap the game's big 2D art for your own: splash art, wish banners, name cards and loading screens. Most of it works like an icon mod. Loading screens and animated name cards are easiest with a generator tool. Written for XXMI Launcher 2.5.0 and GIMI 8.9.4 on Genshin Impact 7.2.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/genshin-impact/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement
+    icon="PaintNET"
+    href="/docs/genshin-impact/tools/texture-editors"
+    note="or Photoshop"
+  >
+    Paint.NET
+  </Requirement>
+  <Requirement icon="Image">
+    Your own art, or art you have the right to use
+  </Requirement>
+</Requirements>
+
+<Callout type="info" title="Only you see it">
+  Mods only change what your own PC draws. Players in your co-op world and
+  visitors should still see your real name card and the normal art.
+</Callout>
+
+{/* NEEDS HANDS-ON TEST: two PCs in one co-op world, one with a name card mod, to confirm the other player sees the original name card. */}
+
+## Which method for which art
+
+| Art                                 | Method                                |
+| ----------------------------------- | ------------------------------------- |
+| Splash art in the character archive | A texture mod you write by hand       |
+| Wish banners and other 2D screens   | A texture mod you write by hand       |
+| Name cards, still or animated       | By hand, or with Namecard Mod Creator |
+| Loading screens                     | A generator tool                      |
+
+## Replace splash art, banners and name cards
+
+These are textures, like icons. [Replace character icons and portraits](/docs/genshin-impact/ui/replace-icons) walks through every step with screenshots of the files. In short:
+
+<Steps>
+<Step>
+
+### Dump the screen
+
+Tick **Enable Hunting** in XXMI Launcher, open the screen in game, and press `F8`. Turn off any mod that already changes this art first.
+
+</Step>
+<Step>
+
+### Find the image
+
+Open the new `FrameAnalysis-...` folder, then `deduped`. Find your art, upside down, and note its file name, like `3a5f9c21-BC7_UNORM_SRGB.dds` (a placeholder, not a real banner). The start is the hash, the end is the format.
+
+</Step>
+<Step>
+
+### Edit it
+
+1. Copy the file into your mod folder.
+2. Flip your own art vertically and paste it in. The file must stay upside down.
+3. Keep the exact width and height. Some screens use odd sizes, like 560x512. Do not round them.
+4. Save in the format from the file name, with **Generate Mip Maps** ticked.
+
+</Step>
+<Step>
+
+### Write the .ini and test
+
+```ini
+[TextureOverrideMyBanner]
+hash = 3a5f9c21
+this = ResourceMyBanner
+
+[ResourceMyBanner]
+filename = MyBanner.dds
+```
+
+Press `F10` in game and open the screen again.
+
+</Step>
+</Steps>
+
+Text on a banner or card cannot change, unless the game draws that text as part of the image.
+
+### When the dump is too big to search
+
+Hunt the art's pixel shader instead. Step with `Numpad 1` and `Numpad 2` until the art disappears, then copy the hash with `Numpad 3`. Add this section with that hash, press `F10`, then `F8`. The dump now holds only what that shader draws:
+
+```ini
+[ShaderOverrideBannerArt]
+hash = aaaaaaaaaaaaaaaa
+analyse_options = dump_rt dump_tex dump_cb dump_vb dump_ib buf txt dds
+```
+
+Delete the section when you are done.
+
+{/* NEEDS HANDS-ON TEST: a targeted dump with analyse_options in a ShaderOverride on a Genshin Impact 7.2 wish banner screen */}
+
+## Name cards with a generator
+
+Namecard Mod Creator turns your PNG, JPG or GIF into a name card mod, with the `.ini` written for you. A GIF becomes an animated card that swaps frames on a timer. To change its speed, edit the number in the `$halfspeed = $halfspeed + 30` line of the `.ini` it writes.
+
+<ToolCard
+  name="Namecard Mod Creator"
+  href="https://gamebanana.com/tools/21808"
+  icon={<Icon name="GameBanana" />}
+>
+  Makes a name card mod from a PNG, JPG or GIF. By blahblah17.
+</ToolCard>
+
+It knows the name cards up to Genshin Impact 6.3. Cards added later need their hash found by hand, as above.
+
+{/* NEEDS HANDS-ON TEST: Namecard Mod Creator output on Genshin Impact 7.2, and what the $halfspeed number changes */}
+
+## Loading screens
+
+Loading screens depend on your screen size, so a tool builds them for your resolution. Two tools exist. Neither was tested on 7.2 for this guide.
+
+<ToolCard
+  name="Loading Screen Mod Generator"
+  href="https://github.com/complex31/ImmersiveLoading"
+  badge="GitHub"
+  icon={<Icon name="GitHub" />}
+>
+  Builds a loading screen mod from your images. By complex31, updated in 2026.
+</ToolCard>
+
+<ToolCard
+  name="Loading Screen Randomizer"
+  href="https://github.com/Arsinia/GI_LoadscreenRandomizer"
+  badge="GitHub"
+  icon={<Icon name="GitHub" />}
+>
+  Shows your images as random loading screens. By Arsinia, last updated in 2024.
+</ToolCard>
+
+### Use the Loading Screen Randomizer
+
+<img
+  src="/wiki-images/genshin-impact-ui-splash-and-loading-screens-1.webp"
+  alt="Five steps: put your images in InputLoadingScreens, set your monitor resolution in config.txt, run GI_LoadingScreen.exe or the .py with texconv.exe in the same folder, get the textures in OutputLoadingScreens and LSMod.ini, then press F10 in game"
+/>
+
+1. Put the tool's folder in your `Mods` folder.
+2. Put your images in `InputLoadingScreens`. Subfolders work. A folder whose name starts with `-` is skipped.
+3. Write your monitor resolution in `config.txt`.
+4. Check that `texconv.exe` is in the same folder as the tool.
+5. Run `GI_LoadingScreen.exe`. If you would rather not run an `.exe`, run the `.py` version with Python and the Pillow library.
+6. Press `F10` in game.
+
+{/* NEEDS HANDS-ON TEST: the Loading Screen Randomizer on Genshin Impact 7.2, and whether its folder goes inside Mods */}
+
+- `LSMod.ini` has switches that hide the loading screen's UI.
+- The tool also replaces the white flash when the game starts.
+- After you change your resolution, empty `OutputLoadingScreens`, update `config.txt` and run the tool again.
+
+## Animated art
+
+Animated loading screens and cards show several frames in turn. Every frame is a full texture held in video memory, so long animations can make the game stutter. Keep the frame count low. [Sliders, animated textures, and help text](/docs/genshin-impact/ini/advanced-tricks) shows how frames are swapped over time, and how to pack them into one Texture2DArray file.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="My art is upside down" id="upside-down">
+
+The file was saved the normal way up. Flip it vertically and save again.
+
+</Accordion>
+<Accordion title="Nothing changed" id="nothing-changed">
+
+- Check the hash and the `filename =` line.
+- Check the width and height against the dumped file.
+- Turn off other mods that change the same screen.
+
+</Accordion>
+<Accordion title="The loading screen is stretched or cut off" id="stretched">
+
+The images were built for another resolution. Empty `OutputLoadingScreens`, set your resolution in `config.txt`, and run the tool again.
+
+</Accordion>
+<Accordion title="Colors look too dark or washed out" id="wrong-colors">
+
+The file was saved as sRGB when the original was Linear, or the other way round. Read the format at the end of the dumped file name and save again.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Hide your UID and the HUD for screenshots"
+    href="/docs/genshin-impact/ui/hide-ui-for-screenshots"
+    icon={<Icon name="EyeOff" />}
+    level="beginner"
+  >
+    Take clean screenshots of your art without your UID.
+  </PremiumCard>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/genshin-impact/publishing/publishing-checklist"
+    icon={<Icon name="Package" />}
+    level="beginner"
+  >
+    Pack your UI mod with the right files and credits.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [3DMigoto GIMI Texture Modding Tutorial](https://github.com/SilentNightSound/GI-Model-Importer/blob/main/Guides/TextureModdingTutorial.md) by SilentNightSound, for UI textures and the targeted dump.
+- **Tool:** [Loading Screen Randomizer](https://github.com/Arsinia/GI_LoadscreenRandomizer) by [Arsinia](https://discord.com/users/685833257870295075), shared in the [AGMG Discord](https://discord.gg/agmg). The tool credits DiXiao for the method.
+- **Tool:** [Loading Screen Mod Generator](https://github.com/complex31/ImmersiveLoading) by complex31.
+- **Tool:** [Namecard Mod Creator](https://gamebanana.com/tools/21808) by blahblah17.
+- **Guide:** [Texture2DArray in 3DMigoto and how to use them](https://gamebanana.com/tuts/16557) by DiXiao, for animated art.

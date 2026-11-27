@@ -1,0 +1,305 @@
+---
+title: "Your first mod: recolor a character"
+description: "Change the colors of a Wuthering Waves Resonator's outfit or hair in Paint.NET, protect the alpha, save the DDS the right way, and see it in game."
+category: "textures"
+patch: "3.8"
+keywords:
+  [
+    "wuthering waves recolor mod",
+    "wuthering waves texture mod",
+    "wwmi recolor",
+    "paint.net dds",
+    "diffuse texture",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+You will change the colors of one Resonator's outfit or hair, save the texture the way the game expects, and see it in game. A Resonator is the game's name for a playable character. No 3D editing. WWMI must already load your mods. Written for XXMI Launcher 2.5.0, WWMI 1.2.2 and WWMI Tools 1.9.4 on Wuthering Waves 3.8.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/wuthering-waves/tools/xxmi-launcher"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement
+    icon="PaintNET"
+    href="/docs/wuthering-waves/tools/texture-editors"
+    note="free"
+  >
+    Paint.NET
+  </Requirement>
+  <Requirement icon="Puzzle" note="free Paint.NET plugins">
+    Modify Channels and BoltBait's Plugin Pack
+  </Requirement>
+  <Requirement
+    icon="Blender"
+    href="/docs/wuthering-waves/tools/blender-add-on"
+    note="only to make your own mod"
+  >
+    WWMI Tools in Blender 4.5 LTS
+  </Requirement>
+</Requirements>
+
+Set <MenuPath path="Settings > Graphics > LOD Bias" /> to **Ultra High** in the game. On lower settings the game loads smaller textures with other hashes, and a recolor that binds by hash does not show. A mod exported with WWMI Tools 1.9.4 finds textures by look, which should cover this, but nobody has tested it yet. If your tools are not set up yet, start with [Set up your creator tools](/docs/wuthering-waves/getting-started/creator-setup).
+
+{/* NEEDS HANDS-ON TEST: on WWMI 1.2.2, whether a recolor exported with WWMI Tools 1.9.4 still shows with LOD Bias below Ultra High */}
+
+## How a recolor works
+
+Each component of a Resonator uses a few textures. Only the **diffuse** holds the colors you see. WWMI swaps the game's diffuse for your edited copy when the game draws your Resonator. No game file changes.
+
+Wuthering Waves texture files are not named by type. The name tells you which components use the texture, and how to find the game's texture:
+
+| Texture    | How it looks                                           | Edit it for a recolor? |
+| ---------- | ------------------------------------------------------ | ---------------------- |
+| Diffuse    | A normal colored picture: skin, cloth, patterns        | Yes                    |
+| Normal map | The same layout in green, grey or yellowish tones      | No                     |
+| Light map  | Like the diffuse, in loud colors such as orange, green | No                     |
+
+In a WWMI Tools 1.9.4 export, all three have names like `c=3 f=<format> t=<hash> d=<dhash>.dds`: the components, the format, the texture hash and the dHash, a fingerprint of how the texture looks. Mods exported with older versions use names like `Components-3 t=<hash>.dds`. [What each texture map does](/docs/wuthering-waves/textures/texture-maps) shows how to tell them apart for sure, with `TextureUsage.json`.
+
+<Callout type="warning" title="Keep the alpha">
+  In a Wuthering Waves diffuse, the alpha channel is not see-through. It holds
+  shading data: creators say the game uses it for forced shadows. Lose it and
+  the shading on that part looks wrong. The steps below split it off and put it
+  back.
+</Callout>
+
+{/* NEEDS HANDS-ON TEST: what a Wuthering Waves 3.8 diffuse with a lost or white alpha looks like in game */}
+
+<img
+  src="/wiki-images/wuthering-waves-textures-recolor-a-character-1.webp"
+  alt="Six steps of a Wuthering Waves recolor: get the diffuse, copy its alpha to its own layer, recolor in Paint.NET, paste the alpha back, save as BC7 sRGB with mipmaps under the same file name, and press F10 in game"
+/>
+
+The diagram labels the file with the older name. Keep the full file name your export gave the texture, whatever its form.
+
+## Make the recolor
+
+<Steps>
+<Step>
+
+### Get the texture
+
+Pick one route. The paint steps after this are the same for both.
+
+<Tabs items={["Practice on a mod you have", "Make your own mod"]}>
+
+<Tab value="Practice on a mod you have">
+
+The fastest first project. You change a texture inside a mod you downloaded.
+
+1. Open your `Mods` folder: in XXMI Launcher, click the 3-dots button next to **Start**, then **Open Mods Folder**.
+2. Copy the mod's whole folder to your desktop as a backup. Never keep the backup inside `Mods`, or both copies load.
+3. Open the mod's `Textures` folder and find the diffuse of the part you want. Set Paint.NET as the default app for `.dds` files to see thumbnails in File Explorer.
+4. Not sure which file a part uses? Open `mod.ini`, search for the file name, and read the `[ResourceTexture...]` section that loads it.
+
+Keep the result for yourself. The mod is someone else's work, so never share your edited copy.
+
+</Tab>
+
+<Tab value="Make your own mod">
+
+You start from the game's original textures. WWMI Tools writes the `mod.ini` for you, so there is nothing to type.
+
+1. Make a frame dump of your Resonator and extract it with WWMI Tools. [Make a frame dump](/docs/wuthering-waves/basics/frame-dump) shows how.
+2. In the **WWMI Tools** sidebar, set **Mode** to **Import Object**. Pick the extracted folder as **Object Sources** and click **Import Object**. Keep the default skeleton, **Merged**.
+3. Set **Mode** to **Export Mod**. Pick the imported collection as **Components** and the same extracted folder as **Object Sources**.
+4. Set **Mod Folder** to a new folder inside `Mods`, for example `AaltoRecolor`. Leave **Copy Textures** on.
+5. Click **Export Mod**.
+6. In game, press `F10`. Your mod looks like the original, because nothing is edited yet. Press `F6`: a short distortion shows that your mod is active.
+
+<Files>
+  <Folder name="Mods" defaultOpen>
+    <Folder name="AaltoRecolor" defaultOpen>
+      <File name="mod.ini" />
+      <Folder name="Meshes" />
+      <Folder name="Textures" defaultOpen>
+        <File name="c=0 f=<format> t=<hash> d=<dhash>.dds" />
+        <File name="c=3 f=<format> t=<hash> d=<dhash>.dds: edit these copies" />
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+
+Edit the textures in your mod's `Textures` folder. A new export does not overwrite a texture that is already there under the same name, so your edits stay. If you rename or delete one, the next export copies the original back.
+
+{/* NEEDS HANDS-ON TEST: with WWMI Tools 1.9.4, that a second export with Copy Textures on keeps an edited texture of the same name */}
+
+The ready folders in WWMI-Assets stop at game version 2.7, and their texture hashes may not match the current game. Their texture names also use the old format, which WWMI Tools 1.9.4 refuses to export from. Use your own frame dump for a mod that works today. [Export your mod from Blender](/docs/wuthering-waves/models/export-your-mod) explains every export option.
+
+{/* NEEDS HANDS-ON TEST: on Wuthering Waves 3.8 and WWMI 1.2.2, a WWMI Tools 1.9.4 export with no mesh edits from a fresh dump, with only the diffuse edited, shows the recolor in every view: Resonators menu, open world, combat, far away. Also check that WWMI Tools 1.9.4 refuses a WWMI-Assets folder with the outdated name format error */}
+
+</Tab>
+
+</Tabs>
+
+</Step>
+<Step>
+
+### Split off the alpha
+
+Work on a copy: keep a backup of the original `.dds`.
+
+1. Open the `.dds` in Paint.NET.
+2. Choose <MenuPath path="Layers > Duplicate Layer" />.
+3. With the top layer selected, open <MenuPath path="Adjustments > Modify Channels" />.
+4. Set line 1 to `Greyscale`, `Identity`, source `Alpha`. Click `+` and set line 2 to `Alpha`, `Constant`, `255`. Tick `Enabled`, then click **OK**. The top layer now shows the alpha in black and white.
+5. Hide the top layer: untick its box in the Layers panel.
+6. Select the bottom layer and open **Modify Channels** again. Use one line: `Alpha`, `Constant`, `255`. Now you see every color, with nothing transparent.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: the Modify Channels plugin labels and these two settings in the current Paint.NET 5.x release, on a Wuthering Waves diffuse */}
+
+</Step>
+<Step>
+
+### Recolor the part
+
+1. Select the bottom layer and pick the **Magic Wand**. Set **Tolerance** to about 20%, never above 25%.
+2. Hold `Shift` and click a color. This selects that color everywhere on the image. Hold `Ctrl` and click to add more colors.
+3. Choose <MenuPath path="Adjustments > Black and White" />. Only the selected area turns grey.
+4. Choose <MenuPath path="Layers > Add New Layer" />.
+5. Pick your new color as the primary color, then press `Backspace` to fill the selection on the new layer.
+6. Double-click the new layer and set **Blend mode** to **Overlay**. The grey shading shows through your color.
+7. Repeat for each color you want to change.
+
+Use a dark grey instead of pure black: black does nothing in Overlay mode. Select areas that looked empty before, too. The game can show them at the edges.
+
+<YouTube
+  id="XPk4CHLmz6Y"
+  start={266}
+  title="Recoloring the hair texture of a Wuthering Waves mod in Paint.NET and saving it as DDS, by Kazem"
+/>
+
+This English video edits a texture inside a mod the creator already had, the first route above.
+
+</Step>
+<Step>
+
+### Put the alpha back
+
+1. Show the alpha layer, select it, then press `Ctrl+A` and `Ctrl+C`.
+2. Choose <MenuPath path="Layers > Delete Layer" /> to remove the alpha layer. It stays on your clipboard.
+3. Choose <MenuPath path="Image > Flatten" />.
+4. Choose <MenuPath path="Effects > Object > Paste Alpha" />. This comes from BoltBait's Plugin Pack.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check it on Wuthering Waves: the menu location of Paste Alpha from BoltBait's Plugin Pack in the current Paint.NET 5.x release */}
+
+</Step>
+<Step>
+
+### Save as DDS
+
+1. Choose <MenuPath path="File > Save As" />. Keep the exact file name, every part included, and the `.dds` ending.
+2. In the DDS window, pick `BC7 (sRGB, DX 11+)`.
+3. Tick **Generate Mip Maps**. Textures from a WWMI Tools 1.9.4 extraction already have mip maps, so yours stays like the original.
+4. Click **OK** and replace the old file.
+
+{/* NEEDS HANDS-ON TEST: whether textures extracted by WWMI Tools 1.9.4 from a dump made with XXMI DLL 1.3.3 hold mip maps, and whether a texture saved with Generate Mip Maps looks the same in game as the original on WWMI 1.2.2 */}
+
+A few small parts use BC3 or BC1 instead of BC7. [Save DDS textures the right way](/docs/wuthering-waves/textures/save-dds-files) shows how to read the format and explains every option.
+
+</Step>
+<Step>
+
+### Test it in game
+
+1. Switch to another Resonator.
+2. Press `F10` to reload mods.
+3. Switch back and look at your recolor.
+4. Hold `F9` to see the original, then let go to compare.
+5. Check day and night, indoors, the Resonators menu, combat, and the Resonator from far away.
+
+</Step>
+</Steps>
+
+Changed the skin color? Find the face's diffuse in the same folder and recolor it with the same steps and settings. Otherwise the face will not match the body.
+
+{/* NEEDS HANDS-ON TEST: which texture holds a Wuthering Waves Resonator's face skin color, and whether it sits in the same extracted object folder as the body */}
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Shading looks wrong or patchy after the recolor" id="wrong-shading">
+
+The alpha was lost or filled. Start again from your backup and paste the alpha back before you save.
+
+</Accordion>
+<Accordion title="Colors look washed out, too dark or too strong" id="wrong-colors">
+
+The file was saved in the wrong format. A diffuse must be `BC7 (sRGB, DX 11+)`. Save again.
+
+</Accordion>
+<Accordion title="Nothing changed in game" id="nothing-changed">
+
+- Check that the file name is exactly the old one, every part included.
+- Turn off other mods for that Resonator: rename their folders so they start with `DISABLED`.
+- Check that **LOD Bias** is at **Ultra High**.
+- For a downloaded mod, the hash may be out of date since a game update. [Fix your mods after a game update](/docs/wuthering-waves/getting-started/fix-mods-after-an-update) explains what to do.
+
+</Accordion>
+<Accordion title="The recolor shows up close, but not far away or in the open world" id="distance">
+
+The game streams lower-detail textures, and they have other hashes. **LOD Bias** at **Ultra High** helps. A mod exported with WWMI Tools 1.9.4 finds textures by look, which should help too. [Make textures survive game updates](/docs/wuthering-waves/textures/stable-textures) shows the creator side.
+
+</Accordion>
+<Accordion title="Another Resonator changed color too" id="shared-texture">
+
+Some textures are shared. A mod exported with WWMI Tools 1.8.0 or older swaps a texture by its hash while your Resonator is on screen, so others on screen that use the same texture change too. Check in `mod.ini` which components use a texture before you edit it. A mod exported with WWMI Tools 1.9.4 swaps textures only on its own parts.
+
+{/* NEEDS HANDS-ON TEST: on WWMI 1.2.2, that a recolor exported with WWMI Tools 1.9.4 leaves a shared texture unchanged on another Resonator on screen */}
+
+</Accordion>
+<Accordion title="The texture is missing after F10" id="missing-texture">
+
+A typo in the file name, a missing file, or a changed size stops the texture from loading. Keep the original width and height. To see the error text, untick **Mute Warnings** on the **WWMI** tab of the launcher settings.
+
+</Accordion>
+</Accordions>
+
+More symptoms and fixes are in [Mods look broken](/docs/wuthering-waves/errors/mods-look-broken).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Test and reload your mod"
+    href="/docs/wuthering-waves/basics/test-your-mod"
+    icon={<Icon name="Eye" />}
+    level="beginner"
+  >
+    Read WWMI's messages and check your mod before you share it.
+  </PremiumCard>
+  <PremiumCard
+    title="Add glow and see-through parts"
+    href="/docs/wuthering-waves/effects/glow-and-transparency"
+    icon={<Icon name="Sparkles" />}
+    level="intermediate"
+  >
+    Make parts of your recolor glow in a color you choose.
+  </PremiumCard>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/wuthering-waves/publishing/publishing-checklist"
+    icon={<Icon name="Package" />}
+    level="beginner"
+  >
+    Pack your own mod with the right files and credits.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Beginner's Guide to Wuthering Waves modding](https://gamebanana.com/tuts/19096) by Denwarenji.
+- **Guide:** [WWMI Tools Modder Guide](https://github.com/SpectrumQT/WWMI-Tools/blob/main/guides/modder_guide.md) by SpectrumQT.
+- **Guide:** [Tutorial - Preserve alpha channels on Paint.net / how to handle .dds textures properly](https://docs.google.com/document/d/1DktYSbYMx-Bc4PKNF1XonvBAIRiC74pgNkMieQhd2jc/edit) by Anilyan.
+- **Video:** [How to Merge & Edit skin mods | Wuthering Waves](https://www.youtube.com/watch?v=XPk4CHLmz6Y) by Kazem.
+- **Video:** [Tu PRIMER MOD de ZENLESS ZONE ZERO | Tutorial COMPLETO | TEXTURAS PARTE 1](https://www.youtube.com/watch?v=nhiiWEpuTB8) by Proxy Index, a Zenless Zone Zero video in Spanish: the Magic Wand, Black and White and Overlay technique.
+- **Discord:** Modify Channels settings from guides by [cora](https://discord.com/users/1132443509329244222) and [bestie andrew](https://discord.com/users/518851482032930834) in the [AGMG Discord](https://discord.gg/agmg).

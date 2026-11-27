@@ -1,0 +1,185 @@
+---
+title: "Make textures survive game updates"
+description: "Attach your Honkai: Star Rail mod's textures by role with RabbitFX stable textures, so a new texture hash after an update does not break them."
+category: "textures"
+patch: "4.7"
+keywords:
+  [
+    "star rail stable textures",
+    "rabbitfx settextures",
+    "star rail texture hash changed",
+    "srmi rabbitfx",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+Your mod's textures stop working when an update gives them a new hash. This page shows the optional fix: RabbitFX "stable textures", which attach each texture by its role instead of by its hash. You need your own mod with an `.ini` from the XXMI Tools export. Written for SRMI 2.4.3 and RabbitFX (SRMI) 3.0 on Honkai: Star Rail 4.7.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="Puzzle"
+    href="/docs/honkai-star-rail/getting-started/manage-mods"
+    note="one current copy in Mods"
+  >
+    RabbitFX (SRMI)
+  </Requirement>
+  <Requirement icon="FileCode">Your own mod's folder and .ini</Requirement>
+  <Requirement icon="FileText" note="with .ini colors">
+    A code editor
+  </Requirement>
+</Requirements>
+
+## Why textures break
+
+A mod can tell SRMI which texture to replace in three ways:
+
+<img
+  src="/wiki-images/honkai-star-rail-textures-stable-textures-1.webp"
+  alt="Three ways a mod finds its textures: by slot number, which breaks on low settings and in new maps and should never be used; by texture hash, the default the XXMI Tools export writes, which breaks when an update changes the hash; and by role with RabbitFX stable textures, which survives hash changes but needs RabbitFX"
+/>
+
+- **By slot number** (`ps-t2 = ...`). Some old mods do this. Star Rail moves textures between slots on low settings, in new maps and after some updates, so these mods show wrong textures. Never write slot lines yourself.
+- **By texture hash** (`hash =` and `this =`). This is what XXMI Tools writes, and what [Your first mod: recolor a character](/docs/honkai-star-rail/textures/recolor-a-character) teaches. It works until an update changes the hash. Some updates changed hundreds of hashes at once, textures among them.
+- **By role** with RabbitFX. The part's own section says "this file is my Diffuse, this one is my LightMap". No texture hash is involved, so a new texture hash does not break it.
+
+XXMI DLL 1.3.2, released on 2026-11-18, adds a new kind of texture filter. No export tool uses it yet, so this page does not teach it.
+
+Stable textures are optional. They add a dependency: your mod then needs RabbitFX in every player's `Mods` folder, and it must be current.
+
+## Before you start
+
+1. Install RabbitFX once: one copy in its own folder in `Mods`, never inside your mod. The manage mods guide under "What you need" shows how.
+2. Back up your mod folder.
+3. Open your mod's `.ini` in a code editor.
+
+<Callout type="warning" title="Never ship RabbitFX in your mod">
+  Two copies of RabbitFX in one `Mods` folder cause odd behavior and crashes.
+  Leave it out of your mod's folder and your download. Say on your mod page that
+  it needs RabbitFX.
+</Callout>
+
+## Switch a part to stable textures
+
+<Steps>
+<Step>
+
+### Find the part's section
+
+Each part has a section with `match_first_index` and an `ib =` line. For Kafka's body part `A` it looks like this:
+
+```ini
+[TextureOverrideKafkaBodyA]
+hash = fa23099d
+match_first_index = 0
+ib = ResourceKafkaBodyAIB
+```
+
+Below those lines is the part's `drawindexed` line. Leave the `Blend`, `Position`, `Texcoord` and `Draw` sections alone, and never delete either `DRAW_TYPE` branch.
+
+</Step>
+<Step>
+
+### Add the role lines
+
+Add one line per texture the part uses, then the `SetTextures` command. Put them after the `ib =` line, before `drawindexed`:
+
+```ini
+Resource\RabbitFX\Diffuse = ref ResourceKafkaBodyADiffuse
+Resource\RabbitFX\Lightmap = ref ResourceKafkaBodyALightMap
+Resource\RabbitFX\Stockingmap = ref ResourceKafkaBodyAStockingMap
+run = CommandList\RabbitFX\SetTextures
+```
+
+- Use the `[Resource...]` names your `.ini` already has. Keep those resource sections.
+- The SRMI RabbitFX page lists four roles: `Diffuse`, `Lightmap`, `Normalmap` and `Stockingmap`. Star Rail character dumps have no normal map, so most parts need only the first two.
+- Skip the `Stockingmap` line if the part has no stocking map.
+
+</Step>
+<Step>
+
+### Remove the old hash sections
+
+Delete the texture-hash sections for the textures you moved, such as:
+
+```ini
+[TextureOverrideKafkaBodyADiffuse]
+hash = 207c0559
+this = ResourceKafkaBodyADiffuse
+```
+
+Do not delete the matching `[ResourceKafkaBodyADiffuse]` section. The new line points to it.
+
+A `MaterialMap` is not on the RabbitFX list. Keep its hash section as it is.
+
+</Step>
+<Step>
+
+### Repeat for every part
+
+Each part gets its own lines, even when parts share one texture. Kafka's body parts `A` and `B` share a diffuse, so both sections get a `Diffuse` line. Do the same for the `Hair` and `Head` parts.
+
+</Step>
+<Step>
+
+### Test it
+
+1. Press `F10` in game.
+2. Check the overworld, battle and the character screen.
+3. Check the lowest graphics settings too.
+
+</Step>
+</Steps>
+
+{/* NEEDS HANDS-ON TEST: this conversion on a Honkai: Star Rail 4.7 character mod with RabbitFX (SRMI) 3.0. Check the exact capitalisation of the role names and of CommandList\RabbitFX\SetTextures against the current SRMI RabbitFX page, the line order inside the part section, whether the Head part (Diffuse only) and a MaterialMap need anything more, and that the mod keeps its textures after a texture hash change. */}
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Textures disappear or the part looks plain" id="textures-gone">
+
+RabbitFX is missing from `Mods`, or a role line points to a resource name that does not exist. Install one copy of RabbitFX and check every `ref` name against your `[Resource...]` sections.
+
+</Accordion>
+<Accordion title="The game crashes or mods act strangely" id="crash">
+
+You have two copies of RabbitFX, or an old one. Search `Mods` for a second RabbitFX folder and delete it. Replace your one copy with the current version.
+
+</Accordion>
+<Accordion title="A character turns pink during skills" id="pink">
+
+RabbitFX is out of date, or another effect mod clashes with it. Update RabbitFX. [Mods look broken](/docs/honkai-star-rail/errors/mods-look-broken) has more fixes.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Add glow and see-through parts"
+    href="/docs/honkai-star-rail/effects/glow-and-transparency"
+    icon={<Icon name="Sparkles" />}
+    level="intermediate"
+  >
+    RabbitFX can also make parts of your mod glow.
+  </PremiumCard>
+  <PremiumCard
+    title="Update your mod after a game update"
+    href="/docs/honkai-star-rail/publishing/update-your-mod"
+    icon={<Icon name="RefreshCw" />}
+    level="intermediate"
+  >
+    What to check and fix in your own mod after each update.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Tool:** SRMI RabbitFX by caverabbit, for the stable texture lines.
+- **Guide:** [关于星铁贴图错误的问题如何手动修复 (how to fix Star Rail texture errors by hand)](https://gamebanana.com/tuts/18999) by sora\_, for why slot-based textures break.
+- **Tool:** [XXMI Tools](https://github.com/leotorrez/XXMITools) by LeoTorreZ, for the `.ini` layout its Star Rail export writes.

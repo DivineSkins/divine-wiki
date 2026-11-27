@@ -1,0 +1,261 @@
+---
+title: "Replace a whole character model"
+description: "Put your own or a licensed 3D model on a Zenless Zone Zero agent: match its pose and size, split it into the agent's components, map its bones and test it."
+category: "models"
+patch: "3.3"
+keywords:
+  ["zzz custom model", "replace character model", "armaturexxmi", "xxmi tools"]
+---
+
+<LevelPill level="advanced" />
+
+This guide puts a whole new model on a Zenless Zone Zero agent. The agent keeps its skeleton, animations and face. Your model replaces the hair, the body and the clothes. Written for XXMI Tools 1.8.2 on Blender 4.5 LTS, with ZZMI 1.5.2.
+
+<Callout type="warning" title="Your own or licensed models only">
+  Use a model you made yourself, or one whose license lets you use it in a game
+  mod and share it. This guide does not cover porting characters from other
+  games, films or anime, or models pulled out of any game's files with
+  extraction tools. Each outfit, paid ones included, is its own model with its
+  own hashes: never put a paid outfit over its free version.
+</Callout>
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="Blender"
+    href="/docs/zenless-zone-zero/tools/blender-add-on"
+  >
+    Blender 4.5 LTS with XXMI Tools
+  </Requirement>
+  <Requirement
+    icon="Box"
+    href="/docs/zenless-zone-zero/models/import-into-blender"
+  >
+    The target agent, imported
+  </Requirement>
+  <Requirement icon="UserRound" note="FBX or glTF, with an armature">
+    Your rigged model
+  </Requirement>
+  <Requirement
+    icon="PaintNET"
+    href="/docs/zenless-zone-zero/tools/texture-editors"
+  >
+    A texture editor with DDS support
+  </Requirement>
+</Requirements>
+
+This page only covers what a full replacement adds. You should already be able to export a mod, weight paint a mesh, and set up UV maps and `COLOR`. The pages for each are linked where you need them.
+
+<img
+  src="/wiki-images/zenless-zone-zero-models-replace-a-character-1.webp"
+  alt="Six stages: prepare your model, match its pose and size to the original, split it into the agent's components and parts, map its bones to numbers once per component, join each piece into the emptied original parts, and test in motion"
+/>
+
+## Know the limits first
+
+- **The skeleton stays the agent's.** You cannot add bones. Your model moves with the target's animations, so a tall model on a short agent still runs like the short one.
+- **Size is only visual.** The hitbox and the camera stay the same. Keep your model close to the original's height and build.
+- **The components and parts stay the agent's.** You fill the components the target already has, such as `Hair` and `Body`, and their parts, such as `EllenBodyA`. You cannot add a new one.
+- **Each component has its own bone numbers.** A group number in `Hair` and the same number in `Body` can belong to different bones. You map the bones once for each component.
+- **Stay near the original vertex count.** Very heavy meshes, with hundreds of thousands of vertices, cost performance. The exported `.ini` raises the game's vertex limit for you.
+
+Pick a target whose body is close to your model in shape and size. A very different body cannot follow the agent's bones in a sensible way.
+
+{/* NEEDS HANDS-ON TEST: the vertex count at which a replaced Zenless Zone Zero 3.3 agent starts to cost noticeable performance with ZZMI 1.5.2 */}
+
+## What happens to the face
+
+Faces cannot be edited in this game. A changed face mesh loses its expressions, and no released tool exports a face mesh that keeps them. For a full replacement, that means:
+
+- **Your model always shows the agent's face.** Your model's own face cannot replace it. Pick a model whose head and face style fit the agent.
+- **You delete your model's face and head.** You join your neck to the agent's neck, as shown below.
+- **The face texture can change.** To match skin tone or makeup, recolor the agent's face diffuse, as [Your first mod: recolor a character](/docs/zenless-zone-zero/textures/recolor-a-character) shows.
+
+## Prepare your model
+
+1. Import the target's dump first and keep a hidden `Reference` copy, as [Get a model into Blender](/docs/zenless-zone-zero/models/import-into-blender) shows.
+2. Import your model with <MenuPath path="File > Import > FBX" />, or glTF. For a VRoid model you made, install the VRM add-on for Blender first.
+3. Delete what the game cannot use: physics and dummy bones, extra objects, and shape keys you will not keep.
+4. Read your model's license again if you did not make it. Many downloadable models, such as MMD or avatar models, forbid use in other games.
+
+## Match the pose and size
+
+Weight copying and automatic bone matching both compare positions. The closer your model sits on the original, the better they work.
+
+1. Move, rotate and scale your model with `G`, `R` and `S` until it overlaps the imported original.
+2. Select your armature, press `Ctrl+Tab` for Pose Mode, and rotate the arms and legs until they match the original's pose.
+3. Make that pose the new rest pose. Apply the **Armature** modifier on your mesh to keep the posed shape, then choose <MenuPath path="Pose > Apply > Apply Pose as Rest Pose" /> on the armature, and add the **Armature** modifier back.
+4. Select your mesh and armature, press `Ctrl+A` and choose **All Transforms**.
+5. Turn on the **Face Orientation** overlay. Blue faces point out, red faces point in. Select the red ones and flip them with `Alt+N` > **Flip**.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check on Blender 4.5 the order and exact labels for applying a pose as the rest pose while keeping the mesh in the new pose */}
+
+## Split your model into the agent's components
+
+Split first, because each component maps its bones on its own.
+
+<img
+  src="/wiki-images/zenless-zone-zero-models-replace-a-character-2.webp"
+  alt="A table: hair, hats and hair clips go into Hair, the body, skin, clothes and shoes into Body, your model's face and head are deleted because the agent's face stays, and a part with nothing left stays as an empty object. One set of four textures per mesh. You cannot add a component or a part, add bones or change the face mesh"
+/>
+
+1. Look at the imported objects. Each one is a part of a component, like `EllenHairA` or `EllenBodyA`. Some agents have more components, such as `Legs`, `Coat` or `Tail`.
+2. In Edit Mode, select the pieces of your model for one part and press `P` > **Selection**. Repeat for each part.
+3. Delete body faces that your clothing hides. They cost performance and poke through when the agent moves.
+4. Plan the textures. Each mesh needs one set of four textures. Pack several materials into one atlas, as [UV maps, vertex colors, and outlines](/docs/zenless-zone-zero/models/uvs-and-vertex-colors) shows, or keep them as separate meshes in one part, each with its own texture set, as [Add or swap clothing parts](/docs/zenless-zone-zero/models/add-clothing-parts) shows.
+
+## Map your bones to the agent's numbers
+
+On an imported part, each vertex group is named after one of the agent's bones: `0`, `1`, `2` and so on. Your model's groups are named after its own bones, like `UpperArm.L`. The game cannot read those names. Every group on a piece must get the number of the agent's bone for the same body area, in the component that piece goes into.
+
+| Your model                                  | Method                                                        |
+| ------------------------------------------- | ------------------------------------------------------------- |
+| Has a rig with bones for each body area     | [Rename the groups by hand](#rename-the-groups-by-hand)       |
+| Has a rig, and you want a faster first pass | [Match them with ArmatureXXMI](#match-them-with-armaturexxmi) |
+| Has no rig, or bones that match nothing     | [Copy weights from the original](#copy-weights-instead)       |
+
+### Rename the groups by hand
+
+This is slow, but it keeps your model's own good weights. Do it once for each piece, with the numbers of the component it goes into.
+
+1. Show the `Reference` copy of the same component next to your piece.
+2. On the original, enter Weight Paint mode and click through its groups. Note which number moves which body area: hips, spine, chest, neck, upper arms, forearms, hands, thighs, knees, feet.
+3. Select your piece and open the **Object Data** tab.
+4. In the **Vertex Groups** list, double-click a group's name and type the number for the same area. Rename the groups, not the bones: one armature cannot carry the numbers of two components.
+5. For a group the component has no match for, type the number of the bone it should follow. Blender names it like `12.001`. The clean-up below folds it into `12`.
+6. Hair, coat and tail groups go to the component's own swinging groups, if it has them. Otherwise use the nearest body bone.
+7. Check that every group now has a number and no group keeps a text name.
+
+Save before you start, and save often. Group numbers differ for every agent and every component, so always read them from your own target.
+
+{/* NEEDS HANDS-ON TEST: on a Zenless Zone Zero 3.3 agent, renaming vertex groups per component on a custom rigged model, and whether the Hair and Body components number the same bone differently */}
+
+### Match them with ArmatureXXMI
+
+<ToolCard
+  name="ArmatureXXMI"
+  href="https://github.com/Seris0/Gustav0/tree/main/Addons/ArmatureXXMI"
+  badge="Untested"
+  icon={<Icon name="GitHub" />}
+>
+  Blender add-on that compares where each group's weights sit on the original
+  and on your model, then renames your bones to the game's numbers. By Gustav0.
+  Its author says it is for advanced users.
+</ToolCard>
+
+1. Install `RenameArmatureXXMI_V26.py` like any add-on and enable it.
+2. Press `N` and open the **XXMI Scripts** tab, then the **ArmatureXXMI** panel.
+3. Set the armature mode to **Per-Component**. The author recommends it for Zenless Zone Zero. Then set the game **Mode** to Zenless Zone Zero: it starts on Genshin Impact.
+4. Set the base collection to the imported original, the target collection to your model's meshes, and the armature to your model's armature.
+5. Click **Match Armature**. Then click **Clean Armature** to remove bones that no group uses.
+6. Check the result by hand: in Weight Paint mode, each number on each piece must move the same area as on the original component. Left and right must not be swapped.
+
+{/* NEEDS HANDS-ON TEST: ArmatureXXMI V26 in Per-Component mode on Blender 4.5 with a Zenless Zone Zero 3.3 dump and a custom rigged model: the panel labels, how the collections are set per component, whether the armature must be mirrored first, and whether left and right come out right */}
+
+### Copy weights instead
+
+If your model has no usable rig, delete its vertex groups and copy the weights from the same component of the original with a **Data Transfer** modifier, as [Weight paint a mesh](/docs/zenless-zone-zero/models/weight-painting) shows. That page also covers fixing single areas, posing with a test armature, and the Robust Weight Transfer add-on for clothing.
+
+### Clean up the groups
+
+Run this on every finished part, as on any export: **Merge shared name Vertex Groups**, then **Remove unused Vertex Groups**, then **Fill gaps in Vertex Groups**, with **Normalize weights to format** on at export. Then compare the group list with a fresh import of the same part. The numbers must match.
+
+## Join your neck to the agent's neck
+
+The game draws the agent's own face. Keep it, and join your body to the original neck:
+
+1. In the original part that holds the neck, keep the neck. Delete the rest of the original mesh in that part.
+2. On your model, delete the head above the neck. Keep your hair only if it fits the agent's head.
+3. Trim both necks so their open edges meet.
+4. Move the edges together with `G`, with Proportional Editing on (`O`).
+5. Select both edge rings and press `M` > **By Distance** to merge them.
+
+Keep the original neck's `COLOR` values. Their alpha channel holds data the game uses around the neck.
+
+{/* NEEDS HANDS-ON TEST: which Zenless Zone Zero 3.3 component and part holds the neck for a typical agent, whether the agent's face covers the whole head, and that a merged neck seam shows no gap while the face animates */}
+
+## Join, texture and export
+
+1. Empty each original part object and join your piece into it with `Ctrl+J`, as [Export your mod from Blender](/docs/zenless-zone-zero/models/export-your-mod) shows. A part with nothing left stays as an empty object. Leave the face out of your mod.
+2. Copy the `COLOR` attribute from the original with Data Transfer. Without it, outlines and shading look wrong.
+3. Check that the UV maps keep the original names, `TEXCOORD.xy` to `TEXCOORD3.xy`. Keep **Outline Optimization** on, so the export writes the outline data in `TEXCOORD1.xy`.
+4. Export with XXMI Tools, with **Game to mod** set to `Zenless Zone Zero`.
+5. Copy your textures over the exported ones, with the same file names. Save the diffuse as `BC7 (sRGB, DX 11+)`, the LightMap and MaterialMap as `BC7 (Linear, DX 11+)`, and the agent NormalMap uncompressed as `R8G8B8A8_UNORM`.
+
+Four texture rules matter more on a full replacement:
+
+- **Build the LightMap from the original.** Pick the original's colors for skin, cloth and metal and paint them on your layout. Wrong values give wrong shadows, shine and gloss.
+- **Fill the MaterialMap the same way.** Its red channel marks see-through areas on a few agents. Keep it dark where nothing should be see-through.
+- **Use the flat normal map where you have no detail.** Point the slot at the one that ships with ZZMI: `Resource\ZZMI\NormalMap = ref Resource\ZZMI\FlatNormalMap`.
+- **Make new glow maps or hide the old ones.** The agent's `GlowMap` and `WengineFx` textures follow the old UVs and glow in the wrong places on your model. Make new ones for your layout, or point the slot at `Resource\ZZMI\EmptyGlowMap`.
+
+[What each texture map does](/docs/zenless-zone-zero/textures/texture-maps) explains each channel and the glow slots.
+
+## Check it in game
+
+1. Copy the mod into your `Mods` folder and turn off other mods for this agent.
+2. Switch to another agent, press `F10`, and switch back.
+3. Check the agent screen, then run, dodge, attack and use every skill and the Ultimate. Some animations stretch parts that look fine when standing.
+4. Equip the agent's signature W-Engine, if they have one, and check the glow.
+5. Look closely at the neck, the shoulders, the hips and the knees.
+6. Move the camera far away. If the original look comes back, see [Make mods show at a distance](/docs/zenless-zone-zero/models/lods).
+7. Fix what you see in Blender, export again, and press `F10`.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="An arm or leg follows the wrong side" id="left-right-swapped">
+
+Left and right bones got swapped numbers. In Weight Paint mode, compare each limb's groups with the original component and rename the wrong ones.
+
+</Accordion>
+<Accordion title="Shoulders or hips stretch when the agent moves" id="joints-stretch">
+
+The weights near the joint follow the wrong bone, or the pose did not match before you mapped the bones. Copy that area's group again from the original, smooth it, and run **Normalize All**.
+
+</Accordion>
+<Accordion title="A gap opens at the neck" id="neck-gap">
+
+The two necks do not share their edge, or their weights differ. Merge the edge rings again and give the seam the same weights as the original neck.
+
+</Accordion>
+<Accordion title="Glow shows in odd places on your model" id="wrong-glow">
+
+The agent's glow maps still use the old UVs. Make new `GlowMap` or `WengineFx` textures, or point the slot at `Resource\ZZMI\EmptyGlowMap`.
+
+</Accordion>
+</Accordions>
+
+More symptoms are on [Model problems in game](/docs/zenless-zone-zero/errors/model-problems).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Make mods show at a distance"
+    href="/docs/zenless-zone-zero/models/lods"
+    icon={<Icon name="Binoculars" />}
+    level="advanced"
+  >
+    Keep your model on screen when the game swaps to simpler models far away.
+  </PremiumCard>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/zenless-zone-zero/publishing/publishing-checklist"
+    icon={<Icon name="Upload" />}
+    level="beginner"
+  >
+    Credit the model's creator and follow its license when you share.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Video:** [Model import/creation tut 2](https://www.youtube.com/watch?v=5RqyUWm4i1I) by Cybertron's Gaming World, for the bone renaming method and the full replacement steps.
+- **Guide:** AnimeGame model importing annotated transcript by SinsOfSeven, for pose matching and the neck join.
+- **Guide:** [ChangeSizeGuide](https://github.com/leotorrez/LeoTools/blob/main/guides/ChangeSizeGuide.md) by LeoTorreZ, for what size changes can and cannot do.
+- **Guide:** [Best Way to Replace Textures - SlotFix Guide](https://gamebanana.com/tuts/18114) by hazelberry, for the flat normal map and the empty glow map.
+- **Tools:** [ArmatureXXMI](https://github.com/Seris0/Gustav0/tree/main/Addons/ArmatureXXMI) by Gustav0, [XXMI Tools](https://github.com/leotorrez/XXMITools) by LeoTorreZ.

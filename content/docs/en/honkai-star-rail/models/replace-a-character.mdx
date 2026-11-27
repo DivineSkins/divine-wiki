@@ -1,0 +1,276 @@
+---
+title: "Replace a whole character model"
+description: "Put your own or a licensed 3D model on a Honkai: Star Rail character: match its pose and size, map its bones to the game's groups, split it into parts and test it."
+category: "models"
+patch: "4.7"
+keywords:
+  [
+    "star rail custom model",
+    "replace character model",
+    "armaturexxmi",
+    "xxmi tools",
+  ]
+---
+
+<LevelPill level="advanced" />
+
+This guide puts a whole new model on a Honkai: Star Rail character. The character keeps its skeleton, its animations and its face. Your model replaces the hair and the body. Written for XXMI Tools 1.8.2 on Blender 4.5 LTS, with SRMI 2.4.3.
+
+<Callout type="warning" title="Your own or licensed models only">
+  Use a model you made yourself, or one whose license lets you use it in a game
+  mod and share it. This guide does not cover porting characters from other
+  games, films or anime, or models taken from any game's files with extraction
+  tools. Each outfit, paid ones included, is its own model with its own hashes:
+  never put a paid outfit over its free version.
+</Callout>
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="Blender"
+    href="/docs/honkai-star-rail/tools/blender-add-on"
+  >
+    Blender 4.5 LTS with XXMI Tools
+  </Requirement>
+  <Requirement
+    icon="Box"
+    href="/docs/honkai-star-rail/models/import-into-blender"
+  >
+    The target character, imported
+  </Requirement>
+  <Requirement icon="UserRound" note="FBX or glTF, with an armature">
+    Your rigged model
+  </Requirement>
+  <Requirement
+    icon="PaintNET"
+    href="/docs/honkai-star-rail/tools/texture-editors"
+  >
+    A texture editor with DDS support
+  </Requirement>
+</Requirements>
+
+This page only covers what a full replacement adds. You should already be able to export a mod, weight paint a mesh, and set up UV maps and `COLOR`. The pages for each are linked where you need them. No Star Rail tutorial covers a full replacement yet. The steps come from the shared XXMI Tools workflow, with the Star Rail rules added, and nobody has tested them on Star Rail.
+
+<img
+  src="/wiki-images/honkai-star-rail-models-replace-a-character-1.webp"
+  alt="Six stages: prepare your model, match its pose and size to the original, map its bones to the game's group numbers, split it into the Hair and Body parts, join each piece into the emptied original parts, and test in motion. The skeleton, animations and the Head component stay the game's"
+/>
+
+## Know the limits first
+
+- **The skeleton stays the game's.** You cannot add bones. Your model moves with the target's animations, so a tall model on a short character still runs like the short one.
+- **Size is only visual.** The hitbox and the camera stay the same. Keep your model close to the original's height and build.
+- **The parts stay the game's.** Every character has three components, `Hair`, `Head` and `Body`, each split into lettered parts such as `KafkaBodyA`. You fill the parts the target already has. You cannot add a new part.
+- **The face stays the game's.** It is the `Head` component. Its shading depends on its UV layout and its `Shadow` texture, and no guide shows how to replace a Star Rail face. Leave `Head` as it is and join your neck to it.
+- **At most 4 bones per vertex.** SRMI poses characters with 4 weights per vertex.
+- **Stay near the original vertex count.** Very heavy meshes, with hundreds of thousands of vertices, cost performance.
+
+Pick a target whose body is close to your model in shape and size. A very different body cannot follow the game's bones in a sensible way.
+
+{/* NEEDS HANDS-ON TEST: the vertex count at which a replaced Honkai: Star Rail 4.7 character starts to cost noticeable performance with SRMI 2.4.3 */}
+
+## Prepare your model
+
+1. Import the target's dump first and keep a hidden `Reference` copy, as [Get a model into Blender](/docs/honkai-star-rail/models/import-into-blender) shows.
+2. Import your model with <MenuPath path="File > Import > FBX" />, or glTF. For a VRoid model you made, install the VRM add-on for Blender first.
+3. Delete what the game cannot use: physics and dummy bones, extra objects, and shape keys you will not keep.
+4. Read your model's license again if you did not make it. Many downloadable models, such as MMD or avatar models, forbid use in other games.
+
+## Match the pose and size
+
+Weight copying and automatic bone matching both compare positions. The closer your model sits on the original, the better they work.
+
+1. Move, rotate and scale your model with `G`, `R` and `S` until it overlaps the imported original. Do not add an extra 90 degree rotation.
+2. Select your armature, press `Ctrl+Tab` for Pose Mode, and rotate the arms and legs until they match the original's pose.
+3. Make that pose the new rest pose. Apply the **Armature** modifier on your mesh to keep the posed shape, then choose <MenuPath path="Pose > Apply > Apply Pose as Rest Pose" /> on the armature, and add the **Armature** modifier back.
+4. Select your mesh and armature, press `Ctrl+A` and choose **All Transforms**.
+5. Turn on the **Face Orientation** overlay. Blue faces point out, red faces point in. Select the red ones and flip them with `Alt+N` > **Flip**.
+
+{/* NEEDS HANDS-ON TEST: the order and exact labels for applying a pose as the rest pose in Blender 4.5 while keeping the mesh in the new pose */}
+
+## Map your bones to the game's numbers
+
+On an imported part, each vertex group is named after a game bone: `0`, `1`, `2` and so on. Your model's groups are named after its own bones, like `UpperArm.L`. The game cannot read those names. Every group must get the number of the game bone for the same body area.
+
+Read the numbers from the part each piece will join. `Hair`, `Head` and `Body` each come with their own group list, so your hair takes its numbers from the target's `Hair` part, not from `Body`.
+
+{/* NEEDS HANDS-ON TEST: whether the Hair, Head and Body components of one Honkai: Star Rail character use the same bone numbers, so that one renamed armature serves both the hair and the body */}
+
+| Your model                                  | Method                                                        |
+| ------------------------------------------- | ------------------------------------------------------------- |
+| Has a rig with bones for each body area     | [Rename the bones by hand](#rename-the-bones-by-hand)         |
+| Has a rig, and you want a faster first pass | [Match them with ArmatureXXMI](#match-them-with-armaturexxmi) |
+| Has no rig, or bones that match nothing     | [Copy weights from the original body](#copy-weights-instead)  |
+
+### Rename the bones by hand
+
+This is slow, but it keeps your model's own good weights.
+
+1. Open the original in a second Blender window, or show the `Reference` copy next to your model.
+2. On the original, enter Weight Paint mode and click through the groups of each part. Note which number moves which body area: hips, spine, chest, neck, upper arms, forearms, hands, thighs, knees, feet.
+3. Select your armature and press `Tab` for Edit Mode.
+4. Click a bone, press `F2`, and type the game number for the same area. Blender renames the matching vertex group too.
+5. For a bone the game has no match for, type the number of the bone it should follow. Blender names it like `12.001`. The clean-up below folds it into `12`.
+6. Hair bones go to the groups of the target's `Hair` part. Skirt and cape bones go to the target's own skirt or cape groups, if it has them. Otherwise use the nearest body bone.
+7. Check that every group now has a number and no group keeps a text name.
+
+Save before you start, and save often. Group numbers differ for every character, so always read them from your own target.
+
+### Match them with ArmatureXXMI
+
+<ToolCard
+  name="ArmatureXXMI"
+  href="https://github.com/Seris0/Gustav0/tree/main/Addons/ArmatureXXMI"
+  badge="Untested"
+  icon={<Icon name="GitHub" />}
+>
+  Blender add-on that compares where each group's weights sit on the original
+  and on your model, then renames your bones to the game's numbers. By Gustav0.
+  Its author says it is for advanced users.
+</ToolCard>
+
+1. Install `RenameArmatureXXMI_V26.py` like any add-on and enable it.
+2. Press `N` and open the **XXMI Scripts** tab, then the **ArmatureXXMI** panel.
+3. Set **Armature Mode** to **Merged Armature**. The author recommends it for Honkai: Star Rail. Then set **Mode** to **Honkai Star Rail**: it starts on Genshin Impact.
+4. Set the base collection to the imported original, the target collection to your model's meshes, and the armature to your model's armature.
+5. Click **Match Armature**. Then click **Clean Armature** to remove bones that no group uses.
+6. Check the result by hand: in Weight Paint mode, each number on your model must move the same area as on the original. Left and right must not be swapped.
+
+{/* NEEDS HANDS-ON TEST: ArmatureXXMI V26 on Blender 4.5 with a Honkai: Star Rail 4.7 dump and a custom rigged model: the panel labels, whether the armature must be mirrored first, whether left and right come out right, and whether Merged mode gives the right numbers for both the Hair and Body parts */}
+
+### Copy weights instead
+
+If your model has no usable rig, delete its vertex groups and copy the weights from the original with a **Data Transfer** modifier, as [Weight paint a mesh](/docs/honkai-star-rail/models/weight-painting) shows. Copy the hair's weights from the original hair, and the body's from the original body. That page also covers fixing single areas, testing with an armature, and the Robust Weight Transfer add-on for clothing.
+
+### Clean up the groups
+
+Run this on every finished part, as on any export: **Merge shared name Vertex Groups**, then **Remove unused Vertex Groups**, then **Fill gaps in Vertex Groups**, with **Normalize weights to format** on at export. Then compare the group list with a fresh import of the same part. The numbers must match.
+
+## Split your model into the game's parts
+
+<img
+  src="/wiki-images/honkai-star-rail-models-replace-a-character-2.webp"
+  alt="A table for Kafka: hair and things on the hair go in KafkaHairA, body, skin, clothes and shoes in KafkaBodyA to E, the face stays the game's Head, and a part with nothing left stays as an empty object. One texture set per part. You cannot add a part, add bones or replace the face"
+/>
+
+1. Open the target's `hash.json` and note its parts and which textures each one uses. Kafka's body parts A and B share one texture set, and C, D and E share another. Newer characters often use one set for the whole body.
+2. Put your hair in the `Hair` part, and your body, skin and clothes in the `Body` parts.
+3. In Edit Mode, select the pieces for one part and press `P` > **Selection**. Repeat for each part.
+4. Delete body faces that your clothing hides. They cost performance and poke through when the character moves.
+5. Give each texture set one UV layout. Parts that share a set share its UV space. Pack several materials into one atlas, as [UV maps, vertex colors, and outlines](/docs/honkai-star-rail/models/uvs-and-vertex-colors) shows.
+
+## Join your neck to the game's face
+
+The game's `Head` component draws the face. Keep it, and join your body to it at the neck:
+
+1. Find the original part that holds the neck. Hide parts one at a time with `H` until the neck disappears. `Alt+H` shows them again.
+2. If the neck is in a `Body` part, keep the original neck in that part. Delete the rest of the original mesh there.
+3. On your model, delete the head above the neck. Your hair goes into the `Hair` part, so it must fit the game's head.
+4. Trim both necks so their open edges meet.
+5. Move the edges together with `G`, with Proportional Editing on (`O`).
+6. Select both edge rings and press `M` > **By Distance** to merge them.
+
+If the neck belongs to `Head`, do not join into it. Line your neck's open edge up with the edge of the original neck instead, and copy the original neck's weights onto the seam.
+
+{/* NEEDS HANDS-ON TEST: which Honkai: Star Rail 4.7 component holds the neck for a typical character, and that the neck seam shows no gap while the face animates */}
+
+## Join, texture and export
+
+1. Empty each original part object and join your piece into it with `Ctrl+J`, as [Export your mod from Blender](/docs/honkai-star-rail/models/export-your-mod) shows. A part with nothing left stays as an empty object. That page has the rules for empty parts and for components you leave out.
+2. Leave the `Head` component out of the export if you did not change it.
+3. Copy the `COLOR` attribute from the original with Data Transfer. Star Rail parts use many different values, so never type one flat color: it breaks shading and outlines.
+4. Check that the UV maps are named `TEXCOORD.xy` and `TEXCOORD1.xy`, like the original's.
+5. Export with XXMI Tools, with **Outline Optimization** on for the final build.
+6. Copy your textures over the exported ones, with the same file names. Save the `Diffuse` as `BC7 (sRGB, DX 11+)` and the `LightMap` as `BC7 (Linear, DX 11+)`. Keep each file at its original size: a `LightMap` can be smaller than its `Diffuse`.
+
+Four texture rules matter more on a full replacement:
+
+- **Diffuse alpha is the glow mask.** A diffuse with no alpha, or a white alpha, makes the whole part glow. Paint the alpha black where nothing should glow.
+- **Build the LightMap from the original.** Its alpha is the material ID: it picks the shadow colors, the shine and the outline color of each area. Copy the original's values for skin, cloth, metal and hair onto your layout. Wrong values give wrong shadows or outlines in odd colors.
+- **Remake the extra masks.** A `StockingMap` or `MaterialMap` follows the old UV layout. Repaint it for your layout, or its effect lands in the wrong places.
+- **Match the face.** The face keeps its own texture. Paint your skin in the face's color, or the face will not match the body.
+
+[What each texture map does](/docs/honkai-star-rail/textures/texture-maps) explains each channel. Star Rail character dumps have no normal map.
+
+{/* NEEDS HANDS-ON TEST: what a full replacement on Honkai: Star Rail 4.7 should put in a StockingMap or MaterialMap when the new model has no stockings or see-through areas */}
+
+## Check it in game
+
+1. Copy the mod into your `Mods` folder and turn off other mods for this character.
+2. Switch to another character, press `F10`, and switch back.
+3. Check the character screen, the open world and battle. Walk, sprint, stop a sprint, and use the Basic attack, Skill and Ultimate. Some animations stretch parts that look fine when standing.
+4. Look closely at the neck, the shoulders, the hips and the knees.
+5. Check a scene with two copies of the model on screen, and check low graphics settings.
+6. Fix what you see in Blender, export again, and press `F10`.
+
+[Test and reload your mod](/docs/honkai-star-rail/basics/test-your-mod) has the full checklist.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="An arm or leg follows the wrong side" id="left-right-swapped">
+
+Left and right bones got swapped numbers. In Weight Paint mode, compare each limb's groups with the original and rename the wrong ones.
+
+</Accordion>
+<Accordion title="Shoulders or hips stretch when the character moves" id="joints-stretch">
+
+The weights near the joint follow the wrong bone, or the pose did not match before you mapped the bones. Copy that area's group again from the original, smooth it, and run **Normalize All**.
+
+</Accordion>
+<Accordion title="A gap opens at the neck" id="neck-gap">
+
+The two necks do not share their edge, or their weights differ. Line the edges up again and give the seam the same weights as the original neck.
+
+</Accordion>
+<Accordion title="The whole model glows, or shadows and outlines look wrong" id="glow-or-shading">
+
+Glow comes from the diffuse alpha. Wrong shadows, or outlines in odd colors, come from the LightMap alpha or from `COLOR`. Fix the texture or copy `COLOR` again, not the mesh.
+
+</Accordion>
+<Accordion title="The model blinks or parts vanish at random" id="blinking">
+
+The vertex count in the `.ini` is too low. Export again with **Write ini** ticked, because the counts live in the `.ini`.
+
+</Accordion>
+<Accordion title="Spikes appear in one animation only" id="one-animation">
+
+For a few frames, the game draws the body with a different Position hash that your mod does not cover. The model problems page below shows how to find it.
+
+</Accordion>
+</Accordions>
+
+More symptoms are on [Model problems in game](/docs/honkai-star-rail/errors/model-problems).
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Get your mod ready to share"
+    href="/docs/honkai-star-rail/publishing/publishing-checklist"
+    icon={<Icon name="Upload" />}
+    level="beginner"
+  >
+    Credit the model's creator and follow its license when you share.
+  </PremiumCard>
+  <PremiumCard
+    title="Make textures survive game updates"
+    href="/docs/honkai-star-rail/textures/stable-textures"
+    icon={<Icon name="ShieldCheck" />}
+    level="intermediate"
+  >
+    Attach your new textures by role, so a new hash does not break them.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Video:** [Model import/creation tut 2](https://www.youtube.com/watch?v=5RqyUWm4i1I) by Cybertron's Gaming World, for the bone renaming method and the full replacement steps.
+- **Guide:** AnimeGame model importing annotated transcript by SinsOfSeven, for pose matching and the neck join.
+- **Guide:** [ChangeSizeGuide](https://github.com/leotorrez/LeoTools/blob/main/guides/ChangeSizeGuide.md) by LeoTorreZ, for what size changes can and cannot do.
+- **Guide:** [Troubleshooting](https://github.com/SilentNightSound/SR-Model-Importer/blob/main/Guides/Troubleshooting.md) for the Star Rail Model Importer by SilentNightSound: the vertex group, UV map and `COLOR` rules.
+- **Project:** HoyoToon by the HoyoToon team, the fan shader project behind the glow mask and material ID meanings.
+- **Tools:** [ArmatureXXMI](https://github.com/Seris0/Gustav0/tree/main/Addons/ArmatureXXMI) by Gustav0, [XXMI Tools](https://github.com/leotorrez/XXMITools) by LeoTorreZ.

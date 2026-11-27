@@ -1,0 +1,106 @@
+---
+title: "Use ReShade with mods"
+description: "Run ReShade next to XXMI Launcher without breaking your Zenless Zone Zero mods: the add-on people use, where ReShade files must not go, and what to skip."
+category: "more-mods"
+patch: "3.3"
+keywords: ["zzz reshade", "reshade xxmi", "reshade zzmi", "reshade mods crash"]
+---
+
+<LevelPill level="intermediate" />
+
+ReShade is a separate tool that filters the whole picture: colors, sharpness, and depth effects, including the UI. It is not a mod, because it changes no single model or texture. This page covers only how to run it next to XXMI Launcher without breaking your mods. It does not teach presets or effects.
+
+<Callout type="warning" title="Third-party software, not tested here">
+  ReShade is one more program that hooks into the game, next to the mod loader.
+  The account risk on [What's allowed and how to stay
+  safe](/docs/zenless-zone-zero/getting-started/stay-safe) applies to it too.
+  Nobody has tested ReShade with ZZMI 1.5.2 for this wiki.
+</Callout>
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/zenless-zone-zero/tools/xxmi-launcher"
+    note="with ZZMI installed"
+  >
+    XXMI Launcher
+  </Requirement>
+  <Requirement icon="CircleCheck" note="test them first">
+    Mods that load without ReShade
+  </Requirement>
+</Requirements>
+
+Written for XXMI Launcher 2.5.0 and ZZMI 1.5.2.
+
+## Run ReShade with XXMI
+
+<ToolCard
+  name="XXMI Launcher ReShade Addon (ZZMI)"
+  href="https://gamebanana.com/tools/18082"
+  badge="Untested"
+  icon={<Icon name="GameBanana" />}
+>
+  A launch script by caverabbit that reads XXMI Launcher's settings, so ReShade
+  and ZZMI start together. Version 4.0, September 2026.
+</ToolCard>
+
+- Use this add-on rather than a separate ReShade injector. LeoTorreZ's guide site lists it as the ReShade option for XXMI games.
+- It replaced caverabbit's older Rabbit Reshade Injector, which is deprecated.
+- Set it up with the steps on its own page.
+
+{/* NEEDS HANDS-ON TEST: whether ReShade Addon (ZZMI) 4.0 changes any XXMI Launcher injection setting, and whether ZZMI 1.5.2 mods still load with it on Zenless Zone Zero 3.3. */}
+
+## Rules that keep your mods working
+
+1. **Keep ReShade files out of `Mods`.** That includes presets. A ReShade preset in the `Mods` folder can crash the game, or leave only ReShade running.
+2. **Keep the launcher's injection settings at their defaults.** This wiki does not cover changing them.
+3. **Keep presets cosmetic.** Change colors and light only. Skip any preset or ReShade add-on that removes fog or shows anything the normal game hides.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check on Zenless Zone Zero 3.3 that a ReShade preset inside ZZMI\Mods crashes the game or stops the mods. */}
+
+<Files>
+  <Folder name="XXMI Launcher" defaultOpen>
+    <Folder name="ZZMI" defaultOpen>
+      <Folder name="Mods: mod folders only, no ReShade files" defaultOpen>
+        <Folder name="EllenRecolor" />
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+
+## If something breaks
+
+1. Move every ReShade file out of `%AppData%\XXMI Launcher\ZZMI\Mods`.
+2. Turn ReShade off, and start the game from XXMI Launcher's **Start** button.
+3. If your mods load now, the ReShade setup is the problem. Check the add-on's own page.
+4. If they still do not load, ReShade is not the cause. Go to [Mods not loading](/docs/zenless-zone-zero/errors/mods-not-loading).
+
+Crashes with ReShade or overlays are also covered on [Crashes and launch errors](/docs/zenless-zone-zero/errors/game-crashes#overlays-and-reshade).
+
+## What to skip
+
+| Skip this               | Why                                        |
+| ----------------------- | ------------------------------------------ |
+| Rabbit Reshade Injector | Deprecated. The ReShade Addon replaced it. |
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="More mod types"
+    href="/docs/zenless-zone-zero/more-mods"
+    icon={<Icon name="Puzzle" />}
+  >
+    Other kinds of Zenless Zone Zero mods, and what makes each one different.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This page is based on the work of these creators. Check out their original pages and tools.
+
+- **Tool:** [XXMI Launcher ReShade Addon (ZZMI)](https://gamebanana.com/tools/18082) by caverabbit.
+- **Guide:** [Downloads](https://leotorrez.github.io/modding/downloads) on the modding guide site by LeoTorreZ.
+- **Tool:** [ReShade](https://github.com/crosire/reshade) by crosire.

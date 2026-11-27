@@ -1,0 +1,132 @@
+---
+title: "Change outline color and thickness"
+description: "Learn what sets the outline on a Zenless Zone Zero agent, change its thickness on your own mod, keep its color right, and fix outlines that come out wrong."
+category: "effects"
+patch: "3.3"
+keywords:
+  [
+    "zzz outline mod",
+    "outline thickness",
+    "texcoord1",
+    "outline optimization",
+    "zzz vertex color",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+Every Zenless Zone Zero agent has a dark outline around its edges. You will learn what sets it, change how thick it is on your own mod, and keep its color right. A way to give the outline your own color is not documented for this game yet. You need a mod you made yourself in Blender. Written for XXMI Tools 1.8.2 and ZZMI 1.5.2.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="Blender"
+    href="/docs/zenless-zone-zero/tools/blender-add-on"
+  >
+    XXMI Tools for Blender
+  </Requirement>
+  <Requirement icon="Package">Your own mod and its .blend file</Requirement>
+</Requirements>
+
+## Where outlines come from
+
+<img
+  src="/wiki-images/zenless-zone-zero-effects-outlines-1.webp"
+  alt="Three sources of a Zenless Zone Zero outline: thickness from the red of the COLOR attribute in Blender, with 80 mid-grey as normal and thinner at hair tips; direction from the second UV map TEXCOORD1.xy, which Outline Optimization writes on export; and color from the part's own textures, which the outline draw reads through SlotFix"
+/>
+
+- **Thickness** is stored in the mesh, in the red channel of the `COLOR` attribute. You change it in Blender and export again.
+- **Direction** is stored in the mesh too, in the second UV map, `TEXCOORD1.xy`. It tells the outline which way to push out. XXMI Tools writes it for you on export.
+- **Color** comes from the part's own textures. The game draws the outline in its own pass, and SlotFix hands your textures to that pass.
+
+These meanings are community findings. When you are unsure, keep the original's values.
+
+## Change the thickness
+
+1. Copy the `COLOR` attribute from the original part with a **Data Transfer** modifier, before you join your mesh in.
+2. Change the red channel only where you want thinner or thicker lines. The original uses a flat mid-grey, `80`, and thinner lines at hair tips.
+3. Type hex values in Blender's color picker, not decimals: a typed `0.5` is not `80`.
+4. Export again and check the outline in game.
+
+[UV maps, vertex colors, and outlines](/docs/zenless-zone-zero/models/uvs-and-vertex-colors) has the Data Transfer steps, the node setup that shows red alone, and the values for the other channels.
+
+{/* NEEDS HANDS-ON TEST: how much a lower or higher COLOR red changes outline thickness on Zenless Zone Zero 3.3, and whether red 00 removes the outline */}
+
+## Keep the outline direction right
+
+New or reshaped mesh needs new outline data in `TEXCOORD1.xy`. XXMI Tools 1.8.2 builds it on export with **Outline Optimization**.
+
+- Keep **Outline Optimization** on with XXMI Tools 1.8.2.
+- Switch it off if outlines or shading look wrong, and compare.
+- Guides from before mid-2025 say to keep it off. That applied to older versions.
+
+The four outline options, including **Outline gate divergence**, which only this game uses, are explained on the [XXMI Tools page](/docs/zenless-zone-zero/tools/blender-add-on).
+
+{/* NEEDS HANDS-ON TEST: export one Zenless Zone Zero agent with Outline Optimization on and off in XXMI Tools 1.8.2 and compare outlines and shading in game */}
+
+## Keep the outline color right
+
+No tool or guide we found shows how to give a Zenless Zone Zero outline a color of your own. What is known keeps the game's color right:
+
+- **Set textures through SlotFix.** The outline pass reads the diffuse from another slot than the color pass. A `Resource\ZZMI\Diffuse = ref ...` line with `run = CommandList\ZZMI\SetTextures` reaches both. A raw slot line like `ps-t3 = ...` reaches only the color pass, so the outline goes wrong.
+- **Keep the LightMap's red channel.** It holds the shadow steps and where the outline changes. Copy it from the original.
+- **Leave `ps-t7` and `ps-t8` alone in NPC mods.** They hold helper textures.
+
+[Make textures survive game updates](/docs/zenless-zone-zero/textures/stable-textures) shows how to move an old mod's texture lines to SlotFix.
+
+## Common problems
+
+<Accordions type="multiple">
+<Accordion title="Outlines are thick, thin, blotchy or missing" id="outline-shape">
+
+The `COLOR` red channel is uneven, the normals are flipped, or the outline data was not rebuilt. The outline part of [Model problems in game](/docs/zenless-zone-zero/errors/model-problems) matches each case to its fix.
+
+</Accordion>
+<Accordion title="Outlines and shading look wrong across the whole mesh" id="whole-mesh">
+
+Export again with **Outline Optimization** off and compare. Older versions of XXMI Tools broke this game's outlines with it on. Update XXMI Tools if you use an old one.
+
+</Accordion>
+<Accordion title="The outline has the wrong color, but the part looks right" id="wrong-color">
+
+The part sets its textures with texture hashes or raw `ps-t` slot lines, which reach only the color pass. Move them to SlotFix lines, as above.
+
+</Accordion>
+<Accordion title="An NPC's outline has the wrong color" id="npc-outline">
+
+Older SlotFix versions put the diffuse in the wrong slot for some NPCs. Close the game and open XXMI Launcher, so it updates ZZMI. Then check that your mod does not set `ps-t7` or `ps-t8`.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Add glow and see-through parts"
+    href="/docs/zenless-zone-zero/effects/glow-and-transparency"
+    icon={<Icon name="Sparkles" />}
+    level="intermediate"
+  >
+    Change an agent's glow and draw lenses see-through.
+  </PremiumCard>
+  <PremiumCard
+    title="Recolor skill effects"
+    href="/docs/zenless-zone-zero/effects/recolor-skill-effects"
+    icon={<Icon name="Palette" />}
+    level="advanced"
+  >
+    Change the color of your own agent's skill effects.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [ZZZ Textures and properties](https://leotorrez.github.io/modding/guides/zzz-textures) by LeoTorreZ, for the vertex color and LightMap channels and `TEXCOORD1`.
+- **Tool:** [XXMI Tools](https://github.com/leotorrez/XXMITools) by LeoTorreZ. The outline options come from its source code.
+- **Guide:** [Best Way to Replace Textures - SlotFix Guide](https://gamebanana.com/tuts/18114) by hazelberry.
+- **Wiki:** [SlotFix](https://github.com/Satan1c/ZZMI_tools/wiki/SlotFix) by Satan1c, for the outline slot order.
+- **Issue:** [SlotFix support for NPC skin IB](https://github.com/leotorrez/ZZMI-Package/issues/12) in ZZMI-Package, for the NPC helper textures.

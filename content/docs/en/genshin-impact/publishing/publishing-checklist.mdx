@@ -1,0 +1,211 @@
+---
+title: "Get your mod ready to share"
+description: "Turn a working Genshin Impact mod into a clean archive: what the folder holds and never holds, a readme, previews, credits, fair sharing, and a final test."
+category: "publishing"
+patch: "7.2"
+keywords:
+  [
+    "share genshin mod",
+    "mod readme",
+    "mod credits",
+    "package mod",
+    "gimi mod zip",
+  ]
+---
+
+<LevelPill level="beginner" />
+
+Your mod works in your game. This checklist turns it into an archive that works for every player who downloads it, credits everyone it builds on, and follows the community's rules. It was written for XXMI Launcher 2.5.0, GIMI 8.9.4 and Genshin Impact 7.2.
+
+## What you need
+
+<Requirements>
+  <Requirement icon="FolderCheck" note="tested in your own game">
+    Your finished mod folder
+  </Requirement>
+  <Requirement
+    icon="XXMILauncher"
+    href="/docs/genshin-impact/tools/xxmi-launcher"
+    note="for the final test"
+  >
+    XXMI Launcher with GIMI
+  </Requirement>
+  <Requirement icon="FileArchive" note="such as 7-Zip">
+    An archive tool
+  </Requirement>
+</Requirements>
+
+## The checklist
+
+Work through it top to bottom. Each part has its own section below.
+
+1. The folder holds only what the mod needs.
+2. The `.ini` works on any player's setup.
+3. A readme says how to install and use the mod.
+4. Two or more preview shots show the mod in game, with your UID hidden.
+5. Everyone whose work you used is credited, and asked first.
+6. The mod is fair to share.
+7. The archive opens without a password and holds one top folder.
+8. You tested the archive itself, as a player would.
+
+## Clean the mod folder
+
+<img
+  src="/wiki-images/genshin-impact-publishing-publishing-checklist-1.webp"
+  alt="A mod archive with one top folder MonaNoHat holding the .ini, buffers, textures, a readme and an optional preview. d3dx.ini, d3d11.dll, ORFix, TexFx, Offset.ini, a ShaderFixes folder, programs, the .blend file and the dump folder are marked to leave out"
+/>
+
+1. **Use one top folder, named after the mod,** such as `MonaNoHat`. A player drops that folder into `Mods` and is done.
+2. **Keep only mod files:** the `.ini`, the `.buf` and `.ib` files from the export, the `.dds` textures the `.ini` uses, and `.hlsl` files only if your mod uses them. A readme and preview images are fine too.
+3. **Start no file or folder name with `DISABLED`.** GIMI skips anything named that way, so that part of your mod would never load.
+4. **Remove manager changes.** No Reload Mod Manager writes lines into mod `.ini` files. Run its **Restorer** before you share. Other managers may change keys, so check the `.ini` by eye.
+
+### What never goes in a mod
+
+| File                                                           | Why                                                                                                                          |
+| -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `d3dx.ini`                                                     | XXMI Launcher refuses to start with it in `Mods`: `Cannot start with d3dx.ini in Mods folder!`                               |
+| `d3d11.dll` or any other `.dll`                                | The launcher brings its own. A `.dll` in a mod is a sign of malware.                                                         |
+| `ORFix.ini`, `ORFixAPI.ini`, TexFx, `Offset.ini`, `Region.ini` | GIMI ships these in `GIMI\Core\GIMI\Libraries`. Players must delete any copy they find in `Mods`.                            |
+| A `ShaderFixes` folder                                         | GIMI keeps its own files there. Package shader edits as a normal mod, with `[ShaderOverride]` and `[CustomShader]` sections. |
+| `.exe`, `.bat` or any other program                            | A mod is data only. Players are taught to treat programs in a mod as malware.                                                |
+| Your `.blend` file and the original dump folder                | They hold the game's own model data. Keep them for yourself, never share them publicly.                                      |
+
+{/* NEEDS HANDS-ON TEST: a Genshin Impact shader edit packaged with [ShaderOverride] plus [CustomShader] (handling = skip, draw = from_caller) loads in GIMI 8.9.4 without a ShaderFixes folder */}
+
+## Check the .ini
+
+A mod that works for you can still misbehave next to other players' mods. Open your `.ini` in a text editor and check:
+
+- **Every key only reacts on screen.** Each key section needs `condition = $active == 1`. Without it, the key also fires when your character is not on screen, and flips other mods that use the same key.
+- **Toggles are remembered.** Toggle values need `global persist` in `[Constants]`, so GIMI keeps them between sessions.
+- **Your keys stay clear of GIMI's own.** GIMI uses `F6`, `F8`, `F9`, `F10`, `F12`, `Ctrl+F12` and `Ctrl+Alt+F10`, and the number pad in hunting mode. Pick other keys.
+- **Comments sit on their own line.** A `;` after a value, such as `hash = 1234abcd ; hat`, breaks that line.
+- **No global `CheckTextureOverride` in a `[ShaderRegex]` section.** XXMI Launcher's mod optimizer switches it off because it slows every player's game.
+- **The file is saved as UTF-8.**
+
+```ini
+[KeyHat]
+condition = $active == 1
+key = h
+type = cycle
+$hat = 0,1
+```
+
+[How a mod .ini works](/docs/genshin-impact/ini/how-a-mod-ini-works) explains each of these lines.
+
+## Write a readme
+
+Add a `README.txt` to the top folder. Players read it before they ask you questions. Copy this and fill it in:
+
+```text
+<Mod name>
+<One line: what it changes, on which character and outfit.>
+
+Install
+1. Extract this archive.
+2. Put the <ModFolder> folder in %AppData%\XXMI Launcher\GIMI\Mods
+3. In game, switch to another character, press F10, and switch back.
+
+Keys
+<key>   <what it does>
+
+Requires
+XXMI Launcher with GIMI 8.9.4 or newer
+(https://github.com/SpectrumQT/XXMI-Launcher/releases)
+Tested on Genshin Impact 7.2
+
+Known issues
+<Anything that still looks wrong, and any workaround.>
+
+Credits
+<Name>: <role, such as model, textures, testing>
+Original character design: HoYoverse
+
+Changes
+v1.0 (Genshin Impact 7.2): first release
+```
+
+- **Requirements:** name XXMI Launcher and the GIMI version you tested with. ORFix and TexFx come with GIMI, so players need nothing else.
+- **Outfits:** say which outfit the mod is for. A mod for the default outfit does not show on another outfit, and the other way round.
+- **Game version:** players use it to tell whether your mod may need a fix after an update.
+
+## Take preview shots
+
+- **Show the mod in game,** at least two shots: for example the front in the character screen and the mod in motion.
+- **Hide or crop your UID** in every screenshot and video. A Hide UID mod is optional, for privacy.
+- **Keep the shots clean.** This wiki covers mods anyone can look at: no suggestive poses or camera angles.
+- **Keep modded shots off official channels.** The official Discord, HoYoLAB and official subreddits remove modded content, and one player was banned from an official Discord for posting it.
+
+{/* SCREENSHOT: genshin-impact-publishing-publishing-checklist-2.webp, a good example preview: a modded character in the character screen at 7.2 with the UID cropped out, next to the same shot with the UID visible marked "do not post" */}
+
+## Credit everyone
+
+- **List everyone who worked on the mod,** with their role: model, textures, `.ini`, testing.
+- **Name the original designer.** The character belongs to HoYoverse. Say so in the credits.
+- **Ask before you reuse parts of someone's mod,** such as a hairstyle, a texture or a toggle setup. Credit them, even when they say yes.
+- **Ask before you combine other people's mods** into a merged mod that you share.
+- **Use your own work, or parts you have permission for.** Do not port models from other games, films or anime.
+
+## Keep it fair
+
+<Callout type="warning" title="Fan work, not a product">
+  HoYoverse's terms allow no commercial use of its characters. Never sell a mod
+  or lock it behind a paywall. Reselling other people's mods, or leaking a mod
+  its creator has not released yet, is treated as piracy in this community.
+</Callout>
+
+- **Paid outfits stay paid.** Each outfit in Genshin Impact is its own model with its own hashes. Never put a paid outfit, or part of one, over its free version or over the Miliastra mannequin.
+- **No leaked content.** Never use models or textures from versions that are not out yet.
+- **Cosmetic only.** A mod changes how things look. Anything that gives an unfair advantage, such as markers for chests or see-through walls, has no place in a mod you share.
+
+## Zip it
+
+1. Right-click the mod's top folder and make a `.zip` or `.7z` with your archive tool.
+2. Do not set a password. Players and download scanners must be able to open it.
+3. Check that the archive holds the top folder, not loose files.
+4. Ship variants, such as other colors or larger textures, as separate archives with clear names.
+5. If the archive gets very large, split it into parts and say in the readme what each part holds.
+
+## Test the archive
+
+Test the file you will share, not the folder on your disk.
+
+1. Move your working copy of the mod out of `Mods`, and turn off every other mod for that character.
+2. Extract the archive into `%AppData%\XXMI Launcher\GIMI\Mods`, as a player would. The path should read `Mods\MonaNoHat\Mona.ini`, with your own names.
+3. Start the game from XXMI Launcher, switch characters, and press `F10`.
+4. Check the mod in the character screen and in motion. Press every key from your readme.
+5. Look for yellow error text or an orange `Possible Mod Conflict` warning.
+
+[Test and reload your mod](/docs/genshin-impact/basics/test-your-mod) explains what each warning means.
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Update your mod after a game update"
+    href="/docs/genshin-impact/publishing/update-your-mod"
+    icon={<Icon name="RefreshCw" />}
+    level="intermediate"
+    featured
+  >
+    Find what an update broke, rebuild, and share the fixed version.
+  </PremiumCard>
+  <PremiumCard
+    title="Add a toggle"
+    href="/docs/genshin-impact/ini/add-a-toggle"
+    icon={<Icon name="ToggleRight" />}
+    level="intermediate"
+  >
+    Let players turn a part on and off with one key.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [LeoTorreZ's modding guides](https://leotorrez.github.io/modding/), for the file types a mod holds and the community's view on paywalls.
+- **Guide:** [Everything mod users should know](https://docs.google.com/document/d/1bEv1Z_KQQ3dbzdK8wmTGRnzD5hSISVYdmmIbgPE502Q) by Anilyan, for asking permission before you share an edit.
+- **Guide:** [Genshin 6.1 Mod Break Info + Rule Updates](https://gamebanana.com/news/21936) by SilentNightSound and Gustav0, for the paid outfit rule.
+- **Tool:** [XXMI Launcher](https://github.com/SpectrumQT/XXMI-Launcher) by SpectrumQT, for the files the launcher refuses and the mod optimizer.

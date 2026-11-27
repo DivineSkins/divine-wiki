@@ -1,0 +1,347 @@
+---
+title: "Model problems in game"
+description: "Your Zenless Zone Zero model mod exports fine but looks wrong in game? Match spikes, vanishing parts and odd outlines to the fix in Blender."
+category: "errors"
+patch: "3.3"
+keywords:
+  [
+    "zzz mod exploded",
+    "vertex groups",
+    "zzz mod outlines",
+    "mod disappears at distance",
+    "xxmi tools model problem",
+  ]
+---
+
+<LevelPill level="intermediate" />
+
+Your model mod exports and loads, but it looks wrong in game. Find what you see below, fix it in Blender, export again and reload. Written for XXMI Tools 1.8.2, ZZMI 1.5.2 and Zenless Zone Zero 3.3.
+
+Export stopped with a message in Blender? Go to [Blender export and import errors](/docs/zenless-zone-zero/errors/creator-errors) instead.
+
+## What you need
+
+<Requirements>
+  <Requirement
+    icon="Box"
+    href="/docs/zenless-zone-zero/tools/blender-add-on"
+    note="1.8.2"
+  >
+    XXMI Tools
+  </Requirement>
+  <Requirement icon="Blender" note="your saved work">
+    Your .blend file
+  </Requirement>
+  <Requirement icon="FolderOpen" note="to compare with">
+    The original dump folder
+  </Requirement>
+</Requirements>
+
+## Check these first
+
+1. **Your mod does not show at all.** Check that its folder is inside `%AppData%\XXMI Launcher\ZZMI\Mods` and that no other mod for that agent or outfit is on. Switch to another agent, press `F10`, then switch back.
+2. **Every modded agent is a mess, not only yours.** That is a game setting or an old mod, not your model. Follow [Mods look broken](/docs/zenless-zone-zero/errors/mods-look-broken).
+3. **Your dump is older than the game.** The asset repo holds dumps from version 3.2. Version 3.3 changed a few hashes, such as the Blend hashes of the `SunnaKfc` outfit, so a mod made from an older dump of them does not show. [Make a frame dump](/docs/zenless-zone-zero/basics/frame-dump) of those yourself.
+4. **Your mod shows, but looks wrong.** Find the symptom in the table. Most broken shapes come from vertex groups. Most wrong colors come from textures, the `COLOR` attribute or UV map names.
+
+Change one thing at a time, then export and press `F10`. Save each try as a new `.blend` file, so you can go back.
+
+## What do you see?
+
+| What you see                                            | Most likely cause                              | Fix                                               |
+| ------------------------------------------------------- | ---------------------------------------------- | ------------------------------------------------- |
+| The whole model explodes into spikes                    | Vertex groups out of order or with gaps        | [Exploded model](#exploded-model)                 |
+| One area stretches, such as a hand or fingers           | Wrong weights in that area                     | [One area stretches](#one-area-stretches)         |
+| Parts are missing or only partly drawn                  | Load timing, or the vertex count in the .ini   | [Missing parts](#missing-parts)                   |
+| The mod vanishes when the camera moves away             | No sections for the distance models            | [Vanishes at a distance](#vanishes-at-a-distance) |
+| The model lies down, turns, or has the wrong size       | Transforms not applied                         | [Wrong angle or size](#wrong-angle-or-size)       |
+| A part you deleted is still there, or a variant is gone | A hidden object at export                      | [Hidden objects](#hidden-objects)                 |
+| Textures are scrambled, blank or white                  | UV map names                                   | [Wrong textures](#wrong-textures)                 |
+| Your parts look rainbow-colored, glossy or flat         | Texture lines in the .ini                      | [Texture lines](#texture-lines)                   |
+| Glow shows in the wrong place                           | Glow textures that do not match your UVs       | [Glow in the wrong place](#wrong-glow)            |
+| Metal shine, dark skin or odd shadows                   | LightMap values or `COLOR`                     | [Wrong shading](#wrong-shading)                   |
+| Thick, thin or missing outlines, or odd shading         | `COLOR` red, `TEXCOORD1.xy`, or outline export | [Outline problems](#outline-problems)             |
+| Holes, see-through spots, or dark faces                 | Flipped normals                                | [Holes and inside-out faces](#holes-and-normals)  |
+| Hair, a coat or a tail does not move                    | Weights on a stiff bone                        | [Parts that do not move](#parts-do-not-move)      |
+| Something else                                          |                                                | [Other problems](#other-problems)                 |
+
+## Shape problems
+
+<Accordions type="multiple">
+<Accordion title="Exploded model" id="exploded-model">
+
+The whole model turns into a mess of spikes and stretched shapes. Old guides call this "completely FUBAR".
+
+{/* SCREENSHOT: zenless-zone-zero-errors-model-problems-2.webp, a Zenless Zone Zero agent in game with a body mod whose vertex groups have a gap, the mesh torn into spikes */}
+
+**Cause:** the vertex groups are missing, out of order, or have a gap. Export reads each group's place in the list, not its name. One missing number shifts every bone after it.
+
+<img
+  src="/wiki-images/zenless-zone-zero-errors-model-problems-1.webp"
+  alt="Two vertex group lists. With groups 0 to 4 in order, each group moves with its own bone. With group 3 missing, group 4 sits in place 3 and moves with bone 3, and every group after the gap moves with the wrong bone"
+/>
+
+**Fix:**
+
+1. Select the object and open the **XXMI Toolbox** panel in the XXMI Tools sidebar.
+2. Click **Merge shared name Vertex Groups**.
+3. Click **Fill gaps in Vertex Groups**.
+4. Check that every group name is a plain number: `0`, `1`, `2` and so on.
+5. In Weight Paint mode, run <MenuPath path="Weights > Normalize All" />.
+6. Export again and press `F10`.
+
+Still exploded? Import the original dump into a new `.blend` and compare its vertex group list with yours.
+
+{/* NEEDS HANDS-ON TEST: carried over from the shared XXMI workflow, check on a Zenless Zone Zero 3.3 agent that a gap in the vertex group list explodes the mesh and that Merge and Fill gaps fix it */}
+
+</Accordion>
+<Accordion title="One area stretches" id="one-area-stretches">
+
+Most of the model is fine, but a hand, fingers or the edge of a sleeve stretches when the agent moves. Old guides call this "slightly FUBAR".
+
+**Cause:** that area got weights from the wrong bone. This happens often where arms or hands sit close to the body when you copy weights.
+
+**Fix:**
+
+1. Copy the weights for that area again from the original, with the **Replace** mix mode.
+2. Smooth the weights there.
+3. Run **Normalize All**, export, and test in motion.
+
+Copying weights works better when your mesh is posed like the original. The weight painting guide under Next steps covers this in full.
+
+</Accordion>
+<Accordion title="Missing parts" id="missing-parts">
+
+Parts of the model are not drawn, or the model collapses into itself.
+
+**Cause 1, load timing:** the agent was on screen when you pressed `F10`. Switch to another agent, press `F10`, and switch back. Or move so the agent is out of the camera's view, or restart the game.
+
+**Cause 2, the vertex count:** the mod's `.ini` tells ZZMI how many vertices to draw. XXMI Tools writes this for you, in the `Draw` line and in a `[TextureOverride...VertexLimitRaise]` section with `override_vertex_count`. It breaks when:
+
+- you changed the mesh but exported with **Write ini** off. Tick **Write ini**, export again, and copy your own `.ini` edits back in.
+- you edited the `.ini` by hand and removed or changed the `VertexLimitRaise` section. Keep that section as the export wrote it.
+
+</Accordion>
+<Accordion title="The mod vanishes at a distance" id="vanishes-at-a-distance">
+
+Your mod shows up close, but the original look comes back when the camera moves away.
+
+**Cause:** far from the camera, the game swaps in simpler distance models, called LODs. They have their own hashes, and the asset repo has no LOD models. Your mod covers only the close-up model.
+
+**Fix:** add sections for the distance models' hashes that run the same lines as your close-up part, for example through one shared `[CommandList...]` section. Find the hashes in a frame dump made with the agent far away. The LOD guide by tifaforever, in Credits, walks through it with scripts that write those sections for you.
+
+{/* NEEDS HANDS-ON TEST: on Zenless Zone Zero 3.3 with ZZMI 1.5.2, that LOD1 and LOD2 sections calling one shared CommandList keep a body mod visible at a distance */}
+
+</Accordion>
+<Accordion title="Wrong angle or size" id="wrong-angle-or-size">
+
+The model lies on its back, faces the wrong way, or is huge or tiny.
+
+**Cause:** the object's rotation or scale was not applied, or your model was built in a different space from the import.
+
+**Fix:**
+
+1. Line your model up with the imported original.
+2. Select it and press `Ctrl+A`, then choose **All Transforms**.
+3. Export again.
+
+The `Zenless Zone Zero` import preset in XXMI Tools 1.8.2 stands the agent upright, so line up with the import instead of rotating by a fixed angle.
+
+{/* NEEDS HANDS-ON TEST: that a new mesh lined up with a XXMI Tools 1.8.2 Zenless Zone Zero preset import, with all transforms applied, shows the right way up in game */}
+
+</Accordion>
+<Accordion title="Hidden objects" id="hidden-objects">
+
+A part you removed is still in game, or a variant you made is missing.
+
+**Cause:** **Ignore hidden objects** is on by default, so export skips every hidden object. If you hid your new mesh and left a copy visible, export used the copy.
+
+**Fix:** before you export, check the eye icon of every object in the Outliner. Show the objects you want, and hide or delete spare copies.
+
+</Accordion>
+</Accordions>
+
+## Color and texture problems
+
+<Accordions type="multiple">
+<Accordion title="Wrong textures" id="wrong-textures">
+
+Textures look scrambled, sit in the wrong place, or show plain white or flat color.
+
+**Cause:** a UV map has the wrong name, or joining two pieces added a second UV map. When pieces with different UV map names are joined with `Ctrl+J`, Blender keeps both maps and the game reads only one.
+
+**Fix:**
+
+1. Before you join pieces, rename their UV maps to the same names, such as `TEXCOORD.xy`.
+2. Already joined? Press `Ctrl+Z` to undo the join, rename the maps, and join again.
+3. Check that the mod folder holds your new textures, not the old ones.
+
+</Accordion>
+<Accordion title="Rainbow, glossy or flat textures on your parts" id="texture-lines">
+
+Your own parts look like a mess of colors, far too shiny, or flat with no surface detail, while other mods look fine.
+
+**Cause:** the texture lines in your `.ini`. In this game every part hands its textures to SlotFix, the texture library inside ZZMI. Texture hash sections and `ps-t3` slot lines break, and a live `run = CommandListSkinTexture` line flattens the normal maps.
+
+**Fix:**
+
+1. Export again with **Write ini** on, and compare your part sections with the fresh export.
+2. Keep each `Resource\ZZMI\...` line, then `run = CommandList\ZZMI\SetTextures`, before `drawindexed`.
+3. Delete texture hash sections. Put any `run = CommandListSkinTexture` line inside `if 0 == 1` and `endif`, so it never runs.
+
+[Make textures survive game updates](/docs/zenless-zone-zero/textures/stable-textures) lists every SlotFix slot name.
+
+</Accordion>
+<Accordion title="Glow in the wrong place" id="wrong-glow">
+
+A glow shows on the wrong spot, such as the signature W-Engine glow on the belly, or a face glows too bright.
+
+**Cause:** you changed the part's UVs, but it still uses the game's glow textures, made for the old UVs. A face that glows uses the wrong texture.
+
+**Fix:**
+
+- Give the part glow textures that match your new UVs.
+- Or turn the glow off by pointing its slot at the empty glow map: `Resource\ZZMI\WengineFx = ref Resource\ZZMI\EmptyGlowMap`.
+- For a glowing face, use the face's own diffuse texture.
+
+[Add glow and see-through parts](/docs/zenless-zone-zero/effects/glow-and-transparency) explains the glow slots.
+
+</Accordion>
+<Accordion title="Wrong shading" id="wrong-shading">
+
+These channel meanings are community understanding and may be incomplete. Copy the channels you do not need to change from the original.
+
+- **Metal shine or gloss where it should not be:** the LightMap's green channel holds metal and its blue channel gloss. Pick the LightMap colors from the same material on the original, and paint with those.
+- **Skin or cloth too dark, or wrong shadow bands:** the LightMap's red channel sets the shadow steps. Pick the original's LightMap colors for that area.
+- **Odd shadows on the body:** `COLOR` blue is hair shadow and should be `0` on the body. Copy `COLOR` from the original part with a Data Transfer modifier.
+- **A new piece with odd outlines and shading:** a new `COLOR` attribute starts black. Copy `COLOR` from the original part.
+
+{/* NEEDS HANDS-ON TEST: on Zenless Zone Zero 3.3, that LightMap green and blue change metal and gloss, and LightMap red the shadow steps, as the 2024 channel guide describes */}
+
+</Accordion>
+<Accordion title="Outline problems" id="outline-problems">
+
+**Outlines too thick, too thin, or blotchy:** in this game the red channel of `COLOR` sets outline thickness. Copy `COLOR` from a part with good outlines, usually the original, with a Data Transfer modifier. Or set red to a flat mid-grey, hex `80`. Type hex values: the **Reset Vertex Colors** button sets red to full, which is too thick here.
+
+**Outlines or shading wrong across the whole mesh:** export again with **Outline Optimization** off, and compare. The UV maps page, linked below, says when to keep it on.
+
+**A new piece shades differently from the rest:** its `TEXCOORD1.xy` holds outline data, and on new mesh that data is random. Keep **Outline Optimization** on, so export rebuilds it. Or scale that UV map to the top-left corner, point `0, 0`.
+
+**Outlines missing:** check for flipped normals, in the next section. Update XXMI Tools: versions before 1.7.0 could export with no outlines when **Outline Optimization** was on.
+
+[UV maps, vertex colors, and outlines](/docs/zenless-zone-zero/models/uvs-and-vertex-colors) shows each step.
+
+</Accordion>
+</Accordions>
+
+## Mesh surface problems
+
+<Accordions type="multiple">
+<Accordion title="Holes and inside-out faces" id="holes-and-normals">
+
+**See-through spots, dark faces, or faces you can see from the inside:** the normals are flipped.
+
+1. Turn on the **Face Orientation** overlay. Flipped faces show red.
+2. In Edit Mode, select those faces and press `Alt+N`.
+3. Choose **Recalculate Outside**, or **Flip** for single faces. Apply all transforms first.
+
+**Real holes or gaps:** a mirror or a deleted part left an opening. Select the edges around it and press `F` to fill it. Check both sides of the model.
+
+</Accordion>
+<Accordion title="Seams or a faceted look after editing" id="seams">
+
+You merged vertices or sculpted, and now the shading shows hard lines or flat faces.
+
+**Fix:** merge with **Merge by Distance** and its **Sharp Edges** option on, so the edges the game needs stay split. Then use **Smooth Normals** on the area.
+
+</Accordion>
+<Accordion title="Clipping through clothes" id="clipping">
+
+The body pokes through clothing when the agent moves.
+
+**Fix:**
+
+- Delete the body faces hidden under the clothes.
+- Add a small Displace modifier, about `0.001`, to tight clothes.
+- Give the body and the clothes the same weights in that area.
+
+</Accordion>
+<Accordion title="Parts that do not move" id="parts-do-not-move">
+
+Hair, a coat or a tail stays stiff while the agent runs.
+
+**Cause:** the part is weighted to a body bone instead of the bones that make it swing.
+
+**Fix:** copy the weights from the matching part of the original, such as its hair or coat, so your part uses the same swinging bones.
+
+</Accordion>
+</Accordions>
+
+## Other problems
+
+<Accordions type="multiple">
+<Accordion title="The face breaks or loses its expressions" id="face">
+
+Face meshes cannot be edited in this game: faces move with shape keys, and a changed face mesh loses its expressions. Leave face parts out of your mod. Face textures can be changed.
+
+</Accordion>
+<Accordion title="A part should be see-through but is not" id="should-be-transparent">
+
+Blender's material settings do not reach the game. See-through parts need `.ini` lines: TTLib, the see-through library inside ZZMI, or a blend shader like the one the glasses lenses use in Add or swap clothing parts. On some models, such as glasses, the red channel of the MaterialMap is the see-through mask. The glow and see-through page, linked above, shows both.
+
+</Accordion>
+<Accordion title="Your mod shows on another agent too" id="shows-on-another-agent">
+
+Your mod, or one you based it on, draws the mesh through a Position hash. Some agents share a Position hash, such as Jane and Lucy, so the mod shows on both. XXMI Tools hooks the mesh by its Blend hash: keep the sections the export wrote. [Fix an old mod by hand](/docs/zenless-zone-zero/ini/fix-an-old-mod) shows how to move an old section to the Blend hash.
+
+</Accordion>
+<Accordion title="Your edited textures were replaced after a new export" id="textures-overwritten">
+
+Older exporters copied the original textures over yours on every export. XXMI Tools 1.8.2 skips files that already exist. Still, turn **Mod textures** off after your first export.
+
+</Accordion>
+<Accordion title="Wild geometry after a hand edit of the .ini" id="hand-edited-ini">
+
+Mixed-up shapes after you edited the `.ini` by hand usually mean a wrong stride, a hash in the wrong section, or index and vertex buffers that do not match. Export again from Blender, then redo your `.ini` edits one at a time. [How a mod .ini works](/docs/zenless-zone-zero/ini/how-a-mod-ini-works) explains each line.
+
+</Accordion>
+<Accordion title="Slow game with your mod on" id="heavy-mesh">
+
+Stay close to the original vertex count. Meshes with hundreds of thousands of vertices cost performance.
+
+</Accordion>
+</Accordions>
+
+## Next steps
+
+<CardGrid>
+  <PremiumCard
+    title="Weight paint a mesh"
+    href="/docs/zenless-zone-zero/models/weight-painting"
+    icon={<Icon name="Brush" />}
+    level="intermediate"
+    featured
+  >
+    Copy weights from the original and fix the areas that stretch.
+  </PremiumCard>
+  <PremiumCard
+    title="Test and reload your mod"
+    href="/docs/zenless-zone-zero/basics/test-your-mod"
+    icon={<Icon name="RefreshCw" />}
+    level="beginner"
+  >
+    Reload with F10, compare with the original, and read ZZMI's warnings.
+  </PremiumCard>
+</CardGrid>
+
+## Credits
+
+This guide is based on the work of these creators. Check out their original guides.
+
+- **Guide:** [Fixing mods](https://leotorrez.github.io/modding/guides/troubleshooting) by LeoTorreZ and contributors.
+- **Guide:** [Correctly Importing and Exporting with Blender](https://gamebanana.com/tuts/18033) by hazelberry.
+- **Guide:** [Best Way to Replace Textures - SlotFix Guide](https://gamebanana.com/tuts/18114) by hazelberry.
+- **Guide:** [ZZZ Textures and properties](https://leotorrez.github.io/modding/guides/zzz-textures) by leotorrez.
+- **Guide:** [Enable LOD Models to Load High-Precision Models](https://gamebanana.com/tuts/18763) by tifaforever.
+- **Guide:** [Fixing incompatible Mods (Like JaneDoe and Lucy)](https://gamebanana.com/tuts/18018) by Zlyden.
+- **Tool:** [XXMI Tools](https://github.com/leotorrez/XXMITools) by LeoTorreZ and contributors.

@@ -56,6 +56,51 @@ const GAME_SEO_OVERRIDES: Record<string, Partial<GameSeo>> = {
       "celestial launcher",
     ],
   },
+  "genshin-impact": {
+    short: "Genshin",
+    mentioned: /\bgenshin\b/i,
+    keywords: [
+      "genshin impact",
+      "genshin mods",
+      "genshin impact modding",
+      "gimi",
+      "xxmi launcher",
+    ],
+  },
+  "honkai-star-rail": {
+    short: "Star Rail",
+    mentioned: /\b(star rail|hsr)\b/i,
+    keywords: [
+      "honkai star rail",
+      "star rail mods",
+      "hsr mods",
+      "honkai star rail modding",
+      "srmi",
+      "xxmi launcher",
+    ],
+  },
+  "zenless-zone-zero": {
+    short: "ZZZ",
+    mentioned: /\b(zenless|zzz)\b/i,
+    keywords: [
+      "zenless zone zero",
+      "zzz mods",
+      "zenless zone zero modding",
+      "zzmi",
+      "xxmi launcher",
+    ],
+  },
+  "wuthering-waves": {
+    short: "WuWa",
+    mentioned: /\b(wuthering waves|wuwa)\b/i,
+    keywords: [
+      "wuthering waves",
+      "wuwa mods",
+      "wuthering waves modding",
+      "wwmi",
+      "xxmi launcher",
+    ],
+  },
 };
 
 /**
