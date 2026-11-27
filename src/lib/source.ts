@@ -1,4 +1,4 @@
-import { docs } from "fumadocs-mdx:collections/server";
+import { docs } from "fumadocs-mdx:collections/dynamic";
 import { type InferPageType, loader } from "fumadocs-core/source";
 import type { Node } from "fumadocs-core/page-tree";
 import { DEFAULT_GAME, GAMES } from "@/lib/games";
