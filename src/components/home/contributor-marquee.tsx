@@ -9,8 +9,8 @@ import { MarqueeViewport } from "./marquee-viewport";
 // 180px column of avatar, name and count on a Card.
 const CARD_WIDTH = 180;
 const GAP = 16;
-/** px per second, the site's MarqueeRow default. */
-const SPEED = 40;
+/** px per second. Slower than the site's MarqueeRow (40): easier to read. */
+const SPEED = 28;
 
 const CARD =
   "group flex h-full flex-col items-center px-4 pt-5 pb-4 text-center";

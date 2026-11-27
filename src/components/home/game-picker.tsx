@@ -2,11 +2,15 @@ import Link from "next/link";
 import { BookOpenIcon } from "lucide-react";
 import type { GameEntry } from "@/lib/games";
 import { cn } from "@/lib/utils";
+import { AutoScrollRow } from "./auto-scroll-row";
 import { TiltCard } from "./tilt-card";
 
 // The divineskins.gg hero game cards (its PopularGamesRow), with the wiki's
 // guide count where the site shows downloads and mods.
 const ASSETS = "/brand/hero";
+
+/** px per second when the row is too wide for its box and scrolls itself. */
+const SPEED = 16;
 
 const CARD = "flex w-[178px] shrink-0 flex-col items-center gap-2 py-px";
 const FACE =
@@ -96,10 +100,20 @@ function ComingSoonCard({
   );
 }
 
-function LiveCard({ game, href }: { game: GameEntry; href: string }) {
+function LiveCard({
+  game,
+  href,
+  copy,
+}: {
+  game: GameEntry;
+  href: string;
+  /** In the row's second copy: clickable, but not a second tab stop. */
+  copy?: boolean;
+}) {
   return (
     <Link
       href={href}
+      tabIndex={copy ? -1 : undefined}
       className={cn(CARD, "group rounded-xl no-underline outline-none")}
     >
       <TiltCard className="h-[236px] w-[178px] shrink-0" artClassName={FACE}>
@@ -128,9 +142,13 @@ function LiveCard({ game, href }: { game: GameEntry; href: string }) {
   );
 }
 
+const LIST = "flex w-max shrink-0 items-center gap-[14px]";
+
 /**
  * The homepage game row, from `listGames()`. A live game links to its docs
- * segment; the rest show toned-down art.
+ * segment; the rest show toned-down art. When the cards don't fit the box,
+ * the row scrolls itself slowly in a loop (AutoScrollRow), which is what the
+ * second, hidden copy of the list is for.
  */
 export function GamePicker({
   games,
@@ -139,29 +157,44 @@ export function GamePicker({
   games: GameEntry[];
   comingSoon: string;
 }) {
+  const cards = (copy: boolean) =>
+    games.map((game) => (
+      <li key={game.slug}>
+        {game.href ? (
+          <LiveCard game={game} href={game.href} copy={copy} />
+        ) : (
+          <ComingSoonCard
+            slug={game.slug}
+            name={game.name}
+            cover={game.cover}
+            label={comingSoon}
+            status={game.status}
+          />
+        )}
+      </li>
+    ));
+
   return (
     // The 12px and 8px padding, cancelled by the negative margin, keeps the
     // hover tilt from being clipped by the scrolling row. Centered through
-    // `mx-auto` on a max-content row, so a row wider than the screen still
-    // scrolls from its first card.
-    <div className="-m-3 flex w-[calc(100%+24px)] [scrollbar-width:none] overflow-x-auto px-2 py-3">
-      <ul className="mx-auto flex w-max items-center gap-[14px]">
-        {games.map((game) => (
-          <li key={game.slug}>
-            {game.href ? (
-              <LiveCard game={game} href={game.href} />
-            ) : (
-              <ComingSoonCard
-                slug={game.slug}
-                name={game.name}
-                cover={game.cover}
-                label={comingSoon}
-                status={game.status}
-              />
-            )}
-          </li>
-        ))}
+    // `mx-auto` on a max-content list, so a row wider than the screen still
+    // starts from its first card. The edges fade only while it scrolls.
+    <AutoScrollRow
+      speed={SPEED}
+      className={cn(
+        "group/row -m-3 flex w-[calc(100%+24px)] gap-[14px] overflow-x-auto px-2 py-3",
+        // A focused card stops clear of the faded edges.
+        "scroll-px-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        "data-[scrolling]:[mask-image:linear-gradient(to_right,transparent,#000_24px,#000_calc(100%_-_24px),transparent)]",
+      )}
+    >
+      <ul className={cn(LIST, "mx-auto")}>{cards(false)}</ul>
+      <ul
+        aria-hidden
+        className={cn(LIST, "hidden group-data-[scrolling]/row:flex")}
+      >
+        {cards(true)}
       </ul>
-    </div>
+    </AutoScrollRow>
   );
 }
